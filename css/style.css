@@ -185,9 +185,36 @@
     font-family:'Jost',sans-serif;font-weight:300;
   }
   .lightbox-close:hover{color:var(--orange);}
+
+  /* ---------- COMPARISON (bilan de compétences) ---------- */
+  .solution-subhead{
+    font-size:clamp(24px,3vw,32px);
+    font-style:italic;
+    max-width:20ch;
+    margin:70px auto 26px;
+  }
+  .comparison-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    border:1px solid var(--line);
+    margin:40px 0 70px;
+  }
+  .comparison-col{padding:36px 32px;text-align:left;}
+  .comparison-col.classic{background:var(--cream);}
+  .comparison-col.mh{background:var(--blush);border-left:1px solid var(--line);}
+  .comparison-col h4{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    font-size:20px;margin-bottom:20px;
+  }
+  .comparison-col.classic h4{color:var(--ink-soft);}
+  .comparison-col.mh h4{color:var(--orange-deep);}
+  .comparison-col ul{list-style:none;padding:0;margin:0;}
+  .comparison-col li{font-size:14.5px;color:var(--ink-soft);margin-bottom:14px;padding-left:26px;position:relative;line-height:1.5;}
+  .comparison-col.classic li::before{content:'✕';position:absolute;left:0;top:0;color:var(--ink-soft);opacity:0.5;}
+  .comparison-col.mh li::before{content:'✓';position:absolute;left:0;top:0;color:var(--orange-deep);}
+
   .pillars{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:40px;
     text-align:left;
   }
@@ -282,7 +309,8 @@
 
   /* ---------- AUDIENCE ---------- */
   .audience{padding:120px 0;text-align:center;}
-  .audience h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:16ch;margin:0 auto 60px;}
+  .audience h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:16ch;margin:0 auto 26px;}
+  .audience-intro{max-width:56ch;margin:0 auto 60px;color:var(--ink-soft);font-size:16px;}
   .audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;text-align:left;margin-bottom:50px;}
   .audience-card h3{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:23px;margin-bottom:14px;}
   .audience-card p{font-size:15.5px;color:var(--ink-soft);}
@@ -394,4 +422,6 @@
     .tier-grid{grid-template-columns:1fr;}
     .audience-grid{grid-template-columns:1fr;}
     .video-grid{grid-template-columns:1fr;}
+    .comparison-grid{grid-template-columns:1fr;}
+    .comparison-col.mh{border-left:none;border-top:1px solid var(--line);}
   }
