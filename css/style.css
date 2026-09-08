@@ -153,7 +153,38 @@
     color:var(--ink-soft);
     margin:0 auto 50px;
   }
-  .ikigai-diagram{max-width:480px;margin:0 auto 80px;}
+  .ikigai-diagram{max-width:480px;margin:0 auto 80px;position:relative;}
+  .ikigai-diagram img{cursor:zoom-in;transition:opacity .2s ease;}
+  .ikigai-diagram:hover img{opacity:0.92;}
+  .ikigai-diagram .zoom-hint{
+    display:block;margin-top:14px;font-size:12.5px;color:var(--ink-soft);
+    letter-spacing:0.03em;font-style:italic;
+  }
+
+  /* ---------- LIGHTBOX ---------- */
+  .lightbox{
+    display:none;position:fixed;inset:0;z-index:200;
+    background:rgba(58,47,36,0.92);
+    align-items:center;justify-content:center;
+    padding:60px 40px;overflow:auto;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox img{
+    max-width:90vw;max-height:80vh;margin:auto;
+    cursor:zoom-in;transition:transform .25s ease;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  }
+  .lightbox img.zoomed{
+    max-width:none;max-height:none;width:min(1400px,180vw);
+    cursor:zoom-out;
+  }
+  .lightbox-close{
+    position:fixed;top:22px;right:28px;z-index:201;
+    background:none;border:none;color:var(--cream);
+    font-size:38px;line-height:1;cursor:pointer;
+    font-family:'Jost',sans-serif;font-weight:300;
+  }
+  .lightbox-close:hover{color:var(--orange);}
   .pillars{
     display:grid;
     grid-template-columns:repeat(4,1fr);
