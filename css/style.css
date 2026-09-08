@@ -135,6 +135,9 @@
   }
   .problem p{margin-bottom:18px;color:var(--ink-soft);font-size:16.5px;}
   .problem p b{color:var(--ink);font-weight:500;}
+  .profile-item{display:flex;align-items:flex-start;gap:16px;}
+  .profile-icon{height:52px;width:auto;flex-shrink:0;margin-top:2px;}
+  .profile-item p{margin-bottom:18px;}
 
   /* ---------- SOLUTION ---------- */
   .solution{
@@ -212,6 +215,7 @@
   .comparison-col li{font-size:14.5px;color:var(--ink-soft);margin-bottom:14px;padding-left:26px;position:relative;line-height:1.5;}
   .comparison-col.classic li::before{content:'✕';position:absolute;left:0;top:0;color:var(--ink-soft);opacity:0.5;}
   .comparison-col.mh li::before{content:'✓';position:absolute;left:0;top:0;color:var(--orange-deep);}
+  .comparison-icon{height:74px;width:auto;margin-bottom:16px;}
 
   .pillars{
     display:grid;
@@ -219,6 +223,7 @@
     gap:40px;
     text-align:left;
   }
+  .pillar-icon{height:96px;width:auto;margin-bottom:20px;}
   .pillar .script{font-size:22px;margin-bottom:14px;display:block;}
   .pillar h3{font-size:24px;font-style:italic;margin-bottom:10px;}
   .pillar p{font-size:15px;color:var(--ink-soft);}
@@ -289,6 +294,7 @@
   .step{display:grid;grid-template-columns:70px 1fr;gap:24px;padding:32px 0;border-top:1px solid var(--line);}
   .step:last-child{border-bottom:1px solid var(--line);}
   .step .n{font-family:'Caveat',cursive;font-size:34px;color:var(--orange);font-weight:600;}
+  .step-icon{height:60px;width:auto;margin-bottom:12px;}
   .step h3{font-size:21px;font-style:italic;margin-bottom:8px;}
   .step p{font-size:15px;color:var(--ink-soft);}
 
