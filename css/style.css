@@ -261,6 +261,17 @@
     color:var(--orange-deep);
     margin-bottom:70px;
   }
+  .testimonial-photos{display:flex;flex-direction:column;gap:44px;max-width:720px;margin:0 auto 80px;}
+  .testimonial-photo-card{display:flex;gap:26px;align-items:flex-start;text-align:left;}
+  .testimonial-photo-card .photo{
+    width:84px;height:84px;border-radius:50%;overflow:hidden;flex-shrink:0;
+    background:linear-gradient(160deg,var(--sand),var(--blush));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:28px;color:var(--orange-deep);
+  }
+  .testimonial-photo-card .photo img{width:100%;height:100%;object-fit:cover;}
+  .testimonial-photo-card p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;line-height:1.55;color:var(--ink);margin-bottom:10px;}
+  .testimonial-photo-card cite{font-style:normal;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;color:var(--orange-deep);}
   .t-list{display:flex;flex-direction:column;gap:60px;max-width:720px;margin:0 auto;}
   .t-item{text-align:left;}
   .t-item.center{text-align:center;}
