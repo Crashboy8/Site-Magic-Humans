@@ -1,0 +1,24 @@
+<svg viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" font-family="Jost, sans-serif">
+  <circle cx="280" cy="205" r="190" fill="#E2683A" fill-opacity="0.16" stroke="#C4501F" stroke-width="1.5"/>
+  <circle cx="205" cy="280" r="190" fill="#E2683A" fill-opacity="0.16" stroke="#C4501F" stroke-width="1.5"/>
+  <circle cx="355" cy="280" r="190" fill="#E2683A" fill-opacity="0.16" stroke="#C4501F" stroke-width="1.5"/>
+  <circle cx="280" cy="355" r="190" fill="#E2683A" fill-opacity="0.16" stroke="#C4501F" stroke-width="1.5"/>
+
+  <text x="280" y="42" text-anchor="middle" font-size="19" font-weight="500" fill="#3A2F24">Ce que vous aimez</text>
+  <text x="490" y="270" text-anchor="middle" font-size="19" font-weight="500" fill="#3A2F24">
+    <tspan x="490" dy="0">Ce dont le</tspan>
+    <tspan x="490" dy="23">monde a besoin</tspan>
+  </text>
+  <text x="280" y="530" text-anchor="middle" font-size="19" font-weight="500" fill="#3A2F24">Ce pour quoi vous êtes payé</text>
+  <text x="70" y="270" text-anchor="middle" font-size="19" font-weight="500" fill="#3A2F24">
+    <tspan x="70" dy="0">Ce pour quoi</tspan>
+    <tspan x="70" dy="23">vous êtes doué</tspan>
+  </text>
+
+  <text x="220" y="195" text-anchor="middle" font-size="17" font-style="italic" font-family="Cormorant Garamond, serif" fill="#C4501F">Passion</text>
+  <text x="340" y="195" text-anchor="middle" font-size="17" font-style="italic" font-family="Cormorant Garamond, serif" fill="#C4501F">Vocation</text>
+  <text x="220" y="375" text-anchor="middle" font-size="17" font-style="italic" font-family="Cormorant Garamond, serif" fill="#C4501F">Profession</text>
+  <text x="340" y="375" text-anchor="middle" font-size="17" font-style="italic" font-family="Cormorant Garamond, serif" fill="#C4501F">Mission</text>
+
+  <text x="280" y="288" text-anchor="middle" font-size="26" font-style="italic" font-family="Cormorant Garamond, serif" font-weight="600" fill="#3A2F24">Ikigaï</text>
+</svg>
