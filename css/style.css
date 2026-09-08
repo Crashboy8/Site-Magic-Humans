@@ -235,7 +235,7 @@
   .not-for{max-width:640px;margin:0 auto;font-size:14.5px;color:var(--ink-soft);font-style:italic;}
 
   /* ---------- TESTIMONIALS ---------- */
-  .testimonials{padding:130px 0;text-align:center;}
+  .testimonials{padding:130px 0;text-align:center;scroll-margin-top:100px;}
   .testimonials h2{font-size:clamp(28px,3.8vw,40px);font-style:italic;max-width:16ch;margin:0 auto 70px;}
   .t-list{display:flex;flex-direction:column;gap:60px;max-width:720px;margin:0 auto;}
   .t-item{text-align:left;}
@@ -273,22 +273,18 @@
   .final-cta p{max-width:50ch;margin:0 auto 38px;font-size:16.5px;color:rgba(251,247,240,0.78);}
   .final-cta .reassure{margin-top:22px;font-size:13px;color:rgba(251,247,240,0.6);font-style:italic;}
 
-  /* ---------- SECONDARY PAGE HEADER ---------- */
-  .page-header{padding:100px 0 20px;text-align:center;}
-  .page-header .script{display:block;margin-bottom:18px;}
-  .page-header h1{
-    font-size:clamp(36px,5.5vw,58px);
-    font-style:italic;
-    max-width:18ch;
-    margin:0 auto 20px;
-  }
-  .page-header p{max-width:52ch;margin:0 auto;color:var(--ink-soft);font-size:17px;}
-
   /* ---------- VIDEO TESTIMONIALS ---------- */
-  .videos{padding:80px 0 60px;}
-  .video-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;}
+  .video-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-bottom:80px;text-align:center;}
+  .video-card .theme{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:20px;
+    line-height:1.35;
+    color:var(--ink);
+    margin-bottom:18px;
+  }
   .video-card video{width:100%;height:auto;display:block;background:var(--ink);border:1px solid var(--line);}
-  .video-card .name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;margin-top:18px;text-align:center;}
+  .video-card cite{display:block;font-style:normal;font-size:13.5px;letter-spacing:0.05em;text-transform:uppercase;color:var(--orange-deep);margin-top:16px;}
   .video-card .pending{
     aspect-ratio:3/4;
     background:var(--sand);
