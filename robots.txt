@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://crashboy8.github.io/Site-Magic-Humans/sitemap.xml
