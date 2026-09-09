@@ -11,9 +11,9 @@ Landing page de Pierre Sarazin / Magic Humans, coaching de "Talent Unique". Le b
 │   └── style.css            # Toute la direction artistique (couleurs, typographies, mise en page)
 ├── assets/
 │   └── img/
-│       ├── hero.jpg          # Photo pleine largeur du hero
-│       ├── problem.jpg        # Photo de la section "Problème"
-│       ├── authority.jpg      # Portrait de la section "Qui suis-je"
+│       ├── hero.webp          # Photo pleine largeur du hero
+│       ├── problem.webp       # Photo de la section "Problème"
+│       ├── authority.webp     # Portrait de la section "Qui suis-je"
 │       └── logos/            # Les 14 logos clients du bandeau défilant
 └── .github/workflows/deploy.yml   # Déploiement automatique sur GitHub Pages
 ```
@@ -49,7 +49,7 @@ Si une URL de prévisualisation par branche (avant fusion dans `main`) est préf
 
 ## Prochaines étapes (itération)
 
-- **Photos** : remplacer `assets/img/hero.jpg`, `problem.jpg`, `authority.jpg` par de nouvelles photos si besoin (même nom de fichier ou mettre à jour la référence dans `index.html`).
+- **Photos** : remplacer `assets/img/hero.webp`, `problem.webp`, `authority.webp` par de nouvelles photos si besoin (même nom de fichier ou mettre à jour la référence dans `index.html`).
 - **Logos manquants** : Deloitte, Le Selman Marrakech, Fairmont Monaco, Chabé Paris ne sont pas encore dans `assets/img/logos/` — à ajouter dès que les fichiers sont disponibles (voir balises `<img>` dans la section "CLIENTS" de `index.html`).
 - **Prix des offres** : actuellement aucun prix n'est affiché sur les 4 formules (volontaire, pour préserver la vente en échange humain) — à revoir si la stratégie change.
 - **Témoignages vidéo** : à intégrer quand disponibles.
