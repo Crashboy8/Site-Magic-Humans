@@ -104,6 +104,23 @@
     max-width:26ch;
     margin:0 auto 24px;
   }
+  .hero h1.hero-losange{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    max-width:22em;
+    margin-inline:auto;
+    line-height:1.25;
+  }
+  .hero-losange__line{
+    display:block;
+    white-space:nowrap;
+  }
+  @media (max-width:640px){
+    .hero h1.hero-losange{max-width:100%;padding-inline:1rem;}
+    .hero-losange__line{white-space:normal;}
+  }
   .hero-reframe{
     font-family:'Cormorant Garamond',serif;
     font-style:italic;
