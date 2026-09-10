@@ -273,6 +273,16 @@
   .audience-card ul{margin:0;padding-left:20px;}
   .audience-card ul li{font-size:15.5px;color:var(--ink-soft);margin-bottom:10px;}
 
+  /* ---------- VIDEO ---------- */
+  .video-feature{padding:130px 0;text-align:center;background:var(--blush);}
+  .video-feature h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:20ch;margin:0 auto 14px;}
+  .video-feature-subtitle{color:var(--ink-soft);font-size:16px;margin-bottom:50px;}
+  .video-embed{
+    aspect-ratio:16/9;width:100%;max-width:860px;margin:0 auto 40px;
+    overflow:hidden;background:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,0.15);
+  }
+  .video-embed iframe{width:100%;height:100%;border:0;display:block;}
+
   /* ---------- PROOF CARDS ---------- */
   .proof{padding:130px 0;text-align:center;}
   .proof h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:20ch;margin:0 auto 60px;}
