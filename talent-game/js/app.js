@@ -28,38 +28,99 @@ Profil orienté vers l'accompagnement individuel et l'écoute profonde. Grande s
 const App = {
   state: {
     user: null,
-    view: 'import',
+    view: 'login',
     onboardingIndex: 0,
     activeTab: 'dashboard',
     tempCategories: [],
     tempList: [],
-    tempChoice: ''
+    tempChoice: '',
+    magicLinkSent: false,
+    magicLinkEmail: '',
+    loginError: null
   },
 
   init() {
-    const user = Store.load();
-    if (user) {
+    let initialized = false;
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      const wasLoggedIn = !!Auth.currentUser;
+      Auth.currentUser = session ? { id: session.user.id, email: session.user.email } : null;
+
+      if (!initialized) {
+        initialized = true;
+        if (Auth.currentUser) this._loadUserData();
+        else { this.state.view = 'login'; this.render(); }
+        return;
+      }
+      if (Auth.currentUser && !wasLoggedIn) {
+        this._loadUserData();
+      } else if (!Auth.currentUser && wasLoggedIn) {
+        this.state.user = null;
+        this.state.view = 'login';
+        this.state.magicLinkSent = false;
+        this.render();
+      }
+    });
+  },
+
+  async _loadUserData() {
+    try {
+      const user = await Store.load();
       this.state.user = user;
-      if (!user.onboarding_complete) {
-        if (user.onboarding_at_recap) {
-          this.state.view = 'onboarding-recap';
+      if (user) {
+        if (!user.onboarding_complete) {
+          if (user.onboarding_at_recap) {
+            this.state.view = 'onboarding-recap';
+          } else {
+            this.state.view = 'onboarding';
+            this.state.onboardingIndex = user.onboarding_step || 0;
+            this._prepareTempStateForStep(this.state.onboardingIndex);
+          }
         } else {
-          this.state.view = 'onboarding';
-          this.state.onboardingIndex = user.onboarding_step || 0;
-          this._prepareTempStateForStep(this.state.onboardingIndex);
+          this.state.view = 'app';
         }
       } else {
-        this.state.view = 'app';
+        this.state.view = 'import';
       }
+    } catch (e) {
+      console.error('Chargement des données impossible', e);
+      this.state.loginError = "Impossible de charger ta sauvegarde. Réessaie dans un instant.";
+      this.state.view = 'login';
     }
     this.render();
+  },
+
+  // ---------- Connexion (magic link) ----------
+
+  async submitMagicLink(formEl) {
+    const email = (new FormData(formEl).get('email') || '').trim();
+    if (!email) return;
+    this.state.loginError = null;
+    const error = await Auth.sendMagicLink(email);
+    if (error) {
+      this.state.loginError = "Impossible d'envoyer le lien. Vérifie l'adresse et réessaie.";
+      console.error('sendMagicLink', error);
+    } else {
+      this.state.magicLinkSent = true;
+      this.state.magicLinkEmail = email;
+    }
+    this.render();
+  },
+
+  backToLoginForm() {
+    this.state.magicLinkSent = false;
+    this.render();
+  },
+
+  async signOut() {
+    await Auth.signOut();
   },
 
   render() {
     const root = document.getElementById('app');
     if (!root) return;
     try {
-      if (this.state.view === 'import') root.innerHTML = this._renderImport();
+      if (this.state.view === 'login') root.innerHTML = Auth.renderLogin(this.state);
+      else if (this.state.view === 'import') root.innerHTML = this._renderImport();
       else if (this.state.view === 'onboarding') root.innerHTML = this._renderOnboarding();
       else if (this.state.view === 'onboarding-recap') root.innerHTML = this._renderOnboardingRecap();
       else root.innerHTML = this._renderApp();
@@ -76,18 +137,14 @@ const App = {
     return `
       <div class="import-shell">
         <h1 class="hero-title">Oups, ça a buggé</h1>
-        <p class="hero-sub">Quelque chose s'est mal passé avec la sauvegarde locale. Tu peux repartir de zéro sans rien perdre d'important.</p>
-        <button class="btn-primary" onclick="App.hardReset()">Recommencer</button>
+        <p class="hero-sub">Quelque chose s'est mal passé. Tu peux te reconnecter sans rien perdre : ta sauvegarde est sur le serveur, pas dans ce navigateur.</p>
+        <button class="btn-primary" onclick="App.hardReset()">Se reconnecter</button>
       </div>
     `;
   },
 
   hardReset() {
-    Store.clear();
-    this.state.user = null;
-    this.state.view = 'import';
-    this.state.onboardingIndex = 0;
-    this.render();
+    Auth.signOut();
   },
 
   // ---------- Import ----------

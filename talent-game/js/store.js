@@ -1,10 +1,12 @@
 /**
- * Couche de persistance. Interface volontairement minimale pour pouvoir être
- * remplacée par un client Supabase plus tard sans toucher au reste de l'app :
- * il suffira de réimplémenter load/save/clear en async et d'adapter les
- * quelques `await` dans app.js.
+ * Couche de persistance — Supabase (table `players`, une ligne par joueur,
+ * profil + progression en JSONB). `save()` reste volontairement synchrone
+ * dans sa signature (écriture en tâche de fond, sans bloquer l'UI) pour ne
+ * rien changer aux dizaines d'appels `Store.save(u); this.render();` déjà
+ * présents dans app.js. Seul `load()` est asynchrone, et n'est appelé qu'une
+ * fois, juste après authentification.
  */
-const STORAGE_KEY = 'talentGame:user';
+const PLAYERS_TABLE = 'players';
 
 const DEFAULT_BADGES_SEUILS = [
   { id: 'premier-pas', seuil: 1, label: 'Premier pas', emoji: '🌱' },
@@ -14,15 +16,18 @@ const DEFAULT_BADGES_SEUILS = [
 ];
 
 const Store = {
-  load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      return this._normalize(JSON.parse(raw));
-    } catch (e) {
-      console.warn('Store.load: lecture impossible', e);
+  async load() {
+    if (!Auth.currentUser) return null;
+    const { data, error } = await supabaseClient
+      .from(PLAYERS_TABLE)
+      .select('data')
+      .eq('id', Auth.currentUser.id)
+      .maybeSingle();
+    if (error) {
+      console.warn('Store.load: lecture impossible', error);
       return null;
     }
+    return data ? this._normalize(data.data) : null;
   },
 
   /**
@@ -30,8 +35,7 @@ const Store = {
    * app n'a pas de backend de migration : une sauvegarde faite avant l'ajout
    * de la navigation libre dans l'onboarding n'a pas onboarding_answers, et
    * sans ce filet, la moindre évolution du schéma plante l'app pour de bon
-   * chez un joueur qui a déjà commencé (aucun moyen pour lui de vider le
-   * localStorage depuis l'UI).
+   * chez un joueur qui a déjà commencé.
    */
   _normalize(user) {
     const validAnswers = Array.isArray(user.onboarding_answers) && user.onboarding_answers.length === Onboarding.TOTAL_STEPS;
@@ -51,18 +55,17 @@ const Store = {
   },
 
   save(user) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    supabaseClient
+      .from(PLAYERS_TABLE)
+      .upsert({ id: user.id, data: user, updated_at: new Date().toISOString() })
+      .then(({ error }) => { if (error) console.error('Store.save: écriture impossible', error); });
     return user;
-  },
-
-  clear() {
-    localStorage.removeItem(STORAGE_KEY);
   },
 
   createUser(profilBrut, parsedSeed) {
     const user = {
-      id: crypto.randomUUID(),
-      email: null,
+      id: Auth.currentUser.id,
+      email: Auth.currentUser.email,
       date_creation: new Date().toISOString(),
       profil_brut: profilBrut,
       parsed_seed: parsedSeed,

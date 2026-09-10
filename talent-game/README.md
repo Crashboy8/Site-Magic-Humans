@@ -24,15 +24,15 @@ Sur l'écran d'accueil, clique sur **« Essayer avec un profil de test »** pour
 - **Dashboard quotidien** avec quêtes groupées par catégorie (« mondes » colorés), barre d'XP, badges à débloquer, animation de récompense à la validation d'une quête
 - **Module Ressourcement**, **Module Habitudes** (structure Atomic Habits complète : identité visée, signal, version minimale, désirabilité, appui environnemental, récompense), **Module CRM léger** (si détecté)
 - **Bouton Restart** : remet la progression à zéro (quêtes, points, badges) sans jamais toucher au profil, aux ressources ou aux contacts
+- **Compte et sauvegarde cloud (Supabase)** : connexion par email + lien magique (`js/auth.js`), sans mot de passe. Le profil et la progression sont stockés dans une table `players` (une ligne par joueur, RLS activée — chacun ne peut lire/écrire que sa propre ligne), donc accessibles depuis n'importe quel appareil avec le même email. Voir `supabase-schema.sql` pour le schéma à exécuter une fois dans le projet Supabase.
 
 ## Ce qui est volontairement simplifié pour l'instant
 
-Deux arbitrages ont été validés avant de coder (voir section 10 du cahier des charges, « points à ne pas trancher seul ») :
+Un arbitrage a été validé avant de coder (voir section 10 du cahier des charges, « points à ne pas trancher seul ») :
 
-1. **Persistance : `localStorage`, pas encore Supabase.** Toute la lecture/écriture passe par une interface unique et étroite (`js/store.js` : `load`, `save`, `clear`, `createUser`, `logAnswer`, `addDeclaration`, `restart`). Brancher Supabase consiste à réimplémenter ces méthodes en async (table `users` + colonnes JSON pour `profil_structure`/`progression`, ou tables normalisées si on veut interroger plus finement) sans toucher au reste de l'app.
-2. **Pré-remplissage par heuristique locale, pas d'appel à l'API Claude.** `js/talentParser.js` (extraction par sections/mots-clés) et `js/moduleDetector.js` (score de mots-clés pour CRM/Moodboard) sont les deux fichiers à remplacer par un vrai appel serveur à l'API Claude quand une clé sera disponible — l'agent doit rester isolé et côté serveur (jamais de clé API exposée côté client), conformément au point de sécurité de la section 6 du cahier des charges.
+**Pré-remplissage par heuristique locale, pas d'appel à l'API Claude.** `js/talentParser.js` (extraction par sections/mots-clés) et `js/moduleDetector.js` (score de mots-clés pour CRM/Moodboard) sont les deux fichiers à remplacer par un vrai appel serveur à l'API Claude quand une clé sera disponible — l'agent doit rester isolé et côté serveur (jamais de clé API exposée côté client), conformément au point de sécurité de la section 6 du cahier des charges. Ça ne change ni la structure des données ni l'UI : c'est un point de bascule isolé.
 
-Ni l'un ni l'autre ne change la structure des données ni l'UI : ce sont des points de bascule isolés.
+*(Le choix Supabase vs Firebase, lui, est tranché : Supabase est branché depuis le `js/store.js` actuel.)*
 
 ## Arborescence
 
@@ -42,7 +42,9 @@ talent-game/
 ├── css/style.css            # identité visuelle arcade/gamifiée
 ├── js/
 │   ├── app.js                # routeur d'état + rendu de toutes les vues
-│   ├── store.js              # persistance (localStorage → Supabase plus tard)
+│   ├── supabaseClient.js     # init du client Supabase (URL + clé publishable)
+│   ├── auth.js                # écran de connexion + flux email/lien magique
+│   ├── store.js              # persistance (table Supabase `players`)
 │   ├── talentParser.js       # pré-remplissage heuristique (→ IA plus tard)
 │   ├── moduleDetector.js     # détection CRM/Moodboard (→ IA plus tard)
 │   ├── onboarding.js         # les 25 questions + logique de sauvegarde
@@ -52,7 +54,8 @@ talent-game/
 │   ├── ressourcement.js
 │   ├── habitudes.js
 │   ├── crm.js
-│   └── restart.js            # paramètres (quotas + bouton Restart)
+│   └── restart.js            # paramètres (quotas, compte, bouton Restart)
+├── supabase-schema.sql       # à exécuter une fois dans Supabase (SQL Editor)
 └── data/profil-test.md       # faux profil Talent Unique pour QA
 ```
 

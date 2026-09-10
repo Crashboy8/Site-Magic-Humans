@@ -73,6 +73,26 @@ button, input, select, textarea { font-family: inherit; }
 
 .import-actions { margin-top: 18px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
+.login-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.login-form input {
+  flex: 1;
+  min-width: 220px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 2px solid var(--panel-light);
+  background: var(--panel);
+  color: var(--text-main);
+  font-size: 1rem;
+}
+.login-error { color: var(--accent-red); margin-top: 14px; font-weight: 600; }
+
 /* ---------- Buttons ---------- */
 
 .btn-primary, .btn-choice, .btn-quete, .btn-restart {

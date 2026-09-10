@@ -7,7 +7,11 @@ const Restart = {
   render(user) {
     const quotas = user.profil_structure.quotas_categories;
     return `
-      <div class="section-title">Catégories de vie</div>
+      <div class="section-title">Ton compte</div>
+      <p class="muted-text">Connecté·e en tant que <strong>${Esc.html(user.email || '')}</strong>. Ta progression est sauvegardée automatiquement, accessible depuis n'importe quel appareil avec cet email.</p>
+      <button class="btn-ghost" onclick="App.signOut()">Se déconnecter</button>
+
+      <div class="section-title" style="margin-top:2rem">Catégories de vie</div>
       <p class="muted-text">Ajuste les quotas de points, renomme ou retire une catégorie — ce système t'appartient.</p>
       <div class="quota-editor">
         ${Object.entries(quotas).map(([id, c]) => `
