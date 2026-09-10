@@ -16,7 +16,7 @@ const Ressourcement = {
       <div class="ressource-card">
         <div class="ressource-icon">${icons[r.type] || '✨'}</div>
         <div class="ressource-info">
-          <div class="ressource-nom">${r.nom}</div>
+          <div class="ressource-nom">${Esc.html(r.nom)}</div>
           <div class="ressource-meta">${r.type} · fréquence conseillée : ${r.frequence_suggeree || 'libre'}</div>
         </div>
         <button class="btn-quete" onclick="App.markResourceUsed('${r.id}')">J'y étais</button>

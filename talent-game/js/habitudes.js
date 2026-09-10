@@ -14,19 +14,19 @@ const Habitudes = {
     if (h.ancree) {
       return `
         <div class="habitude-card habitude-ancree">
-          <div class="habitude-titre">${h.nom} <span class="tag-ancree">déjà ancrée</span></div>
+          <div class="habitude-titre">${Esc.html(h.nom)} <span class="tag-ancree">déjà ancrée</span></div>
         </div>
       `;
     }
     return `
       <div class="habitude-card">
-        <div class="habitude-titre">${h.nom}</div>
-        <div class="habitude-identite">→ Je deviens quelqu'un qui : ${h.identite_visee || '—'}</div>
+        <div class="habitude-titre">${Esc.html(h.nom)}</div>
+        <div class="habitude-identite">→ Je deviens quelqu'un qui : ${Esc.html(h.identite_visee) || '—'}</div>
         <div class="habitude-grid">
-          <div><span class="habitude-label">Signal</span>${h.signal_declencheur || '—'}</div>
-          <div><span class="habitude-label">Désirable</span>${h.desirabilite || '—'}</div>
-          <div><span class="habitude-label">Environnement</span>${h.appui_environnemental || '—'}</div>
-          <div><span class="habitude-label">Récompense</span>${h.recompense || '—'}</div>
+          <div><span class="habitude-label">Signal</span>${Esc.html(h.signal_declencheur) || '—'}</div>
+          <div><span class="habitude-label">Désirable</span>${Esc.html(h.desirabilite) || '—'}</div>
+          <div><span class="habitude-label">Environnement</span>${Esc.html(h.appui_environnemental) || '—'}</div>
+          <div><span class="habitude-label">Récompense</span>${Esc.html(h.recompense) || '—'}</div>
         </div>
       </div>
     `;

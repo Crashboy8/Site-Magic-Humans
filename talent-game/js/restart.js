@@ -12,7 +12,7 @@ const Restart = {
       <div class="quota-editor">
         ${Object.entries(quotas).map(([id, c]) => `
           <div class="quota-row" style="--cat-color:${c.couleur}">
-            <input value="${c.label}" onchange="App.renameCategorySetting('${id}', this.value)">
+            <input value="${Esc.attr(c.label)}" onchange="App.renameCategorySetting('${id}', this.value)">
             <input type="number" min="1" value="${c.quota_points}" onchange="App.updateQuotaSetting('${id}', this.value)">
             <button type="button" class="btn-ghost" onclick="App.removeCategorySetting('${id}')">Retirer</button>
           </div>

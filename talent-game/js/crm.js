@@ -25,9 +25,9 @@ const Crm = {
     return `
       <div class="contact-card">
         <div class="contact-info">
-          <div class="contact-nom">${c.nom}</div>
-          <div class="contact-meta">${c.role || 'contact'} · souhaité : ${c.frequence_souhaitee} · dernier contact : ${dernier}</div>
-          ${c.notes ? `<div class="contact-notes">${c.notes}</div>` : ''}
+          <div class="contact-nom">${Esc.html(c.nom)}</div>
+          <div class="contact-meta">${Esc.html(c.role || 'contact')} · souhaité : ${c.frequence_souhaitee} · dernier contact : ${dernier}</div>
+          ${c.notes ? `<div class="contact-notes">${Esc.html(c.notes)}</div>` : ''}
         </div>
         <button class="btn-quete" onclick="App.markContactSeen('${c.id}')">On s'est parlé</button>
       </div>

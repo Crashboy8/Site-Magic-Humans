@@ -33,8 +33,18 @@ const Dashboard = {
   _xpBar(user) {
     const xp = user.progression.xp_total;
     const seuils = DEFAULT_BADGES_SEUILS.map(b => b.seuil);
-    const prochain = seuils.find(s => s > xp) || seuils[seuils.length - 1];
-    const precedent = [...seuils].reverse().find(s => s <= xp) || 0;
+    const maxSeuil = seuils[seuils.length - 1];
+    let precedent, prochain;
+    if (xp >= maxSeuil) {
+      // Au-delà du dernier badge défini, on continue de faire progresser la
+      // barre par paliers réguliers plutôt que de la bloquer à 100%.
+      const step = maxSeuil - (seuils[seuils.length - 2] || 0) || maxSeuil;
+      precedent = maxSeuil + Math.floor((xp - maxSeuil) / step) * step;
+      prochain = precedent + step;
+    } else {
+      prochain = seuils.find(s => s > xp);
+      precedent = [...seuils].reverse().find(s => s <= xp) || 0;
+    }
     const pct = Math.min(100, Math.round(((xp - precedent) / (prochain - precedent || 1)) * 100));
     return `
       <div class="xp-block">
@@ -60,7 +70,7 @@ const Dashboard = {
     const cat = quotas[catId] || { label: catId, couleur: '#888' };
     return `
       <div class="world-block" style="--world-color:${cat.couleur}">
-        <div class="world-title">${cat.label}</div>
+        <div class="world-title">${Esc.html(cat.label)}</div>
         <div class="quete-list">
           ${liste.map(q => this._queteCard(q, quotas)).join('')}
         </div>
@@ -73,8 +83,8 @@ const Dashboard = {
     return `
       <div class="quete-card ${done ? 'quete-done' : ''}" style="--cat-color:${cat.couleur}">
         <div class="quete-info">
-          <div class="quete-titre">${q.titre}</div>
-          ${q.description ? `<div class="quete-desc">${q.description}</div>` : ''}
+          <div class="quete-titre">${Esc.html(q.titre)}</div>
+          ${q.description ? `<div class="quete-desc">${Esc.html(q.description)}</div>` : ''}
         </div>
         <div class="quete-action">
           <span class="quete-points">+${q.points} pts</span>

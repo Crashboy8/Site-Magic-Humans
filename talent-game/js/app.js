@@ -184,7 +184,11 @@ const App = {
   },
 
   renameTempCategory(i, val) { this.state.tempCategories[i].label = val; },
-  removeTempCategory(i) { this.state.tempCategories.splice(i, 1); this.render(); },
+  removeTempCategory(i) {
+    if (this.state.tempCategories.length <= 1) return;
+    this.state.tempCategories.splice(i, 1);
+    this.render();
+  },
   addTempCategory(val) {
     if (!val.trim()) return;
     this.state.tempCategories.push({
@@ -392,7 +396,9 @@ const App = {
     Store.save(this.state.user);
   },
   removeCategorySetting(id) {
-    Quotas.removeCategory(this.state.user.profil_structure.quotas_categories, id);
+    const quotas = this.state.user.profil_structure.quotas_categories;
+    if (Object.keys(quotas).length <= 1) return;
+    Quotas.removeCategory(quotas, id);
     Store.save(this.state.user);
     this.render();
   },
@@ -416,15 +422,9 @@ const App = {
 
   // ---------- Utils ----------
 
-  _esc(str) {
-    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  },
-  _escAttr(str) {
-    return this._esc(str).replace(/"/g, '&quot;');
-  },
-  _nl2br(str) {
-    return this._esc(str).replace(/\n/g, '<br>');
-  }
+  _esc(str) { return Esc.html(str); },
+  _escAttr(str) { return Esc.attr(str); },
+  _nl2br(str) { return Esc.nl2br(str); }
 };
 
 document.addEventListener('DOMContentLoaded', () => App.init());

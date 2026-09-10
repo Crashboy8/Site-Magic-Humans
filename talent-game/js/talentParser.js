@@ -43,9 +43,13 @@ const TalentParser = {
   },
 
   _matchHeader(line) {
+    // Correspondance stricte (le titre de section, rien d'autre) : un simple
+    // "startsWith" ferait basculer de section sur n'importe quelle phrase du
+    // texte libre qui commence par un des mots-clés (ex. "Ressources humaines
+    // : ...").
     const lower = line.toLowerCase().replace(/:$/, '').trim();
     for (const [key, keywords] of Object.entries(this.SECTION_KEYWORDS)) {
-      if (keywords.some(kw => lower === kw || lower.startsWith(kw + ' '))) return key;
+      if (keywords.includes(lower)) return key;
     }
     return null;
   },

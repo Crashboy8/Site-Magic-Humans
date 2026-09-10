@@ -38,7 +38,10 @@ const Quotas = {
   },
 
   addCategory(quotas, label, couleur) {
-    const id = this.slugify(label);
+    const base = this.slugify(label);
+    let id = base;
+    let n = 2;
+    while (quotas[id]) { id = `${base}-${n}`; n++; }
     quotas[id] = {
       label,
       couleur: couleur || PALETTE_LIBRE[Object.keys(quotas).length % PALETTE_LIBRE.length],
