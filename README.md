@@ -52,6 +52,6 @@ Si une URL de prévisualisation par branche (avant fusion dans `main`) est préf
 - **Photos** : remplacer `assets/img/hero.webp`, `authority.webp` par de nouvelles photos si besoin (même nom de fichier ou mettre à jour la référence dans `index.html`).
 - **Illustration section "Problème"** : la photo couleur a été retirée (remplacée par le picto `wandering-mind.svg` en niveaux de gris) — à remplacer par une vraie photo dès que vous en fournissez une.
 - **Logos manquants** : Deloitte, Le Selman Marrakech, Fairmont Monaco, Chabé Paris ne sont pas encore dans `assets/img/logos/` — à ajouter dès que les fichiers sont disponibles (voir balises `<img>` dans la section "CLIENTS" de `index.html`).
-- **Prix des offres** : les 4 formules affichent désormais un prix fixe (980 € / 2 000 € / 3 000 € / 5 000 €).
+- **Prix des offres** : les 4 formules affichent désormais un prix fixe (450 € / 2 000 € / 3 000 € / 5 000 €).
 - **Témoignages vidéo** : à intégrer quand disponibles.
 - **Formulaire / nom de domaine** : à voir ensemble selon vos besoins (formulaire de contact, domaine personnalisé sur GitHub Pages).
