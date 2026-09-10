@@ -17,11 +17,37 @@ const Store = {
   load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      return this._normalize(JSON.parse(raw));
     } catch (e) {
       console.warn('Store.load: lecture impossible', e);
       return null;
     }
+  },
+
+  /**
+   * Ramène une sauvegarde existante au schéma courant. Nécessaire car cette
+   * app n'a pas de backend de migration : une sauvegarde faite avant l'ajout
+   * de la navigation libre dans l'onboarding n'a pas onboarding_answers, et
+   * sans ce filet, la moindre évolution du schéma plante l'app pour de bon
+   * chez un joueur qui a déjà commencé (aucun moyen pour lui de vider le
+   * localStorage depuis l'UI).
+   */
+  _normalize(user) {
+    const validAnswers = Array.isArray(user.onboarding_answers) && user.onboarding_answers.length === Onboarding.TOTAL_STEPS;
+    if (!validAnswers) {
+      // Ancien format : on ne peut pas récupérer les réponses individuelles
+      // déjà données, donc on relance le questionnaire proprement plutôt que
+      // de laisser une app cassée — en gardant le profil déjà collé pour ne
+      // pas le refaire saisir.
+      user.onboarding_step = 0;
+      user.onboarding_answers = new Array(Onboarding.TOTAL_STEPS).fill(null);
+      user.onboarding_max_reached = 0;
+      user.onboarding_at_recap = false;
+    }
+    if (typeof user.onboarding_max_reached !== 'number') user.onboarding_max_reached = user.onboarding_step || 0;
+    if (typeof user.onboarding_at_recap !== 'boolean') user.onboarding_at_recap = false;
+    return user;
   },
 
   save(user) {

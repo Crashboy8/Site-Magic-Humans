@@ -58,10 +58,36 @@ const App = {
   render() {
     const root = document.getElementById('app');
     if (!root) return;
-    if (this.state.view === 'import') root.innerHTML = this._renderImport();
-    else if (this.state.view === 'onboarding') root.innerHTML = this._renderOnboarding();
-    else if (this.state.view === 'onboarding-recap') root.innerHTML = this._renderOnboardingRecap();
-    else root.innerHTML = this._renderApp();
+    try {
+      if (this.state.view === 'import') root.innerHTML = this._renderImport();
+      else if (this.state.view === 'onboarding') root.innerHTML = this._renderOnboarding();
+      else if (this.state.view === 'onboarding-recap') root.innerHTML = this._renderOnboardingRecap();
+      else root.innerHTML = this._renderApp();
+    } catch (e) {
+      // Filet de sécurité : sans ça, une exception pendant le rendu laisse
+      // #app vide (rien à l'écran, rien à cliquer) sans aucun moyen pour le
+      // joueur de s'en sortir depuis l'UI.
+      console.error('Render failed', e);
+      root.innerHTML = this._renderCrashRecovery();
+    }
+  },
+
+  _renderCrashRecovery() {
+    return `
+      <div class="import-shell">
+        <h1 class="hero-title">Oups, ça a buggé</h1>
+        <p class="hero-sub">Quelque chose s'est mal passé avec la sauvegarde locale. Tu peux repartir de zéro sans rien perdre d'important.</p>
+        <button class="btn-primary" onclick="App.hardReset()">Recommencer</button>
+      </div>
+    `;
+  },
+
+  hardReset() {
+    Store.clear();
+    this.state.user = null;
+    this.state.view = 'import';
+    this.state.onboardingIndex = 0;
+    this.render();
   },
 
   // ---------- Import ----------
