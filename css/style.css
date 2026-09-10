@@ -229,6 +229,7 @@
     font-style:italic;
     max-width:20ch;
     margin:70px auto 26px;
+    scroll-margin-top:160px;
   }
   .comparison-grid{
     display:grid;grid-template-columns:1fr 1fr;
@@ -480,6 +481,27 @@
   .google-cta{background:var(--sand);padding:80px 0;text-align:center;}
   .google-cta h2{font-size:clamp(26px,3.4vw,34px);font-style:italic;margin-bottom:16px;max-width:20ch;margin-left:auto;margin-right:auto;}
   .google-cta p{color:var(--ink-soft);margin-bottom:30px;max-width:50ch;margin-left:auto;margin-right:auto;}
+
+  /* ---------- FAQ ---------- */
+  .faq{padding:130px 0;text-align:center;scroll-margin-top:160px;}
+  .faq h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:20ch;margin:0 auto 60px;}
+  .faq-list{max-width:760px;margin:0 auto 50px;text-align:left;}
+  .faq-item{border-bottom:1px solid var(--line);padding:24px 0;}
+  .faq-item:first-child{border-top:1px solid var(--line);}
+  .faq-item summary{
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;
+    cursor:pointer;list-style:none;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+    color:var(--ink);
+  }
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::after{
+    content:'+';font-family:'Jost',sans-serif;font-style:normal;font-weight:400;
+    font-size:22px;color:var(--orange-deep);flex-shrink:0;
+  }
+  .faq-item[open] summary::after{content:'–';}
+  .faq-item p{margin-top:16px;font-size:15.5px;color:var(--ink-soft);line-height:1.6;}
+  .faq-item p a{color:var(--orange-deep);text-decoration:underline;}
 
   footer{
     padding:44px 0;font-size:13.5px;color:var(--ink-soft);
