@@ -374,10 +374,15 @@
   }
   .tier{background:var(--cream);padding:36px 26px;display:flex;flex-direction:column;}
   .tier .tier-icon{font-size:22px;margin-bottom:14px;height:26px;}
-  .tier .tier-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;margin-bottom:8px;min-height:52px;}
-  .tier .tier-quote{font-size:13px;color:var(--orange-deep);font-style:italic;margin-bottom:16px;min-height:34px;}
-  .tier p{font-size:14px;color:var(--ink-soft);flex-grow:1;}
+  .tier .tier-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;margin-bottom:18px;min-height:52px;}
+  .tier p{font-size:14px;color:var(--ink-soft);}
+  .tier-row{margin-bottom:16px;}
+  .tier-label{display:block;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  .tier-row--result .tier-label{color:var(--orange-deep);}
+  .tier-row--result p{color:var(--ink);}
+  .tier .tier-price{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);font-size:13px;font-weight:600;letter-spacing:0.02em;color:var(--ink-soft);}
   .offer .btn{margin-top:10px;}
+  .offer-note{margin-top:18px;font-size:13px;font-style:italic;color:var(--ink-soft);}
 
   /* ---------- AUDIENCE ---------- */
   .audience{padding:120px 0;text-align:center;}
