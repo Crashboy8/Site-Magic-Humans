@@ -41,9 +41,13 @@ const App = {
     if (user) {
       this.state.user = user;
       if (!user.onboarding_complete) {
-        this.state.view = 'onboarding';
-        this.state.onboardingIndex = user.onboarding_step || 0;
-        this._prepareTempStateForStep(this.state.onboardingIndex);
+        if (user.onboarding_at_recap) {
+          this.state.view = 'onboarding-recap';
+        } else {
+          this.state.view = 'onboarding';
+          this.state.onboardingIndex = user.onboarding_step || 0;
+          this._prepareTempStateForStep(this.state.onboardingIndex);
+        }
       } else {
         this.state.view = 'app';
       }
@@ -56,6 +60,7 @@ const App = {
     if (!root) return;
     if (this.state.view === 'import') root.innerHTML = this._renderImport();
     else if (this.state.view === 'onboarding') root.innerHTML = this._renderOnboarding();
+    else if (this.state.view === 'onboarding-recap') root.innerHTML = this._renderOnboardingRecap();
     else root.innerHTML = this._renderApp();
   },
 
@@ -103,6 +108,7 @@ const App = {
 
   _renderOnboarding() {
     const u = this.state.user;
+    Onboarding.rebuildProfile(u);
     const idx = this.state.onboardingIndex;
     const step = Onboarding.getStep(idx);
     if (!step) return '';
@@ -113,46 +119,83 @@ const App = {
           <div class="progress-bar"><div class="progress-fill" style="width:${progressPct}%"></div></div>
           <div class="progress-label">Étape ${step.etape}/8 — ${step.etapeLabel} · Question ${idx + 1}/${Onboarding.TOTAL_STEPS}</div>
         </div>
+        ${this._renderStepper(u, idx)}
         <div class="question-card">
+          <div class="question-nav-top">
+            <button class="btn-ghost btn-prev" ${idx === 0 ? 'disabled' : ''} onclick="App.goToOnboardingStep(${idx - 1})">← Précédent</button>
+          </div>
           <p class="question-text">${this._nl2br(step.prompt(u))}</p>
-          ${this._renderStepWidget(step, u)}
+          ${this._renderStepWidget(step, u, idx)}
         </div>
       </div>
     `;
+  },
+
+  _renderStepper(u, currentIdx) {
+    const maxReached = u.onboarding_max_reached || 0;
+    const dots = [];
+    for (let i = 0; i < Onboarding.TOTAL_STEPS; i++) {
+      const reachable = i <= maxReached;
+      const answered = u.onboarding_answers[i] !== null && u.onboarding_answers[i] !== undefined && u.onboarding_answers[i] !== '';
+      const cls = ['step-dot'];
+      if (i === currentIdx) cls.push('step-dot-current');
+      else if (answered) cls.push('step-dot-answered');
+      if (!reachable) cls.push('step-dot-locked');
+      dots.push(`<button type="button" class="${cls.join(' ')}" ${reachable ? `onclick="App.goToOnboardingStep(${i})"` : 'disabled'} title="Question ${i + 1}">${i + 1}</button>`);
+    }
+    return `<div class="stepper">${dots.join('')}</div>`;
+  },
+
+  goToOnboardingStep(idx) {
+    const u = this.state.user;
+    const maxReached = u.onboarding_max_reached || 0;
+    if (idx < 0 || idx > maxReached) return;
+    u.onboarding_at_recap = false;
+    u.onboarding_step = idx;
+    Store.save(u);
+    this.state.view = 'onboarding';
+    this.state.onboardingIndex = idx;
+    this._prepareTempStateForStep(idx);
+    this.render();
   },
 
   _prepareTempStateForStep(idx) {
     const step = Onboarding.getStep(idx);
     const u = this.state.user;
     if (!step || !u) return;
+    const saved = u.onboarding_answers[idx];
+    const hasSaved = saved !== null && saved !== undefined;
     if (step.type === 'categories') {
       const existing = Object.entries(u.profil_structure.quotas_categories);
-      this.state.tempCategories = existing.length
-        ? existing.map(([id, c]) => ({ id, label: c.label, couleur: c.couleur }))
-        : DEFAULT_CATEGORIES.map(c => ({ ...c }));
+      this.state.tempCategories = hasSaved
+        ? saved.map(c => ({ ...c }))
+        : (existing.length ? existing.map(([id, c]) => ({ id, label: c.label, couleur: c.couleur })) : DEFAULT_CATEGORIES.map(c => ({ ...c })));
     } else if (step.type === 'valeurs-editor') {
-      this.state.tempList = u.profil_structure.valeurs.length
-        ? [...u.profil_structure.valeurs]
-        : [...(u.parsed_seed.valeurs || [])];
-      this.state.tempChoice = this.state.tempList[0] || '';
+      this.state.tempList = hasSaved
+        ? [...saved.valeurs]
+        : (u.profil_structure.valeurs.length ? [...u.profil_structure.valeurs] : [...(u.parsed_seed.valeurs || [])]);
+      this.state.tempChoice = hasSaved ? saved.plusEprouvee : (this.state.tempList[0] || '');
     } else if (step.type === 'ressources-editor') {
-      this.state.tempList = u.profil_structure.ressources.length
-        ? u.profil_structure.ressources.map(r => r.nom)
-        : [...(u.parsed_seed.ressources || [])].slice(0, 3);
+      this.state.tempList = hasSaved
+        ? [...saved]
+        : (u.profil_structure.ressources.length ? u.profil_structure.ressources.map(r => r.nom) : [...(u.parsed_seed.ressources || [])].slice(0, 3));
     }
   },
 
-  _renderStepWidget(step, u) {
+  _renderStepWidget(step, u, idx) {
+    const saved = u.onboarding_answers[idx];
     switch (step.type) {
-      case 'textarea':
+      case 'textarea': {
+        const seed = (saved !== null && saved !== undefined) ? saved : step.prefill(u);
         return `
-          <textarea id="step-input" class="step-textarea" rows="4">${this._esc(step.prefill(u))}</textarea>
+          <textarea id="step-input" class="step-textarea" rows="4">${this._esc(seed)}</textarea>
           <button class="btn-primary" onclick="App.submitTextareaStep()">Continuer</button>
         `;
+      }
       case 'choice':
         return `
           <div class="choice-row">
-            ${step.options(u).map(o => `<button class="btn-choice" onclick="App.submitOnboardingStep('${this._escAttr(o.value)}')">${o.label}</button>`).join('')}
+            ${step.options(u).map(o => `<button class="btn-choice ${o.value === saved ? 'btn-choice-selected' : ''}" onclick="App.submitOnboardingStep('${this._escAttr(o.value)}')">${o.label}</button>`).join('')}
           </div>
         `;
       case 'categories':
@@ -261,19 +304,59 @@ const App = {
   submitOnboardingStep(value) {
     const idx = this.state.onboardingIndex;
     const u = this.state.user;
-    const rawLog = typeof value === 'string' ? value : JSON.stringify(value);
-    Onboarding.logAndSave(u, idx, rawLog, value);
-    u.onboarding_step = idx + 1;
-    Store.save(u);
+    const alreadyDidFullPass = (u.onboarding_max_reached || 0) >= Onboarding.TOTAL_STEPS;
 
-    if (idx + 1 >= Onboarding.TOTAL_STEPS) {
-      Onboarding.finalize(u);
-      this.state.view = 'app';
-      this.state.activeTab = 'dashboard';
+    u.onboarding_answers[idx] = value;
+    u.onboarding_max_reached = Math.max(u.onboarding_max_reached || 0, idx + 1);
+    Onboarding.rebuildProfile(u);
+
+    if (alreadyDidFullPass || idx + 1 >= Onboarding.TOTAL_STEPS) {
+      u.onboarding_at_recap = true;
+      Store.save(u);
+      this.state.view = 'onboarding-recap';
     } else {
+      u.onboarding_step = idx + 1;
+      Store.save(u);
       this.state.onboardingIndex = idx + 1;
       this._prepareTempStateForStep(idx + 1);
     }
+    this.render();
+  },
+
+  // ---------- Récapitulatif ----------
+
+  _renderOnboardingRecap() {
+    const u = this.state.user;
+    Onboarding.rebuildProfile(u);
+    const rows = Onboarding.STEPS.map((step, idx) => `
+      <tr>
+        <td class="recap-num">${idx + 1}</td>
+        <td class="recap-label">${Esc.html(step.recapLabel)}</td>
+        <td class="recap-answer">${Esc.html(Onboarding.formatAnswer(idx, u))}</td>
+        <td class="recap-edit"><button type="button" class="btn-ghost" onclick="App.editOnboardingAnswer(${idx})">Modifier</button></td>
+      </tr>
+    `).join('');
+    return `
+      <div class="onboarding-shell">
+        <div class="section-title">Récapitulatif de tes réponses</div>
+        <p class="muted-text">Vérifie, corrige ce que tu veux, puis lance ta partie.</p>
+        <div class="recap-table-wrap">
+          <table class="recap-table"><tbody>${rows}</tbody></table>
+        </div>
+        <button class="btn-primary" onclick="App.confirmOnboarding()">Commencer à jouer 🎮</button>
+      </div>
+    `;
+  },
+
+  editOnboardingAnswer(idx) {
+    this.goToOnboardingStep(idx);
+  },
+
+  confirmOnboarding() {
+    const u = this.state.user;
+    Onboarding.finalize(u);
+    this.state.view = 'app';
+    this.state.activeTab = 'dashboard';
     this.render();
   },
 

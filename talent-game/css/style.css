@@ -136,6 +136,29 @@ button, input, select, textarea { font-family: inherit; }
 
 .progress-label { margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
 
+.stepper { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 16px; }
+
+.step-dot {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--panel-light);
+  background: var(--panel);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.step-dot:hover:not(:disabled) { border-color: var(--accent-yellow); }
+.step-dot:disabled { opacity: 0.35; cursor: not-allowed; }
+.step-dot-answered { border-color: var(--accent-green); color: var(--accent-green); }
+.step-dot-current {
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+  border-color: transparent;
+  color: white;
+}
+
 .question-card {
   background: var(--panel);
   border-radius: var(--radius);
@@ -143,9 +166,14 @@ button, input, select, textarea { font-family: inherit; }
   border: 1px solid var(--panel-light);
 }
 
+.question-nav-top { margin-bottom: 14px; }
+.btn-prev { padding: 6px 14px; font-size: 0.85rem; }
+.btn-prev:disabled { opacity: 0.3; cursor: not-allowed; }
+
 .question-text { font-size: 1.2rem; line-height: 1.5; margin-bottom: 20px; }
 
 .choice-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-choice-selected { border-color: var(--accent-yellow); box-shadow: 0 0 0 2px rgba(255, 190, 11, 0.3) inset; }
 
 .field-label { display: block; margin: 16px 0 8px; color: var(--text-muted); font-weight: 600; }
 
@@ -323,6 +351,17 @@ select {
   background: var(--bg-mid);
   color: var(--text-main);
 }
+
+/* ---------- Récapitulatif onboarding ---------- */
+
+.recap-table-wrap { overflow-x: auto; margin-bottom: 20px; }
+.recap-table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: var(--radius); overflow: hidden; }
+.recap-table td { padding: 10px 14px; border-bottom: 1px solid var(--panel-light); font-size: 0.88rem; vertical-align: top; }
+.recap-table tr:last-child td { border-bottom: none; }
+.recap-num { color: var(--text-muted); font-weight: 700; width: 28px; }
+.recap-label { font-weight: 600; white-space: nowrap; }
+.recap-answer { color: var(--text-muted); max-width: 320px; }
+.recap-edit { text-align: right; white-space: nowrap; }
 
 /* ---------- Paramètres ---------- */
 

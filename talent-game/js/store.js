@@ -42,6 +42,9 @@ const Store = {
       parsed_seed: parsedSeed,
       journee_ideale: '',
       onboarding_step: 0,
+      onboarding_answers: new Array(Onboarding.TOTAL_STEPS).fill(null),
+      onboarding_max_reached: 0,
+      onboarding_at_recap: false,
       onboarding_complete: false,
       categorie_negligee: null,
       categorie_non_negociable: null,
@@ -66,15 +69,6 @@ const Store = {
     };
     this.save(user);
     return user;
-  },
-
-  logAnswer(user, questionId, question, reponse) {
-    user.interview_log.push({
-      question_id: questionId,
-      question,
-      reponse,
-      date: new Date().toISOString()
-    });
   },
 
   addDeclaration(user, quete) {
