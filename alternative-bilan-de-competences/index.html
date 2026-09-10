@@ -71,11 +71,20 @@
 <nav>
   <div class="wrap">
     <a href="../" class="logo"><img src="../assets/img/logo-nav.png" width="1000" height="383" alt="Magic Humans"></a>
-    <div class="nav-right">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-panel" aria-label="Menu">
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <div class="nav-right" id="nav-panel">
       <div class="nav-menu">
         <a href="../#apropos" class="nav-link" data-en="About">À propos</a>
         <a href="../#offre" class="nav-link" data-en="Offer">Offre</a>
         <a href="../#temoignages" class="nav-link" data-en="Testimonials">Témoignages</a>
+      </div>
+      <div class="nav-menu-extra">
+        <a href="../#faq" class="nav-link" data-en="FAQ">FAQ</a>
+        <a href="../alternative-bilan-de-competences/" class="nav-link" data-en="Skills assessment alternative">Alternative bilan</a>
+        <a href="../reconversion-cadre-sens/" class="nav-link" data-en="Manager career change">Reconversion cadre</a>
+        <a href="../coaching-independant-positionnement/" class="nav-link" data-en="Independents / positioning">Indépendants / positionnement</a>
       </div>
       <div class="lang-toggle">
         <button type="button" data-lang="fr" class="active">FR</button>
@@ -219,5 +228,6 @@
 </footer>
 
 <script src="../js/i18n.js"></script>
+<script src="../js/nav.js"></script>
 </body>
 </html>
