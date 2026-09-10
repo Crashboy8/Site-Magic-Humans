@@ -68,7 +68,9 @@ const App = {
       this.state.user = user;
       if (user) {
         if (!user.onboarding_complete) {
-          if (user.onboarding_at_recap) {
+          if (!user.compagnon) {
+            this.state.view = 'hero-select';
+          } else if (user.onboarding_at_recap) {
             this.state.view = 'onboarding-recap';
           } else {
             this.state.view = 'onboarding';
@@ -97,7 +99,11 @@ const App = {
     this.state.loginError = null;
     const error = await Auth.sendMagicLink(email);
     if (error) {
-      this.state.loginError = "Impossible d'envoyer le lien. Vérifie l'adresse et réessaie.";
+      // Le message réel de Supabase (ex. "redirect_to not allowed", quota
+      // atteint...) est bien plus utile pour diagnostiquer que "réessaie" —
+      // c'est un outil de diag en cours de mise au point, pas une appli
+      // grand public où on masquerait ce détail.
+      this.state.loginError = `Impossible d'envoyer le lien : ${error.message || error}`;
       console.error('sendMagicLink', error);
     } else {
       this.state.magicLinkSent = true;
@@ -121,6 +127,7 @@ const App = {
     try {
       if (this.state.view === 'login') root.innerHTML = Auth.renderLogin(this.state);
       else if (this.state.view === 'import') root.innerHTML = this._renderImport();
+      else if (this.state.view === 'hero-select') root.innerHTML = Companion.renderSelectScreen(this.state);
       else if (this.state.view === 'onboarding') root.innerHTML = this._renderOnboarding();
       else if (this.state.view === 'onboarding-recap') root.innerHTML = this._renderOnboardingRecap();
       else root.innerHTML = this._renderApp();
@@ -181,6 +188,18 @@ const App = {
     const parsed = TalentParser.parse(text);
     const user = Store.createUser(text, parsed);
     this.state.user = user;
+    this.state.view = 'hero-select';
+    this.render();
+  },
+
+  // ---------- Compagnon-héros ----------
+
+  confirmCompanion(formEl) {
+    const nom = (new FormData(formEl).get('nom') || '').trim();
+    if (!nom) return;
+    const u = this.state.user;
+    u.compagnon = { nom, emoji: Companion.guessEmoji(nom) };
+    Store.save(u);
     this.state.view = 'onboarding';
     this.state.onboardingIndex = 0;
     this._prepareTempStateForStep(0);
@@ -198,6 +217,7 @@ const App = {
     const progressPct = Math.round((idx / Onboarding.TOTAL_STEPS) * 100);
     return `
       <div class="onboarding-shell">
+        ${Companion.renderBadge(u.compagnon)}
         <div class="progress-header">
           <div class="progress-bar"><div class="progress-fill" style="width:${progressPct}%"></div></div>
           <div class="progress-label">Étape ${step.etape}/8 — ${step.etapeLabel} · Question ${idx + 1}/${Onboarding.TOTAL_STEPS}</div>
@@ -460,6 +480,7 @@ const App = {
       <div class="app-shell">
         <header class="app-header">
           <div class="app-title">${TAGLINE}</div>
+          ${Companion.renderBadge(u.compagnon)}
           ${modules.includes('moodboard') ? '<span class="tag-soon">Module Moodboard activé — arrive en v2</span>' : ''}
         </header>
         <nav class="tab-nav">
@@ -493,7 +514,7 @@ const App = {
     if (!quete || quete.statut !== 'a_faire') return;
     const { nouveauxBadges } = Store.addDeclaration(u, quete);
     this.render();
-    this._showReward(quete.points, nouveauxBadges);
+    this._showReward(quete.points, nouveauxBadges, u.compagnon);
   },
 
   requestFollowUpQuest() {
@@ -503,13 +524,34 @@ const App = {
     this.render();
   },
 
-  _showReward(points, nouveauxBadges) {
+  addCustomQuest(formEl) {
+    const u = this.state.user;
+    const data = new FormData(formEl);
+    const titre = (data.get('titre') || '').trim();
+    if (!titre) return;
+    const quete = QuestGenerator.createCustomQuest(u, titre, data.get('categorie'));
+    u.progression.quetes.push(quete);
+    Store.save(u);
+    this.render();
+  },
+
+  COMPANION_LINES: [
+    'est fier de toi !',
+    'savait que tu pouvais le faire.',
+    'te donne une tape dans le dos.',
+    'garde le cap avec toi.'
+  ],
+
+  _showReward(points, nouveauxBadges, compagnon) {
     const overlay = document.getElementById('reward-overlay');
     if (!overlay) return;
     const badgeHtml = (nouveauxBadges || [])
       .map(b => `<div class="reward-badge">${b.emoji} Nouveau badge : ${b.label}</div>`)
       .join('');
-    overlay.innerHTML = `<div class="reward-pop">+${points} pts ⚡${badgeHtml}</div>`;
+    const companionHtml = compagnon
+      ? `<div class="reward-companion">${compagnon.emoji} ${Esc.html(compagnon.nom)} ${this.COMPANION_LINES[Math.floor(Math.random() * this.COMPANION_LINES.length)]}</div>`
+      : '';
+    overlay.innerHTML = `<div class="reward-pop">+${points} pts ⚡${badgeHtml}${companionHtml}</div>`;
     const pop = overlay.querySelector('.reward-pop');
     requestAnimationFrame(() => pop && pop.classList.add('reward-pop-show'));
     setTimeout(() => { overlay.innerHTML = ''; }, 1800);
@@ -521,6 +563,61 @@ const App = {
     const u = this.state.user;
     const r = u.profil_structure.ressources.find(res => res.id === id);
     if (r) { r.dernier_moment = new Date().toISOString(); Store.save(u); }
+    this.render();
+  },
+
+  // ---------- Actions : habitudes ----------
+
+  markHabitDone(id) {
+    const u = this.state.user;
+    const h = u.profil_structure.habitudes.find(x => x.id === id);
+    if (!h) return;
+    const today = new Date().toISOString().slice(0, 10);
+    if (h.dernier_jour_fait === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    h.streak = (h.dernier_jour_fait === yesterday) ? (h.streak || 0) + 1 : 1;
+    h.dernier_jour_fait = today;
+    Store.save(u);
+    this.render();
+  },
+
+  addCustomHabit(formEl) {
+    const u = this.state.user;
+    const data = new FormData(formEl);
+    const nom = (data.get('nom') || '').trim();
+    if (!nom) return;
+    u.profil_structure.habitudes.push({
+      id: crypto.randomUUID(),
+      nom,
+      emoji: data.get('emoji'),
+      ancree: false,
+      categorie_vie: data.get('categorie'),
+      identite_visee: '',
+      signal_declencheur: '',
+      desirabilite: '',
+      version_minimale: '',
+      recompense: '',
+      appui_environnemental: '',
+      streak: 0,
+      dernier_jour_fait: null
+    });
+    Store.save(u);
+    this.render();
+  },
+
+  addCustomResource(formEl) {
+    const u = this.state.user;
+    const data = new FormData(formEl);
+    const nom = (data.get('nom') || '').trim();
+    if (!nom) return;
+    u.profil_structure.ressources.push({
+      id: crypto.randomUUID(),
+      nom,
+      type: data.get('type'),
+      frequence_suggeree: data.get('frequence'),
+      dernier_moment: null
+    });
+    Store.save(u);
     this.render();
   },
 

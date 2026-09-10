@@ -51,6 +51,7 @@ const Store = {
     }
     if (typeof user.onboarding_max_reached !== 'number') user.onboarding_max_reached = user.onboarding_step || 0;
     if (typeof user.onboarding_at_recap !== 'boolean') user.onboarding_at_recap = false;
+    if (user.compagnon === undefined) user.compagnon = null;
     return user;
   },
 
@@ -69,6 +70,7 @@ const Store = {
       date_creation: new Date().toISOString(),
       profil_brut: profilBrut,
       parsed_seed: parsedSeed,
+      compagnon: null,
       journee_ideale: '',
       onboarding_step: 0,
       onboarding_answers: new Array(Onboarding.TOTAL_STEPS).fill(null),

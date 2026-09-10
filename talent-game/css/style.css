@@ -260,6 +260,21 @@ select {
   border-radius: 999px;
 }
 
+.companion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px auto 16px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 2px solid var(--accent-purple);
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: fit-content;
+}
+.onboarding-shell .companion-badge { display: flex; }
+
 .tab-nav {
   display: flex;
   gap: 8px;
@@ -331,6 +346,17 @@ select {
 
 .empty-state { text-align: center; background: var(--panel); border-radius: var(--radius); padding: 30px 20px; }
 
+.quete-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.quete-form input, .quete-form select {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid var(--panel-light);
+  background: var(--bg-mid);
+  color: var(--text-main);
+}
+
 /* ---------- Ressourcement ---------- */
 
 .ressource-list, .contact-list, .habitude-list { display: flex; flex-direction: column; gap: 10px; }
@@ -349,15 +375,41 @@ select {
 .ressource-info, .contact-info { flex: 1; }
 .contact-notes { font-size: 0.82rem; margin-top: 4px; color: var(--text-muted); }
 
+.ressource-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.ressource-form input, .ressource-form select {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid var(--panel-light);
+  background: var(--bg-mid);
+  color: var(--text-main);
+}
+
 /* ---------- Habitudes ---------- */
 
 .habitude-card { background: var(--panel); border-radius: 12px; padding: 16px; }
-.habitude-titre { font-weight: 700; margin-bottom: 6px; }
+.habitude-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+.habitude-titre { font-weight: 700; }
+.habitude-streak { font-weight: 700; color: var(--accent-orange); font-size: 0.9rem; flex: none; }
 .habitude-identite { color: var(--accent-yellow); font-size: 0.85rem; margin-bottom: 10px; }
-.habitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: var(--text-muted); }
+.habitude-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px; }
 .habitude-label { display: block; color: var(--text-main); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; margin-bottom: 2px; }
 .habitude-ancree { opacity: 0.7; }
 .tag-ancree { font-size: 0.7rem; background: var(--panel-light); padding: 2px 10px; border-radius: 999px; margin-left: 8px; }
+
+.btn-quete-done { background: var(--panel-light); color: var(--text-muted); cursor: default; }
+
+.habitude-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.habitude-form input, .habitude-form select {
+  flex: 1;
+  min-width: 140px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid var(--panel-light);
+  background: var(--bg-mid);
+  color: var(--text-main);
+}
 
 /* ---------- CRM ---------- */
 
@@ -440,6 +492,7 @@ select {
 }
 .reward-pop.reward-pop-show { transform: scale(1) translateY(0); opacity: 1; }
 .reward-badge { font-size: 0.95rem; margin-top: 8px; }
+.reward-companion { font-size: 0.85rem; margin-top: 10px; opacity: 0.9; font-weight: 600; }
 
 /* ---------- Responsive ---------- */
 

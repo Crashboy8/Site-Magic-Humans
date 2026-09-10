@@ -60,6 +60,17 @@ const QuestGenerator = {
     });
   },
 
+  /** Quête écrite librement par le joueur (objectif perso / to-do). */
+  createCustomQuest(user, titre, categorieVie) {
+    const quotas = user.profil_structure.quotas_categories;
+    return this._quete({
+      titre,
+      description: '',
+      categorie_vie: quotas[categorieVie] ? categorieVie : Object.keys(quotas)[0],
+      quotas
+    });
+  },
+
   _quete({ titre, description, categorie_vie, quotas }) {
     const quotaCat = quotas[categorie_vie] ? quotas[categorie_vie].quota_points : 10;
     return {

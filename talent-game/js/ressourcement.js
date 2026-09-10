@@ -7,6 +7,23 @@ const Ressourcement = {
       <div class="ressource-list">
         ${ressources.map(r => this._card(r)).join('') || '<p class="muted-text">Aucune ressource enregistrée pour l\'instant.</p>'}
       </div>
+
+      <div class="section-title" style="margin-top:2rem">Ajouter une ressource</div>
+      <form class="ressource-form" onsubmit="event.preventDefault(); App.addCustomResource(this)">
+        <input name="nom" placeholder="Un lieu, une personne, une activité..." required>
+        <select name="type">
+          <option value="lieu">Lieu</option>
+          <option value="personne">Personne</option>
+          <option value="activité">Activité</option>
+          <option value="objet">Objet</option>
+        </select>
+        <select name="frequence">
+          <option value="quotidien">Quotidien</option>
+          <option value="hebdomadaire">Hebdomadaire</option>
+          <option value="mensuel">Mensuel</option>
+        </select>
+        <button type="submit" class="btn-primary">Ajouter</button>
+      </form>
     `;
   },
 

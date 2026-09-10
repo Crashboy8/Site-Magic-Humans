@@ -27,6 +27,16 @@ const Dashboard = {
           ${faites.map(q => this._queteCard(q, quotas, true)).join('')}
         </div>
       ` : ''}
+
+      <div class="section-title" style="margin-top:2rem">Ajouter ta propre quête</div>
+      <p class="muted-text">Un objectif, une tâche de ta to-do — si c'est important pour toi, ça mérite des points.</p>
+      <form class="quete-form" onsubmit="event.preventDefault(); App.addCustomQuest(this)">
+        <input name="titre" placeholder="Ex : Finir le rapport, appeler le client..." required>
+        <select name="categorie">
+          ${Object.entries(quotas).map(([id, c]) => `<option value="${Esc.attr(id)}">${Esc.html(c.label)}</option>`).join('')}
+        </select>
+        <button type="submit" class="btn-primary">Ajouter</button>
+      </form>
     `;
   },
 
