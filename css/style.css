@@ -515,6 +515,10 @@
     display:flex;justify-content:center;gap:26px;flex-wrap:wrap;text-align:center;
   }
 
+  /* ---------- PROOF-GRID VARIANTS (landing pages with <3 cards) ---------- */
+  .proof-grid.cols-1{grid-template-columns:1fr;max-width:380px;margin:0 auto;}
+  .proof-grid.cols-2{grid-template-columns:repeat(2,1fr);max-width:700px;margin:0 auto;}
+
   @media (max-width:860px){
     .problem .grid, .authority .grid{grid-template-columns:1fr;}
     .pillars{grid-template-columns:1fr;gap:40px;text-align:center;}
@@ -526,4 +530,5 @@
     .comparison-grid{grid-template-columns:1fr;}
     .comparison-col.mh{border-left:none;border-top:1px solid var(--line);}
     .proof-grid{grid-template-columns:1fr;}
+    .proof-grid.cols-1, .proof-grid.cols-2{grid-template-columns:1fr;max-width:420px;}
   }
