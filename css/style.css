@@ -187,6 +187,10 @@
     display:flex;align-items:center;justify-content:center;
     color:var(--ink-soft);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;
   }
+  .problem-illustration{
+    width:60%;height:auto;
+    filter:grayscale(1) contrast(1.05);
+  }
   .problem-lead{
     font-family:'Cormorant Garamond',serif;
     font-style:italic;

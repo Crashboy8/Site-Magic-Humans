@@ -12,8 +12,8 @@ Landing page de Pierre Sarazin / Magic Humans, coaching de "Talent Unique". Le b
 ├── assets/
 │   └── img/
 │       ├── hero.webp          # Photo pleine largeur du hero
-│       ├── problem.webp       # Photo de la section "Problème"
 │       ├── authority.webp     # Portrait de la section "Qui suis-je"
+│       ├── illustrations/     # Pictos SVG (dont l'illustration de la section "Problème")
 │       └── logos/            # Les 14 logos clients du bandeau défilant
 └── .github/workflows/deploy.yml   # Déploiement automatique sur GitHub Pages
 ```
@@ -49,8 +49,9 @@ Si une URL de prévisualisation par branche (avant fusion dans `main`) est préf
 
 ## Prochaines étapes (itération)
 
-- **Photos** : remplacer `assets/img/hero.webp`, `problem.webp`, `authority.webp` par de nouvelles photos si besoin (même nom de fichier ou mettre à jour la référence dans `index.html`).
+- **Photos** : remplacer `assets/img/hero.webp`, `authority.webp` par de nouvelles photos si besoin (même nom de fichier ou mettre à jour la référence dans `index.html`).
+- **Illustration section "Problème"** : la photo couleur a été retirée (remplacée par le picto `wandering-mind.svg` en niveaux de gris) — à remplacer par une vraie photo dès que vous en fournissez une.
 - **Logos manquants** : Deloitte, Le Selman Marrakech, Fairmont Monaco, Chabé Paris ne sont pas encore dans `assets/img/logos/` — à ajouter dès que les fichiers sont disponibles (voir balises `<img>` dans la section "CLIENTS" de `index.html`).
-- **Prix des offres** : actuellement aucun prix n'est affiché sur les 4 formules (volontaire, pour préserver la vente en échange humain) — à revoir si la stratégie change.
+- **Prix des offres** : les 4 formules affichent désormais un prix fixe (980 € / 2 000 € / 3 000 € / 5 000 €).
 - **Témoignages vidéo** : à intégrer quand disponibles.
 - **Formulaire / nom de domaine** : à voir ensemble selon vos besoins (formulaire de contact, domaine personnalisé sur GitHub Pages).
