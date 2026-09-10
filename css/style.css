@@ -149,13 +149,14 @@
   @media (max-width:640px){
     .hero h1.hero-losange{max-width:100%;padding-inline:1rem;}
     .hero-losange__line{white-space:normal;}
+    br.br-desktop{display:none;}
   }
   .hero-reframe{
     font-family:'Cormorant Garamond',serif;
     font-style:italic;
     font-weight:500;
     font-size:clamp(24px,3.4vw,36px);
-    max-width:20ch;
+    max-width:30ch;
     margin:0 auto 30px;
     color:var(--orange-deep);
   }
