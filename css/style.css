@@ -294,6 +294,8 @@
   }
   .proof-card{background:var(--cream);padding:36px 30px;display:flex;flex-direction:column;}
   .proof-card h3{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:22px;margin-bottom:22px;}
+  .proof-card h3 + .proof-role{margin-top:-16px;}
+  .proof-role{font-size:13px;color:var(--ink-soft);letter-spacing:0.02em;margin-bottom:22px;}
   .proof-step{margin-bottom:18px;}
   .proof-label{display:block;font-family:'Jost',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
   .proof-step--after .proof-label{color:var(--orange-deep);}
