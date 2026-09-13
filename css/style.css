@@ -205,6 +205,11 @@
   .profile-item{display:flex;align-items:flex-start;gap:16px;}
   .profile-icon{height:52px;width:auto;flex-shrink:0;margin-top:2px;}
   .profile-item p{margin-bottom:18px;}
+  .avatar-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;margin-bottom:20px;}
+  .avatar-grid p{margin-bottom:0;font-size:15px;line-height:1.45;}
+  @media (max-width:600px){
+    .avatar-grid{grid-template-columns:1fr;gap:14px;}
+  }
 
   /* ---------- SOLUTION ---------- */
   .solution{
@@ -415,6 +420,20 @@
   .tier-row--result .tier-label{color:var(--orange-deep);}
   .tier-row--result p{color:var(--ink);}
   .tier .tier-price{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);font-size:13px;font-weight:600;letter-spacing:0.02em;color:var(--ink-soft);}
+  .tier-guarantee{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;color:var(--orange-deep);margin-top:4px;}
+  .offer-callout{
+    display:flex;align-items:center;gap:20px;justify-content:space-between;
+    background:var(--cream);border:2px solid var(--orange-deep);border-radius:12px;
+    padding:22px 28px;margin:0 0 34px;text-align:left;
+  }
+  .offer-callout-icon{font-size:26px;flex-shrink:0;}
+  .offer-callout-body{flex:1;}
+  .offer-callout-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;margin-bottom:4px;}
+  .offer-callout p{margin:0;font-size:14px;color:var(--ink-soft);}
+  .offer-callout-price{font-family:'Jost',sans-serif;font-weight:600;font-size:16px;color:var(--orange-deep);white-space:nowrap;}
+  @media (max-width:600px){
+    .offer-callout{flex-direction:column;text-align:center;gap:10px;}
+  }
   .offer .btn{margin-top:10px;}
   .offer-note{margin-top:18px;font-size:13px;font-style:italic;color:var(--ink-soft);}
 
