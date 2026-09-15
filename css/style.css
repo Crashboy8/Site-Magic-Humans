@@ -205,11 +205,9 @@
   .profile-item{display:flex;align-items:flex-start;gap:16px;}
   .profile-icon{height:52px;width:auto;flex-shrink:0;margin-top:2px;}
   .profile-item p{margin-bottom:18px;}
-  .avatar-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;margin-bottom:20px;}
-  .avatar-grid p{margin-bottom:0;font-size:15px;line-height:1.45;}
-  @media (max-width:600px){
-    .avatar-grid{grid-template-columns:1fr;gap:14px;}
-  }
+  .avatar-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
+  .avatar-grid p{margin-bottom:0;font-size:15.5px;line-height:1.5;}
+  .avatar-secondary{font-size:14px;font-style:italic;color:var(--ink-soft);margin-bottom:20px;}
 
   /* ---------- SOLUTION ---------- */
   .solution{
@@ -310,9 +308,6 @@
     color:var(--orange-deep);
     margin:80px auto 50px;
   }
-  .audience-card ul{margin:0;padding-left:20px;}
-  .audience-card ul li{font-size:15.5px;color:var(--ink-soft);margin-bottom:10px;}
-
   /* ---------- VIDEO ---------- */
   .video-feature{padding:130px 0;text-align:center;background:var(--blush);}
   .video-feature h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:20ch;margin:0 auto 14px;}
@@ -406,8 +401,9 @@
   .offer{padding:130px 0;background:var(--blush);text-align:center;scroll-margin-top:160px;}
   .offer h2{font-size:clamp(28px,3.8vw,40px);font-style:italic;max-width:20ch;margin:0 auto 18px;}
   .offer > .wrap > p{max-width:58ch;margin:0 auto 64px;color:var(--ink-soft);font-size:16px;}
+  .offer .wrap p.offer-intro{color:var(--orange-deep);font-weight:600;margin:0 auto 40px;}
   .tier-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+    display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
     background:var(--line);border:1px solid var(--line);
     text-align:left;margin-bottom:50px;
   }
@@ -421,30 +417,8 @@
   .tier-row--result p{color:var(--ink);}
   .tier .tier-price{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);font-size:13px;font-weight:600;letter-spacing:0.02em;color:var(--ink-soft);}
   .tier-guarantee{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;color:var(--orange-deep);margin-top:4px;}
-  .offer-callout{
-    display:flex;align-items:center;gap:20px;justify-content:space-between;
-    background:var(--cream);border:2px solid var(--orange-deep);border-radius:12px;
-    padding:22px 28px;margin:0 0 34px;text-align:left;
-  }
-  .offer-callout-icon{font-size:26px;flex-shrink:0;}
-  .offer-callout-body{flex:1;}
-  .offer-callout-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;margin-bottom:4px;}
-  .offer-callout p{margin:0;font-size:14px;color:var(--ink-soft);}
-  .offer-callout-price{font-family:'Jost',sans-serif;font-weight:600;font-size:16px;color:var(--orange-deep);white-space:nowrap;}
-  @media (max-width:600px){
-    .offer-callout{flex-direction:column;text-align:center;gap:10px;}
-  }
   .offer .btn{margin-top:10px;}
   .offer-note{margin-top:18px;font-size:13px;font-style:italic;color:var(--ink-soft);}
-
-  /* ---------- AUDIENCE ---------- */
-  .audience{padding:120px 0;text-align:center;}
-  .audience h2{font-size:clamp(28px,3.8vw,38px);font-style:italic;max-width:16ch;margin:0 auto 26px;}
-  .audience-intro{max-width:56ch;margin:0 auto 60px;color:var(--ink-soft);font-size:16px;}
-  .audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;text-align:left;margin-bottom:50px;}
-  .audience-card h3{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:23px;margin-bottom:14px;}
-  .audience-card p{font-size:15.5px;color:var(--ink-soft);}
-  .not-for{max-width:640px;margin:0 auto;font-size:14.5px;color:var(--ink-soft);font-style:italic;}
 
   /* ---------- TESTIMONIALS ---------- */
   .testimonials{padding:130px 0;text-align:center;scroll-margin-top:160px;}
@@ -578,7 +552,6 @@
     .t-grid-small{grid-template-columns:1fr;}
     .stat-row{justify-content:center;gap:32px;}
     .tier-grid{grid-template-columns:1fr;}
-    .audience-grid{grid-template-columns:1fr;}
     .video-grid{grid-template-columns:1fr;}
     .comparison-grid{grid-template-columns:1fr;}
     .comparison-col.mh{border-left:none;border-top:1px solid var(--line);}
