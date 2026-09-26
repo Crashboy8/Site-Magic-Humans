@@ -426,6 +426,18 @@
   .tier-guarantee{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;color:var(--orange-deep);margin-top:4px;}
   .offer .btn{margin-top:10px;}
   .offer-note{margin-top:18px;font-size:13px;font-style:italic;color:var(--ink-soft);}
+  .tier-list{list-style:none;padding:0;margin:0;}
+  .tier-list li{font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;padding-left:22px;position:relative;line-height:1.5;}
+  .tier-list li::before{content:'✓';position:absolute;left:0;top:0;color:var(--orange-deep);}
+  .tier--premium{box-shadow:0 0 0 2px var(--ink) inset;}
+  .mini-proof{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);}
+  .mini-proof p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--ink);margin-bottom:8px;}
+  .mini-proof-badge{display:inline-block;font-family:'Jost',sans-serif;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--orange-deep);background:var(--blush);padding:3px 8px;border-radius:3px;}
+  .tier-link{display:inline-block;margin-top:14px;font-size:13.5px;color:var(--orange-deep);text-decoration:underline;}
+  .tier-grid--single{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto;}
+  .risk-list{list-style:none;padding:0;margin:0;max-width:560px;margin-left:auto;margin-right:auto;text-align:left;}
+  .risk-list li{font-size:15px;color:var(--ink-soft);margin-bottom:16px;padding-left:26px;position:relative;line-height:1.5;}
+  .risk-list li::before{content:'✕';position:absolute;left:0;top:0;color:var(--orange-deep);opacity:0.6;}
 
   /* ---------- TESTIMONIALS ---------- */
   .testimonials{padding:130px 0;text-align:center;scroll-margin-top:160px;}
