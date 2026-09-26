@@ -61,9 +61,30 @@
         {
           "@type": "Offer",
           "name": "Pivot Stratégique",
-          "description": "3 à 6 mois, séances bimensuelles + suivi. De 3 500 € à 4 800 € selon le périmètre.",
-          "price": "3500",
+          "description": "3 à 6 mois, séances bimensuelles + suivi.",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "minPrice": "3500",
+            "maxPrice": "4800",
+            "priceCurrency": "EUR"
+          }
+        },
+        {
+          "@type": "Offer",
+          "name": "Rebond Stratégique",
+          "description": "Environ 10 à 15h sur quelques semaines, Diagnostic Talent & Cap inclus. Pour entrepreneurs et indépendants qui relancent ou réorientent leur activité.",
+          "price": "3000",
           "priceCurrency": "EUR"
+        },
+        {
+          "@type": "Offer",
+          "name": "Reprise Alignée",
+          "description": "Sur mesure, Diagnostic Talent & Cap inclus, sur candidature. Pour repreneurs après un exit.",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "minPrice": "10000",
+            "priceCurrency": "EUR"
+          }
         }
       ]
     },
@@ -135,7 +156,7 @@
         <a href="alternative-bilan-de-competences/" class="nav-link" data-en="Skills assessment alternative">Alternative bilan</a>
         <a href="reconversion-cadre-sens/" class="nav-link" data-en="Manager career change">Reconversion cadre</a>
         <a href="multi-talents-transition/" class="nav-link" data-en="Multi-talented in transition">Multi-talents en transition</a>
-        <a href="coaching-independant-positionnement/" class="nav-link" data-en="Independents / positioning">Indépendants / positionnement</a>
+        <a href="coaching-independant-positionnement/" class="nav-link" data-en="Strategic rebound">Rebond stratégique</a>
         <a href="reprise-entreprise/" class="nav-link" data-en="Business buyout">Reprise entreprise</a>
       </div>
       <div class="lang-toggle">
@@ -383,7 +404,7 @@
         </div>
         <div class="tier-row tier-row--result">
           <span class="tier-label" data-en="Result">Résultat</span>
-          <p data-en="An aligned career reconfiguration or entrepreneurial vehicle, with the transition secured.">Une reconfiguration de carrière ou un véhicule entrepreneurial aligné, transition sécurisée.</p>
+          <p data-en="An aligned career reconfiguration, with the transition secured.">Une reconfiguration de carrière, transition sécurisée.</p>
         </div>
         <p class="tier-price" data-en="€3,500 to €4,800">3&nbsp;500&nbsp;€ à 4&nbsp;800&nbsp;€</p>
       </div>
@@ -398,8 +419,13 @@
   <div class="wrap">
     <h2 data-en="Entrepreneurs and business buyers">Entrepreneurs et repreneurs</h2>
     <p data-en="Your talent must also guide your business. The one you already have, or the one you&rsquo;re about to buy.">Votre talent doit aussi guider votre business. Celui que vous avez, ou celui que vous allez racheter.</p>
+    <ul style="list-style:none;padding:0;margin:0 auto 50px;max-width:520px;display:flex;flex-direction:column;gap:12px;font-size:14.5px;">
+      <li><a href="#offre" style="color:var(--ink-soft);text-decoration:underline;" data-en="You&rsquo;re an employee or executive and want to change direction: Strategic Pivot.">Vous êtes salarié ou cadre et voulez changer de trajectoire : Pivot Stratégique.</a></li>
+      <li><a href="#rebond-strategique" style="color:var(--ink-soft);text-decoration:underline;" data-en="You already have a business to relaunch or redirect: Strategic Rebound.">Vous avez déjà une activité à relancer ou à réorienter : Rebond Stratégique.</a></li>
+      <li><a href="#reprise-alignee" style="color:var(--ink-soft);text-decoration:underline;" data-en="You&rsquo;re preparing a buyout after an exit: Aligned Business Buyout.">Vous préparez un rachat après un exit : Reprise Alignée.</a></li>
+    </ul>
     <div class="tier-grid">
-      <div class="tier">
+      <div class="tier" id="rebond-strategique">
         <div class="tier-icon">🛠️</div>
         <div class="tier-name" data-en="Strategic Rebound">Rebond Stratégique</div>
         <div class="tier-row">
@@ -408,7 +434,7 @@
         </div>
         <div class="tier-row">
           <span class="tier-label" data-en="Format">Format</span>
-          <p data-en="About 10 to 15h in total, Talent & Direction Diagnostic included, over a few weeks.">Environ 10 à 15&nbsp;h au total, Diagnostic Talent &amp; Cap inclus, sur quelques semaines.</p>
+          <p data-en="About 10 to 15h over a few weeks, Talent & Direction Diagnostic included.">Environ 10 à 15&nbsp;h sur quelques semaines, Diagnostic Talent &amp; Cap inclus.</p>
         </div>
         <div class="tier-row">
           <span class="tier-label" data-en="What we work on">Ce qu'on travaille</span>
@@ -427,7 +453,8 @@
           <span class="tier-label" data-en="Result">Résultat</span>
           <p data-en="A clear offer, a precise target, a business that truly reflects you and that you can sustain over time.">Une offre claire, une cible précise, un business qui vous ressemble et que vous pouvez tenir dans la durée.</p>
         </div>
-        <p class="tier-price" data-en="€3,000<br><span class=&quot;tier-guarantee&quot;>Talent & Direction Diagnostic €980, 100% deducted</span>">3&nbsp;000&nbsp;€<br><span class="tier-guarantee">Diagnostic 980&nbsp;€ 100% déductible</span></p>
+        <p class="tier-price" data-en="€3,000 all included">3&nbsp;000&nbsp;€ tout compris</p>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin-top:6px;" data-en="Already done the Diagnostic? Its €980 are deducted.">Déjà fait le Diagnostic&nbsp;? Ses 980&nbsp;€ sont déduits.</p>
         <div class="mini-proof">
           <p data-en="&ldquo;Just a few months later, I finally launched as a consultant. Today I run my consulting firm full-time.&rdquo;">« À peine quelques mois plus tard, je me suis enfin lancé comme consultant. Je gère aujourd'hui mon cabinet de conseil à plein temps. »</p>
           <span class="mini-proof-badge" data-en="Shawn, Google review">Shawn, avis Google</span>
@@ -435,7 +462,7 @@
         <a href="https://calendly.com/pierre-j-sarazin?utm_source=site&amp;utm_medium=cta&amp;utm_campaign=rebond-strategique" class="btn btn-orange" data-en="Book my Situation &amp; Direction Diagnostic">Réserver mon Diagnostic Situation pro &amp; Cap</a>
         <a href="coaching-independant-positionnement/" class="tier-link" data-en="See the Strategic Rebound program">Voir l'accompagnement Rebond</a>
       </div>
-      <div class="tier tier--premium">
+      <div class="tier tier--premium" id="reprise-alignee">
         <div class="tier-icon">🔑</div>
         <div class="tier-name" data-en="Aligned Business Buyout">Reprise Alignée</div>
         <div class="tier-row">
@@ -444,7 +471,7 @@
         </div>
         <div class="tier-row">
           <span class="tier-label" data-en="Format">Format</span>
-          <p data-en="About 10 to 15h, Talent & Direction Diagnostic included. By application.">Environ 10 à 15&nbsp;h, Diagnostic Talent &amp; Cap inclus. Sur candidature.</p>
+          <p data-en="Tailored to you, Talent & Direction Diagnostic included. A limited number of buyers supported in parallel, by application.">Sur mesure, Diagnostic Talent &amp; Cap inclus. Nombre limité de repreneurs accompagnés en parallèle, sur candidature.</p>
         </div>
         <div class="tier-row">
           <span class="tier-label" data-en="What we work on">Ce qu'on travaille</span>
@@ -455,11 +482,14 @@
             <li data-en="Your success context, to check that the target&rsquo;s business model fits you">Votre contexte de réussite, pour vérifier que le business model de la cible vous correspond</li>
             <li data-en="The situations where you set yourself up to fail, so you don&rsquo;t repeat them">Les situations où vous vous mettez en échec, pour ne pas les reproduire</li>
             <li data-en="Your flaws that irritate employees, clients and partners, defused before the buyout">Vos défauts qui agacent salariés, clients et partenaires, pour les désamorcer avant la reprise</li>
+            <li data-en="A review of 2 to 3 real target files against your grid">Relecture de 2 à 3 dossiers de cibles réelles face à votre grille</li>
+            <li data-en="A green light or red light session before your letter of intent">Une séance feu vert ou feu rouge avant votre lettre d'intention</li>
+            <li data-en="Direct access to Pierre between sessions during your search">Un accès direct à Pierre entre les séances pendant votre recherche</li>
           </ul>
         </div>
         <div class="tier-row tier-row--result">
           <span class="tier-label" data-en="Result">Résultat</span>
-          <p data-en="Your personal criteria checklist, to evaluate as many companies as you want and know whether company X or Y truly matches how you function.">Votre checklist personnelle de critères, pour évaluer autant d'entreprises que vous voulez et savoir si la boîte X ou Y correspond pleinement à votre fonctionnement.</p>
+          <p data-en="Your buyout compass: a clear decision grid, tailored to your DNA, to say yes or no to every buyout opportunity, today and tomorrow.">Votre boussole de reprise : une grille de décision claire, taillée sur votre ADN, pour dire oui ou non à chaque opportunité de reprise, aujourd'hui et demain.</p>
         </div>
         <p class="tier-price" data-en="From €10,000<br><span class=&quot;tier-guarantee&quot;>Diagnostic included, by application</span>">À partir de 10&nbsp;000&nbsp;€<br><span class="tier-guarantee">Diagnostic inclus, sur candidature</span></p>
         <a href="https://calendly.com/pierre-j-sarazin?utm_source=site&amp;utm_medium=cta&amp;utm_campaign=reprise-alignee" class="btn btn-orange" data-en="Apply for the Aligned Business Buyout">Candidater pour la Reprise Alignée</a>
@@ -697,12 +727,11 @@
 
 <footer>
   <div class="wrap" style="display:flex;flex-direction:column;align-items:center;gap:18px;">
-    <div style="font-size:13px;color:var(--ink-soft);" data-en="Prefer to meet me in a group first? <a href=&quot;https://www.facebook.com/events/1082443034244982&quot; style=&quot;color:var(--orange-deep);text-decoration:underline;&quot;>Join the &ldquo;Brisons la Glace&rdquo; workshop →</a>">Vous préférez d'abord me rencontrer en groupe ? <a href="https://www.facebook.com/events/1082443034244982" style="color:var(--orange-deep);text-decoration:underline;">Rejoignez l'atelier Brisons la Glace →</a></div>
     <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;font-size:12.5px;">
       <a href="alternative-bilan-de-competences/" style="color:var(--ink-soft);" data-en="Skills assessment alternative">Alternative bilan</a>
       <a href="reconversion-cadre-sens/" style="color:var(--ink-soft);" data-en="Manager career change">Reconversion cadre</a>
       <a href="multi-talents-transition/" style="color:var(--ink-soft);" data-en="Multi-talented in transition">Multi-talents en transition</a>
-      <a href="coaching-independant-positionnement/" style="color:var(--ink-soft);" data-en="Independents / positioning">Indépendants / positionnement</a>
+      <a href="coaching-independant-positionnement/" style="color:var(--ink-soft);" data-en="Strategic rebound">Rebond stratégique</a>
       <a href="reprise-entreprise/" style="color:var(--ink-soft);" data-en="Business buyout">Reprise entreprise</a>
     </div>
     <div style="display:flex;justify-content:center;gap:26px;flex-wrap:wrap;">
