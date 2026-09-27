@@ -10,6 +10,10 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
+  .tier,
+  [id]{
+    scroll-margin-top:80px;
+  }
   body{
     background:var(--cream);
     color:var(--ink);
