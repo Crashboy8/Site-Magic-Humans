@@ -151,6 +151,18 @@
     .hero-losange__line{white-space:normal;}
     br.br-desktop{display:none;}
   }
+  .cta-microline{font-size:13.5px;color:var(--ink-soft);margin-top:12px;max-width:38ch;margin-left:auto;margin-right:auto;line-height:1.5;}
+  @media (max-width:480px){
+    .hero{padding:64px 0 0;}
+    .hero .wrap{display:flex;flex-direction:column;}
+    .hero .script{order:1;margin-bottom:10px;}
+    .hero h1.hero-losange{order:2;font-size:23px;line-height:1.2;margin-bottom:14px;}
+    .hero > .wrap > a.btn{order:3;}
+    .hero .cta-microline{order:4;}
+    .hero-reframe{order:5;margin-top:22px;}
+    .hero p.lede{order:6;}
+    .hero-photo{order:7;}
+  }
   .hero-reframe{
     font-family:'Cormorant Garamond',serif;
     font-style:italic;
@@ -505,6 +517,7 @@
   }
   .final-cta p{max-width:50ch;margin:0 auto 38px;font-size:16.5px;color:rgba(251,247,240,0.78);}
   .final-cta .reassure{margin-top:22px;font-size:13px;color:rgba(251,247,240,0.6);font-style:italic;}
+  .final-cta .cta-microline{color:rgba(251,247,240,0.6);}
 
   /* ---------- VIDEO TESTIMONIALS ---------- */
   .video-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-bottom:80px;text-align:center;}

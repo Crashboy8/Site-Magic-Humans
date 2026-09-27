@@ -1,28 +1,46 @@
-# Magic Humans — Landing page
+# Magic Humans
 
-Landing page de Pierre Sarazin / Magic Humans, coaching de "Talent Unique". Le but de la page est unique : faire réserver un appel de diagnostic via Calendly (`https://calendly.com/pierre-j-sarazin`).
+Site de Pierre Sarazin / Magic Humans, coaching du Talent Unique pour cadres, dirigeants et entrepreneurs en transition. Site 100 % statique (HTML, CSS, JavaScript vanilla), sans build ni dépendance. Objectif principal : faire réserver un appel de diagnostic via Calendly (`https://calendly.com/pierre-j-sarazin`).
 
 ## Structure du projet
 
 ```
 .
-├── index.html              # Contenu de la page (HTML uniquement)
+├── index.html                              # Home
+├── alternative-bilan-de-competences/
+│   └── index.html                          # Landing : alternative au bilan de compétences
+├── reconversion-cadre-sens/
+│   └── index.html                          # Landing : reconversion de cadre
+├── multi-talents-transition/
+│   └── index.html                          # Landing : multi-talents en transition
+├── coaching-independant-positionnement/
+│   └── index.html                          # Landing : rebond stratégique
+├── reprise-entreprise/
+│   └── index.html                          # Landing : reprise d'entreprise
+├── 404.html                                # Page introuvable
 ├── css/
-│   └── style.css            # Toute la direction artistique (couleurs, typographies, mise en page)
+│   └── style.css                           # Toute la direction artistique
+├── js/
+│   ├── i18n.js                             # Bascule FR / EN (attribut data-en)
+│   ├── nav.js                              # Menu mobile
+│   └── lightbox.js                         # Agrandissement de l'image Ikigaï
 ├── assets/
-│   └── img/
-│       ├── hero.webp          # Photo pleine largeur du hero
-│       ├── authority.webp     # Portrait de la section "Qui suis-je"
-│       ├── illustrations/     # Pictos SVG (dont l'illustration de la section "Problème")
-│       └── logos/            # Les 14 logos clients du bandeau défilant
-└── .github/workflows/deploy.yml   # Déploiement automatique sur GitHub Pages
+│   ├── img/                                # Photos, logos, illustrations
+│   └── video/                              # Témoignages vidéo
+├── sitemap.xml
+├── robots.txt
+└── vercel.json                             # Configuration de déploiement
 ```
 
-Le fichier original (maquette validée) était un unique `index.html` de 1,3 Mo contenant tout le CSS et toutes les images encodées en base64. Il a été découpé en fichiers séparés (HTML / CSS / images) pour être un vrai projet maintenable, sans aucun changement de contenu ni de design.
+Chaque page a sa propre balise `<html lang="fr">`, ses métadonnées (title, description, Open Graph, Twitter Card, JSON-LD) et son bloc `<nav>` / `<footer>` identiques, reliant toutes les pages entre elles.
+
+## Internationalisation
+
+Les éléments traduisibles portent un attribut `data-en="..."`. Le script `js/i18n.js` bascule l'affichage entre le français (par défaut) et l'anglais au clic sur le sélecteur FR / EN, sans rechargement de page, et mémorise le choix dans le stockage local du navigateur.
 
 ## Aperçu en local
 
-Aucune dépendance, aucun build : c'est un site 100% statique.
+Aucune dépendance, aucun build.
 
 ```bash
 python3 -m http.server 8000
@@ -31,27 +49,14 @@ python3 -m http.server 8000
 
 ou simplement ouvrir `index.html` directement dans un navigateur.
 
-## Déploiement — GitHub Pages
+## Déploiement
 
-GitHub Pages a été retenu comme option de déploiement : gratuit, aucun compte tiers à créer, et directement intégré à ce dépôt GitHub.
+Le site est déployé sur Vercel : chaque push sur la branche `main` déclenche automatiquement un nouveau déploiement, sans configuration de build (site statique, racine du dépôt).
 
-Le workflow `.github/workflows/deploy.yml` déploie automatiquement le site à chaque push sur la branche `main`.
+`vercel.json` force les URL avec slash final (`trailingSlash: true`) pour rester cohérent avec la structure en dossiers du projet.
 
-**Étape unique à faire une fois, manuellement, dans les réglages GitHub** (accès non disponible depuis cette session) :
+Le suivi d'audience utilise Vercel Web Analytics (script chargé sur chaque page, sans cookies ni bandeau de consentement).
 
-1. Aller dans **Settings → Pages** du dépôt.
-2. Sous "Build and deployment", choisir **Source : GitHub Actions**.
-3. Une fois cette branche fusionnée dans `main`, le site sera automatiquement publié à l'URL `https://<votre-compte>.github.io/Site-Magic-Humans/`.
+## Suivi des campagnes
 
-### Alternative : Vercel ou Netlify
-
-Si une URL de prévisualisation par branche (avant fusion dans `main`) est préférable, Vercel ou Netlify conviennent aussi très bien pour un site statique comme celui-ci — il suffit de connecter le dépôt GitHub depuis leur interface (aucune configuration de build nécessaire, "root directory" = racine du dépôt). Cela demande cependant de créer un compte sur leur plateforme, ce que je ne peux pas faire à votre place.
-
-## Prochaines étapes (itération)
-
-- **Photos** : remplacer `assets/img/hero.webp`, `authority.webp` par de nouvelles photos si besoin (même nom de fichier ou mettre à jour la référence dans `index.html`).
-- **Illustration section "Problème"** : la photo couleur a été retirée (remplacée par le picto `wandering-mind.svg` en niveaux de gris) — à remplacer par une vraie photo dès que vous en fournissez une.
-- **Logos manquants** : Deloitte, Le Selman Marrakech, Fairmont Monaco, Chabé Paris ne sont pas encore dans `assets/img/logos/` — à ajouter dès que les fichiers sont disponibles (voir balises `<img>` dans la section "CLIENTS" de `index.html`).
-- **Prix des offres** : les 4 formules affichent désormais un prix fixe (450 € / 2 000 € / 3 000 € / 5 000 €).
-- **Témoignages vidéo** : à intégrer quand disponibles.
-- **Formulaire / nom de domaine** : à voir ensemble selon vos besoins (formulaire de contact, domaine personnalisé sur GitHub Pages).
+Les liens Calendly du site portent des paramètres UTM normalisés (`utm_source=site`, `utm_medium=cta`, `utm_campaign=<page>`, `utm_content=<position du bouton>`) pour distinguer l'origine des demandes de rendez-vous selon la page et l'emplacement du bouton cliqué.
