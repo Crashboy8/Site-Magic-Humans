@@ -150,6 +150,9 @@
     display:block;
     white-space:nowrap;
   }
+  @media (max-width:1150px){
+    .hero-losange__line{white-space:normal;}
+  }
   @media (max-width:640px){
     .hero h1.hero-losange{max-width:100%;padding-inline:1rem;}
     .hero-losange__line{white-space:normal;}
