@@ -23,9 +23,8 @@
 <meta name="twitter:description" content="Diagnostic Talent &amp; Cap à 980 €, déduit de votre accompagnement. Pour cadres, dirigeants et entrepreneurs en transition qui veulent un cap clair.">
 <meta name="twitter:image" content="https://www.magichumans.com/assets/img/og-image.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Caveat:wght@500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/cormorant-garamond-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/jost-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 
 <script type="application/ld+json">
@@ -141,7 +140,7 @@
 
 <nav>
   <div class="wrap">
-    <div class="logo"><img src="assets/img/logo-nav.png" width="1000" height="383" alt="Magic Humans"></div>
+    <div class="logo"><img src="assets/img/logo-nav.webp" width="626" height="240" alt="Magic Humans"></div>
     <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-panel" aria-label="Menu">
       <span class="nav-toggle-bar"></span>
     </button>
@@ -184,7 +183,7 @@
     <p class="lede" data-en="Not because something is missing, but because you don&rsquo;t yet know how to name it, or structure it. It&rsquo;s not a skills assessment, it&rsquo;s the opposite: an assessment puts you in grids and boxes, I focus on what makes you unique. To turn that potential into a clear, structured, aligned direction.">Pas parce qu'il vous manque quelque chose, mais parce que vous ne savez pas encore le nommer, ou le structurer. Ce n'est pas un bilan de compétences, c'est l'inverse : un bilan vous range dans des grilles et des cases, moi je m'intéresse à ce qui vous rend unique. Pour transformer ce potentiel en cap clair, structuré, aligné.</p>
     <a href="https://calendly.com/pierre-j-sarazin?utm_source=site&amp;utm_medium=cta&amp;utm_campaign=home&amp;utm_content=hero" class="btn btn-orange" data-en="Book my Situation &amp; Direction Diagnostic">Réserver mon Diagnostic Situation pro &amp; Cap</a>
     <p class="cta-microline" data-en="First one-hour session offered: we take stock of your situation and start identifying your Unique Talent. No commitment.">Première séance d'une heure offerte : on fait le point sur votre situation et on commence à cerner votre Talent Unique. Sans engagement.</p>
-    <div class="hero-photo"><img src="assets/img/hero.webp" width="1200" height="1800" fetchpriority="high" alt="Pierre Sarazin"></div>
+    <div class="hero-photo"><img src="assets/img/hero-900.webp" srcset="assets/img/hero-600.webp 600w, assets/img/hero-900.webp 900w, assets/img/hero-1200.webp 1200w" sizes="(min-width: 744px) 680px, calc(100vw - 64px)" width="1200" height="1800" fetchpriority="high" alt="Pierre Sarazin"></div>
   </div>
 </header>
 
@@ -192,7 +191,7 @@
 <section class="problem">
   <div class="wrap grid">
     <div class="problem-photo">
-      <img class="problem-illustration" src="assets/img/illustrations/wandering-mind.svg" width="678" height="504" loading="lazy" alt="" aria-hidden="true">
+      <img class="problem-illustration" src="assets/img/illustrations/wandering-mind.svg" width="678" height="504" loading="lazy" decoding="async" alt="" aria-hidden="true">
     </div>
     <div>
       <p class="problem-lead" data-en="You&rsquo;re not tired because you don&rsquo;t work hard enough.<br>You&rsquo;re tired because you no longer know what makes you unique.">Vous n'êtes pas fatigué parce que vous ne travaillez pas assez.<br>Vous êtes fatigué parce que vous ne savez plus ce qui vous rend unique.</p>
@@ -227,7 +226,7 @@
     <p data-en="Your Unique Talent is neither a skill nor an isolated personality trait. It&rsquo;s the precise, and non-reproducible, combination of your natural way of thinking, acting, and creating value. The Magic&nbsp;Humans method draws on Ikigai (the intersection between what you love, what you&rsquo;re good at, what the world needs, and what you can be paid for), combined with behavioral modeling, to bring it out of the shadows and put it to work.">Votre Talent Unique n'est ni une compétence, ni un trait de personnalité isolé. C'est la combinaison précise, et non reproductible, de votre façon naturelle de penser, d'agir et de créer de la valeur. La méthode Magic&nbsp;Humans s'appuie sur l'Ikigaï (l'intersection entre ce que vous aimez, ce pour quoi vous êtes doué, ce dont le monde a besoin, et ce pour quoi vous êtes payé), combiné à la modélisation comportementale, pour le sortir de l'ombre et le mettre au travail.</p>
 
     <div class="ikigai-diagram">
-      <img src="assets/img/ikigai-original.webp" width="474" height="447" loading="lazy" alt="Diagramme de l'Ikigaï : l'intersection entre ce que vous aimez, ce pour quoi vous êtes doué, ce dont le monde a besoin et ce pour quoi vous êtes payé" id="ikigai-trigger">
+      <img src="assets/img/ikigai-original.webp" width="474" height="447" loading="lazy" decoding="async" alt="Diagramme de l'Ikigaï : l'intersection entre ce que vous aimez, ce pour quoi vous êtes doué, ce dont le monde a besoin et ce pour quoi vous êtes payé" id="ikigai-trigger">
       <span class="zoom-hint" data-en="Click to enlarge">Cliquer pour agrandir</span>
     </div>
 
@@ -237,7 +236,7 @@
 
     <div class="comparison-grid">
       <div class="comparison-col classic">
-        <img class="comparison-icon" src="assets/img/illustrations/wandering-mind.svg" width="678" height="504" loading="lazy" alt="" aria-hidden="true">
+        <img class="comparison-icon" src="assets/img/illustrations/wandering-mind.svg" width="678" height="504" loading="lazy" decoding="async" alt="" aria-hidden="true">
         <h4 data-en="Classic skills assessment">Bilan de compétences classique</h4>
         <ul>
           <li data-en="Weeks of standardized questionnaires">Des semaines de questionnaires standardisés</li>
@@ -247,7 +246,7 @@
         </ul>
       </div>
       <div class="comparison-col mh">
-        <img class="comparison-icon" src="assets/img/illustrations/right-direction.svg" width="800" height="745" loading="lazy" alt="" aria-hidden="true">
+        <img class="comparison-icon" src="assets/img/illustrations/right-direction.svg" width="800" height="745" loading="lazy" decoding="async" alt="" aria-hidden="true">
         <h4>Magic&nbsp;Humans</h4>
         <ul>
           <li data-en="We explore your shadow zone: your flaws are clues, not problems to fix">On explore votre zone d'ombre : vos défauts sont des indices, pas des problèmes à corriger</li>
@@ -279,7 +278,7 @@
     <h2 data-en="What it changed for them">Ce que ça a changé pour eux</h2>
     <div class="proof-grid">
       <div class="proof-card">
-        <div class="mini-avatar"><img src="assets/img/testimonials/shawn.webp" width="800" height="800" loading="lazy" alt="Shawn"></div>
+        <div class="mini-avatar"><img src="assets/img/testimonials/shawn.webp" width="104" height="104" loading="lazy" decoding="async" alt="Shawn"></div>
         <h3>Shawn</h3>
         <div class="proof-step">
           <span class="proof-label" data-en="Before">Avant</span>
@@ -296,7 +295,7 @@
         <p class="proof-quote" data-en="&ldquo;The talent that let me start my own company.&rdquo;">« Le talent qui m'a permis de créer ma boîte. »</p>
       </div>
       <div class="proof-card">
-        <div class="mini-avatar"><img src="assets/img/testimonials/dayane.webp" width="497" height="497" loading="lazy" alt="Dayane"></div>
+        <div class="mini-avatar"><img src="assets/img/testimonials/dayane.webp" width="168" height="168" loading="lazy" decoding="async" alt="Dayane"></div>
         <h3>Dayane</h3>
         <div class="proof-step">
           <span class="proof-label" data-en="Before">Avant</span>
@@ -313,7 +312,7 @@
         <p class="proof-quote" data-en="&ldquo;I highly recommend Pierre Sarazin as an outstanding Soft Skills coach and trainer.&rdquo;">« Je recommande vivement Pierre Sarazin en tant que coach et formateur exceptionnel en Soft Skills. »</p>
       </div>
       <div class="proof-card">
-        <div class="mini-avatar"><img src="assets/img/testimonials/raphael.webp" width="800" height="800" loading="lazy" alt="Raphaël"></div>
+        <div class="mini-avatar"><img src="assets/img/testimonials/raphael.webp" width="168" height="168" loading="lazy" decoding="async" alt="Raphaël"></div>
         <h3>Raphaël</h3>
         <p class="proof-role">Love coach, Amour &amp; Connexion</p>
         <div class="proof-step">
@@ -339,19 +338,19 @@
   <div class="wrap">
     <div class="pillars">
       <div class="pillar">
-        <img class="pillar-icon" src="assets/img/illustrations/bright-ideas.svg" width="795" height="804" loading="lazy" alt="" aria-hidden="true">
+        <img class="pillar-icon" src="assets/img/illustrations/bright-ideas.svg" width="795" height="804" loading="lazy" decoding="async" alt="" aria-hidden="true">
         <span class="script">01</span>
         <h3 data-en="Know">Connaître</h3>
         <p data-en="Not sure which direction to take? Your flaws, your contradictions aren&rsquo;t bugs to fix. They&rsquo;re clues about how you truly function.">Vous ne savez pas dans quelle direction aller ? Vos défauts, vos contradictions ne sont pas des bugs à corriger. Ce sont des indices sur votre fonctionnement brut.</p>
       </div>
       <div class="pillar">
-        <img class="pillar-icon" src="assets/img/illustrations/feeling-proud.svg" width="711" height="670" loading="lazy" alt="" aria-hidden="true">
+        <img class="pillar-icon" src="assets/img/illustrations/feeling-proud.svg" width="711" height="670" loading="lazy" decoding="async" alt="" aria-hidden="true">
         <span class="script">02</span>
         <h3 data-en="Own it">Assumer</h3>
         <p data-en="Succeeding on paper but feeling out of sync? We don&rsquo;t start from your diplomas or your work history, but from what genuinely drives you.">Vous réussissez sur le papier mais vous vous sentez à côté ? On ne part pas de vos diplômes ou de votre historique, mais de ce qui vous anime réellement.</p>
       </div>
       <div class="pillar">
-        <img class="pillar-icon" src="assets/img/illustrations/public-speaking.svg" width="960" height="618" loading="lazy" alt="" aria-hidden="true">
+        <img class="pillar-icon" src="assets/img/illustrations/public-speaking.svg" width="960" height="618" loading="lazy" decoding="async" alt="" aria-hidden="true">
         <span class="script">03</span>
         <h3 data-en="Embody it">Incarner</h3>
         <p data-en="Working hard but it doesn&rsquo;t show? I give you the structure to craft a clear offer, a precise target, and a positioning that finally reflects your real value.">Vous travaillez dur mais ça ne se voit pas ? Je vous donne la structure pour formuler une offre claire, une cible précise, un positionnement qui reflète enfin votre vraie valeur.</p>
@@ -367,10 +366,10 @@
   <div class="wrap">
     <h2 data-en="From vague intuition to total clarity">De l'intuition floue à la clarté totale</h2>
     <div class="step-list">
-      <div class="step"><div class="n">01</div><div><img class="step-icon" src="assets/img/illustrations/finding-the-way.svg" width="463" height="800" loading="lazy" alt="" aria-hidden="true"><h3 data-en="Diagnosis and exploration">Diagnostic et exploration</h3><p data-en="An in-depth conversation to map your journey, your natural successes, and the signals of your Unique Talent.">Un temps d'échange approfondi pour cartographier votre parcours, vos réussites naturelles et les signaux de votre Talent Unique.</p></div></div>
-      <div class="step"><div class="n">02</div><div><img class="step-icon" src="assets/img/illustrations/writing-down-ideas.svg" width="718" height="594" loading="lazy" alt="" aria-hidden="true"><h3 data-en="Modeling">Modélisation</h3><p data-en="Precisely putting your talent into words: how it&rsquo;s triggered, in which contexts it expresses itself best, what it concretely produces.">Mise en mots précise de votre talent : comment il se déclenche, dans quels contextes il s'exprime le mieux, ce qu'il produit concrètement.</p></div></div>
-      <div class="step"><div class="n">03</div><div><img class="step-icon" src="assets/img/illustrations/confident.svg" width="679" height="762" loading="lazy" alt="" aria-hidden="true"><h3 data-en="Embodiment">Incarnation</h3><p data-en="Work on posture and messaging: how to carry this talent with confidence and clarity in your professional environment.">Travail sur la posture et le discours : comment porter ce talent avec assurance et clarté, dans votre environnement professionnel.</p></div></div>
-      <div class="step"><div class="n">04</div><div><img class="step-icon" src="assets/img/illustrations/stepping-up.svg" width="800" height="600" loading="lazy" alt="" aria-hidden="true"><h3 data-en="Taking action">Passage à l'action</h3><p data-en="Building a concrete plan (repositioning, entrepreneurial project, career change) aligned with this clarified talent.">Construction d'un plan concret (repositionnement, projet entrepreneurial, évolution de carrière) aligné sur ce talent clarifié.</p></div></div>
+      <div class="step"><div class="n">01</div><div><img class="step-icon" src="assets/img/illustrations/finding-the-way.svg" width="463" height="800" loading="lazy" decoding="async" alt="" aria-hidden="true"><h3 data-en="Diagnosis and exploration">Diagnostic et exploration</h3><p data-en="An in-depth conversation to map your journey, your natural successes, and the signals of your Unique Talent.">Un temps d'échange approfondi pour cartographier votre parcours, vos réussites naturelles et les signaux de votre Talent Unique.</p></div></div>
+      <div class="step"><div class="n">02</div><div><img class="step-icon" src="assets/img/illustrations/writing-down-ideas.svg" width="718" height="594" loading="lazy" decoding="async" alt="" aria-hidden="true"><h3 data-en="Modeling">Modélisation</h3><p data-en="Precisely putting your talent into words: how it&rsquo;s triggered, in which contexts it expresses itself best, what it concretely produces.">Mise en mots précise de votre talent : comment il se déclenche, dans quels contextes il s'exprime le mieux, ce qu'il produit concrètement.</p></div></div>
+      <div class="step"><div class="n">03</div><div><img class="step-icon" src="assets/img/illustrations/confident.svg" width="679" height="762" loading="lazy" decoding="async" alt="" aria-hidden="true"><h3 data-en="Embodiment">Incarnation</h3><p data-en="Work on posture and messaging: how to carry this talent with confidence and clarity in your professional environment.">Travail sur la posture et le discours : comment porter ce talent avec assurance et clarté, dans votre environnement professionnel.</p></div></div>
+      <div class="step"><div class="n">04</div><div><img class="step-icon" src="assets/img/illustrations/stepping-up.svg" width="800" height="600" loading="lazy" decoding="async" alt="" aria-hidden="true"><h3 data-en="Taking action">Passage à l'action</h3><p data-en="Building a concrete plan (repositioning, entrepreneurial project, career change) aligned with this clarified talent.">Construction d'un plan concret (repositionnement, projet entrepreneurial, évolution de carrière) aligné sur ce talent clarifié.</p></div></div>
     </div>
   </div>
 </section>
@@ -528,38 +527,38 @@
     <span class="script" data-en="They trusted me (training and coaching)">Ils m'ont fait confiance (formation et accompagnement)</span>
   </div>
   <div class="marquee">
-    <img src="assets/img/logos/renault.png" width="88" height="88" loading="lazy" alt="Renault">
-    <img src="assets/img/logos/salomon.png" width="136" height="88" loading="lazy" alt="Salomon">
-    <img src="assets/img/logos/aeroports-de-paris.png" width="120" height="88" loading="lazy" alt="Aéroports de Paris">
-    <img src="assets/img/logos/la-mamounia-marrakech.png" width="166" height="88" loading="lazy" alt="La Mamounia Marrakech">
-    <img src="assets/img/logos/sofitel.png" width="152" height="88" loading="lazy" alt="Sofitel">
-    <img src="assets/img/logos/jetex.png" width="247" height="88" loading="lazy" alt="Jetex">
-    <img src="assets/img/logos/xerox.png" width="364" height="88" loading="lazy" alt="Xerox">
-    <img src="assets/img/logos/inseec.png" width="307" height="88" loading="lazy" alt="INSEEC">
-    <img src="assets/img/logos/isg.png" width="88" height="88" loading="lazy" alt="ISG">
-    <img src="assets/img/logos/isc-paris.png" width="179" height="88" loading="lazy" alt="ISC Paris">
-    <img src="assets/img/logos/de-vinci-higher-education.png" width="72" height="88" loading="lazy" alt="De Vinci Higher Education">
-    <img src="assets/img/logos/ministere-de-la-transition-ecologique.png" width="229" height="88" loading="lazy" alt="Ministère de la Transition Écologique">
-    <img src="assets/img/logos/pole-emploi.png" width="108" height="88" loading="lazy" alt="Pôle Emploi">
-    <img src="assets/img/logos/adecco.png" width="618" height="170" loading="lazy" alt="Adecco">
-    <img src="assets/img/logos/randstad.png" width="510" height="150" loading="lazy" alt="Randstad">
-    <img src="assets/img/logos/manpowergroup.png" width="721" height="150" loading="lazy" alt="Manpower">
-    <img src="assets/img/logos/renault.png" width="88" height="88" loading="lazy" alt="Renault">
-    <img src="assets/img/logos/salomon.png" width="136" height="88" loading="lazy" alt="Salomon">
-    <img src="assets/img/logos/aeroports-de-paris.png" width="120" height="88" loading="lazy" alt="Aéroports de Paris">
-    <img src="assets/img/logos/la-mamounia-marrakech.png" width="166" height="88" loading="lazy" alt="La Mamounia Marrakech">
-    <img src="assets/img/logos/sofitel.png" width="152" height="88" loading="lazy" alt="Sofitel">
-    <img src="assets/img/logos/jetex.png" width="247" height="88" loading="lazy" alt="Jetex">
-    <img src="assets/img/logos/xerox.png" width="364" height="88" loading="lazy" alt="Xerox">
-    <img src="assets/img/logos/inseec.png" width="307" height="88" loading="lazy" alt="INSEEC">
-    <img src="assets/img/logos/isg.png" width="88" height="88" loading="lazy" alt="ISG">
-    <img src="assets/img/logos/isc-paris.png" width="179" height="88" loading="lazy" alt="ISC Paris">
-    <img src="assets/img/logos/de-vinci-higher-education.png" width="72" height="88" loading="lazy" alt="De Vinci Higher Education">
-    <img src="assets/img/logos/ministere-de-la-transition-ecologique.png" width="229" height="88" loading="lazy" alt="Ministère de la Transition Écologique">
-    <img src="assets/img/logos/pole-emploi.png" width="108" height="88" loading="lazy" alt="Pôle Emploi">
-    <img src="assets/img/logos/adecco.png" width="618" height="170" loading="lazy" alt="Adecco">
-    <img src="assets/img/logos/randstad.png" width="510" height="150" loading="lazy" alt="Randstad">
-    <img src="assets/img/logos/manpowergroup.png" width="721" height="150" loading="lazy" alt="Manpower">
+    <img src="assets/img/logos/renault.png" width="88" height="88" loading="lazy" decoding="async" alt="Renault">
+    <img src="assets/img/logos/salomon.png" width="136" height="88" loading="lazy" decoding="async" alt="Salomon">
+    <img src="assets/img/logos/aeroports-de-paris.png" width="120" height="88" loading="lazy" decoding="async" alt="Aéroports de Paris">
+    <img src="assets/img/logos/la-mamounia-marrakech.png" width="166" height="88" loading="lazy" decoding="async" alt="La Mamounia Marrakech">
+    <img src="assets/img/logos/sofitel.png" width="152" height="88" loading="lazy" decoding="async" alt="Sofitel">
+    <img src="assets/img/logos/jetex.png" width="247" height="88" loading="lazy" decoding="async" alt="Jetex">
+    <img src="assets/img/logos/xerox.png" width="364" height="88" loading="lazy" decoding="async" alt="Xerox">
+    <img src="assets/img/logos/inseec.png" width="307" height="88" loading="lazy" decoding="async" alt="INSEEC">
+    <img src="assets/img/logos/isg.png" width="88" height="88" loading="lazy" decoding="async" alt="ISG">
+    <img src="assets/img/logos/isc-paris.png" width="179" height="88" loading="lazy" decoding="async" alt="ISC Paris">
+    <img src="assets/img/logos/de-vinci-higher-education.png" width="72" height="88" loading="lazy" decoding="async" alt="De Vinci Higher Education">
+    <img src="assets/img/logos/ministere-de-la-transition-ecologique.png" width="229" height="88" loading="lazy" decoding="async" alt="Ministère de la Transition Écologique">
+    <img src="assets/img/logos/pole-emploi.png" width="108" height="88" loading="lazy" decoding="async" alt="Pôle Emploi">
+    <img src="assets/img/logos/adecco.png" width="618" height="170" loading="lazy" decoding="async" alt="Adecco">
+    <img src="assets/img/logos/randstad.png" width="510" height="150" loading="lazy" decoding="async" alt="Randstad">
+    <img src="assets/img/logos/manpowergroup.png" width="721" height="150" loading="lazy" decoding="async" alt="Manpower">
+    <img src="assets/img/logos/renault.png" width="88" height="88" loading="lazy" decoding="async" alt="Renault">
+    <img src="assets/img/logos/salomon.png" width="136" height="88" loading="lazy" decoding="async" alt="Salomon">
+    <img src="assets/img/logos/aeroports-de-paris.png" width="120" height="88" loading="lazy" decoding="async" alt="Aéroports de Paris">
+    <img src="assets/img/logos/la-mamounia-marrakech.png" width="166" height="88" loading="lazy" decoding="async" alt="La Mamounia Marrakech">
+    <img src="assets/img/logos/sofitel.png" width="152" height="88" loading="lazy" decoding="async" alt="Sofitel">
+    <img src="assets/img/logos/jetex.png" width="247" height="88" loading="lazy" decoding="async" alt="Jetex">
+    <img src="assets/img/logos/xerox.png" width="364" height="88" loading="lazy" decoding="async" alt="Xerox">
+    <img src="assets/img/logos/inseec.png" width="307" height="88" loading="lazy" decoding="async" alt="INSEEC">
+    <img src="assets/img/logos/isg.png" width="88" height="88" loading="lazy" decoding="async" alt="ISG">
+    <img src="assets/img/logos/isc-paris.png" width="179" height="88" loading="lazy" decoding="async" alt="ISC Paris">
+    <img src="assets/img/logos/de-vinci-higher-education.png" width="72" height="88" loading="lazy" decoding="async" alt="De Vinci Higher Education">
+    <img src="assets/img/logos/ministere-de-la-transition-ecologique.png" width="229" height="88" loading="lazy" decoding="async" alt="Ministère de la Transition Écologique">
+    <img src="assets/img/logos/pole-emploi.png" width="108" height="88" loading="lazy" decoding="async" alt="Pôle Emploi">
+    <img src="assets/img/logos/adecco.png" width="618" height="170" loading="lazy" decoding="async" alt="Adecco">
+    <img src="assets/img/logos/randstad.png" width="510" height="150" loading="lazy" decoding="async" alt="Randstad">
+    <img src="assets/img/logos/manpowergroup.png" width="721" height="150" loading="lazy" decoding="async" alt="Manpower">
   </div>
 </section>
 
@@ -571,35 +570,35 @@
 
     <div class="testimonial-photos">
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/raphael.webp" width="800" height="800" loading="lazy" alt="Raphaël"></div>
+        <div class="photo"><img src="assets/img/testimonials/raphael.webp" width="168" height="168" loading="lazy" decoding="async" alt="Raphaël"></div>
         <div class="content">
           <p data-en="&ldquo;Pierre helped me discover my unique talent, which lets me own who I am and feel more confident. He&rsquo;s also a team-building specialist: together we created high-value collective intelligence workshops.&rdquo;">« Pierre m'a aidé à découvrir mon talent unique, ce qui me permet de m'assumer davantage et d'être plus sûr de moi. Il est aussi un spécialiste en team building où il a créé avec moi des ateliers d'intelligence collective à haute valeur ajoutée. »</p>
           <cite>Raphaël</cite>
         </div>
       </div>
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/simo.webp" width="400" height="400" loading="lazy" alt="Simo"></div>
+        <div class="photo"><img src="assets/img/testimonials/simo.webp" width="168" height="168" loading="lazy" decoding="async" alt="Simo"></div>
         <div class="content">
           <p data-en="&ldquo;Thanks to his coaching, I was able to clarify and model my talent, which gave my business real direction. Result: I save time writing my scripts and perform better.&rdquo;">« Grâce à son coaching, j'ai pu clarifier et modéliser mon talent, ce qui m'a donné une vraie direction dans mon business. Résultat : je gagne du temps dans l'écriture de mes scripts et je performe mieux. »</p>
           <cite>Simo</cite>
         </div>
       </div>
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/camille.webp" width="800" height="800" loading="lazy" alt="Camille"></div>
+        <div class="photo"><img src="assets/img/testimonials/camille.webp" width="168" height="168" loading="lazy" decoding="async" alt="Camille"></div>
         <div class="content">
           <p data-en="&ldquo;I had the opportunity to be coached by Pierre on management and team dynamics. I really appreciated his clarity and concrete advice, which helped me a lot. Pierre didn&rsquo;t stop there: we then worked on my talent, to understand where my professional fulfillment lay and which roles matched my skills. I recommend Pierre without hesitation for his listening, kindness, availability, professionalism, and diligent follow-up.&rdquo;">« J'ai eu l'opportunité d'être accompagnée par Pierre sur un sujet de management, et d'animation de vie d'équipe. J'ai beaucoup apprécié sa clarté, ses conseils concrets, qui m'ont beaucoup aidé. Pierre ne s'est pas arrêté à cela et nous avons travaillé sur mon talent à la suite, pour comprendre où se trouvait mon épanouissement professionnel et les métiers associés à mes compétences. Je recommande les yeux fermés Pierre pour son écoute, sa bienveillance, sa disponibilité, son professionnalisme, son suivi assidu. »</p>
           <cite>Camille</cite>
         </div>
       </div>
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/alex.webp" width="800" height="800" loading="lazy" alt="Alex"></div>
+        <div class="photo"><img src="assets/img/testimonials/alex.webp" width="168" height="168" loading="lazy" decoding="async" alt="Alex"></div>
         <div class="content">
           <p data-en="&ldquo;Great talent modeling: it gave me the spark to start my own business, see how others perceive my offer and my skills… and position myself to launch it.&rdquo;">« Super modélisation du talent, ça m'a permis d'avoir le déclic pour entreprendre, de voir comment les autres personnes perçoivent mon offre, mes compétences… et me positionner pour créer mon business. »</p>
           <cite>Alex</cite>
         </div>
       </div>
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/ambre.webp" width="500" height="500" loading="lazy" alt="Ambre"></div>
+        <div class="photo"><img src="assets/img/testimonials/ambre.webp" width="168" height="168" loading="lazy" decoding="async" alt="Ambre"></div>
         <div class="content">
           <p data-en="&ldquo;Pierre is a coach with at least 3 qualities. The first is his ability to model your talents to help you perform. The second is his energy and optimism which, even if before a session you doubt your goals or lack motivation, will give you fresh momentum and help you get back on your path with confidence and determination. The third is his kindness, his ability to welcome you as you are and see in you the gems that just need room to grow. And if I say this with such confidence, it&rsquo;s because I&rsquo;ve experienced all 3 qualities myself. He still regularly helps me step back, move forward on my own path, and become aware of my talents. He&rsquo;s true to his own project&rsquo;s image: a real Magic&nbsp;Human!&rdquo;">« Pierre est un coach avec au moins 3 qualités. La première est sa capacité à modéliser vos talents pour vous aider à performer. La seconde est son énergie et son optimisme qui, même si avant une séance vous doutez de vos objectifs ou manquez de motivation, vous donnera un nouveau souffle et vous aidera à reprendre votre chemin avec confiance et détermination. La troisième est sa bienveillance, sa capacité à vous accueillir tel que vous êtes et de voir en vous les pépites qui ne demandent qu'à grandir. Et si j'en parle avec autant d'assurance c'est parce que j'ai pu profiter moi-même de ses 3 qualités étant donné qu'il m'aide encore régulièrement à prendre du recul, à avancer sur mon propre chemin et à prendre conscience de mes talents. Il est à l'image de son projet lui-même un Magic&nbsp;Human ! »</p>
           <cite>Ambre</cite>
@@ -612,39 +611,39 @@
     <div class="video-grid">
       <div class="video-card">
         <div class="theme" data-en="&ldquo;Whenever I lose my way, Pierre helps me find my center again.&rdquo;">« À chaque fois que je me perds, Pierre m'aide à me recentrer. »</div>
-        <video controls preload="metadata" src="assets/video/raphael.mp4"></video>
+        <video controls preload="none" poster="assets/img/video-posters/raphael-poster.webp" src="assets/video/raphael.mp4"></video>
         <div class="video-byline">
-          <img class="cite-avatar" src="assets/img/testimonials/raphael.webp" width="800" height="800" loading="lazy" alt="Raphaël">
+          <img class="cite-avatar" src="assets/img/testimonials/raphael.webp" width="168" height="168" loading="lazy" decoding="async" alt="Raphaël">
           <cite>Raphaël</cite>
         </div>
       </div>
       <div class="video-card">
         <div class="theme" data-en="&ldquo;Landing a great work-study placement, with ease.&rdquo;">« Décrocher facilement une alternance de qualité. »</div>
-        <video controls preload="metadata" src="assets/video/anne.mp4"></video>
+        <video controls preload="none" poster="assets/img/video-posters/anne-poster.webp" src="assets/video/anne.mp4"></video>
         <cite>Anne</cite>
       </div>
       <div class="video-card">
         <div class="theme" data-en="&ldquo;I finally launched as a consultant.&rdquo;">« Je me suis enfin lancé comme consultant. »</div>
-        <video controls preload="metadata" src="assets/video/shawn.mp4"></video>
+        <video controls preload="none" poster="assets/img/video-posters/shawn-poster.webp" src="assets/video/shawn.mp4"></video>
         <cite>Shawn</cite>
       </div>
       <div class="video-card">
         <div class="theme" data-en="&ldquo;Being supported to succeed with enjoyment.&rdquo;">« Être accompagnée pour réussir dans le plaisir. »</div>
-        <video controls preload="metadata" src="assets/video/caroline.mp4"></video>
+        <video controls preload="none" poster="assets/img/video-posters/caroline-poster.webp" src="assets/video/caroline.mp4"></video>
         <cite>Caroline</cite>
       </div>
     </div>
 
     <div class="testimonial-photos">
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/dayane.webp" width="497" height="497" loading="lazy" alt="Dayane"></div>
+        <div class="photo"><img src="assets/img/testimonials/dayane.webp" width="168" height="168" loading="lazy" decoding="async" alt="Dayane"></div>
         <div class="content">
           <p data-en="&ldquo;I highly recommend Pierre Sarazin as an outstanding Soft Skills coach and trainer. Thanks to his insightful advice, I improved my LinkedIn profile and wrote a more effective résumé, which strengthened my application during my job search in Paris. I landed a job that suits me within 2 months. His ability to help approach recruiters strategically and provide sharp advice for job interviews was particularly impressive.&rdquo;">« Je recommande vivement Pierre Sarazin en tant que coach et formateur exceptionnel en Soft Skills. Grâce à ses conseils avisés, j'ai amélioré mon profil LinkedIn et rédigé un CV plus efficace, ce qui a renforcé ma candidature lors de ma recherche d'emploi à Paris. J'ai réussi à signer un emploi qui me convient en 2 mois. Sa capacité à aider à aborder les recruteurs de manière stratégique et à fournir des conseils perspicaces pour les entretiens d'embauche a été particulièrement impressionnante. »</p>
           <cite>Dayane</cite>
         </div>
       </div>
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/jaime.webp" width="400" height="400" loading="lazy" alt="Jaime"></div>
+        <div class="photo"><img src="assets/img/testimonials/jaime.webp" width="168" height="168" loading="lazy" decoding="async" alt="Jaime"></div>
         <div class="content">
           <p>« If you ever cross paths with Pierre, you'll understand quickly why he stands out. During my master's at INSEEC, his course wasn't just another subject: it was a space where we learned to ask ourselves real questions about who we are, what we want, and what direction actually makes sense for us. Through his approach, especially exercises like the Ikigai model, I was pushed to reflect on my values, my strengths, and the kind of work that aligns with who I am. What I appreciate most about Pierre is simple: he treats students like people. He listens, he pays attention, and he makes the learning process feel meaningful instead of mechanical. »</p>
           <p style="font-size:14px;font-style:italic;color:var(--ink-soft);margin-top:10px;" data-en="">« Si vous croisez un jour la route de Pierre, vous comprendrez vite pourquoi il se distingue. Pendant mon master à l'INSEEC, son cours n'était pas une matière comme les autres : c'était un espace où nous apprenions à nous poser de vraies questions sur qui nous sommes, ce que nous voulons, et quelle direction a vraiment du sens pour nous. Grâce à son approche, notamment des exercices comme le modèle de l'Ikigaï, j'ai été amené à réfléchir à mes valeurs, mes forces, et au type de travail qui correspond à qui je suis. Ce que j'apprécie le plus chez Pierre est simple : il traite les étudiants comme des personnes. Il écoute, il est attentif, et il rend l'apprentissage porteur de sens plutôt que mécanique. » <span style="font-style:normal;font-size:12px;">(traduit de l'anglais)</span></p>
@@ -652,7 +651,7 @@
         </div>
       </div>
       <div class="testimonial-photo-card">
-        <div class="photo"><img src="assets/img/testimonials/pascale.webp" width="800" height="800" loading="lazy" alt="Pascale"></div>
+        <div class="photo"><img src="assets/img/testimonials/pascale.webp" width="168" height="168" loading="lazy" decoding="async" alt="Pascale"></div>
         <div class="content">
           <p data-en="&ldquo;Pierre is fantastic. Truly professional coaching! He helped me break through some limiting thoughts, with tips to help me &lsquo;not slip back.&rsquo; So yes, his coaching earned him every star I gave him. Thank you, Pierre. I recommend him twice over.&rdquo;">« Pierre est fantastique. Un coaching professionnel&nbsp;! Il m'a permis de débloquer certaines pensées limitantes. Des tips pour « ne pas replonger ». Alors oui son coaching m'a permis d'ajouter autant d'étoiles que celle que je lui ai mises. Merci Pierre. Je le recommande deux fois plutôt qu'une »</p>
           <cite>Pascale</cite>
@@ -663,12 +662,12 @@
     <div class="t-list">
       <div class="t-grid-small">
         <div>
-          <div class="mini-avatar"><img src="assets/img/testimonials/benjamin.webp" width="1440" height="1440" loading="lazy" alt="Benjamin"></div>
+          <div class="mini-avatar"><img src="assets/img/testimonials/benjamin.webp" width="104" height="104" loading="lazy" decoding="async" alt="Benjamin"></div>
           <p data-en="&ldquo;I gained more self-confidence, which gave me the courage to do things I couldn&rsquo;t previously allow myself to do.&rdquo;">« J'ai pu gagner plus de confiance en moi, me permettant d'avoir le courage de faire des choses que je ne pouvais pas me permettre de faire auparavant. »</p>
           <cite>Benjamin</cite>
         </div>
         <div>
-          <div class="mini-avatar"><img src="assets/img/testimonials/magali.webp" width="1274" height="1062" loading="lazy" alt="Magali"></div>
+          <div class="mini-avatar"><img src="assets/img/testimonials/magali.webp" width="125" height="104" loading="lazy" decoding="async" alt="Magali"></div>
           <p data-en="&ldquo;Very driving, motivating, and deeply perceptive. He knows how to ask the right questions and create a truly stimulating group dynamic.&rdquo;">« Très moteur, motivant et d'une grande perspicacité. Il sait poser les bonnes questions et créer une dynamique de groupe vraiment stimulante. »</p>
           <cite>Magali</cite>
         </div>
