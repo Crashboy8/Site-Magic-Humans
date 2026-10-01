@@ -61,3 +61,7 @@ Le suivi d'audience utilise Vercel Web Analytics (script chargé sur chaque page
 ## Suivi des campagnes
 
 Les liens Calendly du site portent des paramètres UTM normalisés (`utm_source=site`, `utm_medium=cta`, `utm_campaign=<page>`, `utm_content=<position du bouton>`) pour distinguer l'origine des demandes de rendez-vous selon la page et l'emplacement du bouton cliqué.
+
+## Quiz Talent Unique (`/quiz/`)
+
+Page autonome `quiz/index.html` : QCM en 6 questions, capture du prénom et de l'e-mail, rapport en 7 sections, PDF téléchargeable et lien personnel (`/quiz/#r=...`). L'envoi automatique du rapport par e-mail passe par un script Google Apps Script relié à un Google Sheet ; son URL se colle dans `CONFIG.endpoint` en haut du script de la page. Les sources et le guide d'installation sont dans le kit « magic-humans-quiz ».

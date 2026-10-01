@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Découvre ton Talent Unique en 6 questions : ton alliage, tes contextes fertiles et ton positionnement.">
+<link rel="icon" href="/favicon.ico">
+<link rel="canonical" href="https://www.magichumans.com/quiz/">
+<meta property="og:title" content="Découvre ton Talent Unique en 6 questions">
+<meta property="og:description" content="Ton alliage parmi 56, tes contextes fertiles et toxiques, ton pitch et ton manuel d'utilisation.">
+<title>QCM Talent Unique | Magic Humans</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
+<style>
+/* Layout : une colonne de lecture (~720px), écrans successifs : accueil → 6 questions → départage → rapport en 7 sections */
+:root{
+  --bg:#F5F3F0; --surface:#FFFFFF; --ink:#2B2522; --muted:#6E645D; --line:#E4DED7;
+  --accent:#D9661C; --accent-ink:#FFFFFF; --accent-soft:#FBE8D8;
+  --good:#3C7A55; --good-soft:#E3F0E7; --bad:#B0463A; --bad-soft:#F6E2DE;
+  --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body:"Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1B1816; --surface:#25211E; --ink:#F1ECE6; --muted:#ABA097; --line:#3A332E;
+  --accent:#F08A3E; --accent-ink:#1B1816; --accent-soft:#3A2618;
+  --good:#7CC59A; --good-soft:#1F3328; --bad:#E58B7E; --bad-soft:#3A2220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1B1816; --surface:#25211E; --ink:#F1ECE6; --muted:#ABA097; --line:#3A332E;
+  --accent:#F08A3E; --accent-ink:#1B1816; --accent-soft:#3A2618;
+  --good:#7CC59A; --good-soft:#1F3328; --bad:#E58B7E; --bad-soft:#3A2220; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6}
+.wrap{max-width:740px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.3rem,6vw,3.3rem)}
+h2{font-size:clamp(1.7rem,4.5vw,2.2rem)}
+h3{font-size:1.4rem}
+p{margin:0}
+em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
+.brand{display:flex;align-items:center;gap:10px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.brand i{width:9px;height:9px;border-radius:50%;background:var(--accent);display:block}
+.eyebrow{font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.muted{color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-lg{display:flex;flex-direction:column;gap:28px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:13px 26px;background:var(--accent);color:var(--accent-ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .15s, opacity .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:8px 16px;font-size:.88rem}
+.link{background:none;border:0;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* Accueil */
+.hero{padding-block:40px 8px;display:flex;flex-direction:column;gap:18px}
+.hero p.lead{font-size:1.18rem;max-width:60ch}
+.formula{font-family:var(--display);font-size:clamp(1.6rem,5vw,2.2rem);font-style:italic;display:flex;flex-wrap:wrap;gap:.35em;align-items:baseline}
+.formula b{font-style:normal;color:var(--accent);font-weight:600}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.rule .k{font-family:var(--display);font-size:1.6rem;color:var(--accent);font-weight:600;line-height:1}
+.rule p{font-size:.93rem;color:var(--muted)}
+
+/* Questionnaire */
+.progress{display:flex;gap:6px}
+.progress span{flex:1;height:4px;border-radius:4px;background:var(--line)}
+.progress span.done{background:var(--accent)}
+.qhead{display:flex;flex-direction:column;gap:8px;padding-block:22px 6px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted)}
+.legend b{color:var(--ink)}
+.items{display:flex;flex-direction:column;gap:10px}
+.item{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 14px 18px;transition:border-color .15s, background .15s}
+.item.is-plus{border-color:var(--accent);background:var(--accent-soft)}
+.item.is-minus .txt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.item .txt{min-width:0}
+.choices{display:flex;gap:8px}
+.choice{font:inherit;font-weight:700;width:58px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;font-size:1.15rem}
+.choice small{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.choice[aria-pressed="true"].plus{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.choice[aria-pressed="true"].plus small{color:var(--accent-ink)}
+.choice[aria-pressed="true"].minus{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.choice[aria-pressed="true"].minus small{color:var(--bg)}
+.qnav{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:18px}
+.hint{font-size:.88rem;color:var(--muted);min-height:1.4em}
+
+/* Départage */
+.cands{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cand{font:inherit;text-align:left;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;cursor:pointer;display:flex;flex-direction:column;gap:6px;position:relative}
+.cand .rank{position:absolute;top:12px;right:14px;font-family:var(--display);font-size:1.5rem;color:var(--accent);font-weight:600}
+.cand.picked{border-color:var(--accent);background:var(--accent-soft)}
+.cand span.t{font-size:.82rem;color:var(--muted)}
+
+/* Rapport */
+.rhead{padding-block:34px 10px;display:flex;flex-direction:column;gap:12px}
+.alloy{font-family:var(--display);font-size:clamp(2.6rem,8vw,4rem);line-height:1;font-weight:600}
+.alloy em{color:var(--accent);font-weight:500}
+.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem}
+.toc a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+.toc a:hover{color:var(--accent)}
+section.rs{border-top:1px solid var(--line);padding-top:30px;display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
+.snum{font-family:var(--display);font-style:italic;color:var(--accent);font-size:1.15rem}
+.prose{max-width:64ch;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel h3{font-size:1.3rem}
+.panel .lab{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.equation{background:var(--accent-soft);border-radius:var(--radius);padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+ul.clean{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.chart{display:flex;flex-direction:column;gap:7px;font-variant-numeric:tabular-nums}
+.bar-row{display:grid;grid-template-columns:110px 1fr 34px;gap:10px;align-items:center;font-size:.9rem}
+.bar-track{position:relative;height:14px;background:var(--bg);border-radius:4px}
+.bar-zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--muted)}
+.bar{position:absolute;top:0;bottom:0;border-radius:3px;background:var(--line)}
+.bar.top{background:var(--accent)}
+.bar.axis{background:var(--muted);opacity:.55}
+.bar-row .v{text-align:right;color:var(--muted)}
+.bar-row .n.top{font-weight:700}
+.chart-scale{display:grid;grid-template-columns:110px 1fr 34px;gap:10px;font-size:.72rem;color:var(--muted)}
+.chart-scale div{display:flex;justify-content:space-between}
+.ship{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.ship .panel{border-top:3px solid var(--accent)}
+.ship .panel.sail{border-top-color:var(--muted)}
+.ship .panel.comp{border-top-color:var(--ink)}
+.tag{display:inline-block;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--ink)}
+.ctx-good{background:var(--good-soft);border:1px solid transparent}
+.ctx-good .lab{color:var(--good)}
+.ctx-bad{background:var(--bad-soft);border:1px solid transparent}
+.ctx-bad .lab{color:var(--bad)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+.dot.g{background:var(--good)} .dot.r{background:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.9rem;background:var(--surface)}
+.quote{font-family:var(--display);font-style:italic;font-size:1.2rem;line-height:1.35}
+textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;width:100%;min-height:210px;resize:vertical;line-height:1.55}
+.manual{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 24px;display:flex;flex-direction:column;gap:14px}
+.manual dt{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.manual dd{margin:2px 0 0}
+.manual dl{margin:0;display:flex;flex-direction:column;gap:14px}
+.row-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.toast{font-size:.85rem;color:var(--good)}
+.slider{display:flex;flex-direction:column;gap:6px}
+.slider label{display:flex;justify-content:space-between;gap:12px;font-weight:600}
+.slider output{font-family:var(--display);font-size:1.5rem;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.reading{border-left:3px solid var(--accent);padding-left:14px}
+.cta{background:var(--ink);color:var(--bg);border-radius:var(--radius);padding:28px 26px;display:flex;flex-direction:column;gap:14px}
+.cta h3{font-size:1.8rem}
+.cta .btn{align-self:flex-start}
+.cta p{color:var(--bg);opacity:.85}
+details{font-size:.93rem;color:var(--muted)}
+details summary{cursor:pointer;font-weight:600;color:var(--ink)}
+details div{padding-top:8px;display:flex;flex-direction:column;gap:8px}
+footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
+@media (max-width:520px){
+  .item{grid-template-columns:1fr;gap:10px}
+  .choices{justify-content:flex-end}
+  .bar-row,.chart-scale{grid-template-columns:86px 1fr 28px}
+  .wrap{padding-inline:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Capture e-mail */
+.gate{display:flex;flex-direction:column;gap:22px;padding-block:30px 0}
+.gate form{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:.92rem}
+.field input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
+.field input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.check{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:.9rem}
+.check input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px}
+.legal{font-size:.8rem;color:var(--muted)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.err{color:var(--bad);font-size:.88rem;min-height:1.2em}
+/* Barre d'actions du rapport */
+.actions{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.actions .row-actions{gap:8px}
+.status{font-size:.88rem;color:var(--muted)}
+.status.ok{color:var(--good)} .status.ko{color:var(--bad)}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <a class="brand" href="/" style="text-decoration:none"><i></i>Magic Humans · QCM Talent Unique</a>
+
+  <main id="screen-intro">
+    <div class="hero">
+      <span class="eyebrow">Auto-évaluation · 6 questions · 5 minutes</span>
+      <h1>Quel est ton <em class="serif">Talent Unique</em>&nbsp;?</h1>
+      <p class="lead">Ce questionnaire ne te range pas dans une case. Il pose des hypothèses de travail sur ce qui te rend rare, sur les contextes où tu rayonnes et sur ceux qui t'éteignent.</p>
+      <div class="formula">Résultat <b>=</b> Talent <b>×</b> Contexte</div>
+    </div>
+    <div class="stack-lg" style="padding-top:18px">
+      <div class="rules">
+        <div class="rule"><span class="k">+</span><strong>Le plus</strong><p>Dans chaque question, choisis la phrase qui te ressemble le plus.</p></div>
+        <div class="rule"><span class="k">−</span><strong>Le moins</strong><p>Puis celle qui te ressemble le moins. Les deux autres restent neutres.</p></div>
+        <div class="rule"><span class="k">≈</span><strong>Ton premier élan</strong><p>Réponds selon ce que tu fais naturellement, pas selon ce qu'on attend de toi.</p></div>
+      </div>
+      <div class="row-actions">
+        <button class="btn" id="start">Commencer le test →</button>
+        <button class="link" id="demo">Voir un rapport d'exemple</button>
+      </div>
+    </div>
+  </main>
+
+  <main id="screen-quiz" hidden>
+    <div class="progress" id="progress"></div>
+    <div class="qhead">
+      <span class="eyebrow" id="qcount"></span>
+      <h2 id="qstem"></h2>
+      <div class="legend"><span><b>+</b> le plus moi (1 choix)</span><span><b>−</b> le moins moi (1 choix)</span></div>
+    </div>
+    <div class="items" id="items"></div>
+    <div class="qnav">
+      <button class="btn ghost" id="prev">← Retour</button>
+      <span class="hint" id="hint"></span>
+      <button class="btn" id="next" disabled>Suivant →</button>
+    </div>
+  </main>
+
+  <main id="screen-tie" hidden>
+    <div class="qhead">
+      <span class="eyebrow">Égalité à départager</span>
+      <h2>Ces archétypes ont obtenu le même score</h2>
+      <p class="muted" id="tie-help"></p>
+    </div>
+    <div class="cands" id="cands"></div>
+    <div class="qnav">
+      <button class="btn ghost" id="tie-reset">Recommencer le choix</button>
+      <button class="btn" id="tie-ok" disabled>Continuer →</button>
+    </div>
+  </main>
+
+  <main id="screen-gate" hidden>
+    <div class="gate">
+      <div class="stack">
+        <span class="eyebrow">Ton rapport est prêt</span>
+        <h2>Ton alliage : <span id="gate-alloy" style="color:var(--accent)"></span></h2>
+        <p class="lead" id="gate-essence"></p>
+        <p class="muted">Ton rapport complet fait 7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation. Indique ton prénom et ton e-mail pour l'ouvrir et le recevoir en PDF.</p>
+      </div>
+      <form id="gate-form" novalidate>
+        <div class="field"><label for="f-prenom">Prénom</label><input id="f-prenom" name="prenom" autocomplete="given-name" maxlength="40" required></div>
+        <div class="field"><label for="f-email">E-mail</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
+        <div class="hp" aria-hidden="true"><label for="f-website">Site web</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+        <label class="check" for="f-news"><input type="checkbox" id="f-news" name="newsletter"><span>J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).</span></label>
+        <p class="err" id="gate-err" aria-live="polite"></p>
+        <button class="btn" type="submit" id="gate-submit">Voir et recevoir mon rapport →</button>
+        <p class="legal">Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.</p>
+      </form>
+    </div>
+  </main>
+
+  <main id="screen-report" hidden></main>
+
+  <footer>Magic Humans · Les résultats sont des hypothèses de travail, à valider avec des exemples réels de ta vie.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+/* ================================================================
+   MOTEUR COMMUN · QCM Talent Unique (Magic Humans)
+   Ce fichier est partagé à l'identique par la page du quiz et par
+   le script Google (Code.gs). Le modifier ici, puis relancer build.py.
+   ================================================================ */
+var CONFIG = {
+  calendly: "https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=quiz&utm_campaign=talent-unique",
+  quizUrl: "https://www.magichumans.com/quiz/",
+  // URL de l'application Web Google Apps Script (voir GUIDE). Vide = envoi désactivé.
+  endpoint: ""
+};
+
+/* ================================================================
+   1. DONNÉES : LES 8 ARCHÉTYPES
+   Chaque champ alimente une partie du rapport. Les textes sont
+   écrits pour se combiner (dominant + secondaire) sans se répéter.
+   ================================================================ */
+const A = {
+  analyste:{
+    name:"Analyste", adj:"Méthodique", pole:"la Rigueur", tagline:"Rigueur & Logique",
+    essence:"Tu cherches la cause réelle et la logique des choses.",
+    they:"décortiquent les problèmes", inf:"aller au fond des choses avec méthode",
+    need:"de compréhension", how:"avec une précision qui rassure",
+    gift:"transformer le flou en clarté : tu repères les failles d'un raisonnement, les incohérences d'un chiffre, la vraie cause derrière le symptôme",
+    vuln:"la paralysie par l'analyse. Tant que tout n'est pas vérifié, tu as du mal à trancher, et ton questionnement peut être perçu comme de la froideur ou de la défiance",
+    survival:{mode:"Sur-cogitation", desc:"Sous pression, tu demandes encore plus de données, tu refais les calculs, tu rumines les scénarios. Le mental s'emballe et l'action se fige."},
+    fertile:["Des problèmes complexes et un vrai temps pour les résoudre","Des décisions fondées sur des faits plutôt que sur des impressions","De l'autonomie sur ta méthode de travail"],
+    toxic:["Des décisions arbitraires ou politiques, jamais justifiées","L'urgence permanente qui interdit toute vérification","Des interlocuteurs qui balaient tes alertes d'un revers de main"],
+    flow:["Auditer, diagnostiquer, modéliser un problème","Construire un raisonnement ou un outil qui tient debout"],
+    ressource:["Lire en profondeur sur un sujet qui te passionne","Les jeux de logique, les énigmes, les échecs","Des moments seul·e, sans aucune sollicitation"],
+    targets:{boss:"Un dirigeant intuitif qui décide vite et a besoin d'un garde-fou fiable", associe:"Un associé commercial ou visionnaire qui avance sans filet", client:"Une organisation qui croule sous les données sans savoir quoi en faire"},
+    keywords:["fiabiliser","diagnostiquer","objectiver","sécuriser"],
+    verbatims:["On prend nos décisions au doigt mouillé.","On ne comprend pas d'où vient le problème.","Nos chiffres ne se recoupent pas.","On a déjà fait des erreurs qui nous ont coûté cher."],
+    pitch:{who:"les dirigeants et les équipes", pain:"qui décident dans le brouillard", result:"prendre des décisions solides, fondées sur des faits vérifiés"},
+    manual:{besoin:"de temps pour comprendre et d'informations fiables", energie:"les problèmes complexes à démêler", parler:"Donne-moi les faits, le contexte et la question précise. J'avance mieux avec un délai réaliste qu'avec une urgence floue.", eviter:"Me demander de trancher sans éléments, ou prendre mes questions pour de la défiance : je questionne pour sécuriser, pas pour bloquer."},
+    complement:"catalyseur"
+  },
+  catalyseur:{
+    name:"Catalyseur", adj:"Empathique", pole:"l'Humain", tagline:"Humain & Émotion",
+    essence:"Tu sens les gens et tu fais circuler l'énergie entre eux.",
+    they:"créent du lien", inf:"toucher les gens et créer de la confiance",
+    need:"de connexion", how:"avec une chaleur qui ouvre les portes",
+    gift:"faire circuler l'énergie entre les personnes : tu sens les non-dits, tu désamorces les tensions, tu révèles ce que les gens ont de meilleur",
+    vuln:"l'éponge émotionnelle. Tu absorbes les tensions des autres, tu dis oui pour préserver la relation et tu finis par t'oublier",
+    survival:{mode:"Retrait", desc:"Quand le climat devient froid ou conflictuel, tu sur-donnes d'abord pour sauver l'ambiance, puis tu te fermes. Tu deviens silencieux·se et tu te désinvestis sans le dire."},
+    fertile:["Une équipe bienveillante où l'on peut se dire les choses","Un rôle au contact direct des personnes","Une mission dont l'impact humain est visible"],
+    toxic:["Les environnements froids, compétitifs ou cyniques","Le travail isolé derrière un écran, sans relation","Les conflits larvés que personne n'ose aborder"],
+    flow:["Animer un groupe, faciliter un atelier ou une rencontre","Accompagner une personne en difficulté"],
+    ressource:["Des moments de partage avec des proches choisis","La musique, le chant, la danse, le mouvement","Des temps de solitude pour évacuer les émotions absorbées"],
+    targets:{boss:"Un manager brillant techniquement mais en difficulté avec l'humain", associe:"Un associé expert ou analytique qui a besoin d'un pont vers les clients", client:"Une équipe en tension, en fusion ou en perte de sens"},
+    keywords:["fédérer","apaiser","embarquer","humaniser"],
+    verbatims:["L'ambiance s'est dégradée dans l'équipe.","Les gens ne se parlent plus vraiment.","On perd nos talents sans savoir pourquoi.","Le changement passe mal auprès des équipes."],
+    pitch:{who:"les dirigeants et les équipes", pain:"en perte de lien ou de motivation", result:"retrouver la confiance, l'énergie collective et l'envie d'avancer ensemble"},
+    manual:{besoin:"d'un climat de confiance et d'échanges sincères", energie:"les relations humaines et les moments où un groupe se soude", parler:"Dis-moi les choses directement, avec respect. Un feedback sincère me fait grandir, un silence froid m'épuise.", eviter:"Me laisser seul·e face à un conflit non dit, ou réduire mes alertes sur le climat à de la sensiblerie : je capte souvent les problèmes avant qu'ils n'éclatent."},
+    complement:"analyste"
+  },
+  visionnaire:{
+    name:"Visionnaire", adj:"Visionnaire", pole:"le Futur", tagline:"Futur & Innovation",
+    essence:"Tu vois ce qui n'existe pas encore et tu ouvres des possibles.",
+    they:"imaginent l'avenir", inf:"voir plus loin que l'horizon",
+    need:"de nouveauté", how:"avec une audace qui donne envie",
+    gift:"voir ce qui n'existe pas encore : tu relies des idées éloignées, tu sens les tendances avant les autres et tu ouvres des possibles",
+    vuln:"l'idée sans atterrissage. Tu t'enthousiasmes, tu lances, puis tu décroches quand arrive la routine de l'exécution",
+    survival:{mode:"Sur-cogitation (fuite dans les idées)", desc:"Quand le présent devient pesant, tu te réfugies dans les projets futurs. Tu multiplies les idées, tu changes de cap, et plus rien n'avance concrètement."},
+    fertile:["Des projets neufs, des terrains vierges à explorer","La liberté de proposer et d'expérimenter","Des partenaires qui savent exécuter"],
+    toxic:["La routine et le « on a toujours fait comme ça »","Les hiérarchies qui étouffent les idées","Le micro-management du quotidien"],
+    flow:["Imaginer une offre, un produit, un projet","Prendre la parole sur l'avenir d'un secteur"],
+    ressource:["Voyager, découvrir des lieux et des cultures","Explorer des contenus inspirants hors de ton domaine","Marcher sans but précis, rêvasser"],
+    targets:{boss:"Une organisation installée qui sent qu'elle doit se réinventer", associe:"Un associé bâtisseur ou analyste qui sait exécuter mais manque d'élan", client:"Une entreprise confrontée à une rupture de marché"},
+    keywords:["innover","réinventer","anticiper","explorer"],
+    verbatims:["Notre modèle s'essouffle.","De nouveaux acteurs nous dépassent.","On manque d'idées neuves.","On ne sait pas à quoi ressemblera notre métier dans cinq ans."],
+    pitch:{who:"les organisations", pain:"qui sentent que leur modèle s'essouffle", result:"imaginer leur prochain cap et ouvrir de nouveaux territoires"},
+    manual:{besoin:"d'espace pour proposer et expérimenter", energie:"les idées neuves et les projets naissants", parler:"Partage-moi la vision et le pourquoi avant le comment. Associe-moi tôt, quand tout est encore possible.", eviter:"M'enfermer dans des tâches répétitives sans perspective, ou rejeter une idée avant de l'avoir explorée. Aide-moi plutôt à prioriser."},
+    complement:"batisseur"
+  },
+  batisseur:{
+    name:"Bâtisseur", adj:"Bâtisseur", pole:"l'Action", tagline:"Action & Concrétisation",
+    essence:"Tu transformes une intention en réalité livrée, de A à Z.",
+    they:"font avancer les choses", inf:"passer de l'idée au concret",
+    need:"de résultats tangibles", how:"avec une fiabilité qui fait avancer",
+    gift:"mener un projet de A à Z : tu transformes une intention en réalité livrée, étape par étape, sans lâcher",
+    vuln:"le rouleau compresseur. Focalisé·e sur la livraison, tu peux négliger l'écoute, les personnes ou la remise en question du plan",
+    survival:{mode:"Agressivité", desc:"Quand ça bloque, tu forces. Tu deviens impatient·e, cassant·e, tu fais tout toi-même et tu reproches aux autres leur lenteur."},
+    fertile:["Piloter un projet de A à Z avec un objectif clair","L'autonomie et les moyens d'agir","Des résultats visibles et mesurables"],
+    toxic:["Les réunions sans décision et les projets qui n'aboutissent jamais","Les validations interminables","Les environnements où l'on parle plus qu'on ne fait"],
+    flow:["Planifier puis exécuter un projet concret","Débloquer une situation enlisée"],
+    ressource:["Bricoler, construire, jardiner, faire de tes mains","Le sport et l'effort physique","Cocher une liste et contempler le travail accompli"],
+    targets:{boss:"Un dirigeant visionnaire entouré d'idées mais en manque d'exécution", associe:"Un associé créatif ou commercial qui a besoin d'un pilier opérationnel", client:"Une structure dont les projets traînent depuis des mois"},
+    keywords:["concrétiser","livrer","débloquer","structurer"],
+    verbatims:["Ce projet traîne depuis des mois.","On a plein d'idées mais rien n'aboutit.","Il nous faut quelqu'un qui prenne le sujet en main.","On a besoin de résultats, vite."],
+    pitch:{who:"les dirigeants et les porteurs de projets", pain:"dont les idées restent bloquées au stade du plan", result:"livrer des résultats concrets, dans les délais"},
+    manual:{besoin:"d'un objectif clair et de la liberté de m'organiser pour l'atteindre", energie:"voir les choses avancer et aboutir", parler:"Donne-moi le résultat attendu, l'échéance et les moyens. Fais des points courts et orientés décision.", eviter:"Les réunions qui tournent en rond et les changements de cap non expliqués. Si je deviens pressant·e, c'est que je sens le projet en danger."},
+    complement:"visionnaire"
+  },
+  transmetteur:{
+    name:"Transmetteur", adj:"Pédagogue", pole:"la Clarté", tagline:"Pédagogie & Clarté",
+    essence:"Tu rends simple ce qui est complexe et tu rends les autres autonomes.",
+    they:"expliquent", inf:"rendre les choses limpides pour les autres",
+    need:"de transmission", how:"avec une clarté qui fait grandir les autres",
+    gift:"rendre simple ce qui est complexe : tu trouves l'image, l'exemple, la progression qui font que l'autre comprend et devient autonome",
+    vuln:"l'épuisement du passeur. Tu donnes ton savoir sans compter et tu supportes mal qu'on ne t'écoute pas ou qu'on dévalorise ce que tu transmets",
+    survival:{mode:"Sur-cogitation (sur-explication)", desc:"Quand tu ne te sens pas compris·e, tu expliques encore et encore, tu justifies, tu argumentes. Puis la frustration s'installe et tu finis par donner des leçons."},
+    fertile:["Un public qui veut apprendre et progresser","Des sujets riches à rendre accessibles","La reconnaissance de ton rôle de passeur"],
+    toxic:["Les cultures où le savoir est gardé jalousement","Les interlocuteurs qui ne veulent pas changer","Un travail purement exécutant, sans partage"],
+    flow:["Former, animer, vulgariser","Concevoir un support pédagogique ou une méthode"],
+    ressource:["Apprendre toi-même quelque chose de nouveau","Les échanges entre passionnés","Écrire pour mettre tes idées en ordre"],
+    targets:{boss:"Une organisation en transformation qui doit faire monter ses équipes en compétences", associe:"Un expert pointu qui ne sait pas rendre son savoir accessible", client:"Une entreprise dont les messages ne passent pas"},
+    keywords:["former","clarifier","vulgariser","autonomiser"],
+    verbatims:["Les équipes n'ont pas compris le changement.","Notre expert est brillant, mais personne ne le comprend.","On répète toujours les mêmes erreurs.","Il faut faire monter tout le monde en compétences."],
+    pitch:{who:"les organisations et les experts", pain:"dont le savoir ou les messages ne passent pas", result:"rendre leurs équipes autonomes et leurs idées limpides"},
+    manual:{besoin:"de sentir que ce que je transmets est utile et reçu", energie:"les moments où quelqu'un comprend et progresse", parler:"Pose-moi des questions, dis-moi ce qui n'est pas clair. J'aime ajuster mes explications à mon interlocuteur.", eviter:"Me faire répéter dans le vide ou ignorer ce que j'ai expliqué. Si je sur-explique, c'est que je ne me sens pas entendu·e."},
+    complement:"stratege"
+  },
+  stratege:{
+    name:"Stratège", adj:"Stratège", pole:"l'Agilité", tagline:"Agilité & Raccourcis",
+    essence:"Tu repères le levier qui change tout et le chemin le plus court.",
+    they:"trouvent des raccourcis", inf:"trouver le chemin le plus court vers le résultat",
+    need:"d'efficacité", how:"avec une agilité qui fait gagner un temps précieux",
+    gift:"voir le chemin le plus court : tu repères le levier qui change tout, tu t'adaptes en temps réel et tu obtiens plus avec moins",
+    vuln:"l'impatience face au cadre. Tu contournes les règles, tu t'ennuies vite, et on peut te trouver opportuniste ou dispersé·e",
+    survival:{mode:"Agressivité (contournement)", desc:"Face à la rigidité, tu forces le passage : tu ignores les process, tu décides seul·e, tu deviens tranchant·e pour arriver à tes fins."},
+    fertile:["Des environnements mouvants où il faut s'adapter vite","Des objectifs clairs avec liberté sur le chemin","Des négociations, des arbitrages, de vrais enjeux"],
+    toxic:["La bureaucratie et les procédures rigides","Les missions longues et répétitives","Les décideurs qui refusent toute prise de risque"],
+    flow:["Négocier, arbitrer, saisir une opportunité","Optimiser un process ou un modèle économique"],
+    ressource:["Les jeux de stratégie, les sports d'opposition","Changer d'environnement, varier les activités","Les échanges vifs avec des esprits rapides"],
+    targets:{boss:"Un dirigeant en croissance ou en crise qui doit pivoter vite", associe:"Un associé expert ou pédagogue qui avance pas à pas", client:"Une organisation enlisée dans ses process"},
+    keywords:["optimiser","pivoter","arbitrer","accélérer"],
+    verbatims:["On perd trop de temps.","Nos process sont trop lourds.","Il faut qu'on pivote, mais on ne sait pas comment.","Nos concurrents vont plus vite que nous."],
+    pitch:{who:"les dirigeants et les équipes", pain:"ralentis par la lourdeur ou l'incertitude", result:"trouver le levier le plus efficace et atteindre leurs résultats plus vite"},
+    manual:{besoin:"d'un objectif clair et de latitude sur le chemin", energie:"les défis, l'imprévu, les situations à débloquer", parler:"Va droit au but. Dis-moi l'enjeu et les contraintes non négociables, je trouverai la route.", eviter:"Les procédures sans justification et le « parce que c'est comme ça ». Si je contourne, c'est souvent que le cadre n'a pas été expliqué."},
+    complement:"transmetteur"
+  },
+  leader:{
+    name:"Leader", adj:"Inspirant", pole:"la Direction", tagline:"Inspiration & Direction",
+    essence:"Tu donnes un cap et les autres ont envie de te suivre.",
+    they:"prennent la direction", inf:"embarquer les autres derrière un cap",
+    need:"d'influence", how:"avec une présence qui entraîne",
+    gift:"donner un cap et entraîner les autres : tu incarnes une direction, tu prends les décisions difficiles et les gens te suivent",
+    vuln:"le poids du contrôle. Tu as du mal à déléguer vraiment et à montrer tes doutes, et ton assurance peut couvrir les voix plus discrètes",
+    survival:{mode:"Agressivité (domination)", desc:"Quand tu perds le contrôle, tu durcis le ton : tu imposes, tu coupes la parole, tu décides seul·e. L'assurance se transforme en autoritarisme."},
+    fertile:["Un rôle avec une vraie latitude de décision","Une mission ambitieuse et porteuse de sens","Une équipe à faire grandir"],
+    toxic:["Les rôles où l'on porte sans pouvoir décider","Les hiérarchies qui court-circuitent tes décisions","Les organisations sans vision ni ambition"],
+    flow:["Fixer un cap, prendre la parole, décider","Faire grandir une équipe ou un collectif"],
+    ressource:["Des moments où tu n'as rien à porter ni à décider","Les échanges avec d'autres leaders, le mentorat","Les activités physiques où tu te dépasses"],
+    targets:{boss:"Une organisation qui cherche quelqu'un pour incarner sa transformation", associe:"Un associé technique ou perfectionniste qui a besoin d'un porte-voix", client:"Une équipe sans direction claire ou un projet à bout de souffle"},
+    keywords:["mobiliser","incarner","décider","entraîner"],
+    verbatims:["Personne ne porte vraiment le projet.","Les équipes ne savent plus où on va.","Il faut quelqu'un pour reprendre les choses en main.","On manque de leadership."],
+    pitch:{who:"les organisations et les collectifs", pain:"qui ont perdu leur cap ou leur élan", result:"retrouver une direction claire et une équipe mobilisée"},
+    manual:{besoin:"de responsabilités réelles et de confiance", energie:"les défis ambitieux et les équipes à entraîner", parler:"Sois franc·he et direct·e. Challenge-moi en face : je respecte ceux qui osent me contredire avec des arguments.", eviter:"Me confier une responsabilité sans pouvoir de décision. Et si je deviens trop directif·ve, dis-le-moi : c'est souvent un signe de pression."},
+    complement:"esthete"
+  },
+  esthete:{
+    name:"Esthète", adj:"Ciseleur", pole:"l'Excellence", tagline:"Excellence & Détail",
+    essence:"Tu vois le détail qui cloche et tu élèves le niveau de tout ce que tu touches.",
+    they:"visent l'excellence", inf:"soigner chaque détail jusqu'à l'excellence",
+    need:"de perfection", how:"avec une exigence qui fait toute la différence",
+    gift:"élever le niveau : tu vois le détail qui cloche, tu sens ce qui est juste, beau et abouti, et tu donnes à ce que tu touches une qualité rare",
+    vuln:"le perfectionnisme. Rien n'est jamais assez bien, tu repousses la livraison, tu délègues difficilement et tu peux être dur·e avec toi-même comme avec les autres",
+    survival:{mode:"Sur-cogitation (contrôle)", desc:"Sous pression, tu reprends tout dans le moindre détail, tu critiques, tu refais le travail des autres. L'exigence devient rigidité et tu t'épuises."},
+    fertile:["Des projets où la qualité est valorisée et rémunérée","Le temps de bien faire","Des partenaires sensibles au beau et au juste"],
+    toxic:["Le « vite fait, mal fait » érigé en principe","Des délais qui interdisent toute finition","Des interlocuteurs qui ne voient pas la différence"],
+    flow:["Peaufiner, sublimer, finaliser","Concevoir une expérience ou un service irréprochable"],
+    ressource:["L'art, les beaux lieux, la nature","Pratiquer un artisanat ou une discipline exigeante","Le calme et un environnement harmonieux"],
+    targets:{boss:"Une marque premium qui vit de son niveau d'excellence", associe:"Un associé leader ou stratège qui va vite et manque de finition", client:"Une organisation dont l'image ou l'expérience client se dégrade"},
+    keywords:["peaufiner","élever","harmoniser","distinguer"],
+    verbatims:["On veut monter en gamme.","Nos clients attendent un niveau d'excellence.","Notre image ne reflète pas notre qualité.","Il y a trop d'erreurs et d'approximations."],
+    pitch:{who:"les marques et les organisations exigeantes", pain:"qui veulent monter en gamme", result:"offrir une qualité et une expérience irréprochables"},
+    manual:{besoin:"du temps et des moyens de bien faire", energie:"les projets où chaque détail compte", parler:"Sois précis·e dans tes attentes et reconnais le soin apporté. Dis-moi quel niveau de finition est attendu.", eviter:"Me pousser à livrer quelque chose dont je ne suis pas fier·e sans en discuter. Si je deviens rigide, c'est que je sens la qualité menacée."},
+    complement:"leader"
+  }
+};
+const IDS = Object.keys(A);
+
+/* ================================================================
+   2. QUESTIONNAIRE : 6 questions × 4 propositions
+   Plan d'équilibrage (chaque archétype apparaît exactement 3 fois) :
+   Q1 Ana Cat Vis Bât | Q2 Tra Str Lea Est | Q3 Ana Tra Cat Str
+   Q4 Vis Lea Bât Est | Q5 Ana Lea Cat Est | Q6 Vis Tra Bât Str
+   ================================================================ */
+const QUESTIONS = [
+  {stem:"Face à un nouveau projet, ce qui te vient le plus naturellement…", items:[
+    ["analyste","Décortiquer les données et vérifier que la logique tient debout."],
+    ["catalyseur","Sentir l'énergie du groupe et créer du lien entre les personnes."],
+    ["visionnaire","Imaginer ce que ce projet pourrait devenir dans cinq ans."],
+    ["batisseur","Établir le plan d'action et lancer tout de suite la première étape."]]},
+  {stem:"Dans une équipe, on vient surtout te chercher pour…", items:[
+    ["transmetteur","Expliquer simplement une idée compliquée."],
+    ["stratege","Trouver le raccourci que personne n'avait vu."],
+    ["leader","Remobiliser tout le monde quand le moral baisse."],
+    ["esthete","Relire, peaufiner et élever le niveau de finition."]]},
+  {stem:"Ce qui te procure le plus de satisfaction en fin de journée…", items:[
+    ["analyste","Avoir résolu un problème grâce à un raisonnement solide."],
+    ["transmetteur","Avoir vu quelqu'un comprendre enfin, grâce à toi."],
+    ["catalyseur","Avoir eu une vraie conversation qui a touché quelqu'un."],
+    ["stratege","Avoir obtenu le résultat avec deux fois moins d'effort que prévu."]]},
+  {stem:"Quand tout part de travers, ton premier réflexe est de…", items:[
+    ["visionnaire","Prendre de la hauteur et redessiner une nouvelle direction."],
+    ["leader","Prendre la parole et donner un cap clair aux autres."],
+    ["batisseur","Retrousser tes manches et réparer ce qui peut l'être."],
+    ["esthete","Identifier précisément ce qui a été mal fait pour que ça ne se reproduise plus."]]},
+  {stem:"Ce qu'on te reproche parfois (et qui cache souvent ta force)…", items:[
+    ["analyste","Poser trop de questions avant de décider."],
+    ["leader","Prendre trop de place ou trancher trop vite."],
+    ["catalyseur","Être trop sensible à l'ambiance et aux émotions des autres."],
+    ["esthete","Être trop perfectionniste et difficile à satisfaire."]]},
+  {stem:"Le rôle dans lequel tu te sens le plus utile…", items:[
+    ["visionnaire","Celui qui ouvre des possibles que personne n'imaginait."],
+    ["transmetteur","Celui qui forme, guide et rend les autres autonomes."],
+    ["batisseur","Celui qui mène le projet de A à Z jusqu'à la livraison."],
+    ["stratege","Celui qui s'adapte en temps réel et trouve la meilleure option."]]}
+];
+
+/* ================================================================
+   3. MOTEUR DE CALCUL
+   ================================================================ */
+const POINTS = {plus:2, minus:-1};
+
+// Vérification d'intégrité au chargement : chaque archétype exactement 3 fois.
+(function checkBalance(){
+  const c = Object.fromEntries(IDS.map(id=>[id,0]));
+  QUESTIONS.forEach(q=>q.items.forEach(([id])=>c[id]++));
+  const bad = IDS.filter(id=>c[id]!==3);
+  if (bad.length) console.error("Questionnaire déséquilibré :", c);
+})();
+
+// answers[q] = {plus: indexItem|null, minus: indexItem|null}
+function computeScores(answers){
+  const s = Object.fromEntries(IDS.map(id=>[id,{score:0,plus:0,minus:0}]));
+  answers.forEach((a,qi)=>{
+    if (a.plus!=null){ const id=QUESTIONS[qi].items[a.plus][0]; s[id].plus++; }
+    if (a.minus!=null){ const id=QUESTIONS[qi].items[a.minus][0]; s[id].minus++; }
+  });
+  IDS.forEach(id=>{ s[id].score = s[id].plus*POINTS.plus + s[id].minus*POINTS.minus; });
+  return s;
+}
+const sortByScore = (s, ids=IDS) => [...ids].sort((a,b)=>s[b].score-s[a].score);
+
+// Détermine le Noyau (rang 1 + rang 2) et signale une égalité à départager.
+function resolveCore(s){
+  const sorted = sortByScore(s);
+  const groups = [];
+  sorted.forEach(id=>{
+    const g = groups[groups.length-1];
+    if (g && s[g[0]].score===s[id].score) g.push(id); else groups.push([id]);
+  });
+  const fixed=[];
+  for (const g of groups){
+    if (fixed.length>=2) break;
+    const slots = 2-fixed.length;
+    if (g.length===1) fixed.push(g[0]);
+    else return {fixed, candidates:g, need:Math.min(slots,g.length)};
+  }
+  return {fixed, candidates:null, need:0};
+}
+
+// Construit le profil complet une fois le Noyau connu.
+function buildProfile(s, core){
+  const [D,S] = core;
+  const rest = sortByScore(s).filter(id=>id!==D && id!==S);
+  const expansion = rest.slice(0,2).filter(id=>s[id].score>0);
+  // Axe de modélisation : le moins marqué ; en cas d'égalité, on privilégie
+  // le complément naturel du dominant, puis celui du secondaire.
+  const min = Math.min(...rest.map(id=>s[id].score));
+  const lows = rest.filter(id=>s[id].score===min);
+  const axis = lows.find(id=>id===A[D].complement) || lows.find(id=>id===A[S].complement) || lows[0];
+  return {D,S,expansion,axis,scores:s,sorted:sortByScore(s)};
+}
+
+/* ================================================================
+   4. OUTILS DE TEXTE
+   ================================================================ */
+function esc(t){ return String(t==null?"":t).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+const cap = t => t.charAt(0).toUpperCase()+t.slice(1);
+const lc1 = t => t.charAt(0).toLowerCase()+t.slice(1);
+// « de » + pôle : « de la Rigueur », « du Futur », « de l'Humain »
+function de(pole){
+  const p = pole.toLowerCase();
+  if (p.startsWith("le ")) return "du "+p.slice(3);
+  return "de "+p;
+}
+function cleanName(n){ return String(n||"").replace(/[<>]/g,"").replace(/\s+/g," ").trim().slice(0,40); }
+const alloyName = p => A[p.D].name+" "+A[p.S].adj;
+
+/* ================================================================
+   5. LIEN PERSONNEL
+   Format : réponses (12 chiffres « plus/moins » par question, dans
+   l'ordre d'origine) . dominant . secondaire . prénom
+   ================================================================ */
+function encodeState(answers, core, prenom){
+  const a = answers.map(x=>""+x.plus+x.minus).join("");
+  return [a, core[0], core[1], encodeURIComponent(cleanName(prenom))].join(".");
+}
+function decodeState(str){
+  try{
+    const parts = String(str).split(".");
+    if (parts.length < 3) return null;
+    const [a, D, S] = parts, name = decodeURIComponent(parts.slice(3).join(".")||"");
+    if (!/^[0-3]{12}$/.test(a) || !A[D] || !A[S] || D===S) return null;
+    const answers = [];
+    for (let i=0;i<6;i++){
+      const plus=+a[i*2], minus=+a[i*2+1];
+      if (plus===minus) return null;
+      answers.push({plus, minus});
+    }
+    // Le noyau doit correspondre aux deux meilleurs scores (égalités incluses).
+    const s = computeScores(answers);
+    const others = IDS.filter(id=>id!==D && id!==S).map(id=>s[id].score);
+    if (others.some(v=>v > Math.min(s[D].score, s[S].score)) || s[S].score > s[D].score) return null;
+    return {answers, core:[D,S], prenom:cleanName(name)};
+  }catch(e){ return null; }
+}
+const personalLink = (answers, core, prenom) => CONFIG.quizUrl+"#r="+encodeState(answers, core, prenom);
+
+/* ================================================================
+   6. TEXTES COMBINÉS (dominant D + secondaire S)
+   ================================================================ */
+function pitchText(p, prenom){
+  const d=A[p.D], s=A[p.S];
+  return `Je m'appelle ${cleanName(prenom)||"[Prénom]"}.
+J'accompagne ${d.pitch.who} ${d.pitch.pain}. Mon rôle : les aider à ${d.pitch.result}.
+
+Ma particularité : je combine deux forces rarement réunies, ${d.pole.toLowerCase()} et ${s.pole.toLowerCase()}. Concrètement, je sais ${d.inf}, et je le fais ${s.how}.
+
+Si vous entendez autour de vous « ${d.verbatims[0]} » ou « ${s.verbatims[1]} », c'est exactement là que je suis utile. Parlons-en.`;
+}
+function manualItems(p){
+  const d=A[p.D], s=A[p.S];
+  return [
+    ["Ce que j'apporte", `Je sais ${d.inf}, et je le fais ${s.how}.`],
+    ["Pour donner le meilleur", `J'ai besoin ${d.manual.besoin}, et ${s.manual.besoin}.`],
+    ["Ce qui me donne de l'énergie", `${cap(d.manual.energie)} ; ${s.manual.energie}.`],
+    ["Comment travailler avec moi", d.manual.parler],
+    ["Ce qu'il vaut mieux éviter", d.manual.eviter],
+    ["Mon signal d'alerte", `Sous forte pression, je peux basculer en mode « ${d.survival.mode.toLowerCase()} ». Si vous le remarquez, regardons ensemble le contexte plutôt que ma motivation.`]
+  ];
+}
+function manualText(p){
+  const d=A[p.D], s=A[p.S];
+  return `MON MANUEL D'UTILISATION
+Mon profil : ${alloyName(p)} (dominante ${d.name}, secondaire ${s.name})
+
+`+manualItems(p).map(([k,v])=>`${k} : ${v}`).join("\n");
+}
+// Contenus communs au rapport Web et au rapport PDF
+function reportParts(p){
+  const d=A[p.D], s=A[p.S], ax=A[p.axis];
+  return {
+    shipCore:`Ta structure innée, ce qui tient même dans la tempête. La plupart des personnes qui ${d.they} ne savent pas ${s.inf}. Toi, tu peux faire les deux.`,
+    expansion: p.expansion.length
+      ? `Ces archétypes arrivent juste après ton noyau. Ils peuvent correspondre à des compétences développées par l'expérience plutôt qu'à ta nature profonde. Demande-toi : est-ce que je le fais avec plaisir, ou parce que j'ai appris à le faire ?`
+      : `Aucun autre archétype ne ressort nettement en positif. Tes voiles sont probablement ailleurs : dans les compétences et les pratiques acquises au fil de ton parcours. Liste trois choses que tu fais bien et que tu as apprises sur le terrain.`,
+    axis:`C'est ton archétype le moins marqué${p.axis===d.complement?`, et aussi le contrepoids naturel de ta dominante ${d.name}`:""}. Ce n'est pas un défaut à corriger, c'est une posture à emprunter : observe des personnes qui savent ${ax.inf} et modélise leur façon de faire, sans chercher à devenir elles.`,
+    giftColor:`Ton secondaire ${s.name} lui donne sa couleur : tu le fais ${s.how}. C'est l'alliance ${de(d.pole)} et ${de(s.pole)} qui te rend difficile à remplacer.`,
+    vuln:`Le revers de ta force, c'est ${d.vuln}.`,
+    fracture:`Ton alliage a aussi sa ligne de fracture : ton besoin ${d.need} peut entrer en collision avec ton besoin ${s.need}. Quand les deux tirent dans des directions opposées, tu peux te sentir divisé·e sans comprendre pourquoi.`,
+    survivalAlt:`Variante liée à ton secondaire, le mode « ${s.survival.mode.toLowerCase()} » : ${lc1(s.survival.desc)}`,
+    fertile:[...d.fertile, ...s.fertile.slice(0,2)],
+    toxic:[...d.toxic, ...s.toxic.slice(0,2)],
+    flow:[...d.flow, s.flow[0]],
+    ressource:[...d.ressource, s.ressource[0]],
+    client:`${d.targets.client}. Ton côté ${s.name} te rend aussi précieux·se pour ${lc1(s.targets.client)}.`,
+    verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
+    keywords:[...d.keywords, ...s.keywords.slice(0,2)]
+  };
+}
+
+/* ================================================================
+   7. RAPPORT DOCUMENT (PDF téléchargé et PDF joint à l'e-mail)
+   Mise en forme simple et en ligne, compatible avec la conversion
+   PDF de Google et avec html2pdf.
+   ================================================================ */
+function reportDocHTML(p, prenom, link){
+  const d=A[p.D], s=A[p.S], ax=A[p.axis], r=reportParts(p), name=esc(cleanName(prenom));
+  const O="#D9661C", INK="#2B2522", MUT="#6E645D", LINE="#E4DED7", SOFT="#FBE8D8";
+  const H = "font-family:Georgia,'Times New Roman',serif;font-weight:normal;color:"+INK+";";
+  const sec = (n,t)=>`<div style="page-break-before:${n===1?"auto":"always"};padding-top:4px"><div style="font-family:Georgia,serif;font-style:italic;color:${O};font-size:13px">Section ${n}</div><h2 style="${H}font-size:24px;margin:2px 0 12px">${t}</h2>`;
+  const box = (lab,body,bg)=>`<div class="avoid" style="border:1px solid ${LINE};background:${bg||"#FFFFFF"};border-radius:8px;padding:12px 14px;margin:0 0 10px"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${MUT};margin-bottom:5px">${lab}</div>${body}</div>`;
+  const ul = arr => `<ul style="margin:0;padding-left:18px">${arr.map(x=>`<li style="margin:0 0 4px">${esc(x)}</li>`).join("")}</ul>`;
+  const P = t => `<p style="margin:0 0 8px">${t}</p>`;
+  const bars = p.sorted.map(id=>{
+    const v=p.scores[id].score, top=id===p.D||id===p.S, col=top?O:(id===p.axis?MUT:"#CFC7BE");
+    const neg = v<0 ? `<div style="height:10px;width:${Math.abs(v)*33}%;background:${col};margin-left:auto"></div>`:"";
+    const pos = v>0 ? `<div style="height:10px;width:${v*16.6}%;background:${col}"></div>`:"";
+    return `<tr><td style="width:110px;padding:3px 6px 3px 0;font-weight:${top?"bold":"normal"}">${A[id].name}</td><td style="width:22%;padding:3px 0;border-right:1px solid ${MUT}">${neg}</td><td style="padding:3px 0">${pos}</td><td style="width:30px;text-align:right;color:${MUT}">${v>0?"+":""}${v}</td></tr>`;
+  }).join("");
+
+  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.55;color:${INK};max-width:700px">
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">Magic Humans · QCM Talent Unique</div>
+  <div style="margin:22px 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${name?name+", ton alliage":"Ton alliage"} · 1 combinaison parmi 56</div>
+  <h1 style="${H}font-size:40px;line-height:1.05;margin:0 0 8px">${d.name} <i style="color:${O}">${s.adj}</i></h1>
+  ${P(`Dominante <b>${d.name}</b> (${d.tagline}) · Secondaire <b>${s.name}</b> (${s.tagline})`)}
+  ${link?P(`<span style="color:${MUT}">Ton lien personnel : <a href="${esc(link)}" style="color:${O}">revoir ce rapport en ligne</a></span>`):""}
+
+  <div style="height:18px"></div>
+  ${sec(1,"Cadrage & posture")}
+  ${P("Ce rapport n'est pas un verdict. C'est un <b>générateur d'hypothèses</b>. Six questions donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.")}
+  ${P("Le format à choix forcé compare tes préférences <i>entre elles</i>. Un score bas ne veut pas dire que tu es mauvais·e dans un domaine, mais qu'il passe après les autres quand tu dois choisir.")}
+  ${box("L'équation", `<div style="${H}font-size:20px;font-style:italic">Résultat <b style="color:${O}">=</b> Talent <b style="color:${O}">×</b> Contexte</div>`+P("C'est une multiplication, pas une addition. Un talent exceptionnel dans un contexte toxique produit de la souffrance. Le même talent dans un contexte fertile produit de l'excellence. Si l'un des deux facteurs tend vers zéro, le résultat aussi."), SOFT)}
+  ${box("Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)", `<table style="width:100%;border-collapse:collapse;font-size:11px">${bars}</table>`)}
+  </div>
+
+  ${sec(2,"Ton architecture de talent")}
+  ${P("Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.")}
+  ${box("La coque & le gouvernail · ton Noyau Catalyseur", P(`<b>${d.name} × ${s.name}</b>`)+P(r.shipCore))}
+  ${box("Les voiles · tes Talents en Expansion", (p.expansion.length?P("<b>"+p.expansion.map(id=>`${A[id].name}</b> (${A[id].tagline})`).join(" et <b>")):"")+P(r.expansion))}
+  ${box("La boussole · ton axe de modélisation", P(`<b>${ax.name}</b> (${ax.tagline})`)+P(r.axis))}
+  </div>
+
+  ${sec(3,"Le diagnostic de tes mécanismes")}
+  ${box("Hypothèse de plus grand talent", `<p style="${H}font-style:italic;font-size:15px;margin:0 0 8px">${cap(d.gift)}.</p>`+P(r.giftColor))}
+  ${box("Hypothèse de plus grande vulnérabilité", P(r.vuln)+P(r.fracture))}
+  ${box("Hypothèse de sur-adaptation · mode survie", `<div style="${H}font-size:16px;margin-bottom:4px">${d.survival.mode}</div>`+P(d.survival.desc)+P(`<span style="color:${MUT}">${r.survivalAlt}</span>`)+P("<b>À retenir :</b> quand tu te reconnais dans ce mode, ce n'est probablement pas ton talent qui est en cause, c'est le contexte qui ne lui convient pas."))}
+  </div>
+
+  ${sec(4,"Matrice des contextes & de l'énergie")}
+  ${box(`<span style="color:#3C7A55">● Contexte fertile · épanouissement</span>`, ul(r.fertile), "#E3F0E7")}
+  ${box(`<span style="color:#B0463A">● Contexte toxique · échec répété</span>`, ul(r.toxic)+P(`<b>Signal d'alerte :</b> si tu bascules souvent en mode « ${d.survival.mode.toLowerCase()} », tu es probablement sur un récif.`), "#F6E2DE")}
+  ${P("Ne confonds pas ce qui te rend performant·e et ce qui te recharge. La <b>zone de flow</b> est celle où tu excelles, mais elle consomme de l'énergie. La <b>zone de ressourcement</b> est celle d'où tu ressors avec plus d'énergie qu'au départ. Un talent exercé sans ressourcement finit par s'éteindre.")}
+  ${box("Zone de flow · dépense d'énergie", ul(r.flow))}
+  ${box("Zone de ressourcement · recharge", ul(r.ressource))}
+  </div>
+
+  ${sec(5,"Ta valeur marché & ton positionnement")}
+  ${box("Le boss qui a besoin de toi", P(esc(d.targets.boss)+"."))}
+  ${box("L'associé idéal", P(esc(d.targets.associe)+"."))}
+  ${box("Le client", P(esc(r.client)))}
+  ${box("Le langage secret · les phrases qui signalent que tu es au bon endroit", ul(r.verbatims.map(v=>`« ${v} »`))+P(`<span style="color:${MUT}">Les verbes de ton terrain de jeu :</span> ${r.keywords.join(" · ")}`))}
+  ${box("Pitch de positionnement", `<div style="white-space:pre-line">${esc(pitchText(p, prenom))}</div>`, SOFT)}
+  </div>
+
+  ${sec(6,"Ton manuel d'utilisation")}
+  ${P("Une fiche rédigée à la première personne, à transmettre à ton manager, tes associés ou ton équipe.")}
+  ${box("Mon manuel d'utilisation", `<div style="${H}font-size:18px;margin-bottom:8px">${alloyName(p)}</div>`+manualItems(p).map(([k,v])=>`<div style="margin:0 0 8px"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${k}</div>${esc(v)}</div>`).join(""))}
+  </div>
+
+  ${sec(7,"Auto-évaluation d'alignement")}
+  ${P("Le talent n'est que la moitié de l'équation. Note honnêtement ta situation actuelle :")}
+  ${box("Mes trois curseurs", [
+    "Mon contexte actuel est fertile pour moi",
+    "J'exprime pleinement mon talent au quotidien",
+    "Je suis reconnu·e et rémunéré·e à ma juste valeur"
+  ].map(t=>`<p style="margin:0 0 10px">${t} : <b>____ / 10</b></p>`).join("")+P(`<span style="color:${MUT}">Le curseur le plus bas est ton premier levier.</span>`))}
+  <div class="avoid" style="background:${INK};color:#F5F3F0;border-radius:8px;padding:18px 20px;margin-top:12px">
+    <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">Appel découverte · 1 heure · offert</div>
+    <div style="font-family:Georgia,serif;font-size:20px;margin:4px 0 8px;color:#F5F3F0">Passe de l'hypothèse au plan d'action</div>
+    <p style="margin:0 0 10px;color:#F5F3F0">Pendant une heure, nous regardons ta situation réelle : où ton alliage ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
+    <p style="margin:0"><a href="${CONFIG.calendly}" style="color:${O};font-weight:bold">Réserver mon appel découverte : calendly.com/pierre-j-sarazin</a></p>
+  </div>
+  </div>
+</div>`;
+}
+
+/* ================================================================
+   INTERFACE DU QUIZ (navigateur uniquement)
+   ================================================================ */
+const $ = sel => document.querySelector(sel);
+const SCREENS = ["intro","quiz","tie","gate","report"];
+function show(name){ SCREENS.forEach(n=>$("#screen-"+n).hidden = n!==name); window.scrollTo({top:0}); }
+
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+const displayOrder = QUESTIONS.map(q=>shuffle(q.items.map((_,i)=>i)));
+let answers = QUESTIONS.map(()=>({plus:null,minus:null}));
+let qi = 0, tieState = null, pending = null;   // pending = {profile, core}
+
+/* ---------- Questions ---------- */
+function renderQuestion(){
+  const q = QUESTIONS[qi], a = answers[qi];
+  $("#progress").innerHTML = QUESTIONS.map((_,i)=>`<span class="${i<=qi?'done':''}"></span>`).join("");
+  $("#qcount").textContent = `Question ${qi+1} sur ${QUESTIONS.length}`;
+  $("#qstem").textContent = q.stem;
+  $("#items").innerHTML = displayOrder[qi].map(i=>{
+    const isP=a.plus===i, isM=a.minus===i;
+    return `<div class="item ${isP?'is-plus':''} ${isM?'is-minus':''}">
+      <div class="txt">${q.items[i][1]}</div>
+      <div class="choices" role="group" aria-label="Évaluer cette proposition">
+        <button class="choice plus" id="q${qi}-p${i}" data-i="${i}" data-k="plus" aria-pressed="${isP}" aria-label="Le plus moi">+<small>plus</small></button>
+        <button class="choice minus" id="q${qi}-m${i}" data-i="${i}" data-k="minus" aria-pressed="${isM}" aria-label="Le moins moi">−<small>moins</small></button>
+      </div></div>`;
+  }).join("");
+  const ok = a.plus!=null && a.minus!=null;
+  $("#next").disabled = !ok;
+  $("#next").textContent = qi===QUESTIONS.length-1 ? "Voir mes résultats →" : "Suivant →";
+  $("#hint").textContent = ok ? "" : (a.plus==null && a.minus==null ? "Choisis un « + » et un « − »." : a.plus==null ? "Il manque ton « + »." : "Il manque ton « − ».");
+}
+$("#items").addEventListener("click", e=>{
+  const b = e.target.closest(".choice"); if(!b) return;
+  const i = +b.dataset.i, k = b.dataset.k, other = k==="plus"?"minus":"plus";
+  const a = answers[qi];
+  a[k] = a[k]===i ? null : i;
+  if (a[other]===i) a[other] = null;
+  renderQuestion();
+  const again = document.getElementById(b.id); if (again) again.focus();
+});
+$("#next").addEventListener("click", ()=>{
+  if (qi < QUESTIONS.length-1){ qi++; renderQuestion(); window.scrollTo({top:0}); }
+  else finish();
+});
+$("#prev").addEventListener("click", ()=>{ if (qi>0){ qi--; renderQuestion(); } else show("intro"); });
+$("#start").addEventListener("click", ()=>{ qi=0; renderQuestion(); show("quiz"); });
+$("#demo").addEventListener("click", ()=>{
+  answers = QUESTIONS.map(()=>{ const o=shuffle([0,1,2,3]); return {plus:o[0],minus:o[1]}; });
+  const s = computeScores(answers), r = resolveCore(s);
+  const core = [...r.fixed, ...(r.candidates||[])].slice(0,2);
+  renderReport(buildProfile(s, core), {prenom:"Camille", core, demo:true});
+});
+
+function finish(){
+  const s = computeScores(answers);
+  const r = resolveCore(s);
+  if (!r.candidates) return openGate(s, r.fixed);
+  tieState = {s, fixed:r.fixed, candidates:r.candidates, need:r.need, picks:[]};
+  renderTie(); show("tie");
+}
+
+/* ---------- Départage ---------- */
+function renderTie(){
+  const t = tieState;
+  const pos = t.fixed.length ? "ta position n°2 (ton archétype secondaire)" : (t.need===2 ? "tes positions n°1 et n°2" : "ta position n°1");
+  $("#tie-help").textContent = `Pour départager ${pos}, clique ${t.need===1?"celui qui te ressemble le plus":"les deux qui te ressemblent le plus, dans l'ordre"}.`;
+  $("#cands").innerHTML = t.candidates.map(id=>{
+    const k = t.picks.indexOf(id);
+    return `<button class="cand ${k>-1?'picked':''}" data-id="${id}" id="cand-${id}">
+      ${k>-1?`<span class="rank">${t.fixed.length+k+1}</span>`:""}
+      <strong>${A[id].name}</strong><span class="t">${A[id].tagline}</span><span>${A[id].essence}</span></button>`;
+  }).join("");
+  $("#tie-ok").disabled = t.picks.length < t.need;
+}
+$("#cands").addEventListener("click", e=>{
+  const b = e.target.closest(".cand"); if(!b) return;
+  const t = tieState, id=b.dataset.id;
+  if (t.picks.includes(id) || t.picks.length>=t.need) return;
+  t.picks.push(id);
+  const left = t.candidates.filter(c=>!t.picks.includes(c));
+  if (t.picks.length < t.need && left.length === 1) t.picks.push(left[0]);
+  renderTie();
+});
+$("#tie-reset").addEventListener("click", ()=>{ tieState.picks=[]; renderTie(); });
+$("#tie-ok").addEventListener("click", ()=>{
+  const t = tieState;
+  openGate(t.s, [...t.fixed, ...t.picks].slice(0,2));
+});
+
+/* ---------- Capture e-mail ---------- */
+function openGate(s, core){
+  const p = buildProfile(s, core);
+  pending = {p, core};
+  $("#gate-alloy").textContent = alloyName(p);
+  $("#gate-essence").textContent = `${A[p.D].essence} ${A[p.S].essence}`;
+  $("#gate-err").textContent = "";
+  show("gate");
+}
+$("#gate-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const prenom = cleanName($("#f-prenom").value);
+  const email = $("#f-email").value.trim().toLowerCase();
+  if (!prenom){ $("#gate-err").textContent = "Indique ton prénom."; $("#f-prenom").focus(); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ $("#gate-err").textContent = "Cette adresse e-mail ne semble pas valide. Vérifie-la."; $("#f-email").focus(); return; }
+  const {p, core} = pending;
+  const state = encodeState(answers, core, prenom);
+  try { history.replaceState(null, "", "#r="+state); } catch(_){}
+  renderReport(p, {prenom, email, core});
+  sendReport({prenom, email, state, newsletter:$("#f-news").checked, website:$("#f-website").value});
+});
+
+// Envoi au script Google : enregistre le prospect et envoie le PDF par e-mail.
+async function sendReport(data){
+  const st = $("#send-status");
+  if (!CONFIG.endpoint){ st.textContent = "L'envoi par e-mail n'est pas encore activé : télécharge ton PDF ci-dessus."; return; }
+  st.className = "status"; st.textContent = `Envoi de ton rapport à ${data.email}…`;
+  try{
+    const res = await fetch(CONFIG.endpoint, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(data)});
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error||"refus");
+    st.className = "status ok"; st.textContent = `Ton rapport PDF a été envoyé à ${data.email}. Pense à vérifier tes spams.`;
+  }catch(err){
+    st.className = "status ko"; st.textContent = "L'envoi par e-mail n'a pas abouti. Télécharge ton PDF ci-dessus, il contient exactement le même rapport.";
+  }
+}
+
+/* ---------- Rapport ---------- */
+function chartHTML(p){
+  const MIN=-3, MAX=6, span=MAX-MIN, z=(0-MIN)/span*100;
+  const rows = p.sorted.map(id=>{
+    const v=p.scores[id].score, top=(id===p.D||id===p.S), ax=id===p.axis;
+    const left = v>=0 ? z : (v-MIN)/span*100, width = Math.abs(v)/span*100;
+    return `<div class="bar-row"><span class="n ${top?'top':''}">${A[id].name}</span>
+      <div class="bar-track"><div class="bar ${top?'top':ax?'axis':''}" style="left:${left}%;width:${width}%"></div><div class="bar-zero" style="left:${z}%"></div></div>
+      <span class="v">${v>0?'+':''}${v}</span></div>`;
+  }).join("");
+  return `<div class="chart" role="img" aria-label="Scores nets par archétype">${rows}
+    <div class="chart-scale"><span></span><div><span>−3</span><span>0</span><span>+6</span></div><span></span></div></div>`;
+}
+const li = arr => arr.map(x=>`<li>${x}</li>`).join("");
+
+function renderReport(p, ctx){
+  const d=A[p.D], s=A[p.S], ax=A[p.axis], r=reportParts(p);
+  const prenom = cleanName(ctx.prenom), name = esc(prenom);
+  const link = ctx.demo ? "" : personalLink(answers, ctx.core, prenom);
+
+  const html = `
+  <div class="rhead">
+    ${ctx.demo?`<span class="tag">Rapport d'exemple · réponses aléatoires</span>`:""}
+    <span class="eyebrow">${name?name+", ton alliage":"Ton alliage"} · 1 combinaison parmi 56</span>
+    <div class="alloy">${d.name} <em>${s.adj}</em></div>
+    <p class="lead">Dominante <strong>${d.name}</strong> (${d.tagline}) · Secondaire <strong>${s.name}</strong> (${s.tagline})</p>
+  </div>
+
+  <div class="actions">
+    <div class="row-actions">
+      <button class="btn small" id="dl-pdf">Télécharger mon rapport PDF</button>
+      ${link?`<button class="btn ghost small" id="copy-link">Copier mon lien personnel</button>`:""}
+      <span class="toast" id="toast-act" aria-live="polite"></span>
+    </div>
+    <p class="status" id="send-status" aria-live="polite">${ctx.email?"":(ctx.demo?"Rapport d'exemple : aucun e-mail n'est envoyé.":"Tu peux télécharger ce rapport en PDF ou garder ton lien personnel pour y revenir.")}</p>
+  </div>
+
+  <nav class="toc" aria-label="Sections du rapport" style="padding-top:16px">
+    <a href="#s1">1. Cadrage</a><a href="#s2">2. Architecture</a><a href="#s3">3. Mécanismes</a><a href="#s4">4. Contextes & énergie</a><a href="#s5">5. Valeur marché</a><a href="#s6">6. Manuel</a><a href="#s7">7. Alignement</a>
+  </nav>
+
+  <div class="stack-lg" style="padding-top:20px">
+
+  <section class="rs" id="s1">
+    <span class="snum">Section 1</span><h2>Cadrage & posture</h2>
+    <div class="prose">
+      <p>Ce rapport n'est pas un verdict. C'est un <strong>générateur d'hypothèses</strong>. Six questions donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.</p>
+      <p>Le format à choix forcé compare tes préférences <em>entre elles</em>. Un score bas ne veut pas dire que tu es mauvais·e dans un domaine, mais qu'il passe après les autres quand tu dois choisir.</p>
+    </div>
+    <div class="equation">
+      <div class="formula">Résultat <b>=</b> Talent <b>×</b> Contexte</div>
+      <p>C'est une multiplication, pas une addition. Un talent exceptionnel dans un contexte toxique produit de la souffrance. Le même talent dans un contexte fertile produit de l'excellence avec une facilité qui surprend. Si l'un des deux facteurs tend vers zéro, le résultat aussi.</p>
+    </div>
+    <div class="panel">
+      <span class="lab">Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)</span>
+      ${chartHTML(p)}
+    </div>
+    <details><summary>Comment ces résultats sont calculés</summary><div>
+      <p>Chaque archétype apparaît 3 fois sur les 6 questions. Score net = (nombre de « + » × 2) − (nombre de « − »). Ton Noyau Catalyseur réunit les deux scores les plus élevés ; en cas d'égalité, c'est toi qui as tranché. L'axe de modélisation est l'archétype le moins marqué, en privilégiant le contrepoids naturel de ta dominante en cas d'égalité.</p>
+      <p>Limite à garder en tête : avec 6 questions, un seul choix peut faire basculer un rang. C'est pour cela qu'il vaut mieux confronter ces hypothèses à ton histoire réelle, seul·e ou accompagné·e.</p>
+    </div></details>
+  </section>
+
+  <section class="rs" id="s2">
+    <span class="snum">Section 2</span><h2>Ton architecture de talent</h2>
+    <p class="prose">Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.</p>
+    <div class="ship">
+      <div class="panel"><span class="lab">La coque & le gouvernail</span><h3>Ton Noyau Catalyseur</h3><p><strong>${d.name} × ${s.name}</strong></p><p>${r.shipCore}</p></div>
+      <div class="panel sail"><span class="lab">Les voiles</span><h3>Tes Talents en Expansion</h3>
+        ${p.expansion.length?`<p>${p.expansion.map(id=>`<strong>${A[id].name}</strong> (${A[id].tagline})`).join(" et ")}</p>`:""}<p>${r.expansion}</p></div>
+      <div class="panel comp"><span class="lab">La boussole</span><h3>Ton axe de modélisation</h3><p><strong>${ax.name}</strong> (${ax.tagline})</p><p>${r.axis}</p></div>
+    </div>
+  </section>
+
+  <section class="rs" id="s3">
+    <span class="snum">Section 3</span><h2>Le diagnostic de tes mécanismes</h2>
+    <div class="stack">
+      <div class="panel"><span class="lab">Hypothèse de plus grand talent</span><p class="quote">${cap(d.gift)}.</p><p>${r.giftColor}</p></div>
+      <div class="panel"><span class="lab">Hypothèse de plus grande vulnérabilité</span><p>${r.vuln}</p><p>${r.fracture}</p></div>
+      <div class="panel"><span class="lab">Hypothèse de sur-adaptation · mode survie</span><h3>${d.survival.mode}</h3><p>${d.survival.desc}</p>
+        <p class="muted">${r.survivalAlt}</p>
+        <p><strong>À retenir :</strong> quand tu te reconnais dans ce mode, ce n'est probablement pas ton talent qui est en cause, c'est le contexte qui ne lui convient pas.</p></div>
+    </div>
+  </section>
+
+  <section class="rs" id="s4">
+    <span class="snum">Section 4</span><h2>Matrice des contextes & de l'énergie</h2>
+    <div class="grid2">
+      <div class="panel ctx-good"><span class="lab"><span class="dot g"></span>Contexte fertile · épanouissement</span><ul class="clean">${li(r.fertile)}</ul></div>
+      <div class="panel ctx-bad"><span class="lab"><span class="dot r"></span>Contexte toxique · échec répété</span><ul class="clean">${li(r.toxic)}</ul>
+        <p><strong>Signal d'alerte :</strong> si tu bascules souvent en mode « ${d.survival.mode.toLowerCase()} », tu es probablement sur un récif.</p></div>
+    </div>
+    <div class="prose"><p>Ne confonds pas ce qui te rend performant·e et ce qui te recharge. La <strong>zone de flow</strong> est celle où tu excelles, mais elle consomme de l'énergie. La <strong>zone de ressourcement</strong> est celle d'où tu ressors avec plus d'énergie qu'au départ. Un talent exercé sans ressourcement finit par s'éteindre.</p></div>
+    <div class="grid2">
+      <div class="panel"><span class="lab">Zone de flow · dépense d'énergie</span><ul class="clean">${li(r.flow)}</ul></div>
+      <div class="panel"><span class="lab">Zone de ressourcement · recharge</span><ul class="clean">${li(r.ressource)}</ul></div>
+    </div>
+  </section>
+
+  <section class="rs" id="s5">
+    <span class="snum">Section 5</span><h2>Ta valeur marché & ton positionnement</h2>
+    <div class="grid3">
+      <div class="panel"><span class="lab">Le boss qui a besoin de toi</span><p>${d.targets.boss}.</p></div>
+      <div class="panel"><span class="lab">L'associé idéal</span><p>${d.targets.associe}.</p></div>
+      <div class="panel"><span class="lab">Le client</span><p>${r.client}</p></div>
+    </div>
+    <div class="panel">
+      <span class="lab">Le langage secret · ce qu'il faut guetter chez ton interlocuteur</span>
+      <p>Quand tu entends ces phrases, tu es au bon endroit :</p>
+      <ul class="clean">${li(r.verbatims.map(v=>`« ${v} »`))}</ul>
+      <p>Les verbes de ton terrain de jeu :</p>
+      <div class="chips">${r.keywords.map(k=>`<span class="chip">${k}</span>`).join("")}</div>
+    </div>
+    <div class="stack">
+      <span class="eyebrow">Pitch de positionnement · modifiable</span>
+      <textarea id="pitch" aria-label="Ton pitch de positionnement">${esc(pitchText(p, prenom))}</textarea>
+      <div class="row-actions"><button class="btn ghost small" data-copy="pitch">Copier le pitch</button><span class="toast" id="toast-pitch" aria-live="polite"></span></div>
+    </div>
+  </section>
+
+  <section class="rs" id="s6">
+    <span class="snum">Section 6</span><h2>Ton manuel d'utilisation</h2>
+    <p class="prose">Une fiche rédigée à la première personne, à transmettre à ton manager, tes associés ou ton équipe.</p>
+    <div class="manual">
+      <span class="eyebrow">Mon manuel d'utilisation</span>
+      <h3>${alloyName(p)}</h3>
+      <dl>${manualItems(p).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+    </div>
+    <textarea id="manual-text" hidden>${esc(manualText(p))}</textarea>
+    <div class="row-actions"><button class="btn ghost small" data-copy="manual-text">Copier le manuel</button><span class="toast" id="toast-manual-text" aria-live="polite"></span></div>
+  </section>
+
+  <section class="rs" id="s7">
+    <span class="snum">Section 7</span><h2>Auto-évaluation d'alignement</h2>
+    <p class="prose">Le talent n'est que la moitié de l'équation. Évalue honnêtement ta situation actuelle.</p>
+    <div class="panel stack">
+      <div class="slider"><label for="sl-ctx">Mon contexte actuel est fertile pour moi <output id="o-ctx">5</output></label><input type="range" id="sl-ctx" min="0" max="10" value="5"></div>
+      <div class="slider"><label for="sl-exp">J'exprime pleinement mon talent au quotidien <output id="o-exp">5</output></label><input type="range" id="sl-exp" min="0" max="10" value="5"></div>
+      <div class="slider"><label for="sl-fin">Je suis reconnu·e et rémunéré·e à ma juste valeur <output id="o-fin">5</output></label><input type="range" id="sl-fin" min="0" max="10" value="5"></div>
+      <p class="reading" id="reading" aria-live="polite"></p>
+    </div>
+    <div class="cta">
+      <span class="eyebrow">Appel découverte · 1 heure · offert</span>
+      <h3>Passe de l'hypothèse au plan d'action</h3>
+      <p>Pendant une heure, nous regardons ta situation réelle : où ton alliage ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
+      <a class="btn" href="${CONFIG.calendly}" target="_blank" rel="noopener">Réserver mon appel découverte →</a>
+    </div>
+    <div class="row-actions"><button class="link" id="restart">Refaire le test</button></div>
+  </section>
+  </div>`;
+
+  const root = $("#screen-report");
+  root.innerHTML = html;
+  show("report");
+
+  const flash = (id,msg)=>{ const t=document.getElementById(id); t.textContent=msg; setTimeout(()=>{t.textContent="";},4000); };
+  async function copy(text, toastId, fallbackEl){
+    try { await navigator.clipboard.writeText(text); flash(toastId, "Copié dans le presse-papiers."); }
+    catch(e){ if (fallbackEl){ fallbackEl.hidden=false; fallbackEl.focus(); fallbackEl.select(); } flash(toastId, "Sélectionne le texte et copie-le avec Ctrl+C ou ⌘+C."); }
+  }
+  root.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click", ()=>{
+    const id = btn.dataset.copy, ta = document.getElementById(id);
+    copy(ta.value, "toast-"+id, ta);
+  }));
+  if (link) $("#copy-link").addEventListener("click", ()=>copy(link, "toast-act"));
+
+  $("#dl-pdf").addEventListener("click", async ()=>{
+    const btn = $("#dl-pdf");
+    if (!window.html2pdf){ flash("toast-act","Le générateur de PDF n'a pas pu se charger. Recharge la page."); return; }
+    btn.disabled = true; btn.textContent = "Préparation du PDF…";
+    try{
+      await html2pdf().set({
+        margin:[14,14,16,14], filename:`Talent-Unique-${(prenom||"rapport").replace(/[^\p{L}\p{N}-]+/gu,"-")}.pdf`,
+        image:{type:"jpeg",quality:0.95}, html2canvas:{scale:2, backgroundColor:"#FFFFFF"},
+        jsPDF:{unit:"mm", format:"a4", orientation:"portrait"}, pagebreak:{mode:["css","legacy"], avoid:".avoid"}
+      }).from(reportDocHTML(p, prenom, link)).save();
+    }catch(e){ flash("toast-act","Le téléchargement n'a pas pu démarrer sur cet appareil."); }
+    btn.disabled = false; btn.textContent = "Télécharger mon rapport PDF";
+  });
+
+  const sl = {ctx:$("#sl-ctx"), exp:$("#sl-exp"), fin:$("#sl-fin")};
+  const update = ()=>{
+    const v = {ctx:+sl.ctx.value, exp:+sl.exp.value, fin:+sl.fin.value};
+    Object.keys(v).forEach(k=>$("#o-"+k).textContent=v[k]);
+    $("#reading").innerHTML = readAlignment(v, p);
+  };
+  Object.values(sl).forEach(x=>x.addEventListener("input", update));
+  update();
+
+  $("#restart").addEventListener("click", ()=>{
+    answers = QUESTIONS.map(()=>({plus:null,minus:null})); qi=0; tieState=null; pending=null;
+    try { history.replaceState(null, "", location.pathname); } catch(_){}
+    show("intro");
+  });
+}
+
+function readAlignment(v, p){
+  const d=A[p.D];
+  const avg = (v.ctx+v.exp+v.fin)/3;
+  const lowest = Object.entries(v).sort((a,b)=>a[1]-b[1])[0][0];
+  if (avg >= 8) return `<strong>Alignement élevé.</strong> Ton talent semble bien exprimé dans un contexte qui lui convient. L'enjeu est maintenant de le faire rayonner plus loin : positionnement, visibilité, valeur perçue.`;
+  const msg = {
+    ctx:`<strong>Le contexte est ton premier levier.</strong> Avec ${v.ctx}/10, ton environnement ressemble peut-être davantage à un récif qu'à une mer porteuse. Compare-le à la liste « contexte toxique » de la section 4 : combien de points te parlent ?`,
+    exp:`<strong>Ton talent est sous-exprimé.</strong> Avec ${v.exp}/10, tu passes probablement une bonne partie de ton temps hors de ta zone de flow. Quelle part de ta semaine consacres-tu vraiment à ${d.inf} ?`,
+    fin:`<strong>La reconnaissance ne suit pas.</strong> Avec ${v.fin}/10, la valeur que tu crées ne se traduit pas encore en reconnaissance ou en revenus. C'est souvent une question de positionnement et de langage : relis la section 5.`
+  };
+  return (avg < 5 ? `Score moyen de ${avg.toFixed(1)}/10 : l'écart entre ton potentiel et ta situation mérite qu'on s'y arrête. ` : `Score moyen de ${avg.toFixed(1)}/10. `) + msg[lowest];
+}
+
+/* ---------- Ouverture via un lien personnel (#r=...) ---------- */
+(function restoreFromLink(){
+  const m = location.hash.match(/^#r=(.+)$/);
+  if (!m) return;
+  const st = decodeState(m[1]);
+  if (!st) return;
+  answers = st.answers;
+  renderReport(buildProfile(computeScores(answers), st.core), {prenom:st.prenom, core:st.core});
+})();
+
+</script>
+
+</body>
+</html>
