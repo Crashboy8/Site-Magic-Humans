@@ -65,3 +65,12 @@ Les liens Calendly du site portent des paramètres UTM normalisés (`utm_source=
 ## Quiz Talent Unique (`/quiz/`)
 
 Page autonome `quiz/index.html` : QCM en 6 questions, capture du prénom et de l'e-mail, rapport en 7 sections, PDF téléchargeable et lien personnel (`/quiz/#r=...`). L'envoi automatique du rapport par e-mail passe par un script Google Apps Script relié à un Google Sheet ; son URL se colle dans `CONFIG.endpoint` en haut du script de la page. Les sources et le guide d'installation sont dans le kit « magic-humans-quiz ».
+
+### Règles à respecter quand on modifie le quiz
+
+Le script Google Apps Script qui envoie le rapport PDF par e-mail lit le moteur du quiz **directement sur la page en ligne** (`/quiz/`), à chaque envoi (avec un cache de 10 minutes). Il n'y a donc rien à mettre à jour côté Google quand on change les textes, les questions, le rapport ou l'e-mail, à condition de respecter ces règles :
+
+- Garder tout le moteur (données, textes, calcul, `reportDocHTML`, `emailHTML`) dans le premier `<script>` en ligne de `quiz/index.html`, **avant** le commentaire qui contient `INTERFACE DU QUIZ`. Tout ce qui est après ce commentaire est réservé au navigateur.
+- Ne jamais utiliser `document`, `window` ou `localStorage` dans la partie moteur : elle est aussi exécutée sur les serveurs de Google.
+- Conserver ces noms, que le script utilise : `decodeState`, `computeScores`, `buildProfile`, `personalLink`, `reportDocHTML`, `emailHTML`, `alloyName`, `L`, `A_FR`, `cleanName`, `esc`, `CONFIG`, ainsi que `L(lang).X.T.mail` pour les textes de l'e-mail.
+- Si l'une de ces règles doit changer, il faut aussi mettre à jour le script dans Apps Script (Déployer → Gérer les déploiements → Nouvelle version).
