@@ -158,6 +158,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .cta{background:var(--ink);color:var(--bg);border-radius:var(--radius);padding:28px 26px;display:flex;flex-direction:column;gap:14px}
 .cta h3{font-size:1.8rem}
 .cta .btn{align-self:flex-start}
+.cta-actions{display:flex;flex-wrap:wrap;gap:10px}
+.cta .btn.alt{background:transparent;color:var(--bg);border:1px solid var(--bg)}
+.cta .btn.alt:hover{background:var(--bg);color:var(--ink)}
 .cta p{color:var(--bg);opacity:.85}
 details{font-size:.93rem;color:var(--muted)}
 details summary{cursor:pointer;font-weight:600;color:var(--ink)}
@@ -1018,7 +1021,7 @@ const TEXT_FR = {
       slidersDocLab:"Mes trois curseurs", lowest:"Le curseur le plus bas est ton premier levier.",
       ctaEyebrow:"Appel découverte · 1 heure · offert", ctaH:"Passe de l'hypothèse au plan d'action",
       ctaP:alloy=>`Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloy} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.`,
-      ctaBtn:"Réserver mon appel découverte →", ctaDocBtn:"Réserver mon appel découverte",
+      ctaBtn:"Réserver mon appel découverte →", ctaDocBtn:"Réserver mon appel découverte", siteBtn:"Découvrir Magic Humans →", siteDocLab:"Découvrir Magic Humans",
       restart:"Refaire le test", linkLab:"Ton lien personnel :", linkText:"revoir ce rapport en ligne",
       docBrand:"Magic Humans · Quiz Talent Unique"
     },
@@ -1188,7 +1191,7 @@ const TEXT_EN = {
       slidersDocLab:"My three dials", lowest:"Your lowest dial is your first lever.",
       ctaEyebrow:"Discovery call · 1 hour · free", ctaH:"Move from hypothesis to action plan",
       ctaP:alloy=>`For one hour, we look at your real situation: where your Unique Talent, ${alloy}, already shows up, what's holding it back today, and what you want to build. If a Magic Humans programme can help you get there, I'll present it at the end of the call, and you'll decide freely.`,
-      ctaBtn:"Book my discovery call →", ctaDocBtn:"Book my discovery call",
+      ctaBtn:"Book my discovery call →", ctaDocBtn:"Book my discovery call", siteBtn:"Discover Magic Humans →", siteDocLab:"Discover Magic Humans",
       restart:"Take the quiz again", linkLab:"Your personal link:", linkText:"view this report online",
       docBrand:"Magic Humans · Unique Talent Quiz"
     },
@@ -1463,7 +1466,8 @@ function reportDocHTML(p, prenom, link, lang){
     <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${T.ctaEyebrow}</div>
     <div style="font-family:Georgia,serif;font-size:20px;margin:4px 0 8px;color:#F5F3F0">${T.ctaH}</div>
     <p style="margin:0 0 10px;color:#F5F3F0">${T.ctaP(X.alloyName(p))}</p>
-    <p style="margin:0"><a href="${CONFIG.calendly}" style="color:${O};font-weight:bold">${T.ctaDocBtn}${sep} calendly.com/pierre-j-sarazin</a></p>
+    <p style="margin:0 0 6px"><a href="${CONFIG.calendly}" style="color:${O};font-weight:bold">${T.ctaDocBtn}${sep} calendly.com/pierre-j-sarazin</a></p>
+    <p style="margin:0"><a href="https://www.magichumans.com/" style="color:#F5F3F0;font-weight:bold">${T.siteDocLab}${sep} magichumans.com</a></p>
   </div>
   </div>
 </div>`;
@@ -1820,7 +1824,10 @@ function renderReport(p, ctx){
       <span class="eyebrow">${R.ctaEyebrow}</span>
       <h3>${R.ctaH}</h3>
       <p>${R.ctaP(X.alloyName(p))}</p>
-      <a class="btn" href="${CONFIG.calendly}" target="_blank" rel="noopener">${R.ctaBtn}</a>
+      <div class="cta-actions">
+        <a class="btn" href="${CONFIG.calendly}" target="_blank" rel="noopener">${R.ctaBtn}</a>
+        <a class="btn alt" href="/" target="_blank" rel="noopener">${R.siteBtn}</a>
+      </div>
     </div>
     <div class="row-actions"><button class="link" id="restart">${R.restart}</button></div>
   </section>
