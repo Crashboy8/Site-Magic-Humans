@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Découvre ton Talent Unique en 6 questions : ton alliage, tes contextes fertiles et ton positionnement.">
+<meta name="description" content="Découvre ton Talent Unique en 6 questions : ta combinaison parmi 56, tes contextes fertiles et ton positionnement.">
 <link rel="icon" href="/favicon.ico">
 <link rel="canonical" href="https://www.magichumans.com/quiz/">
-<meta property="og:title" content="Découvre ton Talent Unique en 6 questions">
-<meta property="og:description" content="Ton alliage parmi 56, tes contextes fertiles et toxiques, ton pitch et ton manuel d'utilisation.">
-<title>QCM Talent Unique | Magic Humans</title>
+<meta property="og:title" content="Quiz Talent Unique : découvre ce qui te rend rare">
+<meta property="og:description" content="Ton Talent Unique parmi 56 combinaisons, tes contextes fertiles et toxiques, ton pitch et ton manuel d'utilisation.">
+<title>Quiz Talent Unique : découvre ce qui te rend rare | Magic Humans</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
@@ -185,7 +185,7 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
 </head>
 <body>
 <div class="wrap">
-  <a class="brand" href="/" style="text-decoration:none"><i></i>Magic Humans · QCM Talent Unique</a>
+  <a class="brand" href="/" style="text-decoration:none"><i></i>Magic Humans · Quiz Talent Unique</a>
 
   <main id="screen-intro">
     <div class="hero">
@@ -239,9 +239,10 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
     <div class="gate">
       <div class="stack">
         <span class="eyebrow">Ton rapport est prêt</span>
-        <h2>Ton alliage : <span id="gate-alloy" style="color:var(--accent)"></span></h2>
-        <p class="lead" id="gate-essence"></p>
-        <p class="muted">Ton rapport complet fait 7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation. Indique ton prénom et ton e-mail pour l'ouvrir et le recevoir en PDF.</p>
+        <h2>Ton Talent Unique (hypothèse) : <span id="gate-alloy" style="color:var(--accent)"></span> ✨</h2>
+        <p class="lead"><strong>Ce qui te rend rare :</strong> <span id="gate-gift"></span></p>
+        <p class="lead"><strong>Tu rayonnes surtout quand tu as :</strong> <span id="gate-fertile"></span></p>
+        <p class="muted">Ton rapport complet (7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation) t'attend. Indique ton prénom et ton e-mail pour le recevoir en PDF.</p>
       </div>
       <form id="gate-form" novalidate>
         <div class="field"><label for="f-prenom">Prénom</label><input id="f-prenom" name="prenom" autocomplete="given-name" maxlength="40" required></div>
@@ -249,7 +250,7 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
         <div class="hp" aria-hidden="true"><label for="f-website">Site web</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
         <label class="check" for="f-news"><input type="checkbox" id="f-news" name="newsletter"><span>J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).</span></label>
         <p class="err" id="gate-err" aria-live="polite"></p>
-        <button class="btn" type="submit" id="gate-submit">Voir et recevoir mon rapport →</button>
+        <button class="btn" type="submit" id="gate-submit">Recevoir mon rapport complet →</button>
         <p class="legal">Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.</p>
       </form>
     </div>
@@ -616,7 +617,7 @@ function reportParts(p){
     axis:`C'est ton archétype le moins marqué${p.axis===d.complement?`, et aussi le contrepoids naturel de ta dominante ${d.name}`:""}. Ce n'est pas un défaut à corriger, c'est une posture à emprunter : observe des personnes qui savent ${ax.inf} et modélise leur façon de faire, sans chercher à devenir elles.`,
     giftColor:`Ton secondaire ${s.name} lui donne sa couleur : tu le fais ${s.how}. C'est l'alliance ${de(d.pole)} et ${de(s.pole)} qui te rend difficile à remplacer.`,
     vuln:`Le revers de ta force, c'est ${d.vuln}.`,
-    fracture:`Ton alliage a aussi sa ligne de fracture : ton besoin ${d.need} peut entrer en collision avec ton besoin ${s.need}. Quand les deux tirent dans des directions opposées, tu peux te sentir divisé·e sans comprendre pourquoi.`,
+    fracture:`Ton Talent Unique a aussi sa ligne de fracture : ton besoin ${d.need} peut entrer en collision avec ton besoin ${s.need}. Quand les deux tirent dans des directions opposées, tu peux te sentir divisé·e sans comprendre pourquoi.`,
     survivalAlt:`Variante liée à ton secondaire, le mode « ${s.survival.mode.toLowerCase()} » : ${lc1(s.survival.desc)}`,
     fertile:[...d.fertile, ...s.fertile.slice(0,2)],
     toxic:[...d.toxic, ...s.toxic.slice(0,2)],
@@ -649,8 +650,8 @@ function reportDocHTML(p, prenom, link){
   }).join("");
 
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.55;color:${INK};max-width:700px">
-  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">Magic Humans · QCM Talent Unique</div>
-  <div style="margin:22px 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${name?name+", ton alliage":"Ton alliage"} · 1 combinaison parmi 56</div>
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">Magic Humans · Quiz Talent Unique</div>
+  <div style="margin:22px 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${name?name+", ton Talent Unique (hypothèse)":"Ton Talent Unique (hypothèse)"} · 1 combinaison parmi 56</div>
   <h1 style="${H}font-size:40px;line-height:1.05;margin:0 0 8px">${d.name} <i style="color:${O}">${s.adj}</i></h1>
   ${P(`Dominante <b>${d.name}</b> (${d.tagline}) · Secondaire <b>${s.name}</b> (${s.tagline})`)}
   ${link?P(`<span style="color:${MUT}">Ton lien personnel : <a href="${esc(link)}" style="color:${O}">revoir ce rapport en ligne</a></span>`):""}
@@ -707,7 +708,7 @@ function reportDocHTML(p, prenom, link){
   <div class="avoid" style="background:${INK};color:#F5F3F0;border-radius:8px;padding:18px 20px;margin-top:12px">
     <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">Appel découverte · 1 heure · offert</div>
     <div style="font-family:Georgia,serif;font-size:20px;margin:4px 0 8px;color:#F5F3F0">Passe de l'hypothèse au plan d'action</div>
-    <p style="margin:0 0 10px;color:#F5F3F0">Pendant une heure, nous regardons ta situation réelle : où ton alliage ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
+    <p style="margin:0 0 10px;color:#F5F3F0">Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
     <p style="margin:0"><a href="${CONFIG.calendly}" style="color:${O};font-weight:bold">Réserver mon appel découverte : calendly.com/pierre-j-sarazin</a></p>
   </div>
   </div>
@@ -809,7 +810,8 @@ function openGate(s, core){
   const p = buildProfile(s, core);
   pending = {p, core};
   $("#gate-alloy").textContent = alloyName(p);
-  $("#gate-essence").textContent = `${A[p.D].essence} ${A[p.S].essence}`;
+  $("#gate-gift").textContent = `${A[p.D].gift}.`;
+  $("#gate-fertile").textContent = `${lc1(A[p.D].fertile[0])} et ${lc1(A[p.S].fertile[0])}.`;
   $("#gate-err").textContent = "";
   show("gate");
 }
@@ -864,7 +866,7 @@ function renderReport(p, ctx){
   const html = `
   <div class="rhead">
     ${ctx.demo?`<span class="tag">Rapport d'exemple · réponses aléatoires</span>`:""}
-    <span class="eyebrow">${name?name+", ton alliage":"Ton alliage"} · 1 combinaison parmi 56</span>
+    <span class="eyebrow">${name?name+", ton Talent Unique (hypothèse)":"Ton Talent Unique (hypothèse)"} · 1 combinaison parmi 56</span>
     <div class="alloy">${d.name} <em>${s.adj}</em></div>
     <p class="lead">Dominante <strong>${d.name}</strong> (${d.tagline}) · Secondaire <strong>${s.name}</strong> (${s.tagline})</p>
   </div>
@@ -985,7 +987,7 @@ function renderReport(p, ctx){
     <div class="cta">
       <span class="eyebrow">Appel découverte · 1 heure · offert</span>
       <h3>Passe de l'hypothèse au plan d'action</h3>
-      <p>Pendant une heure, nous regardons ta situation réelle : où ton alliage ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
+      <p>Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
       <a class="btn" href="${CONFIG.calendly}" target="_blank" rel="noopener">Réserver mon appel découverte →</a>
     </div>
     <div class="row-actions"><button class="link" id="restart">Refaire le test</button></div>
