@@ -93,6 +93,12 @@ em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
 .cand.picked{border-color:var(--accent);background:var(--accent-soft)}
 .cand span.t{font-size:.82rem;color:var(--muted)}
 
+/* Ressourcement */
+.rsrc-q{display:flex;flex-direction:column;gap:10px}
+.rsrc-q .qstem{font-family:var(--display);font-weight:600;font-size:1.2rem}
+.rsrc-opt{font:inherit;display:block;width:100%;text-align:left;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;cursor:pointer}
+.rsrc-opt.picked{border-color:var(--accent);background:var(--accent-soft)}
+
 /* Rapport */
 .rhead{padding-block:34px 10px;display:flex;flex-direction:column;gap:12px}
 .alloy{font-family:var(--display);font-size:clamp(2.6rem,8vw,4rem);line-height:1;font-weight:600}
@@ -242,11 +248,25 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
     </div>
   </main>
 
+  <main id="screen-resources" hidden>
+    <div class="qhead">
+      <span class="eyebrow" data-t="resources.eyebrow"></span>
+      <h2 data-t="resources.h2"></h2>
+      <p class="muted" data-t="resources.lead"></p>
+    </div>
+    <div class="stack-lg" id="resource-questions" style="padding-top:18px"></div>
+    <div class="qnav">
+      <button class="btn ghost" id="resources-back" data-t="resources.back"></button>
+      <span class="hint" id="resources-hint"></span>
+      <button class="btn" id="resources-next" disabled data-t="resources.next"></button>
+    </div>
+  </main>
+
   <main id="screen-gate" hidden>
     <div class="gate">
       <div class="stack">
         <span class="eyebrow" data-t="gate.eyebrow"></span>
-        <h2><span data-t="gate.h2"></span> <span id="gate-alloy" style="color:var(--accent)"></span> ✨</h2>
+        <h2><span data-t="gate.h2"></span> <span id="gate-alloy" style="color:var(--accent)"></span></h2>
         <p class="lead"><strong data-t="gate.giftLab"></strong> <span id="gate-gift"></span></p>
         <p class="lead"><strong data-t="gate.fertileLab"></strong> <span id="gate-fertile"></span></p>
         <p class="muted" data-t="gate.more"></p>
@@ -458,6 +478,25 @@ const QUESTIONS_FR = [
     ["stratege","Celui qui s'adapte en temps réel et trouve la meilleure option."]]}
 ];
 
+/* ---------- Questions de ressourcement (indépendantes du moteur de score) ---------- */
+const RESOURCE_QUESTIONS_FR = [
+  {stem:"Pour vraiment te ressourcer, tu as surtout besoin de…", options:[
+    "Des moments seul·e, sans aucune sollicitation",
+    "Des moments de partage avec des proches choisis",
+    "Le sport et l'effort physique",
+    "Des moments où tu n'as rien à porter ni à décider"]},
+  {stem:"Ton moment de ressourcement préféré, c'est plutôt…", options:[
+    "Voyager, découvrir des lieux et des cultures",
+    "Pratiquer un artisanat ou une discipline exigeante",
+    "Les jeux de stratégie, les sports d'opposition",
+    "Écrire pour mettre tes idées en ordre"]},
+  {stem:"Ce qui te vide la tête pour de bon…", options:[
+    "La musique, le chant, la danse, le mouvement",
+    "Lire en profondeur sur un sujet qui te passionne",
+    "Bricoler, construire, jardiner, faire de tes mains",
+    "Marcher sans but précis, rêvasser"]}
+];
+
 const A_EN = {
   analyste:{
     name:"Analyst", adj:"Methodical", pole:"Rigour", tagline:"Rigour & Logic",
@@ -646,6 +685,25 @@ const QUESTIONS_EN = [
     ["stratege","The one who adapts in real time and finds the best option."]]}
 ];
 
+/* ---------- Recharge-activity questions (independent of the scoring engine) ---------- */
+const RESOURCE_QUESTIONS_EN = [
+  {stem:"To really recharge, what you need most is…", options:[
+    "Moments alone, with no demands on you",
+    "Time shared with close people you've chosen",
+    "Sport and physical effort",
+    "Moments where you have nothing to carry or decide"]},
+  {stem:"Your favorite way to recharge is more like…", options:[
+    "Traveling, discovering places and cultures",
+    "Practicing a craft or a demanding discipline",
+    "Strategy games, competitive sports",
+    "Writing to put your ideas in order"]},
+  {stem:"What truly clears your head…", options:[
+    "Music, singing, dancing, movement",
+    "Reading deeply about a subject you love",
+    "Tinkering, building, gardening, working with your hands",
+    "Walking with no particular goal, daydreaming"]}
+];
+
 /* ---------- 56 alliages : texte du Noyau Catalyseur (dominant_secondaire) ---------- */
 const ALLOYS_FR = {
   analyste_catalyseur:"Tu analyses les gens autant que les chiffres. Là où d'autres voient un « problème d'ambiance », tu repères la cause précise : un rôle flou, une règle perçue comme injuste, une parole mal comprise. Ta rigueur rassure, et ton écoute fait que l'on accepte tes conclusions, même quand elles dérangent.",
@@ -812,6 +870,11 @@ const TEXT_FR = {
       help:(fixed,need)=>`Pour départager ${fixed ? "ta position n°2 (ton archétype secondaire)" : (need===2 ? "tes positions n°1 et n°2" : "ta position n°1")}, clique ${need===1 ? "celui qui te ressemble le plus" : "les deux qui te ressemblent le plus, dans l'ordre"}.`,
       reset:"Recommencer le choix", ok:"Continuer →"
     },
+    resources:{
+      eyebrow:"Dernière étape", h2:"Ce qui te ressource vraiment",
+      lead:"Choisis la réponse qui te correspond le plus à chaque question, indépendamment de ton profil.",
+      hint:"Choisis une réponse à chaque question.", back:"← Retour", next:"Continuer →"
+    },
     gate:{
       eyebrow:"Ton rapport est prêt", h2:"Ton Talent Unique (hypothèse) :", giftLab:"Ce qui te rend rare :", fertileLab:"Tu rayonnes surtout quand tu as :", and:" et ",
       more:"Ton rapport complet (7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation) t'attend. Indique ton prénom et ton e-mail pour le recevoir en PDF.",
@@ -902,7 +965,7 @@ const TEXT_FR = {
       fertile:[...d.fertile, ...s.fertile.slice(0,2)],
       toxic:[...d.toxic, ...s.toxic.slice(0,2)],
       flow:[...d.flow, s.flow[0]],
-      ressource:[...d.ressource, s.ressource[0]],
+      ressource: (p.resourceIdx && p.resourceIdx.length) ? p.resourceIdx.map((oi,qi)=>RESOURCE_QUESTIONS_FR[qi].options[oi]) : [...d.ressource, s.ressource[0]],
       client:`${d.targets.client}. Ton côté ${s.name} te rend aussi précieux·se pour ${lc1(s.targets.client)}.`,
       verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
       keywords:[...d.keywords, ...s.keywords.slice(0,2)]
@@ -975,6 +1038,11 @@ const TEXT_EN = {
       eyebrow:"A tie to break", h2:"These archetypes got the same score",
       help:(fixed,need)=>`To decide ${fixed ? "your #2 position (your secondary archetype)" : (need===2 ? "your #1 and #2 positions" : "your #1 position")}, click ${need===1 ? "the one that sounds most like you" : "the two that sound most like you, in order"}.`,
       reset:"Start the choice again", ok:"Continue →"
+    },
+    resources:{
+      eyebrow:"Last step", h2:"What truly recharges you",
+      lead:"Pick the answer that fits you best for each question, regardless of your profile.",
+      hint:"Pick an answer for each question.", back:"← Back", next:"Continue →"
     },
     gate:{
       eyebrow:"Your report is ready", h2:"Your Unique Talent (hypothesis):", giftLab:"What makes you rare:", fertileLab:"You shine most when you have:", and:" and ",
@@ -1065,7 +1133,7 @@ const TEXT_EN = {
       fertile:[...d.fertile, ...s.fertile.slice(0,2)],
       toxic:[...d.toxic, ...s.toxic.slice(0,2)],
       flow:[...d.flow, s.flow[0]],
-      ressource:[...d.ressource, s.ressource[0]],
+      ressource: (p.resourceIdx && p.resourceIdx.length) ? p.resourceIdx.map((oi,qi)=>RESOURCE_QUESTIONS_EN[qi].options[oi]) : [...d.ressource, s.ressource[0]],
       client:`${d.targets.client}. Your ${s.name} side also makes you valuable to ${lc1(s.targets.client)}.`,
       verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
       keywords:[...d.keywords, ...s.keywords.slice(0,2)]
@@ -1120,8 +1188,8 @@ var CONFIG = {
 };
 
 const LANGS = {
-  fr:{A:A_FR, Q:QUESTIONS_FR, X:TEXT_FR},
-  en:{A:A_EN, Q:QUESTIONS_EN, X:TEXT_EN}
+  fr:{A:A_FR, Q:QUESTIONS_FR, RQ:RESOURCE_QUESTIONS_FR, X:TEXT_FR},
+  en:{A:A_EN, Q:QUESTIONS_EN, RQ:RESOURCE_QUESTIONS_EN, X:TEXT_EN}
 };
 const IDS = ["analyste","catalyseur","visionnaire","batisseur","transmetteur","stratege","leader","esthete"];
 const COMPLEMENT = {analyste:"catalyseur", catalyseur:"analyste", visionnaire:"batisseur", batisseur:"visionnaire", transmetteur:"stratege", stratege:"transmetteur", leader:"esthete", esthete:"leader"};
@@ -1184,11 +1252,14 @@ const L = lang => LANGS[lang] || LANGS.fr;
 const alloyName = (p, lang) => L(lang).X.alloyName(p);
 
 /* ---------- Lien personnel ----------
-   Format : réponses (12 chiffres) . dominant . secondaire . langue . prénom
-   (les anciens liens sans langue restent lisibles, en français) */
-function encodeState(answers, core, prenom, lang){
+   Format : réponses (12 chiffres) . dominant . secondaire . langue . ressourcement (optionnel) . prénom
+   (les anciens liens sans langue ni ressourcement restent lisibles, en français) */
+function encodeState(answers, core, prenom, lang, resourceIdx){
   const a = answers.map(x=>""+x.plus+x.minus).join("");
-  return [a, core[0], core[1], (lang==="en"?"en":"fr"), encodeURIComponent(cleanName(prenom))].join(".");
+  const parts = [a, core[0], core[1], (lang==="en"?"en":"fr")];
+  if (resourceIdx && resourceIdx.length===RESOURCE_QUESTIONS_FR.length) parts.push(resourceIdx.join(""));
+  parts.push(encodeURIComponent(cleanName(prenom)));
+  return parts.join(".");
 }
 function decodeState(str){
   try{
@@ -1197,6 +1268,8 @@ function decodeState(str){
     const [a, D, S] = parts;
     let lang = "fr", rest = parts.slice(3);
     if (rest[0]==="fr" || rest[0]==="en"){ lang = rest[0]; rest = rest.slice(1); }
+    let resourceIdx = null;
+    if (rest.length>1 && /^[0-3]{3}$/.test(rest[0])){ resourceIdx = rest[0].split("").map(Number); rest = rest.slice(1); }
     const name = decodeURIComponent(rest.join(".")||"");
     if (!/^[0-3]{12}$/.test(a) || !IDS.includes(D) || !IDS.includes(S) || D===S) return null;
     const answers = [];
@@ -1208,10 +1281,10 @@ function decodeState(str){
     const s = computeScores(answers);
     const others = IDS.filter(id=>id!==D && id!==S).map(id=>s[id].score);
     if (others.some(v=>v > Math.min(s[D].score, s[S].score)) || s[S].score > s[D].score) return null;
-    return {answers, core:[D,S], prenom:cleanName(name), lang};
+    return {answers, core:[D,S], prenom:cleanName(name), lang, resourceIdx};
   }catch(e){ return null; }
 }
-const personalLink = (answers, core, prenom, lang) => CONFIG.quizUrl+"#r="+encodeState(answers, core, prenom, lang);
+const personalLink = (answers, core, prenom, lang, resourceIdx) => CONFIG.quizUrl+"#r="+encodeState(answers, core, prenom, lang, resourceIdx);
 
 function manualText(p, lang){
   const X = L(lang).X, sep = lang==="en" ? ": " : " : ";
@@ -1302,7 +1375,7 @@ function reportDocHTML(p, prenom, link, lang){
    INTERFACE DU QUIZ (navigateur uniquement) · FR / EN
    ================================================================ */
 const $ = sel => document.querySelector(sel);
-const SCREENS = ["intro","quiz","tie","gate","report"];
+const SCREENS = ["intro","quiz","tie","resources","gate","report"];
 let current = "intro";
 function show(name){ current = name; SCREENS.forEach(n=>$("#screen-"+n).hidden = n!==name); window.scrollTo({top:0}); }
 
@@ -1330,6 +1403,7 @@ document.querySelectorAll("[data-setlang]").forEach(b=>b.addEventListener("click
   applyStatic();
   if (current==="quiz") renderQuestion();
   if (current==="tie") renderTie();
+  if (current==="resources") renderResources();
   if (current==="gate" && pending) fillGate();
   if (current==="report" && lastReport) renderReport(lastReport.p, lastReport.ctx);
 }));
@@ -1339,6 +1413,7 @@ function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=M
 const displayOrder = QUESTION_IDS.map(q=>shuffle(q.map((_,i)=>i)));
 let answers = QUESTION_IDS.map(()=>({plus:null,minus:null}));
 let qi = 0, tieState = null, pending = null, lastReport = null, sendState = null;
+let resourceAnswers = RESOURCE_QUESTIONS_FR.map(()=>null), resourcesPending = null;
 
 /* ---------- Questions ---------- */
 function renderQuestion(){
@@ -1385,7 +1460,7 @@ $("#demo").addEventListener("click", ()=>{
 function finish(){
   const s = computeScores(answers);
   const r = resolveCore(s);
-  if (!r.candidates) return openGate(s, r.fixed);
+  if (!r.candidates) return openResources(s, r.fixed);
   tieState = {s, fixed:r.fixed, candidates:r.candidates, need:r.need, picks:[]};
   renderTie(); show("tie");
 }
@@ -1412,11 +1487,46 @@ $("#cands").addEventListener("click", e=>{
   renderTie();
 });
 $("#tie-reset").addEventListener("click", ()=>{ tieState.picks=[]; renderTie(); });
-$("#tie-ok").addEventListener("click", ()=>{ const t = tieState; openGate(t.s, [...t.fixed, ...t.picks].slice(0,2)); });
+$("#tie-ok").addEventListener("click", ()=>{ const t = tieState; openResources(t.s, [...t.fixed, ...t.picks].slice(0,2)); });
+
+/* ---------- Ressourcement ---------- */
+function openResources(s, core){
+  resourcesPending = {s, core};
+  resourceAnswers = C().RQ.map(()=>null);
+  renderResources();
+  show("resources");
+}
+function renderResources(){
+  const rq = C().RQ, t = T().resources;
+  $("#resource-questions").innerHTML = rq.map((q,qi)=>`
+    <div class="rsrc-q">
+      <div class="qstem">${esc(q.stem)}</div>
+      <div class="items">
+        ${q.options.map((opt,oi)=>`<button type="button" class="rsrc-opt ${resourceAnswers[qi]===oi?'picked':''}" data-qi="${qi}" data-oi="${oi}" aria-pressed="${resourceAnswers[qi]===oi}">${esc(opt)}</button>`).join("")}
+      </div>
+    </div>`).join("");
+  const ok = resourceAnswers.every(a=>a!=null);
+  $("#resources-next").disabled = !ok;
+  $("#resources-hint").textContent = ok ? "" : t.hint;
+}
+$("#resource-questions").addEventListener("click", e=>{
+  const b = e.target.closest(".rsrc-opt"); if(!b) return;
+  resourceAnswers[+b.dataset.qi] = +b.dataset.oi;
+  renderResources();
+});
+$("#resources-next").addEventListener("click", ()=>{
+  if (resourceAnswers.some(a=>a==null)) return;
+  openGate(resourcesPending.s, resourcesPending.core);
+});
+$("#resources-back").addEventListener("click", ()=>{
+  show(tieState && tieState.candidates ? "tie" : "quiz");
+});
 
 /* ---------- Capture e-mail ---------- */
 function openGate(s, core){
-  pending = {p: buildProfile(s, core), core};
+  const p = buildProfile(s, core);
+  p.resourceIdx = resourceAnswers.slice();
+  pending = {p, core};
   fillGate();
   $("#gate-err").textContent = "";
   show("gate");
@@ -1435,7 +1545,7 @@ $("#gate-form").addEventListener("submit", e=>{
   if (!prenom){ $("#gate-err").textContent = g.errPrenom; $("#f-prenom").focus(); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ $("#gate-err").textContent = g.errEmail; $("#f-email").focus(); return; }
   const {p, core} = pending;
-  const state = encodeState(answers, core, prenom, lang);
+  const state = encodeState(answers, core, prenom, lang, p.resourceIdx);
   try { history.replaceState(null, "", location.pathname+"#r="+state); } catch(_){}
   renderReport(p, {prenom, email, core});
   sendReport({prenom, email, state, lang, newsletter:$("#f-news").checked, website:$("#f-website").value});
@@ -1486,7 +1596,7 @@ function renderReport(p, ctx){
   lastReport = {p, ctx};
   const {A, X} = C(), R = T().r, d=A[p.D], s=A[p.S], ax=A[p.axis], r=X.parts(p);
   const prenom = cleanName(ctx.prenom), name = esc(prenom);
-  const link = ctx.demo ? "" : personalLink(answers, ctx.core, prenom, lang);
+  const link = ctx.demo ? "" : personalLink(answers, ctx.core, prenom, lang, p.resourceIdx);
   const q = v => lang==="en" ? `"${v}"` : `« ${v} »`;
   const alloyHTML = lang==="en" ? `<em>${s.adj}</em> ${d.name}` : `${d.name} <em>${s.adj}</em>`;
 
@@ -1646,6 +1756,7 @@ function renderReport(p, ctx){
 
   $("#restart").addEventListener("click", ()=>{
     answers = QUESTION_IDS.map(()=>({plus:null,minus:null})); qi=0; tieState=null; pending=null; lastReport=null; sendState=null;
+    resourceAnswers = C().RQ.map(()=>null); resourcesPending=null;
     try { history.replaceState(null, "", location.pathname); } catch(_){}
     show("intro");
   });
@@ -1659,7 +1770,9 @@ function renderReport(p, ctx){
   applyStatic();
   if (st){
     answers = st.answers;
-    renderReport(buildProfile(computeScores(answers), st.core), {prenom:st.prenom, core:st.core});
+    const p = buildProfile(computeScores(answers), st.core);
+    if (st.resourceIdx) p.resourceIdx = st.resourceIdx;
+    renderReport(p, {prenom:st.prenom, core:st.core});
   }
 })();
 
