@@ -180,29 +180,36 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
 .actions .row-actions{gap:8px}
 .status{font-size:.88rem;color:var(--muted)}
 .status.ok{color:var(--good)} .status.ko{color:var(--bad)}
+/* Barre du haut et sélecteur de langue */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.qlang{display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px}
+.qlang button{font:inherit;font-size:.75rem;font-weight:700;letter-spacing:.06em;border:0;background:transparent;color:var(--muted);padding:5px 11px;border-radius:999px;cursor:pointer;min-height:32px}
+.qlang button.active{background:var(--ink);color:var(--bg)}
 </style>
 
 </head>
 <body>
 <div class="wrap">
-  <a class="brand" href="/" style="text-decoration:none"><i></i>Magic Humans · Quiz Talent Unique</a>
+  <div class="topbar">
+    <a class="brand" href="/" style="text-decoration:none"><i></i><span data-t="brand"></span></a>
+    <div class="qlang" role="group" aria-label="Langue / Language">
+      <button type="button" data-setlang="fr">FR</button>
+      <button type="button" data-setlang="en">EN</button>
+    </div>
+  </div>
 
   <main id="screen-intro">
     <div class="hero">
-      <span class="eyebrow">Auto-évaluation · 6 questions · 5 minutes</span>
-      <h1>Quel est ton <em class="serif">Talent Unique</em>&nbsp;?</h1>
-      <p class="lead">Ce questionnaire ne te range pas dans une case. Il pose des hypothèses de travail sur ce qui te rend rare, sur les contextes où tu rayonnes et sur ceux qui t'éteignent.</p>
-      <div class="formula">Résultat <b>=</b> Talent <b>×</b> Contexte</div>
+      <span class="eyebrow" data-t="intro.eyebrow"></span>
+      <h1 data-t="intro.h1"></h1>
+      <p class="lead" data-t="intro.lead"></p>
+      <div class="formula" data-t="intro.formula"></div>
     </div>
     <div class="stack-lg" style="padding-top:18px">
-      <div class="rules">
-        <div class="rule"><span class="k">+</span><strong>Le plus</strong><p>Dans chaque question, choisis la phrase qui te ressemble le plus.</p></div>
-        <div class="rule"><span class="k">−</span><strong>Le moins</strong><p>Puis celle qui te ressemble le moins. Les deux autres restent neutres.</p></div>
-        <div class="rule"><span class="k">≈</span><strong>Ton premier élan</strong><p>Réponds selon ce que tu fais naturellement, pas selon ce qu'on attend de toi.</p></div>
-      </div>
+      <div class="rules" id="rules"></div>
       <div class="row-actions">
-        <button class="btn" id="start">Commencer le test →</button>
-        <button class="link" id="demo">Voir un rapport d'exemple</button>
+        <button class="btn" id="start" data-t="intro.start"></button>
+        <button class="link" id="demo" data-t="intro.demo"></button>
       </div>
     </div>
   </main>
@@ -212,75 +219,58 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
     <div class="qhead">
       <span class="eyebrow" id="qcount"></span>
       <h2 id="qstem"></h2>
-      <div class="legend"><span><b>+</b> le plus moi (1 choix)</span><span><b>−</b> le moins moi (1 choix)</span></div>
+      <div class="legend"><span data-t="quiz.legendPlus"></span><span data-t="quiz.legendMinus"></span></div>
     </div>
     <div class="items" id="items"></div>
     <div class="qnav">
-      <button class="btn ghost" id="prev">← Retour</button>
+      <button class="btn ghost" id="prev" data-t="quiz.prev"></button>
       <span class="hint" id="hint"></span>
-      <button class="btn" id="next" disabled>Suivant →</button>
+      <button class="btn" id="next" disabled></button>
     </div>
   </main>
 
   <main id="screen-tie" hidden>
     <div class="qhead">
-      <span class="eyebrow">Égalité à départager</span>
-      <h2>Ces archétypes ont obtenu le même score</h2>
+      <span class="eyebrow" data-t="tie.eyebrow"></span>
+      <h2 data-t="tie.h2"></h2>
       <p class="muted" id="tie-help"></p>
     </div>
     <div class="cands" id="cands"></div>
     <div class="qnav">
-      <button class="btn ghost" id="tie-reset">Recommencer le choix</button>
-      <button class="btn" id="tie-ok" disabled>Continuer →</button>
+      <button class="btn ghost" id="tie-reset" data-t="tie.reset"></button>
+      <button class="btn" id="tie-ok" disabled data-t="tie.ok"></button>
     </div>
   </main>
 
   <main id="screen-gate" hidden>
     <div class="gate">
       <div class="stack">
-        <span class="eyebrow">Ton rapport est prêt</span>
-        <h2>Ton Talent Unique (hypothèse) : <span id="gate-alloy" style="color:var(--accent)"></span> ✨</h2>
-        <p class="lead"><strong>Ce qui te rend rare :</strong> <span id="gate-gift"></span></p>
-        <p class="lead"><strong>Tu rayonnes surtout quand tu as :</strong> <span id="gate-fertile"></span></p>
-        <p class="muted">Ton rapport complet (7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation) t'attend. Indique ton prénom et ton e-mail pour le recevoir en PDF.</p>
+        <span class="eyebrow" data-t="gate.eyebrow"></span>
+        <h2><span data-t="gate.h2"></span> <span id="gate-alloy" style="color:var(--accent)"></span> ✨</h2>
+        <p class="lead"><strong data-t="gate.giftLab"></strong> <span id="gate-gift"></span></p>
+        <p class="lead"><strong data-t="gate.fertileLab"></strong> <span id="gate-fertile"></span></p>
+        <p class="muted" data-t="gate.more"></p>
       </div>
       <form id="gate-form" novalidate>
-        <div class="field"><label for="f-prenom">Prénom</label><input id="f-prenom" name="prenom" autocomplete="given-name" maxlength="40" required></div>
-        <div class="field"><label for="f-email">E-mail</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
-        <div class="hp" aria-hidden="true"><label for="f-website">Site web</label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
-        <label class="check" for="f-news"><input type="checkbox" id="f-news" name="newsletter"><span>J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).</span></label>
+        <div class="field"><label for="f-prenom" data-t="gate.prenom"></label><input id="f-prenom" name="prenom" autocomplete="given-name" maxlength="40" required></div>
+        <div class="field"><label for="f-email" data-t="gate.email"></label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
+        <div class="hp" aria-hidden="true"><label for="f-website" data-t="gate.website"></label><input id="f-website" name="website" tabindex="-1" autocomplete="off"></div>
+        <label class="check" for="f-news"><input type="checkbox" id="f-news" name="newsletter"><span data-t="gate.news"></span></label>
         <p class="err" id="gate-err" aria-live="polite"></p>
-        <button class="btn" type="submit" id="gate-submit">Recevoir mon rapport complet →</button>
-        <p class="legal">Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.</p>
+        <button class="btn" type="submit" id="gate-submit" data-t="gate.submit"></button>
+        <p class="legal" data-t="gate.legal"></p>
       </form>
     </div>
   </main>
 
   <main id="screen-report" hidden></main>
 
-  <footer>Magic Humans · Les résultats sont des hypothèses de travail, à valider avec des exemples réels de ta vie.</footer>
+  <footer data-t="footer"></footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
-/* ================================================================
-   MOTEUR COMMUN · QCM Talent Unique (Magic Humans)
-   Ce fichier est partagé à l'identique par la page du quiz et par
-   le script Google (Code.gs). Le modifier ici, puis relancer build.py.
-   ================================================================ */
-var CONFIG = {
-  calendly: "https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=quiz&utm_campaign=talent-unique",
-  quizUrl: "https://www.magichumans.com/quiz/",
-  // URL de l'application Web Google Apps Script (voir GUIDE). Vide = envoi désactivé.
-  endpoint: ""
-};
-
-/* ================================================================
-   1. DONNÉES : LES 8 ARCHÉTYPES
-   Chaque champ alimente une partie du rapport. Les textes sont
-   écrits pour se combiner (dominant + secondaire) sans se répéter.
-   ================================================================ */
-const A = {
+const A_FR = {
   analyste:{
     name:"Analyste", adj:"Méthodique", pole:"la Rigueur", tagline:"Rigueur & Logique",
     essence:"Tu cherches la cause réelle et la logique des choses.",
@@ -434,15 +424,8 @@ const A = {
     complement:"leader"
   }
 };
-const IDS = Object.keys(A);
 
-/* ================================================================
-   2. QUESTIONNAIRE : 6 questions × 4 propositions
-   Plan d'équilibrage (chaque archétype apparaît exactement 3 fois) :
-   Q1 Ana Cat Vis Bât | Q2 Tra Str Lea Est | Q3 Ana Tra Cat Str
-   Q4 Vis Lea Bât Est | Q5 Ana Lea Cat Est | Q6 Vis Tra Bât Str
-   ================================================================ */
-const QUESTIONS = [
+const QUESTIONS_FR = [
   {stem:"Face à un nouveau projet, ce qui te vient le plus naturellement…", items:[
     ["analyste","Décortiquer les données et vérifier que la logique tient debout."],
     ["catalyseur","Sentir l'énergie du groupe et créer du lien entre les personnes."],
@@ -475,36 +458,700 @@ const QUESTIONS = [
     ["stratege","Celui qui s'adapte en temps réel et trouve la meilleure option."]]}
 ];
 
-/* ================================================================
-   3. MOTEUR DE CALCUL
-   ================================================================ */
-const POINTS = {plus:2, minus:-1};
+const A_EN = {
+  analyste:{
+    name:"Analyst", adj:"Methodical", pole:"Rigour", tagline:"Rigour & Logic",
+    essence:"You look for the real cause and the logic of things.",
+    they:"take problems apart", inf:"get to the bottom of things methodically",
+    need:"for understanding", how:"with a precision that reassures",
+    gift:"turning confusion into clarity: you spot the flaws in a line of reasoning, the inconsistency in a number, the real cause behind the symptom",
+    vuln:"analysis paralysis. Until everything is checked, you struggle to decide, and your questioning can come across as coldness or distrust",
+    survival:{mode:"Overthinking", desc:"Under pressure, you ask for even more data, redo the calculations and replay every scenario. Your mind races and action freezes."},
+    fertile:["Complex problems and real time to solve them","Decisions based on facts rather than impressions","Autonomy over your working method"],
+    toxic:["Arbitrary or political decisions that are never explained","Constant urgency that rules out any checking","People who brush your warnings aside"],
+    flow:["Auditing, diagnosing, modelling a problem","Building a line of reasoning or a tool that holds up"],
+    ressource:["Reading in depth about a subject you love","Logic games, puzzles, chess","Time alone, with no demands on you"],
+    targets:{boss:"An intuitive leader who decides fast and needs a reliable safeguard", associe:"A sales-minded or visionary partner who moves without a safety net", client:"An organisation drowning in data without knowing what to do with it"},
+    keywords:["make reliable","diagnose","objectify","secure"],
+    verbatims:["We make decisions by guesswork.","We don't understand where the problem comes from.","Our numbers don't add up.","We've already made costly mistakes."],
+    pitch:{who:"leaders and teams", pain:"who make decisions in the fog", result:"make solid decisions based on verified facts"},
+    manual:{besoin:"time to understand and reliable information", energie:"complex problems to untangle", parler:"Give me the facts, the context and the precise question. I work better with a realistic deadline than with vague urgency.", eviter:"Asking me to decide without information, or taking my questions as distrust: I question to secure things, not to block them."},
+    complement:"catalyseur"
+  },
+  catalyseur:{
+    name:"Catalyst", adj:"Empathic", pole:"the Human touch", tagline:"People & Emotion",
+    essence:"You sense people and get energy flowing between them.",
+    they:"build connections", inf:"move people and build trust",
+    need:"for connection", how:"with a warmth that opens doors",
+    gift:"getting energy flowing between people: you sense what goes unsaid, defuse tension and bring out the best in people",
+    vuln:"the emotional sponge. You absorb other people's tension, say yes to protect the relationship and end up forgetting yourself",
+    survival:{mode:"Withdrawal", desc:"When the climate turns cold or conflictual, you first over-give to save the mood, then you shut down. You go quiet and disengage without saying so."},
+    fertile:["A caring team where people can speak openly","A role in direct contact with people","A mission with a visible human impact"],
+    toxic:["Cold, competitive or cynical environments","Isolated screen work with no relationships","Simmering conflicts that nobody dares to address"],
+    flow:["Leading a group, facilitating a workshop or a meeting","Supporting someone going through a hard time"],
+    ressource:["Time spent with people you have chosen","Music, singing, dancing, movement","Time alone to release the emotions you've absorbed"],
+    targets:{boss:"A technically brilliant manager who struggles with the human side", associe:"An expert or analytical partner who needs a bridge to clients", client:"A team under tension, going through a merger or losing its sense of purpose"},
+    keywords:["unite","soothe","bring on board","humanise"],
+    verbatims:["The atmosphere in the team has deteriorated.","People don't really talk to each other any more.","We're losing our talent and don't know why.","The change isn't going down well with the teams."],
+    pitch:{who:"leaders and teams", pain:"who have lost connection or motivation", result:"regain trust, collective energy and the desire to move forward together"},
+    manual:{besoin:"a climate of trust and honest conversations", energie:"human relationships and the moments when a group comes together", parler:"Tell me things directly, with respect. Honest feedback helps me grow; cold silence wears me out.", eviter:"Leaving me alone with an unspoken conflict, or dismissing my concerns about the atmosphere as oversensitivity: I often sense problems before they erupt."},
+    complement:"analyste"
+  },
+  visionnaire:{
+    name:"Visionary", adj:"Visionary", pole:"the Future", tagline:"Future & Innovation",
+    essence:"You see what doesn't exist yet and you open up possibilities.",
+    they:"imagine the future", inf:"see beyond the horizon",
+    need:"for novelty", how:"with a boldness that makes people want to follow",
+    gift:"seeing what doesn't exist yet: you connect distant ideas, sense trends before others and open up possibilities",
+    vuln:"the idea that never lands. You get excited, you launch, then you lose interest when the routine of execution kicks in",
+    survival:{mode:"Overthinking (escape into ideas)", desc:"When the present becomes heavy, you take refuge in future projects. You multiply ideas, change direction, and nothing moves forward concretely."},
+    fertile:["New projects and uncharted territory to explore","Freedom to propose and experiment","Partners who know how to execute"],
+    toxic:["Routine and \"we've always done it this way\"","Hierarchies that stifle ideas","Micro-management of day-to-day work"],
+    flow:["Imagining an offer, a product, a project","Speaking about the future of an industry"],
+    ressource:["Travelling, discovering places and cultures","Exploring inspiring content outside your field","Walking with no particular goal, daydreaming"],
+    targets:{boss:"An established organisation that feels it must reinvent itself", associe:"A builder or analyst partner who can execute but lacks momentum", client:"A company facing a market disruption"},
+    keywords:["innovate","reinvent","anticipate","explore"],
+    verbatims:["Our model is running out of steam.","New players are overtaking us.","We're short of fresh ideas.","We don't know what our business will look like in five years."],
+    pitch:{who:"organisations", pain:"that feel their model is running out of steam", result:"imagine their next direction and open up new territory"},
+    manual:{besoin:"space to propose and experiment", energie:"new ideas and emerging projects", parler:"Share the vision and the why before the how. Involve me early, while everything is still possible.", eviter:"Locking me into repetitive tasks with no perspective, or rejecting an idea before exploring it. Help me prioritise instead."},
+    complement:"batisseur"
+  },
+  batisseur:{
+    name:"Builder", adj:"Builder", pole:"Action", tagline:"Action & Delivery",
+    essence:"You turn an intention into a delivered reality, from A to Z.",
+    they:"get things done", inf:"turn ideas into something concrete",
+    need:"for tangible results", how:"with a reliability that moves things forward",
+    gift:"running a project from A to Z: you turn an intention into a delivered reality, step by step, without letting go",
+    vuln:"the steamroller. Focused on delivery, you can neglect listening, people, or questioning the plan",
+    survival:{mode:"Aggression", desc:"When things get stuck, you force them. You become impatient and curt, do everything yourself and blame others for being slow."},
+    fertile:["Running a project from A to Z with a clear goal","Autonomy and the means to act","Visible, measurable results"],
+    toxic:["Meetings without decisions and projects that never finish","Endless approval processes","Environments where people talk more than they do"],
+    flow:["Planning then executing a concrete project","Unblocking a situation that's stuck"],
+    ressource:["DIY, building, gardening, making things with your hands","Sport and physical effort","Ticking off a list and admiring the work done"],
+    targets:{boss:"A visionary leader surrounded by ideas but short on execution", associe:"A creative or sales partner who needs an operational pillar", client:"An organisation whose projects have been dragging for months"},
+    keywords:["deliver","get done","unblock","structure"],
+    verbatims:["This project has been dragging for months.","We have lots of ideas but nothing gets finished.","We need someone to take ownership.","We need results, fast."],
+    pitch:{who:"leaders and project owners", pain:"whose ideas stay stuck at the planning stage", result:"deliver concrete results, on time"},
+    manual:{besoin:"a clear goal and the freedom to organise myself to reach it", energie:"seeing things move forward and get finished", parler:"Give me the expected result, the deadline and the resources. Keep check-ins short and decision-focused.", eviter:"Meetings that go round in circles and unexplained changes of direction. If I become pushy, it's because I sense the project is at risk."},
+    complement:"visionnaire"
+  },
+  transmetteur:{
+    name:"Teacher", adj:"Teacher", pole:"Clarity", tagline:"Teaching & Clarity",
+    essence:"You make the complex simple and help others become independent.",
+    they:"explain things", inf:"make things crystal clear for others",
+    need:"to pass things on", how:"with a clarity that helps others grow",
+    gift:"making the complex simple: you find the image, the example, the progression that makes the other person understand and become independent",
+    vuln:"the exhausted mentor. You share your knowledge without counting and find it hard when people don't listen or undervalue what you pass on",
+    survival:{mode:"Overthinking (over-explaining)", desc:"When you don't feel understood, you explain again and again, justify, argue. Then frustration sets in and you end up lecturing."},
+    fertile:["People who want to learn and progress","Rich subjects to make accessible","Recognition of your role as someone who passes things on"],
+    toxic:["Cultures where knowledge is jealously guarded","People who don't want to change","Purely executive work with no sharing"],
+    flow:["Training, facilitating, explaining","Designing teaching material or a method"],
+    ressource:["Learning something new yourself","Conversations between passionate people","Writing to put your ideas in order"],
+    targets:{boss:"An organisation in transformation that needs to upskill its teams", associe:"A sharp expert who can't make their knowledge accessible", client:"A company whose messages aren't getting through"},
+    keywords:["train","clarify","simplify","empower"],
+    verbatims:["The teams didn't understand the change.","Our expert is brilliant, but nobody understands them.","We keep making the same mistakes.","Everyone needs to upskill."],
+    pitch:{who:"organisations and experts", pain:"whose knowledge or messages aren't getting through", result:"make their teams independent and their ideas crystal clear"},
+    manual:{besoin:"to feel that what I pass on is useful and received", energie:"the moments when someone understands and progresses", parler:"Ask me questions, tell me what isn't clear. I love adapting my explanations to the person in front of me.", eviter:"Making me repeat myself to no avail or ignoring what I've explained. If I over-explain, it's because I don't feel heard."},
+    complement:"stratege"
+  },
+  stratege:{
+    name:"Strategist", adj:"Strategist", pole:"Agility", tagline:"Agility & Shortcuts",
+    essence:"You spot the lever that changes everything and the shortest path.",
+    they:"find shortcuts", inf:"find the shortest path to the result",
+    need:"for efficiency", how:"with an agility that saves precious time",
+    gift:"seeing the shortest path: you spot the lever that changes everything, adapt in real time and achieve more with less",
+    vuln:"impatience with rules. You work around them, get bored quickly, and can come across as opportunistic or scattered",
+    survival:{mode:"Aggression (going around)", desc:"Faced with rigidity, you force your way through: you ignore processes, decide alone and become sharp to get what you want."},
+    fertile:["Fast-moving environments where you must adapt quickly","Clear goals with freedom on how to get there","Negotiations, trade-offs, real stakes"],
+    toxic:["Bureaucracy and rigid procedures","Long, repetitive assignments","Decision-makers who refuse any risk"],
+    flow:["Negotiating, arbitrating, seizing an opportunity","Optimising a process or a business model"],
+    ressource:["Strategy games, competitive sports","Changing environment, varying activities","Lively conversations with quick minds"],
+    targets:{boss:"A leader in growth or crisis mode who needs to pivot fast", associe:"An expert or teacher partner who moves step by step", client:"An organisation bogged down in its processes"},
+    keywords:["optimise","pivot","arbitrate","accelerate"],
+    verbatims:["We're wasting too much time.","Our processes are too heavy.","We need to pivot, but we don't know how.","Our competitors are moving faster than us."],
+    pitch:{who:"leaders and teams", pain:"slowed down by heaviness or uncertainty", result:"find the most effective lever and reach their results faster"},
+    manual:{besoin:"a clear goal and room to manoeuvre on the way", energie:"challenges, the unexpected, situations to unblock", parler:"Get straight to the point. Tell me what's at stake and the non-negotiable constraints, and I'll find the way.", eviter:"Unjustified procedures and \"because that's how it is\". If I work around something, it's often because the framework wasn't explained."},
+    complement:"transmetteur"
+  },
+  leader:{
+    name:"Leader", adj:"Inspiring", pole:"Direction", tagline:"Inspiration & Direction",
+    essence:"You set a direction and others want to follow you.",
+    they:"take the lead", inf:"bring others behind a shared direction",
+    need:"for influence", how:"with a presence that carries people along",
+    gift:"setting a direction and carrying others with you: you embody a course, make the hard decisions and people follow you",
+    vuln:"the weight of control. You find it hard to truly delegate and to show your doubts, and your confidence can drown out quieter voices",
+    survival:{mode:"Aggression (domination)", desc:"When you lose control, you harden your tone: you impose, interrupt and decide alone. Confidence turns into authoritarianism."},
+    fertile:["A role with real decision-making power","An ambitious, meaningful mission","A team to help grow"],
+    toxic:["Roles where you carry everything without being able to decide","Hierarchies that override your decisions","Organisations with no vision or ambition"],
+    flow:["Setting a direction, speaking up, deciding","Growing a team or a community"],
+    ressource:["Moments when you have nothing to carry or decide","Conversations with other leaders, mentoring","Physical activities where you push your limits"],
+    targets:{boss:"An organisation looking for someone to embody its transformation", associe:"A technical or perfectionist partner who needs a spokesperson", client:"A team with no clear direction or a project running out of breath"},
+    keywords:["mobilise","embody","decide","inspire"],
+    verbatims:["Nobody really owns the project.","The teams don't know where we're going any more.","We need someone to take charge.","We lack leadership."],
+    pitch:{who:"organisations and communities", pain:"that have lost their direction or momentum", result:"regain a clear direction and a mobilised team"},
+    manual:{besoin:"real responsibility and trust", energie:"ambitious challenges and teams to lead", parler:"Be frank and direct. Challenge me face to face: I respect people who dare to disagree with good arguments.", eviter:"Giving me responsibility without decision-making power. And if I become too directive, tell me: it's often a sign of pressure."},
+    complement:"esthete"
+  },
+  esthete:{
+    name:"Aesthete", adj:"Craftsman", pole:"Excellence", tagline:"Excellence & Detail",
+    essence:"You spot the detail that's off and raise the level of everything you touch.",
+    they:"aim for excellence", inf:"perfect every detail until it's excellent",
+    need:"for perfection", how:"with high standards that make all the difference",
+    gift:"raising the bar: you see the detail that's off, sense what is right, beautiful and finished, and give everything you touch a rare quality",
+    vuln:"perfectionism. Nothing is ever quite good enough, you delay delivery, struggle to delegate and can be hard on yourself as well as others",
+    survival:{mode:"Overthinking (control)", desc:"Under pressure, you go back over every detail, criticise and redo other people's work. High standards turn into rigidity and you wear yourself out."},
+    fertile:["Projects where quality is valued and paid for","Time to do things properly","Partners who appreciate what is beautiful and right"],
+    toxic:["\"Quick and dirty\" as a principle","Deadlines that rule out any finishing","People who can't see the difference"],
+    flow:["Refining, elevating, finishing","Designing a flawless experience or service"],
+    ressource:["Art, beautiful places, nature","Practising a craft or a demanding discipline","Calm and a harmonious environment"],
+    targets:{boss:"A premium brand that lives by its level of excellence", associe:"A leader or strategist partner who moves fast and lacks finish", client:"An organisation whose image or customer experience is slipping"},
+    keywords:["refine","elevate","harmonise","stand out"],
+    verbatims:["We want to move upmarket.","Our clients expect a level of excellence.","Our image doesn't reflect our quality.","There are too many mistakes and approximations."],
+    pitch:{who:"brands and demanding organisations", pain:"that want to move upmarket", result:"deliver flawless quality and experiences"},
+    manual:{besoin:"the time and resources to do things properly", energie:"projects where every detail counts", parler:"Be precise about your expectations and acknowledge the care that goes into the work. Tell me what level of finish is expected.", eviter:"Pushing me to deliver something I'm not proud of without discussing it. If I become rigid, it's because I sense quality is under threat."},
+    complement:"leader"
+  }
+};
 
-// Vérification d'intégrité au chargement : chaque archétype exactement 3 fois.
-(function checkBalance(){
+const QUESTIONS_EN = [
+  {stem:"Faced with a new project, what comes most naturally to you…", items:[
+    ["analyste","Breaking down the data and checking that the logic holds."],
+    ["catalyseur","Sensing the group's energy and connecting people."],
+    ["visionnaire","Imagining what this project could become in five years."],
+    ["batisseur","Drawing up the action plan and launching the first step right away."]]},
+  {stem:"In a team, people mostly come to you to…", items:[
+    ["transmetteur","Explain a complicated idea simply."],
+    ["stratege","Find the shortcut nobody else had seen."],
+    ["leader","Rally everyone when morale drops."],
+    ["esthete","Review, polish and raise the level of finish."]]},
+  {stem:"What gives you the most satisfaction at the end of the day…", items:[
+    ["analyste","Having solved a problem through solid reasoning."],
+    ["transmetteur","Having seen someone finally understand, thanks to you."],
+    ["catalyseur","Having had a real conversation that touched someone."],
+    ["stratege","Having got the result with half the expected effort."]]},
+  {stem:"When everything goes wrong, your first reflex is to…", items:[
+    ["visionnaire","Step back and sketch out a new direction."],
+    ["leader","Speak up and give others a clear course."],
+    ["batisseur","Roll up your sleeves and fix what can be fixed."],
+    ["esthete","Pinpoint exactly what went wrong so it never happens again."]]},
+  {stem:"What people sometimes criticise you for (and which often hides your strength)…", items:[
+    ["analyste","Asking too many questions before deciding."],
+    ["leader","Taking up too much space or deciding too quickly."],
+    ["catalyseur","Being too sensitive to the mood and other people's emotions."],
+    ["esthete","Being too much of a perfectionist and hard to satisfy."]]},
+  {stem:"The role in which you feel most useful…", items:[
+    ["visionnaire","The one who opens up possibilities nobody imagined."],
+    ["transmetteur","The one who trains, guides and makes others independent."],
+    ["batisseur","The one who runs the project from A to Z until delivery."],
+    ["stratege","The one who adapts in real time and finds the best option."]]}
+];
+
+/* ---------- 56 alliages : texte du Noyau Catalyseur (dominant_secondaire) ---------- */
+const ALLOYS_FR = {
+  analyste_catalyseur:"Tu analyses les gens autant que les chiffres. Là où d'autres voient un « problème d'ambiance », tu repères la cause précise : un rôle flou, une règle perçue comme injuste, une parole mal comprise. Ta rigueur rassure, et ton écoute fait que l'on accepte tes conclusions, même quand elles dérangent.",
+  analyste_visionnaire:"Tu ne te contentes pas de comprendre le présent : tu en extrais les tendances qui dessinent l'avenir. Tu es la personne qui dit « si ces chiffres continuent, voilà où nous serons dans trois ans ». Tes idées audacieuses ont une particularité rare : elles reposent sur des faits.",
+  analyste_batisseur:"Tu ne lances rien sans l'avoir compris, mais une fois compris, tu le construis jusqu'au bout. Ton diagnostic débouche toujours sur un plan, et ton plan sur une livraison. On te confie les projets où une erreur coûte cher : tu vérifies, puis tu exécutes sans trembler.",
+  analyste_transmetteur:"Tu démontes les sujets complexes pièce par pièce, puis tu les remontes pour que les autres comprennent. Ton savoir n'est pas une collection de détails, c'est une carte claire que tu sais partager. Avec toi, une procédure obscure devient une méthode que chacun peut appliquer.",
+  analyste_stratege:"Tu cherches la vraie cause, puis le levier le plus court pour agir dessus. Ton analyse ne sert pas à tout comprendre, elle sert à trouver les 20 % d'efforts qui produisent 80 % du résultat. Un esprit froid et rapide, précieux quand il faut trancher dans l'incertitude.",
+  analyste_leader:"Tu décides à partir des faits, et tu assumes tes décisions devant les autres. Ton autorité ne vient pas de ta voix, mais de la solidité de ton raisonnement. Les équipes te suivent parce qu'elles savent que le cap que tu fixes a été vérifié.",
+  analyste_esthete:"Tu traques l'erreur et l'approximation avec une précision d'horloger. Là où d'autres valident un travail « à peu près juste », tu vois l'incohérence qui fera échouer le projet dans six mois. Ton exigence n'a rien de capricieux : chaque détail que tu corriges a une raison logique.",
+
+  catalyseur_analyste:"Tu sens les gens d'abord, puis tu vérifies ton intuition. Ton empathie n'est pas naïve : tu écoutes, tu observes, et tu comprends ce qui se joue vraiment dans un groupe. On te confie les situations humaines délicates, parce que tu y mets à la fois du cœur et du discernement.",
+  catalyseur_visionnaire:"Tu donnes aux gens l'envie de croire en un futur commun. Tu ne vends pas une vision abstraite : tu la rends vivante en la reliant à ce que chacun ressent et espère. Autour de toi, un projet naissant trouve ses premiers alliés.",
+  catalyseur_batisseur:"Tu fais travailler les gens ensemble, et ensemble ils livrent. Ton énergie relationnelle ne reste pas au stade des bonnes intentions : elle se traduit en équipes soudées qui avancent. Avec toi, un collectif qui se regardait en chiens de faïence finit par construire quelque chose.",
+  catalyseur_transmetteur:"Tu enseignes avec le cœur. Les gens apprennent avec toi parce qu'ils se sentent en confiance, compris et jamais jugés. Tu sais qu'on retient mieux ce qu'on a ressenti, et tu crées ces moments où une personne repart transformée, pas seulement informée.",
+  catalyseur_stratege:"Tu lis les relations comme un échiquier humain. Tu sais à qui parler en premier, quel allié mobiliser, quel non-dit lever pour que les choses avancent vite. Ton empathie devient un avantage tactique : tu obtiens l'adhésion là où d'autres forcent et échouent.",
+  catalyseur_leader:"Tu entraînes les autres par le lien plus que par l'autorité. Les gens te suivent parce qu'ils se sentent vus et considérés. Tu incarnes un leadership chaleureux, capable de garder une équipe soudée quand tout se tend.",
+  catalyseur_esthete:"Tu soignes les relations comme d'autres soignent un objet précieux. Tu remarques le petit geste qui fait qu'une personne se sent accueillie, l'atmosphère juste d'une rencontre, le mot bien choisi. Tu crées des expériences humaines dont on se souvient longtemps.",
+
+  visionnaire_analyste:"Tu imagines grand, puis tu passes ton idée au crible. Ton audace n'est pas une fuite en avant : tu testes, tu mesures, tu corriges ta vision avec les faits. Tu fais partie de ceux qui innovent sans se fracasser, parce que ton intuition est doublée d'un regard critique.",
+  visionnaire_catalyseur:"Tu vois l'avenir et tu sais y emmener les gens. Ta vision a une dimension profondément humaine : elle parle de ce que les personnes pourraient devenir, pas seulement de ce que l'organisation pourrait gagner. Tu inspires, tu rassembles et tu donnes du sens au changement.",
+  visionnaire_batisseur:"Tu rêves le projet et tu poses la première pierre. C'est rare : la plupart des visionnaires s'arrêtent à l'idée, et la plupart des bâtisseurs attendent qu'on leur donne le plan. Toi, tu dessines le cap et tu lances le chantier, ce qui fait de toi un créateur naturel de projets.",
+  visionnaire_transmetteur:"Tu rends l'avenir compréhensible. Tu sais traduire une intuition de long terme en mots simples, en images, en exemples qui parlent à tout le monde. Là où une vision reste souvent floue, tu en fais un récit clair qui donne envie de s'y engager.",
+  visionnaire_stratege:"Tu vois où le monde va et tu trouves le chemin le plus rapide pour y arriver avant les autres. Tu repères les opportunités émergentes et tu sais pivoter sans état d'âme. Un tempérament de défricheur, à l'aise dans l'incertitude que d'autres fuient.",
+  visionnaire_leader:"Tu ne te contentes pas d'imaginer l'avenir : tu le portes publiquement et tu y engages les autres. Ta vision devient une direction, et ta présence lui donne de la crédibilité. On te voit naturellement fonder, diriger, transformer.",
+  visionnaire_esthete:"Tu imagines ce qui n'existe pas encore, et tu le veux beau. Ta créativité a un sens aigu de la forme : une idée n'est pas aboutie tant qu'elle n'est pas élégante. Tu es de ceux qui créent des concepts, des marques ou des expériences qui marquent les esprits.",
+
+  batisseur_analyste:"Tu construis solide parce que tu vérifies avant de bâtir. Ton envie d'avancer est tenue par une vraie exigence de méthode : tu poses les bonnes questions, tu sécurises les fondations, puis tu livres. On peut compter sur toi pour qu'un projet aboutisse sans mauvaise surprise.",
+  batisseur_catalyseur:"Tu fais avancer les projets en embarquant les gens. Tu sais qu'on ne livre rien seul, et tu prends soin de l'équipe autant que du planning. Résultat : tes chantiers aboutissent, et ceux qui y ont participé ont envie de recommencer avec toi.",
+  batisseur_visionnaire:"Tu transformes l'avenir en chantier concret. Tu as besoin d'un horizon pour te mettre en mouvement, et une fois lancé·e, plus rien ne t'arrête. Tu es le moteur des projets ambitieux : tu sais où aller et tu construis la route en avançant.",
+  batisseur_transmetteur:"Tu construis, et tu apprends aux autres à construire. Tu ne gardes pas ton savoir-faire pour toi : tu documentes, tu montres, tu rends l'équipe autonome. Avec toi, un projet laisse derrière lui des résultats et des personnes plus compétentes.",
+  batisseur_stratege:"Tu livres, et tu livres vite. Tu sais trouver le raccourci qui fait gagner des semaines sans sacrifier le résultat. Ton efficacité est redoutable en situation de crise ou de lancement, quand il faut un résultat concret avec peu de moyens.",
+  batisseur_leader:"Tu mènes les projets de front et tu entraînes les autres dans l'action. Tu donnes l'exemple : on te voit faire, et ça donne envie de suivre. Tu es taillé·e pour diriger des équipes opérationnelles et transformer une ambition en résultats visibles.",
+  batisseur_esthete:"Tu construis jusqu'au bout et tu soignes chaque finition. Pour toi, un projet n'est pas terminé quand il fonctionne, mais quand il est bien fait. Tu es l'artisan qu'on rêve d'avoir sur un chantier exigeant : fiable sur les délais, intransigeant sur la qualité.",
+
+  transmetteur_analyste:"Tu expliques avec une rigueur qui rend ton savoir fiable. Tu ne simplifies jamais au point de déformer : tu structures, tu vérifies, tu trouves l'exemple exact. Les gens te font confiance pour comprendre un sujet difficile sans se tromper.",
+  transmetteur_catalyseur:"Tu fais grandir les gens. Ton plaisir n'est pas seulement d'expliquer, mais de voir quelqu'un prendre confiance et devenir autonome. Tu es un mentor naturel, qui sait doser l'exigence et la bienveillance.",
+  transmetteur_visionnaire:"Tu enseignes ce qui vient. Tu aimes partager les idées nouvelles, les tendances, les façons de penser de demain, et tu sais les rendre accessibles. On vient vers toi pour comprendre le monde qui change.",
+  transmetteur_batisseur:"Tu transmets du concret. Tes explications débouchent sur des outils, des méthodes, des étapes que les gens peuvent appliquer dès le lendemain. Avec toi, on ne ressort pas seulement avec des idées, mais avec quelque chose d'utilisable.",
+  transmetteur_stratege:"Tu vas droit à l'essentiel. Tu repères les trois idées qui comptent vraiment dans un sujet et tu les transmets en un temps record. Ta pédagogie est efficace : pas de détour, pas de jargon, juste ce qu'il faut pour passer à l'action.",
+  transmetteur_leader:"Tu enseignes avec une présence qui captive. Quand tu prends la parole, les gens écoutent et retiennent. Tu es à l'aise devant un groupe, sur une scène ou face à une équipe à convaincre, et tu transformes un savoir en message qui mobilise.",
+  transmetteur_esthete:"Tu transmets avec soin et élégance. Tes supports sont clairs et beaux, ta progression est pensée dans les moindres détails. Les gens apprennent mieux avec toi parce que tout, dans ta façon de transmettre, respecte leur intelligence.",
+
+  stratege_analyste:"Tu trouves le raccourci, mais un raccourci calculé. Tu ne prends pas de risques à l'aveugle : tu analyses vite, tu identifies le levier, puis tu agis. Un esprit de négociateur, capable de voir la meilleure option avant tout le monde.",
+  stratege_catalyseur:"Tu avances vite grâce aux personnes. Tu sais créer la relation qui ouvre la bonne porte au bon moment. Ton agilité est sociale : tu t'adaptes à chaque interlocuteur et tu trouves l'accord qui arrange tout le monde.",
+  stratege_visionnaire:"Tu sens les opportunités avant qu'elles ne deviennent évidentes, et tu sais les saisir. Tu es à l'aise dans le mouvement, là où d'autres attendent d'avoir toutes les cartes en main. Un tempérament d'entrepreneur et de pionnier.",
+  stratege_batisseur:"Tu optimises pour livrer. Tu repères l'étape inutile, le process trop lourd, et tu trouves comment obtenir le même résultat plus vite. Tu es précieux·se dans les organisations qui s'enlisent : tu y remets du mouvement et des résultats.",
+  stratege_transmetteur:"Tu partages tes raccourcis. Tu ne gardes pas tes astuces pour toi : tu les transformes en méthodes simples que les autres peuvent reprendre. À ton contact, les gens gagnent du temps et de l'assurance.",
+  stratege_leader:"Tu décides vite et tu emmènes les autres avec toi. Tu sais lire une situation, choisir la meilleure option et la porter avec assurance. Un profil taillé pour piloter en période de crise, de croissance rapide ou de transformation.",
+  stratege_esthete:"Tu cherches la solution la plus élégante. Pour toi, le meilleur chemin n'est pas seulement le plus court : c'est celui qui obtient le résultat avec justesse et sans gâchis. Tu allies efficacité et goût du travail bien fait, ce qui est rare.",
+
+  leader_analyste:"Tu diriges avec des faits. Tu prends les décisions difficiles, mais jamais à la légère : tu veux comprendre avant d'engager les autres. Les équipes te respectent parce que ton autorité est fondée et tes choix argumentés.",
+  leader_catalyseur:"Tu diriges en rassemblant. Ton autorité est réelle, mais elle passe par la confiance et la relation. Tu sais tenir un cap ferme tout en prenant soin de chacun : on te suit par adhésion, pas par obligation.",
+  leader_visionnaire:"Tu portes une direction et tu la rends désirable. Tu sais où aller et tu donnes envie aux autres d'y aller avec toi. Un tempérament de fondateur, de dirigeant ou de porte-voix d'un projet qui change les choses.",
+  leader_batisseur:"Tu prends la tête et tu fais avancer. Tu fixes l'objectif, tu répartis les rôles et tu t'assures que ça livre. Tu es dans ton élément dans le pilotage opérationnel, là où il faut décider et agir sans attendre.",
+  leader_transmetteur:"Tu diriges en faisant grandir. Tu ne veux pas des équipes qui obéissent, mais des personnes qui comprennent et deviennent autonomes. Tu es un leader-coach, à l'aise pour expliquer le pourquoi de chaque décision.",
+  leader_stratege:"Tu tiens le cap et tu sais le changer au bon moment. Tu as la fermeté pour décider et la souplesse pour pivoter quand la situation l'exige. Un capitaine dans la tempête : rapide, lucide et entraînant.",
+  leader_esthete:"Tu diriges avec exigence. Tu fixes des standards élevés et tu entraînes ton équipe à les atteindre. Sous ta direction, le travail est ambitieux et soigné, et chacun sait que l'à-peu-près ne suffira pas.",
+
+  esthete_analyste:"Ton exigence est précise et argumentée. Tu ne dis pas seulement « ce n'est pas assez bien » : tu sais expliquer exactement pourquoi, et comment corriger. Un regard d'expert qui élève la qualité d'un projet sans laisser de place à l'approximation.",
+  esthete_catalyseur:"Tu sublimes l'expérience humaine. Tu soignes l'accueil, l'atmosphère, les détails qui font qu'une personne se sent unique. Tu es dans ton élément là où la qualité de la relation est le produit lui-même : hospitalité, luxe, accompagnement.",
+  esthete_visionnaire:"Tu imagines la beauté de ce qui n'existe pas encore. Ton sens du détail est au service d'une vision créative : tu inventes des formes, des concepts, des univers. Un tempérament de créateur, de designer ou de directeur artistique.",
+  esthete_batisseur:"Tu fabriques avec excellence. Tu as la patience de l'artisan et l'énergie de celui qui livre. Les projets qui passent entre tes mains en ressortent aboutis, solides et beaux.",
+  esthete_transmetteur:"Tu transmets le sens du travail bien fait. Tu sais montrer ce qui fait la différence entre « correct » et « remarquable », et tu aides les autres à atteindre ce niveau. Un maître d'apprentissage dans l'âme.",
+  esthete_stratege:"Tu vises l'excellence là où elle compte vraiment. Tu sais où placer ton exigence pour qu'elle fasse la différence, sans t'épuiser sur ce qui ne se verra pas. Un perfectionnisme intelligent, qui crée de la valeur au lieu de ralentir.",
+  esthete_leader:"Tu incarnes l'excellence et tu la fais partager. Tu poses un niveau d'exigence élevé et tu as la présence pour y entraîner les autres. Un tempérament de chef de maison, de directeur d'une marque premium ou de référence dans ton domaine."
+};
+
+/* ---------- 56 alloys: Catalyst Core text (dominant_secondary) ---------- */
+const ALLOYS_EN = {
+  analyste_catalyseur:"You analyse people as closely as numbers. Where others see a vague \"team mood problem\", you spot the precise cause: an unclear role, a rule that feels unfair, a word that was misunderstood. Your rigour reassures, and your listening means people accept your conclusions, even uncomfortable ones.",
+  analyste_visionnaire:"You don't just understand the present: you extract the trends that shape the future. You're the person who says \"if these numbers continue, here's where we'll be in three years\". Your bold ideas have a rare quality: they are built on facts.",
+  analyste_batisseur:"You never launch anything you haven't understood, but once you have, you build it all the way. Your diagnosis always leads to a plan, and your plan to a delivery. People hand you the projects where a mistake is expensive: you check, then you execute with a steady hand.",
+  analyste_transmetteur:"You take complex subjects apart piece by piece, then put them back together so others can understand. Your knowledge isn't a pile of details, it's a clear map you know how to share. With you, an obscure procedure becomes a method anyone can apply.",
+  analyste_stratege:"You look for the real cause, then for the shortest lever to act on it. Your analysis isn't about understanding everything, it's about finding the 20% of effort that produces 80% of the result. A cool, fast mind, invaluable when decisions must be made under uncertainty.",
+  analyste_leader:"You decide based on facts, and you stand by your decisions in front of others. Your authority doesn't come from your voice but from the strength of your reasoning. Teams follow you because they know the direction you set has been checked.",
+  analyste_esthete:"You hunt down errors and approximations with a watchmaker's precision. Where others sign off on work that's \"roughly right\", you see the inconsistency that will sink the project in six months. Your standards are never whimsical: every detail you fix has a logical reason.",
+
+  catalyseur_analyste:"You sense people first, then you check your intuition. Your empathy isn't naive: you listen, you observe, and you understand what is really going on in a group. People trust you with delicate human situations because you bring both heart and discernment.",
+  catalyseur_visionnaire:"You make people want to believe in a shared future. You don't sell an abstract vision: you bring it to life by connecting it to what each person feels and hopes for. Around you, a new project finds its first allies.",
+  catalyseur_batisseur:"You get people working together, and together they deliver. Your relational energy doesn't stay at the level of good intentions: it turns into close-knit teams that move forward. With you, a group that used to glare at each other ends up building something.",
+  catalyseur_transmetteur:"You teach with your heart. People learn with you because they feel safe, understood and never judged. You know we remember best what we have felt, and you create those moments when someone leaves transformed, not just informed.",
+  catalyseur_stratege:"You read relationships like a human chessboard. You know who to speak to first, which ally to bring in, which unspoken issue to clear so things move fast. Your empathy becomes a tactical advantage: you win support where others push and fail.",
+  catalyseur_leader:"You lead others through connection more than authority. People follow you because they feel seen and valued. You embody a warm kind of leadership that keeps a team together when everything gets tense.",
+  catalyseur_esthete:"You care for relationships the way others care for a precious object. You notice the small gesture that makes someone feel welcome, the right atmosphere for a meeting, the well-chosen word. You create human experiences people remember for a long time.",
+
+  visionnaire_analyste:"You think big, then you put your idea through the wringer. Your boldness isn't a headlong rush: you test, you measure, you adjust your vision to the facts. You're one of those who innovate without crashing, because your intuition comes with a critical eye.",
+  visionnaire_catalyseur:"You see the future and you know how to take people there. Your vision is deeply human: it speaks of what people could become, not only of what the organisation could gain. You inspire, you unite and you give meaning to change.",
+  visionnaire_batisseur:"You dream up the project and you lay the first stone. That's rare: most visionaries stop at the idea, and most builders wait to be handed the plan. You draw the course and launch the work, which makes you a natural creator of projects.",
+  visionnaire_transmetteur:"You make the future understandable. You can translate a long-term intuition into simple words, images and examples that speak to everyone. Where a vision often stays blurry, you turn it into a clear story people want to join.",
+  visionnaire_stratege:"You see where the world is heading and find the fastest way to get there before others. You spot emerging opportunities and pivot without hesitation. A pioneering temperament, comfortable with the uncertainty others run from.",
+  visionnaire_leader:"You don't just imagine the future: you champion it publicly and bring others with you. Your vision becomes a direction, and your presence gives it credibility. You naturally found, lead and transform.",
+  visionnaire_esthete:"You imagine what doesn't exist yet, and you want it to be beautiful. Your creativity has a sharp sense of form: an idea isn't finished until it's elegant. You're one of those who create concepts, brands or experiences that leave a mark.",
+
+  batisseur_analyste:"You build solid things because you check before you build. Your drive is anchored by a real demand for method: you ask the right questions, secure the foundations, then deliver. People can count on you to see a project through without nasty surprises.",
+  batisseur_catalyseur:"You move projects forward by bringing people along. You know nothing gets delivered alone, and you care for the team as much as for the schedule. The result: your projects get done, and the people involved want to work with you again.",
+  batisseur_visionnaire:"You turn the future into a concrete project. You need a horizon to get going, and once you're moving, nothing stops you. You're the engine of ambitious projects: you know where to go and you build the road as you advance.",
+  batisseur_transmetteur:"You build, and you teach others to build. You don't keep your know-how to yourself: you document, you show, you make the team autonomous. With you, a project leaves behind results and more capable people.",
+  batisseur_stratege:"You deliver, and you deliver fast. You find the shortcut that saves weeks without sacrificing the result. Your efficiency is formidable in a crisis or a launch, when a concrete result is needed with limited means.",
+  batisseur_leader:"You lead projects from the front and pull others into action. You set the example: people see you doing it and want to follow. You're cut out to lead operational teams and turn ambition into visible results.",
+  batisseur_esthete:"You build all the way and you care about every finishing touch. For you, a project isn't done when it works, but when it's done well. You're the craftsperson everyone wants on a demanding project: reliable on deadlines, uncompromising on quality.",
+
+  transmetteur_analyste:"You explain with a rigour that makes your knowledge reliable. You never simplify to the point of distortion: you structure, you check, you find the exact example. People trust you to help them understand a difficult subject without getting it wrong.",
+  transmetteur_catalyseur:"You help people grow. Your joy isn't only in explaining, but in watching someone gain confidence and become independent. You're a natural mentor who knows how to balance high standards and kindness.",
+  transmetteur_visionnaire:"You teach what's coming. You love sharing new ideas, trends and tomorrow's ways of thinking, and you know how to make them accessible. People come to you to understand a changing world.",
+  transmetteur_batisseur:"You pass on practical know-how. Your explanations lead to tools, methods and steps people can apply the very next day. With you, people don't just leave with ideas, but with something they can use.",
+  transmetteur_stratege:"You go straight to the point. You spot the three ideas that really matter in a subject and pass them on in record time. Your teaching is efficient: no detours, no jargon, just what's needed to take action.",
+  transmetteur_leader:"You teach with a captivating presence. When you speak, people listen and remember. You're at ease in front of a group, on a stage or before a team to convince, and you turn knowledge into a message that mobilises.",
+  transmetteur_esthete:"You teach with care and elegance. Your materials are clear and beautiful, and your progression is thought through down to the smallest detail. People learn better with you because everything in the way you teach respects their intelligence.",
+
+  stratege_analyste:"You find the shortcut, but a calculated one. You don't take blind risks: you analyse fast, identify the lever, then act. A negotiator's mind, able to see the best option before anyone else.",
+  stratege_catalyseur:"You move fast thanks to people. You know how to build the relationship that opens the right door at the right time. Your agility is social: you adapt to each person and find the agreement that works for everyone.",
+  stratege_visionnaire:"You sense opportunities before they become obvious, and you know how to seize them. You're at home in motion, where others wait until they hold every card. An entrepreneurial, pioneering temperament.",
+  stratege_batisseur:"You optimise in order to deliver. You spot the useless step, the overly heavy process, and find how to get the same result faster. You're invaluable in organisations that are stuck: you bring back momentum and results.",
+  stratege_transmetteur:"You share your shortcuts. You don't keep your tricks to yourself: you turn them into simple methods others can reuse. Around you, people gain time and confidence.",
+  stratege_leader:"You decide fast and take others with you. You can read a situation, choose the best option and carry it with confidence. A profile built to steer through crisis, rapid growth or transformation.",
+  stratege_esthete:"You look for the most elegant solution. For you, the best path isn't just the shortest: it's the one that gets the result precisely and without waste. You combine efficiency with a love of work done well, which is rare.",
+
+  leader_analyste:"You lead with facts. You make the hard decisions, but never lightly: you want to understand before committing others. Teams respect you because your authority is grounded and your choices are reasoned.",
+  leader_catalyseur:"You lead by bringing people together. Your authority is real, but it works through trust and connection. You can hold a firm course while taking care of everyone: people follow you by choice, not by obligation.",
+  leader_visionnaire:"You carry a direction and make it desirable. You know where to go and you make others want to go there with you. The temperament of a founder, a leader, or the voice of a project that changes things.",
+  leader_batisseur:"You take the lead and you make things happen. You set the goal, assign the roles and make sure it delivers. You're in your element in operational leadership, where decisions and action can't wait.",
+  leader_transmetteur:"You lead by helping people grow. You don't want teams that obey, but people who understand and become independent. You're a coach-leader, at ease explaining the why behind every decision.",
+  leader_stratege:"You hold the course and know when to change it. You have the firmness to decide and the flexibility to pivot when the situation demands it. A captain in the storm: fast, clear-headed and inspiring.",
+  leader_esthete:"You lead with high standards. You set the bar high and train your team to reach it. Under your direction, the work is ambitious and polished, and everyone knows \"good enough\" won't do.",
+
+  esthete_analyste:"Your standards are precise and reasoned. You don't just say \"it's not good enough\": you can explain exactly why, and how to fix it. An expert eye that raises the quality of a project and leaves no room for approximation.",
+  esthete_catalyseur:"You elevate the human experience. You care about the welcome, the atmosphere, the details that make someone feel unique. You're in your element where the quality of the relationship is the product itself: hospitality, luxury, coaching.",
+  esthete_visionnaire:"You imagine the beauty of what doesn't exist yet. Your eye for detail serves a creative vision: you invent forms, concepts and worlds. The temperament of a creator, a designer or an art director.",
+  esthete_batisseur:"You make things with excellence. You have the patience of a craftsperson and the energy of someone who delivers. Projects that pass through your hands come out finished, solid and beautiful.",
+  esthete_transmetteur:"You pass on the meaning of work done well. You can show what separates \"fine\" from \"remarkable\", and you help others reach that level. A master of apprentices at heart.",
+  esthete_stratege:"You aim for excellence where it really counts. You know where to apply your standards so they make a difference, without wearing yourself out on what no one will see. A smart perfectionism that creates value instead of slowing things down.",
+  esthete_leader:"You embody excellence and make others share it. You set a high bar and have the presence to bring others up to it. The temperament of a head of house, the director of a premium brand, or a reference in your field."
+};
+
+/* ================================================================
+   TEXTES FRANÇAIS : interface, rapport, PDF et e-mail
+   ================================================================ */
+const TEXT_FR = {
+  lang:"fr",
+  T:{
+    pageTitle:"Quiz Talent Unique : découvre ce qui te rend rare",
+    brand:"Magic Humans · Quiz Talent Unique",
+    footer:"Magic Humans · Les résultats sont des hypothèses de travail, à valider avec des exemples réels de ta vie.",
+    intro:{
+      eyebrow:"Auto-évaluation · 6 questions · 5 minutes",
+      h1:'Quel est ton <em class="serif">Talent Unique</em>&nbsp;?',
+      lead:"Ce questionnaire ne te range pas dans une case. Il pose des hypothèses de travail sur ce qui te rend rare, sur les contextes où tu rayonnes et sur ceux qui t'éteignent.",
+      formula:"Résultat <b>=</b> Talent <b>×</b> Contexte",
+      rules:[
+        ["+","Le plus","Dans chaque question, choisis la phrase qui te ressemble le plus."],
+        ["−","Le moins","Puis celle qui te ressemble le moins. Les deux autres restent neutres."],
+        ["≈","Ton premier élan","Réponds selon ce que tu fais naturellement, pas selon ce qu'on attend de toi."]
+      ],
+      start:"Commencer le test →", demo:"Voir un rapport d'exemple"
+    },
+    quiz:{
+      legendPlus:"<b>+</b> le plus moi (1 choix)", legendMinus:"<b>−</b> le moins moi (1 choix)",
+      count:(i,n)=>`Question ${i} sur ${n}`, prev:"← Retour", next:"Suivant →", last:"Voir mes résultats →",
+      hintBoth:"Choisis un « + » et un « − ».", hintPlus:"Il manque ton « + ».", hintMinus:"Il manque ton « − ».",
+      plusSmall:"plus", minusSmall:"moins", ariaPlus:"Le plus moi", ariaMinus:"Le moins moi", ariaGroup:"Évaluer cette proposition"
+    },
+    tie:{
+      eyebrow:"Égalité à départager", h2:"Ces archétypes ont obtenu le même score",
+      help:(fixed,need)=>`Pour départager ${fixed ? "ta position n°2 (ton archétype secondaire)" : (need===2 ? "tes positions n°1 et n°2" : "ta position n°1")}, clique ${need===1 ? "celui qui te ressemble le plus" : "les deux qui te ressemblent le plus, dans l'ordre"}.`,
+      reset:"Recommencer le choix", ok:"Continuer →"
+    },
+    gate:{
+      eyebrow:"Ton rapport est prêt", h2:"Ton Talent Unique (hypothèse) :", giftLab:"Ce qui te rend rare :", fertileLab:"Tu rayonnes surtout quand tu as :", and:" et ",
+      more:"Ton rapport complet (7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation) t'attend. Indique ton prénom et ton e-mail pour le recevoir en PDF.",
+      prenom:"Prénom", email:"E-mail", website:"Site web",
+      news:"J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).",
+      submit:"Recevoir mon rapport complet →",
+      legal:"Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.",
+      errPrenom:"Indique ton prénom.", errEmail:"Cette adresse e-mail ne semble pas valide. Vérifie-la."
+    },
+    r:{
+      demoTag:"Rapport d'exemple · réponses aléatoires",
+      eyebrow:name=>`${name ? name+", ton Talent Unique (hypothèse)" : "Ton Talent Unique (hypothèse)"} · 1 combinaison parmi 56`,
+      domSec:(d,s)=>`Dominante <strong>${d.name}</strong> (${d.tagline}) · Secondaire <strong>${s.name}</strong> (${s.tagline})`,
+      pdf:"Télécharger mon rapport PDF", pdfBusy:"Préparation du PDF…", pdfFail:"Le téléchargement n'a pas pu démarrer sur cet appareil.", pdfNoLib:"Le générateur de PDF n'a pas pu se charger. Recharge la page.", pdfName:"Talent-Unique",
+      copyLink:"Copier mon lien personnel", copied:"Copié dans le presse-papiers.", copyFallback:"Sélectionne le texte et copie-le avec Ctrl+C ou ⌘+C.",
+      stDemo:"Rapport d'exemple : aucun e-mail n'est envoyé.", stIdle:"Tu peux télécharger ce rapport en PDF ou garder ton lien personnel pour y revenir.",
+      stOff:"L'envoi par e-mail n'est pas encore activé : télécharge ton PDF ci-dessus.",
+      stSending:e=>`Envoi de ton rapport à ${e}…`, stSent:e=>`Ton rapport PDF a été envoyé à ${e}. Pense à vérifier tes spams.`,
+      stFail:"L'envoi par e-mail n'a pas abouti. Télécharge ton PDF ci-dessus, il contient exactement le même rapport.",
+      toc:["1. Cadrage","2. Architecture","3. Mécanismes","4. Contextes & énergie","5. Valeur marché","6. Manuel","7. Alignement"],
+      section:n=>`Section ${n}`,
+      titles:["Cadrage & posture","Ton architecture de talent","Le diagnostic de tes mécanismes","Matrice des contextes & de l'énergie","Ta valeur marché & ton positionnement","Ton manuel d'utilisation","Auto-évaluation d'alignement"],
+      s1p1:"Ce rapport n'est pas un verdict. C'est un <strong>générateur d'hypothèses</strong>. Six questions donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.",
+      s1p2:"Le format à choix forcé compare tes préférences <em>entre elles</em>. Un score bas ne veut pas dire que tu es mauvais·e dans un domaine, mais qu'il passe après les autres quand tu dois choisir.",
+      formula:"Résultat <b>=</b> Talent <b>×</b> Contexte",
+      equation:"C'est une multiplication, pas une addition. Un talent exceptionnel dans un contexte toxique produit de la souffrance. Le même talent dans un contexte fertile produit de l'excellence avec une facilité qui surprend. Si l'un des deux facteurs tend vers zéro, le résultat aussi.",
+      equationLab:"L'équation",
+      scores:"Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)",
+      howSummary:"Comment ces résultats sont calculés",
+      how1:"Chaque archétype apparaît 3 fois sur les 6 questions. Score net = (nombre de « + » × 2) − (nombre de « − »). Ton Noyau Catalyseur réunit les deux scores les plus élevés ; en cas d'égalité, c'est toi qui as tranché. L'axe de modélisation est l'archétype le moins marqué, en privilégiant le contrepoids naturel de ta dominante en cas d'égalité.",
+      how2:"Limite à garder en tête : avec 6 questions, un seul choix peut faire basculer un rang. C'est pour cela qu'il vaut mieux confronter ces hypothèses à ton histoire réelle, seul·e ou accompagné·e.",
+      shipIntro:"Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.",
+      hullLab:"La coque & le gouvernail", hullH:"Ton Noyau Catalyseur",
+      sailLab:"Les voiles", sailH:"Tes Talents en Expansion", and:" et ",
+      compassLab:"La boussole", compassH:"Ton axe de modélisation",
+      giftLab:"Hypothèse de plus grand talent", vulnLab:"Hypothèse de plus grande vulnérabilité", survLab:"Hypothèse de sur-adaptation · mode survie",
+      takeaway:"<strong>À retenir :</strong> quand tu te reconnais dans ce mode, ce n'est probablement pas ton talent qui est en cause, c'est le contexte qui ne lui convient pas.",
+      fertileLab:"Contexte fertile · épanouissement", toxicLab:"Contexte toxique · échec répété",
+      alert:mode=>`<strong>Signal d'alerte :</strong> si tu bascules souvent en mode « ${mode.toLowerCase()} », tu es probablement sur un récif.`,
+      energy:"Ne confonds pas ce qui te rend performant·e et ce qui te recharge. La <strong>zone de flow</strong> est celle où tu excelles, mais elle consomme de l'énergie. La <strong>zone de ressourcement</strong> est celle d'où tu ressors avec plus d'énergie qu'au départ. Un talent exercé sans ressourcement finit par s'éteindre.",
+      flowLab:"Zone de flow · dépense d'énergie", resLab:"Zone de ressourcement · recharge",
+      bossLab:"Le boss qui a besoin de toi", partnerLab:"L'associé idéal", clientLab:"Le client",
+      secretLab:"Le langage secret · ce qu'il faut guetter chez ton interlocuteur",
+      secretIntro:"Quand tu entends ces phrases, tu es au bon endroit :", verbsIntro:"Les verbes de ton terrain de jeu :",
+      pitchLab:"Pitch de positionnement · modifiable", pitchDocLab:"Pitch de positionnement", copyPitch:"Copier le pitch",
+      manualIntro:"Une fiche rédigée à la première personne, à transmettre à ton manager, tes associés ou ton équipe.",
+      manualLab:"Mon manuel d'utilisation", copyManual:"Copier le manuel",
+      alignIntro:"Le talent n'est que la moitié de l'équation. Évalue honnêtement ta situation actuelle.",
+      alignDocIntro:"Le talent n'est que la moitié de l'équation. Note honnêtement ta situation actuelle :",
+      sliders:["Mon contexte actuel est fertile pour moi","J'exprime pleinement mon talent au quotidien","Je suis reconnu·e et rémunéré·e à ma juste valeur"],
+      slidersDocLab:"Mes trois curseurs", lowest:"Le curseur le plus bas est ton premier levier.",
+      ctaEyebrow:"Appel découverte · 1 heure · offert", ctaH:"Passe de l'hypothèse au plan d'action",
+      ctaP:alloy=>`Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloy} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.`,
+      ctaBtn:"Réserver mon appel découverte →", ctaDocBtn:"Réserver mon appel découverte",
+      restart:"Refaire le test", linkLab:"Ton lien personnel :", linkText:"revoir ce rapport en ligne",
+      docBrand:"Magic Humans · Quiz Talent Unique"
+    },
+    mail:{
+      subject:(prenom,alloy)=>`${prenom}, ton rapport Talent Unique : ${alloy}`,
+      hello:p=>`Bonjour ${p},`,
+      thanks:"Merci d'avoir fait le quiz Talent Unique. Voici le résultat qui en ressort :",
+      attached:link=>`Ton rapport complet en 7 sections est <b>en pièce jointe (PDF)</b>. Tu peux aussi <a href="${link}" style="color:#D9661C">le revoir en ligne</a> à tout moment.`,
+      hypo:"Garde en tête que ce sont des hypothèses : le plus utile est de les confronter à des situations réelles de ta vie.",
+      call:"Si tu veux passer de l'hypothèse au plan d'action, je te propose un <b>appel découverte d'une heure, offert</b>. Nous regardons ta situation réelle, et si un accompagnement peut t'aider, je te le présente à la fin.",
+      btn:"Réserver mon appel découverte", bye:"À très vite,",
+      text:(prenom,alloy,link,cal)=>`Bonjour ${prenom},\n\nMerci d'avoir fait le quiz Talent Unique. Ton Talent Unique (hypothèse) : ${alloy}.\n\nTon rapport complet est en pièce jointe (PDF). Tu peux aussi le revoir en ligne : ${link}\n\nSi tu veux passer de l'hypothèse au plan d'action, je te propose un appel découverte d'une heure, offert : ${cal}\n\nÀ très vite,\nPierre\nMagic Humans`,
+      notify:(prenom,alloy)=>`Nouveau prospect : ${prenom} · ${alloy}`
+    }
+  },
+
+  alloyName:p=>A_FR[p.D].name+" "+A_FR[p.S].adj,
+
+  // Contenus combinés du rapport
+  parts(p){
+    const d=A_FR[p.D], s=A_FR[p.S], ax=A_FR[p.axis];
+    const de = pole => { const x=pole.toLowerCase(); return x.startsWith("le ") ? "du "+x.slice(3) : "de "+x; };
+    return {
+      core: ALLOYS_FR[p.D+"_"+p.S],
+      expansion: p.expansion.length
+        ? "Ces archétypes arrivent juste après ton noyau. Ils peuvent correspondre à des compétences développées par l'expérience plutôt qu'à ta nature profonde. Demande-toi : est-ce que je le fais avec plaisir, ou parce que j'ai appris à le faire ?"
+        : "Aucun autre archétype ne ressort nettement en positif. Tes voiles sont probablement ailleurs : dans les compétences et les pratiques acquises au fil de ton parcours. Liste trois choses que tu fais bien et que tu as apprises sur le terrain.",
+      axis:`C'est ton archétype le moins marqué${p.axis===d.complement?`, et aussi le contrepoids naturel de ta dominante ${d.name}`:""}. Ce n'est pas un défaut à corriger, c'est une posture à emprunter : observe des personnes qui savent ${ax.inf} et modélise leur façon de faire, sans chercher à devenir elles.`,
+      gift: cap(d.gift)+".",
+      giftColor:`Ton secondaire ${s.name} lui donne sa couleur : tu le fais ${s.how}. C'est l'alliance ${de(d.pole)} et ${de(s.pole)} qui te rend difficile à remplacer.`,
+      vuln:`Le revers de ta force, c'est ${d.vuln}.`,
+      fracture:`Ton Talent Unique a aussi sa ligne de fracture : ton besoin ${d.need} peut entrer en collision avec ton besoin ${s.need}. Quand les deux tirent dans des directions opposées, tu peux te sentir divisé·e sans comprendre pourquoi.`,
+      survivalAlt:`Variante liée à ton secondaire, le mode « ${s.survival.mode.toLowerCase()} » : ${lc1(s.survival.desc)}`,
+      fertile:[...d.fertile, ...s.fertile.slice(0,2)],
+      toxic:[...d.toxic, ...s.toxic.slice(0,2)],
+      flow:[...d.flow, s.flow[0]],
+      ressource:[...d.ressource, s.ressource[0]],
+      client:`${d.targets.client}. Ton côté ${s.name} te rend aussi précieux·se pour ${lc1(s.targets.client)}.`,
+      verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
+      keywords:[...d.keywords, ...s.keywords.slice(0,2)]
+    };
+  },
+
+  pitch(p, prenom){
+    const d=A_FR[p.D], s=A_FR[p.S];
+    return `Je m'appelle ${cleanName(prenom)||"[Prénom]"}.
+J'accompagne ${d.pitch.who} ${d.pitch.pain}. Mon rôle : les aider à ${d.pitch.result}.
+
+Ma particularité : je combine deux forces rarement réunies, ${d.pole.toLowerCase()} et ${s.pole.toLowerCase()}. Concrètement, je sais ${d.inf}, et je le fais ${s.how}.
+
+Si vous entendez autour de vous « ${d.verbatims[0]} » ou « ${s.verbatims[1]} », c'est exactement là que je suis utile. Parlons-en.`;
+  },
+
+  manualItems(p){
+    const d=A_FR[p.D], s=A_FR[p.S];
+    return [
+      ["Ce que j'apporte", `Je sais ${d.inf}, et je le fais ${s.how}.`],
+      ["Pour donner le meilleur", `J'ai besoin ${d.manual.besoin}, et ${s.manual.besoin}.`],
+      ["Ce qui me donne de l'énergie", `${cap(d.manual.energie)} ; ${s.manual.energie}.`],
+      ["Comment travailler avec moi", d.manual.parler],
+      ["Ce qu'il vaut mieux éviter", d.manual.eviter],
+      ["Mon signal d'alerte", `Sous forte pression, je peux basculer en mode « ${d.survival.mode.toLowerCase()} ». Si vous le remarquez, regardons ensemble le contexte plutôt que ma motivation.`]
+    ];
+  },
+  manualHead(p){ return `MON MANUEL D'UTILISATION\nMon Talent Unique : ${this.alloyName(p)} (dominante ${A_FR[p.D].name}, secondaire ${A_FR[p.S].name})`; },
+
+  readAlignment(v, p){
+    const avg=(v.ctx+v.exp+v.fin)/3, lowest=Object.entries(v).sort((a,b)=>a[1]-b[1])[0][0];
+    if (avg>=8) return "<strong>Alignement élevé.</strong> Ton talent semble bien exprimé dans un contexte qui lui convient. L'enjeu est maintenant de le faire rayonner plus loin : positionnement, visibilité, valeur perçue.";
+    const msg={
+      ctx:`<strong>Le contexte est ton premier levier.</strong> Avec ${v.ctx}/10, ton environnement ressemble peut-être davantage à un récif qu'à une mer porteuse. Compare-le à la liste « contexte toxique » de la section 4 : combien de points te parlent ?`,
+      exp:`<strong>Ton talent est sous-exprimé.</strong> Avec ${v.exp}/10, tu passes probablement une bonne partie de ton temps hors de ta zone de flow. Quelle part de ta semaine consacres-tu vraiment à ${A_FR[p.D].inf} ?`,
+      fin:`<strong>La reconnaissance ne suit pas.</strong> Avec ${v.fin}/10, la valeur que tu crées ne se traduit pas encore en reconnaissance ou en revenus. C'est souvent une question de positionnement et de langage : relis la section 5.`
+    };
+    return (avg<5?`Score moyen de ${avg.toFixed(1).replace(".",",")}/10 : l'écart entre ton potentiel et ta situation mérite qu'on s'y arrête. `:`Score moyen de ${avg.toFixed(1).replace(".",",")}/10. `)+msg[lowest];
+  }
+};
+
+/* ================================================================
+   ENGLISH TEXT: interface, report, PDF and email
+   ================================================================ */
+const TEXT_EN = {
+  lang:"en",
+  T:{
+    pageTitle:"Unique Talent Quiz: discover what makes you rare",
+    brand:"Magic Humans · Unique Talent Quiz",
+    footer:"Magic Humans · These results are working hypotheses, to be tested against real examples from your life.",
+    intro:{
+      eyebrow:"Self-assessment · 6 questions · 5 minutes",
+      h1:'What is your <em class="serif">Unique Talent</em>?',
+      lead:"This quiz doesn't put you in a box. It offers working hypotheses about what makes you rare, the contexts where you thrive and the ones that drain you.",
+      formula:"Result <b>=</b> Talent <b>×</b> Context",
+      rules:[
+        ["+","Most like me","In each question, pick the statement that sounds most like you."],
+        ["−","Least like me","Then the one that sounds least like you. The other two stay neutral."],
+        ["≈","Go with your gut","Answer based on what you naturally do, not what others expect of you."]
+      ],
+      start:"Start the quiz →", demo:"See a sample report"
+    },
+    quiz:{
+      legendPlus:"<b>+</b> most like me (1 choice)", legendMinus:"<b>−</b> least like me (1 choice)",
+      count:(i,n)=>`Question ${i} of ${n}`, prev:"← Back", next:"Next →", last:"See my results →",
+      hintBoth:"Choose one \"+\" and one \"−\".", hintPlus:"Your \"+\" is missing.", hintMinus:"Your \"−\" is missing.",
+      plusSmall:"most", minusSmall:"least", ariaPlus:"Most like me", ariaMinus:"Least like me", ariaGroup:"Rate this statement"
+    },
+    tie:{
+      eyebrow:"A tie to break", h2:"These archetypes got the same score",
+      help:(fixed,need)=>`To decide ${fixed ? "your #2 position (your secondary archetype)" : (need===2 ? "your #1 and #2 positions" : "your #1 position")}, click ${need===1 ? "the one that sounds most like you" : "the two that sound most like you, in order"}.`,
+      reset:"Start the choice again", ok:"Continue →"
+    },
+    gate:{
+      eyebrow:"Your report is ready", h2:"Your Unique Talent (hypothesis):", giftLab:"What makes you rare:", fertileLab:"You shine most when you have:", and:" and ",
+      more:"Your full report (7 sections: talent architecture, inner mechanisms, thriving and toxic contexts, market value, a ready-to-use pitch and a user manual) is waiting for you. Enter your first name and email to receive it as a PDF.",
+      prenom:"First name", email:"Email", website:"Website",
+      news:"I also agree to receive tips and news from Magic Humans (unsubscribe in one click).",
+      submit:"Get my full report →",
+      legal:"Your first name and email are used to send you your report and, if you agree, our tips. They are kept by Magic Humans and never sold. To have them deleted, write to pierre.j.sarazin@gmail.com.",
+      errPrenom:"Please enter your first name.", errEmail:"This email address doesn't look valid. Please check it."
+    },
+    r:{
+      demoTag:"Sample report · random answers",
+      eyebrow:name=>`${name ? name+", your Unique Talent (hypothesis)" : "Your Unique Talent (hypothesis)"} · 1 combination out of 56`,
+      domSec:(d,s)=>`Dominant <strong>${d.name}</strong> (${d.tagline}) · Secondary <strong>${s.name}</strong> (${s.tagline})`,
+      pdf:"Download my PDF report", pdfBusy:"Preparing the PDF…", pdfFail:"The download couldn't start on this device.", pdfNoLib:"The PDF generator couldn't load. Please reload the page.", pdfName:"Unique-Talent",
+      copyLink:"Copy my personal link", copied:"Copied to clipboard.", copyFallback:"Select the text and copy it with Ctrl+C or ⌘+C.",
+      stDemo:"Sample report: no email is sent.", stIdle:"You can download this report as a PDF or keep your personal link to come back to it.",
+      stOff:"Email delivery isn't switched on yet: download your PDF above.",
+      stSending:e=>`Sending your report to ${e}…`, stSent:e=>`Your PDF report has been sent to ${e}. Remember to check your spam folder.`,
+      stFail:"The email couldn't be sent. Download your PDF above: it contains exactly the same report.",
+      toc:["1. Framing","2. Architecture","3. Mechanisms","4. Contexts & energy","5. Market value","6. Manual","7. Alignment"],
+      section:n=>`Section ${n}`,
+      titles:["Framing & stance","Your talent architecture","How you work: a diagnosis","Contexts & energy map","Your market value & positioning","Your user manual","Alignment self-assessment"],
+      s1p1:"This report isn't a verdict. It's a <strong>hypothesis generator</strong>. Six questions give a first snapshot of your preferences, not a final measure of who you are. Test every statement against real examples from your life: if it doesn't resonate, set it aside.",
+      s1p2:"The forced-choice format compares your preferences <em>with each other</em>. A low score doesn't mean you're bad at something, only that it comes after the others when you have to choose.",
+      formula:"Result <b>=</b> Talent <b>×</b> Context",
+      equation:"It's a multiplication, not an addition. An exceptional talent in a toxic context produces suffering. The same talent in a thriving context produces excellence with surprising ease. If either factor tends towards zero, so does the result.",
+      equationLab:"The equation",
+      scores:"Your net scores (+2 per \"most\", −1 per \"least\", from −3 to +6)",
+      howSummary:"How these results are calculated",
+      how1:"Each archetype appears 3 times across the 6 questions. Net score = (number of \"+\" × 2) − (number of \"−\"). Your Catalyst Core combines your two highest scores; in case of a tie, you made the call. The modelling axis is your least marked archetype, favouring the natural counterweight of your dominant in case of a tie.",
+      how2:"A limit to keep in mind: with 6 questions, a single choice can change a ranking. That's why it's best to test these hypotheses against your real story, on your own or with support.",
+      shipIntro:"Picture yourself as a ship. What moves it forward depends on its structure, its sails and its course, but also on the sea it sails.",
+      hullLab:"The hull & the helm", hullH:"Your Catalyst Core",
+      sailLab:"The sails", sailH:"Your Expanding Talents", and:" and ",
+      compassLab:"The compass", compassH:"Your modelling axis",
+      giftLab:"Hypothesis: your greatest talent", vulnLab:"Hypothesis: your greatest vulnerability", survLab:"Hypothesis: over-adaptation · survival mode",
+      takeaway:"<strong>Remember:</strong> when you recognise yourself in this mode, it's probably not your talent that's the problem, but a context that doesn't suit it.",
+      fertileLab:"Thriving context · fulfilment", toxicLab:"Toxic context · repeated failure",
+      alert:mode=>`<strong>Warning sign:</strong> if you often slip into \"${mode.toLowerCase()}\" mode, you're probably on a reef.`,
+      energy:"Don't confuse what makes you perform with what recharges you. Your <strong>flow zone</strong> is where you excel, but it uses up energy. Your <strong>recharge zone</strong> is where you come out with more energy than you started with. A talent used without recharge eventually burns out.",
+      flowLab:"Flow zone · spends energy", resLab:"Recharge zone · restores energy",
+      bossLab:"The boss who needs you", partnerLab:"The ideal partner", clientLab:"The client",
+      secretLab:"The secret language · what to listen for",
+      secretIntro:"When you hear these phrases, you're in the right place:", verbsIntro:"The verbs of your playing field:",
+      pitchLab:"Positioning pitch · editable", pitchDocLab:"Positioning pitch", copyPitch:"Copy the pitch",
+      manualIntro:"A first-person sheet to share with your manager, partners or team.",
+      manualLab:"My user manual", copyManual:"Copy the manual",
+      alignIntro:"Talent is only half of the equation. Rate your current situation honestly.",
+      alignDocIntro:"Talent is only half of the equation. Rate your current situation honestly:",
+      sliders:["My current context helps me thrive","I fully express my talent day to day","I'm recognised and paid at my true value"],
+      slidersDocLab:"My three dials", lowest:"Your lowest dial is your first lever.",
+      ctaEyebrow:"Discovery call · 1 hour · free", ctaH:"Move from hypothesis to action plan",
+      ctaP:alloy=>`For one hour, we look at your real situation: where your Unique Talent, ${alloy}, already shows up, what's holding it back today, and what you want to build. If a Magic Humans programme can help you get there, I'll present it at the end of the call, and you'll decide freely.`,
+      ctaBtn:"Book my discovery call →", ctaDocBtn:"Book my discovery call",
+      restart:"Take the quiz again", linkLab:"Your personal link:", linkText:"view this report online",
+      docBrand:"Magic Humans · Unique Talent Quiz"
+    },
+    mail:{
+      subject:(prenom,alloy)=>`${prenom}, your Unique Talent report: ${alloy}`,
+      hello:p=>`Hello ${p},`,
+      thanks:"Thank you for taking the Unique Talent quiz. Here is what came out of it:",
+      attached:link=>`Your full 7-section report is <b>attached as a PDF</b>. You can also <a href="${link}" style="color:#D9661C">view it online</a> at any time.`,
+      hypo:"Keep in mind these are hypotheses: the most useful thing is to test them against real situations in your life.",
+      call:"If you'd like to move from hypothesis to action plan, I offer a <b>free one-hour discovery call</b>. We look at your real situation, and if a programme can help you, I'll present it at the end.",
+      btn:"Book my discovery call", bye:"Speak soon,",
+      text:(prenom,alloy,link,cal)=>`Hello ${prenom},\n\nThank you for taking the Unique Talent quiz. Your Unique Talent (hypothesis): ${alloy}.\n\nYour full report is attached as a PDF. You can also view it online: ${link}\n\nIf you'd like to move from hypothesis to action plan, I offer a free one-hour discovery call: ${cal}\n\nSpeak soon,\nPierre\nMagic Humans`,
+      notify:(prenom,alloy)=>`New lead (EN): ${prenom} · ${alloy}`
+    }
+  },
+
+  // English word order: adjective first ("Empathic Builder")
+  alloyName:p=>A_EN[p.S].adj+" "+A_EN[p.D].name,
+
+  parts(p){
+    const d=A_EN[p.D], s=A_EN[p.S], ax=A_EN[p.axis];
+    return {
+      core: ALLOYS_EN[p.D+"_"+p.S],
+      expansion: p.expansion.length
+        ? "These archetypes come right after your core. They may reflect skills developed through experience rather than your deeper nature. Ask yourself: do I do this with pleasure, or because I've learned to?"
+        : "No other archetype stands out clearly. Your sails are probably elsewhere: in the skills and practices you've built along the way. List three things you do well that you learned on the job.",
+      axis:`This is your least marked archetype${p.axis===d.complement?`, and also the natural counterweight to your dominant ${d.name}`:""}. It isn't a flaw to fix but a stance to borrow: watch people who know how to ${ax.inf} and model the way they do it, without trying to become them.`,
+      gift: cap(d.gift)+".",
+      giftColor:`Your secondary ${s.name} gives it its colour: you do it ${s.how}. It's the combination of ${d.pole.toLowerCase()} and ${s.pole.toLowerCase()} that makes you hard to replace.`,
+      vuln:`The flip side of your strength is ${d.vuln}.`,
+      fracture:`Your Unique Talent also has a fault line: your need ${d.need} can collide with your need ${s.need}. When the two pull in opposite directions, you can feel torn without understanding why.`,
+      survivalAlt:`A variant linked to your secondary, the \"${s.survival.mode.toLowerCase()}\" mode: ${lc1(s.survival.desc)}`,
+      fertile:[...d.fertile, ...s.fertile.slice(0,2)],
+      toxic:[...d.toxic, ...s.toxic.slice(0,2)],
+      flow:[...d.flow, s.flow[0]],
+      ressource:[...d.ressource, s.ressource[0]],
+      client:`${d.targets.client}. Your ${s.name} side also makes you valuable to ${lc1(s.targets.client)}.`,
+      verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
+      keywords:[...d.keywords, ...s.keywords.slice(0,2)]
+    };
+  },
+
+  pitch(p, prenom){
+    const d=A_EN[p.D], s=A_EN[p.S];
+    return `My name is ${cleanName(prenom)||"[First name]"}.
+I work with ${d.pitch.who} ${d.pitch.pain}. My role: helping them ${d.pitch.result}.
+
+What makes me different: I combine two strengths rarely found together, ${d.pole.toLowerCase()} and ${s.pole.toLowerCase()}. In practice, I know how to ${d.inf}, and I do it ${s.how}.
+
+If you hear people around you say \"${d.verbatims[0]}\" or \"${s.verbatims[1]}\", that's exactly where I can help. Let's talk.`;
+  },
+
+  manualItems(p){
+    const d=A_EN[p.D], s=A_EN[p.S];
+    return [
+      ["What I bring", `I know how to ${d.inf}, and I do it ${s.how}.`],
+      ["To give my best", `I need ${d.manual.besoin}, and ${s.manual.besoin}.`],
+      ["What energises me", `${cap(d.manual.energie)}; ${s.manual.energie}.`],
+      ["How to work with me", d.manual.parler],
+      ["What to avoid", d.manual.eviter],
+      ["My warning sign", `Under heavy pressure, I can slip into \"${d.survival.mode.toLowerCase()}\" mode. If you notice it, let's look at the context together rather than my motivation.`]
+    ];
+  },
+  manualHead(p){ return `MY USER MANUAL\nMy Unique Talent: ${this.alloyName(p)} (dominant ${A_EN[p.D].name}, secondary ${A_EN[p.S].name})`; },
+
+  readAlignment(v, p){
+    const avg=(v.ctx+v.exp+v.fin)/3, lowest=Object.entries(v).sort((a,b)=>a[1]-b[1])[0][0];
+    if (avg>=8) return "<strong>Strong alignment.</strong> Your talent seems well expressed in a context that suits it. The next step is to make it shine further: positioning, visibility, perceived value.";
+    const msg={
+      ctx:`<strong>Context is your first lever.</strong> At ${v.ctx}/10, your environment may look more like a reef than a carrying sea. Compare it with the \"toxic context\" list in section 4: how many points ring true?`,
+      exp:`<strong>Your talent is under-expressed.</strong> At ${v.exp}/10, you probably spend much of your time outside your flow zone. How much of your week do you really spend on the ability to ${A_EN[p.D].inf}?`,
+      fin:`<strong>Recognition isn't following.</strong> At ${v.fin}/10, the value you create isn't yet turning into recognition or income. It's often a matter of positioning and language: reread section 5.`
+    };
+    return (avg<5?`Average score ${avg.toFixed(1)}/10: the gap between your potential and your situation is worth looking at. `:`Average score ${avg.toFixed(1)}/10. `)+msg[lowest];
+  }
+};
+
+/* ================================================================
+   MOTEUR COMMUN · QCM Talent Unique (Magic Humans)
+   Partagé à l'identique par la page du quiz et par le script Google
+   (Code.gs). Modifier les sources dans src/, puis relancer build.py.
+   ================================================================ */
+var CONFIG = {
+  calendly: "https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=quiz&utm_campaign=talent-unique",
+  quizUrl: "https://www.magichumans.com/quiz/",
+  // URL de l'application Web Google Apps Script. Vide = envoi par e-mail désactivé.
+  endpoint: ""
+};
+
+const LANGS = {
+  fr:{A:A_FR, Q:QUESTIONS_FR, X:TEXT_FR},
+  en:{A:A_EN, Q:QUESTIONS_EN, X:TEXT_EN}
+};
+const IDS = ["analyste","catalyseur","visionnaire","batisseur","transmetteur","stratege","leader","esthete"];
+const COMPLEMENT = {analyste:"catalyseur", catalyseur:"analyste", visionnaire:"batisseur", batisseur:"visionnaire", transmetteur:"stratege", stratege:"transmetteur", leader:"esthete", esthete:"leader"};
+const POINTS = {plus:2, minus:-1};
+const QUESTION_IDS = QUESTIONS_FR.map(q=>q.items.map(it=>it[0]));
+
+// Vérifications d'intégrité : équilibre du questionnaire et cohérence FR/EN.
+(function check(){
   const c = Object.fromEntries(IDS.map(id=>[id,0]));
-  QUESTIONS.forEach(q=>q.items.forEach(([id])=>c[id]++));
-  const bad = IDS.filter(id=>c[id]!==3);
-  if (bad.length) console.error("Questionnaire déséquilibré :", c);
+  QUESTION_IDS.forEach(q=>q.forEach(id=>c[id]++));
+  if (IDS.some(id=>c[id]!==3)) console.error("Questionnaire déséquilibré", c);
+  QUESTIONS_EN.forEach((q,i)=>q.items.forEach((it,j)=>{ if (it[0]!==QUESTION_IDS[i][j]) console.error("Question EN désalignée", i, j); }));
+  IDS.forEach(a=>IDS.forEach(b=>{ if (a!==b && (!ALLOYS_FR[a+"_"+b] || !ALLOYS_EN[a+"_"+b])) console.error("Alliage manquant", a, b); }));
 })();
 
-// answers[q] = {plus: indexItem|null, minus: indexItem|null}
+/* ---------- Calcul ---------- */
 function computeScores(answers){
   const s = Object.fromEntries(IDS.map(id=>[id,{score:0,plus:0,minus:0}]));
   answers.forEach((a,qi)=>{
-    if (a.plus!=null){ const id=QUESTIONS[qi].items[a.plus][0]; s[id].plus++; }
-    if (a.minus!=null){ const id=QUESTIONS[qi].items[a.minus][0]; s[id].minus++; }
+    if (a.plus!=null) s[QUESTION_IDS[qi][a.plus]].plus++;
+    if (a.minus!=null) s[QUESTION_IDS[qi][a.minus]].minus++;
   });
   IDS.forEach(id=>{ s[id].score = s[id].plus*POINTS.plus + s[id].minus*POINTS.minus; });
   return s;
 }
 const sortByScore = (s, ids=IDS) => [...ids].sort((a,b)=>s[b].score-s[a].score);
 
-// Détermine le Noyau (rang 1 + rang 2) et signale une égalité à départager.
 function resolveCore(s){
-  const sorted = sortByScore(s);
   const groups = [];
-  sorted.forEach(id=>{
+  sortByScore(s).forEach(id=>{
     const g = groups[groups.length-1];
     if (g && s[g[0]].score===s[id].score) g.push(id); else groups.push([id]);
   });
@@ -518,127 +1165,65 @@ function resolveCore(s){
   return {fixed, candidates:null, need:0};
 }
 
-// Construit le profil complet une fois le Noyau connu.
 function buildProfile(s, core){
   const [D,S] = core;
   const rest = sortByScore(s).filter(id=>id!==D && id!==S);
   const expansion = rest.slice(0,2).filter(id=>s[id].score>0);
-  // Axe de modélisation : le moins marqué ; en cas d'égalité, on privilégie
-  // le complément naturel du dominant, puis celui du secondaire.
   const min = Math.min(...rest.map(id=>s[id].score));
   const lows = rest.filter(id=>s[id].score===min);
-  const axis = lows.find(id=>id===A[D].complement) || lows.find(id=>id===A[S].complement) || lows[0];
+  const axis = lows.find(id=>id===COMPLEMENT[D]) || lows.find(id=>id===COMPLEMENT[S]) || lows[0];
   return {D,S,expansion,axis,scores:s,sorted:sortByScore(s)};
 }
 
-/* ================================================================
-   4. OUTILS DE TEXTE
-   ================================================================ */
+/* ---------- Outils ---------- */
 function esc(t){ return String(t==null?"":t).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 const cap = t => t.charAt(0).toUpperCase()+t.slice(1);
 const lc1 = t => t.charAt(0).toLowerCase()+t.slice(1);
-// « de » + pôle : « de la Rigueur », « du Futur », « de l'Humain »
-function de(pole){
-  const p = pole.toLowerCase();
-  if (p.startsWith("le ")) return "du "+p.slice(3);
-  return "de "+p;
-}
 function cleanName(n){ return String(n||"").replace(/[<>]/g,"").replace(/\s+/g," ").trim().slice(0,40); }
-const alloyName = p => A[p.D].name+" "+A[p.S].adj;
+const L = lang => LANGS[lang] || LANGS.fr;
+const alloyName = (p, lang) => L(lang).X.alloyName(p);
 
-/* ================================================================
-   5. LIEN PERSONNEL
-   Format : réponses (12 chiffres « plus/moins » par question, dans
-   l'ordre d'origine) . dominant . secondaire . prénom
-   ================================================================ */
-function encodeState(answers, core, prenom){
+/* ---------- Lien personnel ----------
+   Format : réponses (12 chiffres) . dominant . secondaire . langue . prénom
+   (les anciens liens sans langue restent lisibles, en français) */
+function encodeState(answers, core, prenom, lang){
   const a = answers.map(x=>""+x.plus+x.minus).join("");
-  return [a, core[0], core[1], encodeURIComponent(cleanName(prenom))].join(".");
+  return [a, core[0], core[1], (lang==="en"?"en":"fr"), encodeURIComponent(cleanName(prenom))].join(".");
 }
 function decodeState(str){
   try{
     const parts = String(str).split(".");
     if (parts.length < 3) return null;
-    const [a, D, S] = parts, name = decodeURIComponent(parts.slice(3).join(".")||"");
-    if (!/^[0-3]{12}$/.test(a) || !A[D] || !A[S] || D===S) return null;
+    const [a, D, S] = parts;
+    let lang = "fr", rest = parts.slice(3);
+    if (rest[0]==="fr" || rest[0]==="en"){ lang = rest[0]; rest = rest.slice(1); }
+    const name = decodeURIComponent(rest.join(".")||"");
+    if (!/^[0-3]{12}$/.test(a) || !IDS.includes(D) || !IDS.includes(S) || D===S) return null;
     const answers = [];
     for (let i=0;i<6;i++){
       const plus=+a[i*2], minus=+a[i*2+1];
       if (plus===minus) return null;
       answers.push({plus, minus});
     }
-    // Le noyau doit correspondre aux deux meilleurs scores (égalités incluses).
     const s = computeScores(answers);
     const others = IDS.filter(id=>id!==D && id!==S).map(id=>s[id].score);
     if (others.some(v=>v > Math.min(s[D].score, s[S].score)) || s[S].score > s[D].score) return null;
-    return {answers, core:[D,S], prenom:cleanName(name)};
+    return {answers, core:[D,S], prenom:cleanName(name), lang};
   }catch(e){ return null; }
 }
-const personalLink = (answers, core, prenom) => CONFIG.quizUrl+"#r="+encodeState(answers, core, prenom);
+const personalLink = (answers, core, prenom, lang) => CONFIG.quizUrl+"#r="+encodeState(answers, core, prenom, lang);
 
-/* ================================================================
-   6. TEXTES COMBINÉS (dominant D + secondaire S)
-   ================================================================ */
-function pitchText(p, prenom){
-  const d=A[p.D], s=A[p.S];
-  return `Je m'appelle ${cleanName(prenom)||"[Prénom]"}.
-J'accompagne ${d.pitch.who} ${d.pitch.pain}. Mon rôle : les aider à ${d.pitch.result}.
-
-Ma particularité : je combine deux forces rarement réunies, ${d.pole.toLowerCase()} et ${s.pole.toLowerCase()}. Concrètement, je sais ${d.inf}, et je le fais ${s.how}.
-
-Si vous entendez autour de vous « ${d.verbatims[0]} » ou « ${s.verbatims[1]} », c'est exactement là que je suis utile. Parlons-en.`;
-}
-function manualItems(p){
-  const d=A[p.D], s=A[p.S];
-  return [
-    ["Ce que j'apporte", `Je sais ${d.inf}, et je le fais ${s.how}.`],
-    ["Pour donner le meilleur", `J'ai besoin ${d.manual.besoin}, et ${s.manual.besoin}.`],
-    ["Ce qui me donne de l'énergie", `${cap(d.manual.energie)} ; ${s.manual.energie}.`],
-    ["Comment travailler avec moi", d.manual.parler],
-    ["Ce qu'il vaut mieux éviter", d.manual.eviter],
-    ["Mon signal d'alerte", `Sous forte pression, je peux basculer en mode « ${d.survival.mode.toLowerCase()} ». Si vous le remarquez, regardons ensemble le contexte plutôt que ma motivation.`]
-  ];
-}
-function manualText(p){
-  const d=A[p.D], s=A[p.S];
-  return `MON MANUEL D'UTILISATION
-Mon profil : ${alloyName(p)} (dominante ${d.name}, secondaire ${s.name})
-
-`+manualItems(p).map(([k,v])=>`${k} : ${v}`).join("\n");
-}
-// Contenus communs au rapport Web et au rapport PDF
-function reportParts(p){
-  const d=A[p.D], s=A[p.S], ax=A[p.axis];
-  return {
-    shipCore:`Ta structure innée, ce qui tient même dans la tempête. La plupart des personnes qui ${d.they} ne savent pas ${s.inf}. Toi, tu peux faire les deux.`,
-    expansion: p.expansion.length
-      ? `Ces archétypes arrivent juste après ton noyau. Ils peuvent correspondre à des compétences développées par l'expérience plutôt qu'à ta nature profonde. Demande-toi : est-ce que je le fais avec plaisir, ou parce que j'ai appris à le faire ?`
-      : `Aucun autre archétype ne ressort nettement en positif. Tes voiles sont probablement ailleurs : dans les compétences et les pratiques acquises au fil de ton parcours. Liste trois choses que tu fais bien et que tu as apprises sur le terrain.`,
-    axis:`C'est ton archétype le moins marqué${p.axis===d.complement?`, et aussi le contrepoids naturel de ta dominante ${d.name}`:""}. Ce n'est pas un défaut à corriger, c'est une posture à emprunter : observe des personnes qui savent ${ax.inf} et modélise leur façon de faire, sans chercher à devenir elles.`,
-    giftColor:`Ton secondaire ${s.name} lui donne sa couleur : tu le fais ${s.how}. C'est l'alliance ${de(d.pole)} et ${de(s.pole)} qui te rend difficile à remplacer.`,
-    vuln:`Le revers de ta force, c'est ${d.vuln}.`,
-    fracture:`Ton Talent Unique a aussi sa ligne de fracture : ton besoin ${d.need} peut entrer en collision avec ton besoin ${s.need}. Quand les deux tirent dans des directions opposées, tu peux te sentir divisé·e sans comprendre pourquoi.`,
-    survivalAlt:`Variante liée à ton secondaire, le mode « ${s.survival.mode.toLowerCase()} » : ${lc1(s.survival.desc)}`,
-    fertile:[...d.fertile, ...s.fertile.slice(0,2)],
-    toxic:[...d.toxic, ...s.toxic.slice(0,2)],
-    flow:[...d.flow, s.flow[0]],
-    ressource:[...d.ressource, s.ressource[0]],
-    client:`${d.targets.client}. Ton côté ${s.name} te rend aussi précieux·se pour ${lc1(s.targets.client)}.`,
-    verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
-    keywords:[...d.keywords, ...s.keywords.slice(0,2)]
-  };
+function manualText(p, lang){
+  const X = L(lang).X, sep = lang==="en" ? ": " : " : ";
+  return X.manualHead(p)+"\n\n"+X.manualItems(p).map(([k,v])=>k+sep+v).join("\n");
 }
 
-/* ================================================================
-   7. RAPPORT DOCUMENT (PDF téléchargé et PDF joint à l'e-mail)
-   Mise en forme simple et en ligne, compatible avec la conversion
-   PDF de Google et avec html2pdf.
-   ================================================================ */
-function reportDocHTML(p, prenom, link){
-  const d=A[p.D], s=A[p.S], ax=A[p.axis], r=reportParts(p), name=esc(cleanName(prenom));
+/* ---------- Rapport document (PDF téléchargé et PDF joint à l'e-mail) ---------- */
+function reportDocHTML(p, prenom, link, lang){
+  const {A, X} = L(lang), T = X.T.r, d=A[p.D], s=A[p.S], ax=A[p.axis], r=X.parts(p), name=esc(cleanName(prenom));
   const O="#D9661C", INK="#2B2522", MUT="#6E645D", LINE="#E4DED7", SOFT="#FBE8D8";
   const H = "font-family:Georgia,'Times New Roman',serif;font-weight:normal;color:"+INK+";";
-  const sec = (n,t)=>`<div style="page-break-before:${n===1?"auto":"always"};padding-top:4px"><div style="font-family:Georgia,serif;font-style:italic;color:${O};font-size:13px">Section ${n}</div><h2 style="${H}font-size:24px;margin:2px 0 12px">${t}</h2>`;
+  const sec = (n)=>`<div style="page-break-before:${n===1?"auto":"always"};padding-top:4px"><div style="font-family:Georgia,serif;font-style:italic;color:${O};font-size:13px">${T.section(n)}</div><h2 style="${H}font-size:24px;margin:2px 0 12px">${T.titles[n-1]}</h2>`;
   const box = (lab,body,bg)=>`<div class="avoid" style="border:1px solid ${LINE};background:${bg||"#FFFFFF"};border-radius:8px;padding:12px 14px;margin:0 0 10px"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${MUT};margin-bottom:5px">${lab}</div>${body}</div>`;
   const ul = arr => `<ul style="margin:0;padding-left:18px">${arr.map(x=>`<li style="margin:0 0 4px">${esc(x)}</li>`).join("")}</ul>`;
   const P = t => `<p style="margin:0 0 8px">${t}</p>`;
@@ -648,104 +1233,132 @@ function reportDocHTML(p, prenom, link){
     const pos = v>0 ? `<div style="height:10px;width:${v*16.6}%;background:${col}"></div>`:"";
     return `<tr><td style="width:110px;padding:3px 6px 3px 0;font-weight:${top?"bold":"normal"}">${A[id].name}</td><td style="width:22%;padding:3px 0;border-right:1px solid ${MUT}">${neg}</td><td style="padding:3px 0">${pos}</td><td style="width:30px;text-align:right;color:${MUT}">${v>0?"+":""}${v}</td></tr>`;
   }).join("");
+  const alloyHTML = lang==="en" ? `<i style="color:${O}">${s.adj}</i> ${d.name}` : `${d.name} <i style="color:${O}">${s.adj}</i>`;
+  const strongToB = t => t.replace(/<(\/?)strong>/g, "<$1b>");
+  const sep = lang==="en" ? ":" : " :";
 
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.55;color:${INK};max-width:700px">
-  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">Magic Humans · Quiz Talent Unique</div>
-  <div style="margin:22px 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${name?name+", ton Talent Unique (hypothèse)":"Ton Talent Unique (hypothèse)"} · 1 combinaison parmi 56</div>
-  <h1 style="${H}font-size:40px;line-height:1.05;margin:0 0 8px">${d.name} <i style="color:${O}">${s.adj}</i></h1>
-  ${P(`Dominante <b>${d.name}</b> (${d.tagline}) · Secondaire <b>${s.name}</b> (${s.tagline})`)}
-  ${link?P(`<span style="color:${MUT}">Ton lien personnel : <a href="${esc(link)}" style="color:${O}">revoir ce rapport en ligne</a></span>`):""}
-
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">${T.docBrand}</div>
+  <div style="margin:22px 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${T.eyebrow(name)}</div>
+  <h1 style="${H}font-size:40px;line-height:1.05;margin:0 0 8px">${alloyHTML}</h1>
+  ${P(strongToB(T.domSec(d,s)))}
+  ${link?P(`<span style="color:${MUT}">${T.linkLab} <a href="${esc(link)}" style="color:${O}">${T.linkText}</a></span>`):""}
   <div style="height:18px"></div>
-  ${sec(1,"Cadrage & posture")}
-  ${P("Ce rapport n'est pas un verdict. C'est un <b>générateur d'hypothèses</b>. Six questions donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.")}
-  ${P("Le format à choix forcé compare tes préférences <i>entre elles</i>. Un score bas ne veut pas dire que tu es mauvais·e dans un domaine, mais qu'il passe après les autres quand tu dois choisir.")}
-  ${box("L'équation", `<div style="${H}font-size:20px;font-style:italic">Résultat <b style="color:${O}">=</b> Talent <b style="color:${O}">×</b> Contexte</div>`+P("C'est une multiplication, pas une addition. Un talent exceptionnel dans un contexte toxique produit de la souffrance. Le même talent dans un contexte fertile produit de l'excellence. Si l'un des deux facteurs tend vers zéro, le résultat aussi."), SOFT)}
-  ${box("Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)", `<table style="width:100%;border-collapse:collapse;font-size:11px">${bars}</table>`)}
+
+  ${sec(1)}
+  ${P(strongToB(T.s1p1))}${P(T.s1p2)}
+  ${box(T.equationLab, `<div style="${H}font-size:20px;font-style:italic">${T.formula.replace(/<b>/g,`<b style="color:${O}">`)}</div>`+P(T.equation), SOFT)}
+  ${box(T.scores, `<table style="width:100%;border-collapse:collapse;font-size:11px">${bars}</table>`)}
   </div>
 
-  ${sec(2,"Ton architecture de talent")}
-  ${P("Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.")}
-  ${box("La coque & le gouvernail · ton Noyau Catalyseur", P(`<b>${d.name} × ${s.name}</b>`)+P(r.shipCore))}
-  ${box("Les voiles · tes Talents en Expansion", (p.expansion.length?P("<b>"+p.expansion.map(id=>`${A[id].name}</b> (${A[id].tagline})`).join(" et <b>")):"")+P(r.expansion))}
-  ${box("La boussole · ton axe de modélisation", P(`<b>${ax.name}</b> (${ax.tagline})`)+P(r.axis))}
+  ${sec(2)}
+  ${P(T.shipIntro)}
+  ${box(T.hullLab+" · "+T.hullH, P(`<b>${d.name} × ${s.name}</b>`)+P(esc(r.core)))}
+  ${box(T.sailLab+" · "+T.sailH, (p.expansion.length?P(p.expansion.map(id=>`<b>${A[id].name}</b> (${A[id].tagline})`).join(T.and)):"")+P(r.expansion))}
+  ${box(T.compassLab+" · "+T.compassH, P(`<b>${ax.name}</b> (${ax.tagline})`)+P(r.axis))}
   </div>
 
-  ${sec(3,"Le diagnostic de tes mécanismes")}
-  ${box("Hypothèse de plus grand talent", `<p style="${H}font-style:italic;font-size:15px;margin:0 0 8px">${cap(d.gift)}.</p>`+P(r.giftColor))}
-  ${box("Hypothèse de plus grande vulnérabilité", P(r.vuln)+P(r.fracture))}
-  ${box("Hypothèse de sur-adaptation · mode survie", `<div style="${H}font-size:16px;margin-bottom:4px">${d.survival.mode}</div>`+P(d.survival.desc)+P(`<span style="color:${MUT}">${r.survivalAlt}</span>`)+P("<b>À retenir :</b> quand tu te reconnais dans ce mode, ce n'est probablement pas ton talent qui est en cause, c'est le contexte qui ne lui convient pas."))}
+  ${sec(3)}
+  ${box(T.giftLab, `<p style="${H}font-style:italic;font-size:15px;margin:0 0 8px">${r.gift}</p>`+P(r.giftColor))}
+  ${box(T.vulnLab, P(r.vuln)+P(r.fracture))}
+  ${box(T.survLab, `<div style="${H}font-size:16px;margin-bottom:4px">${d.survival.mode}</div>`+P(d.survival.desc)+P(`<span style="color:${MUT}">${r.survivalAlt}</span>`)+P(strongToB(T.takeaway)))}
   </div>
 
-  ${sec(4,"Matrice des contextes & de l'énergie")}
-  ${box(`<span style="color:#3C7A55">● Contexte fertile · épanouissement</span>`, ul(r.fertile), "#E3F0E7")}
-  ${box(`<span style="color:#B0463A">● Contexte toxique · échec répété</span>`, ul(r.toxic)+P(`<b>Signal d'alerte :</b> si tu bascules souvent en mode « ${d.survival.mode.toLowerCase()} », tu es probablement sur un récif.`), "#F6E2DE")}
-  ${P("Ne confonds pas ce qui te rend performant·e et ce qui te recharge. La <b>zone de flow</b> est celle où tu excelles, mais elle consomme de l'énergie. La <b>zone de ressourcement</b> est celle d'où tu ressors avec plus d'énergie qu'au départ. Un talent exercé sans ressourcement finit par s'éteindre.")}
-  ${box("Zone de flow · dépense d'énergie", ul(r.flow))}
-  ${box("Zone de ressourcement · recharge", ul(r.ressource))}
+  ${sec(4)}
+  ${box(`<span style="color:#3C7A55">● ${T.fertileLab}</span>`, ul(r.fertile), "#E3F0E7")}
+  ${box(`<span style="color:#B0463A">● ${T.toxicLab}</span>`, ul(r.toxic)+P(strongToB(T.alert(d.survival.mode))), "#F6E2DE")}
+  ${P(strongToB(T.energy))}
+  ${box(T.flowLab, ul(r.flow))}
+  ${box(T.resLab, ul(r.ressource))}
   </div>
 
-  ${sec(5,"Ta valeur marché & ton positionnement")}
-  ${box("Le boss qui a besoin de toi", P(esc(d.targets.boss)+"."))}
-  ${box("L'associé idéal", P(esc(d.targets.associe)+"."))}
-  ${box("Le client", P(esc(r.client)))}
-  ${box("Le langage secret · les phrases qui signalent que tu es au bon endroit", ul(r.verbatims.map(v=>`« ${v} »`))+P(`<span style="color:${MUT}">Les verbes de ton terrain de jeu :</span> ${r.keywords.join(" · ")}`))}
-  ${box("Pitch de positionnement", `<div style="white-space:pre-line">${esc(pitchText(p, prenom))}</div>`, SOFT)}
+  ${sec(5)}
+  ${box(T.bossLab, P(esc(d.targets.boss)+"."))}
+  ${box(T.partnerLab, P(esc(d.targets.associe)+"."))}
+  ${box(T.clientLab, P(esc(r.client)))}
+  ${box(T.secretLab, P(T.secretIntro)+ul(r.verbatims.map(v=>lang==="en"?`"${v}"`:`« ${v} »`))+P(`<span style="color:${MUT}">${T.verbsIntro}</span> ${r.keywords.join(" · ")}`))}
+  ${box(T.pitchDocLab, `<div style="white-space:pre-line">${esc(X.pitch(p, prenom))}</div>`, SOFT)}
   </div>
 
-  ${sec(6,"Ton manuel d'utilisation")}
-  ${P("Une fiche rédigée à la première personne, à transmettre à ton manager, tes associés ou ton équipe.")}
-  ${box("Mon manuel d'utilisation", `<div style="${H}font-size:18px;margin-bottom:8px">${alloyName(p)}</div>`+manualItems(p).map(([k,v])=>`<div style="margin:0 0 8px"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${k}</div>${esc(v)}</div>`).join(""))}
+  ${sec(6)}
+  ${P(T.manualIntro)}
+  ${box(T.manualLab, `<div style="${H}font-size:18px;margin-bottom:8px">${X.alloyName(p)}</div>`+X.manualItems(p).map(([k,v])=>`<div style="margin:0 0 8px"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${k}</div>${esc(v)}</div>`).join(""))}
   </div>
 
-  ${sec(7,"Auto-évaluation d'alignement")}
-  ${P("Le talent n'est que la moitié de l'équation. Note honnêtement ta situation actuelle :")}
-  ${box("Mes trois curseurs", [
-    "Mon contexte actuel est fertile pour moi",
-    "J'exprime pleinement mon talent au quotidien",
-    "Je suis reconnu·e et rémunéré·e à ma juste valeur"
-  ].map(t=>`<p style="margin:0 0 10px">${t} : <b>____ / 10</b></p>`).join("")+P(`<span style="color:${MUT}">Le curseur le plus bas est ton premier levier.</span>`))}
+  ${sec(7)}
+  ${P(T.alignDocIntro)}
+  ${box(T.slidersDocLab, T.sliders.map(t=>`<p style="margin:0 0 10px">${t}${sep} <b>____ / 10</b></p>`).join("")+P(`<span style="color:${MUT}">${T.lowest}</span>`))}
   <div class="avoid" style="background:${INK};color:#F5F3F0;border-radius:8px;padding:18px 20px;margin-top:12px">
-    <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">Appel découverte · 1 heure · offert</div>
-    <div style="font-family:Georgia,serif;font-size:20px;margin:4px 0 8px;color:#F5F3F0">Passe de l'hypothèse au plan d'action</div>
-    <p style="margin:0 0 10px;color:#F5F3F0">Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
-    <p style="margin:0"><a href="${CONFIG.calendly}" style="color:${O};font-weight:bold">Réserver mon appel découverte : calendly.com/pierre-j-sarazin</a></p>
+    <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${T.ctaEyebrow}</div>
+    <div style="font-family:Georgia,serif;font-size:20px;margin:4px 0 8px;color:#F5F3F0">${T.ctaH}</div>
+    <p style="margin:0 0 10px;color:#F5F3F0">${T.ctaP(X.alloyName(p))}</p>
+    <p style="margin:0"><a href="${CONFIG.calendly}" style="color:${O};font-weight:bold">${T.ctaDocBtn}${sep} calendly.com/pierre-j-sarazin</a></p>
   </div>
   </div>
 </div>`;
 }
 
 /* ================================================================
-   INTERFACE DU QUIZ (navigateur uniquement)
+   INTERFACE DU QUIZ (navigateur uniquement) · FR / EN
    ================================================================ */
 const $ = sel => document.querySelector(sel);
 const SCREENS = ["intro","quiz","tie","gate","report"];
-function show(name){ SCREENS.forEach(n=>$("#screen-"+n).hidden = n!==name); window.scrollTo({top:0}); }
+let current = "intro";
+function show(name){ current = name; SCREENS.forEach(n=>$("#screen-"+n).hidden = n!==name); window.scrollTo({top:0}); }
 
+/* ---------- Langue : même mémoire que le bouton FR/EN du site ---------- */
+const LANG_KEY = "mh-lang";
+let lang = (()=>{
+  try{ const q = new URLSearchParams(location.search).get("lang"); if (q==="en"||q==="fr") return q; }catch(_){}
+  try{ const v = localStorage.getItem(LANG_KEY); if (v==="en"||v==="fr") return v; }catch(_){}
+  return "fr";
+})();
+const C = () => L(lang);
+const T = () => C().X.T;
+const get = (obj, path) => path.split(".").reduce((o,k)=>o&&o[k], obj);
+
+function applyStatic(){
+  document.documentElement.lang = lang;
+  document.title = T().pageTitle + " | Magic Humans";
+  document.querySelectorAll("[data-t]").forEach(el=>{ const v = get(T(), el.dataset.t); if (typeof v==="string") el.innerHTML = v; });
+  $("#rules").innerHTML = T().intro.rules.map(([k,h,p])=>`<div class="rule"><span class="k">${k}</span><strong>${h}</strong><p>${p}</p></div>`).join("");
+  document.querySelectorAll("[data-setlang]").forEach(b=>{ const on = b.dataset.setlang===lang; b.classList.toggle("active", on); b.setAttribute("aria-pressed", on); });
+}
+document.querySelectorAll("[data-setlang]").forEach(b=>b.addEventListener("click", ()=>{
+  lang = b.dataset.setlang;
+  try{ localStorage.setItem(LANG_KEY, lang); }catch(_){}
+  applyStatic();
+  if (current==="quiz") renderQuestion();
+  if (current==="tie") renderTie();
+  if (current==="gate" && pending) fillGate();
+  if (current==="report" && lastReport) renderReport(lastReport.p, lastReport.ctx);
+}));
+
+/* ---------- État ---------- */
 function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
-const displayOrder = QUESTIONS.map(q=>shuffle(q.items.map((_,i)=>i)));
-let answers = QUESTIONS.map(()=>({plus:null,minus:null}));
-let qi = 0, tieState = null, pending = null;   // pending = {profile, core}
+const displayOrder = QUESTION_IDS.map(q=>shuffle(q.map((_,i)=>i)));
+let answers = QUESTION_IDS.map(()=>({plus:null,minus:null}));
+let qi = 0, tieState = null, pending = null, lastReport = null, sendState = null;
 
 /* ---------- Questions ---------- */
 function renderQuestion(){
-  const q = QUESTIONS[qi], a = answers[qi];
-  $("#progress").innerHTML = QUESTIONS.map((_,i)=>`<span class="${i<=qi?'done':''}"></span>`).join("");
-  $("#qcount").textContent = `Question ${qi+1} sur ${QUESTIONS.length}`;
+  const q = C().Q[qi], a = answers[qi], t = T().quiz;
+  $("#progress").innerHTML = C().Q.map((_,i)=>`<span class="${i<=qi?'done':''}"></span>`).join("");
+  $("#qcount").textContent = t.count(qi+1, C().Q.length);
   $("#qstem").textContent = q.stem;
   $("#items").innerHTML = displayOrder[qi].map(i=>{
     const isP=a.plus===i, isM=a.minus===i;
     return `<div class="item ${isP?'is-plus':''} ${isM?'is-minus':''}">
       <div class="txt">${q.items[i][1]}</div>
-      <div class="choices" role="group" aria-label="Évaluer cette proposition">
-        <button class="choice plus" id="q${qi}-p${i}" data-i="${i}" data-k="plus" aria-pressed="${isP}" aria-label="Le plus moi">+<small>plus</small></button>
-        <button class="choice minus" id="q${qi}-m${i}" data-i="${i}" data-k="minus" aria-pressed="${isM}" aria-label="Le moins moi">−<small>moins</small></button>
+      <div class="choices" role="group" aria-label="${t.ariaGroup}">
+        <button class="choice plus" id="q${qi}-p${i}" data-i="${i}" data-k="plus" aria-pressed="${isP}" aria-label="${t.ariaPlus}">+<small>${t.plusSmall}</small></button>
+        <button class="choice minus" id="q${qi}-m${i}" data-i="${i}" data-k="minus" aria-pressed="${isM}" aria-label="${t.ariaMinus}">−<small>${t.minusSmall}</small></button>
       </div></div>`;
   }).join("");
   const ok = a.plus!=null && a.minus!=null;
   $("#next").disabled = !ok;
-  $("#next").textContent = qi===QUESTIONS.length-1 ? "Voir mes résultats →" : "Suivant →";
-  $("#hint").textContent = ok ? "" : (a.plus==null && a.minus==null ? "Choisis un « + » et un « − »." : a.plus==null ? "Il manque ton « + »." : "Il manque ton « − ».");
+  $("#next").textContent = qi===C().Q.length-1 ? t.last : t.next;
+  $("#hint").textContent = ok ? "" : (a.plus==null && a.minus==null ? t.hintBoth : a.plus==null ? t.hintPlus : t.hintMinus);
 }
 $("#items").addEventListener("click", e=>{
   const b = e.target.closest(".choice"); if(!b) return;
@@ -757,16 +1370,16 @@ $("#items").addEventListener("click", e=>{
   const again = document.getElementById(b.id); if (again) again.focus();
 });
 $("#next").addEventListener("click", ()=>{
-  if (qi < QUESTIONS.length-1){ qi++; renderQuestion(); window.scrollTo({top:0}); }
+  if (qi < C().Q.length-1){ qi++; renderQuestion(); window.scrollTo({top:0}); }
   else finish();
 });
 $("#prev").addEventListener("click", ()=>{ if (qi>0){ qi--; renderQuestion(); } else show("intro"); });
 $("#start").addEventListener("click", ()=>{ qi=0; renderQuestion(); show("quiz"); });
 $("#demo").addEventListener("click", ()=>{
-  answers = QUESTIONS.map(()=>{ const o=shuffle([0,1,2,3]); return {plus:o[0],minus:o[1]}; });
+  answers = QUESTION_IDS.map(()=>{ const o=shuffle([0,1,2,3]); return {plus:o[0],minus:o[1]}; });
   const s = computeScores(answers), r = resolveCore(s);
   const core = [...r.fixed, ...(r.candidates||[])].slice(0,2);
-  renderReport(buildProfile(s, core), {prenom:"Camille", core, demo:true});
+  renderReport(buildProfile(s, core), {prenom: lang==="en" ? "Alex" : "Camille", core, demo:true});
 });
 
 function finish(){
@@ -779,9 +1392,8 @@ function finish(){
 
 /* ---------- Départage ---------- */
 function renderTie(){
-  const t = tieState;
-  const pos = t.fixed.length ? "ta position n°2 (ton archétype secondaire)" : (t.need===2 ? "tes positions n°1 et n°2" : "ta position n°1");
-  $("#tie-help").textContent = `Pour départager ${pos}, clique ${t.need===1?"celui qui te ressemble le plus":"les deux qui te ressemblent le plus, dans l'ordre"}.`;
+  const t = tieState, A = C().A;
+  $("#tie-help").textContent = T().tie.help(t.fixed.length>0, t.need);
   $("#cands").innerHTML = t.candidates.map(id=>{
     const k = t.picks.indexOf(id);
     return `<button class="cand ${k>-1?'picked':''}" data-id="${id}" id="cand-${id}">
@@ -800,52 +1412,64 @@ $("#cands").addEventListener("click", e=>{
   renderTie();
 });
 $("#tie-reset").addEventListener("click", ()=>{ tieState.picks=[]; renderTie(); });
-$("#tie-ok").addEventListener("click", ()=>{
-  const t = tieState;
-  openGate(t.s, [...t.fixed, ...t.picks].slice(0,2));
-});
+$("#tie-ok").addEventListener("click", ()=>{ const t = tieState; openGate(t.s, [...t.fixed, ...t.picks].slice(0,2)); });
 
 /* ---------- Capture e-mail ---------- */
 function openGate(s, core){
-  const p = buildProfile(s, core);
-  pending = {p, core};
-  $("#gate-alloy").textContent = alloyName(p);
-  $("#gate-gift").textContent = `${A[p.D].gift}.`;
-  $("#gate-fertile").textContent = `${lc1(A[p.D].fertile[0])} et ${lc1(A[p.S].fertile[0])}.`;
+  pending = {p: buildProfile(s, core), core};
+  fillGate();
   $("#gate-err").textContent = "";
   show("gate");
 }
+function fillGate(){
+  const {p} = pending, A = C().A;
+  $("#gate-alloy").textContent = alloyName(p, lang);
+  $("#gate-gift").textContent = `${A[p.D].gift}.`;
+  $("#gate-fertile").textContent = `${lc1(A[p.D].fertile[0])}${T().gate.and}${lc1(A[p.S].fertile[0])}.`;
+}
 $("#gate-form").addEventListener("submit", e=>{
   e.preventDefault();
+  const g = T().gate;
   const prenom = cleanName($("#f-prenom").value);
   const email = $("#f-email").value.trim().toLowerCase();
-  if (!prenom){ $("#gate-err").textContent = "Indique ton prénom."; $("#f-prenom").focus(); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ $("#gate-err").textContent = "Cette adresse e-mail ne semble pas valide. Vérifie-la."; $("#f-email").focus(); return; }
+  if (!prenom){ $("#gate-err").textContent = g.errPrenom; $("#f-prenom").focus(); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ $("#gate-err").textContent = g.errEmail; $("#f-email").focus(); return; }
   const {p, core} = pending;
-  const state = encodeState(answers, core, prenom);
-  try { history.replaceState(null, "", "#r="+state); } catch(_){}
+  const state = encodeState(answers, core, prenom, lang);
+  try { history.replaceState(null, "", location.pathname+"#r="+state); } catch(_){}
   renderReport(p, {prenom, email, core});
-  sendReport({prenom, email, state, newsletter:$("#f-news").checked, website:$("#f-website").value});
+  sendReport({prenom, email, state, lang, newsletter:$("#f-news").checked, website:$("#f-website").value});
 });
 
-// Envoi au script Google : enregistre le prospect et envoie le PDF par e-mail.
+// sendState = {k:"off"|"sending"|"sent"|"fail", email}
+function statusHTML(ctx){
+  const r = T().r;
+  if (ctx.demo) return {cls:"status", txt:r.stDemo};
+  if (!sendState) return {cls:"status", txt:r.stIdle};
+  const m = {off:["status",r.stOff], sending:["status",r.stSending(sendState.email)], sent:["status ok",r.stSent(sendState.email)], fail:["status ko",r.stFail]}[sendState.k];
+  return {cls:m[0], txt:m[1]};
+}
+function paintStatus(){
+  const st = $("#send-status"); if (!st || !lastReport) return;
+  const h = statusHTML(lastReport.ctx); st.className = h.cls; st.textContent = h.txt;
+}
 async function sendReport(data){
-  const st = $("#send-status");
-  if (!CONFIG.endpoint){ st.textContent = "L'envoi par e-mail n'est pas encore activé : télécharge ton PDF ci-dessus."; return; }
-  st.className = "status"; st.textContent = `Envoi de ton rapport à ${data.email}…`;
+  if (!CONFIG.endpoint){ sendState = {k:"off"}; paintStatus(); return; }
+  sendState = {k:"sending", email:data.email}; paintStatus();
   try{
     const res = await fetch(CONFIG.endpoint, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(data)});
     const out = await res.json();
     if (!out.ok) throw new Error(out.error||"refus");
-    st.className = "status ok"; st.textContent = `Ton rapport PDF a été envoyé à ${data.email}. Pense à vérifier tes spams.`;
+    sendState = {k:"sent", email:data.email};
   }catch(err){
-    st.className = "status ko"; st.textContent = "L'envoi par e-mail n'a pas abouti. Télécharge ton PDF ci-dessus, il contient exactement le même rapport.";
+    sendState = {k:"fail", email:data.email};
   }
+  paintStatus();
 }
 
 /* ---------- Rapport ---------- */
 function chartHTML(p){
-  const MIN=-3, MAX=6, span=MAX-MIN, z=(0-MIN)/span*100;
+  const A = C().A, MIN=-3, MAX=6, span=MAX-MIN, z=(0-MIN)/span*100;
   const rows = p.sorted.map(id=>{
     const v=p.scores[id].score, top=(id===p.D||id===p.S), ax=id===p.axis;
     const left = v>=0 ? z : (v-MIN)/span*100, width = Math.abs(v)/span*100;
@@ -853,155 +1477,143 @@ function chartHTML(p){
       <div class="bar-track"><div class="bar ${top?'top':ax?'axis':''}" style="left:${left}%;width:${width}%"></div><div class="bar-zero" style="left:${z}%"></div></div>
       <span class="v">${v>0?'+':''}${v}</span></div>`;
   }).join("");
-  return `<div class="chart" role="img" aria-label="Scores nets par archétype">${rows}
+  return `<div class="chart" role="img" aria-label="${T().r.scores}">${rows}
     <div class="chart-scale"><span></span><div><span>−3</span><span>0</span><span>+6</span></div><span></span></div></div>`;
 }
 const li = arr => arr.map(x=>`<li>${x}</li>`).join("");
 
 function renderReport(p, ctx){
-  const d=A[p.D], s=A[p.S], ax=A[p.axis], r=reportParts(p);
+  lastReport = {p, ctx};
+  const {A, X} = C(), R = T().r, d=A[p.D], s=A[p.S], ax=A[p.axis], r=X.parts(p);
   const prenom = cleanName(ctx.prenom), name = esc(prenom);
-  const link = ctx.demo ? "" : personalLink(answers, ctx.core, prenom);
+  const link = ctx.demo ? "" : personalLink(answers, ctx.core, prenom, lang);
+  const q = v => lang==="en" ? `"${v}"` : `« ${v} »`;
+  const alloyHTML = lang==="en" ? `<em>${s.adj}</em> ${d.name}` : `${d.name} <em>${s.adj}</em>`;
 
   const html = `
   <div class="rhead">
-    ${ctx.demo?`<span class="tag">Rapport d'exemple · réponses aléatoires</span>`:""}
-    <span class="eyebrow">${name?name+", ton Talent Unique (hypothèse)":"Ton Talent Unique (hypothèse)"} · 1 combinaison parmi 56</span>
-    <div class="alloy">${d.name} <em>${s.adj}</em></div>
-    <p class="lead">Dominante <strong>${d.name}</strong> (${d.tagline}) · Secondaire <strong>${s.name}</strong> (${s.tagline})</p>
+    ${ctx.demo?`<span class="tag">${R.demoTag}</span>`:""}
+    <span class="eyebrow">${R.eyebrow(name)}</span>
+    <div class="alloy">${alloyHTML}</div>
+    <p class="lead">${R.domSec(d,s)}</p>
   </div>
 
   <div class="actions">
     <div class="row-actions">
-      <button class="btn small" id="dl-pdf">Télécharger mon rapport PDF</button>
-      ${link?`<button class="btn ghost small" id="copy-link">Copier mon lien personnel</button>`:""}
+      <button class="btn small" id="dl-pdf">${R.pdf}</button>
+      ${link?`<button class="btn ghost small" id="copy-link">${R.copyLink}</button>`:""}
       <span class="toast" id="toast-act" aria-live="polite"></span>
     </div>
-    <p class="status" id="send-status" aria-live="polite">${ctx.email?"":(ctx.demo?"Rapport d'exemple : aucun e-mail n'est envoyé.":"Tu peux télécharger ce rapport en PDF ou garder ton lien personnel pour y revenir.")}</p>
+    <p class="status" id="send-status" aria-live="polite"></p>
   </div>
 
-  <nav class="toc" aria-label="Sections du rapport" style="padding-top:16px">
-    <a href="#s1">1. Cadrage</a><a href="#s2">2. Architecture</a><a href="#s3">3. Mécanismes</a><a href="#s4">4. Contextes & énergie</a><a href="#s5">5. Valeur marché</a><a href="#s6">6. Manuel</a><a href="#s7">7. Alignement</a>
+  <nav class="toc" aria-label="${R.titles.join(", ")}" style="padding-top:16px">
+    ${R.toc.map((t,i)=>`<a href="#s${i+1}">${t}</a>`).join("")}
   </nav>
 
   <div class="stack-lg" style="padding-top:20px">
 
   <section class="rs" id="s1">
-    <span class="snum">Section 1</span><h2>Cadrage & posture</h2>
-    <div class="prose">
-      <p>Ce rapport n'est pas un verdict. C'est un <strong>générateur d'hypothèses</strong>. Six questions donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.</p>
-      <p>Le format à choix forcé compare tes préférences <em>entre elles</em>. Un score bas ne veut pas dire que tu es mauvais·e dans un domaine, mais qu'il passe après les autres quand tu dois choisir.</p>
-    </div>
-    <div class="equation">
-      <div class="formula">Résultat <b>=</b> Talent <b>×</b> Contexte</div>
-      <p>C'est une multiplication, pas une addition. Un talent exceptionnel dans un contexte toxique produit de la souffrance. Le même talent dans un contexte fertile produit de l'excellence avec une facilité qui surprend. Si l'un des deux facteurs tend vers zéro, le résultat aussi.</p>
-    </div>
-    <div class="panel">
-      <span class="lab">Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)</span>
-      ${chartHTML(p)}
-    </div>
-    <details><summary>Comment ces résultats sont calculés</summary><div>
-      <p>Chaque archétype apparaît 3 fois sur les 6 questions. Score net = (nombre de « + » × 2) − (nombre de « − »). Ton Noyau Catalyseur réunit les deux scores les plus élevés ; en cas d'égalité, c'est toi qui as tranché. L'axe de modélisation est l'archétype le moins marqué, en privilégiant le contrepoids naturel de ta dominante en cas d'égalité.</p>
-      <p>Limite à garder en tête : avec 6 questions, un seul choix peut faire basculer un rang. C'est pour cela qu'il vaut mieux confronter ces hypothèses à ton histoire réelle, seul·e ou accompagné·e.</p>
-    </div></details>
+    <span class="snum">${R.section(1)}</span><h2>${R.titles[0]}</h2>
+    <div class="prose"><p>${R.s1p1}</p><p>${R.s1p2}</p></div>
+    <div class="equation"><div class="formula">${R.formula}</div><p>${R.equation}</p></div>
+    <div class="panel"><span class="lab">${R.scores}</span>${chartHTML(p)}</div>
+    <details><summary>${R.howSummary}</summary><div><p>${R.how1}</p><p>${R.how2}</p></div></details>
   </section>
 
   <section class="rs" id="s2">
-    <span class="snum">Section 2</span><h2>Ton architecture de talent</h2>
-    <p class="prose">Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.</p>
+    <span class="snum">${R.section(2)}</span><h2>${R.titles[1]}</h2>
+    <p class="prose">${R.shipIntro}</p>
     <div class="ship">
-      <div class="panel"><span class="lab">La coque & le gouvernail</span><h3>Ton Noyau Catalyseur</h3><p><strong>${d.name} × ${s.name}</strong></p><p>${r.shipCore}</p></div>
-      <div class="panel sail"><span class="lab">Les voiles</span><h3>Tes Talents en Expansion</h3>
-        ${p.expansion.length?`<p>${p.expansion.map(id=>`<strong>${A[id].name}</strong> (${A[id].tagline})`).join(" et ")}</p>`:""}<p>${r.expansion}</p></div>
-      <div class="panel comp"><span class="lab">La boussole</span><h3>Ton axe de modélisation</h3><p><strong>${ax.name}</strong> (${ax.tagline})</p><p>${r.axis}</p></div>
+      <div class="panel"><span class="lab">${R.hullLab}</span><h3>${R.hullH}</h3><p><strong>${d.name} × ${s.name}</strong></p><p>${esc(r.core)}</p></div>
+      <div class="panel sail"><span class="lab">${R.sailLab}</span><h3>${R.sailH}</h3>
+        ${p.expansion.length?`<p>${p.expansion.map(id=>`<strong>${A[id].name}</strong> (${A[id].tagline})`).join(R.and)}</p>`:""}<p>${r.expansion}</p></div>
+      <div class="panel comp"><span class="lab">${R.compassLab}</span><h3>${R.compassH}</h3><p><strong>${ax.name}</strong> (${ax.tagline})</p><p>${r.axis}</p></div>
     </div>
   </section>
 
   <section class="rs" id="s3">
-    <span class="snum">Section 3</span><h2>Le diagnostic de tes mécanismes</h2>
+    <span class="snum">${R.section(3)}</span><h2>${R.titles[2]}</h2>
     <div class="stack">
-      <div class="panel"><span class="lab">Hypothèse de plus grand talent</span><p class="quote">${cap(d.gift)}.</p><p>${r.giftColor}</p></div>
-      <div class="panel"><span class="lab">Hypothèse de plus grande vulnérabilité</span><p>${r.vuln}</p><p>${r.fracture}</p></div>
-      <div class="panel"><span class="lab">Hypothèse de sur-adaptation · mode survie</span><h3>${d.survival.mode}</h3><p>${d.survival.desc}</p>
-        <p class="muted">${r.survivalAlt}</p>
-        <p><strong>À retenir :</strong> quand tu te reconnais dans ce mode, ce n'est probablement pas ton talent qui est en cause, c'est le contexte qui ne lui convient pas.</p></div>
+      <div class="panel"><span class="lab">${R.giftLab}</span><p class="quote">${r.gift}</p><p>${r.giftColor}</p></div>
+      <div class="panel"><span class="lab">${R.vulnLab}</span><p>${r.vuln}</p><p>${r.fracture}</p></div>
+      <div class="panel"><span class="lab">${R.survLab}</span><h3>${d.survival.mode}</h3><p>${d.survival.desc}</p>
+        <p class="muted">${r.survivalAlt}</p><p>${R.takeaway}</p></div>
     </div>
   </section>
 
   <section class="rs" id="s4">
-    <span class="snum">Section 4</span><h2>Matrice des contextes & de l'énergie</h2>
+    <span class="snum">${R.section(4)}</span><h2>${R.titles[3]}</h2>
     <div class="grid2">
-      <div class="panel ctx-good"><span class="lab"><span class="dot g"></span>Contexte fertile · épanouissement</span><ul class="clean">${li(r.fertile)}</ul></div>
-      <div class="panel ctx-bad"><span class="lab"><span class="dot r"></span>Contexte toxique · échec répété</span><ul class="clean">${li(r.toxic)}</ul>
-        <p><strong>Signal d'alerte :</strong> si tu bascules souvent en mode « ${d.survival.mode.toLowerCase()} », tu es probablement sur un récif.</p></div>
+      <div class="panel ctx-good"><span class="lab"><span class="dot g"></span>${R.fertileLab}</span><ul class="clean">${li(r.fertile)}</ul></div>
+      <div class="panel ctx-bad"><span class="lab"><span class="dot r"></span>${R.toxicLab}</span><ul class="clean">${li(r.toxic)}</ul><p>${R.alert(d.survival.mode)}</p></div>
     </div>
-    <div class="prose"><p>Ne confonds pas ce qui te rend performant·e et ce qui te recharge. La <strong>zone de flow</strong> est celle où tu excelles, mais elle consomme de l'énergie. La <strong>zone de ressourcement</strong> est celle d'où tu ressors avec plus d'énergie qu'au départ. Un talent exercé sans ressourcement finit par s'éteindre.</p></div>
+    <div class="prose"><p>${R.energy}</p></div>
     <div class="grid2">
-      <div class="panel"><span class="lab">Zone de flow · dépense d'énergie</span><ul class="clean">${li(r.flow)}</ul></div>
-      <div class="panel"><span class="lab">Zone de ressourcement · recharge</span><ul class="clean">${li(r.ressource)}</ul></div>
+      <div class="panel"><span class="lab">${R.flowLab}</span><ul class="clean">${li(r.flow)}</ul></div>
+      <div class="panel"><span class="lab">${R.resLab}</span><ul class="clean">${li(r.ressource)}</ul></div>
     </div>
   </section>
 
   <section class="rs" id="s5">
-    <span class="snum">Section 5</span><h2>Ta valeur marché & ton positionnement</h2>
+    <span class="snum">${R.section(5)}</span><h2>${R.titles[4]}</h2>
     <div class="grid3">
-      <div class="panel"><span class="lab">Le boss qui a besoin de toi</span><p>${d.targets.boss}.</p></div>
-      <div class="panel"><span class="lab">L'associé idéal</span><p>${d.targets.associe}.</p></div>
-      <div class="panel"><span class="lab">Le client</span><p>${r.client}</p></div>
+      <div class="panel"><span class="lab">${R.bossLab}</span><p>${d.targets.boss}.</p></div>
+      <div class="panel"><span class="lab">${R.partnerLab}</span><p>${d.targets.associe}.</p></div>
+      <div class="panel"><span class="lab">${R.clientLab}</span><p>${r.client}</p></div>
     </div>
     <div class="panel">
-      <span class="lab">Le langage secret · ce qu'il faut guetter chez ton interlocuteur</span>
-      <p>Quand tu entends ces phrases, tu es au bon endroit :</p>
-      <ul class="clean">${li(r.verbatims.map(v=>`« ${v} »`))}</ul>
-      <p>Les verbes de ton terrain de jeu :</p>
+      <span class="lab">${R.secretLab}</span>
+      <p>${R.secretIntro}</p>
+      <ul class="clean">${li(r.verbatims.map(q))}</ul>
+      <p>${R.verbsIntro}</p>
       <div class="chips">${r.keywords.map(k=>`<span class="chip">${k}</span>`).join("")}</div>
     </div>
     <div class="stack">
-      <span class="eyebrow">Pitch de positionnement · modifiable</span>
-      <textarea id="pitch" aria-label="Ton pitch de positionnement">${esc(pitchText(p, prenom))}</textarea>
-      <div class="row-actions"><button class="btn ghost small" data-copy="pitch">Copier le pitch</button><span class="toast" id="toast-pitch" aria-live="polite"></span></div>
+      <span class="eyebrow">${R.pitchLab}</span>
+      <textarea id="pitch" aria-label="${R.pitchDocLab}">${esc(X.pitch(p, prenom))}</textarea>
+      <div class="row-actions"><button class="btn ghost small" data-copy="pitch">${R.copyPitch}</button><span class="toast" id="toast-pitch" aria-live="polite"></span></div>
     </div>
   </section>
 
   <section class="rs" id="s6">
-    <span class="snum">Section 6</span><h2>Ton manuel d'utilisation</h2>
-    <p class="prose">Une fiche rédigée à la première personne, à transmettre à ton manager, tes associés ou ton équipe.</p>
+    <span class="snum">${R.section(6)}</span><h2>${R.titles[5]}</h2>
+    <p class="prose">${R.manualIntro}</p>
     <div class="manual">
-      <span class="eyebrow">Mon manuel d'utilisation</span>
-      <h3>${alloyName(p)}</h3>
-      <dl>${manualItems(p).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+      <span class="eyebrow">${R.manualLab}</span>
+      <h3>${X.alloyName(p)}</h3>
+      <dl>${X.manualItems(p).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
     </div>
-    <textarea id="manual-text" hidden>${esc(manualText(p))}</textarea>
-    <div class="row-actions"><button class="btn ghost small" data-copy="manual-text">Copier le manuel</button><span class="toast" id="toast-manual-text" aria-live="polite"></span></div>
+    <textarea id="manual-text" hidden>${esc(manualText(p, lang))}</textarea>
+    <div class="row-actions"><button class="btn ghost small" data-copy="manual-text">${R.copyManual}</button><span class="toast" id="toast-manual-text" aria-live="polite"></span></div>
   </section>
 
   <section class="rs" id="s7">
-    <span class="snum">Section 7</span><h2>Auto-évaluation d'alignement</h2>
-    <p class="prose">Le talent n'est que la moitié de l'équation. Évalue honnêtement ta situation actuelle.</p>
+    <span class="snum">${R.section(7)}</span><h2>${R.titles[6]}</h2>
+    <p class="prose">${R.alignIntro}</p>
     <div class="panel stack">
-      <div class="slider"><label for="sl-ctx">Mon contexte actuel est fertile pour moi <output id="o-ctx">5</output></label><input type="range" id="sl-ctx" min="0" max="10" value="5"></div>
-      <div class="slider"><label for="sl-exp">J'exprime pleinement mon talent au quotidien <output id="o-exp">5</output></label><input type="range" id="sl-exp" min="0" max="10" value="5"></div>
-      <div class="slider"><label for="sl-fin">Je suis reconnu·e et rémunéré·e à ma juste valeur <output id="o-fin">5</output></label><input type="range" id="sl-fin" min="0" max="10" value="5"></div>
+      ${["ctx","exp","fin"].map((k,i)=>`<div class="slider"><label for="sl-${k}">${R.sliders[i]} <output id="o-${k}">5</output></label><input type="range" id="sl-${k}" min="0" max="10" value="5"></div>`).join("")}
       <p class="reading" id="reading" aria-live="polite"></p>
     </div>
     <div class="cta">
-      <span class="eyebrow">Appel découverte · 1 heure · offert</span>
-      <h3>Passe de l'hypothèse au plan d'action</h3>
-      <p>Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloyName(p)} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.</p>
-      <a class="btn" href="${CONFIG.calendly}" target="_blank" rel="noopener">Réserver mon appel découverte →</a>
+      <span class="eyebrow">${R.ctaEyebrow}</span>
+      <h3>${R.ctaH}</h3>
+      <p>${R.ctaP(X.alloyName(p))}</p>
+      <a class="btn" href="${CONFIG.calendly}" target="_blank" rel="noopener">${R.ctaBtn}</a>
     </div>
-    <div class="row-actions"><button class="link" id="restart">Refaire le test</button></div>
+    <div class="row-actions"><button class="link" id="restart">${R.restart}</button></div>
   </section>
   </div>`;
 
   const root = $("#screen-report");
   root.innerHTML = html;
-  show("report");
+  paintStatus();
+  if (current!=="report") show("report");
 
   const flash = (id,msg)=>{ const t=document.getElementById(id); t.textContent=msg; setTimeout(()=>{t.textContent="";},4000); };
   async function copy(text, toastId, fallbackEl){
-    try { await navigator.clipboard.writeText(text); flash(toastId, "Copié dans le presse-papiers."); }
-    catch(e){ if (fallbackEl){ fallbackEl.hidden=false; fallbackEl.focus(); fallbackEl.select(); } flash(toastId, "Sélectionne le texte et copie-le avec Ctrl+C ou ⌘+C."); }
+    try { await navigator.clipboard.writeText(text); flash(toastId, T().r.copied); }
+    catch(e){ if (fallbackEl){ fallbackEl.hidden=false; fallbackEl.focus(); fallbackEl.select(); } flash(toastId, T().r.copyFallback); }
   }
   root.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click", ()=>{
     const id = btn.dataset.copy, ta = document.getElementById(id);
@@ -1010,56 +1622,45 @@ function renderReport(p, ctx){
   if (link) $("#copy-link").addEventListener("click", ()=>copy(link, "toast-act"));
 
   $("#dl-pdf").addEventListener("click", async ()=>{
-    const btn = $("#dl-pdf");
-    if (!window.html2pdf){ flash("toast-act","Le générateur de PDF n'a pas pu se charger. Recharge la page."); return; }
-    btn.disabled = true; btn.textContent = "Préparation du PDF…";
+    const btn = $("#dl-pdf"), R2 = T().r;
+    if (!window.html2pdf){ flash("toast-act", R2.pdfNoLib); return; }
+    btn.disabled = true; btn.textContent = R2.pdfBusy;
     try{
       await html2pdf().set({
-        margin:[14,14,16,14], filename:`Talent-Unique-${(prenom||"rapport").replace(/[^\p{L}\p{N}-]+/gu,"-")}.pdf`,
+        margin:[14,14,16,14], filename:`${R2.pdfName}-${(prenom||"rapport").replace(/[^\p{L}\p{N}-]+/gu,"-")}.pdf`,
         image:{type:"jpeg",quality:0.95}, html2canvas:{scale:2, backgroundColor:"#FFFFFF"},
         jsPDF:{unit:"mm", format:"a4", orientation:"portrait"}, pagebreak:{mode:["css","legacy"], avoid:".avoid"}
-      }).from(reportDocHTML(p, prenom, link)).save();
-    }catch(e){ flash("toast-act","Le téléchargement n'a pas pu démarrer sur cet appareil."); }
-    btn.disabled = false; btn.textContent = "Télécharger mon rapport PDF";
+      }).from(reportDocHTML(p, prenom, link, lang)).save();
+    }catch(e){ flash("toast-act", R2.pdfFail); }
+    btn.disabled = false; btn.textContent = R2.pdf;
   });
 
   const sl = {ctx:$("#sl-ctx"), exp:$("#sl-exp"), fin:$("#sl-fin")};
   const update = ()=>{
     const v = {ctx:+sl.ctx.value, exp:+sl.exp.value, fin:+sl.fin.value};
     Object.keys(v).forEach(k=>$("#o-"+k).textContent=v[k]);
-    $("#reading").innerHTML = readAlignment(v, p);
+    $("#reading").innerHTML = X.readAlignment(v, p);
   };
   Object.values(sl).forEach(x=>x.addEventListener("input", update));
   update();
 
   $("#restart").addEventListener("click", ()=>{
-    answers = QUESTIONS.map(()=>({plus:null,minus:null})); qi=0; tieState=null; pending=null;
+    answers = QUESTION_IDS.map(()=>({plus:null,minus:null})); qi=0; tieState=null; pending=null; lastReport=null; sendState=null;
     try { history.replaceState(null, "", location.pathname); } catch(_){}
     show("intro");
   });
 }
 
-function readAlignment(v, p){
-  const d=A[p.D];
-  const avg = (v.ctx+v.exp+v.fin)/3;
-  const lowest = Object.entries(v).sort((a,b)=>a[1]-b[1])[0][0];
-  if (avg >= 8) return `<strong>Alignement élevé.</strong> Ton talent semble bien exprimé dans un contexte qui lui convient. L'enjeu est maintenant de le faire rayonner plus loin : positionnement, visibilité, valeur perçue.`;
-  const msg = {
-    ctx:`<strong>Le contexte est ton premier levier.</strong> Avec ${v.ctx}/10, ton environnement ressemble peut-être davantage à un récif qu'à une mer porteuse. Compare-le à la liste « contexte toxique » de la section 4 : combien de points te parlent ?`,
-    exp:`<strong>Ton talent est sous-exprimé.</strong> Avec ${v.exp}/10, tu passes probablement une bonne partie de ton temps hors de ta zone de flow. Quelle part de ta semaine consacres-tu vraiment à ${d.inf} ?`,
-    fin:`<strong>La reconnaissance ne suit pas.</strong> Avec ${v.fin}/10, la valeur que tu crées ne se traduit pas encore en reconnaissance ou en revenus. C'est souvent une question de positionnement et de langage : relis la section 5.`
-  };
-  return (avg < 5 ? `Score moyen de ${avg.toFixed(1)}/10 : l'écart entre ton potentiel et ta situation mérite qu'on s'y arrête. ` : `Score moyen de ${avg.toFixed(1)}/10. `) + msg[lowest];
-}
-
-/* ---------- Ouverture via un lien personnel (#r=...) ---------- */
-(function restoreFromLink(){
+/* ---------- Démarrage ---------- */
+(function boot(){
   const m = location.hash.match(/^#r=(.+)$/);
-  if (!m) return;
-  const st = decodeState(m[1]);
-  if (!st) return;
-  answers = st.answers;
-  renderReport(buildProfile(computeScores(answers), st.core), {prenom:st.prenom, core:st.core});
+  const st = m ? decodeState(m[1]) : null;
+  if (st && !new URLSearchParams(location.search).get("lang")) lang = st.lang;
+  applyStatic();
+  if (st){
+    answers = st.answers;
+    renderReport(buildProfile(computeScores(answers), st.core), {prenom:st.prenom, core:st.core});
+  }
 })();
 
 </script>
