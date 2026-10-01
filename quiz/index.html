@@ -1032,7 +1032,7 @@ const TEXT_FR = {
       attached:link=>`Ton rapport complet en 7 sections est <b>en pièce jointe (PDF)</b>. Tu peux aussi <a href="${link}" style="color:#D9661C">le revoir en ligne</a> à tout moment.`,
       hypo:"Garde en tête que ce sont des hypothèses : le plus utile est de les confronter à des situations réelles de ta vie.",
       call:"Si tu veux passer de l'hypothèse au plan d'action, je te propose un <b>appel découverte d'une heure, offert</b>. Nous regardons ta situation réelle, et si un accompagnement peut t'aider, je te le présente à la fin.",
-      btn:"Réserver mon appel découverte", bye:"À très vite,",
+      btn:"Réserver mon appel découverte", siteBtn:"Découvrir Magic Humans", siteIntro:"Envie d'en savoir plus avant de réserver ? Découvre l'univers et les accompagnements Magic Humans.", bye:"À très vite,",
       text:(prenom,alloy,link,cal)=>`Bonjour ${prenom},\n\nMerci d'avoir fait le quiz Talent Unique. Ton Talent Unique (hypothèse) : ${alloy}.\n\nTon rapport complet est en pièce jointe (PDF). Tu peux aussi le revoir en ligne : ${link}\n\nSi tu veux passer de l'hypothèse au plan d'action, je te propose un appel découverte d'une heure, offert : ${cal}\n\nÀ très vite,\nPierre\nMagic Humans`,
       notify:(prenom,alloy)=>`Nouveau prospect : ${prenom} · ${alloy}`
     }
@@ -1202,7 +1202,7 @@ const TEXT_EN = {
       attached:link=>`Your full 7-section report is <b>attached as a PDF</b>. You can also <a href="${link}" style="color:#D9661C">view it online</a> at any time.`,
       hypo:"Keep in mind these are hypotheses: the most useful thing is to test them against real situations in your life.",
       call:"If you'd like to move from hypothesis to action plan, I offer a <b>free one-hour discovery call</b>. We look at your real situation, and if a programme can help you, I'll present it at the end.",
-      btn:"Book my discovery call", bye:"Speak soon,",
+      btn:"Book my discovery call", siteBtn:"Discover Magic Humans", siteIntro:"Want to know more before booking? Discover the Magic Humans world and programmes.", bye:"Speak soon,",
       text:(prenom,alloy,link,cal)=>`Hello ${prenom},\n\nThank you for taking the Unique Talent quiz. Your Unique Talent (hypothesis): ${alloy}.\n\nYour full report is attached as a PDF. You can also view it online: ${link}\n\nIf you'd like to move from hypothesis to action plan, I offer a free one-hour discovery call: ${cal}\n\nSpeak soon,\nPierre\nMagic Humans`,
       notify:(prenom,alloy)=>`New lead (EN): ${prenom} · ${alloy}`
     }
@@ -1386,6 +1386,34 @@ const personalLink = (answers, core, prenom, lang, resourceIdx) => CONFIG.quizUr
 function manualText(p, lang){
   const X = L(lang).X, sep = lang==="en" ? ": " : " : ";
   return X.manualHead(p)+"\n\n"+X.manualItems(p).map(([k,v])=>k+sep+v).join("\n");
+}
+
+/* ---------- E-mail envoyé avec le rapport (utilisé par le script Google) ---------- */
+function emailHTML(p, prenom, link, lang){
+  const A = L(lang).A, M = L(lang).X.T.mail, d = A[p.D], s = A[p.S];
+  const O = "#D9661C", INK = "#2B2522", LINE = "#E4DED7";
+  const F = "font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.65;color:" + INK + ";";
+  const P = t => '<p style="margin:0 0 16px;' + F + '">' + t + '</p>';
+  const title = lang === "en" ? '<i style="color:' + O + '">' + s.adj + '</i> ' + d.name : d.name + ' <i style="color:' + O + '">' + s.adj + '</i>';
+  const button = (href, label, primary) => '<td style="padding:0 10px 10px 0"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border-radius:999px;' + (primary ? 'background:' + O + ';' : 'border:1px solid ' + INK + ';') + '">' +
+    '<a href="' + href + '" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.3;font-weight:bold;color:' + (primary ? '#FFFFFF' : INK) + ';text-decoration:none">' + label + '</a></td></tr></table></td>';
+  return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3F0"><tr><td align="center" style="padding:24px 12px">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-radius:12px"><tr><td style="padding:32px 28px">' +
+      P(M.hello(esc(prenom))) +
+      P(M.thanks) +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px"><tr><td style="background:#FFFFFF;border:1px solid ' + LINE + ';border-radius:10px;padding:20px 22px">' +
+        '<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-size:30px;line-height:1.2;color:' + INK + '">' + title + '</p>' +
+        '<p style="margin:0;' + F + '">' + d.essence + ' ' + s.essence + '</p>' +
+      '</td></tr></table>' +
+      P(M.attached(esc(link))) +
+      P(M.hypo) +
+      P(M.call) +
+      '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 14px"><tr>' + button(CONFIG.calendly, M.btn, true) + '</tr></table>' +
+      P(M.siteIntro) +
+      '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px"><tr>' + button("https://www.magichumans.com/" + (lang === "en" ? "?lang=en" : ""), M.siteBtn, false) + '</tr></table>' +
+      '<p style="margin:0;' + F + '">' + M.bye + '<br>Pierre<br><span style="color:' + O + ';font-weight:bold">Magic Humans</span></p>' +
+    '</td></tr></table>' +
+  '</td></tr></table>';
 }
 
 /* ---------- Rapport document (PDF téléchargé et PDF joint à l'e-mail) ---------- */
