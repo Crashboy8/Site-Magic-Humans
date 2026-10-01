@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Découvre ton Talent Unique en 6 questions : ta combinaison parmi 56, tes contextes fertiles et ton positionnement.">
+<meta name="description" content="Découvre ton Talent Unique en 9 questions : ta combinaison parmi 56, tes contextes fertiles et ton positionnement.">
 <link rel="icon" href="/favicon.ico">
 <link rel="canonical" href="https://www.magichumans.com/quiz/">
 <meta property="og:title" content="Quiz Talent Unique : découvre ce qui te rend rare">
@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap">
 <style>
-/* Layout : une colonne de lecture (~720px), écrans successifs : accueil → 6 questions → départage → rapport en 7 sections */
+/* Layout : une colonne de lecture (~720px), écrans successifs : accueil → 6 questions → départage → 3 questions de ressourcement → rapport en 7 sections */
 :root{
   --bg:#F5F3F0; --surface:#FFFFFF; --ink:#2B2522; --muted:#6E645D; --line:#E4DED7;
   --accent:#D9661C; --accent-ink:#FFFFFF; --accent-soft:#FBE8D8;
@@ -98,6 +98,8 @@ em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
 .rsrc-q .qstem{font-family:var(--display);font-weight:600;font-size:1.2rem}
 .rsrc-opt{font:inherit;display:block;width:100%;text-align:left;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:13px 16px;cursor:pointer}
 .rsrc-opt.picked{border-color:var(--accent);background:var(--accent-soft)}
+.rsrc-note{font-size:.93rem;margin-top:-4px}
+.recharge h3{font-size:1.5rem}
 
 /* Rapport */
 .rhead{padding-block:34px 10px;display:flex;flex-direction:column;gap:12px}
@@ -478,24 +480,65 @@ const QUESTIONS_FR = [
     ["stratege","Celui qui s'adapte en temps réel et trouve la meilleure option."]]}
 ];
 
-/* ---------- Questions de ressourcement (indépendantes du moteur de score) ---------- */
+/* ---------- Module Zone de Ressourcement (indépendant du moteur de score) ----------
+   La Zone de Flow sollicite le Talent et consomme de l'énergie (moteur).
+   La Zone de Ressourcement restaure les jauges (batterie) : on en ressort
+   avec STRICTEMENT PLUS d'énergie qu'au début.
+   Calcul : Q7 = profil de recharge ; Q9 = nuance si elle diffère ; Q8 = piège.
+   Les options A-D de Q7 et Q9 suivent l'ordre de RECHARGE_KEYS. */
+const RECHARGE_KEYS = ["solitaire","relationnel","sensoriel","evasion"];
 const RESOURCE_QUESTIONS_FR = [
-  {stem:"Pour vraiment te ressourcer, tu as surtout besoin de…", options:[
-    "Des moments seul·e, sans aucune sollicitation",
-    "Des moments de partage avec des proches choisis",
-    "Le sport et l'effort physique",
-    "Des moments où tu n'as rien à porter ni à décider"]},
-  {stem:"Ton moment de ressourcement préféré, c'est plutôt…", options:[
-    "Voyager, découvrir des lieux et des cultures",
-    "Pratiquer un artisanat ou une discipline exigeante",
-    "Les jeux de stratégie, les sports d'opposition",
-    "Écrire pour mettre tes idées en ordre"]},
-  {stem:"Ce qui te vide la tête pour de bon…", options:[
-    "La musique, le chant, la danse, le mouvement",
-    "Lire en profondeur sur un sujet qui te passionne",
-    "Bricoler, construire, jardiner, faire de tes mains",
-    "Marcher sans but précis, rêvasser"]}
+  {stem:"Quand tu es physiquement ou mentalement vidé·e, quelle est l'action qui restaure tes batteries le plus rapidement ?",
+   note:"Celle dont tu ressors avec plus d'énergie qu'avant, pas celle qui te passionne mais te fatigue.", options:[
+    "Le calme absolu, le silence, la nature ou une activité solitaire sans stimulation extérieure.",
+    "Un moment informel, chaleureux et sans enjeu avec quelques proches ou personnes de confiance.",
+    "Une activité manuelle, physique, créative ou artistique (musique, jardinage, sport doux, bricolage), faite sans aucun objectif de résultat.",
+    "Une immersion dans un sujet passionnant, un livre, un jeu de réflexion ou de société, ou de l'apprentissage pur, juste pour le plaisir de la découverte."]},
+  {stem:"Quel est ton plus grand piège quand tu cherches à te reposer ?", options:[
+    "Tu continues de cogiter ou de vouloir résoudre des problèmes, même en pause.",
+    "Tu te laisses embarquer dans les besoins ou les demandes des autres et tu n'as pas de vrai temps pour toi.",
+    "Tu te sens coupable de ne pas être « productif·ve » ou de « perdre ton temps ».",
+    "Tu t'éparpilles dans trop de stimulations (écrans, réseaux, projets parallèles) et tu te fatigues encore plus."]},
+  {stem:"Après une semaine intense, qu'est-ce qui te donne la sensation de renaître le dimanche soir ?", options:[
+    "Avoir eu un espace d'autonomie totale où personne ne te demandait rien.",
+    "Avoir partagé des rires, de la complicité et de la nourriture avec des gens aimés.",
+    "Avoir fabriqué, bougé, joué avec ton corps ou tes mains, ou créé quelque chose juste pour le kiff.",
+    "Avoir clarifié tes idées, lu ou exploré de nouveaux horizons mentaux en toute liberté."]}
 ];
+const RECHARGE_FR = {
+  profiles:{
+    solitaire:{name:"Recharge Solitaire", touch:"une touche solitaire",
+      desc:"Tu te recharges dans le calme, le silence et l'autonomie, quand personne ne te demande rien.",
+      nuance:"Ton dimanche idéal révèle aussi un vrai besoin d'autonomie et de silence.",
+      acts:["Marcher en forêt ou au bord de l'eau, sans téléphone","Une matinée entière sans parler à personne ni lire tes messages","Regarder l'eau, le feu ou le ciel, sans rien chercher à produire"]},
+    relationnel:{name:"Recharge Relationnelle douce", touch:"une touche relationnelle",
+      desc:"Tu te recharges dans des moments chaleureux et sans enjeu, avec quelques personnes de confiance.",
+      nuance:"Ton dimanche idéal révèle aussi un besoin de complicité avec des gens que tu aimes.",
+      acts:["Une soirée intime avec des proches, sans parler de boulot","Un appel sans but avec un ami de longue date","Cuisiner à plusieurs, en musique"]},
+    sensoriel:{name:"Recharge Sensorielle & Ancrage", touch:"une touche sensorielle",
+      desc:"Tu te recharges par le corps et les mains, en faisant quelque chose de concret sans aucun objectif de résultat.",
+      nuance:"Ton dimanche idéal révèle aussi un besoin de faire avec ton corps et tes mains.",
+      acts:["Jouer d'un instrument sans partition","Cuisiner sans recette","Jardiner, bricoler, danser ou nager, juste pour le plaisir"]},
+    evasion:{name:"Recharge par Évasion intellectuelle", touch:"une touche d'évasion intellectuelle",
+      desc:"Tu te recharges en explorant librement des idées, des histoires ou des univers, juste pour le plaisir de la découverte.",
+      nuance:"Ton dimanche idéal révèle aussi un besoin d'explorer librement de nouveaux horizons.",
+      acts:["Lire un livre qui n'a rien à voir avec ton travail","Regarder un documentaire sur un sujet que tu ne connais pas","Flâner dans une librairie ou un musée, sans programme"]}
+  },
+  traps:[
+    {name:"Friction intellectuelle", desc:"tu continues de cogiter et de vouloir résoudre des problèmes, même en pause",
+     fix:"Fais un « vide-tête » de 5 minutes sur papier avant ta pause, puis choisis une activité qui occupe tes mains ou ton corps."},
+    {name:"Friction relationnelle", desc:"tu te laisses embarquer par les besoins et les demandes des autres",
+     fix:"Bloque un créneau dans ton agenda, annonce-le à l'avance et autorise-toi à dire « pas maintenant »."},
+    {name:"Injonction à la performance", desc:"tu te sens coupable de ne pas être productif·ve ou de « perdre ton temps »",
+     fix:"Considère le repos comme une partie de ton travail : tu recharges pour mieux créer. Fixe une durée à l'avance pour ne pas culpabiliser."},
+    {name:"Friction de sur-stimulation", desc:"tu t'éparpilles dans les écrans, les réseaux et les projets parallèles, et tu te fatigues encore plus",
+     fix:"Une seule activité à la fois, le téléphone dans une autre pièce, et une règle simple comme « pas d'écran après 21 h le dimanche »."}
+  ],
+  title:(m,n)=>m.name+(n?`, avec ${n.touch}`:""),
+  trapText:t=>`Quand tu cherches à te reposer, ${t.desc}. ${t.fix}`,
+  trapLab:"Le piège de décompression à éviter :", actsLab:"3 idées de recharge absolue, sur-mesure :",
+  profileLab:"Zone de ressourcement · ton profil de recharge"
+};
 
 const A_EN = {
   analyste:{
@@ -685,24 +728,71 @@ const QUESTIONS_EN = [
     ["stratege","The one who adapts in real time and finds the best option."]]}
 ];
 
-/* ---------- Recharge-activity questions (independent of the scoring engine) ---------- */
+/* ---------- Recharge Zone module (independent of the scoring engine) ---------- */
 const RESOURCE_QUESTIONS_EN = [
-  {stem:"To really recharge, what you need most is…", options:[
-    "Moments alone, with no demands on you",
-    "Time shared with close people you've chosen",
-    "Sport and physical effort",
-    "Moments where you have nothing to carry or decide"]},
-  {stem:"Your favorite way to recharge is more like…", options:[
-    "Traveling, discovering places and cultures",
-    "Practicing a craft or a demanding discipline",
-    "Strategy games, competitive sports",
-    "Writing to put your ideas in order"]},
-  {stem:"What truly clears your head…", options:[
-    "Music, singing, dancing, movement",
-    "Reading deeply about a subject you love",
-    "Tinkering, building, gardening, working with your hands",
-    "Walking with no particular goal, daydreaming"]}
+  {stem:"When you're physically or mentally drained, what restores your batteries fastest?",
+   note:"The one you come out of with more energy than before, not the one that excites you but tires you out.", options:[
+    "Total calm, silence, nature, or a solitary activity with no outside stimulation.",
+    "An informal, warm, no-stakes moment with a few close friends or people you trust.",
+    "A hands-on, physical, creative or artistic activity (music, gardening, gentle exercise, DIY), done with no goal at all.",
+    "Getting absorbed in a fascinating subject, a book, a strategy or board game, or pure learning, just for the joy of discovery."]},
+  {stem:"What's your biggest trap when you try to rest?", options:[
+    "You keep thinking things over and trying to solve problems, even on a break.",
+    "You get pulled into other people's needs and requests, and never get real time for yourself.",
+    "You feel guilty for not being \"productive\" or for \"wasting time\".",
+    "You scatter yourself across too much stimulation (screens, social media, side projects) and end up even more tired."]},
+  {stem:"After an intense week, what makes you feel reborn on Sunday evening?", options:[
+    "Having had a space of total autonomy where nobody asked anything of you.",
+    "Having shared laughter, closeness and food with people you love.",
+    "Having made, moved or played with your body or hands, or created something just for the fun of it.",
+    "Having cleared your mind, read, or explored new mental horizons in complete freedom."]}
 ];
+const RECHARGE_EN = {
+  profiles:{
+    solitaire:{name:"Solitary Recharge", touch:"a solitary touch",
+      desc:"You recharge in calm, silence and autonomy, when nobody is asking anything of you.",
+      nuance:"Your ideal Sunday also reveals a real need for autonomy and quiet.",
+      acts:["Walking in a forest or by the water, without your phone","A whole morning without talking to anyone or checking your messages","Watching water, fire or the sky, without trying to produce anything"]},
+    relationnel:{name:"Gentle Social Recharge", touch:"a social touch",
+      desc:"You recharge in warm, no-stakes moments with a few people you trust.",
+      nuance:"Your ideal Sunday also reveals a need for closeness with people you love.",
+      acts:["An intimate evening with close friends, without talking about work","An aimless phone call with a long-time friend","Cooking together, with music on"]},
+    sensoriel:{name:"Sensory & Grounding Recharge", touch:"a sensory touch",
+      desc:"You recharge through your body and hands, doing something concrete with no goal at all.",
+      nuance:"Your ideal Sunday also reveals a need to do things with your body and hands.",
+      acts:["Playing an instrument without sheet music","Cooking without a recipe","Gardening, DIY, dancing or swimming, just for the pleasure of it"]},
+    evasion:{name:"Intellectual Escape Recharge", touch:"a touch of intellectual escape",
+      desc:"You recharge by freely exploring ideas, stories or worlds, just for the joy of discovery.",
+      nuance:"Your ideal Sunday also reveals a need to freely explore new horizons.",
+      acts:["Reading a book that has nothing to do with your work","Watching a documentary on a subject you know nothing about","Wandering around a bookshop or a museum, with no plan"]}
+  },
+  traps:[
+    {name:"Mental friction", desc:"you keep thinking things over and trying to solve problems, even on a break",
+     fix:"Do a 5-minute \"brain dump\" on paper before your break, then pick an activity that keeps your hands or body busy."},
+    {name:"Relational friction", desc:"you get pulled into other people's needs and requests",
+     fix:"Block a slot in your calendar, announce it in advance and give yourself permission to say \"not now\"."},
+    {name:"Pressure to perform", desc:"you feel guilty for not being productive or for \"wasting time\"",
+     fix:"See rest as part of your work: you recharge to create better. Set a duration in advance so you don't feel guilty."},
+    {name:"Overstimulation friction", desc:"you scatter yourself across screens, social media and side projects, and end up even more tired",
+     fix:"One activity at a time, your phone in another room, and a simple rule such as \"no screens after 9 pm on Sundays\"."}
+  ],
+  title:(m,n)=>m.name+(n?`, with ${n.touch}`:""),
+  trapText:t=>`When you try to rest, ${t.desc}. ${t.fix}`,
+  trapLab:"The decompression trap to avoid:", actsLab:"3 tailored ideas for a full recharge:",
+  profileLab:"Recharge zone · your recharge profile"
+};
+// Profil de recharge : null si les réponses manquent (anciens liens)
+function rechargeOf(p, lang){
+  const r = p.resourceIdx;
+  if (!r || r.length!==3 || r.some(x=>x==null || x<0 || x>3)) return null;
+  const RC = lang==="en" ? RECHARGE_EN : RECHARGE_FR;
+  const m = RC.profiles[RECHARGE_KEYS[r[0]]], n = r[2]!==r[0] ? RC.profiles[RECHARGE_KEYS[r[2]]] : null, t = RC.traps[r[1]];
+  return {
+    lab: RC.profileLab, title: RC.title(m,n), desc: m.desc+(n?" "+n.nuance:""),
+    trapLab: RC.trapLab, trapName: t.name, trapText: RC.trapText(t),
+    actsLab: RC.actsLab, acts: n ? [m.acts[0], m.acts[1], n.acts[0]] : m.acts.slice(0,3)
+  };
+}
 
 /* ---------- 56 alliages : texte du Noyau Catalyseur (dominant_secondaire) ---------- */
 const ALLOYS_FR = {
@@ -848,7 +938,7 @@ const TEXT_FR = {
     brand:"Magic Humans · Quiz Talent Unique",
     footer:"Magic Humans · Les résultats sont des hypothèses de travail, à valider avec des exemples réels de ta vie.",
     intro:{
-      eyebrow:"Auto-évaluation · 6 questions · 5 minutes",
+      eyebrow:"Auto-évaluation · 9 questions · 6 minutes",
       h1:'Quel est ton <em class="serif">Talent Unique</em>&nbsp;?',
       lead:"Ce questionnaire ne te range pas dans une case. Il pose des hypothèses de travail sur ce qui te rend rare, sur les contextes où tu rayonnes et sur ceux qui t'éteignent.",
       formula:"Résultat <b>=</b> Talent <b>×</b> Contexte",
@@ -871,8 +961,8 @@ const TEXT_FR = {
       reset:"Recommencer le choix", ok:"Continuer →"
     },
     resources:{
-      eyebrow:"Dernière étape", h2:"Ce qui te ressource vraiment",
-      lead:"Choisis la réponse qui te correspond le plus à chaque question, indépendamment de ton profil.",
+      eyebrow:"Dernière étape · Ta zone de ressourcement", h2:"Ce qui recharge vraiment ta batterie",
+      lead:"Ta zone de flow fait tourner ton moteur : elle sollicite ton talent et consomme de l'énergie. Ta zone de ressourcement recharge ta batterie : tu en ressors avec plus d'énergie qu'au départ. Choisis une seule réponse par question, celle qui te ressemble le plus.",
       hint:"Choisis une réponse à chaque question.", back:"← Retour", next:"Continuer →"
     },
     gate:{
@@ -897,7 +987,7 @@ const TEXT_FR = {
       toc:["1. Cadrage","2. Architecture","3. Mécanismes","4. Contextes & énergie","5. Valeur marché","6. Manuel","7. Alignement"],
       section:n=>`Section ${n}`,
       titles:["Cadrage & posture","Ton architecture de talent","Le diagnostic de tes mécanismes","Matrice des contextes & de l'énergie","Ta valeur marché & ton positionnement","Ton manuel d'utilisation","Auto-évaluation d'alignement"],
-      s1p1:"Ce rapport n'est pas un verdict. C'est un <strong>générateur d'hypothèses</strong>. Six questions donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.",
+      s1p1:"Ce rapport n'est pas un verdict. C'est un <strong>générateur d'hypothèses</strong>. Les six questions de talent donnent une première photographie de tes préférences, pas une mesure définitive de qui tu es. Confronte chaque affirmation à des exemples réels de ta vie : si elle ne résonne pas, garde-la de côté.",
       s1p2:"Le format à choix forcé compare tes préférences <em>entre elles</em>. Un score bas ne veut pas dire que tu es mauvais·e dans un domaine, mais qu'il passe après les autres quand tu dois choisir.",
       formula:"Résultat <b>=</b> Talent <b>×</b> Contexte",
       equation:"C'est une multiplication, pas une addition. Un talent exceptionnel dans un contexte toxique produit de la souffrance. Le même talent dans un contexte fertile produit de l'excellence avec une facilité qui surprend. Si l'un des deux facteurs tend vers zéro, le résultat aussi.",
@@ -905,7 +995,7 @@ const TEXT_FR = {
       scores:"Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)",
       howSummary:"Comment ces résultats sont calculés",
       how1:"Chaque archétype apparaît 3 fois sur les 6 questions. Score net = (nombre de « + » × 2) − (nombre de « − »). Ton Noyau Catalyseur réunit les deux scores les plus élevés ; en cas d'égalité, c'est toi qui as tranché. L'axe de modélisation est l'archétype le moins marqué, en privilégiant le contrepoids naturel de ta dominante en cas d'égalité.",
-      how2:"Limite à garder en tête : avec 6 questions, un seul choix peut faire basculer un rang. C'est pour cela qu'il vaut mieux confronter ces hypothèses à ton histoire réelle, seul·e ou accompagné·e.",
+      how2:"Ta zone de ressourcement vient des trois dernières questions : la question 7 donne ton profil de recharge, la question 9 sa nuance quand elle diffère, et la question 8 ton piège de décompression. Limite à garder en tête : avec 6 questions de talent, un seul choix peut faire basculer un rang. C'est pour cela qu'il vaut mieux confronter ces hypothèses à ton histoire réelle, seul·e ou accompagné·e.",
       shipIntro:"Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.",
       hullLab:"La coque & le gouvernail", hullH:"Ton Noyau Catalyseur",
       sailLab:"Les voiles", sailH:"Tes Talents en Expansion", and:" et ",
@@ -965,7 +1055,8 @@ const TEXT_FR = {
       fertile:[...d.fertile, ...s.fertile.slice(0,2)],
       toxic:[...d.toxic, ...s.toxic.slice(0,2)],
       flow:[...d.flow, s.flow[0]],
-      ressource: (p.resourceIdx && p.resourceIdx.length) ? p.resourceIdx.map((oi,qi)=>RESOURCE_QUESTIONS_FR[qi].options[oi]) : [...d.ressource, s.ressource[0]],
+      ressource:[...d.ressource, s.ressource[0]],   // repli pour les liens sans module de ressourcement
+      recharge: rechargeOf(p, "fr"),
       client:`${d.targets.client}. Ton côté ${s.name} te rend aussi précieux·se pour ${lc1(s.targets.client)}.`,
       verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
       keywords:[...d.keywords, ...s.keywords.slice(0,2)]
@@ -1017,7 +1108,7 @@ const TEXT_EN = {
     brand:"Magic Humans · Unique Talent Quiz",
     footer:"Magic Humans · These results are working hypotheses, to be tested against real examples from your life.",
     intro:{
-      eyebrow:"Self-assessment · 6 questions · 5 minutes",
+      eyebrow:"Self-assessment · 9 questions · 6 minutes",
       h1:'What is your <em class="serif">Unique Talent</em>?',
       lead:"This quiz doesn't put you in a box. It offers working hypotheses about what makes you rare, the contexts where you thrive and the ones that drain you.",
       formula:"Result <b>=</b> Talent <b>×</b> Context",
@@ -1040,8 +1131,8 @@ const TEXT_EN = {
       reset:"Start the choice again", ok:"Continue →"
     },
     resources:{
-      eyebrow:"Last step", h2:"What truly recharges you",
-      lead:"Pick the answer that fits you best for each question, regardless of your profile.",
+      eyebrow:"Last step · Your recharge zone", h2:"What truly recharges your battery",
+      lead:"Your flow zone runs your engine: it draws on your talent and uses up energy. Your recharge zone refills your battery: you come out with more energy than you started with. Pick one answer per question, the one that sounds most like you.",
       hint:"Pick an answer for each question.", back:"← Back", next:"Continue →"
     },
     gate:{
@@ -1066,7 +1157,7 @@ const TEXT_EN = {
       toc:["1. Framing","2. Architecture","3. Mechanisms","4. Contexts & energy","5. Market value","6. Manual","7. Alignment"],
       section:n=>`Section ${n}`,
       titles:["Framing & stance","Your talent architecture","How you work: a diagnosis","Contexts & energy map","Your market value & positioning","Your user manual","Alignment self-assessment"],
-      s1p1:"This report isn't a verdict. It's a <strong>hypothesis generator</strong>. Six questions give a first snapshot of your preferences, not a final measure of who you are. Test every statement against real examples from your life: if it doesn't resonate, set it aside.",
+      s1p1:"This report isn't a verdict. It's a <strong>hypothesis generator</strong>. The six talent questions give a first snapshot of your preferences, not a final measure of who you are. Test every statement against real examples from your life: if it doesn't resonate, set it aside.",
       s1p2:"The forced-choice format compares your preferences <em>with each other</em>. A low score doesn't mean you're bad at something, only that it comes after the others when you have to choose.",
       formula:"Result <b>=</b> Talent <b>×</b> Context",
       equation:"It's a multiplication, not an addition. An exceptional talent in a toxic context produces suffering. The same talent in a thriving context produces excellence with surprising ease. If either factor tends towards zero, so does the result.",
@@ -1074,7 +1165,7 @@ const TEXT_EN = {
       scores:"Your net scores (+2 per \"most\", −1 per \"least\", from −3 to +6)",
       howSummary:"How these results are calculated",
       how1:"Each archetype appears 3 times across the 6 questions. Net score = (number of \"+\" × 2) − (number of \"−\"). Your Catalyst Core combines your two highest scores; in case of a tie, you made the call. The modelling axis is your least marked archetype, favouring the natural counterweight of your dominant in case of a tie.",
-      how2:"A limit to keep in mind: with 6 questions, a single choice can change a ranking. That's why it's best to test these hypotheses against your real story, on your own or with support.",
+      how2:"Your recharge zone comes from the last three questions: question 7 gives your recharge profile, question 9 its nuance when it differs, and question 8 your decompression trap. A limit to keep in mind: with 6 talent questions, a single choice can change a ranking. That's why it's best to test these hypotheses against your real story, on your own or with support.",
       shipIntro:"Picture yourself as a ship. What moves it forward depends on its structure, its sails and its course, but also on the sea it sails.",
       hullLab:"The hull & the helm", hullH:"Your Catalyst Core",
       sailLab:"The sails", sailH:"Your Expanding Talents", and:" and ",
@@ -1133,7 +1224,8 @@ const TEXT_EN = {
       fertile:[...d.fertile, ...s.fertile.slice(0,2)],
       toxic:[...d.toxic, ...s.toxic.slice(0,2)],
       flow:[...d.flow, s.flow[0]],
-      ressource: (p.resourceIdx && p.resourceIdx.length) ? p.resourceIdx.map((oi,qi)=>RESOURCE_QUESTIONS_EN[qi].options[oi]) : [...d.ressource, s.ressource[0]],
+      ressource:[...d.ressource, s.ressource[0]],   // fallback for links without the recharge module
+      recharge: rechargeOf(p, "en"),
       client:`${d.targets.client}. Your ${s.name} side also makes you valuable to ${lc1(s.targets.client)}.`,
       verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
       keywords:[...d.keywords, ...s.keywords.slice(0,2)]
@@ -1252,12 +1344,13 @@ const L = lang => LANGS[lang] || LANGS.fr;
 const alloyName = (p, lang) => L(lang).X.alloyName(p);
 
 /* ---------- Lien personnel ----------
-   Format : réponses (12 chiffres) . dominant . secondaire . langue . ressourcement (optionnel) . prénom
-   (les anciens liens sans langue ni ressourcement restent lisibles, en français) */
+   Format : réponses (12 chiffres) . dominant . secondaire . langue . ressourcement (optionnel, « r » + 3 chiffres) . prénom
+   (les anciens liens sans langue ni ressourcement restent lisibles, en français ;
+   les liens de la première version du module, 3 chiffres sans « r », sont lus sans ressourcement) */
 function encodeState(answers, core, prenom, lang, resourceIdx){
   const a = answers.map(x=>""+x.plus+x.minus).join("");
   const parts = [a, core[0], core[1], (lang==="en"?"en":"fr")];
-  if (resourceIdx && resourceIdx.length===RESOURCE_QUESTIONS_FR.length) parts.push(resourceIdx.join(""));
+  if (resourceIdx && resourceIdx.length===RESOURCE_QUESTIONS_FR.length && resourceIdx.every(x=>x!=null)) parts.push("r"+resourceIdx.join(""));
   parts.push(encodeURIComponent(cleanName(prenom)));
   return parts.join(".");
 }
@@ -1269,7 +1362,8 @@ function decodeState(str){
     let lang = "fr", rest = parts.slice(3);
     if (rest[0]==="fr" || rest[0]==="en"){ lang = rest[0]; rest = rest.slice(1); }
     let resourceIdx = null;
-    if (rest.length>1 && /^[0-3]{3}$/.test(rest[0])){ resourceIdx = rest[0].split("").map(Number); rest = rest.slice(1); }
+    if (rest.length>1 && /^r[0-3]{3}$/.test(rest[0])){ resourceIdx = rest[0].slice(1).split("").map(Number); rest = rest.slice(1); }
+    else if (rest.length>1 && /^[0-3]{3}$/.test(rest[0])){ rest = rest.slice(1); }  // ancien module : ignoré
     const name = decodeURIComponent(rest.join(".")||"");
     if (!/^[0-3]{12}$/.test(a) || !IDS.includes(D) || !IDS.includes(S) || D===S) return null;
     const answers = [];
@@ -1342,7 +1436,11 @@ function reportDocHTML(p, prenom, link, lang){
   ${box(`<span style="color:#B0463A">● ${T.toxicLab}</span>`, ul(r.toxic)+P(strongToB(T.alert(d.survival.mode))), "#F6E2DE")}
   ${P(strongToB(T.energy))}
   ${box(T.flowLab, ul(r.flow))}
-  ${box(T.resLab, ul(r.ressource))}
+  ${r.recharge
+    ? box(r.recharge.lab, `<div style="${H}font-size:18px;margin-bottom:6px">${esc(r.recharge.title)}</div>`+P(esc(r.recharge.desc))
+        +P(`<b>${r.recharge.trapLab} ${esc(r.recharge.trapName)}.</b> ${esc(r.recharge.trapText)}`)
+        +P(`<b>${r.recharge.actsLab}</b>`)+ul(r.recharge.acts), SOFT)
+    : box(T.resLab, ul(r.ressource))}
   </div>
 
   ${sec(5)}
@@ -1454,7 +1552,9 @@ $("#demo").addEventListener("click", ()=>{
   answers = QUESTION_IDS.map(()=>{ const o=shuffle([0,1,2,3]); return {plus:o[0],minus:o[1]}; });
   const s = computeScores(answers), r = resolveCore(s);
   const core = [...r.fixed, ...(r.candidates||[])].slice(0,2);
-  renderReport(buildProfile(s, core), {prenom: lang==="en" ? "Alex" : "Camille", core, demo:true});
+  const p = buildProfile(s, core);
+  p.resourceIdx = RESOURCE_QUESTIONS_FR.map(()=>Math.floor(Math.random()*4));
+  renderReport(p, {prenom: lang==="en" ? "Alex" : "Camille", core, demo:true});
 });
 
 function finish(){
@@ -1500,7 +1600,8 @@ function renderResources(){
   const rq = C().RQ, t = T().resources;
   $("#resource-questions").innerHTML = rq.map((q,qi)=>`
     <div class="rsrc-q">
-      <div class="qstem">${esc(q.stem)}</div>
+      <div class="qstem">${qi+C().Q.length+1}. ${esc(q.stem)}</div>
+      ${q.note?`<p class="muted rsrc-note">${esc(q.note)}</p>`:""}
       <div class="items">
         ${q.options.map((opt,oi)=>`<button type="button" class="rsrc-opt ${resourceAnswers[qi]===oi?'picked':''}" data-qi="${qi}" data-oi="${oi}" aria-pressed="${resourceAnswers[qi]===oi}">${esc(opt)}</button>`).join("")}
       </div>
@@ -1659,10 +1760,20 @@ function renderReport(p, ctx){
       <div class="panel ctx-bad"><span class="lab"><span class="dot r"></span>${R.toxicLab}</span><ul class="clean">${li(r.toxic)}</ul><p>${R.alert(d.survival.mode)}</p></div>
     </div>
     <div class="prose"><p>${R.energy}</p></div>
+    ${r.recharge ? `
+    <div class="panel"><span class="lab">${R.flowLab}</span><ul class="clean">${li(r.flow)}</ul></div>
+    <div class="panel equation recharge">
+      <span class="lab">${r.recharge.lab}</span>
+      <h3>${esc(r.recharge.title)}</h3>
+      <p>${esc(r.recharge.desc)}</p>
+      <p><strong>${r.recharge.trapLab} ${esc(r.recharge.trapName)}.</strong> ${esc(r.recharge.trapText)}</p>
+      <p><strong>${r.recharge.actsLab}</strong></p>
+      <ul class="clean">${li(r.recharge.acts.map(esc))}</ul>
+    </div>` : `
     <div class="grid2">
       <div class="panel"><span class="lab">${R.flowLab}</span><ul class="clean">${li(r.flow)}</ul></div>
       <div class="panel"><span class="lab">${R.resLab}</span><ul class="clean">${li(r.ressource)}</ul></div>
-    </div>
+    </div>`}
   </section>
 
   <section class="rs" id="s5">
