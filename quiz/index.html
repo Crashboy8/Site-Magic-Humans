@@ -985,9 +985,9 @@ const TEXT_FR = {
       prenom:"Prénom", email:"E-mail", website:"Site web",
       news:"J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).",
       submit:"Débloquer la suite de mon rapport →",
-      freeTag:"Aperçu gratuit · sections 1 à 3",
-      lockEyebrow:"Sections 4 à 7", lockH:"Débloque la suite de ton rapport", lockP:"Il te reste à découvrir :",
-      lockList:["Tes contextes fertiles et toxiques, et ta zone de ressourcement","Ta valeur sur le marché et les phrases qui signalent tes clients idéaux","Ton pitch de positionnement prêt à l'emploi","Ton manuel d'utilisation, à transmettre à ton manager ou à ton équipe","Ton auto-évaluation d'alignement"],
+      freeTag:"Gratuit · sections 1 à 4",
+      lockEyebrow:"Sections 5 à 7 · passer à l'action", lockH:"Tu sais maintenant qui tu es. Voici comment t'en servir.", lockP:"La dernière partie de ton rapport te donne des outils concrets :",
+      lockList:["Ta valeur sur le marché : qui a vraiment besoin de toi, et les phrases qui signalent tes clients idéaux","Ton pitch de positionnement, prêt à l'emploi","Ton manuel d'utilisation, à transmettre à ton manager ou à ton équipe","Ton auto-évaluation d'alignement","Ton rapport complet en PDF, à garder"],
       lockAfter:"Indique ton prénom et ton e-mail : la suite s'affiche aussitôt ici, et tu reçois ton rapport complet en PDF.",
       legal:"Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.",
       errPrenom:"Indique ton prénom.", errEmail:"Cette adresse e-mail ne semble pas valide. Vérifie-la."
@@ -1161,9 +1161,9 @@ const TEXT_EN = {
       prenom:"First name", email:"Email", website:"Website",
       news:"I also agree to receive tips and news from Magic Humans (unsubscribe in one click).",
       submit:"Unlock the rest of my report →",
-      freeTag:"Free preview · sections 1 to 3",
-      lockEyebrow:"Sections 4 to 7", lockH:"Unlock the rest of your report", lockP:"Still to discover:",
-      lockList:["Your thriving and toxic contexts, and your recharge zone","Your market value and the phrases that signal your ideal clients","Your ready-to-use positioning pitch","Your user manual, to share with your manager or team","Your alignment self-assessment"],
+      freeTag:"Free · sections 1 to 4",
+      lockEyebrow:"Sections 5 to 7 · putting it to work", lockH:"You now know who you are. Here's how to use it.", lockP:"The last part of your report gives you practical tools:",
+      lockList:["Your market value: who really needs you, and the phrases that signal your ideal clients","Your ready-to-use positioning pitch","Your user manual, to share with your manager or team","Your alignment self-assessment","Your full report as a PDF, to keep"],
       lockAfter:"Enter your first name and email: the rest appears right here, and you receive your full report as a PDF.",
       legal:"Your first name and email are used to send you your report and, if you agree, our tips. They are kept by Magic Humans and never sold. To have them deleted, write to pierre.j.sarazin@gmail.com.",
       errPrenom:"Please enter your first name.", errEmail:"This email address doesn't look valid. Please check it."
@@ -1703,7 +1703,7 @@ $("#gate-form").addEventListener("submit", e=>{
   try { history.replaceState(null, "", location.pathname+"#r="+state); } catch(_){}
   const newsletter = GATE_FORM.querySelector("#f-news").checked, website = GATE_FORM.querySelector("#f-website").value;
   renderReport(p, {prenom, email, core});
-  const s4 = document.getElementById("s4"); if (s4) s4.scrollIntoView();
+  const s5 = document.getElementById("s5"); if (s5) s5.scrollIntoView();
   sendReport({prenom, email, state, lang, newsletter, website});
 });
 
@@ -1774,7 +1774,7 @@ function renderReport(p, ctx){
   </div>`}
 
   <nav class="toc" aria-label="${R.titles.join(", ")}" style="padding-top:16px">
-    ${R.toc.map((t,i)=>`<a href="${ctx.locked && i>2 ? "#unlock" : "#s"+(i+1)}">${t}</a>`).join("")}
+    ${R.toc.map((t,i)=>`<a href="${ctx.locked && i>3 ? "#unlock" : "#s"+(i+1)}">${t}</a>`).join("")}
   </nav>
 
   <div class="stack-lg" style="padding-top:20px">
@@ -1808,14 +1808,6 @@ function renderReport(p, ctx){
     </div>
   </section>
 
-  ${ctx.locked ? `
-  <section class="rs unlock" id="unlock">
-    <span class="snum">${T().gate.lockEyebrow}</span><h2>${T().gate.lockH}</h2>
-    <p>${T().gate.lockP}</p>
-    <ul class="clean">${li(T().gate.lockList)}</ul>
-    <p class="muted">${T().gate.lockAfter}</p>
-    <div id="gate-slot"></div>
-  </section>` : `
   <section class="rs" id="s4">
     <span class="snum">${R.section(4)}</span><h2>${R.titles[3]}</h2>
     <div class="grid2">
@@ -1838,7 +1830,14 @@ function renderReport(p, ctx){
       <div class="panel"><span class="lab">${R.resLab}</span><ul class="clean">${li(r.ressource)}</ul></div>
     </div>`}
   </section>
-
+  ${ctx.locked ? `
+  <section class="rs unlock" id="unlock">
+    <span class="snum">${T().gate.lockEyebrow}</span><h2>${T().gate.lockH}</h2>
+    <p>${T().gate.lockP}</p>
+    <ul class="clean">${li(T().gate.lockList)}</ul>
+    <p class="muted">${T().gate.lockAfter}</p>
+    <div id="gate-slot"></div>
+  </section>` : `
   <section class="rs" id="s5">
     <span class="snum">${R.section(5)}</span><h2>${R.titles[4]}</h2>
     <div class="grid3">
