@@ -1063,7 +1063,7 @@ const TEXT_FR = {
       ctaP:alloy=>`Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloy} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.`,
       ctaBtn:"Réserver mon appel découverte →", ctaDocBtn:"Réserver mon appel découverte", siteBtn:"Découvrir Magic Humans →", siteDocLab:"Découvrir Magic Humans",
       shareH:"Partager", shareQuiz:"Fais découvrir le quiz à un proche", shareMine:"Envoie ton résultat à quelqu'un",
-      shareWa:"WhatsApp", shareMail:"E-mail", shareCopy:"Copier le message", shareMore:"Autres applications",
+      shareWa:"WhatsApp", shareMail:"Autre messagerie", shareCopy:"Copier le message", shareMore:"Autres applications",
       shareQuizSubject:"Découvre ton Talent Unique", shareMineSubject:"Mon Talent Unique",
       shareQuizText:url=>`Je viens de faire le quiz Talent Unique de Magic Humans, c'est gratuit et ça prend 6 minutes. Ça m'a fait penser à toi : ${url}`,
       shareMineText:(alloy,url)=>`J'ai fait le quiz Talent Unique de Magic Humans. Mon profil : ${alloy}. Voici mon rapport : ${url}`,
@@ -1251,7 +1251,7 @@ const TEXT_EN = {
       ctaP:alloy=>`For one hour, we look at your real situation: where your Unique Talent, ${alloy}, already shows up, what's holding it back today, and what you want to build. If a Magic Humans programme can help you get there, I'll present it at the end of the call, and you'll decide freely.`,
       ctaBtn:"Book my discovery call →", ctaDocBtn:"Book my discovery call", siteBtn:"Discover Magic Humans →", siteDocLab:"Discover Magic Humans",
       shareH:"Share", shareQuiz:"Introduce the quiz to someone", shareMine:"Send your result to someone",
-      shareWa:"WhatsApp", shareMail:"Email", shareCopy:"Copy the message", shareMore:"Other apps",
+      shareWa:"WhatsApp", shareMail:"Other email app", shareCopy:"Copy the message", shareMore:"Other apps",
       shareQuizSubject:"Discover your Unique Talent", shareMineSubject:"My Unique Talent",
       shareQuizText:url=>`I just took the Magic Humans Unique Talent quiz. It's free and takes 6 minutes, and it made me think of you: ${url}`,
       shareMineText:(alloy,url)=>`I took the Magic Humans Unique Talent quiz. My profile: ${alloy}. Here's my report: ${url}`,
@@ -1968,6 +1968,7 @@ function renderReport(p, ctx){
         <p><strong>${h}</strong></p>
         <div class="row-actions">
           <a class="btn ghost small" data-share="${k}" data-via="wa" href="#" target="_blank" rel="noopener">${R.shareWa}</a>
+          <a class="btn ghost small" data-share="${k}" data-via="gmail" href="#" target="_blank" rel="noopener">Gmail</a>
           <a class="btn ghost small" data-share="${k}" data-via="mail" href="#">${R.shareMail}</a>
           <button class="btn ghost small" type="button" data-share="${k}" data-via="copy">${R.shareCopy}</button>
           <button class="btn ghost small" type="button" data-share="${k}" data-via="native" hidden>${R.shareMore}</button>
@@ -2006,6 +2007,7 @@ function renderReport(p, ctx){
   root.querySelectorAll("[data-share]").forEach(el=>{
     const sd = shareData[el.dataset.share], via = el.dataset.via;
     if (via==="wa") el.href = "https://wa.me/?text=" + encodeURIComponent(sd.text);
+    if (via==="gmail") el.href = "https://mail.google.com/mail/?view=cm&fs=1&su=" + encodeURIComponent(sd.subject) + "&body=" + encodeURIComponent(sd.text);
     if (via==="mail") el.href = "mailto:?subject=" + encodeURIComponent(sd.subject) + "&body=" + encodeURIComponent(sd.text);
     if (via==="copy") el.addEventListener("click", ()=>copy(sd.text, "toast-share-"+el.dataset.share));
     if (via==="native" && navigator.share){
