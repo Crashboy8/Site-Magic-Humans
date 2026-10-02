@@ -223,6 +223,7 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
     <div class="qlang" role="group" aria-label="Langue / Language">
       <button type="button" data-setlang="fr">FR</button>
       <button type="button" data-setlang="en">EN</button>
+      <button type="button" data-setlang="es">ES</button>
     </div>
   </div>
 
@@ -815,7 +816,7 @@ const RECHARGE_EN = {
 function rechargeOf(p, lang){
   const r = p.resourceIdx;
   if (!r || r.length!==3 || r.some(x=>x==null || x<0 || x>3)) return null;
-  const RC = lang==="en" ? RECHARGE_EN : RECHARGE_FR;
+  const RC = lang==="en" ? RECHARGE_EN : lang==="es" ? RECHARGE_ES : RECHARGE_FR;
   const m = RC.profiles[RECHARGE_KEYS[r[0]]], n = r[2]!==r[0] ? RC.profiles[RECHARGE_KEYS[r[2]]] : null, t = RC.traps[r[1]];
   return {
     lab: RC.profileLab, title: RC.title(m,n), desc: m.desc+(n?" "+n.nuance:""),
@@ -1334,6 +1335,501 @@ If you hear people around you say \"${d.verbatims[0]}\" or \"${s.verbatims[1]}\"
 };
 
 /* ================================================================
+   VERSIÓN EN ESPAÑOL · datos, textos e informe
+   ================================================================ */
+const A_ES = {
+  analyste:{
+    name:"Analista", adj:"Metódico", pole:"el Rigor", tagline:"Rigor y Lógica",
+    essence:"Buscas la causa real y la lógica de las cosas.",
+    they:"desmenuzan los problemas", inf:"llegar al fondo de las cosas con método",
+    need:"de comprensión", how:"con una precisión que da seguridad",
+    gift:"convertir la confusión en claridad: detectas los fallos de un razonamiento, las incoherencias de una cifra, la causa real detrás del síntoma",
+    vuln:"la parálisis por análisis. Mientras no esté todo comprobado, te cuesta decidir, y tus preguntas pueden percibirse como frialdad o desconfianza",
+    survival:{mode:"Sobrepensamiento", desc:"Bajo presión, pides aún más datos, rehaces los cálculos y le das vueltas a todos los escenarios. La mente se acelera y la acción se congela."},
+    fertile:["Problemas complejos y tiempo real para resolverlos","Decisiones basadas en hechos y no en impresiones","Autonomía sobre tu forma de trabajar"],
+    toxic:["Decisiones arbitrarias o políticas que nunca se explican","Una urgencia permanente que impide cualquier comprobación","Interlocutores que desestiman tus alertas de un plumazo"],
+    flow:["Auditar, diagnosticar, modelizar un problema","Construir un razonamiento o una herramienta que se sostenga"],
+    ressource:["Leer en profundidad sobre un tema que te apasiona","Los juegos de lógica, los acertijos, el ajedrez","Momentos a solas, sin que nadie te pida nada"],
+    targets:{boss:"Un directivo intuitivo que decide rápido y necesita una salvaguarda fiable", associe:"Un socio comercial o visionario que avanza sin red", client:"Una organización desbordada de datos que no sabe qué hacer con ellos"},
+    keywords:["fiabilizar","diagnosticar","objetivar","asegurar"],
+    verbatims:["Tomamos decisiones a ojo.","No entendemos de dónde viene el problema.","Nuestras cifras no cuadran.","Ya hemos cometido errores que nos han salido caros."],
+    pitch:{who:"directivos y equipos", pain:"que deciden a ciegas", result:"tomar decisiones sólidas basadas en hechos comprobados"},
+    manual:{besoin:"tiempo para comprender e información fiable", energie:"los problemas complejos por desenredar", parler:"Dame los hechos, el contexto y la pregunta concreta. Avanzo mejor con un plazo realista que con una urgencia difusa.", eviter:"Pedirme que decida sin información, o tomar mis preguntas como desconfianza: pregunto para asegurar, no para bloquear."},
+    complement:"catalyseur"
+  },
+  catalyseur:{
+    name:"Catalizador", adj:"Empático", pole:"lo Humano", tagline:"Personas y Emoción",
+    essence:"Sientes a las personas y haces circular la energía entre ellas.",
+    they:"crean vínculos", inf:"llegar a las personas y generar confianza",
+    need:"de conexión", how:"con una calidez que abre puertas",
+    gift:"hacer circular la energía entre las personas: percibes lo que no se dice, desactivas las tensiones y sacas lo mejor de cada uno",
+    vuln:"la esponja emocional. Absorbes las tensiones de los demás, dices que sí para cuidar la relación y acabas olvidándote de ti",
+    survival:{mode:"Retraimiento", desc:"Cuando el clima se vuelve frío o conflictivo, primero te desvives para salvar el ambiente y después te cierras. Te quedas en silencio y te desconectas sin decirlo."},
+    fertile:["Un equipo amable donde se pueden decir las cosas","Un rol en contacto directo con las personas","Una misión cuyo impacto humano sea visible"],
+    toxic:["Los entornos fríos, competitivos o cínicos","El trabajo aislado detrás de una pantalla, sin relación","Los conflictos latentes que nadie se atreve a abordar"],
+    flow:["Animar un grupo, facilitar un taller o un encuentro","Acompañar a una persona en un momento difícil"],
+    ressource:["Momentos compartidos con personas cercanas que eliges","La música, el canto, el baile, el movimiento","Ratos a solas para soltar las emociones absorbidas"],
+    targets:{boss:"Un mánager brillante en lo técnico pero con dificultades en lo humano", associe:"Un socio experto o analítico que necesita un puente hacia los clientes", client:"Un equipo en tensión, en plena fusión o que ha perdido el sentido"},
+    keywords:["unir","apaciguar","implicar","humanizar"],
+    verbatims:["El ambiente del equipo se ha deteriorado.","La gente ya no se habla de verdad.","Perdemos talento sin saber por qué.","El cambio no está calando en los equipos."],
+    pitch:{who:"directivos y equipos", pain:"que han perdido el vínculo o la motivación", result:"recuperar la confianza, la energía colectiva y las ganas de avanzar juntos"},
+    manual:{besoin:"un clima de confianza y conversaciones sinceras", energie:"las relaciones humanas y los momentos en que un grupo se une", parler:"Dime las cosas directamente, con respeto. Un feedback sincero me hace crecer; un silencio frío me agota.", eviter:"Dejarme solo frente a un conflicto no expresado, o reducir mis alertas sobre el clima a sensiblería: suelo detectar los problemas antes de que estallen."},
+    complement:"analyste"
+  },
+  visionnaire:{
+    name:"Visionario", adj:"Visionario", pole:"el Futuro", tagline:"Futuro e Innovación",
+    essence:"Ves lo que aún no existe y abres posibilidades.",
+    they:"imaginan el futuro", inf:"ver más allá del horizonte",
+    need:"de novedad", how:"con una audacia que da ganas de seguirte",
+    gift:"ver lo que aún no existe: conectas ideas lejanas, intuyes las tendencias antes que los demás y abres posibilidades",
+    vuln:"la idea que nunca aterriza. Te entusiasmas, lanzas, y luego te desenganchas cuando llega la rutina de la ejecución",
+    survival:{mode:"Sobrepensamiento (huida en las ideas)", desc:"Cuando el presente pesa, te refugias en proyectos futuros. Multiplicas las ideas, cambias de rumbo y nada avanza de forma concreta."},
+    fertile:["Proyectos nuevos, terrenos vírgenes por explorar","La libertad de proponer y experimentar","Socios que sepan ejecutar"],
+    toxic:["La rutina y el «siempre se ha hecho así»","Las jerarquías que ahogan las ideas","La microgestión del día a día"],
+    flow:["Imaginar una oferta, un producto, un proyecto","Hablar en público sobre el futuro de un sector"],
+    ressource:["Viajar, descubrir lugares y culturas","Explorar contenidos inspiradores fuera de tu ámbito","Caminar sin rumbo, soñar despierto"],
+    targets:{boss:"Una organización asentada que siente que debe reinventarse", associe:"Un socio constructor o analista que sabe ejecutar pero al que le falta impulso", client:"Una empresa que se enfrenta a una ruptura de mercado"},
+    keywords:["innovar","reinventar","anticipar","explorar"],
+    verbatims:["Nuestro modelo se está agotando.","Nuevos actores nos están adelantando.","Nos faltan ideas nuevas.","No sabemos cómo será nuestro oficio dentro de cinco años."],
+    pitch:{who:"organizaciones", pain:"que sienten que su modelo se agota", result:"imaginar su próximo rumbo y abrir nuevos territorios"},
+    manual:{besoin:"espacio para proponer y experimentar", energie:"las ideas nuevas y los proyectos que nacen", parler:"Compárteme la visión y el porqué antes que el cómo. Implícame pronto, cuando todo es todavía posible.", eviter:"Encerrarme en tareas repetitivas sin perspectiva, o rechazar una idea antes de haberla explorado. Mejor ayúdame a priorizar."},
+    complement:"batisseur"
+  },
+  batisseur:{
+    name:"Constructor", adj:"Constructor", pole:"la Acción", tagline:"Acción y Concreción",
+    essence:"Conviertes una intención en una realidad entregada, de principio a fin.",
+    they:"hacen avanzar las cosas", inf:"pasar de la idea a lo concreto",
+    need:"de resultados tangibles", how:"con una fiabilidad que hace avanzar",
+    gift:"llevar un proyecto de principio a fin: conviertes una intención en una realidad entregada, paso a paso, sin soltarlo",
+    vuln:"la apisonadora. Centrado en la entrega, puedes descuidar la escucha, a las personas o el cuestionamiento del plan",
+    survival:{mode:"Agresividad", desc:"Cuando algo se bloquea, fuerzas. Te vuelves impaciente y cortante, lo haces todo tú y reprochas a los demás su lentitud."},
+    fertile:["Dirigir un proyecto de principio a fin con un objetivo claro","Autonomía y medios para actuar","Resultados visibles y medibles"],
+    toxic:["Las reuniones sin decisión y los proyectos que nunca terminan","Las validaciones interminables","Los entornos donde se habla más de lo que se hace"],
+    flow:["Planificar y después ejecutar un proyecto concreto","Desbloquear una situación estancada"],
+    ressource:["Hacer bricolaje, construir, cuidar el jardín, trabajar con las manos","El deporte y el esfuerzo físico","Tachar una lista y contemplar el trabajo hecho"],
+    targets:{boss:"Un directivo visionario rodeado de ideas pero falto de ejecución", associe:"Un socio creativo o comercial que necesita un pilar operativo", client:"Una estructura cuyos proyectos llevan meses estancados"},
+    keywords:["concretar","entregar","desbloquear","estructurar"],
+    verbatims:["Este proyecto lleva meses estancado.","Tenemos muchas ideas pero nada sale adelante.","Necesitamos a alguien que tome el tema en sus manos.","Necesitamos resultados, y rápido."],
+    pitch:{who:"directivos y responsables de proyectos", pain:"cuyas ideas se quedan atascadas en la fase del plan", result:"entregar resultados concretos, a tiempo"},
+    manual:{besoin:"un objetivo claro y libertad para organizarme y alcanzarlo", energie:"ver que las cosas avanzan y se terminan", parler:"Dame el resultado esperado, el plazo y los medios. Haz puntos breves y orientados a decidir.", eviter:"Las reuniones que dan vueltas y los cambios de rumbo sin explicación. Si me vuelvo insistente, es porque siento que el proyecto está en peligro."},
+    complement:"visionnaire"
+  },
+  transmetteur:{
+    name:"Transmisor", adj:"Pedagogo", pole:"la Claridad", tagline:"Pedagogía y Claridad",
+    essence:"Haces simple lo complejo y vuelves autónomos a los demás.",
+    they:"explican", inf:"hacer las cosas cristalinas para los demás",
+    need:"de transmitir", how:"con una claridad que hace crecer a los demás",
+    gift:"hacer simple lo complejo: encuentras la imagen, el ejemplo, la progresión que hacen que el otro entienda y se vuelva autónomo",
+    vuln:"el agotamiento del que transmite. Das tu saber sin medida y llevas mal que no te escuchen o que se menosprecie lo que transmites",
+    survival:{mode:"Sobrepensamiento (sobreexplicación)", desc:"Cuando no te sientes comprendido, explicas una y otra vez, justificas, argumentas. Luego llega la frustración y acabas sermoneando."},
+    fertile:["Un público que quiere aprender y progresar","Temas ricos que hacer accesibles","El reconocimiento de tu papel de transmisor"],
+    toxic:["Las culturas donde el saber se guarda celosamente","Los interlocutores que no quieren cambiar","Un trabajo puramente ejecutor, sin compartir"],
+    flow:["Formar, animar, divulgar","Diseñar un material pedagógico o un método"],
+    ressource:["Aprender tú mismo algo nuevo","Las conversaciones entre apasionados","Escribir para ordenar tus ideas"],
+    targets:{boss:"Una organización en transformación que debe hacer crecer las competencias de sus equipos", associe:"Un experto brillante que no sabe hacer accesible su saber", client:"Una empresa cuyos mensajes no llegan"},
+    keywords:["formar","aclarar","divulgar","dar autonomía"],
+    verbatims:["Los equipos no han entendido el cambio.","Nuestro experto es brillante, pero nadie lo entiende.","Repetimos siempre los mismos errores.","Hay que hacer crecer las competencias de todo el mundo."],
+    pitch:{who:"organizaciones y expertos", pain:"cuyo saber o cuyos mensajes no llegan", result:"volver autónomos a sus equipos y hacer cristalinas sus ideas"},
+    manual:{besoin:"sentir que lo que transmito es útil y llega", energie:"los momentos en que alguien entiende y progresa", parler:"Hazme preguntas, dime lo que no está claro. Me gusta adaptar mis explicaciones a cada persona.", eviter:"Hacerme repetir en vano o ignorar lo que he explicado. Si sobreexplico, es porque no me siento escuchado."},
+    complement:"stratege"
+  },
+  stratege:{
+    name:"Estratega", adj:"Estratega", pole:"la Agilidad", tagline:"Agilidad y Atajos",
+    essence:"Detectas la palanca que lo cambia todo y el camino más corto.",
+    they:"encuentran atajos", inf:"encontrar el camino más corto hacia el resultado",
+    need:"de eficacia", how:"con una agilidad que ahorra un tiempo precioso",
+    gift:"ver el camino más corto: detectas la palanca que lo cambia todo, te adaptas en tiempo real y consigues más con menos",
+    vuln:"la impaciencia ante las reglas. Las esquivas, te aburres rápido, y pueden verte como oportunista o disperso",
+    survival:{mode:"Agresividad (esquivar)", desc:"Ante la rigidez, fuerzas el paso: ignoras los procesos, decides solo y te vuelves tajante para salirte con la tuya."},
+    fertile:["Entornos cambiantes donde hay que adaptarse rápido","Objetivos claros con libertad sobre el camino","Negociaciones, arbitrajes, retos reales"],
+    toxic:["La burocracia y los procedimientos rígidos","Las misiones largas y repetitivas","Los responsables que rechazan cualquier riesgo"],
+    flow:["Negociar, arbitrar, aprovechar una oportunidad","Optimizar un proceso o un modelo de negocio"],
+    ressource:["Los juegos de estrategia, los deportes de competición","Cambiar de entorno, variar las actividades","Las conversaciones vivas con mentes rápidas"],
+    targets:{boss:"Un directivo en crecimiento o en crisis que debe pivotar rápido", associe:"Un socio experto o pedagogo que avanza paso a paso", client:"Una organización atascada en sus procesos"},
+    keywords:["optimizar","pivotar","arbitrar","acelerar"],
+    verbatims:["Perdemos demasiado tiempo.","Nuestros procesos son demasiado pesados.","Tenemos que pivotar, pero no sabemos cómo.","Nuestros competidores van más rápido que nosotros."],
+    pitch:{who:"directivos y equipos", pain:"frenados por la pesadez o la incertidumbre", result:"encontrar la palanca más eficaz y alcanzar sus resultados más rápido"},
+    manual:{besoin:"un objetivo claro y margen sobre el camino", energie:"los retos, lo imprevisto, las situaciones por desbloquear", parler:"Ve al grano. Dime lo que está en juego y las restricciones innegociables, y yo encontraré la ruta.", eviter:"Los procedimientos sin justificación y el «porque es así». Si esquivo algo, a menudo es porque no se ha explicado el marco."},
+    complement:"transmetteur"
+  },
+  leader:{
+    name:"Líder", adj:"Inspirador", pole:"la Dirección", tagline:"Inspiración y Dirección",
+    essence:"Marcas un rumbo y los demás quieren seguirte.",
+    they:"toman la dirección", inf:"llevar a los demás detrás de un rumbo compartido",
+    need:"de influencia", how:"con una presencia que arrastra",
+    gift:"marcar un rumbo y arrastrar a los demás: encarnas una dirección, tomas las decisiones difíciles y la gente te sigue",
+    vuln:"el peso del control. Te cuesta delegar de verdad y mostrar tus dudas, y tu seguridad puede tapar las voces más discretas",
+    survival:{mode:"Agresividad (dominación)", desc:"Cuando pierdes el control, endureces el tono: impones, cortas la palabra, decides solo. La seguridad se convierte en autoritarismo."},
+    fertile:["Un rol con verdadero margen de decisión","Una misión ambiciosa y con sentido","Un equipo al que hacer crecer"],
+    toxic:["Los roles donde cargas con todo sin poder decidir","Las jerarquías que pasan por encima de tus decisiones","Las organizaciones sin visión ni ambición"],
+    flow:["Fijar un rumbo, tomar la palabra, decidir","Hacer crecer un equipo o un colectivo"],
+    ressource:["Momentos en los que no tienes nada que cargar ni decidir","Los intercambios con otros líderes, el mentoring","Las actividades físicas en las que te superas"],
+    targets:{boss:"Una organización que busca a alguien que encarne su transformación", associe:"Un socio técnico o perfeccionista que necesita un portavoz", client:"Un equipo sin dirección clara o un proyecto sin aliento"},
+    keywords:["movilizar","encarnar","decidir","arrastrar"],
+    verbatims:["Nadie lleva realmente el proyecto.","Los equipos ya no saben hacia dónde vamos.","Hace falta alguien que retome las riendas.","Nos falta liderazgo."],
+    pitch:{who:"organizaciones y colectivos", pain:"que han perdido el rumbo o el impulso", result:"recuperar una dirección clara y un equipo movilizado"},
+    manual:{besoin:"responsabilidades reales y confianza", energie:"los retos ambiciosos y los equipos por liderar", parler:"Sé franco y directo. Desafíame cara a cara: respeto a quien se atreve a llevarme la contraria con argumentos.", eviter:"Darme una responsabilidad sin poder de decisión. Y si me vuelvo demasiado directivo, dímelo: suele ser señal de presión."},
+    complement:"esthete"
+  },
+  esthete:{
+    name:"Esteta", adj:"Artesano", pole:"la Excelencia", tagline:"Excelencia y Detalle",
+    essence:"Ves el detalle que chirría y elevas el nivel de todo lo que tocas.",
+    they:"buscan la excelencia", inf:"cuidar cada detalle hasta la excelencia",
+    need:"de perfección", how:"con una exigencia que marca la diferencia",
+    gift:"elevar el nivel: ves el detalle que chirría, sientes lo que es justo, bello y acabado, y das a todo lo que tocas una calidad poco común",
+    vuln:"el perfeccionismo. Nada está nunca lo bastante bien, retrasas la entrega, te cuesta delegar y puedes ser duro contigo mismo y con los demás",
+    survival:{mode:"Sobrepensamiento (control)", desc:"Bajo presión, lo revisas todo hasta el último detalle, criticas y rehaces el trabajo de los demás. La exigencia se vuelve rigidez y te agotas."},
+    fertile:["Proyectos donde la calidad se valora y se paga","El tiempo para hacer bien las cosas","Socios sensibles a lo bello y lo justo"],
+    toxic:["El «rápido y mal hecho» como principio","Plazos que impiden cualquier acabado","Interlocutores que no ven la diferencia"],
+    flow:["Pulir, sublimar, rematar","Diseñar una experiencia o un servicio impecable"],
+    ressource:["El arte, los lugares bellos, la naturaleza","Practicar un oficio artesanal o una disciplina exigente","La calma y un entorno armonioso"],
+    targets:{boss:"Una marca premium que vive de su nivel de excelencia", associe:"Un socio líder o estratega que va rápido y al que le falta acabado", client:"Una organización cuya imagen o experiencia de cliente se está deteriorando"},
+    keywords:["pulir","elevar","armonizar","distinguir"],
+    verbatims:["Queremos subir de gama.","Nuestros clientes esperan un nivel de excelencia.","Nuestra imagen no refleja nuestra calidad.","Hay demasiados errores y aproximaciones."],
+    pitch:{who:"marcas y organizaciones exigentes", pain:"que quieren subir de gama", result:"ofrecer una calidad y una experiencia impecables"},
+    manual:{besoin:"el tiempo y los medios para hacerlo bien", energie:"los proyectos donde cada detalle cuenta", parler:"Sé preciso en tus expectativas y reconoce el cuidado puesto en el trabajo. Dime qué nivel de acabado se espera.", eviter:"Empujarme a entregar algo de lo que no estoy orgulloso sin hablarlo. Si me vuelvo rígido, es porque siento que la calidad está amenazada."},
+    complement:"leader"
+  }
+};
+
+const QUESTIONS_ES = [
+  {stem:"Ante un proyecto nuevo, lo que te sale de forma más natural…", items:[
+    ["analyste","Desmenuzar los datos y comprobar que la lógica se sostiene."],
+    ["catalyseur","Sentir la energía del grupo y crear vínculos entre las personas."],
+    ["visionnaire","Imaginar en qué podría convertirse este proyecto dentro de cinco años."],
+    ["batisseur","Preparar el plan de acción y lanzar enseguida el primer paso."]]},
+  {stem:"En un equipo, te buscan sobre todo para…", items:[
+    ["transmetteur","Explicar de forma sencilla una idea complicada."],
+    ["stratege","Encontrar el atajo que nadie había visto."],
+    ["leader","Volver a movilizar a todos cuando baja la moral."],
+    ["esthete","Revisar, pulir y elevar el nivel de acabado."]]},
+  {stem:"Lo que más satisfacción te da al final del día…", items:[
+    ["analyste","Haber resuelto un problema gracias a un razonamiento sólido."],
+    ["transmetteur","Haber visto a alguien entender por fin, gracias a ti."],
+    ["catalyseur","Haber tenido una conversación de verdad que ha tocado a alguien."],
+    ["stratege","Haber conseguido el resultado con la mitad del esfuerzo previsto."]]},
+  {stem:"Cuando todo se tuerce, tu primer reflejo es…", items:[
+    ["visionnaire","Tomar distancia y dibujar una nueva dirección."],
+    ["leader","Tomar la palabra y dar un rumbo claro a los demás."],
+    ["batisseur","Arremangarte y arreglar lo que se pueda arreglar."],
+    ["esthete","Identificar con precisión lo que se hizo mal para que no vuelva a pasar."]]},
+  {stem:"Lo que a veces te reprochan (y que a menudo esconde tu fuerza)…", items:[
+    ["analyste","Hacer demasiadas preguntas antes de decidir."],
+    ["leader","Ocupar demasiado espacio o decidir demasiado rápido."],
+    ["catalyseur","Ser demasiado sensible al ambiente y a las emociones de los demás."],
+    ["esthete","Ser demasiado perfeccionista y difícil de contentar."]]},
+  {stem:"El papel en el que te sientes más útil…", items:[
+    ["visionnaire","El de quien abre posibilidades que nadie imaginaba."],
+    ["transmetteur","El de quien forma, guía y vuelve autónomos a los demás."],
+    ["batisseur","El de quien lleva el proyecto de principio a fin hasta la entrega."],
+    ["stratege","El de quien se adapta en tiempo real y encuentra la mejor opción."]]}
+];
+
+const RESOURCE_QUESTIONS_ES = [
+  {stem:"Cuando estás agotado física o mentalmente, ¿qué es lo que recarga tus baterías más rápido?",
+   note:"La actividad de la que sales con más energía que antes, no la que te apasiona pero te cansa.", options:[
+    "La calma total, el silencio, la naturaleza o una actividad en solitario sin estímulos externos.",
+    "Un momento informal, cálido y sin presión con algunas personas cercanas o de confianza.",
+    "Una actividad manual, física, creativa o artística (música, jardinería, deporte suave, bricolaje), sin ningún objetivo de resultado.",
+    "Sumergirte en un tema apasionante, un libro, un juego de estrategia o de mesa, o aprender por puro placer de descubrir."]},
+  {stem:"¿Cuál es tu mayor trampa cuando intentas descansar?", options:[
+    "Sigues dándole vueltas a las cosas o queriendo resolver problemas, incluso en pausa.",
+    "Te dejas arrastrar por las necesidades o las peticiones de los demás y no tienes un tiempo de verdad para ti.",
+    "Te sientes culpable por no ser «productivo» o por «perder el tiempo».",
+    "Te dispersas en demasiados estímulos (pantallas, redes, proyectos paralelos) y acabas aún más cansado."]},
+  {stem:"Después de una semana intensa, ¿qué te hace sentir que renaces el domingo por la noche?", options:[
+    "Haber tenido un espacio de autonomía total en el que nadie te pedía nada.",
+    "Haber compartido risas, complicidad y comida con personas queridas.",
+    "Haber fabricado, movido o jugado con el cuerpo o las manos, o creado algo solo por el gusto de hacerlo.",
+    "Haber aclarado tus ideas, leído o explorado nuevos horizontes mentales con total libertad."]}
+];
+const RECHARGE_ES = {
+  profiles:{
+    solitaire:{name:"Recarga en solitario", touch:"un toque de soledad",
+      desc:"Te recargas en la calma, el silencio y la autonomía, cuando nadie te pide nada.",
+      nuance:"Tu domingo ideal también revela una verdadera necesidad de autonomía y tranquilidad.",
+      acts:["Caminar por un bosque o junto al agua, sin el móvil","Una mañana entera sin hablar con nadie ni mirar tus mensajes","Contemplar el agua, el fuego o el cielo, sin intentar producir nada"]},
+    relationnel:{name:"Recarga social tranquila", touch:"un toque social",
+      desc:"Te recargas en momentos cálidos y sin presión, con algunas personas de confianza.",
+      nuance:"Tu domingo ideal también revela una necesidad de cercanía con las personas que quieres.",
+      acts:["Una velada íntima con amigos cercanos, sin hablar de trabajo","Una llamada sin motivo con un amigo de toda la vida","Cocinar juntos con música de fondo"]},
+    sensoriel:{name:"Recarga sensorial y de anclaje", touch:"un toque sensorial",
+      desc:"Te recargas con el cuerpo y las manos, haciendo algo concreto sin ningún objetivo.",
+      nuance:"Tu domingo ideal también revela una necesidad de hacer cosas con el cuerpo y las manos.",
+      acts:["Tocar un instrumento sin partitura","Cocinar sin receta","Cuidar el jardín, hacer bricolaje, bailar o nadar, solo por placer"]},
+    evasion:{name:"Recarga por evasión intelectual", touch:"un toque de evasión intelectual",
+      desc:"Te recargas explorando libremente ideas, historias o universos, por el puro placer de descubrir.",
+      nuance:"Tu domingo ideal también revela una necesidad de explorar libremente nuevos horizontes.",
+      acts:["Leer un libro que no tenga nada que ver con tu trabajo","Ver un documental sobre un tema que desconoces","Pasear por una librería o un museo, sin plan"]}
+  },
+  traps:[
+    {name:"La fricción mental", desc:"sigues dándole vueltas a las cosas y queriendo resolver problemas, incluso en pausa",
+     fix:"Vacía tu mente en papel durante 5 minutos antes de la pausa y elige una actividad que mantenga ocupados tus manos o tu cuerpo."},
+    {name:"La fricción relacional", desc:"te dejas arrastrar por las necesidades y las peticiones de los demás",
+     fix:"Reserva un hueco en tu agenda, anúncialo con antelación y date permiso para decir «ahora no»."},
+    {name:"La presión del rendimiento", desc:"te sientes culpable por no ser productivo o por «perder el tiempo»",
+     fix:"Considera el descanso como parte de tu trabajo: te recargas para crear mejor. Fija una duración de antemano para no sentirte culpable."},
+    {name:"La fricción por sobreestimulación", desc:"te dispersas entre pantallas, redes y proyectos paralelos, y acabas aún más cansado",
+     fix:"Una sola actividad a la vez, el móvil en otra habitación y una regla sencilla como «sin pantallas después de las 21 h el domingo»."}
+  ],
+  title:(m,n)=>m.name+(n?`, con ${n.touch}`:""),
+  trapText:t=>`Cuando intentas descansar, ${t.desc}. ${t.fix}`,
+  trapLab:"La trampa de desconexión que debes evitar:", actsLab:"3 ideas de recarga total, a tu medida:",
+  profileLab:"Zona de recarga · tu perfil de recarga"
+};
+
+/* ---------- 56 aleaciones: texto del Núcleo Catalizador (dominante_secundario) ---------- */
+const ALLOYS_ES = {
+  analyste_catalyseur:"Analizas a las personas tanto como las cifras. Donde otros ven un «problema de ambiente», tú detectas la causa precisa: un rol poco claro, una regla percibida como injusta, una frase mal entendida. Tu rigor da seguridad, y tu escucha hace que se acepten tus conclusiones, incluso cuando incomodan.",
+  analyste_visionnaire:"No te limitas a entender el presente: extraes de él las tendencias que dibujan el futuro. Eres quien dice «si estas cifras siguen así, aquí es donde estaremos dentro de tres años». Tus ideas audaces tienen una particularidad poco común: se apoyan en hechos.",
+  analyste_batisseur:"No lanzas nada sin haberlo entendido, pero una vez entendido, lo construyes hasta el final. Tu diagnóstico siempre desemboca en un plan, y tu plan en una entrega. Te confían los proyectos donde un error sale caro: compruebas y después ejecutas sin temblar.",
+  analyste_transmetteur:"Desmontas los temas complejos pieza a pieza y luego los vuelves a montar para que los demás los entiendan. Tu saber no es una colección de detalles, es un mapa claro que sabes compartir. Contigo, un procedimiento oscuro se convierte en un método que cualquiera puede aplicar.",
+  analyste_stratege:"Buscas la causa real y después la palanca más corta para actuar sobre ella. Tu análisis no sirve para entenderlo todo, sirve para encontrar el 20 % de esfuerzo que produce el 80 % del resultado. Una mente fría y rápida, valiosa cuando hay que decidir en la incertidumbre.",
+  analyste_leader:"Decides a partir de los hechos y asumes tus decisiones delante de los demás. Tu autoridad no viene de tu voz, sino de la solidez de tu razonamiento. Los equipos te siguen porque saben que el rumbo que marcas ha sido comprobado.",
+  analyste_esthete:"Persigues el error y la aproximación con una precisión de relojero. Donde otros validan un trabajo «más o menos correcto», tú ves la incoherencia que hará fracasar el proyecto dentro de seis meses. Tu exigencia no tiene nada de caprichosa: cada detalle que corriges tiene una razón lógica.",
+
+  catalyseur_analyste:"Primero sientes a las personas y después compruebas tu intuición. Tu empatía no es ingenua: escuchas, observas y entiendes lo que realmente está en juego en un grupo. Te confían las situaciones humanas delicadas, porque pones en ellas a la vez corazón y discernimiento.",
+  catalyseur_visionnaire:"Das a la gente ganas de creer en un futuro común. No vendes una visión abstracta: la haces viva conectándola con lo que cada uno siente y espera. A tu alrededor, un proyecto que nace encuentra a sus primeros aliados.",
+  catalyseur_batisseur:"Haces que la gente trabaje junta, y juntos entregan. Tu energía relacional no se queda en las buenas intenciones: se traduce en equipos unidos que avanzan. Contigo, un grupo que se miraba con recelo acaba construyendo algo.",
+  catalyseur_transmetteur:"Enseñas con el corazón. La gente aprende contigo porque se siente en confianza, comprendida y nunca juzgada. Sabes que se recuerda mejor lo que se ha sentido, y creas esos momentos en los que una persona sale transformada, no solo informada.",
+  catalyseur_stratege:"Lees las relaciones como un tablero de ajedrez humano. Sabes con quién hablar primero, qué aliado movilizar y qué silencio desbloquear para que las cosas avancen rápido. Tu empatía se convierte en una ventaja táctica: consigues la adhesión donde otros fuerzan y fracasan.",
+  catalyseur_leader:"Arrastras a los demás más por el vínculo que por la autoridad. La gente te sigue porque se siente vista y valorada. Encarnas un liderazgo cálido, capaz de mantener unido a un equipo cuando todo se tensa.",
+  catalyseur_esthete:"Cuidas las relaciones como otros cuidan un objeto precioso. Te fijas en el pequeño gesto que hace que una persona se sienta bienvenida, en el ambiente adecuado de un encuentro, en la palabra bien elegida. Creas experiencias humanas que se recuerdan durante mucho tiempo.",
+
+  visionnaire_analyste:"Imaginas a lo grande y luego pasas tu idea por el tamiz. Tu audacia no es una huida hacia adelante: pruebas, mides y corriges tu visión con los hechos. Eres de los que innovan sin estrellarse, porque tu intuición va acompañada de una mirada crítica.",
+  visionnaire_catalyseur:"Ves el futuro y sabes llevar a la gente hacia él. Tu visión tiene una dimensión profundamente humana: habla de lo que las personas podrían llegar a ser, no solo de lo que la organización podría ganar. Inspiras, reúnes y das sentido al cambio.",
+  visionnaire_batisseur:"Sueñas el proyecto y pones la primera piedra. Es poco común: la mayoría de los visionarios se quedan en la idea, y la mayoría de los constructores esperan a que les den el plano. Tú dibujas el rumbo y lanzas la obra, lo que te convierte en un creador natural de proyectos.",
+  visionnaire_transmetteur:"Haces comprensible el futuro. Sabes traducir una intuición de largo plazo en palabras sencillas, imágenes y ejemplos que le hablan a todo el mundo. Donde una visión suele quedarse borrosa, tú la conviertes en un relato claro que da ganas de sumarse.",
+  visionnaire_stratege:"Ves hacia dónde va el mundo y encuentras el camino más rápido para llegar antes que los demás. Detectas las oportunidades emergentes y sabes pivotar sin dudar. Un temperamento de pionero, cómodo en la incertidumbre de la que otros huyen.",
+  visionnaire_leader:"No te limitas a imaginar el futuro: lo defiendes en público e implicas a los demás. Tu visión se convierte en una dirección, y tu presencia le da credibilidad. Te ves de forma natural fundando, dirigiendo, transformando.",
+  visionnaire_esthete:"Imaginas lo que aún no existe, y lo quieres bello. Tu creatividad tiene un agudo sentido de la forma: una idea no está terminada hasta que es elegante. Eres de los que crean conceptos, marcas o experiencias que dejan huella.",
+
+  batisseur_analyste:"Construyes sólido porque compruebas antes de construir. Tus ganas de avanzar van de la mano de una verdadera exigencia de método: haces las preguntas correctas, aseguras los cimientos y después entregas. Se puede contar contigo para que un proyecto llegue a buen puerto sin sorpresas desagradables.",
+  batisseur_catalyseur:"Haces avanzar los proyectos sumando a la gente. Sabes que nada se entrega en solitario, y cuidas del equipo tanto como del calendario. Resultado: tus proyectos salen adelante, y quienes participaron tienen ganas de repetir contigo.",
+  batisseur_visionnaire:"Conviertes el futuro en una obra concreta. Necesitas un horizonte para ponerte en marcha, y una vez lanzado, nada te detiene. Eres el motor de los proyectos ambiciosos: sabes adónde ir y construyes el camino mientras avanzas.",
+  batisseur_transmetteur:"Construyes, y enseñas a los demás a construir. No te guardas tu saber hacer: documentas, muestras, vuelves autónomo al equipo. Contigo, un proyecto deja tras de sí resultados y personas más competentes.",
+  batisseur_stratege:"Entregas, y entregas rápido. Sabes encontrar el atajo que ahorra semanas sin sacrificar el resultado. Tu eficacia es temible en situaciones de crisis o de lanzamiento, cuando hace falta un resultado concreto con pocos medios.",
+  batisseur_leader:"Diriges los proyectos al frente y arrastras a los demás a la acción. Das ejemplo: te ven hacer, y eso da ganas de seguirte. Estás hecho para dirigir equipos operativos y convertir una ambición en resultados visibles.",
+  batisseur_esthete:"Construyes hasta el final y cuidas cada acabado. Para ti, un proyecto no está terminado cuando funciona, sino cuando está bien hecho. Eres el artesano que todos quieren en una obra exigente: fiable con los plazos, intransigente con la calidad.",
+
+  transmetteur_analyste:"Explicas con un rigor que hace fiable tu saber. Nunca simplificas hasta deformar: estructuras, compruebas, encuentras el ejemplo exacto. La gente confía en ti para entender un tema difícil sin equivocarse.",
+  transmetteur_catalyseur:"Haces crecer a las personas. Tu placer no está solo en explicar, sino en ver a alguien ganar confianza y volverse autónomo. Eres un mentor natural, que sabe dosificar la exigencia y la bondad.",
+  transmetteur_visionnaire:"Enseñas lo que está por venir. Te gusta compartir las ideas nuevas, las tendencias, las formas de pensar del mañana, y sabes hacerlas accesibles. La gente acude a ti para entender un mundo que cambia.",
+  transmetteur_batisseur:"Transmites algo concreto. Tus explicaciones desembocan en herramientas, métodos y pasos que la gente puede aplicar al día siguiente. Contigo, no solo te llevas ideas, sino algo que puedes usar.",
+  transmetteur_stratege:"Vas directo a lo esencial. Detectas las tres ideas que de verdad importan en un tema y las transmites en un tiempo récord. Tu pedagogía es eficaz: sin rodeos, sin jerga, solo lo necesario para pasar a la acción.",
+  transmetteur_leader:"Enseñas con una presencia que cautiva. Cuando tomas la palabra, la gente escucha y recuerda. Te sientes cómodo ante un grupo, en un escenario o frente a un equipo al que convencer, y conviertes un saber en un mensaje que moviliza.",
+  transmetteur_esthete:"Transmites con cuidado y elegancia. Tus materiales son claros y bellos, y tu progresión está pensada hasta el último detalle. La gente aprende mejor contigo porque todo, en tu forma de transmitir, respeta su inteligencia.",
+
+  stratege_analyste:"Encuentras el atajo, pero un atajo calculado. No asumes riesgos a ciegas: analizas rápido, identificas la palanca y después actúas. Una mente de negociador, capaz de ver la mejor opción antes que nadie.",
+  stratege_catalyseur:"Avanzas rápido gracias a las personas. Sabes crear la relación que abre la puerta correcta en el momento justo. Tu agilidad es social: te adaptas a cada interlocutor y encuentras el acuerdo que beneficia a todos.",
+  stratege_visionnaire:"Intuyes las oportunidades antes de que sean evidentes y sabes aprovecharlas. Te sientes cómodo en el movimiento, donde otros esperan a tener todas las cartas en la mano. Un temperamento de emprendedor y de pionero.",
+  stratege_batisseur:"Optimizas para entregar. Detectas el paso inútil, el proceso demasiado pesado, y encuentras cómo obtener el mismo resultado más rápido. Eres valioso en las organizaciones que se atascan: les devuelves movimiento y resultados.",
+  stratege_transmetteur:"Compartes tus atajos. No te guardas tus trucos: los conviertes en métodos sencillos que los demás pueden retomar. A tu lado, la gente gana tiempo y seguridad.",
+  stratege_leader:"Decides rápido y llevas a los demás contigo. Sabes leer una situación, elegir la mejor opción y defenderla con seguridad. Un perfil hecho para pilotar en tiempos de crisis, de crecimiento rápido o de transformación.",
+  stratege_esthete:"Buscas la solución más elegante. Para ti, el mejor camino no es solo el más corto: es el que consigue el resultado con precisión y sin desperdicio. Unes eficacia y gusto por el trabajo bien hecho, algo poco común.",
+
+  leader_analyste:"Diriges con hechos. Tomas las decisiones difíciles, pero nunca a la ligera: quieres entender antes de comprometer a los demás. Los equipos te respetan porque tu autoridad está fundada y tus decisiones, argumentadas.",
+  leader_catalyseur:"Diriges reuniendo. Tu autoridad es real, pero pasa por la confianza y la relación. Sabes mantener un rumbo firme cuidando de cada persona: te siguen por convicción, no por obligación.",
+  leader_visionnaire:"Llevas una dirección y la haces deseable. Sabes adónde ir y das a los demás ganas de ir contigo. Un temperamento de fundador, de directivo o de portavoz de un proyecto que cambia las cosas.",
+  leader_batisseur:"Tomas la delantera y haces avanzar. Fijas el objetivo, repartes los roles y te aseguras de que se entregue. Estás en tu elemento en la dirección operativa, donde hay que decidir y actuar sin esperar.",
+  leader_transmetteur:"Diriges haciendo crecer. No quieres equipos que obedezcan, sino personas que entiendan y se vuelvan autónomas. Eres un líder-coach, cómodo explicando el porqué de cada decisión.",
+  leader_stratege:"Mantienes el rumbo y sabes cambiarlo en el momento justo. Tienes la firmeza para decidir y la flexibilidad para pivotar cuando la situación lo exige. Un capitán en la tormenta: rápido, lúcido y contagioso.",
+  leader_esthete:"Diriges con exigencia. Fijas estándares altos y llevas a tu equipo a alcanzarlos. Bajo tu dirección, el trabajo es ambicioso y cuidado, y todos saben que el «más o menos» no bastará.",
+
+  esthete_analyste:"Tu exigencia es precisa y argumentada. No solo dices «no está lo bastante bien»: sabes explicar exactamente por qué y cómo corregirlo. Una mirada experta que eleva la calidad de un proyecto sin dejar lugar a la aproximación.",
+  esthete_catalyseur:"Sublimas la experiencia humana. Cuidas la acogida, el ambiente, los detalles que hacen que una persona se sienta única. Estás en tu elemento allí donde la calidad de la relación es el producto en sí: hostelería, lujo, acompañamiento.",
+  esthete_visionnaire:"Imaginas la belleza de lo que aún no existe. Tu sentido del detalle está al servicio de una visión creativa: inventas formas, conceptos, universos. Un temperamento de creador, de diseñador o de director artístico.",
+  esthete_batisseur:"Fabricas con excelencia. Tienes la paciencia del artesano y la energía de quien entrega. Los proyectos que pasan por tus manos salen terminados, sólidos y bellos.",
+  esthete_transmetteur:"Transmites el sentido del trabajo bien hecho. Sabes mostrar lo que marca la diferencia entre «correcto» y «notable», y ayudas a los demás a alcanzar ese nivel. Un maestro de aprendices de corazón.",
+  esthete_stratege:"Buscas la excelencia allí donde realmente importa. Sabes dónde poner tu exigencia para que marque la diferencia, sin agotarte en lo que nadie verá. Un perfeccionismo inteligente, que crea valor en lugar de frenar.",
+  esthete_leader:"Encarnas la excelencia y haces que los demás la compartan. Fijas un nivel de exigencia alto y tienes la presencia para llevar a los demás hasta él. Un temperamento de jefe de casa, de director de una marca premium o de referente en tu ámbito."
+};
+
+const TEXT_ES = {
+  lang:"es",
+  T:{
+    pageTitle:"Quiz Talento Único: descubre lo que te hace único",
+    brand:"Magic Humans · Quiz Talento Único",
+    footer:"Magic Humans · Estos resultados son hipótesis de trabajo, que conviene contrastar con ejemplos reales de tu vida.",
+    intro:{
+      eyebrow:"Gratis · 9 preguntas · 6 minutos",
+      nameLabel:"Tu nombre", animalLabel:"Para divertirse: si fueras un animal, ¿cuál serías? (opcional)", animalPh:"Por ejemplo: un delfín",
+      nameErr:"Escribe tu nombre: sirve para personalizar tu informe.",
+      invited:org=>`Te ha invitado Pierre Sarazin (Magic Humans)${org ? " · "+org : ""}. Al final del quiz, tu resultado se le enviará para que pueda comentarlo contigo.`,
+      animalLine:a=>`Si fueras un animal: <strong>${a}</strong>`,
+      h1:'¿Cuál es tu <em class="serif">Talento Único</em>?',
+      lead:"Este cuestionario no te mete en una casilla. Plantea hipótesis de trabajo sobre lo que te hace único, los contextos en los que brillas y los que te apagan.",
+      formula:"Resultado <b>=</b> Talento <b>×</b> Contexto",
+      rulesTitle:"En cada pregunta, elige dos respuestas:",
+      rules:[
+        ["+","La frase que más se parece a ti","Pulsa el botón «+» que está a su lado."],
+        ["−","La frase que menos se parece a ti","Pulsa el botón «−» que está a su lado."],
+        ["·","Las otras dos frases","No hagas nada: se quedan neutras."]
+      ],
+      rulesTip:"Responde según lo que haces de forma natural, no según lo que los demás esperan de ti. Tu primer impulso suele ser el bueno.",
+      start:"Empezar el test gratis →", demo:"Ver un ejemplo de informe"
+    },
+    quiz:{
+      legendPlus:"<b>+</b> la frase que más se parece a ti", legendMinus:"<b>−</b> la frase que menos se parece a ti",
+      count:(i,n)=>`Pregunta ${i} de ${n}`, prev:"← Atrás", next:"Siguiente →", last:"Ver mis resultados →",
+      hintBoth:"Elige un «+» y un «−».", hintPlus:"Te falta el «+».", hintMinus:"Te falta el «−».",
+      plusSmall:"más", minusSmall:"menos", ariaPlus:"La que más se parece a mí", ariaMinus:"La que menos se parece a mí", ariaGroup:"Valorar esta frase"
+    },
+    tie:{
+      eyebrow:"Un empate que resolver", h2:"Estos arquetipos han obtenido la misma puntuación",
+      help:(fixed,need)=>`Para decidir ${fixed ? "tu posición n.º 2 (tu arquetipo secundario)" : (need===2 ? "tus posiciones n.º 1 y n.º 2" : "tu posición n.º 1")}, pulsa ${need===1 ? "el que más se parece a ti" : "los dos que más se parecen a ti, en orden"}.`,
+      reset:"Volver a elegir", ok:"Continuar →"
+    },
+    resources:{
+      eyebrow:"Último paso · Tu zona de recarga", h2:"Lo que de verdad recarga tu batería",
+      lead:"Tu zona de flow hace girar tu motor: pone en juego tu talento y consume energía. Tu zona de recarga llena tu batería: sales de ella con más energía que al principio. Elige una sola respuesta por pregunta, la que más se parezca a ti.",
+      hint:"Elige una respuesta en cada pregunta.", back:"← Atrás", next:"Continuar →"
+    },
+    gate:{
+      eyebrow:"Tu informe está listo", h2:"Tu Talento Único (hipótesis):", giftLab:"Lo que te hace único:", fertileLab:"Brillas sobre todo cuando tienes:", and:" y ",
+      more:"Tu informe completo (7 secciones: arquitectura de talento, mecanismos, contextos fértiles y tóxicos, valor de mercado, pitch listo para usar y manual de uso) te espera. Escribe tu nombre y tu e-mail para recibirlo en PDF.",
+      prenom:"Nombre", email:"E-mail", website:"Sitio web",
+      news:"Acepto también recibir los consejos y novedades de Magic Humans (baja en un clic).",
+      submit:"Recibir el resto gratis →",
+      submitOptin:"Enviarme mi informe →",
+      optinSummary:"Recibir también este informe en PDF por e-mail (opcional)",
+      optinP:"Práctico para guardarlo o releerlo más tarde. Escribe tu nombre y tu e-mail: tu informe completo llegará a tu bandeja de entrada.",
+      freeTag:"Gratis · secciones 1 a 4",
+      lockEyebrow:"Secciones 5 a 7 · gratis", lockH:"Ya sabes quién eres. Así puedes convertirlo en una fuerza concreta.", lockP:"El resto de tu informe convierte este diagnóstico en herramientas que puedes usar desde mañana:",
+      lockList:["<strong>Tu valor en el mercado</strong>: el tipo de jefe, socio y cliente que necesita de verdad tu perfil","<strong>El lenguaje secreto</strong>: las frases que indican que estás en el lugar adecuado","<strong>Tu pitch listo para usar</strong>, escrito para tu perfil, para una entrevista, una reunión con un cliente o un evento de networking","<strong>Tu manual de uso</strong> en primera persona, para compartir con tu responsable o tu equipo","<strong>Tu autoevaluación de alineación</strong>: 3 indicadores para saber dónde actuar primero","<strong>Tu informe completo en PDF</strong> (7 secciones), para guardarlo y releerlo cuando lo necesites"],
+      lockAfter:"<strong>Es totalmente gratis y sin compromiso.</strong> Escribe tu nombre y tu e-mail: el resto aparecerá aquí mismo y tu informe en PDF llegará a tu bandeja de entrada.",
+      legal:"Tu nombre y tu e-mail sirven para enviarte tu informe y, si lo aceptas, nuestros consejos. Los conserva Magic Humans y nunca se venden. Para que se borren, escribe a pierre.j.sarazin@gmail.com.",
+      errPrenom:"Escribe tu nombre.", errEmail:"Esta dirección de e-mail no parece válida. Compruébala."
+    },
+    r:{
+      demoTag:"Ejemplo de informe · respuestas aleatorias",
+      eyebrow:name=>`${name ? name+", tu Talento Único (hipótesis)" : "Tu Talento Único (hipótesis)"} · 1 combinación entre 56`,
+      domSec:(d,s)=>`Dominante <strong>${d.name}</strong> (${d.tagline}) · Secundario <strong>${s.name}</strong> (${s.tagline})`,
+      pdf:"Descargar mi informe en PDF", pdfBusy:"Preparando el PDF…", pdfFail:"La descarga no ha podido iniciarse en este dispositivo.", pdfNoLib:"El generador de PDF no se ha podido cargar. Vuelve a cargar la página.", pdfName:"Talento-Unico",
+      copyLink:"Copiar mi enlace personal", copied:"Copiado en el portapapeles.", copyFallback:"Selecciona el texto y cópialo con Ctrl+C o ⌘+C.",
+      stDemo:"Ejemplo de informe: no se envía ningún e-mail.", stIdle:"Puedes descargar este informe en PDF o guardar tu enlace personal para volver a él.",
+      stOff:"El envío por e-mail todavía no está activado: descarga tu PDF arriba.",
+      stSending:e=>`Enviando tu informe a ${e}…`, stSent:e=>`Tu informe en PDF se ha enviado a ${e}. No olvides revisar la carpeta de spam.`,
+      stFail:"El e-mail no se ha podido enviar. Descarga tu PDF arriba: contiene exactamente el mismo informe.",
+      toc:["1. Marco","2. Arquitectura","3. Mecanismos","4. Contextos y energía","5. Valor de mercado","6. Manual","7. Alineación"],
+      section:n=>`Sección ${n}`,
+      titles:["Marco y postura","Tu arquitectura de talento","El diagnóstico de tus mecanismos","Mapa de contextos y energía","Tu valor de mercado y tu posicionamiento","Tu manual de uso","Autoevaluación de alineación"],
+      s1p1:"Este informe no es un veredicto. Es un <strong>generador de hipótesis</strong>. Las seis preguntas de talento dan una primera fotografía de tus preferencias, no una medida definitiva de quién eres. Contrasta cada afirmación con ejemplos reales de tu vida: si no resuena, déjala a un lado.",
+      s1p2:"El formato de elección forzada compara tus preferencias <em>entre sí</em>. Una puntuación baja no significa que seas malo en algo, sino que pasa después de lo demás cuando tienes que elegir.",
+      formula:"Resultado <b>=</b> Talento <b>×</b> Contexto",
+      equation:"Es una multiplicación, no una suma. Un talento excepcional en un contexto tóxico produce sufrimiento. El mismo talento en un contexto fértil produce excelencia con una facilidad sorprendente. Si uno de los dos factores tiende a cero, el resultado también.",
+      equationLab:"La ecuación",
+      scores:"Tus puntuaciones netas (+2 por «más», −1 por «menos», de −3 a +6)",
+      howSummary:"Cómo se calculan estos resultados",
+      how1:"Cada arquetipo aparece 3 veces en las 6 preguntas. Puntuación neta = (número de «+» × 2) − (número de «−»). Tu Núcleo Catalizador reúne tus dos puntuaciones más altas; en caso de empate, has decidido tú. El eje de modelización es tu arquetipo menos marcado, priorizando el contrapeso natural de tu dominante en caso de empate.",
+      how2:"Tu zona de recarga viene de las tres últimas preguntas: la pregunta 7 da tu perfil de recarga, la pregunta 9 su matiz cuando es diferente, y la pregunta 8 tu trampa de desconexión. Un límite a tener en cuenta: con 6 preguntas de talento, una sola elección puede cambiar un puesto. Por eso es mejor contrastar estas hipótesis con tu historia real, solo o acompañado.",
+      shipIntro:"Imagínate como un barco. Lo que lo hace avanzar depende de su estructura, de sus velas y de su rumbo, pero también del mar por el que navega.",
+      hullLab:"El casco y el timón", hullH:"Tu Núcleo Catalizador",
+      sailLab:"Las velas", sailH:"Tus Talentos en Expansión", and:" y ",
+      compassLab:"La brújula", compassH:"Tu eje de modelización",
+      giftLab:"Hipótesis: tu mayor talento", vulnLab:"Hipótesis: tu mayor vulnerabilidad", survLab:"Hipótesis: sobreadaptación · modo supervivencia",
+      takeaway:"<strong>Recuerda:</strong> cuando te reconoces en este modo, probablemente no es tu talento lo que falla, sino un contexto que no le conviene.",
+      fertileLab:"Contexto fértil · plenitud", toxicLab:"Contexto tóxico · fracaso repetido",
+      alert:mode=>`<strong>Señal de alerta:</strong> si caes a menudo en el modo «${mode.toLowerCase()}», probablemente estás encallado en un arrecife.`,
+      energy:"No confundas lo que te hace rendir con lo que te recarga. Tu <strong>zona de flow</strong> es donde destacas, pero consume energía. Tu <strong>zona de recarga</strong> es de donde sales con más energía que al principio. Un talento ejercido sin recarga acaba apagándose.",
+      flowLab:"Zona de flow · gasta energía", resLab:"Zona de recarga · recupera energía",
+      bossLab:"El jefe que te necesita", partnerLab:"El socio ideal", clientLab:"El cliente",
+      secretLab:"El lenguaje secreto · lo que debes escuchar en tu interlocutor",
+      secretIntro:"Cuando oyes estas frases, estás en el lugar adecuado:", verbsIntro:"Los verbos de tu terreno de juego:",
+      pitchLab:"Pitch de posicionamiento · editable", pitchDocLab:"Pitch de posicionamiento", copyPitch:"Copiar el pitch",
+      manualIntro:"Una ficha escrita en primera persona, para compartir con tu responsable, tus socios o tu equipo.",
+      manualLab:"Mi manual de uso", copyManual:"Copiar el manual",
+      alignIntro:"El talento es solo la mitad de la ecuación. Evalúa con sinceridad tu situación actual.",
+      alignDocIntro:"El talento es solo la mitad de la ecuación. Puntúa con sinceridad tu situación actual:",
+      sliders:["Mi contexto actual me permite brillar","Expreso plenamente mi talento en el día a día","Me reconocen y me pagan lo que valgo"],
+      slidersDocLab:"Mis tres indicadores", lowest:"Tu indicador más bajo es tu primera palanca.",
+      ctaEyebrow:"Llamada de descubrimiento · 1 hora · gratis", ctaH:"Pasa de la hipótesis al plan de acción",
+      ctaP:alloy=>`Durante una hora, miramos tu situación real: dónde se expresa ya tu Talento Único, ${alloy}, qué lo frena hoy y qué quieres construir. Si un acompañamiento de Magic Humans puede ayudarte a conseguirlo, te lo presentaré al final de la llamada, y decidirás libremente.`,
+      ctaBtn:"Reservar mi llamada de descubrimiento →", ctaDocBtn:"Reservar mi llamada de descubrimiento", siteBtn:"Descubrir Magic Humans →", siteDocLab:"Descubrir Magic Humans",
+      shareH:"Compartir", shareQuiz:"Da a conocer el quiz a alguien cercano", shareMine:"Envía tu resultado a alguien",
+      shareWa:"WhatsApp", shareMail:"Otra aplicación de correo", shareCopy:"Copiar el mensaje", shareMore:"Otras aplicaciones",
+      shareQuizSubject:"Descubre tu Talento Único", shareMineSubject:"Mi Talento Único",
+      shareQuizText:url=>`Acabo de hacer el quiz Talento Único de Magic Humans. Es gratis, dura 6 minutos y me ha hecho pensar en ti: ${url}`,
+      shareMineText:(alloy,url)=>`He hecho el quiz Talento Único de Magic Humans. Mi perfil: ${alloy}. Aquí está mi informe: ${url}`,
+      restart:"Volver a hacer el test", linkLab:"Tu enlace personal:", linkText:"ver este informe en línea",
+      docBrand:"Magic Humans · Quiz Talento Único"
+    },
+    mail:{
+      subject:(prenom,alloy)=>`${prenom}, tu informe Talento Único: ${alloy}`,
+      hello:p=>`Hola ${p}:`,
+      thanks:"Gracias por hacer el quiz Talento Único. Este es el resultado:",
+      attached:link=>`Tu informe completo de 7 secciones va <b>adjunto en PDF</b>. También puedes <a href="${link}" style="color:#D9661C">verlo en línea</a> cuando quieras.`,
+      hypo:"Ten en cuenta que son hipótesis: lo más útil es contrastarlas con situaciones reales de tu vida.",
+      call:"Si quieres pasar de la hipótesis al plan de acción, te propongo una <b>llamada de descubrimiento de una hora, gratis</b>. Miramos tu situación real y, si un acompañamiento puede ayudarte, te lo presento al final.",
+      btn:"Reservar mi llamada de descubrimiento", siteBtn:"Descubrir Magic Humans", siteIntro:"¿Quieres saber más antes de reservar? Descubre el universo y los acompañamientos de Magic Humans.", bye:"Hasta pronto,",
+      text:(prenom,alloy,link,cal)=>`Hola ${prenom}:\n\nGracias por hacer el quiz Talento Único. Tu Talento Único (hipótesis): ${alloy}.\n\nTu informe completo va adjunto en PDF. También puedes verlo en línea: ${link}\n\nSi quieres pasar de la hipótesis al plan de acción, te propongo una llamada de descubrimiento de una hora, gratis: ${cal}\n\nHasta pronto,\nPierre\nMagic Humans`,
+      notify:(prenom,alloy)=>`Nuevo contacto (ES): ${prenom} · ${alloy}`
+    }
+  },
+
+  // Orden en español: sustantivo + adjetivo («Constructor Empático»)
+  alloyName:p=>A_ES[p.D].name+" "+A_ES[p.S].adj,
+
+  parts(p){
+    const d=A_ES[p.D], s=A_ES[p.S], ax=A_ES[p.axis];
+    return {
+      core: ALLOYS_ES[p.D+"_"+p.S],
+      expansion: p.expansion.length
+        ? "Estos arquetipos vienen justo después de tu núcleo. Pueden corresponder a competencias desarrolladas con la experiencia más que a tu naturaleza profunda. Pregúntate: ¿lo hago con placer, o porque he aprendido a hacerlo?"
+        : "Ningún otro arquetipo destaca claramente. Tus velas probablemente están en otra parte: en las competencias y prácticas que has adquirido a lo largo de tu recorrido. Haz una lista de tres cosas que haces bien y que aprendiste sobre el terreno.",
+      axis:`Es tu arquetipo menos marcado${p.axis===d.complement?`, y también el contrapeso natural de tu dominante ${d.name}`:""}. No es un defecto que corregir, es una postura que tomar prestada: observa a personas que saben ${ax.inf} y modeliza su forma de hacer, sin intentar convertirte en ellas.`,
+      gift: cap(d.gift)+".",
+      giftColor:`Tu secundario ${s.name} le da su color: lo haces ${s.how}. Es la combinación de ${d.pole.toLowerCase()} y ${s.pole.toLowerCase()} lo que te hace difícil de reemplazar.`,
+      vuln:`El reverso de tu fuerza es ${d.vuln}.`,
+      fracture:`Tu Talento Único también tiene su línea de fractura: tu necesidad ${d.need} puede chocar con tu necesidad ${s.need}. Cuando las dos tiran en direcciones opuestas, puedes sentirte dividido sin entender por qué.`,
+      survivalAlt:`Una variante ligada a tu secundario, el modo «${s.survival.mode.toLowerCase()}»: ${lc1(s.survival.desc)}`,
+      fertile:[...d.fertile, ...s.fertile.slice(0,2)],
+      toxic:[...d.toxic, ...s.toxic.slice(0,2)],
+      flow:[...d.flow, s.flow[0]],
+      ressource:[...d.ressource, s.ressource[0]],
+      recharge: rechargeOf(p, "es"),
+      client:`${d.targets.client}. Tu lado ${s.name} también te hace valioso para ${lc1(s.targets.client)}.`,
+      verbatims:[...d.verbatims, ...s.verbatims.slice(0,2)],
+      keywords:[...d.keywords, ...s.keywords.slice(0,2)]
+    };
+  },
+
+  pitch(p, prenom){
+    const d=A_ES[p.D], s=A_ES[p.S];
+    return `Me llamo ${cleanName(prenom)||"[Nombre]"}.
+Acompaño a ${d.pitch.who} ${d.pitch.pain}. Mi papel: ayudarles a ${d.pitch.result}.
+
+Lo que me diferencia: combino dos fuerzas que rara vez van juntas, ${d.pole.toLowerCase()} y ${s.pole.toLowerCase()}. En concreto, sé ${d.inf}, y lo hago ${s.how}.
+
+Si oyes a tu alrededor «${d.verbatims[0]}» o «${s.verbatims[1]}», ahí es exactamente donde soy útil. Hablemos.`;
+  },
+
+  manualItems(p){
+    const d=A_ES[p.D], s=A_ES[p.S];
+    return [
+      ["Lo que aporto", `Sé ${d.inf}, y lo hago ${s.how}.`],
+      ["Para dar lo mejor de mí", `Necesito ${d.manual.besoin}, y ${s.manual.besoin}.`],
+      ["Lo que me da energía", `${cap(d.manual.energie)}; ${s.manual.energie}.`],
+      ["Cómo trabajar conmigo", d.manual.parler],
+      ["Lo que conviene evitar", d.manual.eviter],
+      ["Mi señal de alerta", `Bajo mucha presión, puedo caer en el modo «${d.survival.mode.toLowerCase()}». Si lo notas, miremos juntos el contexto en lugar de mi motivación.`]
+    ];
+  },
+  manualHead(p){ return `MI MANUAL DE USO\nMi Talento Único: ${this.alloyName(p)} (dominante ${A_ES[p.D].name}, secundario ${A_ES[p.S].name})`; },
+
+  readAlignment(v, p){
+    const avg=(v.ctx+v.exp+v.fin)/3, lowest=Object.entries(v).sort((a,b)=>a[1]-b[1])[0][0];
+    if (avg>=8) return "<strong>Alineación alta.</strong> Tu talento parece bien expresado en un contexto que le conviene. El reto ahora es hacerlo brillar más lejos: posicionamiento, visibilidad, valor percibido.";
+    const msg={
+      ctx:`<strong>El contexto es tu primera palanca.</strong> Con un ${v.ctx}/10, tu entorno quizá se parezca más a un arrecife que a un mar que te lleva. Compáralo con la lista «contexto tóxico» de la sección 4: ¿cuántos puntos te suenan?`,
+      exp:`<strong>Tu talento está poco expresado.</strong> Con un ${v.exp}/10, probablemente pasas buena parte de tu tiempo fuera de tu zona de flow. ¿Cuánto de tu semana dedicas de verdad a ${A_ES[p.D].inf}?`,
+      fin:`<strong>El reconocimiento no acompaña.</strong> Con un ${v.fin}/10, el valor que creas todavía no se traduce en reconocimiento ni en ingresos. A menudo es una cuestión de posicionamiento y de lenguaje: vuelve a leer la sección 5.`
+    };
+    return (avg<5?`Puntuación media de ${avg.toFixed(1).replace(".",",")}/10: la distancia entre tu potencial y tu situación merece atención. `:`Puntuación media de ${avg.toFixed(1).replace(".",",")}/10. `)+msg[lowest];
+  }
+};
+
+/* ================================================================
    MOTEUR COMMUN · QCM Talent Unique (Magic Humans)
    Partagé à l'identique par la page du quiz et par le script Google
    (Code.gs). Modifier les sources dans src/, puis relancer build.py.
@@ -1349,7 +1845,8 @@ var CONFIG = {
 
 const LANGS = {
   fr:{A:A_FR, Q:QUESTIONS_FR, RQ:RESOURCE_QUESTIONS_FR, X:TEXT_FR},
-  en:{A:A_EN, Q:QUESTIONS_EN, RQ:RESOURCE_QUESTIONS_EN, X:TEXT_EN}
+  en:{A:A_EN, Q:QUESTIONS_EN, RQ:RESOURCE_QUESTIONS_EN, X:TEXT_EN},
+  es:{A:A_ES, Q:QUESTIONS_ES, RQ:RESOURCE_QUESTIONS_ES, X:TEXT_ES}
 };
 const IDS = ["analyste","catalyseur","visionnaire","batisseur","transmetteur","stratege","leader","esthete"];
 const COMPLEMENT = {analyste:"catalyseur", catalyseur:"analyste", visionnaire:"batisseur", batisseur:"visionnaire", transmetteur:"stratege", stratege:"transmetteur", leader:"esthete", esthete:"leader"};
@@ -1361,8 +1858,8 @@ const QUESTION_IDS = QUESTIONS_FR.map(q=>q.items.map(it=>it[0]));
   const c = Object.fromEntries(IDS.map(id=>[id,0]));
   QUESTION_IDS.forEach(q=>q.forEach(id=>c[id]++));
   if (IDS.some(id=>c[id]!==3)) console.error("Questionnaire déséquilibré", c);
-  QUESTIONS_EN.forEach((q,i)=>q.items.forEach((it,j)=>{ if (it[0]!==QUESTION_IDS[i][j]) console.error("Question EN désalignée", i, j); }));
-  IDS.forEach(a=>IDS.forEach(b=>{ if (a!==b && (!ALLOYS_FR[a+"_"+b] || !ALLOYS_EN[a+"_"+b])) console.error("Alliage manquant", a, b); }));
+  [["EN",QUESTIONS_EN],["ES",QUESTIONS_ES]].forEach(([n,Q])=>Q.forEach((q,i)=>q.items.forEach((it,j)=>{ if (it[0]!==QUESTION_IDS[i][j]) console.error("Question "+n+" désalignée", i, j); })));
+  IDS.forEach(a=>IDS.forEach(b=>{ if (a!==b && (!ALLOYS_FR[a+"_"+b] || !ALLOYS_EN[a+"_"+b] || !ALLOYS_ES[a+"_"+b])) console.error("Alliage manquant", a, b); }));
 })();
 
 /* ---------- Calcul ---------- */
@@ -1417,7 +1914,7 @@ const alloyName = (p, lang) => L(lang).X.alloyName(p);
    les liens de la première version du module, 3 chiffres sans « r », sont lus sans ressourcement) */
 function encodeState(answers, core, prenom, lang, resourceIdx){
   const a = answers.map(x=>""+x.plus+x.minus).join("");
-  const parts = [a, core[0], core[1], (lang==="en"?"en":"fr")];
+  const parts = [a, core[0], core[1], (lang==="en"||lang==="es"?lang:"fr")];
   if (resourceIdx && resourceIdx.length===RESOURCE_QUESTIONS_FR.length && resourceIdx.every(x=>x!=null)) parts.push("r"+resourceIdx.join(""));
   parts.push(encodeURIComponent(cleanName(prenom)));
   return parts.join(".");
@@ -1428,7 +1925,7 @@ function decodeState(str){
     if (parts.length < 3) return null;
     const [a, D, S] = parts;
     let lang = "fr", rest = parts.slice(3);
-    if (rest[0]==="fr" || rest[0]==="en"){ lang = rest[0]; rest = rest.slice(1); }
+    if (rest[0]==="fr" || rest[0]==="en" || rest[0]==="es"){ lang = rest[0]; rest = rest.slice(1); }
     let resourceIdx = null;
     if (rest.length>1 && /^r[0-3]{3}$/.test(rest[0])){ resourceIdx = rest[0].slice(1).split("").map(Number); rest = rest.slice(1); }
     else if (rest.length>1 && /^[0-3]{3}$/.test(rest[0])){ rest = rest.slice(1); }  // ancien module : ignoré
@@ -1449,7 +1946,7 @@ function decodeState(str){
 const personalLink = (answers, core, prenom, lang, resourceIdx) => CONFIG.quizUrl+"#r="+encodeState(answers, core, prenom, lang, resourceIdx);
 
 function manualText(p, lang){
-  const X = L(lang).X, sep = lang==="en" ? ": " : " : ";
+  const X = L(lang).X, sep = lang==="fr" ? " : " : ": ";
   return X.manualHead(p)+"\n\n"+X.manualItems(p).map(([k,v])=>k+sep+v).join("\n");
 }
 
@@ -1498,7 +1995,7 @@ function reportDocHTML(p, prenom, link, lang){
   }).join("");
   const alloyHTML = lang==="en" ? `<i style="color:${O}">${s.adj}</i> ${d.name}` : `${d.name} <i style="color:${O}">${s.adj}</i>`;
   const strongToB = t => t.replace(/<(\/?)strong>/g, "<$1b>");
-  const sep = lang==="en" ? ":" : " :";
+  const sep = lang==="fr" ? " :" : ":";
 
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.55;color:${INK};max-width:700px">
   <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">${T.docBrand}</div>
@@ -1585,7 +2082,8 @@ function show(name){ current = name; SCREENS.forEach(n=>$("#screen-"+n).hidden =
 /* ---------- Langue : même mémoire que le bouton FR/EN du site ---------- */
 const LANG_KEY = "mh-lang";
 let lang = (()=>{
-  try{ const q = new URLSearchParams(location.search).get("lang"); if (q==="en"||q==="fr") return q; }catch(_){}
+  try{ const q = new URLSearchParams(location.search).get("lang"); if (q==="en"||q==="fr"||q==="es") return q; }catch(_){}
+  try{ const v = localStorage.getItem("mh-quiz-lang"); if (v==="en"||v==="fr"||v==="es") return v; }catch(_){}
   try{ const v = localStorage.getItem(LANG_KEY); if (v==="en"||v==="fr") return v; }catch(_){}
   return "fr";
 })();
@@ -1604,7 +2102,8 @@ function applyStatic(){
 }
 document.querySelectorAll("[data-setlang]").forEach(b=>b.addEventListener("click", ()=>{
   lang = b.dataset.setlang;
-  try{ localStorage.setItem(LANG_KEY, lang); }catch(_){}
+  // Le site n'existe qu'en FR/EN : l'espagnol est mémorisé pour le quiz seulement.
+  try{ localStorage.setItem("mh-quiz-lang", lang); if (lang!=="es") localStorage.setItem(LANG_KEY, lang); }catch(_){}
   applyStatic();
   if (current==="quiz") renderQuestion();
   if (current==="tie") renderTie();
@@ -1667,7 +2166,7 @@ $("#demo").addEventListener("click", ()=>{
   const core = [...r.fixed, ...(r.candidates||[])].slice(0,2);
   const p = buildProfile(s, core);
   p.resourceIdx = RESOURCE_QUESTIONS_FR.map(()=>Math.floor(Math.random()*4));
-  renderReport(p, {prenom: lang==="en" ? "Alex" : "Camille", core, demo:true});
+  renderReport(p, {prenom: lang==="en" ? "Alex" : lang==="es" ? "Lucía" : "Camille", core, demo:true});
 });
 
 function finish(){
@@ -1999,7 +2498,7 @@ function renderReport(p, ctx){
   if (link) $("#copy-link").addEventListener("click", ()=>copy(link, "toast-act"));
 
   // Partage : WhatsApp, e-mail, copie, et partage natif du téléphone si disponible
-  const quizUrl = CONFIG.quizUrl + (lang==="en" ? "?lang=en" : "");
+  const quizUrl = CONFIG.quizUrl + (lang!=="fr" ? "?lang="+lang : "");
   const shareData = {
     quiz: {url: quizUrl, subject: R.shareQuizSubject, text: R.shareQuizText(quizUrl)},
     mine: {url: link, subject: R.shareMineSubject, text: R.shareMineText(X.alloyName(p), link)}

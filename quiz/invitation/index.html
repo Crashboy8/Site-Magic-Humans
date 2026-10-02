@@ -53,7 +53,7 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="field"><label for="g-email">E-mail de la personne (facultatif)</label><input id="g-email" type="email" inputmode="email" autocomplete="off" placeholder="Pour pré-remplir le destinataire"></div>
     <div class="field"><label for="g-tel">Numéro WhatsApp de la personne (facultatif)</label><input id="g-tel" type="tel" inputmode="tel" autocomplete="off" placeholder="Par exemple : 06 12 34 56 78"></div>
     <div class="field"><label for="g-lang">Langue du quiz</label>
-      <select id="g-lang"><option value="fr">Français</option><option value="en">Anglais</option></select>
+      <select id="g-lang"><option value="fr">Français</option><option value="en">Anglais</option><option value="es">Espagnol</option></select>
     </div>
     <div class="row"><button class="btn" type="submit">Créer le lien</button></div>
   </form>
@@ -88,6 +88,17 @@ function code(){
   return c;
 }
 function message(prenom, org, url, lang){
+  if (lang === "es") return `Hola ${prenom || ""}:
+
+He creado un breve quiz que ayuda a poner palabras a tu Talento Único: lo que te hace único, los contextos en los que brillas y cómo aprovecharlo de forma concreta. Dura unos 6 minutos y el informe completo es gratis.
+
+Aquí tienes tu enlace personal:
+${url}
+
+Me encantaría saber qué te parece tu resultado.
+
+Pierre Sarazin
+Magic Humans`;
   if (lang === "en") return `Hello ${prenom || ""},
 
 I've created a short quiz to help people put words on their Unique Talent: what makes them rare, the contexts where they thrive and how to put it to work. It takes about 6 minutes and the full report is free.
@@ -141,7 +152,7 @@ function phone(){
   else if (/^0[1-9]\d{8}$/.test(d)) d = "33" + d.slice(1);   // numéro français 06… → 336…
   return d;
 }
-function subject(){ return $("#g-lang").value === "en" ? "Discover your Unique Talent" : "Découvre ton Talent Unique"; }
+function subject(){ const l = $("#g-lang").value; return l === "en" ? "Discover your Unique Talent" : l === "es" ? "Descubre tu Talento Único" : "Découvre ton Talent Unique"; }
 function refreshSend(){
   const msg = $("#msg").value, to = $("#g-email").value.trim(), su = subject();
   $("#send-wa").href = "https://wa.me/" + phone() + "?text=" + encodeURIComponent(msg);
