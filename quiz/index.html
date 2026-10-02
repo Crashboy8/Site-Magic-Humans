@@ -59,6 +59,9 @@ em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
 .hero p.lead{font-size:1.18rem;max-width:60ch}
 .formula{font-family:var(--display);font-size:clamp(1.6rem,5vw,2.2rem);font-style:italic;display:flex;flex-wrap:wrap;gap:.35em;align-items:baseline}
 .formula b{font-style:normal;color:var(--accent);font-weight:600}
+.howto{display:flex;flex-direction:column;gap:14px}
+.howto-title{font-size:clamp(1.55rem,4.2vw,2rem)}
+.howto-tip{color:var(--muted);max-width:60ch}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
 .rule{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .rule .k{font-family:var(--display);font-size:1.6rem;color:var(--accent);font-weight:600;line-height:1}
@@ -217,7 +220,11 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
       <div class="formula" data-t="intro.formula"></div>
     </div>
     <div class="stack-lg" style="padding-top:18px">
-      <div class="rules" id="rules"></div>
+      <div class="howto">
+        <h2 class="howto-title" data-t="intro.rulesTitle"></h2>
+        <div class="rules" id="rules"></div>
+        <p class="howto-tip" data-t="intro.rulesTip"></p>
+      </div>
       <div class="row-actions">
         <button class="btn" id="start" data-t="intro.start"></button>
         <button class="link" id="demo" data-t="intro.demo"></button>
@@ -945,15 +952,17 @@ const TEXT_FR = {
       h1:'Quel est ton <em class="serif">Talent Unique</em>&nbsp;?',
       lead:"Ce questionnaire ne te range pas dans une case. Il pose des hypothèses de travail sur ce qui te rend rare, sur les contextes où tu rayonnes et sur ceux qui t'éteignent.",
       formula:"Résultat <b>=</b> Talent <b>×</b> Contexte",
+      rulesTitle:"Pour chacune des questions, choisis deux réponses :",
       rules:[
-        ["+","Le plus","Dans chaque question, choisis la phrase qui te ressemble le plus."],
-        ["−","Le moins","Puis celle qui te ressemble le moins. Les deux autres restent neutres."],
-        ["≈","Ton premier élan","Réponds selon ce que tu fais naturellement, pas selon ce qu'on attend de toi."]
+        ["+","La phrase qui te ressemble le plus","Clique sur le bouton « + » à côté d'elle."],
+        ["−","La phrase qui te ressemble le moins","Clique sur le bouton « − » à côté d'elle."],
+        ["·","Les deux autres phrases","Ne fais rien : elles restent neutres."]
       ],
+      rulesTip:"Réponds selon ce que tu fais naturellement, pas selon ce qu'on attend de toi. Ton premier élan est souvent le bon.",
       start:"Commencer le test →", demo:"Voir un rapport d'exemple"
     },
     quiz:{
-      legendPlus:"<b>+</b> le plus moi (1 choix)", legendMinus:"<b>−</b> le moins moi (1 choix)",
+      legendPlus:"<b>+</b> la phrase qui te ressemble le plus", legendMinus:"<b>−</b> la phrase qui te ressemble le moins",
       count:(i,n)=>`Question ${i} sur ${n}`, prev:"← Retour", next:"Suivant →", last:"Voir mes résultats →",
       hintBoth:"Choisis un « + » et un « − ».", hintPlus:"Il manque ton « + ».", hintMinus:"Il manque ton « − ».",
       plusSmall:"plus", minusSmall:"moins", ariaPlus:"Le plus moi", ariaMinus:"Le moins moi", ariaGroup:"Évaluer cette proposition"
@@ -1115,15 +1124,17 @@ const TEXT_EN = {
       h1:'What is your <em class="serif">Unique Talent</em>?',
       lead:"This quiz doesn't put you in a box. It offers working hypotheses about what makes you rare, the contexts where you thrive and the ones that drain you.",
       formula:"Result <b>=</b> Talent <b>×</b> Context",
+      rulesTitle:"For each question, choose two answers:",
       rules:[
-        ["+","Most like me","In each question, pick the statement that sounds most like you."],
-        ["−","Least like me","Then the one that sounds least like you. The other two stay neutral."],
-        ["≈","Go with your gut","Answer based on what you naturally do, not what others expect of you."]
+        ["+","The statement most like you","Click the \"+\" button next to it."],
+        ["−","The statement least like you","Click the \"−\" button next to it."],
+        ["·","The other two statements","Leave them as they are: they stay neutral."]
       ],
+      rulesTip:"Answer based on what you naturally do, not what others expect of you. Your first instinct is usually right.",
       start:"Start the quiz →", demo:"See a sample report"
     },
     quiz:{
-      legendPlus:"<b>+</b> most like me (1 choice)", legendMinus:"<b>−</b> least like me (1 choice)",
+      legendPlus:"<b>+</b> the statement most like you", legendMinus:"<b>−</b> the statement least like you",
       count:(i,n)=>`Question ${i} of ${n}`, prev:"← Back", next:"Next →", last:"See my results →",
       hintBoth:"Choose one \"+\" and one \"−\".", hintPlus:"Your \"+\" is missing.", hintMinus:"Your \"−\" is missing.",
       plusSmall:"most", minusSmall:"least", ariaPlus:"Most like me", ariaMinus:"Least like me", ariaGroup:"Rate this statement"
