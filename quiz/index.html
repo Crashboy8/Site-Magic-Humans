@@ -109,6 +109,7 @@ em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
 
 /* Rapport */
 .rhead{padding-block:34px 10px;display:flex;flex-direction:column;gap:12px}
+.rname{font-family:var(--display);font-size:clamp(2.2rem,7vw,3.2rem);line-height:1.05;font-weight:600;margin:0;color:var(--ink)}
 .alloy{font-family:var(--display);font-size:clamp(2.6rem,8vw,4rem);line-height:1;font-weight:600}
 .alloy em{color:var(--accent);font-weight:500}
 .toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem}
@@ -1038,12 +1039,12 @@ const TEXT_FR = {
       equationLab:"L'équation",
       scores:"Tes scores nets (+2 par « plus », −1 par « moins », de −3 à +6)",
       howSummary:"Comment ces résultats sont calculés",
-      how1:"Chaque archétype apparaît 3 fois sur les 6 questions. Score net = (nombre de « + » × 2) − (nombre de « − »). Ton Noyau Catalyseur réunit les deux scores les plus élevés ; en cas d'égalité, c'est toi qui as tranché. L'axe de modélisation est l'archétype le moins marqué, en privilégiant le contrepoids naturel de ta dominante en cas d'égalité.",
+      how1:"Chaque archétype apparaît 3 fois sur les 6 questions. Score net = (nombre de « + » × 2) − (nombre de « − »). Ton Noyau Catalyseur réunit les deux scores les plus élevés ; en cas d'égalité, c'est toi qui as tranché. L'axe de progression est l'archétype le moins marqué, en privilégiant le contrepoids naturel de ta dominante en cas d'égalité.",
       how2:"Ta zone de ressourcement vient des trois dernières questions : la question 7 donne ton profil de recharge, la question 9 sa nuance quand elle diffère, et la question 8 ton piège de décompression. Limite à garder en tête : avec 6 questions de talent, un seul choix peut faire basculer un rang. C'est pour cela qu'il vaut mieux confronter ces hypothèses à ton histoire réelle, seul·e ou accompagné·e.",
       shipIntro:"Imagine-toi comme un navire. Ce qui le fait avancer dépend de sa structure, de sa voilure et de son cap, mais aussi de la mer sur laquelle il navigue.",
       hullLab:"La coque & le gouvernail", hullH:"Ton Noyau Catalyseur",
       sailLab:"Les voiles", sailH:"Tes Talents en Expansion", and:" et ",
-      compassLab:"La boussole", compassH:"Ton axe de modélisation",
+      compassLab:"La boussole", compassH:"Ton axe de progression",
       giftLab:"Hypothèse de plus grand talent", vulnLab:"Hypothèse de plus grande vulnérabilité", survLab:"Hypothèse de sur-adaptation · mode survie",
       takeaway:"<strong>À retenir :</strong> quand tu te reconnais dans ce mode, ce n'est probablement pas ton talent qui est en cause, c'est le contexte qui ne lui convient pas.",
       fertileLab:"Contexte fertile · épanouissement", toxicLab:"Contexte toxique · échec répété",
@@ -1226,12 +1227,12 @@ const TEXT_EN = {
       equationLab:"The equation",
       scores:"Your net scores (+2 per \"most\", −1 per \"least\", from −3 to +6)",
       howSummary:"How these results are calculated",
-      how1:"Each archetype appears 3 times across the 6 questions. Net score = (number of \"+\" × 2) − (number of \"−\"). Your Catalyst Core combines your two highest scores; in case of a tie, you made the call. The modelling axis is your least marked archetype, favouring the natural counterweight of your dominant in case of a tie.",
+      how1:"Each archetype appears 3 times across the 6 questions. Net score = (number of \"+\" × 2) − (number of \"−\"). Your Catalyst Core combines your two highest scores; in case of a tie, you made the call. The growth axis is your least marked archetype, favouring the natural counterweight of your dominant in case of a tie.",
       how2:"Your recharge zone comes from the last three questions: question 7 gives your recharge profile, question 9 its nuance when it differs, and question 8 your decompression trap. A limit to keep in mind: with 6 talent questions, a single choice can change a ranking. That's why it's best to test these hypotheses against your real story, on your own or with support.",
       shipIntro:"Picture yourself as a ship. What moves it forward depends on its structure, its sails and its course, but also on the sea it sails.",
       hullLab:"The hull & the helm", hullH:"Your Catalyst Core",
       sailLab:"The sails", sailH:"Your Expanding Talents", and:" and ",
-      compassLab:"The compass", compassH:"Your modelling axis",
+      compassLab:"The compass", compassH:"Your growth axis",
       giftLab:"Hypothesis: your greatest talent", vulnLab:"Hypothesis: your greatest vulnerability", survLab:"Hypothesis: over-adaptation · survival mode",
       takeaway:"<strong>Remember:</strong> when you recognise yourself in this mode, it's probably not your talent that's the problem, but a context that doesn't suit it.",
       fertileLab:"Thriving context · fulfilment", toxicLab:"Toxic context · repeated failure",
@@ -1721,12 +1722,12 @@ const TEXT_ES = {
       equationLab:"La ecuación",
       scores:"Tus puntuaciones netas (+2 por «más», −1 por «menos», de −3 a +6)",
       howSummary:"Cómo se calculan estos resultados",
-      how1:"Cada arquetipo aparece 3 veces en las 6 preguntas. Puntuación neta = (número de «+» × 2) − (número de «−»). Tu Núcleo Catalizador reúne tus dos puntuaciones más altas; en caso de empate, has decidido tú. El eje de modelización es tu arquetipo menos marcado, priorizando el contrapeso natural de tu dominante en caso de empate.",
+      how1:"Cada arquetipo aparece 3 veces en las 6 preguntas. Puntuación neta = (número de «+» × 2) − (número de «−»). Tu Núcleo Catalizador reúne tus dos puntuaciones más altas; en caso de empate, has decidido tú. El eje de progreso es tu arquetipo menos marcado, priorizando el contrapeso natural de tu dominante en caso de empate.",
       how2:"Tu zona de recarga viene de las tres últimas preguntas: la pregunta 7 da tu perfil de recarga, la pregunta 9 su matiz cuando es diferente, y la pregunta 8 tu trampa de desconexión. Un límite a tener en cuenta: con 6 preguntas de talento, una sola elección puede cambiar un puesto. Por eso es mejor contrastar estas hipótesis con tu historia real, solo o acompañado.",
       shipIntro:"Imagínate como un barco. Lo que lo hace avanzar depende de su estructura, de sus velas y de su rumbo, pero también del mar por el que navega.",
       hullLab:"El casco y el timón", hullH:"Tu Núcleo Catalizador",
       sailLab:"Las velas", sailH:"Tus Talentos en Expansión", and:" y ",
-      compassLab:"La brújula", compassH:"Tu eje de modelización",
+      compassLab:"La brújula", compassH:"Tu eje de progreso",
       giftLab:"Hipótesis: tu mayor talento", vulnLab:"Hipótesis: tu mayor vulnerabilidad", survLab:"Hipótesis: sobreadaptación · modo supervivencia",
       takeaway:"<strong>Recuerda:</strong> cuando te reconoces en este modo, probablemente no es tu talento lo que falla, sino un contexto que no le conviene.",
       fertileLab:"Contexto fértil · plenitud", toxicLab:"Contexto tóxico · fracaso repetido",
@@ -1999,7 +2000,8 @@ function reportDocHTML(p, prenom, link, lang){
 
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;line-height:1.55;color:${INK};max-width:700px">
   <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;color:${MUT}">${T.docBrand}</div>
-  <div style="margin:22px 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${T.eyebrow(name)}</div>
+  ${name ? `<div style="${H}font-size:32px;line-height:1.1;margin:18px 0 0">${name}</div>` : ""}
+  <div style="margin:${name ? "8px" : "22px"} 0 4px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:bold;color:${O}">${T.eyebrow("")}</div>
   <h1 style="${H}font-size:40px;line-height:1.05;margin:0 0 8px">${alloyHTML}</h1>
   ${P(strongToB(T.domSec(d,s)))}
   ${link?P(`<span style="color:${MUT}">${T.linkLab} <a href="${esc(link)}" style="color:${O}">${T.linkText}</a></span>`):""}
@@ -2327,7 +2329,8 @@ function renderReport(p, ctx){
   const html = `
   <div class="rhead">
     ${ctx.demo?`<span class="tag">${R.demoTag}</span>`:""}
-    <span class="eyebrow">${R.eyebrow(name)}</span>
+    ${name ? `<h1 class="rname">${name}</h1>` : ""}
+    <span class="eyebrow">${R.eyebrow("")}</span>
     <div class="alloy">${alloyHTML}</div>
     <p class="lead">${R.domSec(d,s)}</p>
     ${ctx.animal ? `<p class="animal">${T().intro.animalLine(esc(ctx.animal))}</p>` : ""}
