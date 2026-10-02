@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Invitations au quiz | Magic Humans</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap">
+<style>
+:root{
+  --bg:#F5F3F0; --surface:#FFFFFF; --ink:#2B2522; --muted:#6E645D; --line:#E4DED7;
+  --accent:#D9661C; --accent-ink:#FFFFFF; --accent-soft:#FBE8D8;
+  --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body:"Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto;padding-inline:20px;padding-block:32px 64px;display:flex;flex-direction:column;gap:22px}
+.brand{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;text-decoration:none}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2rem,6vw,2.6rem);line-height:1.1;margin:0;text-wrap:balance}
+p{margin:0}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+label{font-weight:700;font-size:.92rem}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+textarea{min-height:170px;resize:vertical;line-height:1.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:12px 22px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.out{word-break:break-all;background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:.95rem}
+.toast{font-size:.88rem;color:#3C7A55}
+.lab{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="brand" href="/">Magic Humans · Invitations au quiz</a>
+  <h1>Inviter quelqu'un au quiz Talent Unique</h1>
+  <p class="muted">Crée un lien personnel. Quand la personne termine le quiz, son résultat arrive dans l'onglet « Invités » de ton Google Sheet et tu reçois un e-mail. Elle est prévenue au début du quiz que son résultat te sera transmis.</p>
+
+  <form class="card" id="gen" novalidate>
+    <div class="field"><label for="g-prenom">Prénom de la personne</label><input id="g-prenom" maxlength="40" autocomplete="off" placeholder="Par exemple : Sophie"></div>
+    <div class="field"><label for="g-org">Structure (facultatif)</label><input id="g-org" maxlength="80" autocomplete="off" placeholder="Par exemple : Pépinière d'entreprises de Lyon"></div>
+    <div class="field"><label for="g-lang">Langue du quiz</label>
+      <select id="g-lang"><option value="fr">Français</option><option value="en">Anglais</option></select>
+    </div>
+    <div class="row"><button class="btn" type="submit">Créer le lien</button></div>
+  </form>
+
+  <section class="card" id="result" hidden>
+    <span class="lab">Lien d'invitation</span>
+    <p class="out" id="link"></p>
+    <div class="row"><button class="btn" id="copy-link" type="button">Copier le lien</button><span class="toast" id="t-link" aria-live="polite"></span></div>
+    <span class="lab">Message prêt à envoyer (modifiable)</span>
+    <textarea id="msg" aria-label="Message prêt à envoyer"></textarea>
+    <div class="row"><button class="btn ghost" id="copy-msg" type="button">Copier le message</button><span class="toast" id="t-msg" aria-live="polite"></span></div>
+    <p class="muted">Code de cette invitation : <strong id="code"></strong>. Il apparaîtra dans ton tableau pour retrouver la personne.</p>
+  </section>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const BASE = "https://www.magichumans.com/quiz/";
+function code(){
+  const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c = "";
+  const r = (window.crypto && crypto.getRandomValues) ? crypto.getRandomValues(new Uint32Array(6)) : Array.from({length:6},()=>Math.random()*1e9);
+  for (let i=0;i<6;i++) c += a[r[i] % a.length];
+  return c;
+}
+function message(prenom, org, url, lang){
+  if (lang === "en") return `Hello ${prenom || ""},
+
+I've created a short quiz to help people put words on their Unique Talent: what makes them rare, the contexts where they thrive and how to put it to work. It takes about 6 minutes and the full report is free.
+
+Here is your personal link:
+${url}
+
+I'd love to hear what you think of your result.
+
+Pierre Sarazin
+Magic Humans`;
+  return `Bonjour ${prenom || ""},
+
+J'ai créé un court quiz qui aide à mettre des mots sur son Talent Unique : ce qui nous rend rare, les contextes où l'on rayonne et comment s'en servir concrètement. Il prend environ 6 minutes et le rapport complet est offert.
+
+Voici ton lien personnel :
+${url}
+
+Je serais ravi d'avoir ton retour sur ton résultat.
+
+Pierre Sarazin
+Magic Humans`;
+}
+$("#gen").addEventListener("submit", e=>{
+  e.preventDefault();
+  const prenom = $("#g-prenom").value.trim(), org = $("#g-org").value.trim(), lang = $("#g-lang").value;
+  const c = code();
+  const q = new URLSearchParams({inv:c});
+  if (prenom) q.set("prenom", prenom);
+  if (org) q.set("org", org);
+  q.set("lang", lang);
+  const url = BASE + "?" + q.toString();
+  $("#link").textContent = url;
+  $("#code").textContent = c;
+  $("#msg").value = message(prenom, org, url, lang);
+  $("#result").hidden = false;
+  $("#result").scrollIntoView({behavior:"smooth", block:"start"});
+});
+async function copy(text, toast, fallback){
+  try { await navigator.clipboard.writeText(text); $(toast).textContent = "Copié."; }
+  catch(e){ if (fallback){ fallback.focus(); fallback.select(); } $(toast).textContent = "Sélectionne le texte et copie-le avec Ctrl+C ou ⌘+C."; }
+  setTimeout(()=>{ $(toast).textContent = ""; }, 3500);
+}
+$("#copy-link").addEventListener("click", ()=>copy($("#link").textContent, "#t-link"));
+$("#copy-msg").addEventListener("click", ()=>copy($("#msg").value, "#t-msg", $("#msg")));
+</script>
+</body>
+</html>
