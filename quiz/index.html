@@ -179,7 +179,9 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
 
 /* Capture e-mail */
 .gate{display:flex;flex-direction:column;gap:22px;padding-block:30px 0}
-.gate form{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px}
+.rs.unlock{border-top:0;background:var(--accent-soft);border-radius:var(--radius);padding:26px 22px}
+.rs.unlock ul.clean{margin:0}
+#gate-slot form,.gate form{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-weight:700;font-size:.92rem}
 .field input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%}
@@ -982,7 +984,11 @@ const TEXT_FR = {
       more:"Ton rapport complet (7 sections : architecture de talent, mécanismes, contextes fertiles et toxiques, valeur marché, pitch prêt à l'emploi et manuel d'utilisation) t'attend. Indique ton prénom et ton e-mail pour le recevoir en PDF.",
       prenom:"Prénom", email:"E-mail", website:"Site web",
       news:"J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).",
-      submit:"Recevoir mon rapport complet →",
+      submit:"Débloquer la suite de mon rapport →",
+      freeTag:"Aperçu gratuit · sections 1 à 3",
+      lockEyebrow:"Sections 4 à 7", lockH:"Débloque la suite de ton rapport", lockP:"Il te reste à découvrir :",
+      lockList:["Tes contextes fertiles et toxiques, et ta zone de ressourcement","Ta valeur sur le marché et les phrases qui signalent tes clients idéaux","Ton pitch de positionnement prêt à l'emploi","Ton manuel d'utilisation, à transmettre à ton manager ou à ton équipe","Ton auto-évaluation d'alignement"],
+      lockAfter:"Indique ton prénom et ton e-mail : la suite s'affiche aussitôt ici, et tu reçois ton rapport complet en PDF.",
       legal:"Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.",
       errPrenom:"Indique ton prénom.", errEmail:"Cette adresse e-mail ne semble pas valide. Vérifie-la."
     },
@@ -1154,7 +1160,11 @@ const TEXT_EN = {
       more:"Your full report (7 sections: talent architecture, inner mechanisms, thriving and toxic contexts, market value, a ready-to-use pitch and a user manual) is waiting for you. Enter your first name and email to receive it as a PDF.",
       prenom:"First name", email:"Email", website:"Website",
       news:"I also agree to receive tips and news from Magic Humans (unsubscribe in one click).",
-      submit:"Get my full report →",
+      submit:"Unlock the rest of my report →",
+      freeTag:"Free preview · sections 1 to 3",
+      lockEyebrow:"Sections 4 to 7", lockH:"Unlock the rest of your report", lockP:"Still to discover:",
+      lockList:["Your thriving and toxic contexts, and your recharge zone","Your market value and the phrases that signal your ideal clients","Your ready-to-use positioning pitch","Your user manual, to share with your manager or team","Your alignment self-assessment"],
+      lockAfter:"Enter your first name and email: the rest appears right here, and you receive your full report as a PDF.",
       legal:"Your first name and email are used to send you your report and, if you agree, our tips. They are kept by Magic Humans and never sold. To have them deleted, write to pierre.j.sarazin@gmail.com.",
       errPrenom:"Please enter your first name.", errEmail:"This email address doesn't look valid. Please check it."
     },
@@ -1518,6 +1528,7 @@ function reportDocHTML(p, prenom, link, lang){
 const $ = sel => document.querySelector(sel);
 const SCREENS = ["intro","quiz","tie","resources","gate","report"];
 let current = "intro";
+const GATE_FORM = document.getElementById("gate-form");
 function show(name){ current = name; SCREENS.forEach(n=>$("#screen-"+n).hidden = n!==name); window.scrollTo({top:0}); }
 
 /* ---------- Langue : même mémoire que le bouton FR/EN du site ---------- */
@@ -1671,9 +1682,8 @@ function openGate(s, core){
   const p = buildProfile(s, core);
   p.resourceIdx = resourceAnswers.slice();
   pending = {p, core};
-  fillGate();
   $("#gate-err").textContent = "";
-  show("gate");
+  renderReport(p, {core, locked:true});
 }
 function fillGate(){
   const {p} = pending, A = C().A;
@@ -1691,8 +1701,10 @@ $("#gate-form").addEventListener("submit", e=>{
   const {p, core} = pending;
   const state = encodeState(answers, core, prenom, lang, p.resourceIdx);
   try { history.replaceState(null, "", location.pathname+"#r="+state); } catch(_){}
+  const newsletter = GATE_FORM.querySelector("#f-news").checked, website = GATE_FORM.querySelector("#f-website").value;
   renderReport(p, {prenom, email, core});
-  sendReport({prenom, email, state, lang, newsletter:$("#f-news").checked, website:$("#f-website").value});
+  const s4 = document.getElementById("s4"); if (s4) s4.scrollIntoView();
+  sendReport({prenom, email, state, lang, newsletter, website});
 });
 
 // sendState = {k:"off"|"sending"|"sent"|"fail", email}
@@ -1740,7 +1752,7 @@ function renderReport(p, ctx){
   lastReport = {p, ctx};
   const {A, X} = C(), R = T().r, d=A[p.D], s=A[p.S], ax=A[p.axis], r=X.parts(p);
   const prenom = cleanName(ctx.prenom), name = esc(prenom);
-  const link = ctx.demo ? "" : personalLink(answers, ctx.core, prenom, lang, p.resourceIdx);
+  const link = (ctx.demo || ctx.locked) ? "" : personalLink(answers, ctx.core, prenom, lang, p.resourceIdx);
   const q = v => lang==="en" ? `"${v}"` : `« ${v} »`;
   const alloyHTML = lang==="en" ? `<em>${s.adj}</em> ${d.name}` : `${d.name} <em>${s.adj}</em>`;
 
@@ -1752,17 +1764,17 @@ function renderReport(p, ctx){
     <p class="lead">${R.domSec(d,s)}</p>
   </div>
 
-  <div class="actions">
+  ${ctx.locked ? `<span class="tag">${T().gate.freeTag}</span>` : `<div class="actions">
     <div class="row-actions">
       <button class="btn small" id="dl-pdf">${R.pdf}</button>
       ${link?`<button class="btn ghost small" id="copy-link">${R.copyLink}</button>`:""}
       <span class="toast" id="toast-act" aria-live="polite"></span>
     </div>
     <p class="status" id="send-status" aria-live="polite"></p>
-  </div>
+  </div>`}
 
   <nav class="toc" aria-label="${R.titles.join(", ")}" style="padding-top:16px">
-    ${R.toc.map((t,i)=>`<a href="#s${i+1}">${t}</a>`).join("")}
+    ${R.toc.map((t,i)=>`<a href="${ctx.locked && i>2 ? "#unlock" : "#s"+(i+1)}">${t}</a>`).join("")}
   </nav>
 
   <div class="stack-lg" style="padding-top:20px">
@@ -1796,6 +1808,14 @@ function renderReport(p, ctx){
     </div>
   </section>
 
+  ${ctx.locked ? `
+  <section class="rs unlock" id="unlock">
+    <span class="snum">${T().gate.lockEyebrow}</span><h2>${T().gate.lockH}</h2>
+    <p>${T().gate.lockP}</p>
+    <ul class="clean">${li(T().gate.lockList)}</ul>
+    <p class="muted">${T().gate.lockAfter}</p>
+    <div id="gate-slot"></div>
+  </section>` : `
   <section class="rs" id="s4">
     <span class="snum">${R.section(4)}</span><h2>${R.titles[3]}</h2>
     <div class="grid2">
@@ -1869,13 +1889,14 @@ function renderReport(p, ctx){
       </div>
     </div>
     <div class="row-actions"><button class="link" id="restart">${R.restart}</button></div>
-  </section>
+  </section>`}
   </div>`;
 
   const root = $("#screen-report");
   root.innerHTML = html;
   paintStatus();
   if (current!=="report") show("report");
+  if (ctx.locked){ $("#gate-slot").appendChild(GATE_FORM); return; }
 
   const flash = (id,msg)=>{ const t=document.getElementById(id); t.textContent=msg; setTimeout(()=>{t.textContent="";},4000); };
   async function copy(text, toastId, fallbackEl){
