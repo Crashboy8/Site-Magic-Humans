@@ -73,6 +73,12 @@ Dans `quiz/index.html`, l'objet `CONFIG` contient `emailGate` :
 - `false` (réglage actuel) : le rapport complet est gratuit dès la fin du quiz ; l'e-mail est facultatif et sert seulement à recevoir le PDF.
 - `true` : les sections 1 à 4 sont gratuites, les sections 5 à 7 s'affichent après avoir donné son prénom et son e-mail.
 
+### Invitations et suivi des résultats
+
+- Page discrète (non indexée) : `/quiz/invitation/`. Elle crée un lien `/quiz/?inv=CODE&prenom=...&org=...&lang=...` et un message prêt à envoyer.
+- Une personne venue par ce lien voit une mention l'informant que son résultat sera transmis à Pierre. À la fin du quiz, son résultat est envoyé automatiquement au script Google (`type: "result"`), enregistré dans l'onglet « Invités » du Google Sheet, et Pierre reçoit un e-mail.
+- Les visiteurs du quiz public ne sont pas enregistrés, sauf s'ils demandent à recevoir leur rapport par e-mail (onglet « Prospects »).
+
 ### Règles à respecter quand on modifie le quiz
 
 Le script Google Apps Script qui envoie le rapport PDF par e-mail lit le moteur du quiz **directement sur la page en ligne** (`/quiz/`), à chaque envoi (avec un cache de 10 minutes). Il n'y a donc rien à mettre à jour côté Google quand on change les textes, les questions, le rapport ou l'e-mail, à condition de respecter ces règles :

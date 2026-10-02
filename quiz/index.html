@@ -62,6 +62,9 @@ em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
 .howto{display:flex;flex-direction:column;gap:14px}
 .howto-title{font-size:clamp(1.55rem,4.2vw,2rem)}
 .howto-tip{color:var(--muted);max-width:60ch}
+.hello{display:flex;flex-direction:column;gap:14px;max-width:520px}
+.invited{background:var(--accent-soft);border-radius:var(--radius);padding:12px 16px;margin:0}
+.animal{margin:0;color:var(--muted)}
 .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
 .rule{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .rule .k{font-family:var(--display);font-size:1.6rem;color:var(--accent);font-weight:600;line-height:1}
@@ -162,6 +165,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .cta h3{font-size:1.8rem}
 .cta .btn{align-self:flex-start}
 .cta-actions{display:flex;flex-wrap:wrap;gap:10px}
+.share{gap:14px}
+.share-row{display:flex;flex-direction:column;gap:8px}
+.share-row p{margin:0}
+.share a.btn{text-decoration:none}
 .cta .btn.alt{background:transparent;color:var(--bg);border:1px solid var(--bg)}
 .cta .btn.alt:hover{background:var(--bg);color:var(--ink)}
 .cta p{color:var(--bg);opacity:.85}
@@ -231,6 +238,12 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
         <h2 class="howto-title" data-t="intro.rulesTitle"></h2>
         <div class="rules" id="rules"></div>
         <p class="howto-tip" data-t="intro.rulesTip"></p>
+      </div>
+      <div class="hello">
+        <p class="invited" id="invited" hidden></p>
+        <div class="field"><label for="h-prenom" data-t="intro.nameLabel"></label><input id="h-prenom" autocomplete="given-name" maxlength="40"></div>
+        <div class="field"><label for="h-animal" data-t="intro.animalLabel"></label><input id="h-animal" maxlength="40"></div>
+        <p class="err" id="h-err" aria-live="polite"></p>
       </div>
       <div class="row-actions">
         <button class="btn" id="start" data-t="intro.start"></button>
@@ -956,6 +969,10 @@ const TEXT_FR = {
     footer:"Magic Humans · Les résultats sont des hypothèses de travail, à valider avec des exemples réels de ta vie.",
     intro:{
       eyebrow:"Gratuit · 9 questions · 6 minutes",
+      nameLabel:"Ton prénom", animalLabel:"Pour le plaisir : si tu étais un animal, lequel serais-tu ? (facultatif)", animalPh:"Par exemple : un dauphin",
+      nameErr:"Indique ton prénom : il sert à personnaliser ton rapport.",
+      invited:org=>`Tu as été invité·e par Pierre Sarazin (Magic Humans)${org ? " · "+org : ""}. À la fin du quiz, ton résultat lui sera transmis pour qu'il puisse en parler avec toi.`,
+      animalLine:a=>`Si tu étais un animal : <strong>${a}</strong>`,
       h1:'Quel est ton <em class="serif">Talent Unique</em>&nbsp;?',
       lead:"Ce questionnaire ne te range pas dans une case. Il pose des hypothèses de travail sur ce qui te rend rare, sur les contextes où tu rayonnes et sur ceux qui t'éteignent.",
       formula:"Résultat <b>=</b> Talent <b>×</b> Contexte",
@@ -1045,6 +1062,11 @@ const TEXT_FR = {
       ctaEyebrow:"Appel découverte · 1 heure · offert", ctaH:"Passe de l'hypothèse au plan d'action",
       ctaP:alloy=>`Pendant une heure, nous regardons ta situation réelle : où ton Talent Unique ${alloy} s'exprime déjà, ce qui le freine aujourd'hui, et ce que tu veux construire. Si un accompagnement Magic Humans peut t'aider à y arriver, je te le présenterai à la fin de l'appel, et tu décideras librement.`,
       ctaBtn:"Réserver mon appel découverte →", ctaDocBtn:"Réserver mon appel découverte", siteBtn:"Découvrir Magic Humans →", siteDocLab:"Découvrir Magic Humans",
+      shareH:"Partager", shareQuiz:"Fais découvrir le quiz à un proche", shareMine:"Envoie ton résultat à quelqu'un",
+      shareWa:"WhatsApp", shareMail:"E-mail", shareCopy:"Copier le message", shareMore:"Autres applications",
+      shareQuizSubject:"Découvre ton Talent Unique", shareMineSubject:"Mon Talent Unique",
+      shareQuizText:url=>`Je viens de faire le quiz Talent Unique de Magic Humans, c'est gratuit et ça prend 6 minutes. Ça m'a fait penser à toi : ${url}`,
+      shareMineText:(alloy,url)=>`J'ai fait le quiz Talent Unique de Magic Humans. Mon profil : ${alloy}. Voici mon rapport : ${url}`,
       restart:"Refaire le test", linkLab:"Ton lien personnel :", linkText:"revoir ce rapport en ligne",
       docBrand:"Magic Humans · Quiz Talent Unique"
     },
@@ -1135,6 +1157,10 @@ const TEXT_EN = {
     footer:"Magic Humans · These results are working hypotheses, to be tested against real examples from your life.",
     intro:{
       eyebrow:"Free · 9 questions · 6 minutes",
+      nameLabel:"Your first name", animalLabel:"Just for fun: if you were an animal, which one would you be? (optional)", animalPh:"For example: a dolphin",
+      nameErr:"Please enter your first name: it's used to personalise your report.",
+      invited:org=>`You were invited by Pierre Sarazin (Magic Humans)${org ? " · "+org : ""}. At the end of the quiz, your result will be shared with him so he can talk it through with you.`,
+      animalLine:a=>`If you were an animal: <strong>${a}</strong>`,
       h1:'What is your <em class="serif">Unique Talent</em>?',
       lead:"This quiz doesn't put you in a box. It offers working hypotheses about what makes you rare, the contexts where you thrive and the ones that drain you.",
       formula:"Result <b>=</b> Talent <b>×</b> Context",
@@ -1224,6 +1250,11 @@ const TEXT_EN = {
       ctaEyebrow:"Discovery call · 1 hour · free", ctaH:"Move from hypothesis to action plan",
       ctaP:alloy=>`For one hour, we look at your real situation: where your Unique Talent, ${alloy}, already shows up, what's holding it back today, and what you want to build. If a Magic Humans programme can help you get there, I'll present it at the end of the call, and you'll decide freely.`,
       ctaBtn:"Book my discovery call →", ctaDocBtn:"Book my discovery call", siteBtn:"Discover Magic Humans →", siteDocLab:"Discover Magic Humans",
+      shareH:"Share", shareQuiz:"Introduce the quiz to someone", shareMine:"Send your result to someone",
+      shareWa:"WhatsApp", shareMail:"Email", shareCopy:"Copy the message", shareMore:"Other apps",
+      shareQuizSubject:"Discover your Unique Talent", shareMineSubject:"My Unique Talent",
+      shareQuizText:url=>`I just took the Magic Humans Unique Talent quiz. It's free and takes 6 minutes, and it made me think of you: ${url}`,
+      shareMineText:(alloy,url)=>`I took the Magic Humans Unique Talent quiz. My profile: ${alloy}. Here's my report: ${url}`,
       restart:"Take the quiz again", linkLab:"Your personal link:", linkText:"view this report online",
       docBrand:"Magic Humans · Unique Talent Quiz"
     },
@@ -1542,6 +1573,13 @@ const $ = sel => document.querySelector(sel);
 const SCREENS = ["intro","quiz","tie","resources","gate","report"];
 let current = "intro";
 const GATE_FORM = document.getElementById("gate-form");
+/* Personne qui passe le quiz. Invitation : ?inv=CODE&prenom=...&org=... */
+const who = (()=>{
+  let q; try{ q = new URLSearchParams(location.search); }catch(_){ q = new URLSearchParams(""); }
+  const clip = v => String(v||"").replace(/[<>]/g,"").trim().slice(0,80);
+  const inv = clip(q.get("inv")).replace(/[^A-Za-z0-9_-]/g,"").slice(0,24);
+  return {prenom: clip(q.get("prenom")).slice(0,40), animal:"", inv, org: inv ? clip(q.get("org")) : "", resultSent:false};
+})();
 function show(name){ current = name; SCREENS.forEach(n=>$("#screen-"+n).hidden = n!==name); window.scrollTo({top:0}); }
 
 /* ---------- Langue : même mémoire que le bouton FR/EN du site ---------- */
@@ -1557,6 +1595,8 @@ const get = (obj, path) => path.split(".").reduce((o,k)=>o&&o[k], obj);
 
 function applyStatic(){
   document.documentElement.lang = lang;
+  const inv = document.getElementById("invited");
+  if (inv){ inv.hidden = !who.inv; if (who.inv) inv.textContent = T().intro.invited(who.org); }
   document.title = T().pageTitle + " | Magic Humans";
   document.querySelectorAll("[data-t]").forEach(el=>{ const v = get(T(), el.dataset.t); if (typeof v==="string") el.innerHTML = v; });
   $("#rules").innerHTML = T().intro.rules.map(([k,h,p])=>`<div class="rule"><span class="k">${k}</span><strong>${h}</strong><p>${p}</p></div>`).join("");
@@ -1614,7 +1654,13 @@ $("#next").addEventListener("click", ()=>{
   else finish();
 });
 $("#prev").addEventListener("click", ()=>{ if (qi>0){ qi--; renderQuestion(); } else show("intro"); });
-$("#start").addEventListener("click", ()=>{ qi=0; renderQuestion(); show("quiz"); });
+$("#start").addEventListener("click", ()=>{
+  const prenom = cleanName($("#h-prenom").value);
+  if (!prenom){ $("#h-err").textContent = T().intro.nameErr; $("#h-prenom").focus(); return; }
+  $("#h-err").textContent = "";
+  who.prenom = prenom; who.animal = cleanName($("#h-animal").value);
+  qi=0; renderQuestion(); show("quiz");
+});
 $("#demo").addEventListener("click", ()=>{
   answers = QUESTION_IDS.map(()=>{ const o=shuffle([0,1,2,3]); return {plus:o[0],minus:o[1]}; });
   const s = computeScores(answers), r = resolveCore(s);
@@ -1696,7 +1742,8 @@ function openGate(s, core){
   p.resourceIdx = resourceAnswers.slice();
   pending = {p, core};
   $("#gate-err").textContent = "";
-  renderReport(p, {core, locked: !!CONFIG.emailGate});
+  renderReport(p, {core, prenom: who.prenom, animal: who.animal, locked: !!CONFIG.emailGate});
+  sendResult(p, core);
 }
 function fillGate(){
   const {p} = pending, A = C().A;
@@ -1715,10 +1762,19 @@ $("#gate-form").addEventListener("submit", e=>{
   const state = encodeState(answers, core, prenom, lang, p.resourceIdx);
   try { history.replaceState(null, "", location.pathname+"#r="+state); } catch(_){}
   const newsletter = GATE_FORM.querySelector("#f-news").checked, website = GATE_FORM.querySelector("#f-website").value;
-  renderReport(p, {prenom, email, core});
+  renderReport(p, {prenom, email, core, animal: who.animal});
   if (CONFIG.emailGate){ const s5 = document.getElementById("s5"); if (s5) s5.scrollIntoView(); }
   sendReport({prenom, email, state, lang, newsletter, website});
 });
+
+// Invités : le résultat part automatiquement dans le Google Sheet de Pierre (onglet « Invités »).
+function sendResult(p, core){
+  if (!who.inv || who.resultSent || !CONFIG.endpoint) return;
+  who.resultSent = true;
+  const data = {type:"result", inv:who.inv, org:who.org, prenom:who.prenom, animal:who.animal, lang,
+                state: encodeState(answers, core, who.prenom, lang, p.resourceIdx)};
+  fetch(CONFIG.endpoint, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(data)}).catch(()=>{ who.resultSent = false; });
+}
 
 // sendState = {k:"off"|"sending"|"sent"|"fail", email}
 function statusHTML(ctx){
@@ -1775,6 +1831,7 @@ function renderReport(p, ctx){
     <span class="eyebrow">${R.eyebrow(name)}</span>
     <div class="alloy">${alloyHTML}</div>
     <p class="lead">${R.domSec(d,s)}</p>
+    ${ctx.animal ? `<p class="animal">${T().intro.animalLine(esc(ctx.animal))}</p>` : ""}
   </div>
 
   ${ctx.locked ? `<span class="tag">${T().gate.freeTag}</span>` : `<div class="actions">
@@ -1905,6 +1962,18 @@ function renderReport(p, ctx){
         <a class="btn alt" href="/" target="_blank" rel="noopener">${R.siteBtn}</a>
       </div>
     </div>
+    <div class="panel share" id="share">
+      <span class="lab">${R.shareH}</span>
+      ${[["quiz", R.shareQuiz], ...(link ? [["mine", R.shareMine]] : [])].map(([k,h])=>`<div class="share-row">
+        <p><strong>${h}</strong></p>
+        <div class="row-actions">
+          <a class="btn ghost small" data-share="${k}" data-via="wa" href="#" target="_blank" rel="noopener">${R.shareWa}</a>
+          <a class="btn ghost small" data-share="${k}" data-via="mail" href="#">${R.shareMail}</a>
+          <button class="btn ghost small" type="button" data-share="${k}" data-via="copy">${R.shareCopy}</button>
+          <button class="btn ghost small" type="button" data-share="${k}" data-via="native" hidden>${R.shareMore}</button>
+          <span class="toast" id="toast-share-${k}" aria-live="polite"></span>
+        </div></div>`).join("")}
+    </div>
     <div class="row-actions"><button class="link" id="restart">${R.restart}</button></div>
   </section>`}
   </div>`;
@@ -1914,7 +1983,7 @@ function renderReport(p, ctx){
   paintStatus();
   if (current!=="report") show("report");
   const slot = document.getElementById("gate-slot");
-  if (slot){ slot.appendChild(GATE_FORM); $("#gate-submit").textContent = ctx.locked ? T().gate.submit : T().gate.submitOptin; }
+  if (slot){ slot.appendChild(GATE_FORM); if (!$("#f-prenom").value && prenom) $("#f-prenom").value = prenom; $("#gate-submit").textContent = ctx.locked ? T().gate.submit : T().gate.submitOptin; }
   if (ctx.locked) return;
 
   const flash = (id,msg)=>{ const t=document.getElementById(id); t.textContent=msg; setTimeout(()=>{t.textContent="";},4000); };
@@ -1927,6 +1996,23 @@ function renderReport(p, ctx){
     copy(ta.value, "toast-"+id, ta);
   }));
   if (link) $("#copy-link").addEventListener("click", ()=>copy(link, "toast-act"));
+
+  // Partage : WhatsApp, e-mail, copie, et partage natif du téléphone si disponible
+  const quizUrl = CONFIG.quizUrl + (lang==="en" ? "?lang=en" : "");
+  const shareData = {
+    quiz: {url: quizUrl, subject: R.shareQuizSubject, text: R.shareQuizText(quizUrl)},
+    mine: {url: link, subject: R.shareMineSubject, text: R.shareMineText(X.alloyName(p), link)}
+  };
+  root.querySelectorAll("[data-share]").forEach(el=>{
+    const sd = shareData[el.dataset.share], via = el.dataset.via;
+    if (via==="wa") el.href = "https://wa.me/?text=" + encodeURIComponent(sd.text);
+    if (via==="mail") el.href = "mailto:?subject=" + encodeURIComponent(sd.subject) + "&body=" + encodeURIComponent(sd.text);
+    if (via==="copy") el.addEventListener("click", ()=>copy(sd.text, "toast-share-"+el.dataset.share));
+    if (via==="native" && navigator.share){
+      el.hidden = false;
+      el.addEventListener("click", ()=>{ navigator.share({title: sd.subject, text: sd.text}).catch(()=>{}); });
+    }
+  });
 
   $("#dl-pdf").addEventListener("click", async ()=>{
     const btn = $("#dl-pdf"), R2 = T().r;
@@ -1965,6 +2051,7 @@ function renderReport(p, ctx){
   const st = m ? decodeState(m[1]) : null;
   if (st && !new URLSearchParams(location.search).get("lang")) lang = st.lang;
   applyStatic();
+  if (who.prenom) $("#h-prenom").value = who.prenom;
   if (st){
     answers = st.answers;
     const p = buildProfile(computeScores(answers), st.core);
