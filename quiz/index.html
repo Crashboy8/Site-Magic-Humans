@@ -179,6 +179,11 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
 
 /* Capture e-mail */
 .gate{display:flex;flex-direction:column;gap:22px;padding-block:30px 0}
+.optin{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.optin summary{cursor:pointer;font-weight:700;color:var(--ink)}
+.optin[open] summary{margin-bottom:10px}
+.optin p{margin:0 0 12px;color:var(--muted)}
+.optin #gate-slot form{border:0;padding:0;background:transparent}
 .rs.unlock{border-top:0;background:var(--accent-soft);border-radius:var(--radius);padding:26px 22px}
 .rs.unlock ul.clean{margin:0}
 #gate-slot form,.gate form{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 22px}
@@ -985,6 +990,9 @@ const TEXT_FR = {
       prenom:"Prénom", email:"E-mail", website:"Site web",
       news:"J'accepte aussi de recevoir les conseils et actualités de Magic Humans (désinscription en un clic).",
       submit:"Recevoir la suite gratuitement →",
+      submitOptin:"M'envoyer mon rapport →",
+      optinSummary:"Recevoir aussi ce rapport en PDF par e-mail (facultatif)",
+      optinP:"Pratique pour le garder ou le relire plus tard. Indique ton prénom et ton e-mail : ton rapport complet arrive dans ta boîte mail.",
       freeTag:"Offert · sections 1 à 4",
       lockEyebrow:"Sections 5 à 7 · offertes", lockH:"Tu sais maintenant qui tu es. Voici comment en faire une force concrète.", lockP:"La suite de ton rapport transforme ce diagnostic en outils que tu peux utiliser dès demain :",
       lockList:["<strong>Ta valeur sur le marché</strong> : le type de boss, d'associé et de client qui a un besoin vital de ton profil","<strong>Le langage secret</strong> : les phrases à guetter chez ton interlocuteur pour savoir que tu es au bon endroit","<strong>Ton pitch prêt à l'emploi</strong>, rédigé pour ton profil, à reprendre pour un entretien, un rendez-vous client ou un événement réseau","<strong>Ton manuel d'utilisation</strong> à la première personne, à transmettre à ton manager ou à ton équipe","<strong>Ton auto-évaluation d'alignement</strong> : 3 curseurs pour savoir où agir en premier","<strong>Ton rapport complet en PDF</strong> (7 sections), à garder et à relire quand tu en as besoin"],
@@ -1161,6 +1169,9 @@ const TEXT_EN = {
       prenom:"First name", email:"Email", website:"Website",
       news:"I also agree to receive tips and news from Magic Humans (unsubscribe in one click).",
       submit:"Get the rest for free →",
+      submitOptin:"Send me my report →",
+      optinSummary:"Also get this report as a PDF by email (optional)",
+      optinP:"Handy to keep it or reread it later. Enter your first name and email: your full report lands in your inbox.",
       freeTag:"Free · sections 1 to 4",
       lockEyebrow:"Sections 5 to 7 · free", lockH:"You now know who you are. Here's how to turn it into a real strength.", lockP:"The rest of your report turns this diagnosis into tools you can use from tomorrow:",
       lockList:["<strong>Your market value</strong>: the kind of boss, partner and client who badly needs your profile","<strong>The secret language</strong>: the phrases to listen for so you know you're in the right place","<strong>Your ready-to-use pitch</strong>, written for your profile, for a job interview, a client meeting or a networking event","<strong>Your user manual</strong> in the first person, to share with your manager or team","<strong>Your alignment self-assessment</strong>: 3 dials to see where to act first","<strong>Your full PDF report</strong> (7 sections), to keep and reread whenever you need it"],
@@ -1300,7 +1311,9 @@ var CONFIG = {
   calendly: "https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=quiz&utm_campaign=talent-unique",
   quizUrl: "https://www.magichumans.com/quiz/",
   // URL de l'application Web Google Apps Script. Vide = envoi par e-mail désactivé.
-  endpoint: "https://script.google.com/macros/s/AKfycbwJ_7OBlikybu2pCM0GY4NAUygPzHoUQ0QbCS6B5rtXJe_hciJESTmrWeyspbML-kLghA/exec"
+  endpoint: "https://script.google.com/macros/s/AKfycbwJ_7OBlikybu2pCM0GY4NAUygPzHoUQ0QbCS6B5rtXJe_hciJESTmrWeyspbML-kLghA/exec",
+  // true = e-mail obligatoire pour les sections 5 à 7 ; false = rapport entièrement gratuit, e-mail facultatif.
+  emailGate: false
 };
 
 const LANGS = {
@@ -1683,7 +1696,7 @@ function openGate(s, core){
   p.resourceIdx = resourceAnswers.slice();
   pending = {p, core};
   $("#gate-err").textContent = "";
-  renderReport(p, {core, locked:true});
+  renderReport(p, {core, locked: !!CONFIG.emailGate});
 }
 function fillGate(){
   const {p} = pending, A = C().A;
@@ -1703,7 +1716,7 @@ $("#gate-form").addEventListener("submit", e=>{
   try { history.replaceState(null, "", location.pathname+"#r="+state); } catch(_){}
   const newsletter = GATE_FORM.querySelector("#f-news").checked, website = GATE_FORM.querySelector("#f-website").value;
   renderReport(p, {prenom, email, core});
-  const s5 = document.getElementById("s5"); if (s5) s5.scrollIntoView();
+  if (CONFIG.emailGate){ const s5 = document.getElementById("s5"); if (s5) s5.scrollIntoView(); }
   sendReport({prenom, email, state, lang, newsletter, website});
 });
 
@@ -1771,7 +1784,12 @@ function renderReport(p, ctx){
       <span class="toast" id="toast-act" aria-live="polite"></span>
     </div>
     <p class="status" id="send-status" aria-live="polite"></p>
-  </div>`}
+  </div>
+  ${(!ctx.email && !ctx.demo) ? `<details class="optin" id="optin">
+    <summary>${T().gate.optinSummary}</summary>
+    <p>${T().gate.optinP}</p>
+    <div id="gate-slot"></div>
+  </details>` : ""}`}
 
   <nav class="toc" aria-label="${R.titles.join(", ")}" style="padding-top:16px">
     ${R.toc.map((t,i)=>`<a href="${ctx.locked && i>3 ? "#unlock" : "#s"+(i+1)}">${t}</a>`).join("")}
@@ -1895,7 +1913,9 @@ function renderReport(p, ctx){
   root.innerHTML = html;
   paintStatus();
   if (current!=="report") show("report");
-  if (ctx.locked){ $("#gate-slot").appendChild(GATE_FORM); return; }
+  const slot = document.getElementById("gate-slot");
+  if (slot){ slot.appendChild(GATE_FORM); $("#gate-submit").textContent = ctx.locked ? T().gate.submit : T().gate.submitOptin; }
+  if (ctx.locked) return;
 
   const flash = (id,msg)=>{ const t=document.getElementById(id); t.textContent=msg; setTimeout(()=>{t.textContent="";},4000); };
   async function copy(text, toastId, fallbackEl){
