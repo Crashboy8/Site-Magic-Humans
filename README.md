@@ -66,6 +66,13 @@ Les liens Calendly du site portent des paramètres UTM normalisés (`utm_source=
 
 Page autonome `quiz/index.html` : QCM en 6 questions, capture du prénom et de l'e-mail, rapport en 7 sections, PDF téléchargeable et lien personnel (`/quiz/#r=...`). L'envoi automatique du rapport par e-mail passe par un script Google Apps Script relié à un Google Sheet ; son URL se colle dans `CONFIG.endpoint` en haut du script de la page. Les sources et le guide d'installation sont dans le kit « magic-humans-quiz ».
 
+### Rapport gratuit ou e-mail obligatoire
+
+Dans `quiz/index.html`, l'objet `CONFIG` contient `emailGate` :
+
+- `false` (réglage actuel) : le rapport complet est gratuit dès la fin du quiz ; l'e-mail est facultatif et sert seulement à recevoir le PDF.
+- `true` : les sections 1 à 4 sont gratuites, les sections 5 à 7 s'affichent après avoir donné son prénom et son e-mail.
+
 ### Règles à respecter quand on modifie le quiz
 
 Le script Google Apps Script qui envoie le rapport PDF par e-mail lit le moteur du quiz **directement sur la page en ligne** (`/quiz/`), à chaque envoi (avec un cache de 10 minutes). Il n'y a donc rien à mettre à jour côté Google quand on change les textes, les questions, le rapport ou l'e-mail, à condition de respecter ces règles :
