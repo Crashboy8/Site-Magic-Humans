@@ -56,3 +56,17 @@ h3 {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Mode « séance » : plein écran, sans menus, lisible sur grand écran. */
+html[data-seance] [data-chrome] {
+  display: none;
+}
+html[data-seance] main {
+  zoom: 1.2;
+  max-width: none;
+  padding-left: clamp(1.5rem, 4vw, 4rem);
+  padding-right: clamp(1.5rem, 4vw, 4rem);
+}
+html[data-seance] .sticky {
+  top: 0;
+}

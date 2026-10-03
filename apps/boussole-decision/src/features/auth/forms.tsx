@@ -134,20 +134,10 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
         <Field label="Mot de passe" htmlFor="password" hint="8 caractères minimum." error={fe.password}>
           <Input id="password" name="password" type="password" autoComplete="new-password" aria-invalid={Boolean(fe.password)} />
         </Field>
-        <div className="space-y-1">
-          <label className="flex items-start gap-3 text-[15px] leading-snug text-ink">
-            <input type="checkbox" name="consent" className="mt-1 h-5 w-5 shrink-0 accent-[#b34716]" />
-            <span>
-              J&apos;ai compris que mes boussoles sont privées, mais que <strong className="font-medium">mon coach peut les consulter</strong>{" "}
-              (en lecture seule) pour préparer nos séances.
-            </span>
-          </label>
-          {fe.consent && (
-            <p className="text-sm text-danger" role="alert">
-              {fe.consent}
-            </p>
-          )}
-        </div>
+        <p className="rounded-xl bg-sand/70 px-4 py-3 text-sm text-ink-soft">
+          🔒 Tes boussoles sont privées. Rien n&apos;est visible par ton coach tant que tu ne choisis pas, profil par profil, de les
+          partager avec lui. Tu peux retirer ce partage à tout moment.
+        </p>
         {state.error && <Notice tone="error">{state.error}</Notice>}
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? "Création…" : "Créer mon compte"}

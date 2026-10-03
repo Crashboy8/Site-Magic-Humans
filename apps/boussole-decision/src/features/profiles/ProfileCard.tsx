@@ -17,6 +17,7 @@ export function ProfileCard({ profile, versions, href }: { profile: Profile; ver
           {versions.length} version{versions.length > 1 ? "s" : ""}
         </Badge>
         {finalized > 0 && <Badge tone="sage">{finalized} finalisée{finalized > 1 ? "s" : ""}</Badge>}
+        {profile.sharedWithCoach && <Badge tone="accent">Partagé avec le coach</Badge>}
         {latest && <span>· modifié le {formatDate(latest.updatedAt)}</span>}
       </div>
     </Link>

@@ -49,7 +49,6 @@ export async function signUpAction(_prev: AuthState, fd: FormData): Promise<Auth
   if (!firstName) fieldErrors.first_name = "Indique ton prénom.";
   if (!EMAIL_RE.test(email)) fieldErrors.email = "Cette adresse email ne semble pas valide.";
   if (password.length < 8) fieldErrors.password = "Au moins 8 caractères.";
-  if (!fd.get("consent")) fieldErrors.consent = "Merci de cocher cette case pour continuer.";
   if (Object.keys(fieldErrors).length) return { fieldErrors };
 
   const supabase = await supabaseServer();

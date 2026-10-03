@@ -9,8 +9,18 @@ export interface AppUser {
   firstName: string;
   role: UserRole;
   coachId: string | null;
+  invitationCode: string | null;
   tutorialSeenAt: string | null;
   createdAt: string;
+}
+
+/** Talent Unique (Talent MO2I) : « Je [Mécanisme] dans un environnement où [Contexte Déclencheur], afin de [Super bénéfice]. » */
+export interface TalentUnique {
+  mecanisme: string;
+  contexteDeclencheur: string;
+  superBenefice: string;
+  /** Anti-Contexte (ou Contexte d'Inhibition) : ce qui éteint le talent. */
+  antiContexte: string;
 }
 
 export interface Profile {
@@ -18,6 +28,9 @@ export interface Profile {
   userId: string;
   name: string;
   description: string;
+  talent: TalentUnique;
+  sharedWithCoach: boolean;
+  sharedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,7 +54,8 @@ export interface Version {
   finalizedAt: string | null;
 }
 
-export type CategoryKey = "talent" | "valeurs" | "logistique" | "remuneration" | "autre";
+/** Catégories de la matrice de décision MO2I. */
+export type CategoryKey = "contexte_declencheur" | "anti_contexte" | "valeurs_culture" | "conditions_vie" | "remuneration";
 
 export interface Category {
   id: string;
@@ -51,7 +65,11 @@ export interface Category {
   position: number;
 }
 
-export type Importance = "eliminatoire" | "crucial" | "tres_important" | "important" | "souhaitable" | "bonus";
+/** DEALBREAKER : strict / éliminatoire. WEIGHTED : pondéré de 1 à 5. */
+export type CriterionKind = "DEALBREAKER" | "WEIGHTED";
+/** TOWARDS : pour aller vers. AWAY_FROM : pour éviter. */
+export type CriterionDirection = "TOWARDS" | "AWAY_FROM";
+export type Weight = 1 | 2 | 3 | 4 | 5;
 
 export interface Criterion {
   id: string;
@@ -59,7 +77,10 @@ export interface Criterion {
   categoryId: string;
   label: string;
   description: string;
-  importance: Importance;
+  kind: CriterionKind;
+  /** null pour un critère DEALBREAKER. */
+  weight: Weight | null;
+  direction: CriterionDirection;
   position: number;
 }
 
@@ -87,5 +108,29 @@ export interface InvitationCode {
   maxUses: number;
   usedCount: number;
   expiresAt: string | null;
+  disabledAt: string | null;
   createdAt: string;
+}
+
+export type CommentTarget = "version" | "criterion" | "opportunity";
+
+export interface CoachComment {
+  id: string;
+  versionId: string;
+  ownerId: string;
+  authorId: string;
+  targetType: CommentTarget;
+  targetId: string;
+  body: string;
+  createdAt: string;
+  readAt: string | null;
+}
+
+export interface CoacheeSummary {
+  id: string;
+  firstName: string;
+  email: string;
+  createdAt: string;
+  lastActivityAt: string;
+  sharedProfiles: number;
 }

@@ -63,9 +63,24 @@ select id as version_id from versions where profile_id = :'profile_id' \gset
 select pg_temp.check((select count(*) from categories where version_id = :'version_id') = 5,
   'une version naît avec les 5 catégories par défaut');
 
-insert into criteria (version_id, category_id, label, importance)
-  select :'version_id', id, 'Je raconte des histoires', 'crucial' from categories
-   where version_id = :'version_id' and key = 'talent';
+select pg_temp.check(
+  (select array_agg(key order by position) from categories where version_id = :'version_id')
+    = array['contexte_declencheur', 'anti_contexte', 'valeurs_culture', 'conditions_vie', 'remuneration'],
+  'les catégories MO2I sont créées dans l''ordre');
+
+insert into criteria (version_id, category_id, label, kind, weight, direction)
+  select :'version_id', id, 'Raconter des histoires qui donnent envie d''agir', 'WEIGHTED', 5, 'TOWARDS'
+    from categories where version_id = :'version_id' and key = 'contexte_declencheur';
+select pg_temp.expect_error(
+  format($$insert into criteria (version_id, category_id, label, kind, weight)
+           select %L, id, 'Ligne rouge pondérée', 'DEALBREAKER', 3 from categories
+            where version_id = %L and key = 'anti_contexte'$$, :'version_id', :'version_id'),
+  'criteria_weight_check');
+select pg_temp.expect_error(
+  format($$insert into criteria (version_id, category_id, label, kind, weight)
+           select %L, id, 'Poids hors échelle', 'WEIGHTED', 6 from categories
+            where version_id = %L and key = 'anti_contexte'$$, :'version_id', :'version_id'),
+  'criteria_weight_check');
 insert into opportunities (version_id, name) values (:'version_id', 'PME éco-construction');
 insert into evaluations (criterion_id, opportunity_id, version_id, value)
   select c.id, o.id, :'version_id', 'p75' from criteria c, opportunities o
@@ -86,19 +101,88 @@ select pg_temp.expect_error(
 update profiles set name = 'piraté' where id = :'profile_id';
 select pg_temp.expect_error($$update app_users set role = 'coach'$$, 'permission denied');
 
--- Le coach lit tout, sans pouvoir modifier ------------------------------------------
+-- Sans partage, le coach ne voit RIEN ----------------------------------------------
 set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
-select pg_temp.check((select count(*) from profiles) = 1, 'le coach voit le profil d''Alice');
-select pg_temp.check((select count(*) from evaluations) = 1, 'le coach voit les évaluations d''Alice');
-select pg_temp.check((select count(*) from app_users) = 3, 'le coach voit la fiche de ses coachés');
-update profiles set name = 'modifié par le coach' where id = :'profile_id';
+select pg_temp.check((select count(*) from profiles) = 0, 'profil non partagé : le coach ne voit pas le profil');
+select pg_temp.check((select count(*) from versions) = 0, 'profil non partagé : le coach ne voit pas les versions');
+select pg_temp.check((select count(*) from criteria) = 0, 'profil non partagé : le coach ne voit pas les critères');
+select pg_temp.check((select count(*) from evaluations) = 0, 'profil non partagé : le coach ne voit pas les évaluations');
+select pg_temp.check((select count(*) from app_users) = 3, 'le coach voit la fiche (nom, email) de ses coachés');
+select pg_temp.check(
+  (select shared_profiles from public.coach_dashboard() where first_name = 'Alice') = 0
+  and (select last_activity_at is not null from public.coach_dashboard() where first_name = 'Alice'),
+  'tableau de bord : dernière activité visible, aucun profil partagé');
+select pg_temp.expect_error(
+  format($$insert into comments (version_id, target_type, target_id, body) values (%L, 'version', %L, 'Bravo')$$,
+         :'version_id', :'version_id'),
+  'row-level security');
+update profiles set shared_with_coach = true where id = :'profile_id';
 insert into invitation_codes (code, coach_id, label) values ('NOUVEAU-CODE', auth.uid(), 'Pour Claire');
 select pg_temp.check((select count(*) from invitation_codes) = 2, 'le coach gère ses codes (et ne voit pas ceux des autres)');
+select pg_temp.check((select max_uses from invitation_codes where code = 'NOUVEAU-CODE') = 1, 'un nouveau code est à usage unique');
+update invitation_codes set disabled_at = now() where code = 'NOUVEAU-CODE';
+select pg_temp.check(not public.check_invitation_code('NOUVEAU-CODE'), 'un code désactivé est refusé au formulaire');
+reset role;
+select pg_temp.expect_error(
+  $$insert into auth.users (email, raw_user_meta_data) values ('claire@test.fr', '{"invitation_code":"NOUVEAU-CODE"}')$$,
+  'CODE_INVITATION_INVALIDE');
+set role authenticated;
+
+-- Alice partage son profil -------------------------------------------------------------
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+select pg_temp.check((select not shared_with_coach from profiles where id = :'profile_id'),
+  'le coach ne peut pas activer le partage à la place du coaché');
+update profiles set shared_with_coach = true where id = :'profile_id';
+select pg_temp.check((select shared_at is not null from profiles where id = :'profile_id'), 'la date de partage est posée');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check((select count(*) from profiles) = 1, 'profil partagé : le coach voit le profil');
+select pg_temp.check((select count(*) from criteria) = 1, 'profil partagé : le coach voit les critères');
+select pg_temp.check((select count(*) from evaluations) = 1, 'profil partagé : le coach voit les évaluations');
+select pg_temp.check((select shared_profiles from public.coach_dashboard() where first_name = 'Alice') = 1,
+  'tableau de bord : un profil partagé');
+update profiles set name = 'modifié par le coach' where id = :'profile_id';
+update criteria set label = 'modifié par le coach';
+delete from evaluations;
+select pg_temp.expect_error(
+  format($$insert into opportunities (version_id, name) values (%L, 'Ajout du coach')$$, :'version_id'),
+  'row-level security');
+
+insert into comments (version_id, target_type, target_id, body)
+  values (:'version_id', 'version', :'version_id', 'Belle progression depuis la dernière séance.');
+insert into comments (version_id, target_type, target_id, body)
+  select :'version_id', 'criterion', id, 'Ce critère mérite-t-il vraiment 5 ?' from criteria limit 1;
+select pg_temp.expect_error(
+  format($$insert into comments (version_id, target_type, target_id, body) values (%L, 'criterion', %L, 'x')$$,
+         :'version_id', :'version_id'),
+  'CIBLE_INVALIDE');
+select pg_temp.check((select count(*) from comments) = 2, 'le coach commente une version et un critère');
+select pg_temp.check((select bool_and(owner_id = '00000000-0000-0000-0000-0000000000a1') from comments),
+  'le destinataire est le coaché propriétaire');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.check((select count(*) from comments) = 0, 'Bob ne voit pas les commentaires adressés à Alice');
+select pg_temp.expect_error(
+  format($$insert into comments (version_id, target_type, target_id, body) values (%L, 'version', %L, 'Intrus')$$,
+         :'version_id', :'version_id'),
+  'row-level security');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+select pg_temp.check((select count(*) from comments where read_at is null) = 2, 'Alice a 2 commentaires non lus');
+update comments set read_at = now();
+select pg_temp.check((select count(*) from comments where read_at is null) = 0, 'Alice marque les commentaires comme lus');
+select pg_temp.expect_error($$update comments set body = 'réécrit'$$, 'permission denied');
+select pg_temp.expect_error(
+  format($$insert into comments (version_id, target_type, target_id, body) values (%L, 'version', %L, 'auto')$$,
+         :'version_id', :'version_id'),
+  'row-level security');
 
 -- Alice : duplication, verrou, suppression ---------------------------------------------
 set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
 select pg_temp.check((select name from profiles where id = :'profile_id') = 'Reconversion 2026',
   'ni Bob ni le coach n''ont pu renommer le profil');
+select pg_temp.check((select label from criteria limit 1) like 'Raconter%' and (select count(*) from evaluations) = 1,
+  'le coach n''a pu ni modifier un critère ni supprimer une évaluation');
 select pg_temp.expect_error($$insert into invitation_codes (code, coach_id) values ('ALICE-CODE', auth.uid())$$,
   'row-level security');
 
@@ -113,6 +197,9 @@ select pg_temp.check(
   (select category_id from criteria where version_id = :'v1_id')
     in (select id from categories where version_id = :'v1_id'),
   'les critères copiés pointent vers les catégories copiées');
+select pg_temp.check(
+  (select kind = 'WEIGHTED' and weight = 5 and direction = 'TOWARDS' from criteria where version_id = :'v1_id'),
+  'la duplication conserve type, poids et direction des critères');
 
 update versions set status = 'finalisee' where id = :'version_id';
 select pg_temp.check((select finalized_at is not null from versions where id = :'version_id'),
@@ -131,6 +218,14 @@ update versions set status = 'finalisee' where id = :'version_id';
 delete from versions where id = :'version_id';
 select pg_temp.check((select count(*) from criteria where version_id = :'version_id') = 0,
   'une version finalisée peut être supprimée avec son contenu');
+
+-- Révocation du partage ------------------------------------------------------------
+update profiles set shared_with_coach = false where id = :'profile_id';
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check((select count(*) from profiles) = 0 and (select count(*) from versions) = 0,
+  'partage révoqué : le coach ne voit plus rien');
+select pg_temp.check((select count(*) from comments) = 0, 'partage révoqué : ni ses commentaires');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
 
 delete from profiles where id = :'profile_id';
 select pg_temp.check((select count(*) from versions) = 0, 'supprimer un profil supprime ses versions');

@@ -23,14 +23,37 @@ supabase/
 └── tests/       Tests SQL de sécurité (Postgres nu)
 ```
 
+### Méthode Magic Humans / MO2I
+
+La terminologie officielle est centralisée dans `src/domain/methodology.ts` (Talent Unique, Contexte Déclencheur,
+Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'interface.
+
+- Chaque profil porte la phrase de **Talent Unique** : « Je [Mécanisme] dans un environnement où
+  [Contexte Déclencheur], afin de [Super bénéfice]. », et l'**Anti-Contexte**.
+- Catégories de la matrice : Contexte Déclencheur & Flow · Anti-Contexte & Lignes Rouges · Alignement Valeurs & Culture ·
+  Conditions de Vie & QVT · Rémunération & Viabilité Financière (+ catégories personnelles).
+- Chaque critère : type `DEALBREAKER` (éliminatoire) ou `WEIGHTED` (poids 1 à 5), direction `TOWARDS` (pour aller vers)
+  ou `AWAY_FROM` (pour éviter : on évalue la présence du risque).
+
+### Moteur de calcul (`src/domain/scoring.ts`)
+
+- Satisfaction : `TOWARDS` → valeur évaluée ; `AWAY_FROM` → 100 − présence.
+- Score d'alignement global (%) = Σ(poids × satisfaction) / Σ(poids × 100), sur les critères pondérés évalués.
+- « Je ne sais pas encore » et cases vides : exclus du calcul, listés « à vérifier ».
+- `DEALBREAKER` respecté seulement à 100 % ; sinon l'opportunité est « non conforme » et classée après les autres.
+  Inconnu → « à vérifier ».
+- Alertes Anti-Contexte : critère `AWAY_FROM` présent à 50 % ou plus ; ligne rouge (`AWAY_FROM` éliminatoire) franchie dès 25 %.
+
 ### Accès et sécurité
 
-- Inscription **uniquement avec un code d'invitation** valide : vérifié dans le formulaire, et imposé par la base
-  (un déclencheur refuse toute création de compte sans code valide, même en appelant Supabase directement).
+- Deux rôles : `coach` et `coache`. Inscription **uniquement avec un code d'invitation** (à usage unique, désactivable),
+  vérifié dans le formulaire et imposé par la base.
 - Chaque table porte `user_id` ; les règles RLS limitent chaque personne à ses propres données.
-- Le **coach** (rôle `coach`) lit, sans pouvoir les modifier, les données des coachés inscrits avec l'un de ses codes.
-  Les coachés en sont informés à l'inscription.
+- Le **coach ne voit rien** tant que le coaché n'a pas activé « Partager avec mon coach » sur un profil.
+  Le partage est révocable ; il ne donne qu'un accès en lecture, plus la possibilité de commenter
+  (version, critère, opportunité). Le coaché est notifié des nouveaux commentaires.
 - Une version **finalisée** est verrouillée par la base ; on peut la rouvrir ou la dupliquer.
+- Toutes ces règles sont testées dans `supabase/tests/rls.test.sql` (`npm run test:db`).
 
 ## Développement local
 
@@ -61,7 +84,7 @@ npm run test:db   # tests de sécurité SQL, sur un Postgres local (psql/created
 ### 1. Supabase
 
 1. Créer un projet sur supabase.com (région Europe, ex. Paris).
-2. **SQL Editor** : exécuter `supabase/migrations/20261003000000_schema.sql`, puis `supabase/seed.sql`.
+2. **SQL Editor** : exécuter, dans l'ordre, les fichiers de `supabase/migrations/`, puis `supabase/seed.sql`.
 3. **Authentication → URL Configuration**
    - Site URL : `https://www.magichumans.com/boussole-decision/`
    - Redirect URLs : `https://www.magichumans.com/boussole-decision/**`

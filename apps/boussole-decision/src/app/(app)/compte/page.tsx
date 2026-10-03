@@ -23,7 +23,7 @@ export default async function AccountPage() {
             <dd>{formatDate(user.createdAt)}</dd>
           </dl>
           {user.role === "coache" && (
-            <p className="pt-2 text-sm text-ink-soft">Tes boussoles sont privées ; ton coach peut les consulter en lecture seule.</p>
+            <p className="pt-2 text-sm text-ink-soft">Tes boussoles sont privées. Ton coach ne voit que les profils que tu choisis de partager avec lui, en lecture seule, et tu peux retirer ce partage à tout moment.</p>
           )}
         </Card>
         <Card className="space-y-4" id="mot-de-passe">

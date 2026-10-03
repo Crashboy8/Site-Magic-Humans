@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ReadOnlyBanner } from "@/components/ReadOnlyBanner";
 import { getAppUser, getProfile, listVersions } from "@/data/repository";
 import { ProfileHeader } from "@/features/profiles/ProfileHeader";
+import { ShareWithCoach } from "@/features/profiles/ShareWithCoach";
+import { TalentUniqueEditor } from "@/features/profiles/TalentUniqueEditor";
 import { VersionList } from "@/features/versions/VersionList";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
@@ -28,6 +30,11 @@ export default async function ProfilePage({ params }: PageProps<"/profils/[profi
       </nav>
       {readOnly && <ReadOnlyBanner ownerName={owner?.firstName || owner?.email || "ton coaché"} />}
       <ProfileHeader profile={profile} readOnly={readOnly} />
+
+      <div className="mb-12 space-y-6">
+        {!readOnly && <ShareWithCoach profileId={profile.id} initialShared={profile.sharedWithCoach} />}
+        <TalentUniqueEditor profileId={profile.id} talent={profile.talent} readOnly={readOnly} />
+      </div>
 
       <section aria-labelledby="versions" className="space-y-4">
         <div>

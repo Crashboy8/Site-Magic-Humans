@@ -28,7 +28,10 @@ export default async function CoacheePage({ params }: PageProps<"/coach/[userId]
         {coachee.email}
       </PageTitle>
       {profiles.length === 0 ? (
-        <p className="text-ink-soft">Aucun profil créé pour l&apos;instant.</p>
+        <p className="max-w-xl text-ink-soft">
+          {coachee.firstName || "Ce coaché"} n&apos;a encore partagé aucun profil avec toi. Le partage se fait à son initiative, profil
+          par profil, depuis son espace.
+        </p>
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {profiles.map((p) => (
