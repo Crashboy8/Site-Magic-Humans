@@ -109,9 +109,10 @@ Le `vercel.json` à la racine du dépôt relaie le chemin vers le projet (adress
 ```json
 "rewrites": [
   { "source": "/boussole-decision", "destination": "https://boussole-decision.vercel.app/boussole-decision/" },
-  { "source": "/boussole-decision/", "destination": "https://boussole-decision.vercel.app/boussole-decision/" },
-  { "source": "/boussole-decision/:path*", "destination": "https://boussole-decision.vercel.app/boussole-decision/:path*" }
+  { "source": "/boussole-decision/(.*)", "destination": "https://boussole-decision.vercel.app/boussole-decision/$1" }
 ]
 ```
+
+Avec `trailingSlash: true`, une source `/:path*` ne capture pas le slash final : on utilise donc `(.*)`.
 
 Le site statique redirige `/apps/` vers son accueil (voir `vercel.json` à la racine), pour ne pas exposer ce code. Pas de `.vercelignore` à la racine : Vercel l'appliquerait aussi à ce projet et supprimerait son code avant la construction.
