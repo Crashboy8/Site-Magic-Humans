@@ -90,4 +90,4 @@ Le script Google Apps Script qui envoie le rapport PDF par e-mail lit le moteur 
 
 ## Boussole de décision (`/boussole-decision/`)
 
-Outil web réservé aux coachés (inscription avec code d'invitation), développé en Next.js + Supabase dans `apps/boussole-decision/` et déployé par un **projet Vercel séparé** (Root Directory : `apps/boussole-decision`). Le site statique ne publie pas le dossier `apps/` (`.vercelignore`) et relaie `/boussole-decision/` vers ce projet par une réécriture dans `vercel.json`. Installation, tests et mise en production : voir `apps/boussole-decision/README.md`.
+Outil web réservé aux coachés (inscription avec code d'invitation), développé en Next.js + Supabase dans `apps/boussole-decision/` et déployé par un **projet Vercel séparé** (Root Directory : `apps/boussole-decision`). Le site statique redirige `/apps/` vers l'accueil (`vercel.json`) pour ne pas exposer le code de l'outil et relaie `/boussole-decision/` vers ce projet par une réécriture dans `vercel.json`. Installation, tests et mise en production : voir `apps/boussole-decision/README.md`.
