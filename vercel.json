@@ -1,3 +1,7 @@
 {
-  "trailingSlash": true
+  "trailingSlash": true,
+  "redirects": [
+    { "source": "/apps", "destination": "/", "permanent": false },
+    { "source": "/apps/:path*", "destination": "/", "permanent": false }
+  ]
 }

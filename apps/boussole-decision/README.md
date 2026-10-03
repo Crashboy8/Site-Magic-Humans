@@ -113,4 +113,4 @@ Dans le `vercel.json` à la racine du dépôt, ajouter la réécriture vers l'ad
 ]
 ```
 
-Le site statique ne publie pas le dossier `apps/` (voir `.vercelignore` à la racine).
+Le site statique redirige `/apps/` vers son accueil (voir `vercel.json` à la racine), pour ne pas exposer ce code. Pas de `.vercelignore` à la racine : Vercel l'appliquerait aussi à ce projet et supprimerait son code avant la construction.
