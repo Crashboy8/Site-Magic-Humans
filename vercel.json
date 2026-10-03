@@ -1,11 +1,29 @@
 {
   "trailingSlash": true,
   "redirects": [
-    { "source": "/apps", "destination": "/", "permanent": false },
-    { "source": "/apps/:path*", "destination": "/", "permanent": false }
+    {
+      "source": "/apps",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/apps/:path*",
+      "destination": "/",
+      "permanent": false
+    }
   ],
   "rewrites": [
-    { "source": "/boussole-decision", "destination": "https://boussole-decision.vercel.app/boussole-decision/" },
-    { "source": "/boussole-decision/:path*", "destination": "https://boussole-decision.vercel.app/boussole-decision/:path*" }
+    {
+      "source": "/boussole-decision",
+      "destination": "https://boussole-decision.vercel.app/boussole-decision/"
+    },
+    {
+      "source": "/boussole-decision/",
+      "destination": "https://boussole-decision.vercel.app/boussole-decision/"
+    },
+    {
+      "source": "/boussole-decision/:path*",
+      "destination": "https://boussole-decision.vercel.app/boussole-decision/:path*"
+    }
   ]
 }

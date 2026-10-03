@@ -109,6 +109,7 @@ Le `vercel.json` à la racine du dépôt relaie le chemin vers le projet (adress
 ```json
 "rewrites": [
   { "source": "/boussole-decision", "destination": "https://boussole-decision.vercel.app/boussole-decision/" },
+  { "source": "/boussole-decision/", "destination": "https://boussole-decision.vercel.app/boussole-decision/" },
   { "source": "/boussole-decision/:path*", "destination": "https://boussole-decision.vercel.app/boussole-decision/:path*" }
 ]
 ```
