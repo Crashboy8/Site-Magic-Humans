@@ -104,12 +104,12 @@ npm run test:db   # tests de sécurité SQL, sur un Postgres local (psql/created
 
 ### 3. Relais depuis le site principal
 
-Dans le `vercel.json` à la racine du dépôt, ajouter la réécriture vers l'adresse du projet :
+Le `vercel.json` à la racine du dépôt relaie le chemin vers le projet (adresse : boussole-decision.vercel.app) :
 
 ```json
 "rewrites": [
-  { "source": "/boussole-decision", "destination": "https://<projet>.vercel.app/boussole-decision/" },
-  { "source": "/boussole-decision/:path*", "destination": "https://<projet>.vercel.app/boussole-decision/:path*" }
+  { "source": "/boussole-decision", "destination": "https://boussole-decision.vercel.app/boussole-decision/" },
+  { "source": "/boussole-decision/:path*", "destination": "https://boussole-decision.vercel.app/boussole-decision/:path*" }
 ]
 ```
 
