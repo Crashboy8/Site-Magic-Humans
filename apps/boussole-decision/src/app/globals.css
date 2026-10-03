@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Palette Magic Humans, ajustée pour des contrastes AA. */
+@theme {
+  --color-ink: #3a2f24;
+  --color-ink-soft: #6b5d4e;
+  --color-cream: #fbf7f0;
+  --color-paper: #fffdf9;
+  --color-sand: #f1e9dc;
+  --color-blush: #f7e9de;
+  --color-line: rgb(58 47 36 / 0.14);
+  --color-accent: #e2683a;       /* décoratif uniquement */
+  --color-accent-strong: #b34716; /* boutons (texte blanc : 5,5:1) */
+  --color-accent-deep: #8f3810;
+  --color-link: #a8431a;         /* texte sur crème : 5,6:1 */
+  --color-sage: #5f7a5a;
+  --color-sage-soft: #e6eee1;
+  --color-danger: #a33a2a;
+  --color-danger-soft: #f8e3dd;
+
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-script: var(--font-caveat), cursive;
+}
+
+html {
+  background: var(--color-cream);
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 350;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

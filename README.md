@@ -87,3 +87,7 @@ Le script Google Apps Script qui envoie le rapport PDF par e-mail lit le moteur 
 - Ne jamais utiliser `document`, `window` ou `localStorage` dans la partie moteur : elle est aussi exécutée sur les serveurs de Google.
 - Conserver ces noms, que le script utilise : `decodeState`, `computeScores`, `buildProfile`, `personalLink`, `reportDocHTML`, `emailHTML`, `alloyName`, `L`, `A_FR`, `cleanName`, `esc`, `CONFIG`, ainsi que `L(lang).X.T.mail` pour les textes de l'e-mail.
 - Si l'une de ces règles doit changer, il faut aussi mettre à jour le script dans Apps Script (Déployer → Gérer les déploiements → Nouvelle version).
+
+## Boussole de décision (`/boussole-decision/`)
+
+Outil web réservé aux coachés (inscription avec code d'invitation), développé en Next.js + Supabase dans `apps/boussole-decision/` et déployé par un **projet Vercel séparé** (Root Directory : `apps/boussole-decision`). Le site statique ne publie pas le dossier `apps/` (`.vercelignore`) et relaie `/boussole-decision/` vers ce projet par une réécriture dans `vercel.json`. Installation, tests et mise en production : voir `apps/boussole-decision/README.md`.
