@@ -1,0 +1,3 @@
+# Le site statique ne publie pas le code de l'outil Boussole de décision :
+# il est déployé par un projet Vercel séparé (dossier racine apps/boussole-decision).
+/apps
