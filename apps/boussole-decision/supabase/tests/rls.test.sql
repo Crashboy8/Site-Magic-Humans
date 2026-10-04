@@ -68,19 +68,14 @@ select pg_temp.check(
     = array['contexte_declencheur', 'anti_contexte', 'valeurs_culture', 'conditions_vie', 'remuneration'],
   'les catégories MO2I sont créées dans l''ordre');
 
-insert into criteria (version_id, category_id, label, kind, weight, direction)
-  select :'version_id', id, 'Raconter des histoires qui donnent envie d''agir', 'WEIGHTED', 5, 'TOWARDS'
+insert into criteria (version_id, category_id, label, importance, non_negotiable, direction)
+  select :'version_id', id, 'Raconter des histoires qui donnent envie d''agir', 'critique', true, 'TOWARDS'
     from categories where version_id = :'version_id' and key = 'contexte_declencheur';
 select pg_temp.expect_error(
-  format($$insert into criteria (version_id, category_id, label, kind, weight)
-           select %L, id, 'Ligne rouge pondérée', 'DEALBREAKER', 3 from categories
+  format($$insert into criteria (version_id, category_id, label, importance)
+           select %L, id, 'Importance inconnue', 'essentiel' from categories
             where version_id = %L and key = 'anti_contexte'$$, :'version_id', :'version_id'),
-  'criteria_weight_check');
-select pg_temp.expect_error(
-  format($$insert into criteria (version_id, category_id, label, kind, weight)
-           select %L, id, 'Poids hors échelle', 'WEIGHTED', 6 from categories
-            where version_id = %L and key = 'anti_contexte'$$, :'version_id', :'version_id'),
-  'criteria_weight_check');
+  'invalid input value');
 insert into opportunities (version_id, name) values (:'version_id', 'PME éco-construction');
 insert into evaluations (criterion_id, opportunity_id, version_id, value)
   select c.id, o.id, :'version_id', 'p75' from criteria c, opportunities o
@@ -198,8 +193,8 @@ select pg_temp.check(
     in (select id from categories where version_id = :'v1_id'),
   'les critères copiés pointent vers les catégories copiées');
 select pg_temp.check(
-  (select kind = 'WEIGHTED' and weight = 5 and direction = 'TOWARDS' from criteria where version_id = :'v1_id'),
-  'la duplication conserve type, poids et direction des critères');
+  (select importance = 'critique' and non_negotiable and direction = 'TOWARDS' from criteria where version_id = :'v1_id'),
+  'la duplication conserve importance, non-négociable et direction des critères');
 
 update versions set status = 'finalisee' where id = :'version_id';
 select pg_temp.check((select finalized_at is not null from versions where id = :'version_id'),

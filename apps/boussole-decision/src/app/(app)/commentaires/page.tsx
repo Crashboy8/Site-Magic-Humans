@@ -25,7 +25,7 @@ export default async function CommentsPage() {
           {comments.map((c) => (
             <li key={c.id}>
               <Link
-                href={`/versions/${c.versionId}/${c.targetType === "criterion" ? "criteres/" : ""}`}
+                href={`/versions/${c.versionId}/${c.targetType === "version" ? "" : "tableau/"}`}
                 className="block rounded-2xl border border-line bg-paper p-5 transition hover:border-ink/25 hover:shadow-md"
               >
                 <p className="mb-1 text-sm text-ink-soft">

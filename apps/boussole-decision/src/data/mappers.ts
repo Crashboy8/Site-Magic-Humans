@@ -5,6 +5,8 @@ import type {
   CoachComment,
   CoacheeSummary,
   Criterion,
+  Evaluation,
+  Opportunity,
   InvitationCode,
   Profile,
   Version,
@@ -80,8 +82,8 @@ export const mapCriterion = (r: Row): Criterion => ({
   categoryId: r.category_id,
   label: r.label,
   description: r.description,
-  kind: r.kind,
-  weight: r.weight,
+  importance: r.importance,
+  nonNegotiable: Boolean(r.non_negotiable),
   direction: r.direction,
   position: r.position,
 });
@@ -105,4 +107,20 @@ export const mapCoacheeSummary = (r: Row): CoacheeSummary => ({
   createdAt: r.created_at,
   lastActivityAt: r.last_activity_at,
   sharedProfiles: r.shared_profiles,
+});
+
+export const mapOpportunity = (r: Row): Opportunity => ({
+  id: r.id,
+  versionId: r.version_id,
+  name: r.name,
+  summary: r.summary,
+  url: r.url,
+  notes: r.notes,
+  position: r.position,
+});
+
+export const mapEvaluation = (r: Row): Evaluation => ({
+  criterionId: r.criterion_id,
+  opportunityId: r.opportunity_id,
+  value: r.value,
 });
