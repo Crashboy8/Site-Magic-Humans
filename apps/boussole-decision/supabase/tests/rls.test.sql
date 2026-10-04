@@ -275,4 +275,31 @@ set role authenticated;
 select pg_temp.expect_error($$select public.purge_stale_guests(0)$$, 'permission denied');
 
 reset role;
+
+-- Essai rattaché à un compte existant ------------------------------------------------------
+insert into auth.users (id, email, is_anonymous) values ('00000000-0000-0000-0000-0000000000a9', null, true);
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a9';
+select public.create_profile('Essai à rattacher') as essai_profile \gset
+select id as essai_version from versions where profile_id = :'essai_profile' \gset
+insert into opportunities (version_id, name) values (:'essai_version', 'Poste A');
+update versions set status = 'finalisee' where id = :'essai_version';
+select public.create_guest_transfer() as jeton \gset
+select pg_temp.expect_error($$select public.claim_guest_transfer(gen_random_uuid())$$, 'COMPTE_REQUIS');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.expect_error($$select public.create_guest_transfer()$$, 'RESERVE_AUX_ESSAIS');
+select pg_temp.check(public.claim_guest_transfer(gen_random_uuid()) = 0, 'un jeton inconnu ne transfère rien');
+select pg_temp.check(public.claim_guest_transfer(:'jeton') = 1, 'Bob récupère le profil de son essai');
+select pg_temp.check(
+  (select count(*) from profiles where id = :'essai_profile') = 1
+  and (select count(*) from opportunities where version_id = :'essai_version') = 1
+  and (select user_id from categories where version_id = :'essai_version' limit 1) = '00000000-0000-0000-0000-0000000000b2',
+  'tout le contenu de l''essai (même finalisé) appartient maintenant à Bob');
+select pg_temp.check(public.claim_guest_transfer(:'jeton') = 0, 'un jeton ne sert qu''une fois');
+reset role;
+select pg_temp.check(not exists (select 1 from app_users where id = '00000000-0000-0000-0000-0000000000a9'),
+  'le compte invité vide est supprimé');
+select pg_temp.check((select status from versions where id = :'essai_version') = 'finalisee', 'le verrou reste actif après transfert');
+
 \echo 'Tous les tests de base de données sont passés.'
