@@ -50,8 +50,13 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 
 ### Accès et sécurité
 
-- Deux rôles : `coach` et `coache`. Inscription **uniquement avec un code d'invitation** (à usage unique, désactivable),
-  vérifié dans le formulaire et imposé par la base.
+- Deux portes d'entrée (page `/bienvenue/`) :
+  - **« Essayer tout de suite »** : session invitée (connexion anonyme Supabase), sans email ; le travail est enregistré
+    en base et gardé 30 jours. « Sauvegarder mon travail » ajoute l'email : le compte devient permanent sans perte de données.
+  - **« Me connecter / Créer mon compte »** : email + mot de passe ou lien magique. Le code d'invitation est **facultatif**
+    (à usage unique, désactivable) ; sans code, la personne est rattachée au coach principal (premier compte coach).
+- Deux rôles : `coach` et `coache`. Les essais non sauvegardés n'apparaissent jamais au coach.
+- Les essais jamais sauvegardés sont supprimés après 30 jours (`purge_stale_guests`, planifiée chaque nuit via pg_cron).
 - Chaque table porte `user_id` ; les règles RLS limitent chaque personne à ses propres données.
 - Le **coach ne voit rien** tant que le coaché n'a pas activé « Partager avec mon coach » sur un profil.
   Le partage est révocable ; il ne donne qu'un accès en lecture, plus la possibilité de commenter
@@ -92,10 +97,12 @@ npm run test:db   # tests de sécurité SQL, sur un Postgres local (psql/created
 3. **Authentication → URL Configuration**
    - Site URL : `https://www.magichumans.com/boussole-decision/`
    - Redirect URLs : `https://www.magichumans.com/boussole-decision/**`
-4. **Authentication → Emails → Templates** : coller les modèles de `supabase/templates/` (sujets dans `supabase/config.toml`).
-5. **Authentication → Emails → SMTP** : brancher un service d'envoi (Brevo, Resend…). Sans cela, Supabase n'envoie
+4. **Authentication → Emails → Templates** : coller les modèles de `supabase/templates/` (sujets dans `supabase/config.toml`),
+   dont « Change email address » (`email_change.html`) utilisé quand un invité sauvegarde son travail.
+5. **Authentication → Sign In / Providers** : activer **Allow anonymous sign-ins** (« Essayer tout de suite »).
+6. **Authentication → Emails → SMTP** : brancher un service d'envoi (Brevo, Resend…). Sans cela, Supabase n'envoie
    que quelques emails par heure, ce qui bloque vite les inscriptions et les liens magiques.
-6. S'inscrire sur l'outil avec le code `BOUSSOLE-TEST-2026`, puis dans le SQL Editor :
+7. S'inscrire sur l'outil (le code `BOUSSOLE-TEST-2026` est facultatif), puis dans le SQL Editor :
    `select public.promote_to_coach('ton@email.fr');`
    Le compte devient coach : l'« Espace coach » permet ensuite de créer un code par coaché.
 

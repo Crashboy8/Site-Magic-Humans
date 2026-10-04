@@ -33,8 +33,10 @@ function translateAuthError(message: string): string {
   if (m.includes("rate limit") || m.includes("security purposes"))
     return "Trop de tentatives en peu de temps. Patiente une minute puis réessaie.";
   if (m.includes("signups not allowed") || m.includes("user not found"))
-    return "Aucun compte n'est associé à cet email. L'inscription se fait avec un code d'invitation.";
+    return "Aucun compte n'est associé à cet email. Crée ton compte, ou essaie l'outil directement.";
   if (m.includes("database error saving new user")) return "Ce code d'invitation n'est pas (ou plus) valable.";
+  if (m.includes("anonymous sign-ins are disabled")) return "L'essai sans compte n'est pas encore activé. Crée ton compte pour commencer.";
+  if (m.includes("already") && m.includes("email")) return "Cette adresse est déjà utilisée par un compte. Connecte-toi plutôt avec elle.";
   return "Une erreur est survenue. Réessaie dans un instant.";
 }
 
@@ -45,14 +47,13 @@ export async function signUpAction(_prev: AuthState, fd: FormData): Promise<Auth
   const code = normalizeInvitationCode(text(fd, "code"));
 
   const fieldErrors: Record<string, string> = {};
-  if (!code) fieldErrors.code = "Le code d'invitation est nécessaire pour créer ton compte.";
   if (!firstName) fieldErrors.first_name = "Indique ton prénom.";
   if (!EMAIL_RE.test(email)) fieldErrors.email = "Cette adresse email ne semble pas valide.";
   if (password.length < 8) fieldErrors.password = "Au moins 8 caractères.";
   if (Object.keys(fieldErrors).length) return { fieldErrors };
 
   const supabase = await supabaseServer();
-  if (!(await checkInvitationCode(supabase, code))) {
+  if (code && !(await checkInvitationCode(supabase, code))) {
     return { fieldErrors: { code: "Ce code d'invitation n'est pas (ou plus) valable. Vérifie-le auprès de Pierre." } };
   }
 
@@ -60,7 +61,7 @@ export async function signUpAction(_prev: AuthState, fd: FormData): Promise<Auth
     email,
     password,
     options: {
-      data: { invitation_code: code, first_name: firstName },
+      data: { invitation_code: code || undefined, first_name: firstName },
       emailRedirectTo: absoluteUrl("/auth/callback/", await origin()),
     },
   });
@@ -121,4 +122,44 @@ export async function signOutAction() {
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
   redirect("/connexion/");
+}
+
+/** « Essayer tout de suite » : session invitée, premier profil créé, ouverture directe du tableau. */
+export async function startTrialAction(): Promise<AuthState> {
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error || !data.user) return { error: translateAuthError(error?.message ?? "") };
+
+  const { data: profileId, error: profileError } = await supabase.rpc("create_profile", {
+    p_name: "Mon premier essai",
+    p_description: "",
+  });
+  if (profileError) redirect("/");
+  const { data: version } = await supabase.from("versions").select("id").eq("profile_id", profileId).limit(1).maybeSingle();
+  redirect(version ? `/versions/${version.id}/tableau/` : "/");
+}
+
+/** Un invité ajoute son email pour sauvegarder son travail : un lien de confirmation lui est envoyé. */
+export async function saveGuestAction(_prev: AuthState, fd: FormData): Promise<AuthState> {
+  const firstName = text(fd, "first_name");
+  const email = text(fd, "email").toLowerCase();
+  const fieldErrors: Record<string, string> = {};
+  if (!firstName) fieldErrors.first_name = "Indique ton prénom.";
+  if (!EMAIL_RE.test(email)) fieldErrors.email = "Cette adresse email ne semble pas valide.";
+  if (Object.keys(fieldErrors).length) return { fieldErrors };
+
+  const supabase = await supabaseServer();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  if (!userId) return { error: "Ta session d'essai a expiré. Recommence un essai ou crée ton compte." };
+
+  await supabase.from("app_users").update({ first_name: firstName.slice(0, 60) }).eq("id", userId);
+  const { error } = await supabase.auth.updateUser(
+    { email, data: { first_name: firstName } },
+    { emailRedirectTo: absoluteUrl("/auth/callback/?next=/compte/finaliser/", await origin()) },
+  );
+  if (error) return { error: translateAuthError(error.message) };
+  return {
+    message: `Presque fini ! Un email vient de partir vers ${email}. Ouvre-le sur cet appareil et clique sur le lien : ton travail sera alors sauvegardé sur ton compte.`,
+  };
 }

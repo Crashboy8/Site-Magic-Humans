@@ -32,7 +32,7 @@ export default async function ProfilePage({ params }: PageProps<"/profils/[profi
       <ProfileHeader profile={profile} readOnly={readOnly} />
 
       <div className="mb-12 space-y-6">
-        {!readOnly && <ShareWithCoach profileId={profile.id} initialShared={profile.sharedWithCoach} />}
+        {!readOnly && !user.isGuest && <ShareWithCoach profileId={profile.id} initialShared={profile.sharedWithCoach} />}
         <TalentUniqueEditor profileId={profile.id} talent={profile.talent} readOnly={readOnly} />
       </div>
 

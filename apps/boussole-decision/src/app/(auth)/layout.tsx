@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <header className="mb-8 flex flex-col items-center gap-3 text-center">
         <CompassMark className="h-12 w-12 text-ink" />
         <p className="font-serif text-3xl italic">Boussole de décision</p>
-        <p className="text-sm uppercase tracking-[0.14em] text-ink-soft">Magic Humans · espace des coachés</p>
+        <p className="text-sm uppercase tracking-[0.14em] text-ink-soft">Magic Humans · Talent Unique</p>
       </header>
       <main className="w-full max-w-md">{children}</main>
       <footer className="mt-auto pt-10 text-center text-sm text-ink-soft">

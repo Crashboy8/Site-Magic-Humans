@@ -225,5 +225,54 @@ set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
 delete from profiles where id = :'profile_id';
 select pg_temp.check((select count(*) from versions) = 0, 'supprimer un profil supprime ses versions');
 
+
+-- Inscription sans code et essais sans compte ------------------------------------------
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000d4', 'dora@test.fr', '{"first_name":"Dora"}');
+select pg_temp.check((select coach_id from app_users where email = 'dora@test.fr') = '00000000-0000-0000-0000-0000000000c0',
+  'inscription sans code : rattachée au coach principal');
+select pg_temp.check((select invitation_code is null from app_users where email = 'dora@test.fr'), 'aucun code enregistré');
+
+insert into auth.users (id, email, is_anonymous) values ('00000000-0000-0000-0000-0000000000e5', null, true);
+select pg_temp.check((select is_guest and email = '' and coach_id = '00000000-0000-0000-0000-0000000000c0'
+                        from app_users where id = '00000000-0000-0000-0000-0000000000e5'),
+  'essai sans compte : invité créé sans email ni code');
+
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e5';
+select public.create_profile('Mon premier essai') as guest_profile \gset
+update profiles set shared_with_coach = true where id = :'guest_profile';
+select pg_temp.check((select count(*) from profiles) = 1, 'l''invité travaille normalement dans son espace');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check(not exists (select 1 from public.coach_dashboard() where id = '00000000-0000-0000-0000-0000000000e5'),
+  'le coach ne voit pas les essais non sauvegardés dans son tableau de bord');
+select pg_temp.check((select count(*) from profiles where id = :'guest_profile') = 0,
+  'le coach ne voit pas le travail d''un invité, même partagé');
+
+reset role;
+update auth.users set email = 'eve@test.fr', is_anonymous = false where id = '00000000-0000-0000-0000-0000000000e5';
+select pg_temp.check((select not is_guest and email = 'eve@test.fr' from app_users where id = '00000000-0000-0000-0000-0000000000e5'),
+  'l''invité qui confirme son email devient un compte normal');
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e5';
+select pg_temp.check((select count(*) from profiles) = 1, 'il garde tout son travail');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check((select count(*) from profiles where id = :'guest_profile') = 1,
+  'une fois sauvegardé et partagé, le coach voit le profil');
+
+reset role;
+insert into auth.users (id, is_anonymous, created_at) values
+  ('00000000-0000-0000-0000-0000000000f6', true, now() - interval '40 days'),
+  ('00000000-0000-0000-0000-0000000000f7', true, now() - interval '5 days');
+select pg_temp.check(public.purge_stale_guests(30) = 1, 'les essais de plus de 30 jours sont supprimés');
+select pg_temp.check(
+  not exists (select 1 from app_users where id = '00000000-0000-0000-0000-0000000000f6')
+  and exists (select 1 from app_users where id = '00000000-0000-0000-0000-0000000000f7'),
+  'seuls les essais anciens disparaissent, avec leur fiche');
+set role authenticated;
+select pg_temp.expect_error($$select public.purge_stale_guests(0)$$, 'permission denied');
+
 reset role;
 \echo 'Tous les tests de base de données sont passés.'

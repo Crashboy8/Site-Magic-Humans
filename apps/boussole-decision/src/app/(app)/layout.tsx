@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CompassMark } from "@/components/ui";
 import { countUnreadComments } from "@/data/repository";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
-import { signOutAction } from "@/features/auth/actions";
+import { SignOutButton } from "@/features/auth/SignOutButton";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -23,7 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <Link href="/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
               Mes profils
             </Link>
-            {user.role !== "coach" && (
+            {user.role !== "coach" && !user.isGuest && (
             <Link
               href="/commentaires/"
               className="relative inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink"
@@ -42,16 +42,26 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 Espace coach
               </Link>
             )}
-            <Link href="/compte/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
-              {user.firstName || "Mon compte"}
-            </Link>
-            <form action={signOutAction}>
-              <button type="submit" className="min-h-10 rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
-                Déconnexion
-              </button>
-            </form>
+            {user.isGuest ? (
+              <Link href="/sauvegarder/" className="rounded-full bg-accent-strong px-4 py-2 font-medium text-white hover:bg-accent-deep">
+                Sauvegarder mon travail
+              </Link>
+            ) : (
+              <Link href="/compte/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
+                {user.firstName || "Mon compte"}
+              </Link>
+            )}
+            <SignOutButton isGuest={user.isGuest} />
           </nav>
         </div>
+        {user.isGuest && (
+          <div className="border-t border-accent/20 bg-blush px-4 py-2 text-center text-sm text-ink">
+            Mode essai : ton travail est gardé sur cet appareil pendant 30 jours.{" "}
+            <Link href="/sauvegarder/" className="font-medium text-link underline underline-offset-4">
+              Le sauvegarder avec mon email
+            </Link>
+          </div>
+        )}
       </header>
       <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
         {children}

@@ -28,8 +28,10 @@ export async function proxy(request: NextRequest) {
     return res;
   };
 
+  // Sans session : l'accueil propose les deux portes d'entrée ; les autres pages demandent de se connecter.
+  if (!signedIn && path === "/") return redirectTo("/bienvenue/");
   if (!signedIn && !isPublicPath(path)) return redirectTo("/connexion/");
-  if (signedIn && (path === "/connexion" || path === "/inscription")) return redirectTo("/");
+  if (signedIn && (path === "/connexion" || path === "/inscription" || path === "/bienvenue")) return redirectTo("/");
   return response;
 }
 

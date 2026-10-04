@@ -10,6 +10,8 @@ export interface AppUser {
   role: UserRole;
   coachId: string | null;
   invitationCode: string | null;
+  /** Essai sans compte (connexion anonyme) : pas encore d'email. */
+  isGuest: boolean;
   tutorialSeenAt: string | null;
   createdAt: string;
 }

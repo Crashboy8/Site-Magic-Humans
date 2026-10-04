@@ -22,6 +22,7 @@ export const mapAppUser = (r: Row): AppUser => ({
   role: r.role,
   coachId: r.coach_id,
   invitationCode: r.invitation_code ?? null,
+  isGuest: Boolean(r.is_guest),
   tutorialSeenAt: r.tutorial_seen_at,
   createdAt: r.created_at,
 });
