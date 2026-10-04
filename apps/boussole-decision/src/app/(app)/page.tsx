@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, PageTitle } from "@/components/ui";
 import { listProfiles, listVersionsForUser } from "@/data/repository";
 import { CreateProfile } from "@/features/profiles/CreateProfile";
@@ -50,10 +51,15 @@ export default async function HomePage() {
               L&apos;exemple de Camille
             </h2>
             <p className="text-ink-soft">
-              Chargée de communication, 34 ans, elle compare trois opportunités. Un modèle à consulter, puis à dupliquer.
+              Chargée de communication, 34 ans, elle compare trois opportunités. Un tableau complet pour voir ce que ça peut donner.
             </p>
           </div>
-          <p className="shrink-0 rounded-full bg-paper px-4 py-2 text-sm text-ink-soft">Bientôt disponible</p>
+          <Link
+            href="/exemple/"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-ink/25 bg-paper px-5 text-[15px] font-medium hover:bg-sand"
+          >
+            👀 Voir l&apos;exemple
+          </Link>
         </Card>
       </section>
     </>
