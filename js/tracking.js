@@ -32,7 +32,9 @@
     if (!link) return;
 
     if (link.href.indexOf("calendly.com") !== -1) {
-      send("clic_calendly", buildParams(link));
+      var params = buildParams(link);
+      send("clic_calendly", params);
+      window.va && window.va("event", { name: "clic_calendly", data: { emplacement: params.emplacement } });
       return;
     }
 
