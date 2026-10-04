@@ -198,9 +198,21 @@ export function NewPasswordForm() {
   );
 }
 
+/** Bouton « Essayer tout de suite » : session invitée et ouverture directe du tableau. */
+export function TrialButton({ label = "Essayer tout de suite", className }: { label?: string; className?: string }) {
+  const [state, action, pending] = useActionState(startTrialAction, initial);
+  return (
+    <form action={action} className={cx("space-y-2", className)}>
+      <Button type="submit" className="w-full" disabled={pending}>
+        {pending ? "Préparation de ton espace…" : label}
+      </Button>
+      {state.error && <Notice tone="error">{state.error}</Notice>}
+    </form>
+  );
+}
+
 /** Les deux portes d'entrée de la page d'accueil. */
 export function WelcomeChoices() {
-  const [state, action, pending] = useActionState(startTrialAction, initial);
   return (
     <div className="grid gap-4">
       <Card className="space-y-3 border-accent/30 bg-blush/50">
@@ -209,12 +221,13 @@ export function WelcomeChoices() {
           Sans email, sans mot de passe : tu entres directement dans ton tableau de décision. Ton travail est gardé sur cet appareil, et tu
           pourras le sauvegarder ensuite avec ton email.
         </p>
-        <form action={action}>
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Préparation de ton espace…" : "Essayer tout de suite"}
-          </Button>
-        </form>
-        {state.error && <Notice tone="error">{state.error}</Notice>}
+        <TrialButton />
+        <Link
+          href="/exemple/"
+          className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent/40 bg-paper px-5 text-[15px] font-medium text-accent-deep hover:bg-blush"
+        >
+          👀 Voir d&apos;abord un exemple
+        </Link>
       </Card>
       <Card className="space-y-3">
         <h2 className="font-serif text-2xl italic">J&apos;ai déjà un compte, ou je veux en créer un</h2>

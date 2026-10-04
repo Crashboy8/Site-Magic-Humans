@@ -2,6 +2,7 @@
 // Camille, 34 ans, chargée de communication, en réflexion de carrière.
 // Rédigé avec la terminologie Magic Humans / MO2I.
 import type {
+  Category,
   CategoryKey,
   Criterion,
   CriterionDirection,
@@ -24,9 +25,9 @@ export const CAMILLE = {
   } satisfies TalentUnique,
 };
 
-export const CAMILLE_CATEGORIES: { id: string; key: CategoryKey; label: string; position: number }[] = (
+export const CAMILLE_CATEGORIES: Category[] = (
   ["contexte_declencheur", "anti_contexte", "valeurs_culture", "conditions_vie", "remuneration"] as const
-).map((key, position) => ({ id: `cat-${key}`, key, label: CATEGORY_BY_KEY[key].label, position }));
+).map((key, position) => ({ id: `cat-${key}`, versionId: "exemple", key, label: CATEGORY_BY_KEY[key].label, position }));
 
 const crit = (
   id: string,

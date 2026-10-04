@@ -338,6 +338,18 @@ function Table({ versionId, readOnly, comments, commentViewer, ...initial }: Pro
             );
           })}
 
+          {!readOnly && (
+            <tbody>
+              <tr>
+                <td colSpan={colSpan} className="border-b border-line bg-cream/60 px-3 py-2">
+                  <div className="sticky left-3 max-w-[calc(100vw-4rem)] sm:max-w-3xl">
+                    <NewCategory onAdd={addCategory} />
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          )}
+
           <tfoot>
             <tr>
               <th scope="row" className="sticky left-0 z-10 border-t-2 border-ink bg-paper px-3 py-4 text-left align-top">
@@ -365,7 +377,6 @@ function Table({ versionId, readOnly, comments, commentViewer, ...initial }: Pro
         </Notice>
       )}
 
-      {!readOnly && <NewCategory onAdd={addCategory} />}
 
       <Legend />
     </div>
@@ -722,8 +733,8 @@ function NewCategory({ onAdd }: { onAdd: (label: string) => Promise<void> }) {
   const [label, setLabel] = useState("");
   if (!open)
     return (
-      <Button type="button" variant="ghost" onClick={() => setOpen(true)}>
-        + Créer ma propre catégorie
+      <Button type="button" variant="ghost" onClick={() => setOpen(true)} className="-ml-2 text-link">
+        + Ajouter une catégorie de critères
       </Button>
     );
   return (
@@ -737,7 +748,14 @@ function NewCategory({ onAdd }: { onAdd: (label: string) => Promise<void> }) {
       }}
       className="flex max-w-xl gap-2"
     >
-      <Input value={label} onChange={(e) => setLabel(e.target.value)} maxLength={60} placeholder="Nom de la catégorie" aria-label="Nom de la nouvelle catégorie" autoFocus />
+      <Input
+        value={label}
+        onChange={(e) => setLabel(e.target.value)}
+        maxLength={60}
+        placeholder="Ex. : Formation, Famille, Créativité…"
+        aria-label="Nom de la nouvelle catégorie"
+        autoFocus
+      />
       <Button type="submit" variant="secondary" disabled={!label.trim()} className="shrink-0">
         Créer
       </Button>
