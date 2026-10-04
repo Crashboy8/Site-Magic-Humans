@@ -253,20 +253,99 @@ export function WelcomeChoices() {
 
 export function SaveGuestForm() {
   const [state, action, pending] = useActionState(saveGuestAction, initial);
+  const [hasAccount, setHasAccount] = useState(false);
   const fe = state.fieldErrors ?? {};
   if (state.message) return <Notice tone="success">{state.message}</Notice>;
+  if (state.existingAccount && state.email) return <ExistingAccountSignIn email={state.email} />;
+  if (hasAccount) return <ExistingAccountSignIn onBack={() => setHasAccount(false)} />;
   return (
-    <form action={action} className="space-y-4" noValidate>
-      <Field label="Prénom" htmlFor="first_name" error={fe.first_name}>
-        <Input id="first_name" name="first_name" autoComplete="given-name" aria-invalid={Boolean(fe.first_name)} />
-      </Field>
-      <Field label="Email" htmlFor="email" error={fe.email} hint="Tu recevras un lien pour confirmer : ouvre-le sur cet appareil.">
-        <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(fe.email)} />
-      </Field>
-      {state.error && <Notice tone="error">{state.error}</Notice>}
-      <Button type="submit" disabled={pending}>
-        {pending ? "Envoi…" : "Sauvegarder mon travail"}
-      </Button>
-    </form>
+    <div className="space-y-5">
+      <form action={action} className="space-y-4" noValidate>
+        <Field label="Prénom" htmlFor="first_name" error={fe.first_name}>
+          <Input id="first_name" name="first_name" autoComplete="given-name" aria-invalid={Boolean(fe.first_name)} />
+        </Field>
+        <Field label="Email" htmlFor="email" error={fe.email} hint="Tu recevras un lien pour confirmer : ouvre-le sur cet appareil.">
+          <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(fe.email)} />
+        </Field>
+        {state.error && <Notice tone="error">{state.error}</Notice>}
+        <Button type="submit" disabled={pending}>
+          {pending ? "Envoi…" : "Sauvegarder mon travail"}
+        </Button>
+      </form>
+      <div className="space-y-2 border-t border-line pt-5">
+        <p className="text-sm text-ink-soft">Tu as déjà un compte ? Connecte-toi : ton essai y sera ajouté.</p>
+        <Button type="button" variant="secondary" className="w-full" onClick={() => setHasAccount(true)}>
+          Me connecter à mon compte
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/** L'adresse de l'invité a déjà un compte : il s'y connecte, et son essai y est ajouté. */
+function ExistingAccountSignIn({ email, onBack }: { email?: string; onBack?: () => void }) {
+  const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
+  const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
+  const [typedEmail, setTypedEmail] = useState("");
+  return (
+    <div className="space-y-5">
+      {email ? (
+        <Notice tone="info">
+          Tu as déjà un compte avec <strong>{email}</strong>. Connecte-toi : ton essai y sera ajouté, tu ne perds rien.
+        </Notice>
+      ) : (
+        <p className="text-[15px] text-ink-soft">Connecte-toi à ton compte : ton essai y sera ajouté, tu ne perds rien.</p>
+      )}
+      <form action={pwAction} className="space-y-4">
+        {email ? (
+          <input type="hidden" name="email" value={email} />
+        ) : (
+          <Field label="Email" htmlFor="existing-email">
+            <Input
+              id="existing-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={typedEmail}
+              onChange={(e) => setTypedEmail(e.target.value)}
+            />
+          </Field>
+        )}
+        <Field label="Mot de passe" htmlFor="existing-password">
+          <Input
+            id="existing-password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            autoFocus={Boolean(email)}
+          />
+        </Field>
+        {pwState.error && <Notice tone="error">{pwState.error}</Notice>}
+        <Button type="submit" className="w-full" disabled={pwPending}>
+          {pwPending ? "Connexion…" : "Me connecter à mon compte"}
+        </Button>
+      </form>
+      <form action={mlAction} className="space-y-3 border-t border-line pt-5">
+        <input type="hidden" name="email" value={email ?? typedEmail} />
+        <p className="text-sm text-ink-soft">Pas de mot de passe, ou tu l&apos;as oublié ? Reçois un lien qui te connecte en un clic.</p>
+        {mlState.error && <Notice tone="error">{mlState.error}</Notice>}
+        {mlState.message ? (
+          <Notice tone="success">{mlState.message} Ouvre-le sur cet appareil pour que ton essai soit ajouté.</Notice>
+        ) : (
+          <Button type="submit" variant="secondary" className="w-full" disabled={mlPending}>
+            {mlPending ? "Envoi…" : "Recevoir un lien de connexion"}
+          </Button>
+        )}
+      </form>
+      {onBack && (
+        <p className="text-center text-sm">
+          <button type="button" onClick={onBack} className="text-link underline underline-offset-4">
+            Je n&apos;ai pas encore de compte
+          </button>
+        </p>
+      )}
+    </div>
   );
 }

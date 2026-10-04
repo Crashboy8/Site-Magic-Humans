@@ -5,12 +5,16 @@ import { redirect } from "next/navigation";
 import { absoluteUrl } from "@/lib/config";
 import { supabaseServer } from "@/lib/supabase/server";
 import { checkInvitationCode } from "@/data/repository";
+import { claimPendingGuestTransfer, rememberGuestTransfer } from "@/lib/guestTransfer";
 import { normalizeInvitationCode } from "@/domain/versions";
 
 export interface AuthState {
   error?: string;
   fieldErrors?: Record<string, string>;
   message?: string;
+  /** Sauvegarde d'un essai : l'adresse a déjà un compte, on propose de s'y connecter. */
+  existingAccount?: boolean;
+  email?: string;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,6 +25,14 @@ async function origin() {
 
 function text(fd: FormData, key: string) {
   return String(fd.get(key) ?? "").trim();
+}
+
+/** Un invité qui se connecte à son compte garde son essai : on prépare le transfert avant de changer de session. */
+async function keepGuestWork(supabase: Awaited<ReturnType<typeof supabaseServer>>) {
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims?.is_anonymous) return;
+  const { data: token } = await supabase.rpc("create_guest_transfer");
+  if (token) await rememberGuestTransfer(String(token));
 }
 
 function translateAuthError(message: string): string {
@@ -78,9 +90,11 @@ export async function signInAction(_prev: AuthState, fd: FormData): Promise<Auth
   if (!EMAIL_RE.test(email) || !password) return { error: "Indique ton email et ton mot de passe." };
 
   const supabase = await supabaseServer();
+  await keepGuestWork(supabase);
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: translateAuthError(error.message) };
-  redirect("/");
+  const claimed = await claimPendingGuestTransfer(supabase);
+  redirect(claimed > 0 ? "/?essai=ajoute" : "/");
 }
 
 export async function magicLinkAction(_prev: AuthState, fd: FormData): Promise<AuthState> {
@@ -88,6 +102,7 @@ export async function magicLinkAction(_prev: AuthState, fd: FormData): Promise<A
   if (!EMAIL_RE.test(email)) return { error: "Cette adresse email ne semble pas valide." };
 
   const supabase = await supabaseServer();
+  await keepGuestWork(supabase);
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { shouldCreateUser: false, emailRedirectTo: absoluteUrl("/auth/callback/", await origin()) },
@@ -158,7 +173,13 @@ export async function saveGuestAction(_prev: AuthState, fd: FormData): Promise<A
     { email, data: { first_name: firstName } },
     { emailRedirectTo: absoluteUrl("/auth/callback/?next=/compte/finaliser/", await origin()) },
   );
-  if (error) return { error: translateAuthError(error.message) };
+  if (error) {
+    const m = error.message.toLowerCase();
+    if (m.includes("already") || m.includes("exists") || m.includes("registered")) {
+      return { existingAccount: true, email };
+    }
+    return { error: translateAuthError(error.message) };
+  }
   return {
     message: `Presque fini ! Un email vient de partir vers ${email}. Ouvre-le sur cet appareil et clique sur le lien : ton travail sera alors sauvegardé sur ton compte.`,
   };
