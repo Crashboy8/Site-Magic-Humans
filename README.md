@@ -17,13 +17,18 @@ Site de Pierre Sarazin / Magic Humans, coaching du Talent Unique pour cadres, di
 │   └── index.html                          # Landing : rebond stratégique
 ├── reprise-entreprise/
 │   └── index.html                          # Landing : reprise d'entreprise
+├── mentions-legales/
+│   └── index.html                          # Mentions légales
+├── confidentialite/
+│   └── index.html                          # Politique de confidentialité
 ├── 404.html                                # Page introuvable
 ├── css/
 │   └── style.css                           # Toute la direction artistique
 ├── js/
 │   ├── i18n.js                             # Bascule FR / EN (attribut data-en)
 │   ├── nav.js                              # Menu mobile
-│   └── lightbox.js                         # Agrandissement de l'image Ikigaï
+│   ├── lightbox.js                         # Agrandissement de l'image Ikigaï
+│   └── consent.js                          # Bandeau cookies + Google Consent Mode v2
 ├── assets/
 │   ├── fonts/                              # Polices auto-hébergées (woff2, subset latin)
 │   ├── img/                                # Photos, logos, illustrations
@@ -56,7 +61,13 @@ Le site est déployé sur Vercel : chaque push sur la branche `main` déclenche 
 
 `vercel.json` force les URL avec slash final (`trailingSlash: true`) pour rester cohérent avec la structure en dossiers du projet.
 
-Le suivi d'audience utilise Vercel Web Analytics (script chargé sur chaque page, sans cookies ni bandeau de consentement).
+Le suivi d'audience combine Vercel Web Analytics (sans cookies) et Google Analytics 4 (`G-TWSJB37LWK`), ce dernier soumis au consentement de la personne qui visite le site.
+
+## Cookies et conformité
+
+Chaque page qui charge `gtag.js` définit un consentement par défaut refusé (Google Consent Mode v2) avant `gtag('config', ...)`. Le script `js/consent.js` affiche ensuite un bandeau (sans bibliothèque externe) si aucun choix valide n'est en mémoire, et stocke le choix dans `localStorage` pour 6 mois. Un clic sur « Accepter » déclenche `gtag('consent', 'update', {analytics_storage: 'granted'})` ; « Refuser » laisse tout refusé. Le lien « Gérer les cookies », présent dans le pied de page de chaque page (y compris le quiz), rouvre le bandeau à tout moment.
+
+Les pages `/mentions-legales/` et `/confidentialite/` portent les informations légales de l'éditeur et la politique de confidentialité du site.
 
 ## Suivi des campagnes
 

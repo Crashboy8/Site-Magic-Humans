@@ -7,8 +7,15 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied'
+  });
   gtag('config', 'G-TWSJB37LWK');
 </script>
+<script src="/js/consent.js" defer></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="/favicon.ico" sizes="any">
@@ -252,6 +259,11 @@
       <span>Magic&nbsp;Humans, Pierre Sarazin</span>
       <a href="mailto:pierre.j.sarazin@gmail.com" style="color:inherit;">pierre.j.sarazin@gmail.com</a>
       <a href="https://youtube.com/@magichumans" style="color:var(--orange-deep);">YouTube</a>
+    </div>
+    <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;font-size:12.5px;">
+      <a href="/mentions-legales/" style="color:var(--ink-soft);" data-en="Legal notice">Mentions légales</a>
+      <a href="/confidentialite/" style="color:var(--ink-soft);" data-en="Privacy policy">Confidentialité</a>
+      <button type="button" class="js-manage-cookies" style="background:none;border:none;padding:0;font:inherit;color:var(--ink-soft);cursor:pointer;" data-en="Manage cookies">Gérer les cookies</button>
     </div>
   </div>
 </footer>

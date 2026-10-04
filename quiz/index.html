@@ -7,8 +7,15 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied'
+  });
   gtag('config', 'G-TWSJB37LWK');
 </script>
+<script src="/js/consent.js" defer></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Découvre ton Talent Unique en 9 questions : ta combinaison parmi 56, tes contextes fertiles et ton positionnement.">
@@ -29,6 +36,7 @@
   --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
   --body:"Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius:14px;
+  --cc-bg:var(--surface); --cc-ink:var(--ink); --cc-muted:var(--muted); --cc-line:var(--line); --cc-accent:var(--accent);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#1B1816; --surface:#25211E; --ink:#F1ECE6; --muted:#ABA097; --line:#3A332E;
@@ -38,6 +46,17 @@
   --bg:#1B1816; --surface:#25211E; --ink:#F1ECE6; --muted:#ABA097; --line:#3A332E;
   --accent:#F08A3E; --accent-ink:#1B1816; --accent-soft:#3A2618;
   --good:#7CC59A; --good-soft:#1F3328; --bad:#E58B7E; --bad-soft:#3A2220; color-scheme:dark}
+
+.mh-cookie-banner{position:fixed;left:0;right:0;bottom:0;z-index:300;background:var(--cc-bg);border-top:1px solid var(--cc-line);box-shadow:0 -6px 24px rgba(0,0,0,.12)}
+.mh-cookie-banner[hidden]{display:none}
+.mh-cookie-banner__inner{max-width:740px;margin:0 auto;padding:18px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.mh-cookie-banner__text{flex:1 1 280px;margin:0;font-size:.85rem;line-height:1.5;color:var(--cc-ink)}
+.mh-cookie-banner__link{color:var(--cc-accent);text-decoration:underline;border-bottom:none}
+.mh-cookie-banner__actions{display:flex;gap:10px;flex-shrink:0}
+.mh-cookie-banner__btn{font:inherit;font-size:.82rem;font-weight:700;padding:10px 22px;border-radius:999px;border:1px solid var(--cc-ink);background:transparent;color:var(--cc-ink);cursor:pointer;white-space:nowrap}
+.mh-cookie-banner__btn:hover{background:var(--cc-ink);color:var(--cc-bg)}
+body.mh-cookie-open{padding-bottom:var(--mh-cookie-banner-h,190px)}
+@media (max-width:600px){.mh-cookie-banner__inner{padding:10px 14px;gap:8px}.mh-cookie-banner__text{font-size:.72rem;line-height:1.4}.mh-cookie-banner__actions{width:100%}.mh-cookie-banner__btn{flex:1 1 0;text-align:center;padding:8px 14px;font-size:.72rem}}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6}
@@ -327,6 +346,11 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
   <main id="screen-report" hidden></main>
 
   <footer data-t="footer"></footer>
+  <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.78rem;">
+    <a href="/mentions-legales/" style="color:var(--muted)">Mentions légales</a>
+    <a href="/confidentialite/" style="color:var(--muted)">Confidentialité</a>
+    <button type="button" class="js-manage-cookies" style="background:none;border:none;padding:0;font:inherit;cursor:pointer;color:var(--muted);text-decoration:underline;">Gérer les cookies</button>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -1023,7 +1047,7 @@ const TEXT_FR = {
       lockEyebrow:"Sections 5 à 7 · offertes", lockH:"Tu sais maintenant qui tu es. Voici comment en faire une force concrète.", lockP:"La suite de ton rapport transforme ce diagnostic en outils que tu peux utiliser dès demain :",
       lockList:["<strong>Ta valeur sur le marché</strong> : le type de boss, d'associé et de client qui a un besoin vital de ton profil","<strong>Le langage secret</strong> : les phrases à guetter chez ton interlocuteur pour savoir que tu es au bon endroit","<strong>Ton pitch prêt à l'emploi</strong>, rédigé pour ton profil, à reprendre pour un entretien, un rendez-vous client ou un événement réseau","<strong>Ton manuel d'utilisation</strong> à la première personne, à transmettre à ton manager ou à ton équipe","<strong>Ton auto-évaluation d'alignement</strong> : 3 curseurs pour savoir où agir en premier","<strong>Ton rapport complet en PDF</strong> (7 sections), à garder et à relire quand tu en as besoin"],
       lockAfter:"<strong>C'est entièrement gratuit et sans engagement.</strong> Indique ton prénom et ton e-mail : la suite s'affiche aussitôt ici, et ton rapport PDF arrive dans ta boîte mail.",
-      legal:"Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com.",
+      legal:"Ton prénom et ton e-mail servent à t'envoyer ton rapport et, si tu l'acceptes, nos conseils. Ils sont conservés par Magic Humans, jamais revendus. Pour les faire supprimer, écris à pierre.j.sarazin@gmail.com. Pour en savoir plus, consulte notre <a href=\"/confidentialite/\">politique de confidentialité</a>.",
       errPrenom:"Indique ton prénom.", errEmail:"Cette adresse e-mail ne semble pas valide. Vérifie-la."
     },
     r:{
@@ -1211,7 +1235,7 @@ const TEXT_EN = {
       lockEyebrow:"Sections 5 to 7 · free", lockH:"You now know who you are. Here's how to turn it into a real strength.", lockP:"The rest of your report turns this diagnosis into tools you can use from tomorrow:",
       lockList:["<strong>Your market value</strong>: the kind of boss, partner and client who badly needs your profile","<strong>The secret language</strong>: the phrases to listen for so you know you're in the right place","<strong>Your ready-to-use pitch</strong>, written for your profile, for a job interview, a client meeting or a networking event","<strong>Your user manual</strong> in the first person, to share with your manager or team","<strong>Your alignment self-assessment</strong>: 3 dials to see where to act first","<strong>Your full PDF report</strong> (7 sections), to keep and reread whenever you need it"],
       lockAfter:"<strong>It's completely free, with no commitment.</strong> Enter your first name and email: the rest appears right here, and your PDF report lands in your inbox.",
-      legal:"Your first name and email are used to send you your report and, if you agree, our tips. They are kept by Magic Humans and never sold. To have them deleted, write to pierre.j.sarazin@gmail.com.",
+      legal:"Your first name and email are used to send you your report and, if you agree, our tips. They are kept by Magic Humans and never sold. To have them deleted, write to pierre.j.sarazin@gmail.com. For more, see our <a href=\"/confidentialite/\">privacy policy</a>.",
       errPrenom:"Please enter your first name.", errEmail:"This email address doesn't look valid. Please check it."
     },
     r:{
@@ -1706,7 +1730,7 @@ const TEXT_ES = {
       lockEyebrow:"Secciones 5 a 7 · gratis", lockH:"Ya sabes quién eres. Así puedes convertirlo en una fuerza concreta.", lockP:"El resto de tu informe convierte este diagnóstico en herramientas que puedes usar desde mañana:",
       lockList:["<strong>Tu valor en el mercado</strong>: el tipo de jefe, socio y cliente que necesita de verdad tu perfil","<strong>El lenguaje secreto</strong>: las frases que indican que estás en el lugar adecuado","<strong>Tu pitch listo para usar</strong>, escrito para tu perfil, para una entrevista, una reunión con un cliente o un evento de networking","<strong>Tu manual de uso</strong> en primera persona, para compartir con tu responsable o tu equipo","<strong>Tu autoevaluación de alineación</strong>: 3 indicadores para saber dónde actuar primero","<strong>Tu informe completo en PDF</strong> (7 secciones), para guardarlo y releerlo cuando lo necesites"],
       lockAfter:"<strong>Es totalmente gratis y sin compromiso.</strong> Escribe tu nombre y tu e-mail: el resto aparecerá aquí mismo y tu informe en PDF llegará a tu bandeja de entrada.",
-      legal:"Tu nombre y tu e-mail sirven para enviarte tu informe y, si lo aceptas, nuestros consejos. Los conserva Magic Humans y nunca se venden. Para que se borren, escribe a pierre.j.sarazin@gmail.com.",
+      legal:"Tu nombre y tu e-mail sirven para enviarte tu informe y, si lo aceptas, nuestros consejos. Los conserva Magic Humans y nunca se venden. Para que se borren, escribe a pierre.j.sarazin@gmail.com. Para saber más, consulta nuestra <a href=\"/confidentialite/\">política de privacidad</a>.",
       errPrenom:"Escribe tu nombre.", errEmail:"Esta dirección de e-mail no parece válida. Compruébala."
     },
     r:{
