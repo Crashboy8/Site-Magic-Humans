@@ -128,3 +128,4 @@ begin
 exception when others then
   raise notice 'pg_cron indisponible : lancer « select public.purge_stale_guests(30); » manuellement de temps en temps.';
 end $$;
+
