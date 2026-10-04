@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { Card, PageTitle } from "@/components/ui";
+import { Card, Notice, PageTitle } from "@/components/ui";
 import { listProfiles, listVersionsForUser } from "@/data/repository";
 import { CreateProfile } from "@/features/profiles/CreateProfile";
 import { ProfileCard } from "@/features/profiles/ProfileCard";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: PageProps<"/">) {
   const user = await requireUser();
+  const trialAdded = (await searchParams).essai === "ajoute";
   const db = await supabaseServer();
   const [profiles, versions] = await Promise.all([listProfiles(db, user.id), listVersionsForUser(db, user.id)]);
 
@@ -16,6 +17,12 @@ export default async function HomePage() {
         Chaque profil correspond à une période de ta vie professionnelle. À l&apos;intérieur, tu compares tes opportunités à partir de
         ce qui compte vraiment pour toi.
       </PageTitle>
+
+      {trialAdded && (
+        <div className="mb-8 max-w-2xl">
+          <Notice tone="success">Te voilà connecté·e : ton essai a bien été ajouté à ton compte, il apparaît dans tes profils.</Notice>
+        </div>
+      )}
 
       <section aria-labelledby="mes-profils" className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-4">

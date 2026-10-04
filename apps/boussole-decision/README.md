@@ -53,6 +53,9 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - Deux portes d'entrée (page `/bienvenue/`) :
   - **« Essayer tout de suite »** : session invitée (connexion anonyme Supabase), sans email ; le travail est enregistré
     en base et gardé 30 jours. « Sauvegarder mon travail » ajoute l'email : le compte devient permanent sans perte de données.
+    Si l'email a déjà un compte (ou via « Me connecter à mon compte »), la personne s'y connecte depuis la même page
+    (mot de passe ou lien) : son essai est ajouté au compte (`create_guest_transfer` / `claim_guest_transfer`), puis le
+    compte invité est supprimé.
   - **« Me connecter / Créer mon compte »** : email + mot de passe ou lien magique. Le code d'invitation est **facultatif**
     (à usage unique, désactivable) ; sans code, la personne est rattachée au coach principal (premier compte coach).
 - Deux rôles : `coach` et `coache`. Les essais non sauvegardés n'apparaissent jamais au coach.
