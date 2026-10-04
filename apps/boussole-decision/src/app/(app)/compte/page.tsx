@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, PageTitle, formatDate } from "@/components/ui";
 import { NewPasswordForm } from "@/features/auth/forms";
 import { requireUser } from "@/lib/supabase/server";
@@ -8,6 +9,7 @@ export const metadata: Metadata = { title: "Mon compte" };
 
 export default async function AccountPage() {
   const user = await requireUser();
+  if (user.isGuest) redirect("/sauvegarder/");
   return (
     <>
       <PageTitle title="Mon compte" />

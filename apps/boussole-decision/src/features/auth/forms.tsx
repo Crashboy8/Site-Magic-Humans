@@ -6,6 +6,8 @@ import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
 import {
   type AuthState,
   magicLinkAction,
+  saveGuestAction,
+  startTrialAction,
   resetPasswordAction,
   signInAction,
   signUpAction,
@@ -82,7 +84,7 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         Pas encore de compte ?{" "}
         <Link href="/inscription/" className="font-medium text-link underline underline-offset-4">
-          J&apos;ai un code d&apos;invitation
+          Créer mon compte
         </Link>
       </p>
     </Card>
@@ -108,12 +110,12 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
       <div>
         <h1 className="text-3xl italic">Créer mon espace</h1>
         <p className="mt-1 text-ink-soft">
-          La Boussole est réservée aux personnes accompagnées par Pierre. Ton code d&apos;invitation t&apos;a été transmis en séance ou par
-          message.
+          Ton compte garde tout ton travail, sur tous tes appareils. Si Pierre t&apos;a donné un code d&apos;invitation, indique-le : il
+          sera ton coach dans l&apos;outil.
         </p>
       </div>
       <form action={action} className="space-y-4" noValidate>
-        <Field label="Code d'invitation" htmlFor="code" error={fe.code}>
+        <Field label="Code d'invitation (facultatif)" htmlFor="code" error={fe.code}>
           <Input
             id="code"
             name="code"
@@ -191,6 +193,66 @@ export function NewPasswordForm() {
       {state.message && <Notice tone="success">{state.message}</Notice>}
       <Button type="submit" disabled={pending}>
         {pending ? "Enregistrement…" : "Enregistrer le mot de passe"}
+      </Button>
+    </form>
+  );
+}
+
+/** Les deux portes d'entrée de la page d'accueil. */
+export function WelcomeChoices() {
+  const [state, action, pending] = useActionState(startTrialAction, initial);
+  return (
+    <div className="grid gap-4">
+      <Card className="space-y-3 border-accent/30 bg-blush/50">
+        <h2 className="font-serif text-2xl italic">Essayer tout de suite</h2>
+        <p className="text-[15px] text-ink-soft">
+          Sans email, sans mot de passe : tu entres directement dans ton tableau de décision. Ton travail est gardé sur cet appareil, et tu
+          pourras le sauvegarder ensuite avec ton email.
+        </p>
+        <form action={action}>
+          <Button type="submit" className="w-full" disabled={pending}>
+            {pending ? "Préparation de ton espace…" : "Essayer tout de suite"}
+          </Button>
+        </form>
+        {state.error && <Notice tone="error">{state.error}</Notice>}
+      </Card>
+      <Card className="space-y-3">
+        <h2 className="font-serif text-2xl italic">J&apos;ai déjà un compte, ou je veux en créer un</h2>
+        <p className="text-[15px] text-ink-soft">Tout est sauvegardé avec ton email, et accessible depuis n&apos;importe quel appareil.</p>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Link
+            href="/connexion/"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/25 bg-paper px-5 text-[15px] font-medium hover:bg-sand"
+          >
+            Me connecter
+          </Link>
+          <Link
+            href="/inscription/"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/25 bg-paper px-5 text-[15px] font-medium hover:bg-sand"
+          >
+            Créer mon compte
+          </Link>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+export function SaveGuestForm() {
+  const [state, action, pending] = useActionState(saveGuestAction, initial);
+  const fe = state.fieldErrors ?? {};
+  if (state.message) return <Notice tone="success">{state.message}</Notice>;
+  return (
+    <form action={action} className="space-y-4" noValidate>
+      <Field label="Prénom" htmlFor="first_name" error={fe.first_name}>
+        <Input id="first_name" name="first_name" autoComplete="given-name" aria-invalid={Boolean(fe.first_name)} />
+      </Field>
+      <Field label="Email" htmlFor="email" error={fe.email} hint="Tu recevras un lien pour confirmer : ouvre-le sur cet appareil.">
+        <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(fe.email)} />
+      </Field>
+      {state.error && <Notice tone="error">{state.error}</Notice>}
+      <Button type="submit" disabled={pending}>
+        {pending ? "Envoi…" : "Sauvegarder mon travail"}
       </Button>
     </form>
   );

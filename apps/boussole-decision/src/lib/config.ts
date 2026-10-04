@@ -12,6 +12,7 @@ export function absoluteUrl(path: string, fallbackOrigin?: string): string {
 
 /** Pages accessibles sans être connecté. */
 export const PUBLIC_PATHS = [
+  "/bienvenue",
   "/connexion",
   "/inscription",
   "/mot-de-passe-oublie",
