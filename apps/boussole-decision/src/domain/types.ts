@@ -65,11 +65,13 @@ export interface Category {
   position: number;
 }
 
-/** DEALBREAKER : strict / éliminatoire. WEIGHTED : pondéré de 1 à 5. */
-export type CriterionKind = "DEALBREAKER" | "WEIGHTED";
-/** TOWARDS : pour aller vers. AWAY_FROM : pour éviter. */
+/**
+ * Niveau d'importance d'un critère, du plus fort au plus faible.
+ * « bonus » : ajoute des points si l'opportunité l'offre, n'en retire jamais.
+ */
+export type Importance = "critique" | "tres_important" | "important" | "moyen" | "bof" | "bonus";
+/** TOWARDS : pour aller vers. AWAY_FROM : pour éviter (on évalue la présence du risque). */
 export type CriterionDirection = "TOWARDS" | "AWAY_FROM";
-export type Weight = 1 | 2 | 3 | 4 | 5;
 
 export interface Criterion {
   id: string;
@@ -77,9 +79,9 @@ export interface Criterion {
   categoryId: string;
   label: string;
   description: string;
-  kind: CriterionKind;
-  /** null pour un critère DEALBREAKER. */
-  weight: Weight | null;
+  importance: Importance;
+  /** Non négociable (DEALBREAKER) : si ce n'est pas pleinement satisfait, l'opportunité est signalée et classée après. */
+  nonNegotiable: boolean;
   direction: CriterionDirection;
   position: number;
 }

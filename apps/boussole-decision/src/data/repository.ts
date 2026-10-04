@@ -10,13 +10,15 @@ import type {
   CommentTarget,
   Criterion,
   CriterionDirection,
-  CriterionKind,
   InvitationCode,
   Profile,
   StepKey,
   TalentUnique,
   Version,
-  Weight,
+  Importance,
+  Evaluation,
+  EvaluationValue,
+  Opportunity,
 } from "@/domain/types";
 import {
   mapAppUser,
@@ -24,6 +26,8 @@ import {
   mapCoacheeSummary,
   mapComment,
   mapCriterion,
+  mapEvaluation,
+  mapOpportunity,
   mapInvitationCode,
   mapProfile,
   mapVersion,
@@ -219,8 +223,8 @@ export interface CriterionInput {
   categoryId: string;
   label: string;
   description?: string;
-  kind: CriterionKind;
-  weight: Weight | null;
+  importance: Importance;
+  nonNegotiable: boolean;
   direction: CriterionDirection;
   position: number;
 }
@@ -234,8 +238,8 @@ export async function createCriterion(db: Db, versionId: string, input: Criterio
         category_id: input.categoryId,
         label: input.label,
         description: input.description ?? "",
-        kind: input.kind,
-        weight: input.kind === "DEALBREAKER" ? null : input.weight,
+        importance: input.importance,
+        non_negotiable: input.nonNegotiable,
         direction: input.direction,
         position: input.position,
       })
@@ -250,8 +254,8 @@ export async function updateCriterion(db: Db, id: string, patch: Partial<Omit<Cr
   if (patch.categoryId !== undefined) row.category_id = patch.categoryId;
   if (patch.label !== undefined) row.label = patch.label;
   if (patch.description !== undefined) row.description = patch.description;
-  if (patch.kind !== undefined) row.kind = patch.kind;
-  if (patch.weight !== undefined) row.weight = patch.weight;
+  if (patch.importance !== undefined) row.importance = patch.importance;
+  if (patch.nonNegotiable !== undefined) row.non_negotiable = patch.nonNegotiable;
   if (patch.direction !== undefined) row.direction = patch.direction;
   if (patch.position !== undefined) row.position = patch.position;
   check(await db.from("criteria").update(row).eq("id", id));
@@ -318,4 +322,55 @@ export async function countUnreadComments(db: Db, ownerId: string): Promise<numb
     .is("read_at", null);
   if (error) throw new Error(error.message);
   return count ?? 0;
+}
+
+// --- Opportunités et évaluations --------------------------------------------------
+
+export async function listOpportunities(db: Db, versionId: string): Promise<Opportunity[]> {
+  const list = rows(await db.from("opportunities").select("*").eq("version_id", versionId).order("position"));
+  return list.map(mapOpportunity);
+}
+
+export async function createOpportunity(db: Db, versionId: string, name: string, position: number): Promise<Opportunity> {
+  const row = check(await db.from("opportunities").insert({ version_id: versionId, name, position }).select().single());
+  return mapOpportunity(row);
+}
+
+export async function updateOpportunity(
+  db: Db,
+  id: string,
+  patch: Partial<Pick<Opportunity, "name" | "summary" | "url" | "notes" | "position">>,
+) {
+  check(await db.from("opportunities").update(patch).eq("id", id));
+}
+
+export async function deleteOpportunity(db: Db, id: string) {
+  check(await db.from("opportunities").delete().eq("id", id));
+}
+
+export async function listEvaluations(db: Db, versionId: string): Promise<Evaluation[]> {
+  const list = rows(await db.from("evaluations").select("*").eq("version_id", versionId));
+  return list.map(mapEvaluation);
+}
+
+/** Enregistre la valeur d'une case du tableau (null : vider la case). */
+export async function setEvaluation(
+  db: Db,
+  versionId: string,
+  criterionId: string,
+  opportunityId: string,
+  value: EvaluationValue | null,
+) {
+  if (value === null) {
+    check(await db.from("evaluations").delete().eq("criterion_id", criterionId).eq("opportunity_id", opportunityId));
+    return;
+  }
+  check(
+    await db
+      .from("evaluations")
+      .upsert(
+        { version_id: versionId, criterion_id: criterionId, opportunity_id: opportunityId, value, updated_at: new Date().toISOString() },
+        { onConflict: "criterion_id,opportunity_id" },
+      ),
+  );
 }

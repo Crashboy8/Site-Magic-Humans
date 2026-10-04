@@ -1,14 +1,18 @@
 // Moteur de calcul de la Boussole : module pur, sans dépendance, couvert par scoring.test.ts.
 //
 // Règles :
-// - Satisfaction d'un critère (0 à 100) : TOWARDS → la valeur évaluée ; AWAY_FROM → 100 − présence du risque.
-// - Score d'alignement global (%) = Σ(poids × satisfaction) / Σ(poids × 100), sur les critères WEIGHTED évalués.
-// - « Je ne sais pas encore » et les cases vides sont exclus du calcul et listés « à vérifier ».
-// - DEALBREAKER : respecté seulement à 100 % de satisfaction (« Oui », ou « Absent » pour un risque).
+// - Satisfaction d'un critère (0 à 100) : « pour aller vers » → la valeur évaluée ;
+//   « à éviter » → 100 − présence du risque.
+// - Poids : Critique 5, Très important 4, Important 3, Moyennement important 2, Bof 1.
+// - Score d'alignement global (%) = (Σ poids × satisfaction + bonus) / Σ (poids × 100),
+//   sur les critères évalués. Un critère Bonus n'entre pas au dénominateur : il ajoute
+//   jusqu'à 1 point de poids s'il est satisfait, et n'en retire jamais. Le score est plafonné à 100.
+// - « ? À vérifier » et les cases vides sont exclus du calcul et listés « à vérifier ».
+// - Non négociable : respecté seulement à 100 % de satisfaction (« Oui », ou « Absent » pour un risque).
 //   Un échec rend l'opportunité « non conforme » : elle garde son score mais passe après les autres.
-// - Anti-Contexte : tout critère AWAY_FROM présent à 50 % ou plus déclenche une alerte ;
-//   une ligne rouge (AWAY_FROM éliminatoire) franchie, même un peu, est signalée comme telle.
-import type { Criterion, Evaluation, EvaluationValue, Opportunity } from "./types";
+// - Anti-Contexte : un critère « à éviter » présent à 50 % ou plus déclenche une alerte ;
+//   un « à éviter » non négociable franchi, même un peu, est une ligne rouge.
+import type { Criterion, Evaluation, EvaluationValue, Importance, Opportunity } from "./types";
 
 export const EVALUATION_PERCENT: Record<EvaluationValue, number | null> = {
   non: 0,
@@ -19,10 +23,22 @@ export const EVALUATION_PERCENT: Record<EvaluationValue, number | null> = {
   inconnu: null,
 };
 
-/** Seuil de présence à partir duquel un Anti-Contexte pondéré déclenche une alerte. */
+export const IMPORTANCE_WEIGHT: Record<Importance, number> = {
+  critique: 5,
+  tres_important: 4,
+  important: 3,
+  moyen: 2,
+  bof: 1,
+  bonus: 0,
+};
+
+/** Poids maximal qu'un critère Bonus satisfait ajoute au numérateur. */
+export const BONUS_WEIGHT = 1;
+
+/** Seuil de présence à partir duquel un Anti-Contexte déclenche une alerte. */
 export const ANTI_CONTEXT_ALERT_THRESHOLD = 50;
 
-export type ScoringCriterion = Pick<Criterion, "id" | "categoryId" | "label" | "kind" | "weight" | "direction">;
+export type ScoringCriterion = Pick<Criterion, "id" | "categoryId" | "label" | "importance" | "nonNegotiable" | "direction">;
 export type ScoringOpportunity = Pick<Opportunity, "id" | "name">;
 
 export type DealbreakerStatus = "conforme" | "a_verifier" | "non_conforme";
@@ -32,7 +48,7 @@ export interface AntiContextAlert {
   label: string;
   /** Présence du risque, de 0 à 100. */
   presence: number;
-  /** ligne_rouge : critère éliminatoire franchi ; alerte : Anti-Contexte pondéré présent à 50 % ou plus. */
+  /** ligne_rouge : « à éviter » non négociable franchi ; alerte : Anti-Contexte présent à 50 % ou plus. */
   severity: "ligne_rouge" | "alerte";
 }
 
@@ -40,7 +56,7 @@ export interface CriterionResult {
   criterion: ScoringCriterion;
   /** Valeur saisie, ou null si la case est vide. */
   value: EvaluationValue | null;
-  /** Satisfaction 0-100, ou null si non évalué (vide ou « Je ne sais pas encore »). */
+  /** Satisfaction 0-100, ou null si non évalué (vide ou « à vérifier »). */
   satisfaction: number | null;
 }
 
@@ -56,9 +72,9 @@ export interface OpportunityResult {
   /** Score d'alignement global, de 0 à 100, ou null si aucun critère pondéré n'est évalué. */
   score: number | null;
   status: DealbreakerStatus;
-  failedDealbreakers: CriterionResult[];
+  failedNonNegotiables: CriterionResult[];
   antiContextAlerts: AntiContextAlert[];
-  /** Critères non évalués (vides ou « Je ne sais pas encore »). */
+  /** Critères non évalués (vides ou « à vérifier »). */
   toVerify: CriterionResult[];
   evaluatedCount: number;
   criteriaCount: number;
@@ -75,15 +91,20 @@ export function satisfactionOf(criterion: Pick<Criterion, "direction">, value: E
   return criterion.direction === "AWAY_FROM" ? 100 - pct : pct;
 }
 
-function weightedScore(results: CriterionResult[]): number | null {
+function alignmentScore(results: CriterionResult[]): number | null {
   let num = 0;
   let den = 0;
   for (const r of results) {
-    if (r.criterion.kind !== "WEIGHTED" || r.criterion.weight === null || r.satisfaction === null) continue;
-    num += r.criterion.weight * r.satisfaction;
-    den += r.criterion.weight * 100;
+    if (r.satisfaction === null) continue;
+    const weight = IMPORTANCE_WEIGHT[r.criterion.importance];
+    if (weight === 0) {
+      num += BONUS_WEIGHT * r.satisfaction;
+      continue;
+    }
+    num += weight * r.satisfaction;
+    den += weight * 100;
   }
-  return den === 0 ? null : (num / den) * 100;
+  return den === 0 ? null : Math.min(100, (num / den) * 100);
 }
 
 const evaluationKey = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
@@ -105,23 +126,21 @@ export function scoreOpportunity(
     return { criterion, value, satisfaction: satisfactionOf(criterion, value) };
   });
 
-  const dealbreakers = details.filter((d) => d.criterion.kind === "DEALBREAKER");
-  const failedDealbreakers = dealbreakers.filter((d) => d.satisfaction !== null && d.satisfaction < 100);
-  const unknownDealbreakers = dealbreakers.filter((d) => d.satisfaction === null);
+  const nonNegotiables = details.filter((d) => d.criterion.nonNegotiable);
+  const failedNonNegotiables = nonNegotiables.filter((d) => d.satisfaction !== null && d.satisfaction < 100);
+  const unknownNonNegotiables = nonNegotiables.filter((d) => d.satisfaction === null);
   const status: DealbreakerStatus =
-    failedDealbreakers.length > 0 ? "non_conforme" : unknownDealbreakers.length > 0 ? "a_verifier" : "conforme";
+    failedNonNegotiables.length > 0 ? "non_conforme" : unknownNonNegotiables.length > 0 ? "a_verifier" : "conforme";
 
   const antiContextAlerts: AntiContextAlert[] = details
     .filter((d) => d.criterion.direction === "AWAY_FROM" && d.satisfaction !== null)
     .map((d) => ({ d, presence: 100 - (d.satisfaction as number) }))
-    .filter(({ d, presence }) =>
-      d.criterion.kind === "DEALBREAKER" ? presence > 0 : presence >= ANTI_CONTEXT_ALERT_THRESHOLD,
-    )
+    .filter(({ d, presence }) => (d.criterion.nonNegotiable ? presence > 0 : presence >= ANTI_CONTEXT_ALERT_THRESHOLD))
     .map(({ d, presence }) => ({
       criterionId: d.criterion.id,
       label: d.criterion.label,
       presence,
-      severity: d.criterion.kind === "DEALBREAKER" ? ("ligne_rouge" as const) : ("alerte" as const),
+      severity: d.criterion.nonNegotiable ? ("ligne_rouge" as const) : ("alerte" as const),
     }))
     .sort((a, b) => (a.severity === b.severity ? b.presence - a.presence : a.severity === "ligne_rouge" ? -1 : 1));
 
@@ -130,20 +149,21 @@ export function scoreOpportunity(
     const inCategory = details.filter((d) => d.criterion.categoryId === categoryId);
     return {
       categoryId,
-      score: weightedScore(inCategory),
+      score: alignmentScore(inCategory),
       evaluated: inCategory.filter((d) => d.satisfaction !== null).length,
       total: inCategory.length,
     };
   });
 
-  const impact = (d: CriterionResult) => (d.criterion.weight ?? 0) * Math.abs((d.satisfaction ?? 50) - 50);
-  const major = details.filter((d) => d.criterion.kind === "WEIGHTED" && (d.criterion.weight ?? 0) >= 3 && d.satisfaction !== null);
+  const weightOf = (d: CriterionResult) => IMPORTANCE_WEIGHT[d.criterion.importance];
+  const impact = (d: CriterionResult) => weightOf(d) * Math.abs((d.satisfaction ?? 50) - 50);
+  const major = details.filter((d) => weightOf(d) >= 3 && d.satisfaction !== null);
 
   return {
     opportunity,
-    score: weightedScore(details),
+    score: alignmentScore(details),
     status,
-    failedDealbreakers,
+    failedNonNegotiables,
     antiContextAlerts,
     toVerify: details.filter((d) => d.satisfaction === null),
     evaluatedCount: details.filter((d) => d.satisfaction !== null).length,

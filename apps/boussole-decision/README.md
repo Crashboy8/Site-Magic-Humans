@@ -32,17 +32,21 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
   [Contexte Déclencheur], afin de [Super bénéfice]. », et l'**Anti-Contexte**.
 - Catégories de la matrice : Contexte Déclencheur & Flow · Anti-Contexte & Lignes Rouges · Alignement Valeurs & Culture ·
   Conditions de Vie & QVT · Rémunération & Viabilité Financière (+ catégories personnelles).
-- Chaque critère : type `DEALBREAKER` (éliminatoire) ou `WEIGHTED` (poids 1 à 5), direction `TOWARDS` (pour aller vers)
-  ou `AWAY_FROM` (pour éviter : on évalue la présence du risque).
+- **Tableau de décision** (une seule page, comme une feuille de calcul) : critères en lignes, regroupés par catégorie,
+  opportunités en colonnes, score en bas de chaque colonne.
+- Chaque critère : importance **Critique ×5, Très important ×4, Important ×3, Moyennement important ×2, Bof ×1, Bonus**
+  (ajoute des points, n'en retire jamais) ; case **🔒 non négociable** indépendante (`DEALBREAKER`) ;
+  direction `TOWARDS` (pour aller vers) ou `AWAY_FROM` (« à éviter » : on évalue la présence du risque).
 
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
 - Satisfaction : `TOWARDS` → valeur évaluée ; `AWAY_FROM` → 100 − présence.
-- Score d'alignement global (%) = Σ(poids × satisfaction) / Σ(poids × 100), sur les critères pondérés évalués.
+- Score d'alignement global (%) = (Σ poids × satisfaction + bonus) / Σ (poids × 100), sur les critères évalués ;
+  un Bonus satisfait ajoute jusqu'à 1 point de poids ; score plafonné à 100.
 - « Je ne sais pas encore » et cases vides : exclus du calcul, listés « à vérifier ».
-- `DEALBREAKER` respecté seulement à 100 % ; sinon l'opportunité est « non conforme » et classée après les autres.
+- Non négociable respecté seulement à 100 % ; sinon l'opportunité est « non conforme » et classée après les autres.
   Inconnu → « à vérifier ».
-- Alertes Anti-Contexte : critère `AWAY_FROM` présent à 50 % ou plus ; ligne rouge (`AWAY_FROM` éliminatoire) franchie dès 25 %.
+- Alertes Anti-Contexte : critère « à éviter » présent à 50 % ou plus ; ligne rouge (« à éviter » non négociable) franchie dès 25 %.
 
 ### Accès et sécurité
 

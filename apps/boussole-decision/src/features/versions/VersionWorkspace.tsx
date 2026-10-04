@@ -105,7 +105,7 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
       </header>
 
       <nav aria-label="Étapes">
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="grid gap-3 sm:grid-cols-2">
           {STEPS.map((s) => {
             const inner = (
               <>

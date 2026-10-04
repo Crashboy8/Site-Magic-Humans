@@ -1,16 +1,21 @@
 import Link from "next/link";
-import type { StepKey } from "@/domain/types";
 import { cx } from "@/components/ui";
 
-export const STEPS: { key: StepKey; n: number; title: string; text: string; available: boolean }[] = [
-  { key: "criteres", n: 1, title: "Mes critères", text: "Ce qui compte pour toi, catégorie par catégorie.", available: true },
-  { key: "opportunites", n: 2, title: "Mes opportunités", text: "Les pistes que tu veux comparer.", available: false },
-  { key: "evaluation", n: 3, title: "Évaluation", text: "Chaque opportunité face à chaque critère.", available: false },
-  { key: "resultats", n: 4, title: "Résultats", text: "Score d'alignement, alertes, radar.", available: false },
+export type StepRoute = "tableau" | "resultats";
+
+export const STEPS: { key: StepRoute; n: number; title: string; text: string; available: boolean }[] = [
+  {
+    key: "tableau",
+    n: 1,
+    title: "Mon tableau",
+    text: "Mes critères en lignes, mes opportunités en colonnes, et le score qui se calcule en direct.",
+    available: true,
+  },
+  { key: "resultats", n: 2, title: "Résultats", text: "Classement détaillé, radar, forces et faiblesses.", available: false },
 ];
 
-/** Fil des 4 étapes d'une version. */
-export function StepsNav({ versionId, current }: { versionId: string; current?: StepKey }) {
+/** Fil des étapes d'une version. */
+export function StepsNav({ versionId, current }: { versionId: string; current?: StepRoute }) {
   return (
     <nav aria-label="Étapes" className="mb-8 overflow-x-auto">
       <ol className="flex min-w-max gap-2">

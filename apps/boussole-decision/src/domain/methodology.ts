@@ -1,5 +1,5 @@
 // Terminologie officielle Magic Humans / MO2I. Toute l'interface s'appuie sur ces textes.
-import type { CategoryKey, CriterionDirection, CriterionKind, EvaluationValue, TalentUnique, Weight } from "./types";
+import type { CategoryKey, CriterionDirection, EvaluationValue, Importance, TalentUnique } from "./types";
 
 export const TALENT_TERMS = {
   talentUnique: "Talent Unique",
@@ -25,21 +25,23 @@ export function talentSentence(t: Pick<TalentUnique, "mecanisme" | "contexteDecl
   return `Je ${m} dans un environnement où ${c}, afin de ${s}.`;
 }
 
-export const WEIGHT_LABELS: Record<Weight, string> = {
-  5: "Crucial",
-  4: "Très important",
-  3: "Important",
-  2: "Souhaitable",
-  1: "Bonus",
-};
+/** Niveaux d'importance, du plus fort au plus faible, avec leur poids dans le score. */
+export const IMPORTANCE_LEVELS: { value: Importance; label: string; weight: number; hint: string }[] = [
+  { value: "critique", label: "Critique", weight: 5, hint: "Le plus important." },
+  { value: "tres_important", label: "Très important", weight: 4, hint: "" },
+  { value: "important", label: "Important", weight: 3, hint: "" },
+  { value: "moyen", label: "Moyennement important", weight: 2, hint: "" },
+  { value: "bof", label: "Bof", weight: 1, hint: "Compte un peu." },
+  { value: "bonus", label: "Bonus", weight: 0, hint: "Si c'est là, c'est bien ; sinon, ce n'est pas grave." },
+];
 
-export const KIND_LABELS: Record<CriterionKind, { label: string; hint: string }> = {
-  WEIGHTED: { label: "Pondéré", hint: "Compte dans le score selon son poids, de 1 (Bonus) à 5 (Crucial)." },
-  DEALBREAKER: {
-    label: "Éliminatoire",
-    hint: "Non négociable : s'il n'est pas respecté, l'opportunité est signalée et classée après les autres.",
-  },
-};
+export const IMPORTANCE_BY_VALUE = Object.fromEntries(IMPORTANCE_LEVELS.map((l) => [l.value, l])) as Record<
+  Importance,
+  (typeof IMPORTANCE_LEVELS)[number]
+>;
+
+export const NON_NEGOTIABLE_HINT =
+  "Non négociable : si ce n'est pas pleinement le cas, l'opportunité est signalée et classée après les autres.";
 
 export const DIRECTION_LABELS: Record<CriterionDirection, { label: string; hint: string; question: string }> = {
   TOWARDS: {
@@ -49,28 +51,21 @@ export const DIRECTION_LABELS: Record<CriterionDirection, { label: string; hint:
   },
   AWAY_FROM: {
     label: "Pour éviter",
-    hint: "Ce que tu veux fuir : on évalue sa présence, et plus il est présent, plus le score baisse.",
+    hint: "Ce que tu veux fuir : on évalue sa présence ; plus il est présent, plus le score baisse.",
     question: "Ce risque est-il présent dans cette opportunité ?",
   },
 };
 
-/** Libellés d'évaluation : pour un critère AWAY_FROM, on évalue la présence du risque. */
+/** Libellés d'évaluation : pour un critère « à éviter », on évalue la présence du risque. */
 export const EVALUATION_LABELS: Record<CriterionDirection, Record<EvaluationValue, string>> = {
-  TOWARDS: { non: "Non", p25: "25 %", p50: "50 %", p75: "75 %", oui: "Oui", inconnu: "Je ne sais pas encore" },
-  AWAY_FROM: {
-    non: "Absent",
-    p25: "Un peu",
-    p50: "En partie",
-    p75: "Beaucoup",
-    oui: "Présent",
-    inconnu: "Je ne sais pas encore",
-  },
+  TOWARDS: { oui: "Oui", p75: "Plutôt oui", p50: "À moitié", p25: "Plutôt non", non: "Non", inconnu: "? À vérifier" },
+  AWAY_FROM: { oui: "Présent", p75: "Assez présent", p50: "En partie", p25: "Un peu", non: "Absent", inconnu: "? À vérifier" },
 };
 
 export interface CriterionTemplate {
   label: string;
-  kind: CriterionKind;
-  weight: Weight | null;
+  importance: Importance;
+  nonNegotiable: boolean;
   direction: CriterionDirection;
 }
 
@@ -84,16 +79,17 @@ export interface CategoryDefinition {
   examples: CriterionTemplate[];
 }
 
-const w = (label: string, weight: Weight, direction: CriterionDirection = "TOWARDS"): CriterionTemplate => ({
+const IMP: Record<number, Importance> = { 5: "critique", 4: "tres_important", 3: "important", 2: "moyen", 1: "bof", 0: "bonus" };
+const w = (label: string, level: number, direction: CriterionDirection = "TOWARDS"): CriterionTemplate => ({
   label,
-  kind: "WEIGHTED",
-  weight,
+  importance: IMP[level],
+  nonNegotiable: false,
   direction,
 });
 const dealbreaker = (label: string, direction: CriterionDirection): CriterionTemplate => ({
   label,
-  kind: "DEALBREAKER",
-  weight: null,
+  importance: "critique",
+  nonNegotiable: true,
   direction,
 });
 
@@ -104,7 +100,7 @@ export const CATEGORIES: CategoryDefinition[] = [
     subtitle: "Talent Unique MO2I",
     question:
       "Dans quel environnement, quelle dynamique de groupe ou face à quel type de problème ton Talent Unique s'active-t-il instantanément ? Qu'est-ce qui te met en Flow ?",
-    defaults: { kind: "WEIGHTED", weight: 5, direction: "TOWARDS" },
+    defaults: { importance: "critique", nonNegotiable: false, direction: "TOWARDS" },
     examples: [
       w("Mon Mécanisme est au cœur du poste, pas à la marge", 5),
       w("Le poste me confronte au type de problème qui active mon talent", 5),
@@ -119,7 +115,7 @@ export const CATEGORIES: CategoryDefinition[] = [
     subtitle: "Prévention de la souffrance",
     question:
       "Quel environnement éteint ton talent, génère de la friction, de la fatigue ou de la souffrance ? Quelles sont tes lignes rouges, à ne jamais franchir ?",
-    defaults: { kind: "WEIGHTED", weight: 4, direction: "AWAY_FROM" },
+    defaults: { importance: "tres_important", nonNegotiable: false, direction: "AWAY_FROM" },
     examples: [
       w("Micro-management et contrôle permanent", 4, "AWAY_FROM"),
       w("Tâches répétitives sans marge d'initiative", 3, "AWAY_FROM"),
@@ -133,11 +129,13 @@ export const CATEGORIES: CategoryDefinition[] = [
     label: "Alignement Valeurs & Culture",
     subtitle: "Ce qui compte pour toi",
     question: "Quelles valeurs l'organisation doit-elle partager avec toi ? Dans quelle culture te sens-tu à ta place ?",
-    defaults: { kind: "WEIGHTED", weight: 4, direction: "TOWARDS" },
+    defaults: { importance: "tres_important", nonNegotiable: false, direction: "TOWARDS" },
     examples: [
       w("Impact environnemental positif", 5),
       w("Autonomie dans mon organisation", 4),
-      w("Ambiance bienveillante", 3),
+      w("Des collègues bienveillants et chaleureux", 4),
+      w("Œuvrer pour une cause, un engagement social", 3),
+      w("Pouvoir faire du bénévolat à côté", 0),
       w("Utilité sociale de l'activité", 4),
       w("Transparence des décisions", 3),
     ],
@@ -147,10 +145,10 @@ export const CATEGORIES: CategoryDefinition[] = [
     label: "Conditions de Vie & QVT",
     subtitle: "Rythme, charge mentale, sérénité",
     question: "Quel rythme, quelle charge mentale et quelle organisation te permettent de rester serein·e dans la durée ?",
-    defaults: { kind: "WEIGHTED", weight: 3, direction: "TOWARDS" },
+    defaults: { importance: "important", nonNegotiable: false, direction: "TOWARDS" },
     examples: [
       w("Télétravail au moins 2 jours / semaine", 3),
-      w("Moins de 45 min de trajet", 2),
+      w("Moins de 30 min de trajet", 3),
       w("Horaires compatibles avec ma vie de famille", 4),
       w("Charge mentale soutenable, sans urgences permanentes", 4),
       w("Déplacements fréquents", 2, "AWAY_FROM"),
@@ -161,9 +159,10 @@ export const CATEGORIES: CategoryDefinition[] = [
     label: "Rémunération & Viabilité Financière",
     subtitle: "Seuil plancher éliminatoire + potentiel",
     question: "En dessous de quel revenu ce n'est pas viable pour toi ? Quel potentiel financier recherches-tu au-delà ?",
-    defaults: { kind: "WEIGHTED", weight: 2, direction: "TOWARDS" },
+    defaults: { importance: "important", nonNegotiable: false, direction: "TOWARDS" },
     examples: [
-      dealbreaker("Pas moins de 3 000 € net / mois", "TOWARDS"),
+      dealbreaker("Minimum 3 000 € net / mois", "TOWARDS"),
+      w("Idéalement 4 000 € net / mois", 3),
       w("Perspective d'évolution salariale", 1),
       w("Revenus stables et prévisibles", 3),
       w("Avantages (mutuelle, intéressement…)", 1),
