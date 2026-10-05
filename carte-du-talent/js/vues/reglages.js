@@ -26,6 +26,11 @@
             '<input type="number" class="champ-nombre" id="reglage-seuil" min="1" max="100" inputmode="numeric"></label>' +
           '</section>' +
           '<section class="flow-bloc">' +
+            '<p class="sous-titre">Suggestions</p>' +
+            '<p class="aide" id="reglage-refusees"></p>' +
+            '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="retablir"><i data-lucide="undo-2"></i>Proposer à nouveau les suggestions écartées</button>' +
+          '</section>' +
+          '<section class="flow-bloc">' +
             '<p class="sous-titre">Données</p>' +
             '<p class="aide">Ta carte est enregistrée dans ce navigateur. Exporte-la de temps en temps pour ne jamais la perdre.</p>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="demo"><i data-lucide="rotate-ccw"></i>Revenir à la carte de démonstration</button>' +
@@ -40,6 +45,7 @@
       if (!b) return;
       if (b.getAttribute('data-action') === 'fermer') fermer();
       if (b.getAttribute('data-action') === 'demo') { fermer(); rappels.reinitialiser(); }
+      if (b.getAttribute('data-action') === 'retablir') { rappels.retablirSuggestions(); majRefusees(); }
     });
     brouillard.addEventListener('change', () => rappels.changerPreference('brouillardDeGuerre', brouillard.checked));
     const seuil = racine.querySelector('#reglage-seuil');
@@ -49,7 +55,16 @@
     });
     racine.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); fermer(); } });
 
+    function majRefusees() {
+      const n = rappels.carte().suggestionsRefusees.length;
+      racine.querySelector('#reglage-refusees').textContent = n
+        ? n + (n > 1 ? ' suggestions écartées ne te sont plus proposées.' : ' suggestion écartée ne t\'est plus proposée.')
+        : 'Aucune suggestion écartée pour l\'instant.';
+      racine.querySelector('[data-action="retablir"]').hidden = n === 0;
+    }
+
     function ouvrir() {
+      majRefusees();
       brouillard.checked = Boolean(rappels.carte().preferences.brouillardDeGuerre);
       seuil.value = rappels.carte().preferences.seuilConquete;
       dernierFocus = document.activeElement;

@@ -197,8 +197,80 @@
       '<section class="panneau-section"><h3><i data-lucide="layers"></i> Régions</h3><ul class="bilan">' + regions + '</ul></section></div>';
   }
 
-  function creer(racine, surAction) {
+  // ---------- Suggestions ----------
+
+  function teteSuggestions(titre, sousTitre, badge, icone) {
+    const pts = CT.hex.coins(0, 0, 26).map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    return '<header class="panneau-tete" style="--teinte:#FFF1C9">' +
+      '<svg class="panneau-hex" viewBox="-30 -30 60 64" aria-hidden="true"><polygon points="' + pts + '" fill="#FFFDF5" stroke="#E9A400" stroke-width="2.5" stroke-dasharray="5 4"/>' +
+      O.iconeSvg(icone, 0, 0, 24, '#8A6A2A', 2) + '</svg>' +
+      '<div class="panneau-titre"><span class="badge badge-suggestion">' + badge + '</span><h2 id="panneau-titre">' + O.echapper(titre) + '</h2>' +
+      '<p class="lieu">' + sousTitre + '</p></div>' +
+      '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>';
+  }
+
+  function contenuSuggestions(carte, suggestions) {
+    let html = teteSuggestions('Territoires à explorer', 'Des idées proches de ce que tu vis déjà. Prends ce qui te parle, laisse le reste.', 'Suggestions', 'lightbulb') +
+      '<div class="panneau-corps"><section class="panneau-section">';
+    if (!suggestions.length) {
+      html += '<p class="vide">Tu as fait le tour des suggestions pour l\'instant. La bibliothèque ci-dessous en garde d\'autres.</p>';
+    } else {
+      html += '<p class="discret">Elles apparaissent en pointillés dorés sur ta carte, à l\'endroit où elles se poseraient.</p><ul class="suggestions">' +
+        suggestions.map((p) => '<li class="suggestion">' +
+          '<button type="button" class="suggestion-nom" data-action="voir-suggestion" data-valeur="' + O.echapper(p.entree.id) + '">' +
+          '<i data-lucide="' + O.echapper(p.entree.icone) + '"></i><span><strong>' + O.echapper(p.entree.nom) + '</strong>' +
+          '<span class="discret">' + O.echapper(p.raison) + '</span></span></button>' +
+          '<div class="suggestion-actions"><button type="button" class="bouton bouton-principal bouton-compact" data-action="accepter" data-valeur="' + O.echapper(p.entree.id) + '">' +
+          '<i data-lucide="plus"></i>Ajouter</button>' +
+          '<button type="button" class="bouton-lien bouton-lien-discret" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">Pas pour moi</button></div></li>').join('') + '</ul>';
+    }
+    html += '</section>' +
+      '<section class="panneau-section"><h3><i data-lucide="pencil"></i> Ton idée à toi</h3>' +
+      '<form class="idee" data-form="idee"><label class="visuellement-cache" for="idee-nom">Nom de la compétence</label>' +
+      '<input type="text" id="idee-nom" name="nom" maxlength="60" placeholder="Ex. : Animer un podcast en direct" autocomplete="off">' +
+      '<button type="submit" class="bouton bouton-secondaire bouton-compact"><i data-lucide="plus"></i>Ajouter</button></form>' +
+      '<p class="discret">Elle rejoint tes territoires à conquérir. Tu pourras ajuster sa région dans son panneau.</p></section>' +
+      sectionBibliotheque(carte, suggestions) + '</div>';
+    return html;
+  }
+
+  function sectionBibliotheque(carte, suggestions) {
+    const proposees = new Set(suggestions.map((p) => p.entree.id));
+    const parDomaine = {};
+    CT.suggestions.disponibles(carte).filter((x) => !proposees.has(x.id)).forEach((x) => {
+      (parDomaine[x.domaine] = parDomaine[x.domaine] || []).push(x);
+    });
+    const domaines = Object.keys(S.DOMAINES).filter((d) => parDomaine[d]);
+    if (!domaines.length) return '';
+    return '<section class="panneau-section"><h3><i data-lucide="library"></i> Toute la bibliothèque</h3>' +
+      domaines.map((d) => '<details class="domaine"><summary><span class="pastille-couleur" style="background:' + S.DOMAINES[d].couleur + '"></span>' +
+        S.DOMAINES[d].nom + '<span class="discret">' + parDomaine[d].length + '</span></summary><ul>' +
+        parDomaine[d].map((x) => '<li><i data-lucide="' + O.echapper(x.icone) + '"></i><span>' + O.echapper(x.nom) + '</span>' +
+          '<button type="button" class="bouton-lien" data-action="accepter" data-valeur="' + O.echapper(x.id) + '">Ajouter</button></li>').join('') +
+        '</ul></details>').join('') + '</section>';
+  }
+
+  function contenuSuggestion(p) {
+    return teteSuggestions(p.entree.nom, O.echapper(p.raison), 'Suggestion', p.entree.icone) +
+      '<div class="panneau-corps"><section class="panneau-section">' +
+      '<p>Si ce territoire t\'attire, ajoute-le à ta carte. Sinon, laisse-le : il ne te sera plus proposé.</p>' +
+      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="accepter" data-valeur="' + O.echapper(p.entree.id) + '">' +
+      '<i data-lucide="plus"></i>Ajouter à mes territoires à conquérir</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="accepter-frontiere" data-valeur="' + O.echapper(p.entree.id) + '">' +
+      '<i data-lucide="mountain"></i>Je le travaille déjà : frontière</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">Pas pour moi</button></div>' +
+      '<button type="button" class="bouton-lien" data-action="retour-suggestions"><i data-lucide="arrow-left"></i>Toutes les suggestions</button>' +
+      '</section></div>';
+  }
+
+  function creer(racine, surAction, contexte) {
     let ouvert = null;
+
+    racine.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const champ = e.target.querySelector('input[name="nom"]');
+      if (champ && champ.value.trim()) surAction('ajouter-idee', champ.value.trim());
+    });
 
     racine.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-action]');
@@ -212,11 +284,29 @@
 
     return {
       afficher(id, carte) {
-        const c = id === 'capitale' ? null : CT.regles.trouver(carte, id);
-        if (id !== 'capitale' && !c) { this.fermer(); return; }
+        const suggestions = contexte && contexte.suggestions ? contexte.suggestions() : [];
+        let html;
+        if (id === 'suggestions') html = contenuSuggestions(carte, suggestions);
+        else if (id.startsWith('sugg:')) {
+          const p = suggestions.find((x) => 'sugg:' + x.entree.id === id);
+          if (!p) { this.afficher('suggestions', carte); return; }
+          html = contenuSuggestion(p);
+        } else {
+          const c = id === 'capitale' ? null : CT.regles.trouver(carte, id);
+          if (id !== 'capitale' && !c) { this.fermer(); return; }
+          html = !c ? contenuCapitale(carte) : CT.regles.estCache(carte, c) ? contenuBrouillard(c, carte) : contenuCompetence(c, carte);
+        }
         const premier = !ouvert;
+        const memeVue = ouvert === id;
+        const defilement = racine.querySelector('.panneau-corps') ? racine.querySelector('.panneau-corps').scrollTop : 0;
+        const ouverts = [...racine.querySelectorAll('details[open] summary')].map((s) => s.textContent);
         ouvert = id;
-        racine.innerHTML = !c ? contenuCapitale(carte) : CT.regles.estCache(carte, c) ? contenuBrouillard(c, carte) : contenuCompetence(c, carte);
+        racine.innerHTML = html;
+        // Même vue redessinée : on garde le défilement et les domaines dépliés.
+        if (memeVue) {
+          racine.querySelectorAll('details').forEach((d) => { if (ouverts.includes(d.querySelector('summary').textContent)) d.open = true; });
+          if (racine.querySelector('.panneau-corps')) racine.querySelector('.panneau-corps').scrollTop = defilement;
+        }
         racine.hidden = false;
         document.body.classList.add('panneau-ouvert');
         O.rafraichirIcones(racine);

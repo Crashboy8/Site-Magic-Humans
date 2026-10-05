@@ -151,6 +151,18 @@
       const c = parId[cs.id];
       if (!c) return;
 
+      // Suggestion : hexagone fantôme, à l'endroit exact où il se poserait.
+      if (c.fantome) {
+        tuiles.push('<g class="tuile tuile-suggestion" data-id="' + O.echapper(c.id) + '" tabindex="0" role="button" aria-label="' +
+          O.echapper('Suggestion : ' + c.nom) + '">' +
+          '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#FFFDF5" fill-opacity=".72" stroke="#E9A400" stroke-width="2.5" stroke-dasharray="6 5"/>' +
+          '<g class="plus-suggestion"><circle cx="' + (x + 25).toFixed(1) + '" cy="' + (y - 29).toFixed(1) + '" r="10" fill="#E9A400"/>' +
+          O.iconeSvg('plus', x + 25, y - 29, 13, '#fff', 3) + '</g>' +
+          O.iconeSvg(c.icone, x, y - 20, 22, '#8A6A2A', 2) +
+          texteTuile(c.nom, x, y - 6, '#6E5A2E', 'nom nom-suggestion') + '</g>');
+        return;
+      }
+
       // Brouillard de guerre : territoire à conquérir pas encore exploré.
       if (CT.regles.estCache(carte, c)) {
         tuiles.push('<g class="tuile tuile-brouillard" data-id="' + O.echapper(c.id) +

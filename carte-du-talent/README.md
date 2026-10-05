@@ -16,6 +16,8 @@ carte-du-talent/
 ├── js/modele/demo.js     carte de démonstration
 ├── js/modele/regles.js   règles métier (statuts, déplacements, flow, objectifs)
 ├── js/modele/stats.js    statistiques de progrès (calculs purs)
+├── js/modele/bibliotheque.js  59 compétences par domaine (icône, liens vers les voisines)
+├── js/modele/suggestions.js   suggestions de territoires à conquérir
 ├── js/vues/              rendu SVG, navigation (zoom, glisser-déposer), panneau, légende, outils
 ├── js/app.js             point d'entrée
 └── tests/placement.test.js
@@ -49,3 +51,9 @@ Le test vérifie : régions d'un seul tenant, aucun trou, aucune case isolée, j
 - Écran « Progrès » : flow par semaine (8 semaines), compétences et régions qui mènent au flow, grille défi / maîtrise avec la zone de flow, frontières en cours. Période au choix : 30 derniers jours ou depuis le début.
 - Au seuil de conquête (10 moments par défaut, réglable), l'appli propose de passer une frontière en territoire conquis. Rien n'est automatique : « Oui, je l'ai conquis » ou « Pas encore » (la question revient après 5 moments de plus).
 - Objectifs liés aux frontières (ex. : Vente, 2 sessions par semaine) : sessions notées à la main, les moments de flow sur la compétence comptent aussi, historique des 3 périodes précédentes.
+
+## Bibliothèque et suggestions
+
+- Bouton ampoule sur la carte : six suggestions apparaissent en hexagones fantômes (pointillés dorés), à l'endroit exact où elles se poseraient. Elles s'appuient sur les compétences voisines déjà présentes, un peu plus sur celles qui mènent au flow, et varient les domaines (deux au plus par domaine).
+- Accepter une suggestion la pose à la place de son fantôme ; aucune autre position ne bouge. « Pas pour moi » l'écarte définitivement (rétablissable dans les Réglages).
+- On peut aussi ajouter sa propre idée ou piocher dans toute la bibliothèque.

@@ -48,6 +48,7 @@
       iles: [],
       momentsDeFlow: [],
       objectifs: [],
+      suggestionsRefusees: [],
       preferences: Object.assign({}, PREFERENCES_DEFAUT)
     };
   }
@@ -119,7 +120,8 @@
           positionManuelle: Boolean(c.positionManuelle) && position(c.position) !== null,
           priorite: c.priorite ? entre(c.priorite, 1, 99, null) : null,
           exploree: Boolean(c.exploree),
-          reportConquete: Number.isFinite(Number(c.reportConquete)) && c.reportConquete !== null ? Math.max(0, Math.round(Number(c.reportConquete))) : null
+          reportConquete: Number.isFinite(Number(c.reportConquete)) && c.reportConquete !== null ? Math.max(0, Math.round(Number(c.reportConquete))) : null,
+          bibliothequeId: c.bibliothequeId ? String(c.bibliothequeId) : null
         };
       });
     const idsComp = new Set(carte.competences.map((c) => c.id));
@@ -160,6 +162,8 @@
       }));
 
     const prefs = src.preferences || {};
+    carte.suggestionsRefusees = [...new Set(liste(src.suggestionsRefusees).map(String))];
+
     carte.preferences = {
       brouillardDeGuerre: Boolean(prefs.brouillardDeGuerre),
       seuilConquete: entre(prefs.seuilConquete, 1, 100, PREFERENCES_DEFAUT.seuilConquete)

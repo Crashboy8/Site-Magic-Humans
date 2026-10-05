@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js'].forEach((f) => {
+['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -338,6 +338,80 @@ test('on peut créer, modifier et supprimer un objectif', () => {
   assert.strictEqual(CT.regles.objectifDe(c, 'calisthenie').frequence.periode, 'mois');
   assert.ok(CT.regles.supprimerObjectif(c, o.id));
   assert.strictEqual(CT.regles.objectifDe(c, 'calisthenie'), null);
+});
+
+console.log('\nBibliothèque et suggestions');
+
+test('la bibliothèque compte une cinquantaine de compétences valides', () => {
+  const E = CT.bibliotheque.ENTREES;
+  assert.ok(E.length >= 45 && E.length <= 65, E.length + ' entrées');
+  assert.strictEqual(new Set(E.map((x) => x.id)).size, E.length);
+  E.forEach((x) => assert.ok(CT.schema.DOMAINES[x.domaine], x.id + ' : domaine inconnu'));
+});
+
+test('les suggestions écartent ce qui est déjà sur la carte et varient les domaines', () => {
+  const { carte: c } = cartePlacee();
+  const sugg = CT.suggestions.proposer(c, 6);
+  assert.strictEqual(sugg.length, 6);
+  const ids = sugg.map((p) => p.entree.id);
+  ['vente', 'negociation', 'storytelling', 'nocode', 'podcast', 'facilitation', 'reseaux'].forEach((id) => assert.ok(!ids.includes(id), id + ' déjà sur la carte'));
+  const parDomaine = {};
+  sugg.forEach((p) => { parDomaine[p.entree.domaine] = (parDomaine[p.entree.domaine] || 0) + 1; });
+  Object.values(parDomaine).forEach((n) => assert.ok(n <= 2));
+  sugg.forEach((p) => assert.ok(p.regionId && p.raison));
+});
+
+test('une suggestion refusée ne revient pas, même après export / import', () => {
+  const { carte: c } = cartePlacee();
+  const premiere = CT.suggestions.proposer(c, 6)[0].entree.id;
+  assert.ok(CT.suggestions.refuser(c, premiere));
+  const relue = CT.schema.normaliser(JSON.parse(JSON.stringify(c)));
+  assert.ok(!CT.suggestions.proposer(relue, 59).some((p) => p.entree.id === premiere));
+  assert.ok(!CT.suggestions.disponibles(relue).some((x) => x.id === premiere));
+});
+
+test('le flow récent rapproche les suggestions voisines', () => {
+  const { carte: c } = cartePlacee();
+  const avant = CT.suggestions.profil(c, CT.bibliotheque.trouver('slam')).score;
+  for (let i = 0; i < 4; i++) CT.regles.ajouterMoment(c, { competenceIds: ['rimer'] });
+  assert.ok(CT.suggestions.profil(c, CT.bibliotheque.trouver('slam')).score > avant);
+});
+
+test('une suggestion numérique prolonge la province numérique', () => {
+  const { carte: c } = cartePlacee();
+  const p = CT.suggestions.profil(c, CT.bibliotheque.trouver('analyse-donnees'));
+  assert.strictEqual(p.distance, 'eloignee');
+  assert.strictEqual(CT.placement.groupeDe(CT.suggestions.versCompetence(p)), 'p:numerique');
+});
+
+test('afficher les fantômes ne bouge aucun hexagone existant', () => {
+  const { carte: c, res: r } = cartePlacee();
+  const fantomes = CT.suggestions.proposer(c, 6).map((p) => CT.suggestions.versCompetence(p, 'a_conquerir', 'sugg:' + p.entree.id));
+  const r2 = CT.placement.placer(Object.assign({}, c, { competences: c.competences.concat(fantomes) }), { figerExistants: true });
+  Object.keys(r.positions).forEach((id) => assert.deepStrictEqual(r2.positions[id], r.positions[id], id + ' a bougé'));
+  fantomes.forEach((f) => assert.ok(r2.positions[f.id], f.nom + ' sans place'));
+});
+
+test('accepter une suggestion la pose à la place du fantôme, sans bouger le reste', () => {
+  const { carte: c, res: r } = cartePlacee();
+  const sugg = CT.suggestions.proposer(c, 6);
+  const fantomes = sugg.map((p) => CT.suggestions.versCompetence(p, 'a_conquerir', 'sugg:' + p.entree.id));
+  const r2 = CT.placement.placer(Object.assign({}, c, { competences: c.competences.concat(fantomes) }), { figerExistants: true });
+  const choix = sugg[2].entree.id;
+  const nouvelle = CT.suggestions.accepter(c, choix, { position: r2.positions['sugg:' + choix] });
+  assert.strictEqual(nouvelle.statut, 'a_conquerir');
+  const r3 = CT.placement.placer(c);
+  assert.deepStrictEqual(r3.positions[nouvelle.id], r2.positions['sugg:' + choix]);
+  Object.keys(r.positions).forEach((id) => assert.deepStrictEqual(r3.positions[id], r.positions[id], id + ' a bougé'));
+  assert.ok(!CT.suggestions.proposer(c, 59).some((p) => p.entree.id === choix));
+});
+
+test('ajouter depuis la bibliothèque, sans fantôme, ne bouge rien non plus', () => {
+  const { carte: c, res: r } = cartePlacee();
+  const nouvelle = CT.suggestions.accepter(c, 'yoga', { statut: 'frontiere' });
+  const r3 = CT.placement.placer(c);
+  assert.ok(r3.positions[nouvelle.id]);
+  Object.keys(r.positions).forEach((id) => assert.deepStrictEqual(r3.positions[id], r.positions[id], id + ' a bougé'));
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');

@@ -7,7 +7,10 @@
   const etat = {
     carte: null,
     placement: null,
-    parCase: new Map() // id -> case placée
+    parCase: new Map(), // id -> case placée (fantômes compris)
+    suggestionsVisibles: false,
+    suggestions: [], // suggestions affichées en fantômes
+    affichage: null // { carte, placement } réellement dessinés
   };
 
   let navigation = null;
@@ -33,13 +36,40 @@
   // Calcule le placement (positions mémorisées conservées) et l'enregistre dans le modèle.
   function recalculer(options) {
     etat.placement = CT.placement.placer(etat.carte, options);
-    etat.parCase = new Map(etat.placement.cases.map((c) => [c.id, c]));
     etat.carte.competences.forEach((c) => {
       const p = etat.placement.positions[c.id];
       if (p) c.position = { q: p.q, r: p.r };
     });
     const problemes = CT.placement.verifier(etat.placement);
     if (problemes.length && globalThis.console) console.info('Placement :', problemes);
+    calculerFantomes();
+  }
+
+  /*
+   * Mode suggestions : on pose des hexagones fantômes autour du territoire.
+   * Les positions existantes sont figées, rien de réel ne bouge.
+   */
+  function calculerFantomes() {
+    etat.affichage = { carte: etat.carte, placement: etat.placement };
+    etat.suggestions = [];
+    if (etat.suggestionsVisibles) {
+      etat.suggestions = CT.suggestions.proposer(etat.carte, 6);
+      const fantomes = etat.suggestions.map((p) => Object.assign(CT.suggestions.versCompetence(p, 'a_conquerir', 'sugg:' + p.entree.id), { fantome: true }));
+      const carte = Object.assign({}, etat.carte, { competences: etat.carte.competences.concat(fantomes) });
+      etat.affichage = { carte, placement: CT.placement.placer(carte, { figerExistants: true }) };
+    }
+    etat.parCase = new Map(etat.affichage.placement.cases.map((c) => [c.id, c]));
+    if ($('btn-suggestions')) $('btn-suggestions').setAttribute('aria-pressed', String(etat.suggestionsVisibles));
+  }
+
+  function basculerSuggestions(visibles) {
+    etat.suggestionsVisibles = visibles;
+    calculerFantomes();
+    rendre();
+    if (visibles) {
+      navigation.selectionner(null);
+      panneau.afficher('suggestions', etat.carte);
+    }
   }
 
   function enregistrer() {
@@ -67,7 +97,7 @@
   function rendre(options) {
     $('talent-nom').textContent = etat.carte.talent.nom || 'Mon talent';
     $('talent-fil').textContent = etat.carte.talent.filRouge ? 'Fil rouge : ' + etat.carte.talent.filRouge : '';
-    const { cadre } = CT.vueCarte.rendre($('carte'), etat.carte, etat.placement);
+    const { cadre } = CT.vueCarte.rendre($('carte'), etat.affichage.carte, etat.affichage.placement);
     navigation.majCadre(cadre, { ajuster: options && options.ajuster, marges: marges() });
     CT.vueLegende.rendre($('legende-contenu'), etat.carte);
     if (panneau.ouvert) panneau.afficher(panneau.ouvert, etat.carte);
@@ -101,6 +131,7 @@
   function fermerPanneau() {
     if (navigation) navigation.selectionner(null);
     if (panneau && panneau.ouvert) panneau.fermer();
+    if (etat.suggestionsVisibles) basculerSuggestions(false);
   }
 
   function nomDe(id) {
@@ -120,6 +151,7 @@
   function surActionPanneau(action, valeur) {
     const id = panneau.ouvert;
     if (action === 'fermer') { fermerPanneau(); return; }
+    if (actionSuggestion(action, valeur)) return;
     if (!id || id === 'capitale') return;
     if (action === 'flow') { saisieFlow.ouvrir([id]); return; }
     if (action === 'progres') { progres.ouvrir(); return; }
@@ -163,6 +195,48 @@
     if (!avant || !apres || avant.q !== apres.q || avant.r !== apres.r) {
       requestAnimationFrame(() => navigation.rendreVisible(id, zoneLibre()));
     }
+  }
+
+  // ---------- Suggestions ----------
+
+  // Renvoie true si l'action concernait les suggestions.
+  function actionSuggestion(action, valeur) {
+    const carte = etat.carte;
+    if (action === 'voir-suggestion') { ouvrir('sugg:' + valeur); return true; }
+    if (action === 'retour-suggestions') { navigation.selectionner(null); panneau.afficher('suggestions', carte); return true; }
+    if (action === 'accepter' || action === 'accepter-frontiere') {
+      const fantome = caseDe('sugg:' + valeur);
+      const c = CT.suggestions.accepter(carte, valeur, {
+        statut: action === 'accepter' ? 'a_conquerir' : 'frontiere',
+        position: fantome ? { q: fantome.q, r: fantome.r } : null
+      });
+      if (!c) return true;
+      appliquer();
+      navigation.selectionner(null);
+      panneau.afficher('suggestions', carte);
+      if (caseDe(c.id)) CT.vueEffets.exploration($('carte'), caseDe(c.id));
+      toast(nomDe(c.id) + (c.statut === 'frontiere' ? ' devient une frontière de ta carte.' : ' rejoint tes territoires à conquérir.'));
+      return true;
+    }
+    if (action === 'refuser') {
+      const entree = CT.bibliotheque.trouver(valeur);
+      if (!CT.suggestions.refuser(carte, valeur)) return true;
+      appliquer();
+      navigation.selectionner(null);
+      panneau.afficher('suggestions', carte);
+      toast('D\'accord, « ' + entree.nom + ' » ne te sera plus proposée.');
+      return true;
+    }
+    if (action === 'ajouter-idee') {
+      const c = CT.regles.ajouterCompetence(carte, valeur, 'a_conquerir');
+      if (!c) return true;
+      appliquer();
+      panneau.afficher('suggestions', carte);
+      if (caseDe(c.id)) CT.vueEffets.exploration($('carte'), caseDe(c.id));
+      toast(nomDe(c.id) + ' rejoint tes territoires à conquérir.');
+      return true;
+    }
+    return false;
   }
 
   // ---------- Progrès, conquêtes et objectifs ----------
@@ -238,7 +312,7 @@
 
   const rappelsNavigation = {
     caseDe: (id) => etat.parCase.get(id) || null,
-    estDeplacable: (id) => id !== 'capitale',
+    estDeplacable: (id) => id !== 'capitale' && !id.startsWith('sugg:'),
     clic(id) {
       if (id) ouvrir(id);
       else fermerPanneau();
@@ -291,6 +365,10 @@
       const id = panneau.ouvert && panneau.ouvert !== 'capitale' ? panneau.ouvert : null;
       saisieFlow.ouvrir(id ? [id] : []);
     });
+    $('btn-suggestions').addEventListener('click', () => {
+      if (etat.suggestionsVisibles) fermerPanneau();
+      else basculerSuggestions(true);
+    });
     $('btn-zoom-plus').addEventListener('click', () => navigation.zoomer(1.4));
     $('btn-zoom-moins').addEventListener('click', () => navigation.zoomer(1 / 1.4));
     $('btn-recentrer').addEventListener('click', () => navigation.ajuster(marges()));
@@ -304,7 +382,7 @@
 
   function demarrer() {
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
-    panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau);
+    panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau, { suggestions: () => etat.suggestions });
     saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
     progres = CT.vueProgres.creer($('progres'), { carte: () => etat.carte, action: actionProgres });
     reglages = CT.vueReglages.creer($('reglages'), {
@@ -314,6 +392,11 @@
         appliquer();
         if (cle === 'seuilConquete') toast('Seuil de conquête : ' + etat.carte.preferences.seuilConquete + ' moments de flow.');
         if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
+      },
+      retablirSuggestions() {
+        const n = CT.suggestions.retablirRefusees(etat.carte);
+        appliquer();
+        toast(n ? 'Les suggestions écartées pourront à nouveau t\'être proposées.' : 'Aucune suggestion écartée.');
       },
       reinitialiser() {
         if (!confirm('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).')) return;

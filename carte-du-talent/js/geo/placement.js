@@ -446,7 +446,8 @@
         occ.forEach((o, k) => {
           if (!groupesBord.has(o.groupe) || k === kTrou) return;
           const c = parId[o.id];
-          if (!c || c.positionManuelle) return;
+          // figerExistants : seules les compétences encore sans position peuvent combler un trou.
+          if (!c || c.positionManuelle || (options.figerExistants && c.position)) return;
           const p = H.depuisCle(k);
           const vides = H.voisins(p.q, p.r).filter((v) => !occ.has(H.cle(v.q, v.r))).length;
           const s = 3 * vides + (ORDRE_STATUT[c.statut] || 0) + H.distance(p, { q: 0, r: 0 }) * 0.5;
