@@ -1,0 +1,175 @@
+/* Carte du Talent — interface : en-tête, légende, boutons, notifications */
+
+.entete {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 20px;
+  background: var(--papier);
+  box-shadow: 0 2px 14px rgba(31, 72, 84, .14);
+}
+
+.entete-talent { min-width: 0; }
+
+.marque {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--accent);
+}
+
+.marque svg { width: 15px; height: 15px; }
+
+.entete h1 {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.fil-rouge {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--encre-douce);
+}
+
+.fil-rouge:empty { display: none; }
+
+.entete-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bouton-icone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #E6DCC6;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--encre);
+  font: 700 14px var(--police);
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+
+.bouton-icone:hover { background: #FFF3DA; }
+.bouton-icone:active { transform: scale(.97); }
+.bouton-icone svg { width: 18px; height: 18px; }
+
+button:focus-visible {
+  outline: 3px solid var(--or);
+  outline-offset: 2px;
+}
+
+/* Légende */
+
+.legende {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 4;
+  width: 230px;
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  background: rgba(255, 251, 242, .93);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  backdrop-filter: blur(6px);
+}
+
+.legende-titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  font: 800 13px var(--police);
+  color: var(--encre);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.legende-titre svg { width: 16px; height: 16px; }
+.legende-titre .chevron { margin-left: auto; transition: transform .2s; }
+.legende.fermee .chevron { transform: rotate(-90deg); }
+.legende.fermee .legende-contenu { display: none; }
+
+.legende-contenu { padding: 0 14px 12px; }
+
+.legende h2 {
+  margin: 6px 0 4px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--encre-douce);
+}
+
+.legende ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legende li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.pastille { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Notifications */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 50;
+  max-width: calc(100% - 32px);
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--encre);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: var(--ombre);
+  transform: translate(-50%, 140%);
+  opacity: 0;
+  transition: transform .3s, opacity .3s;
+  pointer-events: none;
+}
+
+.toast.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+/* Téléphone */
+
+@media (max-width: 640px) {
+  .entete { padding: 8px 16px; gap: 8px; }
+  .entete h1 { font-size: 16px; }
+  .fil-rouge { font-size: 12.5px; }
+  .bouton-icone { padding: 8px 10px; }
+  .bouton-icone span { display: none; }
+  .legende { left: 12px; bottom: 12px; width: auto; max-width: calc(100% - 24px); }
+}

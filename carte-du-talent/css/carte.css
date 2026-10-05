@@ -1,0 +1,103 @@
+/* Carte du Talent — thème général et rendu de la carte */
+
+:root {
+  --mer: #9FD3E0;
+  --mer-profonde: #2F6A78;
+  --papier: #FFFBF2;
+  --encre: #2E3A3F;
+  --encre-douce: #5F6B70;
+  --accent: #E5738E;
+  --or: #E9B23E;
+  --ombre: 0 8px 28px rgba(31, 72, 84, .18);
+  --rayon: 16px;
+  --police: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--mer);
+  color: var(--encre);
+  font-family: var(--police);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.scene-carte {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.carte {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.carte .nom {
+  font-family: var(--police);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-anchor: middle;
+  letter-spacing: .01em;
+}
+
+.carte .nom-capitale {
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.carte .tuile-a_conquerir .nom { font-weight: 600; font-style: italic; }
+
+.carte .etiquette {
+  font-family: var(--police);
+  font-weight: 800;
+  text-anchor: middle;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  paint-order: stroke;
+  stroke: #FFFBF2;
+  stroke-width: 5px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.carte .etiquette-region,
+.carte .etiquette-province {
+  font-size: 22px;
+  opacity: 0;
+  transition: opacity .25s;
+}
+
+.carte .etiquette-mer {
+  font-size: 15px;
+  fill: var(--mer-profonde);
+  stroke: rgba(191, 230, 238, .9);
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: .06em;
+}
+
+.carte .rose-n {
+  font: 800 13px var(--police);
+  fill: var(--mer-profonde);
+}
+
+/* Vue d'ensemble (dézoomé) : noms des régions, noms des compétences masqués. */
+.carte.vue-ensemble .etiquette-region,
+.carte.vue-ensemble .etiquette-province { opacity: .95; }
+.carte.vue-ensemble .tuile .nom { opacity: 0; }
+
+.carte .tuile { cursor: pointer; }
+.carte .tuile .nom { transition: opacity .2s; }
