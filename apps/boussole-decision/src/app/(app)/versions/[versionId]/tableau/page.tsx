@@ -67,6 +67,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
         opportunities={opportunities}
         evaluations={evaluations}
         weights={ctx.version.importanceWeights}
+        resultsHref={`/versions/${versionId}/resultats/`}
         readOnly={ctx.readOnly}
         comments={ctx.comments}
         commentViewer={ctx.commentViewer}

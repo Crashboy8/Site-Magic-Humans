@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
-import { Button, Input, Notice, cx } from "@/components/ui";
+import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import {
   createCategory,
@@ -49,6 +49,8 @@ interface Props {
   evaluations: Evaluation[];
   /** Barème de la version (par défaut : Critique ×5 … Bof ×1, Bonus +1). */
   weights?: ImportanceWeights;
+  /** Lien vers la page Résultats (absent pour l'exemple public). */
+  resultsHref?: string;
   readOnly: boolean;
   comments: CoachComment[];
   commentViewer: CommentViewer | null;
@@ -65,7 +67,15 @@ export function DecisionTable(props: Props) {
 const EVAL_ORDER: EvaluationValue[] = ["oui", "p75", "p50", "p25", "non", "inconnu"];
 const key = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
 
-function Table({ versionId, readOnly, comments, commentViewer, weights: initialWeights = DEFAULT_WEIGHTS, ...initial }: Props) {
+function Table({
+  versionId,
+  readOnly,
+  comments,
+  commentViewer,
+  resultsHref,
+  weights: initialWeights = DEFAULT_WEIGHTS,
+  ...initial
+}: Props) {
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
   const [categories, setCategories] = useState(initial.categories);
@@ -207,9 +217,10 @@ function Table({ versionId, readOnly, comments, commentViewer, weights: initialW
       </div>
       {error && <Notice tone="error">{error}</Notice>}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
+      {/* Grand écran : le tableau prend toute la largeur de la fenêtre, le barème se range dans la marge de gauche. */}
+      <div className="grid gap-4 xl:mx-[max(calc(50%-50vw+2rem),calc(50%-56rem))] xl:grid-cols-[230px_minmax(0,1fr)] xl:items-start">
         <WeightsPanel weights={weights} readOnly={readOnly} onChange={changeWeights} />
-        <div className="min-w-0 space-y-4 lg:order-first">
+        <div className="min-w-0 space-y-4">
           {sortedOpps.length > 1 && (
             <div className="flex gap-2 overflow-x-auto sm:hidden" role="tablist" aria-label="Opportunité affichée">
               {sortedOpps.map((o, i) => (
@@ -245,7 +256,7 @@ function Table({ versionId, readOnly, comments, commentViewer, weights: initialW
                     <th
                       key={o.id}
                       scope="col"
-                      className={cx("min-w-[150px] border-b border-l border-line px-3 py-3 text-left align-top font-normal", colClass(o))}
+                      className={cx("min-w-[150px] border-b border-l border-line px-3 py-3 text-center align-top font-normal", colClass(o))}
                     >
                       <OpportunityHeader
                         opportunity={o}
@@ -427,6 +438,12 @@ function Table({ versionId, readOnly, comments, commentViewer, weights: initialW
       </div>
 
       <Legend />
+
+      {resultsHref && opportunities.length > 0 && (
+        <div className="flex justify-end">
+          <ButtonLink href={resultsHref}>{readOnly ? "Voir les résultats →" : "Voir mes résultats →"}</ButtonLink>
+        </div>
+      )}
     </div>
   );
 }
@@ -443,22 +460,27 @@ function OpportunityHeader({
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
-  if (readOnly) return <span data-opp-name className="block text-[16px] font-semibold leading-snug">{opportunity.name}</span>;
+  if (readOnly)
+    return (
+      <span data-opp-name className="block text-center text-[16px] font-semibold leading-snug">
+        {opportunity.name}
+      </span>
+    );
   return (
-    <div className="flex items-start gap-1">
+    <div className="relative">
       <textarea
         aria-label="Nom de l'opportunité"
         value={name}
         rows={1}
         maxLength={120}
         onChange={(e) => setName(e.target.value)}
-        className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent px-1 text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
+        className="field-sizing-content w-full min-w-0 resize-none rounded-md bg-transparent px-6 text-center text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
       />
       <button
         type="button"
         onClick={onDelete}
         aria-label={`Supprimer l'opportunité « ${opportunity.name} »`}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-danger-soft hover:text-danger"
+        className="absolute -right-2 -top-1 flex h-7 w-7 items-center justify-center rounded-full text-sm text-ink-soft hover:bg-danger-soft hover:text-danger"
       >
         ✕
       </button>
@@ -900,7 +922,7 @@ function FrozenHeader({
           cell.width === 0 ? null : (
             <div
               key={i}
-              className="line-clamp-2 shrink-0 border-l border-line px-3 py-2 text-[15px] font-semibold leading-tight"
+              className="line-clamp-2 shrink-0 border-l border-line px-3 py-2 text-center text-[15px] font-semibold leading-tight"
               style={{ width: cell.width }}
             >
               {cell.label}
@@ -934,26 +956,26 @@ function WeightsPanel({
   const set = (level: Importance, value: number) => onChange({ ...weights, [level]: Math.min(MAX_WEIGHT, Math.max(0, value)) });
 
   return (
-    <aside aria-labelledby="bareme-titre" className="rounded-2xl border border-line bg-paper p-4 lg:sticky lg:top-24">
+    <aside aria-labelledby="bareme-titre" className="rounded-2xl border border-line bg-paper p-4 xl:sticky xl:top-24">
       <button
         type="button"
         aria-expanded={open}
         aria-controls="bareme-contenu"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 text-left lg:pointer-events-none"
+        className="flex w-full items-center justify-between gap-3 text-left xl:pointer-events-none"
       >
         <span>
           <span id="bareme-titre" className="block font-serif text-xl italic">
             ⚖️ {readOnly ? "Barème" : "Mon barème"}
           </span>
-          <span className="block text-xs text-ink-soft lg:hidden">{summary}</span>
+          <span className="block text-xs text-ink-soft xl:hidden">{summary}</span>
         </span>
-        <span aria-hidden className="text-ink-soft lg:hidden">
+        <span aria-hidden className="text-ink-soft xl:hidden">
           {open ? "▴" : "▾"}
         </span>
       </button>
 
-      <div id="bareme-contenu" className={cx("mt-3 space-y-3", open ? "block" : "hidden", "lg:block")}>
+      <div id="bareme-contenu" className={cx("mt-3 space-y-3", open ? "block" : "hidden", "xl:block")}>
         <p className="text-[13px] leading-snug text-ink-soft">
           Le poids de chaque niveau dans le score. {readOnly ? "" : "Ajuste-le à ta façon : le score se recalcule aussitôt."}
         </p>

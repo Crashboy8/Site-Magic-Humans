@@ -22,6 +22,8 @@ function Editor({ profileId, talent, readOnly }: { profileId: string; talent: Ta
   const [contexte, setContexte] = useAutosavedValue(talent.contexteDeclencheur, save("contexteDeclencheur"));
   const [benefice, setBenefice] = useAutosavedValue(talent.superBenefice, save("superBenefice"));
   const [anti, setAnti] = useAutosavedValue(talent.antiContexte, save("antiContexte"));
+  const [success, setSuccess] = useAutosavedValue(talent.successSituations, save("successSituations"));
+  const [failure, setFailure] = useAutosavedValue(talent.failureSituations, save("failureSituations"));
   const sentence = talentSentence({ mecanisme, contexteDeclencheur: contexte, superBenefice: benefice });
 
   const fields = [
@@ -90,6 +92,58 @@ function Editor({ profileId, talent, readOnly }: { profileId: string; talent: Ta
           placeholder={readOnly ? "Non renseigné." : "Ex. : des réunions sans fin où rien ne se décide, un contrôle permanent de chaque détail…"}
           className="min-h-20"
         />
+      </div>
+
+      <div className="space-y-3 border-t border-line pt-5">
+        <div>
+          <h3 className="font-serif text-2xl italic">Mes contextes vécus</h3>
+          <p className="max-w-3xl text-sm text-ink-soft">
+            Des situations concrètes, tirées de ta vie. Elles rendent ton Contexte Déclencheur et ton Anti-Contexte palpables, et
+            reviennent dans tes résultats comme garde-fous.
+          </p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="space-y-1.5 rounded-xl bg-sage-soft/60 p-4">
+            <label htmlFor="talent-success" className="block text-[15px] font-medium">
+              🌱 Mes contextes de réussite
+            </label>
+            <p id="talent-success-def" className="text-sm text-ink-soft">
+              Quand es-tu à ton meilleur ? Avec qui, où, en train de faire quoi ?
+            </p>
+            <Textarea
+              id="talent-success"
+              value={success}
+              onChange={(e) => setSuccess(e.target.value)}
+              readOnly={readOnly}
+              aria-describedby="talent-success-def"
+              placeholder={
+                readOnly ? "Non renseigné." : "Ex. : quand je suis avec des gens, que je crée un espace relationnel, avec un objectif et un cadre communs."
+              }
+              className="min-h-24 bg-paper"
+            />
+          </div>
+          <div className="space-y-1.5 rounded-xl bg-danger-soft/50 p-4">
+            <label htmlFor="talent-failure" className="block text-[15px] font-medium">
+              ⚡ Mes contextes d&apos;échec
+            </label>
+            <p id="talent-failure-def" className="text-sm text-ink-soft">
+              Dans quelles situations t&apos;éteins-tu ? Celles où tu peux glisser facilement, sans t&apos;en rendre compte.
+            </p>
+            <Textarea
+              id="talent-failure"
+              value={failure}
+              onChange={(e) => setFailure(e.target.value)}
+              readOnly={readOnly}
+              aria-describedby="talent-failure-def"
+              placeholder={
+                readOnly
+                  ? "Non renseigné."
+                  : "Ex. : quand je suis trop isolé, trop dans ma tête, derrière un écran toute la journée à regarder des vidéos."
+              }
+              className="min-h-24 bg-paper"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );

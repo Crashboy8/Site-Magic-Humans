@@ -313,6 +313,7 @@ update versions set importance_weights = importance_weights || '{"critique": 8}'
 select public.duplicate_version(:'bareme_version', 'Copie') as bareme_copie \gset
 select pg_temp.check((select importance_weights ->> 'critique' from versions where id = :'bareme_copie') = '8',
   'une copie reprend le barème de l''originale');
+insert into opportunities (version_id, name) values (:'bareme_copie', 'Ailleurs') returning id as bareme_copie_opp \gset
 update versions set status = 'finalisee' where id = :'bareme_version';
 select pg_temp.expect_error(
   format($$update versions set importance_weights = '{"critique": 1}' where id = %L$$, :'bareme_version'), 'VERSION_FINALISEE');
@@ -321,5 +322,34 @@ update versions set importance_weights = '{"critique": 0}' where id = :'bareme_c
 reset role;
 select pg_temp.check((select importance_weights ->> 'critique' from versions where id = :'bareme_copie') = '8',
   'personne d''autre ne peut changer le barème');
+
+-- Résultats : ressenti, projection, prochains pas -------------------------------------------
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select public.create_profile('Résultats') as res_profile \gset
+select id as res_version from versions where profile_id = :'res_profile' \gset
+insert into opportunities (version_id, name) values (:'res_version', 'Choisie') returning id as res_opp \gset
+update versions set ranking_agreement = 'pas_vraiment', projection_feeling = 'soulagement', chosen_opportunity_id = :'res_opp',
+  next_steps = '["Appeler Marie", "Journée d''immersion"]' where id = :'res_version';
+select pg_temp.check((select ranking_agreement from versions where id = :'res_version') = 'pas_vraiment', 'le ressenti est enregistré');
+select pg_temp.expect_error(
+  format($$update versions set ranking_agreement = 'peut-etre' where id = %L$$, :'res_version'), 'ranking_agreement');
+select pg_temp.expect_error(
+  format($$update versions set chosen_opportunity_id = %L where id = %L$$, :'bareme_copie_opp', :'res_version'), 'versions_chosen_opportunity_fk');
+select public.duplicate_version(:'res_version', 'Copie résultats') as res_copie \gset
+select pg_temp.check(
+  (select o.name from versions v join opportunities o on o.id = v.chosen_opportunity_id where v.id = :'res_copie') = 'Choisie'
+  and (select chosen_opportunity_id from versions where id = :'res_copie') <> :'res_opp'
+  and (select jsonb_array_length(next_steps) from versions where id = :'res_copie') = 2,
+  'une copie reprend le ressenti, les prochains pas et pointe vers sa propre opportunité choisie');
+delete from opportunities where id = :'res_opp';
+select pg_temp.check((select chosen_opportunity_id from versions where id = :'res_version') is null,
+  'supprimer l''opportunité choisie la retire des prochains pas');
+update versions set status = 'finalisee' where id = :'res_copie';
+select pg_temp.expect_error(
+  format($$update versions set next_steps = '[]' where id = %L$$, :'res_copie'), 'VERSION_FINALISEE');
+update profiles set failure_situations = 'Trop isolé, derrière un écran' where id = :'res_profile';
+select pg_temp.check((select failure_situations from profiles where id = :'res_profile') like 'Trop isolé%', 'les contextes d''échec vécus sont enregistrés');
+reset role;
 
 \echo 'Tous les tests de base de données sont passés.'

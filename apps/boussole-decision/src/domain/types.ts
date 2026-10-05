@@ -23,6 +23,10 @@ export interface TalentUnique {
   superBenefice: string;
   /** Anti-Contexte (ou Contexte d'Inhibition) : ce qui éteint le talent. */
   antiContexte: string;
+  /** Contextes de réussite vécus : situations concrètes où la personne s'épanouit. */
+  successSituations: string;
+  /** Contextes d'échec vécus : situations concrètes où elle s'éteint, et où elle peut glisser facilement. */
+  failureSituations: string;
 }
 
 export interface Profile {
@@ -39,6 +43,9 @@ export interface Profile {
 
 export type VersionStatus = "brouillon" | "finalisee";
 
+export type RankingAgreement = "oui" | "pas_vraiment" | "non";
+export type ProjectionFeeling = "soulagement" | "mitige" | "deception";
+
 export type StepKey = "criteres" | "opportunites" | "evaluation" | "resultats";
 
 export interface Version {
@@ -53,6 +60,14 @@ export interface Version {
   currentStep: StepKey;
   /** Barème de la version : poids de chaque niveau d'importance (et du Bonus). */
   importanceWeights: ImportanceWeights;
+  /** « Ce classement correspond-il à ton ressenti ? » */
+  rankingAgreement: RankingAgreement | null;
+  /** Projection : « Tu as signé demain pour l'opportunité en tête. Soulagement ou déception ? » */
+  projectionFeeling: ProjectionFeeling | null;
+  projectionNote: string;
+  /** Opportunité retenue pour les prochains pas. */
+  chosenOpportunityId: string | null;
+  nextSteps: string[];
   createdAt: string;
   updatedAt: string;
   finalizedAt: string | null;
