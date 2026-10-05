@@ -15,6 +15,7 @@ carte-du-talent/
 ├── js/modele/stockage.js localStorage + export / import JSON
 ├── js/modele/demo.js     carte de démonstration
 ├── js/modele/regles.js   règles métier (statuts, déplacements, flow, objectifs)
+├── js/modele/stats.js    statistiques de progrès (calculs purs)
 ├── js/vues/              rendu SVG, navigation (zoom, glisser-déposer), panneau, légende, outils
 ├── js/app.js             point d'entrée
 └── tests/placement.test.js
@@ -42,3 +43,9 @@ Le test vérifie : régions d'un seul tenant, aucun trou, aucune case isolée, j
 - Éclat : chaque hexagone s'illumine selon ses moments de flow des 30 derniers jours (pondérés par l'intensité), de « une lueur » à « rayonnant ».
 - Animations courtes à l'enregistrement d'un moment et à la conquête d'un territoire, sur un calque séparé : les tuiles ne bougent jamais. Les mouvements sont réduits si le système le demande.
 - Brouillard de guerre (Réglages, désactivé par défaut) : les territoires à conquérir non explorés apparaissent sous des nuages ; on les découvre en les explorant.
+
+## Progrès et objectifs
+
+- Écran « Progrès » : flow par semaine (8 semaines), compétences et régions qui mènent au flow, grille défi / maîtrise avec la zone de flow, frontières en cours. Période au choix : 30 derniers jours ou depuis le début.
+- Au seuil de conquête (10 moments par défaut, réglable), l'appli propose de passer une frontière en territoire conquis. Rien n'est automatique : « Oui, je l'ai conquis » ou « Pas encore » (la question revient après 5 moments de plus).
+- Objectifs liés aux frontières (ex. : Vente, 2 sessions par semaine) : sessions notées à la main, les moments de flow sur la compétence comptent aussi, historique des 3 périodes précédentes.

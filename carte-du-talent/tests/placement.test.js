@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js'].forEach((f) => {
+['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -255,6 +255,89 @@ test('activer le brouillard ou explorer ne déplace aucun hexagone', () => {
   CT.regles.explorer(c, 'storytelling');
   CT.regles.ajouterMoment(c, { competenceIds: ['vente'] });
   assert.deepStrictEqual(CT.placement.placer(c).positions, r.positions);
+});
+
+console.log('\nProgrès et objectifs');
+
+const LUNDI = Date.parse('2026-10-05T12:00:00'); // lundi 5 octobre 2026, heure locale
+
+test('le flow par semaine compte les moments dans la bonne semaine (lundi → dimanche)', () => {
+  const { carte: c } = cartePlacee();
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], date: new Date('2026-10-05T08:00:00').toISOString() });
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], date: new Date('2026-10-04T22:00:00').toISOString() });
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], date: new Date('2026-09-28T09:00:00').toISOString() });
+  const s = CT.stats.fluxParSemaine(c, 4, LUNDI);
+  assert.deepStrictEqual(s.map((x) => x.nombre), [0, 0, 2, 1]);
+  assert.strictEqual(s[3].enCours, true);
+});
+
+test('les tops comptent un moment une seule fois par région', () => {
+  const { carte: c } = cartePlacee();
+  CT.regles.ajouterMoment(c, { competenceIds: ['ecouter', 'coacher'] });
+  CT.regles.ajouterMoment(c, { competenceIds: ['coacher', 'jonglage'] });
+  const comps = CT.stats.topCompetences(c);
+  assert.strictEqual(comps[0].c.id, 'coacher');
+  assert.strictEqual(comps[0].nombre, 2);
+  const regions = CT.stats.topRegions(c);
+  assert.strictEqual(regions[0].cle, 'r:reveler');
+  assert.strictEqual(regions[0].nombre, 2);
+  assert.ok(regions.some((r) => r.cle === 'i:corps-rythme'));
+});
+
+test('la grille défi / maîtrise range chaque moment dans sa case', () => {
+  const { carte: c } = cartePlacee();
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], defi: 5, maitrise: 4 });
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], defi: 5, maitrise: 4 });
+  assert.strictEqual(CT.stats.grilleDefiMaitrise(c)[4][3], 2);
+});
+
+test('la conquête est proposée au seuil, jamais appliquée automatiquement', () => {
+  const { carte: c } = cartePlacee();
+  for (let i = 0; i < 9; i++) CT.regles.ajouterMoment(c, { competenceIds: ['vente'] });
+  assert.strictEqual(CT.stats.propositionsConquete(c).length, 0);
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'] });
+  assert.deepStrictEqual(CT.stats.propositionsConquete(c).map((f) => f.c.id), ['vente']);
+  assert.strictEqual(CT.regles.trouver(c, 'vente').statut, 'frontiere');
+});
+
+test('« pas encore » reporte la proposition de 5 moments', () => {
+  const { carte: c } = cartePlacee();
+  for (let i = 0; i < 10; i++) CT.regles.ajouterMoment(c, { competenceIds: ['vente'] });
+  CT.regles.reporterConquete(c, 'vente');
+  assert.strictEqual(CT.stats.propositionsConquete(c).length, 0);
+  for (let i = 0; i < 5; i++) CT.regles.ajouterMoment(c, { competenceIds: ['vente'] });
+  assert.strictEqual(CT.stats.propositionsConquete(c).length, 1);
+});
+
+test('le seuil de conquête est réglable', () => {
+  const { carte: c } = cartePlacee();
+  CT.regles.changerPreference(c, 'seuilConquete', 3);
+  for (let i = 0; i < 3; i++) CT.regles.ajouterMoment(c, { competenceIds: ['calisthenie'] });
+  assert.deepStrictEqual(CT.stats.propositionsConquete(c).map((f) => f.c.id), ['calisthenie']);
+});
+
+test('le suivi d\'objectif additionne sessions notées et moments de flow de la période', () => {
+  const { carte: c } = cartePlacee();
+  const o = CT.regles.objectifDe(c, 'vente');
+  CT.regles.noterSession(c, o.id, new Date('2026-10-05T09:00:00'));
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], date: new Date('2026-10-05T10:00:00').toISOString() });
+  CT.regles.noterSession(c, o.id, new Date('2026-09-30T09:00:00'));
+  const s = CT.stats.suiviObjectif(c, o, LUNDI);
+  assert.strictEqual(s.actuelle.fait, 2);
+  assert.strictEqual(s.actuelle.cible, 2);
+  assert.deepStrictEqual(s.periodes.map((p) => p.fait), [0, 0, 1, 2]);
+  CT.regles.retirerSession(c, o.id);
+  assert.strictEqual(CT.stats.suiviObjectif(c, o, LUNDI).actuelle.fait, 1);
+});
+
+test('on peut créer, modifier et supprimer un objectif', () => {
+  const { carte: c } = cartePlacee();
+  const o = CT.regles.definirObjectif(c, 'calisthenie', { fois: 3, periode: 'semaine' });
+  assert.strictEqual(o.description, 'Calisthénie : 3 sessions par semaine');
+  CT.regles.definirObjectif(c, 'calisthenie', { fois: 1, periode: 'mois', description: 'Une séance découverte' });
+  assert.strictEqual(CT.regles.objectifDe(c, 'calisthenie').frequence.periode, 'mois');
+  assert.ok(CT.regles.supprimerObjectif(c, o.id));
+  assert.strictEqual(CT.regles.objectifDe(c, 'calisthenie'), null);
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');

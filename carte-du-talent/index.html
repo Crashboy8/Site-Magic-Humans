@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/carte.css">
   <link rel="stylesheet" href="css/ui.css">
   <link rel="stylesheet" href="css/flow.css">
+  <link rel="stylesheet" href="css/progres.css">
 </head>
 <body>
   <header class="entete">
@@ -27,6 +28,9 @@
       </button>
       <button type="button" class="bouton-icone" id="btn-importer" title="Importer une carte (JSON)">
         <i data-lucide="upload"></i><span>Importer</span>
+      </button>
+      <button type="button" class="bouton-icone" id="btn-progres" title="Progrès et objectifs">
+        <i data-lucide="chart-column"></i><span>Progrès</span><span class="pastille-alerte" id="alerte-progres" hidden></span>
       </button>
       <button type="button" class="bouton-icone" id="btn-reglages" title="Réglages">
         <i data-lucide="settings"></i><span>Réglages</span>
@@ -61,6 +65,7 @@
 
   <div class="flow" id="saisie-flow" hidden></div>
   <div class="flow reglages" id="reglages" hidden></div>
+  <div class="progres" id="progres" hidden></div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -71,6 +76,7 @@
   <script src="js/modele/stockage.js"></script>
   <script src="js/geo/placement.js"></script>
   <script src="js/modele/regles.js"></script>
+  <script src="js/modele/stats.js"></script>
   <script src="js/vues/outils.js"></script>
   <script src="js/vues/carte.js"></script>
   <script src="js/vues/legende.js"></script>
@@ -79,6 +85,7 @@
   <script src="js/vues/saisieFlow.js"></script>
   <script src="js/vues/effets.js"></script>
   <script src="js/vues/reglages.js"></script>
+  <script src="js/vues/progres.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

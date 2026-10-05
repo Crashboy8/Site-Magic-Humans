@@ -85,15 +85,30 @@
     return html + '</section>';
   }
 
+  // Frontière arrivée au seuil : la personne décide elle-même.
+  function sectionProposition(c, carte) {
+    const f = CT.stats.propositionsConquete(carte).find((x) => x.c.id === c.id);
+    if (!f) return '';
+    return '<section class="panneau-section proposition-panneau"><p><strong>' + f.nombre + ' moments de flow ici.</strong> Ce territoire te semble-t-il conquis ?</p>' +
+      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="conquerir"><i data-lucide="trophy"></i>Oui, je l\'ai conquis</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="pas-encore">Pas encore</button></div></section>';
+  }
+
   function sectionObjectif(c, carte) {
     const o = CT.regles.objectifDe(carte, c.id);
     if (!o && c.statut !== 'frontiere') return '';
     let html = '<section class="panneau-section"><h3><i data-lucide="target"></i> Objectif</h3>';
     if (o) {
+      const a = CT.stats.suiviObjectif(carte, o).actuelle;
+      const maintenant = o.frequence.periode === 'mois' ? 'ce mois-ci' : 'cette semaine';
       html += '<p class="objectif"><strong>' + O.echapper(o.description || c.nom) + '</strong><br><span class="discret">' +
-        o.frequence.fois + ' fois par ' + o.frequence.periode + '</span></p>';
+        (a.fait >= a.cible ? 'Objectif atteint ' + maintenant : a.fait + ' sur ' + a.cible + ' ' + maintenant) + '</span></p>' +
+        '<div class="actions-ligne"><button type="button" class="bouton bouton-secondaire bouton-compact" data-action="session" data-valeur="' + O.echapper(o.id) + '">' +
+        '<i data-lucide="plus"></i>J\'ai fait une session</button>' +
+        '<button type="button" class="bouton-lien" data-action="progres">Voir le suivi</button></div>';
     } else {
-      html += '<p class="vide">Pas encore d\'objectif sur cette frontière.</p>';
+      html += '<p class="vide">Pas encore d\'objectif sur cette frontière.</p>' +
+        '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="nouvel-objectif"><i data-lucide="target"></i>Me fixer un objectif</button>';
     }
     return html + '</section>';
   }
@@ -146,7 +161,7 @@
       (c.priorite === 1 ? ' · priorité n°1' : '') + '</span>' +
       '<h2 id="panneau-titre">' + O.echapper(c.nom) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
-      '<div class="panneau-corps">' + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
+      '<div class="panneau-corps">' + sectionProposition(c, carte) + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
   }
 
   // Territoire caché par le brouillard de guerre : rien n'est dévoilé avant l'exploration.

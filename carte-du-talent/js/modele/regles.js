@@ -24,6 +24,7 @@
     const ancien = c.statut;
     c.statut = statut;
     if (statut !== 'a_conquerir') c.exploree = true;
+    if (statut !== 'frontiere') c.reportConquete = null;
     if (statut === 'ile' && !c.ileId) {
       if (!carte.iles.length) carte.iles.push({ id: CT.schema.nouvelId('ile'), nom: 'Île de flow' });
       c.ileId = carte.iles[0].id;
@@ -244,7 +245,58 @@
 
   function changerPreference(carte, cle, valeur) {
     if (!(cle in CT.schema.PREFERENCES_DEFAUT)) return false;
+    if (cle === 'seuilConquete') valeur = Math.min(100, Math.max(1, Math.round(Number(valeur) || CT.schema.PREFERENCES_DEFAUT.seuilConquete)));
     carte.preferences[cle] = valeur;
+    return true;
+  }
+
+  // ---------- Objectifs et propositions de conquête ----------
+
+  // « Pas encore » : la proposition reviendra après quelques moments de plus.
+  function reporterConquete(carte, id) {
+    const c = trouver(carte, id);
+    if (!c || c.statut !== 'frontiere') return false;
+    c.reportConquete = momentsDe(carte, id).length;
+    return true;
+  }
+
+  function definirObjectif(carte, competenceId, valeurs) {
+    const c = trouver(carte, competenceId);
+    if (!c) return null;
+    const fois = Math.min(99, Math.max(1, Math.round(Number(valeurs.fois) || 1)));
+    const periode = valeurs.periode === 'mois' ? 'mois' : 'semaine';
+    const description = String(valeurs.description || '').trim().slice(0, 120) ||
+      c.nom + ' : ' + fois + (fois > 1 ? ' sessions' : ' session') + ' par ' + periode;
+    let o = objectifDe(carte, competenceId);
+    if (!o) {
+      o = { id: CT.schema.nouvelId('obj'), competenceId, description, frequence: { fois, periode }, progression: [] };
+      carte.objectifs.push(o);
+    } else {
+      o.description = description;
+      o.frequence = { fois, periode };
+    }
+    return o;
+  }
+
+  function supprimerObjectif(carte, objectifId) {
+    const avant = carte.objectifs.length;
+    carte.objectifs = carte.objectifs.filter((o) => o.id !== objectifId);
+    return carte.objectifs.length !== avant;
+  }
+
+  function noterSession(carte, objectifId, date) {
+    const o = carte.objectifs.find((x) => x.id === objectifId);
+    if (!o) return false;
+    o.progression.push((date ? new Date(date) : new Date()).toISOString());
+    return true;
+  }
+
+  // Retire la dernière session notée à la main (en cas d'erreur).
+  function retirerSession(carte, objectifId) {
+    const o = carte.objectifs.find((x) => x.id === objectifId);
+    if (!o || !o.progression.length) return false;
+    o.progression.sort();
+    o.progression.pop();
     return true;
   }
 
@@ -252,6 +304,7 @@
     trouver, changerStatut, changerDistance, changerRegion, changerIle, deplacer, remettreAuto,
     preparerReorganisation, momentsDe, momentsRecents, objectifDe, regionDe,
     ajouterMoment, supprimerMoment, competencesRecentes, ajouterCompetence, normaliserTexte, rechercher,
-    eclat, estCache, explorer, changerPreference
+    eclat, estCache, explorer, changerPreference,
+    reporterConquete, definirObjectif, supprimerObjectif, noterSession, retirerSession
   };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

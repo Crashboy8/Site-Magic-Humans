@@ -118,7 +118,8 @@
           position: position(c.position),
           positionManuelle: Boolean(c.positionManuelle) && position(c.position) !== null,
           priorite: c.priorite ? entre(c.priorite, 1, 99, null) : null,
-          exploree: Boolean(c.exploree)
+          exploree: Boolean(c.exploree),
+          reportConquete: Number.isFinite(Number(c.reportConquete)) && c.reportConquete !== null ? Math.max(0, Math.round(Number(c.reportConquete))) : null
         };
       });
     const idsComp = new Set(carte.competences.map((c) => c.id));

@@ -14,6 +14,7 @@
   let panneau = null;
   let saisieFlow = null;
   let reglages = null;
+  let progres = null;
 
   function caseDe(id) {
     return etat.parCase.get(id) || null;
@@ -70,6 +71,10 @@
     navigation.majCadre(cadre, { ajuster: options && options.ajuster, marges: marges() });
     CT.vueLegende.rendre($('legende-contenu'), etat.carte);
     if (panneau.ouvert) panneau.afficher(panneau.ouvert, etat.carte);
+    if (progres && progres.ouvert) progres.rendre();
+    const propositions = CT.stats.propositionsConquete(etat.carte).length;
+    $('alerte-progres').hidden = propositions === 0;
+    $('btn-progres').setAttribute('aria-label', 'Progrès et objectifs' + (propositions ? ' (' + propositions + ' proposition' + (propositions > 1 ? 's' : '') + ' de conquête)' : ''));
   }
 
   // Toute modification du modèle passe par ici.
@@ -117,6 +122,9 @@
     if (action === 'fermer') { fermerPanneau(); return; }
     if (!id || id === 'capitale') return;
     if (action === 'flow') { saisieFlow.ouvrir([id]); return; }
+    if (action === 'progres') { progres.ouvrir(); return; }
+    if (action === 'nouvel-objectif') { progres.ouvrir({ nouvelObjectif: id }); return; }
+    if (['conquerir', 'pas-encore', 'session'].includes(action)) { actionProgres(action, action === 'session' ? valeur : id); return; }
     if (action === 'supprimer-moment') {
       if (!confirm('Supprimer ce moment de flow ?')) return;
       CT.regles.supprimerMoment(etat.carte, valeur);
@@ -157,6 +165,46 @@
     }
   }
 
+  // ---------- Progrès, conquêtes et objectifs ----------
+
+  function actionProgres(action, valeur) {
+    const carte = etat.carte;
+    if (action === 'voir') { ouvrir(valeur); return; }
+    if (action === 'flow') { saisieFlow.ouvrir([]); return; }
+    if (action === 'conquerir') {
+      if (!CT.regles.changerStatut(carte, valeur, 'conquise')) return;
+      appliquer();
+      ouvrir(valeur);
+      if (caseDe(valeur)) CT.vueEffets.conquete($('carte'), caseDe(valeur));
+      toast(MESSAGES_STATUT.conquise(nomDe(valeur)));
+      return;
+    }
+    if (action === 'pas-encore') {
+      if (!CT.regles.reporterConquete(carte, valeur)) return;
+      appliquer();
+      toast('D\'accord, pas encore. La question reviendra après quelques moments de plus.');
+      return;
+    }
+    if (action === 'session') {
+      if (!CT.regles.noterSession(carte, valeur)) return;
+      appliquer();
+      toast('Session notée.');
+      return;
+    }
+    if (action === 'retirer-session') {
+      if (CT.regles.retirerSession(carte, valeur)) { appliquer(); toast('Dernière session retirée.'); }
+      return;
+    }
+    if (action === 'enregistrer-objectif') {
+      if (CT.regles.definirObjectif(carte, valeur.competenceId, valeur)) { appliquer(); toast('Objectif enregistré.'); }
+      return;
+    }
+    if (action === 'supprimer-objectif') {
+      if (!confirm('Supprimer cet objectif ? Les moments de flow restent sur ta carte.')) return;
+      if (CT.regles.supprimerObjectif(carte, valeur)) { appliquer(); toast('Objectif supprimé.'); }
+    }
+  }
+
   // ---------- Saisie d'un moment de flow ----------
 
   const rappelsFlow = {
@@ -167,10 +215,16 @@
       return c;
     },
     enregistrer(saisie) {
+      const avant = new Set(CT.stats.propositionsConquete(etat.carte).map((f) => f.c.id));
       const moment = CT.regles.ajouterMoment(etat.carte, saisie);
       if (!moment) return;
       appliquer();
       CT.vueEffets.flow($('carte'), moment.competenceIds.map(caseDe).filter(Boolean));
+      const nouvelle = CT.stats.propositionsConquete(etat.carte).find((f) => !avant.has(f.c.id));
+      if (nouvelle) {
+        toast(nomDe(nouvelle.c.id) + ' atteint ' + nouvelle.nombre + ' moments de flow : une proposition t\'attend dans Progrès.');
+        return;
+      }
       const noms = moment.competenceIds.map(nomDe).join(', ');
       toast('Moment de flow enregistré : ' + noms + '.');
     }
@@ -228,6 +282,7 @@
         .catch((err) => toast(err.message || 'Fichier illisible.'));
     });
     $('btn-reglages').addEventListener('click', () => reglages.ouvrir());
+    $('btn-progres').addEventListener('click', () => progres.ouvrir());
     $('legende-bascule').addEventListener('click', () => {
       const ouverte = $('legende').classList.toggle('fermee') === false;
       $('legende-bascule').setAttribute('aria-expanded', String(ouverte));
@@ -251,11 +306,13 @@
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
     panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau);
     saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
+    progres = CT.vueProgres.creer($('progres'), { carte: () => etat.carte, action: actionProgres });
     reglages = CT.vueReglages.creer($('reglages'), {
       carte: () => etat.carte,
       changerPreference(cle, valeur) {
         CT.regles.changerPreference(etat.carte, cle, valeur);
         appliquer();
+        if (cle === 'seuilConquete') toast('Seuil de conquête : ' + etat.carte.preferences.seuilConquete + ' moments de flow.');
         if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
       },
       reinitialiser() {
@@ -271,6 +328,6 @@
     CT.outils.rafraichirIcones();
   }
 
-  CT.app = { etat, ouvrir, ouvrirFlow: (ids) => saisieFlow.ouvrir(ids) };
+  CT.app = { etat, ouvrir, ouvrirFlow: (ids) => saisieFlow.ouvrir(ids), ouvrirProgres: (o) => progres.ouvrir(o) };
   document.addEventListener('DOMContentLoaded', demarrer);
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

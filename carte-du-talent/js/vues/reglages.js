@@ -21,6 +21,11 @@
             '<input type="checkbox" role="switch" id="reglage-brouillard"><span class="glissiere" aria-hidden="true"></span></label>' +
           '</section>' +
           '<section class="flow-bloc">' +
+            '<label class="interrupteur" for="reglage-seuil"><span class="interrupteur-texte"><strong>Seuil de conquête</strong>' +
+            '<span class="aide">Nombre de moments de flow sur une frontière avant que l\'appli te propose de la passer en territoire conquis.</span></span>' +
+            '<input type="number" class="champ-nombre" id="reglage-seuil" min="1" max="100" inputmode="numeric"></label>' +
+          '</section>' +
+          '<section class="flow-bloc">' +
             '<p class="sous-titre">Données</p>' +
             '<p class="aide">Ta carte est enregistrée dans ce navigateur. Exporte-la de temps en temps pour ne jamais la perdre.</p>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="demo"><i data-lucide="rotate-ccw"></i>Revenir à la carte de démonstration</button>' +
@@ -37,10 +42,16 @@
       if (b.getAttribute('data-action') === 'demo') { fermer(); rappels.reinitialiser(); }
     });
     brouillard.addEventListener('change', () => rappels.changerPreference('brouillardDeGuerre', brouillard.checked));
+    const seuil = racine.querySelector('#reglage-seuil');
+    seuil.addEventListener('change', () => {
+      rappels.changerPreference('seuilConquete', seuil.value);
+      seuil.value = rappels.carte().preferences.seuilConquete;
+    });
     racine.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); fermer(); } });
 
     function ouvrir() {
       brouillard.checked = Boolean(rappels.carte().preferences.brouillardDeGuerre);
+      seuil.value = rappels.carte().preferences.seuilConquete;
       dernierFocus = document.activeElement;
       racine.hidden = false;
       ouvert = true;

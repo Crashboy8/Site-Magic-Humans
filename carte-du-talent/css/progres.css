@@ -1,0 +1,293 @@
+/* Carte du Talent — écran Progrès */
+
+.progres {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: rgba(30, 60, 70, .35);
+  opacity: 0;
+  transition: opacity .25s;
+}
+
+.progres.visible { opacity: 1; }
+
+.progres-page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--papier);
+  transform: translateY(20px);
+  transition: transform .25s ease;
+}
+
+.progres.visible .progres-page { transform: none; }
+
+.progres-tete {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(18px + env(safe-area-inset-top)) 24px 12px;
+  background: var(--papier);
+  box-shadow: 0 10px 12px -12px rgba(31, 72, 84, .25);
+}
+
+.progres-tete > div { flex: 1; min-width: 0; }
+.progres-tete .surtitre { color: var(--accent); }
+.progres-tete h2 { margin: 4px 0 2px; font-size: 26px; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+.progres-tete .discret { margin: 0; font-size: 15px; }
+
+.progres-outils {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px 4px;
+}
+
+.progres-outils .segments { max-width: 360px; }
+
+.progres-corps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 12px 24px calc(40px + env(safe-area-inset-bottom));
+}
+
+.carte-progres {
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid #EFE4CC;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.carte-large, .proposition, .vide-grand { grid-column: 1 / -1; }
+
+.carte-progres h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--encre-douce);
+}
+
+.carte-progres h3 svg { width: 17px; height: 17px; }
+.carte-progres .discret { margin: 10px 0 0; line-height: 1.45; }
+
+.resume { margin: 0; font-size: 17px; line-height: 1.5; }
+.resume strong { color: var(--encre); }
+
+/* Proposition de conquête */
+
+.proposition {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border-color: #F2D488;
+  background: linear-gradient(135deg, #FFF8E1, #FFFDF6);
+}
+
+.proposition-icone {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #FFE7A3;
+  color: #8A5D08;
+}
+
+.proposition-icone svg { width: 24px; height: 24px; }
+.proposition h3 { margin: 2px 0 4px; font-size: 18px; text-transform: none; letter-spacing: 0; color: var(--encre); }
+.proposition p { margin: 0 0 12px; color: var(--encre-douce); font-size: 15px; }
+.proposition-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.proposition-panneau { background: #FFF8E1; margin: 0 -18px; padding: 14px 18px; border-top: 0; }
+.proposition-panneau .actions { margin-bottom: 0; }
+
+/* Graphiques */
+
+.graphique { display: block; width: 100%; height: auto; overflow: visible; }
+.graphique text { font-family: var(--police); }
+.graphique .ligne-base { stroke: #E3D8C2; stroke-width: 1.5; }
+.graphique .barre { fill: var(--accent); }
+.graphique .barre-en-cours { fill: #C94B6D; }
+.graphique .colonne:hover .barre { fill: #B23C5D; }
+.graphique .valeur-barre { font-size: 14px; font-weight: 800; text-anchor: middle; fill: var(--encre); }
+.graphique .axe-x { font-size: 12.5px; font-weight: 600; text-anchor: middle; fill: var(--encre-douce); }
+.graphique .axe-en-cours { font-weight: 800; fill: var(--encre); }
+.graphique .axe-y { font-size: 12.5px; font-weight: 600; text-anchor: end; fill: var(--encre-douce); }
+.graphique .titre-axe { font-size: 13px; font-weight: 800; text-anchor: middle; fill: var(--encre-douce); }
+
+.graphique-grille { max-width: 360px; margin: 0 auto; }
+.graphique .case { fill: #C94B6D; }
+.graphique .case-vide { fill: #F5EFE3; }
+.graphique .valeur-case { font-size: 15px; font-weight: 800; text-anchor: middle; fill: var(--encre); }
+.graphique .valeur-claire { fill: #fff; }
+.graphique .zone-flow { fill: none; stroke: #E9A400; stroke-width: 3; stroke-dasharray: 7 5; }
+.graphique .etiquette-zone { font-size: 12.5px; font-weight: 800; text-anchor: middle; fill: #8A5D08; }
+
+/* Barres horizontales */
+
+.barres { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+
+.barres li {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 2.2em;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.barres-nom { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.barres-nom > span:last-child, .barres-nom .lien-carte { min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+.barres-nom svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--encre-douce); }
+.barres-piste { height: 12px; border-radius: 6px; background: #F5EFE3; overflow: hidden; }
+.barres-piste span { display: block; height: 100%; border-radius: 6px; }
+.barres-valeur { font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+
+.lien-carte {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--encre);
+  font: 700 15px var(--police);
+  text-align: left;
+  cursor: pointer;
+}
+
+.lien-carte:hover { text-decoration: underline; }
+.lien-carte svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--encre-douce); }
+
+/* Frontières */
+
+.frontieres { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 16px; }
+.frontiere-tete { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+.frontieres .discret { margin-top: 4px; }
+
+.puce-etat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #F5EFE3;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--encre-douce);
+}
+
+.puce-etat svg { width: 13px; height: 13px; }
+.puce-prete { background: #FFE7A3; color: #8A5D08; }
+
+.progression { height: 12px; border-radius: 6px; background: #F5EFE3; overflow: hidden; }
+.progression span { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #F2C14E, #E9A400); }
+
+/* Objectifs */
+
+.objectif-suivi { padding: 14px 0; border-top: 1px solid #F1E8D6; }
+.objectif-suivi:first-of-type { border-top: 0; padding-top: 0; }
+.objectif-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.objectif-tete .discret { margin: 2px 0 0; }
+.objectif-nom { margin: 0; font-size: 17px; font-weight: 800; }
+.objectif-tete .bouton-lien { min-height: 32px; padding: 0; flex-shrink: 0; }
+
+.objectif-maintenant { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 12px 0; font-size: 15px; font-weight: 700; }
+.objectif-maintenant > span:last-child { display: inline-flex; align-items: center; gap: 6px; }
+.objectif-maintenant svg { width: 18px; height: 18px; color: #3F8F68; }
+
+.pastilles { display: inline-flex; gap: 6px; }
+.pastille-session { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #E9A400; background: transparent; }
+.pastille-session.faite { background: #E9A400; }
+.pastille-session.bonus { border-style: dashed; }
+
+.objectif-actions, .actions-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.bouton-compact { min-height: 42px; padding: 8px 14px; font-size: 14.5px; }
+.bouton-lien-discret { color: var(--encre-douce); }
+
+.historique { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.historique li { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--encre-douce); }
+.historique .pastille-session { width: 12px; height: 12px; }
+
+.objectif-formulaire { display: grid; gap: 4px; padding: 12px 0; }
+.objectif-rythme { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.objectif-formulaire input {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #E6DCC6;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--encre);
+  font: 600 16px var(--police);
+}
+
+.objectif-formulaire .objectif-actions { margin-top: 10px; }
+
+/* État vide */
+
+.vide-grand { text-align: center; padding: 32px 20px; }
+.vide-grand > svg { width: 36px; height: 36px; color: var(--accent); }
+.vide-grand h3 { justify-content: center; margin: 10px 0 6px; font-size: 19px; text-transform: none; letter-spacing: 0; color: var(--encre); }
+.vide-grand p { max-width: 46ch; margin: 0 auto 16px; color: var(--encre-douce); font-size: 15px; line-height: 1.5; }
+
+/* Pastille d'alerte sur le bouton Progrès, champ nombre des réglages */
+
+#btn-progres { position: relative; }
+
+.pastille-alerte {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #E9A400;
+}
+
+.champ-nombre {
+  width: 76px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1.5px solid #E6DCC6;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--encre);
+  font: 800 17px var(--police);
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .progres-corps { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .progres-tete { padding-left: 16px; padding-right: 12px; }
+  .progres-tete h2 { font-size: 21px; }
+  .progres-outils { padding: 0 16px 4px; }
+  .progres-corps { padding-left: 16px; padding-right: 16px; gap: 12px; }
+  .carte-progres { padding: 16px; }
+  .proposition { flex-direction: column; }
+  .barres li { grid-template-columns: minmax(0, 1fr) 30% 2em; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progres-page { transition: none; transform: none; }
+}
