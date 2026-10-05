@@ -8,6 +8,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { createVersion, deleteVersion, duplicateVersion, updateVersion } from "@/data/repository";
 import { nextVersionName } from "@/domain/versions";
 import type { Version } from "@/domain/types";
+import { useI18n } from "@/i18n/client";
 import { InlineName } from "./InlineName";
 
 export function VersionList({ profileId, versions, readOnly }: { profileId: string; versions: Version[]; readOnly: boolean }) {
@@ -15,6 +16,8 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const db = supabaseBrowser();
+  const { t, locale } = useI18n();
+  const v_ = t.version;
   const byId = new Map(versions.map((v) => [v.id, v]));
   const ordered = [...versions].reverse(); // la plus récente en premier
 
@@ -25,7 +28,7 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
       await fn();
       router.refresh();
     } catch {
-      setError("L'opération n'a pas abouti. Réessaie dans un instant.");
+      setError(v_.actionFailed);
     } finally {
       setBusy(null);
     }
@@ -46,7 +49,7 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
               })
             }
           >
-            + Version vierge
+            {v_.newBlank}
           </Button>
         </div>
       )}
@@ -63,18 +66,20 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
                     <h3 className="text-2xl italic">
                       <InlineName
                         value={v.name}
-                        label="Nom de la version"
+                        label={v_.versionName}
                         maxLength={80}
                         readOnly={readOnly}
                         onSave={(name) => updateVersion(db, v.id, { name })}
                       />
                     </h3>
-                    {v.status === "finalisee" ? <Badge tone="sage">✓ Finalisée</Badge> : <Badge>Brouillon</Badge>}
+                    {v.status === "finalisee" ? <Badge tone="sage">{v_.finalized}</Badge> : <Badge>{v_.draft}</Badge>}
                   </div>
                   <p className="text-sm text-ink-soft">
-                    Créée le {formatDate(v.createdAt)}
-                    {source && <> · à partir de « {source.name} »</>}
-                    {v.status === "finalisee" && v.finalizedAt ? <> · finalisée le {formatDate(v.finalizedAt)}</> : <> · modifiée le {formatDate(v.updatedAt, true)}</>}
+                    {v_.createdOn(formatDate(v.createdAt, false, locale))}
+                    {source && v_.fromSource(source.name)}
+                    {v.status === "finalisee" && v.finalizedAt
+                      ? v_.finalizedOn(formatDate(v.finalizedAt, false, locale))
+                      : v_.modifiedOn(formatDate(v.updatedAt, true, locale))}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -82,7 +87,7 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
                     href={`/versions/${v.id}/`}
                     className="inline-flex min-h-11 items-center rounded-full bg-accent-strong px-5 text-[15px] font-medium text-white hover:bg-accent-deep"
                   >
-                    {readOnly || v.status === "finalisee" ? "Consulter" : "Ouvrir"}
+                    {readOnly || v.status === "finalisee" ? v_.view : v_.open}
                   </Link>
                   {!readOnly && (
                     <>
@@ -96,9 +101,9 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
                             router.push(`/versions/${id}/`);
                           })
                         }
-                        title="Créer la version suivante à partir de celle-ci"
+                        title={v_.duplicateTitle}
                       >
-                        {busy === `dup-${v.id}` ? "Duplication…" : "Dupliquer"}
+                        {busy === `dup-${v.id}` ? v_.duplicating : v_.duplicate}
                       </Button>
                       {v.status === "brouillon" ? (
                         <Button
@@ -107,7 +112,7 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
                           disabled={busy !== null}
                           onClick={() => run(`fin-${v.id}`, () => updateVersion(db, v.id, { status: "finalisee" }))}
                         >
-                          Marquer finalisée
+                          {v_.markFinalized}
                         </Button>
                       ) : (
                         <Button
@@ -116,7 +121,7 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
                           disabled={busy !== null}
                           onClick={() => run(`open-${v.id}`, () => updateVersion(db, v.id, { status: "brouillon" }))}
                         >
-                          Rouvrir
+                          {v_.reopen}
                         </Button>
                       )}
                       {versions.length > 1 && (
@@ -125,10 +130,10 @@ export function VersionList({ profileId, versions, readOnly }: { profileId: stri
                           variant="dangerGhost"
                           disabled={busy !== null}
                           onClick={() => {
-                            if (confirm(`Supprimer définitivement la version « ${v.name} » ?`)) run(`del-${v.id}`, () => deleteVersion(db, v.id));
+                            if (confirm(v_.deleteConfirm(v.name))) run(`del-${v.id}`, () => deleteVersion(db, v.id));
                           }}
                         >
-                          Supprimer
+                          {v_.delete}
                         </Button>
                       )}
                     </>

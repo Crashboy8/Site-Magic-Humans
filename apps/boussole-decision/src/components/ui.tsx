@@ -21,11 +21,7 @@ export function Button({ variant = "primary", className, ...props }: ComponentPr
   return <button className={cx(buttonBase, buttonVariants[variant], className)} {...props} />;
 }
 
-export function ButtonLink({
-  variant = "primary",
-  className,
-  ...props
-}: ComponentProps<typeof Link> & { variant?: Variant }) {
+export function ButtonLink({ variant = "primary", className, ...props }: ComponentProps<typeof Link> & { variant?: Variant }) {
   return <Link className={cx(buttonBase, buttonVariants[variant], className)} {...props} />;
 }
 
@@ -118,9 +114,9 @@ export function PageTitle({ eyebrow, title, children }: { eyebrow?: string; titl
   );
 }
 
-export function formatDate(iso: string | null, withTime = false): string {
+export function formatDate(iso: string | null, withTime = false, locale: "fr" | "en" = "fr"): string {
   if (!iso) return "";
-  return new Intl.DateTimeFormat("fr-FR", {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "fr-FR", {
     day: "numeric",
     month: "long",
     year: "numeric",

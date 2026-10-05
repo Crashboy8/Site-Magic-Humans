@@ -60,8 +60,13 @@ export async function getProfile(db: Db, id: string): Promise<Profile | null> {
 }
 
 /** Crée un profil et sa première version « Brouillon ». Renvoie l'id du profil. */
-export async function createProfile(db: Db, name: string, description = ""): Promise<string> {
-  return check(await db.rpc("create_profile", { p_name: name, p_description: description })) as string;
+export async function createProfile(db: Db, name: string, description = "", firstVersionName?: string): Promise<string> {
+  const id = check(await db.rpc("create_profile", { p_name: name, p_description: description })) as string;
+  // La base nomme la première version « Brouillon » ; dans une autre langue, on la renomme.
+  if (firstVersionName && firstVersionName !== "Brouillon") {
+    check(await db.from("versions").update({ name: firstVersionName }).eq("profile_id", id));
+  }
+  return id;
 }
 
 export async function updateProfile(db: Db, id: string, patch: { name?: string; description?: string }) {

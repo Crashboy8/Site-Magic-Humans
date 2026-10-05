@@ -6,8 +6,8 @@ import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } 
 import { Card, Notice, Textarea, cx } from "@/components/ui";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { updateVersion } from "@/data/repository";
-import { EVALUATION_LABELS } from "@/domain/methodology";
-import { ikigaiOf, insightOf, rankingStability, verdictOf, verificationQuestion, type OpportunityInsight } from "@/domain/results";
+import { useI18n } from "@/i18n/client";
+import { ikigaiOf, insightOf, rankingStability, verdictOf, type OpportunityInsight } from "@/domain/results";
 import { formatScore, rankOpportunities, type CriterionResult, type OpportunityResult } from "@/domain/scoring";
 import type {
   Category,
@@ -43,8 +43,6 @@ export function ResultsView(props: Props) {
   );
 }
 
-const ordinal = (n: number) => `${n}${n === 1 ? "er" : "e"}`;
-
 function Results({ version, profileId, talent, categories, criteria, opportunities, evaluations, readOnly, isOwner }: Props) {
   const weights = version.importanceWeights;
   const ranking = useMemo(
@@ -58,17 +56,22 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
     [opportunities, criteria, evaluations, categories, weights],
   );
   const tableHref = `/versions/${version.id}/tableau/`;
+  const { t, m, locale } = useI18n();
+  const R = t.results;
+  const fmt = (s: number | null) => formatScore(s, locale);
+  // Nom d'une catégorie : le libellé de la méthode pour les catégories par défaut, sinon celui saisi.
+  const categoryName = (id: string) => {
+    const c = categories.find((x) => x.id === id);
+    return c?.key ? m.categoryByKey[c.key].label : (c?.label ?? "");
+  };
 
   if (verdict.kind === "vide") {
     return (
       <Card className="max-w-2xl space-y-3">
-        <h2 className="font-serif text-2xl italic">Pas encore de résultats</h2>
-        <p className="text-ink-soft">
-          Ajoute au moins une opportunité et remplis quelques cases de ton tableau : tes résultats apparaîtront ici, avec ton classement, ce
-          qui allume ton talent et ce qui risque de l&apos;éteindre.
-        </p>
+        <h2 className="font-serif text-2xl italic">{R.emptyTitle}</h2>
+        <p className="text-ink-soft">{R.emptyText}</p>
         <Link href={tableHref} className="inline-block font-medium text-link underline underline-offset-4">
-          ← Retour à mon tableau
+          {R.backToTable}
         </Link>
       </Card>
     );
@@ -88,38 +91,35 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       {/* 1. Le verdict ---------------------------------------------------------------------- */}
       <section aria-labelledby="verdict" className="space-y-5">
         <h2 id="verdict" className="sr-only">
-          Verdict
+          {R.verdict}
         </h2>
         <Card className="space-y-4 border-accent/30 bg-blush/50">
           <p className="font-serif text-2xl italic leading-snug sm:text-3xl">
             {verdict.kind === "seule" && (
               <>
-                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b> est la seule opportunité évaluée pour
-                l&apos;instant : {formatScore(leader.score)} d&apos;alignement.
+                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                {R.onlyOne(fmt(leader.score))}
               </>
             )}
             {verdict.kind === "en_tete" && (
               <>
-                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b> arrive en tête ({formatScore(leader.score)}
-                ), devant <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b> (
-                {formatScore(verdict.runnerUp.score)}).
+                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                {R.leads(fmt(leader.score))}
+                <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b>
+                {R.leadsEnd(fmt(verdict.runnerUp.score))}
               </>
             )}
             {verdict.kind === "coude_a_coude" && (
               <>
-                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b> et{" "}
-                <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b> sont au coude à coude (
-                {formatScore(leader.score)} et {formatScore(verdict.runnerUp.score)}) : c&apos;est ton ressenti qui tranchera.
+                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                {R.and}
+                <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b>
+                {R.tie(fmt(leader.score), fmt(verdict.runnerUp.score))}
               </>
             )}
           </p>
-          {allFail && (
-            <Notice tone="error">
-              Aucune opportunité ne respecte pour l&apos;instant tous tes non-négociables. Est-ce le moment d&apos;en chercher
-              d&apos;autres, ou l&apos;un de ces critères est-il en réalité négociable ?
-            </Notice>
-          )}
-          <p className="text-sm text-ink-soft">Le score est une boussole, pas un verdict : il éclaire ta décision, il ne la prend pas.</p>
+          {allFail && <Notice tone="error">{R.allFail}</Notice>}
+          <p className="text-sm text-ink-soft">{R.compassNote}</p>
         </Card>
 
         <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,9 +132,9 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
                     i === 0 && r.score !== null ? "bg-sage-soft text-sage" : "bg-sand text-ink-soft",
                   )}
                 >
-                  {r.score === null ? "non évaluée" : ordinal(i + 1)}
+                  {r.score === null ? R.notRated : t.table.rank(i + 1)}
                 </span>
-                <span className="font-serif text-3xl italic">{formatScore(r.score)}</span>
+                <span className="font-serif text-3xl italic">{fmt(r.score)}</span>
               </div>
               <p className="mt-1 font-semibold leading-snug">{r.opportunity.name}</p>
               <StatusBadges result={r} />
@@ -145,9 +145,9 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
 
       {/* 2. Contexte de réussite / contexte d'échec ----------------------------------------- */}
       <section aria-labelledby="contextes" className="space-y-4">
-        <SectionTitle id="contextes" title="Réussite ou échec, opportunité par opportunité">
-          Dans chaque opportunité, serais-tu dans ton <b className="font-medium text-ink">contexte de réussite</b> (ton Contexte
-          Déclencheur) ou dans ton <b className="font-medium text-ink">contexte d&apos;échec</b> (ton Anti-Contexte) ?
+        <SectionTitle id="contextes" title={R.contextsTitle}>
+          {R.contextsIntroStart} <b className="font-medium text-ink">{R.contextsSuccess}</b> {R.contextsMiddle}{" "}
+          <b className="font-medium text-ink">{R.contextsFailure}</b> {R.contextsEnd}
         </SectionTitle>
         <div className="space-y-4">
           {insights
@@ -170,12 +170,8 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
 
       {/* Ikigai ------------------------------------------------------------------------------- */}
       <section aria-labelledby="ikigai" className="space-y-4">
-        <SectionTitle id="ikigai" title="L'ikigai de chaque opportunité">
-          Quatre cercles qui comptent chacun pour 25 % : <b className="font-medium text-ink">ce que j&apos;aime</b> (ma qualité de vie, sans
-          mon Anti-Contexte), <b className="font-medium text-ink">ce en quoi je suis doué·e</b> (mon Contexte Déclencheur),{" "}
-          <b className="font-medium text-ink">ce dont le monde a besoin</b> (mes valeurs, mes choix) et{" "}
-          <b className="font-medium text-ink">ce pour quoi je peux être payé·e</b> (ma rémunération). Plus les quatre sont réunis, plus le
-          centre devient doré.
+        <SectionTitle id="ikigai" title={R.ikigaiTitle}>
+          {R.ikigaiIntro}
         </SectionTitle>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {ranking
@@ -191,9 +187,8 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
 
       {/* 4. Radar ------------------------------------------------------------------------------ */}
       <section aria-labelledby="radar" className="space-y-4">
-        <SectionTitle id="radar" title="Le radar de tes opportunités">
-          Le score de chaque opportunité, catégorie par catégorie : plus la forme est grande, plus l&apos;opportunité te correspond. Sur
-          l&apos;axe Anti-Contexte, un score élevé veut dire que le risque est évité.
+        <SectionTitle id="radar" title={R.radarTitle}>
+          {R.radarIntro}
         </SectionTitle>
         <Card>
           <Radar categories={categories} opportunities={opportunities} results={ranking} />
@@ -206,34 +201,30 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       {/* 6. Solidité du classement ------------------------------------------------------------ */}
       {stability && (
         <section aria-labelledby="solidite" className="space-y-4">
-          <SectionTitle id="solidite" title="Ton classement tient-il ?">
-            On a refait le calcul en faisant compter chaque catégorie deux fois plus, puis deux fois moins.
+          <SectionTitle id="solidite" title={R.stabilityTitle}>
+            {R.stabilityIntro}
           </SectionTitle>
           <Card className="space-y-3">
             {stability.flips.length === 0 ? (
               <p>
-                ✅ <b className="font-medium">Ton classement est solide.</b> Même si une catégorie comptait deux fois plus ou deux fois
-                moins pour toi, <b className="font-semibold">{stability.leader.name}</b> resterait en tête.
+                ✅ <b className="font-medium">{R.solid}</b>
+                {R.solidText(stability.leader.name)}
               </p>
             ) : (
               <>
                 <p>
-                  ⚖️ <b className="font-medium">Ton classement est sensible.</b> <b className="font-semibold">{stability.leader.name}</b>{" "}
-                  est en tête, mais :
+                  ⚖️ <b className="font-medium">{R.sensitive}</b>
+                  {R.sensitiveLeader(stability.leader.name)}
                 </p>
                 <ul className="list-disc space-y-1 pl-6">
                   {stability.flips.map((f) => (
-                    <li key={`${f.categoryId}-${f.emphasis}`}>
-                      si « {f.categoryLabel} » comptait <b className="font-medium">deux fois {f.emphasis}</b> pour toi,{" "}
-                      <b className="font-semibold">{f.newLeader.name}</b> passerait devant.
-                    </li>
+                    <li key={`${f.categoryId}-${f.emphasis}`}>{R.flip(categoryName(f.categoryId), f.emphasis, f.newLeader.name)}</li>
                   ))}
                 </ul>
                 <p className="text-sm text-ink-soft">
-                  La vraie question devient : quelle place veux-tu donner à ces catégories ? Tu peux ajuster les niveaux d&apos;importance
-                  et ton barème dans{" "}
+                  {R.stabilityHint}{" "}
                   <Link href={tableHref} className="text-link underline underline-offset-4">
-                    ton tableau
+                    {R.yourTable}
                   </Link>
                   .
                 </p>
@@ -265,26 +256,30 @@ function SectionTitle({ id, title, children }: { id: string; title: string; chil
 
 function StatusBadges({ result }: { result: OpportunityResult }) {
   const redLine = result.antiContextAlerts.some((a) => a.severity === "ligne_rouge");
+  const R = useI18n().t.results;
   return (
     <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
       {result.status === "non_conforme" && (
-        <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">🔒 Non-négociable non respecté</span>
+        <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">{R.badgeNonNegotiable}</span>
       )}
       {result.antiContextAlerts.length > 0 && (
-        <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">
-          ⚡ {redLine ? "Ligne rouge franchie" : "Anti-Contexte présent"}
-        </span>
+        <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">⚡ {redLine ? R.badgeRedLine : R.badgeAnti}</span>
       )}
       {result.toVerify.length > 0 && (
-        <span className="rounded-full bg-sand px-2 py-0.5 text-ink-soft">{result.toVerify.length} à vérifier</span>
+        <span className="rounded-full bg-sand px-2 py-0.5 text-ink-soft">{R.badgeToCheck(result.toVerify.length)}</span>
       )}
     </div>
   );
 }
 
-const valueLabel = (d: CriterionResult) => (d.value ? EVALUATION_LABELS[d.criterion.direction][d.value] : "");
+/** Libellé de la valeur évaluée, dans la langue choisie. */
+function useValueLabel() {
+  const { m } = useI18n();
+  return (d: CriterionResult) => (d.value ? m.evaluationLabels[d.criterion.direction][d.value] : "");
+}
 
 function ItemList({ items, empty }: { items: CriterionResult[]; empty?: string }) {
+  const valueLabel = useValueLabel();
   if (items.length === 0) return empty ? <p className="text-sm text-ink-soft">{empty}</p> : null;
   return (
     <ul className="space-y-1.5">
@@ -306,56 +301,58 @@ function InsightCard({ insight }: { insight: OpportunityInsight }) {
   const failed = result.failedNonNegotiables.filter((d) => d.criterion.direction === "TOWARDS");
   const good = insight.ignites.length + insight.assets.length;
   const bad = insight.extinguishers.length + insight.missing.length + failed.length;
+  const { t, locale } = useI18n();
+  const R = t.results;
   return (
     <article className="rounded-2xl border border-line bg-paper p-5">
       <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-lg font-semibold">{result.opportunity.name}</h3>
-        <span className="font-serif text-2xl italic">{formatScore(result.score)}</span>
+        <span className="font-serif text-2xl italic">{formatScore(result.score, locale)}</span>
       </header>
       <div className="grid gap-5 md:grid-cols-2">
         <div className="space-y-3 rounded-xl bg-sage-soft/60 p-4">
-          <h4 className="font-medium">🌱 Ce qui allume ton talent ici</h4>
+          <h4 className="font-medium">{R.ignitesTitle}</h4>
           {insight.ignites.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-ink-soft">Ton Contexte Déclencheur est là</p>
+              <p className="text-xs uppercase tracking-wider text-ink-soft">{R.triggerPresent}</p>
               <ItemList items={insight.ignites} />
             </div>
           )}
           {insight.assets.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-ink-soft">Autres atouts</p>
+              <p className="text-xs uppercase tracking-wider text-ink-soft">{R.otherAssets}</p>
               <ItemList items={insight.assets} />
             </div>
           )}
-          {good === 0 && <p className="text-sm text-ink-soft">Rien de franchement favorable pour l&apos;instant.</p>}
+          {good === 0 && <p className="text-sm text-ink-soft">{R.nothingGood}</p>}
         </div>
         <div className="space-y-3 rounded-xl bg-danger-soft/50 p-4">
-          <h4 className="font-medium">⚡ Ce qui risque de t&apos;éteindre</h4>
+          <h4 className="font-medium">{R.extinguishTitle}</h4>
           {failed.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-danger">Non-négociables non respectés</p>
+              <p className="text-xs uppercase tracking-wider text-danger">{R.failedNonNegotiables}</p>
               <ItemList items={failed} />
             </div>
           )}
           {insight.extinguishers.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-ink-soft">Ton Anti-Contexte est présent</p>
+              <p className="text-xs uppercase tracking-wider text-ink-soft">{R.antiPresent}</p>
               <ItemList items={insight.extinguishers} />
             </div>
           )}
           {insight.missing.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-ink-soft">Ce qui te manquerait</p>
+              <p className="text-xs uppercase tracking-wider text-ink-soft">{R.missing}</p>
               <ItemList items={insight.missing} />
             </div>
           )}
           {insight.watch.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs uppercase tracking-wider text-ink-soft">À surveiller</p>
+              <p className="text-xs uppercase tracking-wider text-ink-soft">{R.watch}</p>
               <ItemList items={insight.watch} />
             </div>
           )}
-          {bad + insight.watch.length === 0 && <p className="text-sm text-ink-soft">Aucun signal de contexte d&apos;échec. 👍</p>}
+          {bad + insight.watch.length === 0 && <p className="text-sm text-ink-soft">{R.noFailureSignal}</p>}
         </div>
       </div>
     </article>
@@ -377,6 +374,8 @@ function Guardrails({
   profileId: string;
   isOwner: boolean;
 }) {
+  const R = useI18n().t.results;
+  const valueLabel = useValueLabel();
   const target =
     insights.find((i) => i.result.opportunity.id === chosenId) ?? insights.find((i) => i.result.opportunity.id === leader.opportunity.id);
   if (!target) return null;
@@ -384,9 +383,9 @@ function Guardrails({
   const failure = talent.failureSituations.trim();
   return (
     <section aria-labelledby="garde-fous" className="space-y-4">
-      <SectionTitle id="garde-fous" title="Tes garde-fous">
-        Même la meilleure opportunité a ses pièges. Si tu choisis <b className="font-semibold text-ink">{target.result.opportunity.name}</b>
-        , voici les signaux à surveiller pour ne pas glisser dans ton contexte d&apos;échec.
+      <SectionTitle id="garde-fous" title={R.guardTitle}>
+        {R.guardIntroStart} <b className="font-semibold text-ink">{target.result.opportunity.name}</b>
+        {R.guardIntroEnd}
       </SectionTitle>
       <Card className="space-y-4">
         {signals.length > 0 ? (
@@ -395,32 +394,29 @@ function Guardrails({
               <li key={d.criterion.id} className="flex gap-2">
                 <span aria-hidden>👁️</span>
                 <span>
-                  Surveille : <b className="font-medium">{d.criterion.label}</b>{" "}
-                  <span className="text-sm text-ink-soft">({valueLabel(d).toLowerCase()} dans cette opportunité)</span>
+                  {R.watchOut} <b className="font-medium">{d.criterion.label}</b>{" "}
+                  <span className="text-sm text-ink-soft">{R.inThisOpportunity(valueLabel(d).toLowerCase())}</span>
                 </span>
               </li>
             ))}
           </ul>
         ) : (
-          <p>Aucun risque d&apos;Anti-Contexte repéré dans ton tableau pour cette opportunité.</p>
+          <p>{R.noAntiRisk}</p>
         )}
         {failure ? (
           <div className="rounded-xl bg-blush/70 p-4">
-            <p className="text-xs uppercase tracking-wider text-ink-soft">Tes contextes d&apos;échec vécus</p>
+            <p className="text-xs uppercase tracking-wider text-ink-soft">{R.livedFailures}</p>
             <p className="mt-1 whitespace-pre-line font-serif text-lg italic leading-snug">{failure}</p>
-            <p className="mt-2 text-sm text-ink-soft">
-              Pose-toi la question : dans cette opportunité, qu&apos;est-ce qui pourrait te faire glisser là-dedans ? Et qu&apos;est-ce qui
-              t&apos;en protégera ?
-            </p>
+            <p className="mt-2 text-sm text-ink-soft">{R.askYourself}</p>
           </div>
         ) : (
           isOwner && (
             <p className="text-sm text-ink-soft">
-              💡 Décris tes contextes d&apos;échec vécus (« quand je suis trop isolé, derrière un écran toute la journée… ») sur{" "}
+              {R.describeFailuresStart}{" "}
               <Link href={`/profils/${profileId}/`} className="text-link underline underline-offset-4">
-                ton profil
+                {R.yourProfile}
               </Link>{" "}
-              : ils apparaîtront ici comme garde-fous.
+              {R.describeFailuresEnd}
             </p>
           )
         )}
@@ -431,12 +427,16 @@ function Guardrails({
 
 function Questions({ ranking }: { ranking: OpportunityResult[] }) {
   const withQuestions = ranking.filter((r) => r.toVerify.length > 0);
+  const R = useI18n().t.results;
+  const question = (c: { label: string; direction: "TOWARDS" | "AWAY_FROM" }) => {
+    const label = c.label.trim().replace(/[.?!\s]+$/, "");
+    return c.direction === "AWAY_FROM" ? R.questionAway(label) : R.questionTowards(label);
+  };
   if (withQuestions.length === 0) return null;
   return (
     <section aria-labelledby="questions" className="space-y-4">
-      <SectionTitle id="questions" title="Ce qu'il te reste à vérifier">
-        Les cases « ? À vérifier » ou vides ne comptent pas dans le score. Voici les questions à poser (en entretien, à un futur collègue, à
-        un client…) pour compléter ton tableau.
+      <SectionTitle id="questions" title={R.questionsTitle}>
+        {R.questionsIntro}
       </SectionTitle>
       <div className="grid gap-4 md:grid-cols-2">
         {withQuestions.map((r) => (
@@ -447,8 +447,8 @@ function Questions({ ranking }: { ranking: OpportunityResult[] }) {
                 <li key={d.criterion.id} className="flex gap-2 text-[15px]">
                   <span aria-hidden>❓</span>
                   <span>
-                    {verificationQuestion(d.criterion)}
-                    {d.criterion.nonNegotiable && <span className="ml-1 text-xs font-medium text-danger">non négociable</span>}
+                    {question(d.criterion)}
+                    {d.criterion.nonNegotiable && <span className="ml-1 text-xs font-medium text-danger">{R.nonNegotiable}</span>}
                   </span>
                 </li>
               ))}
@@ -517,18 +517,19 @@ function Feelings({
   const [feedback, setFeedback] = useAutosavedValue(version.rankingFeedback, (rankingFeedback) =>
     updateVersion(db, version.id, { rankingFeedback }),
   );
+  const R = useI18n().t.results;
   const [note, setNote] = useAutosavedValue(version.projectionNote, (projectionNote) => updateVersion(db, version.id, { projectionNote }));
 
   return (
     <section aria-labelledby="ressenti" className="space-y-4">
-      <SectionTitle id="ressenti" title="Et ton ressenti ?">
-        Les chiffres ne disent pas tout. C&apos;est souvent quand le classement surprend qu&apos;on découvre le critère qui compte vraiment.
+      <SectionTitle id="ressenti" title={R.feelingsTitle}>
+        {R.feelingsIntro}
       </SectionTitle>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="space-y-3">
-          <h3 className="font-medium">Ce classement correspond-il à ton ressenti ?</h3>
+          <h3 className="font-medium">{R.agreementQuestion}</h3>
           <ChoiceButtons
-            label="Ce classement correspond-il à ton ressenti ?"
+            label={R.agreementQuestion}
             readOnly={readOnly}
             value={agreement}
             onChange={(v) => {
@@ -536,31 +537,31 @@ function Feelings({
               track(updateVersion(db, version.id, { rankingAgreement: v })).catch(() => {});
             }}
             options={[
-              { value: "oui", label: "👍 Oui" },
-              { value: "pas_vraiment", label: "🤔 Pas vraiment" },
-              { value: "non", label: "👎 Non" },
+              { value: "oui", label: R.agreeYes },
+              { value: "pas_vraiment", label: R.agreeNotReally },
+              { value: "non", label: R.agreeNo },
             ]}
           />
           {(agreement === "pas_vraiment" || agreement === "non" || feedback) && (
             <div className="space-y-1.5">
               <label htmlFor="feedback" className="block text-[15px]">
-                Qu&apos;est-ce qui manque dans tes critères ? Qu&apos;est-ce que ton intuition sait que le tableau ignore ?
+                {R.missingQuestion}
               </label>
               <Textarea
                 id="feedback"
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 readOnly={readOnly}
-                placeholder={readOnly ? "Aucune note." : "Ex. : je réalise que l'ambiance d'équipe compte plus que je ne le pensais…"}
+                placeholder={readOnly ? R.noNote : R.feedbackPlaceholder}
                 className="min-h-24"
               />
               {!readOnly && (
                 <p className="text-sm text-ink-soft">
-                  Si c&apos;est un critère, ajoute-le dans{" "}
+                  {R.addAsCriterionStart}{" "}
                   <Link href={tableHref} className="text-link underline underline-offset-4">
-                    ton tableau
+                    {R.yourTable}
                   </Link>{" "}
-                  : le classement se mettra à jour.
+                  {R.addAsCriterionEnd}
                 </p>
               )}
             </div>
@@ -569,10 +570,11 @@ function Feelings({
 
         <Card className="space-y-3">
           <h3 className="font-medium">
-            Imagine : demain, tu as signé pour <b className="font-semibold">{leader.opportunity.name}</b>. Que ressens-tu en premier ?
+            {R.projectionStart} <b className="font-semibold">{leader.opportunity.name}</b>
+            {R.projectionEnd}
           </h3>
           <ChoiceButtons
-            label="Ce que tu ressens en premier"
+            label={R.projectionLabel}
             readOnly={readOnly}
             value={feeling}
             onChange={(v) => {
@@ -580,27 +582,22 @@ function Feelings({
               track(updateVersion(db, version.id, { projectionFeeling: v })).catch(() => {});
             }}
             options={[
-              { value: "soulagement", label: "😌 Du soulagement" },
-              { value: "mitige", label: "😐 C'est mitigé" },
-              { value: "deception", label: "😟 De la déception" },
+              { value: "soulagement", label: R.relief },
+              { value: "mitige", label: R.mixed },
+              { value: "deception", label: R.disappointment },
             ]}
           />
-          {feeling === "deception" && (
-            <p className="text-sm text-ink-soft">
-              Ton intuition te dit peut-être quelque chose que tes critères ne disent pas encore. Vers quelle autre opportunité ton cœur
-              est-il parti ?
-            </p>
-          )}
-          {feeling === "soulagement" && <p className="text-sm text-ink-soft">Ta tête et ton intuition vont dans le même sens. 🧭</p>}
+          {feeling === "deception" && <p className="text-sm text-ink-soft">{R.disappointmentHint}</p>}
+          {feeling === "soulagement" && <p className="text-sm text-ink-soft">{R.reliefHint}</p>}
           <label htmlFor="projection" className="sr-only">
-            Ce que tu ressens
+            {R.whatYouFeel}
           </label>
           <Textarea
             id="projection"
             value={note}
             onChange={(e) => setNote(e.target.value)}
             readOnly={readOnly}
-            placeholder={readOnly ? "Aucune note." : "Note ce qui te vient, sans filtre…"}
+            placeholder={readOnly ? R.noNote : R.projectionPlaceholder}
             className="min-h-24"
           />
         </Card>
@@ -619,22 +616,19 @@ function NextSteps({ version, ranking, readOnly }: { version: Version; ranking: 
     (nextSteps) => updateVersion(db, version.id, { nextSteps: nextSteps.map((s) => s.trim()).filter(Boolean) }),
   );
   const chosenName = ranking.find((r) => r.opportunity.id === chosen)?.opportunity.name;
-  const placeholders = [
-    "Ex. : appeler une personne qui fait déjà ce métier",
-    "Ex. : demander une journée d'immersion",
-    "Ex. : en parler à mon coach lors de la prochaine séance",
-  ];
+  const R = useI18n().t.results;
+  const placeholders = R.stepPlaceholders;
 
   if (readOnly && !version.nextSteps.length) return null;
   return (
     <section aria-labelledby="prochains-pas" className="space-y-4">
-      <SectionTitle id="prochains-pas" title="Mes prochains pas">
-        Une décision se construit en avançant. Note trois actions concrètes, petites et datées si possible.
+      <SectionTitle id="prochains-pas" title={R.nextStepsTitle}>
+        {R.nextStepsIntro}
       </SectionTitle>
       <Card className="max-w-3xl space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="chosen" className="block text-[15px] font-medium">
-            Pour quelle opportunité ?
+            {R.forWhich}
           </label>
           {readOnly ? (
             <p className="font-semibold">{chosenName ?? "—"}</p>
@@ -662,7 +656,7 @@ function NextSteps({ version, ranking, readOnly }: { version: Version; ranking: 
             <li key={i} className="flex items-center gap-3">
               <span className="font-script text-2xl text-accent">{i + 1}</span>
               <label htmlFor={`step-${i}`} className="sr-only">
-                Action {i + 1}
+                {R.action(i + 1)}
               </label>
               <input
                 id={`step-${i}`}

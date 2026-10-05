@@ -9,10 +9,10 @@
   --color-sand: #f1e9dc;
   --color-blush: #f7e9de;
   --color-line: rgb(58 47 36 / 0.14);
-  --color-accent: #e2683a;       /* décoratif uniquement */
+  --color-accent: #e2683a; /* décoratif uniquement */
   --color-accent-strong: #b34716; /* boutons (texte blanc : 5,5:1) */
   --color-accent-deep: #8f3810;
-  --color-link: #a8431a;         /* texte sur crème : 5,6:1 */
+  --color-link: #a8431a; /* texte sur crème : 5,6:1 */
   --color-sage: #5f7a5a;
   --color-sage-soft: #e6eee1;
   --color-danger: #a33a2a;

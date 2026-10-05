@@ -9,12 +9,16 @@ import { ShareWithCoach } from "@/features/profiles/ShareWithCoach";
 import { TalentUniqueEditor } from "@/features/profiles/TalentUniqueEditor";
 import { VersionList } from "@/features/versions/VersionList";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
+import { getI18n } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Profil" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).t.profile.titleProfile };
+}
 
 export default async function ProfilePage({ params }: PageProps<"/profils/[profileId]">) {
   const { profileId } = await params;
   const user = await requireUser();
+  const p = (await getI18n()).t.profile;
   const db = await supabaseServer();
   const profile = await getProfile(db, profileId).catch(() => null);
   if (!profile) notFound();
@@ -26,18 +30,18 @@ export default async function ProfilePage({ params }: PageProps<"/profils/[profi
   const tableHref = current ? `/versions/${current.id}/tableau/` : null;
   const tableLink = tableHref && (
     <ButtonLink href={tableHref} className="w-full sm:w-auto">
-      {readOnly ? "Voir le tableau de décision →" : "Ouvrir mon tableau : critères et opportunités →"}
+      {readOnly ? p.viewTable : p.openTable}
     </ButtonLink>
   );
 
   return (
     <>
-      <nav aria-label="Fil d'Ariane" className="mb-6 text-sm text-ink-soft">
+      <nav aria-label={p.breadcrumb} className="mb-6 text-sm text-ink-soft">
         <Link href={readOnly ? `/coach/${profile.userId}/` : "/"} className="hover:text-ink hover:underline">
-          ← {readOnly ? `Profils de ${owner?.firstName || owner?.email}` : "Mes profils"}
+          {readOnly ? p.breadcrumbCoachee(owner?.firstName || owner?.email || "") : p.breadcrumbMine}
         </Link>
       </nav>
-      {readOnly && <ReadOnlyBanner ownerName={owner?.firstName || owner?.email || "ton coaché"} />}
+      {readOnly && <ReadOnlyBanner ownerName={owner?.firstName || owner?.email || p.yourCoachee} />}
       <ProfileHeader profile={profile} readOnly={readOnly} />
       {tableLink && <div className="mb-8">{tableLink}</div>}
 
@@ -46,11 +50,8 @@ export default async function ProfilePage({ params }: PageProps<"/profils/[profi
         <TalentUniqueEditor profileId={profile.id} talent={profile.talent} readOnly={readOnly} />
         {tableLink && !readOnly && (
           <Card className="space-y-3 border-accent/30 bg-blush/50">
-            <h2 className="font-serif text-2xl italic">Étape suivante : ton tableau de décision</h2>
-            <p className="text-[15px] text-ink-soft">
-              Pose tes critères en lignes (ce qui compte pour toi, ce que tu veux éviter), ajoute tes opportunités professionnelles
-              en colonnes, et vois le score se calculer en direct.
-            </p>
+            <h2 className="font-serif text-2xl italic">{p.nextStepTitle}</h2>
+            <p className="text-[15px] text-ink-soft">{p.nextStepText}</p>
             {tableLink}
           </Card>
         )}
@@ -59,12 +60,9 @@ export default async function ProfilePage({ params }: PageProps<"/profils/[profi
       <section aria-labelledby="versions" className="space-y-4">
         <div>
           <h2 id="versions" className="text-3xl italic">
-            Versions
+            {p.versionsTitle}
           </h2>
-          <p className="max-w-2xl text-ink-soft">
-            Ta réflexion évolue : duplique une version pour en créer une nouvelle sans perdre la précédente. Une version finalisée
-            est protégée ; rouvre-la si tu veux la retoucher.
-          </p>
+          <p className="max-w-2xl text-ink-soft">{p.versionsIntro}</p>
         </div>
         <VersionList profileId={profile.id} versions={versions} readOnly={readOnly} />
       </section>

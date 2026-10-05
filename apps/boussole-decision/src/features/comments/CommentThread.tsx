@@ -5,6 +5,7 @@ import { Button, Notice, Textarea, cx, formatDate } from "@/components/ui";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { addComment, deleteComment } from "@/data/repository";
 import type { CoachComment, CommentTarget } from "@/domain/types";
+import { useI18n } from "@/i18n/client";
 
 export type CommentViewer = "coach" | "owner";
 
@@ -32,6 +33,8 @@ export function CommentThread({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(false);
   const db = supabaseBrowser();
+  const { t, locale } = useI18n();
+  const k = t.coach;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +53,7 @@ export function CommentThread({
   }
 
   async function remove(id: string) {
-    if (!confirm("Supprimer ce commentaire ?")) return;
+    if (!confirm(k.deleteCommentConfirm)) return;
     await deleteComment(db, id);
     setComments((c) => c.filter((x) => x.id !== id));
   }
@@ -59,25 +62,27 @@ export function CommentThread({
 
   return (
     <div className={cx("space-y-3", !compact && "rounded-2xl border border-accent/25 bg-blush/50 p-5")}>
-      {!compact && (
-        <h3 className="font-serif text-2xl italic">{viewer === "coach" ? "Tes commentaires pour ton coaché" : "Commentaires de ton coach"}</h3>
-      )}
+      {!compact && <h3 className="font-serif text-2xl italic">{viewer === "coach" ? k.threadCoach : k.threadOwner}</h3>}
       {comments.length > 0 && (
         <ul className="space-y-2">
           {comments.map((c) => (
             <li key={c.id} className="rounded-xl bg-paper px-4 py-3 text-[15px] shadow-[0_1px_2px_rgba(58,47,36,0.05)]">
               <p className="mb-1 flex flex-wrap items-center gap-2 text-xs text-ink-soft">
                 <span aria-hidden="true">💬</span>
-                <span>{viewer === "coach" ? "Toi" : "Ton coach"}</span>
-                <span>· {formatDate(c.createdAt, true)}</span>
+                <span>{viewer === "coach" ? k.you : k.yourCoach}</span>
+                <span>· {formatDate(c.createdAt, true, locale)}</span>
                 {viewer === "owner" && !c.readAt && (
-                  <span className="rounded-full bg-accent-strong px-2 py-0.5 font-medium text-white">Nouveau</span>
+                  <span className="rounded-full bg-accent-strong px-2 py-0.5 font-medium text-white">{k.isNew}</span>
                 )}
               </p>
               <p className="whitespace-pre-line leading-relaxed">{c.body}</p>
               {viewer === "coach" && (
-                <button type="button" onClick={() => remove(c.id)} className="mt-1 text-xs text-ink-soft underline-offset-2 hover:text-danger hover:underline">
-                  Supprimer
+                <button
+                  type="button"
+                  onClick={() => remove(c.id)}
+                  className="mt-1 text-xs text-ink-soft underline-offset-2 hover:text-danger hover:underline"
+                >
+                  {k.delete}
                 </button>
               )}
             </li>
@@ -87,19 +92,19 @@ export function CommentThread({
       {viewer === "coach" && (
         <form onSubmit={submit} className="space-y-2">
           <label htmlFor={`comment-${targetType}-${targetId}`} className="sr-only">
-            Nouveau commentaire
+            {k.newComment}
           </label>
           <Textarea
             id={`comment-${targetType}-${targetId}`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             maxLength={2000}
-            placeholder="Une question, un encouragement, une piste à creuser…"
+            placeholder={k.commentPlaceholder}
             className="min-h-20"
           />
-          {error && <Notice tone="error">Le commentaire n&apos;a pas pu être envoyé.</Notice>}
+          {error && <Notice tone="error">{k.commentFailed}</Notice>}
           <Button type="submit" variant="secondary" disabled={pending || !draft.trim()}>
-            {pending ? "Envoi…" : "Envoyer au coaché"}
+            {pending ? k.sending : k.send}
           </Button>
         </form>
       )}
@@ -110,6 +115,7 @@ export function CommentThread({
 /** Bouton discret qui déplie le fil de commentaires d'un critère ou d'une opportunité. */
 export function InlineComments(props: Parameters<typeof CommentThread>[0]) {
   const unread = props.initial.filter((c) => !c.readAt).length;
+  const k = useI18n().t.coach;
   const [open, setOpen] = useState(props.viewer === "owner" && unread > 0);
   if (props.viewer === "owner" && props.initial.length === 0) return null;
   const count = props.initial.length;
@@ -124,8 +130,8 @@ export function InlineComments(props: Parameters<typeof CommentThread>[0]) {
           props.viewer === "owner" && unread > 0 ? "bg-accent-strong text-white" : "bg-sand text-ink-soft hover:text-ink",
         )}
       >
-        💬 {count > 0 ? `${count} commentaire${count > 1 ? "s" : ""}` : "Commenter"}
-        {props.viewer === "owner" && unread > 0 && <span className="sr-only">, dont {unread} nouveau(x)</span>}
+        💬 {count > 0 ? k.commentsCount(count) : k.comment}
+        {props.viewer === "owner" && unread > 0 && <span className="sr-only">{k.unreadCount(unread)}</span>}
       </button>
       {open && <CommentThread {...props} compact />}
     </div>

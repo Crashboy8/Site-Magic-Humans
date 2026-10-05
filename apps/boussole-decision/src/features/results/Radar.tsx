@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { cx } from "@/components/ui";
 import { formatScore, type OpportunityResult } from "@/domain/scoring";
+import { useI18n } from "@/i18n/client";
 import type { Category, Opportunity } from "@/domain/types";
 
 // Palette catégorielle validée (contraste, daltonisme) sur le fond « paper » : une couleur par opportunité,
@@ -13,12 +14,6 @@ const SIZE = 340;
 const CENTER = SIZE / 2;
 const RADIUS = 112;
 const RINGS = [25, 50, 75, 100];
-
-/** Libellé court d'une catégorie pour l'axe du radar. */
-function axisLabel(category: Category): string {
-  if (category.key === "anti_contexte") return "Anti-Contexte évité";
-  return category.label.split(" & ")[0];
-}
 
 function point(index: number, count: number, value: number) {
   const angle = -Math.PI / 2 + (index * 2 * Math.PI) / count;
@@ -41,6 +36,14 @@ export function Radar({
 }) {
   const [focus, setFocus] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const { t, m, locale } = useI18n();
+  const R = t.results;
+  const fmt = (s: number | null) => formatScore(s, locale);
+  /** Libellé court d'une catégorie pour l'axe du radar. */
+  const axisLabel = (category: Category): string => {
+    if (category.key === "anti_contexte") return R.antiAvoided;
+    return (category.key ? m.categoryByKey[category.key].label : category.label).split(" & ")[0];
+  };
 
   const ordered = [...opportunities].sort((a, b) => a.position - b.position).slice(0, SERIES_COLORS.length);
   const colorOf = new Map(ordered.map((o, i) => [o.id, SERIES_COLORS[i]]));
@@ -55,7 +58,7 @@ export function Radar({
   return (
     <div className="space-y-4">
       {series.length > 1 && (
-        <ul className="flex flex-wrap gap-2" aria-label="Légende">
+        <ul className="flex flex-wrap gap-2" aria-label={R.legend}>
           {series.map((o) => (
             <li key={o.id}>
               <button
@@ -79,7 +82,7 @@ export function Radar({
 
       {axes.length >= 3 && (
         <div className="relative mx-auto max-w-[560px]">
-          <svg viewBox={`-60 -10 ${SIZE + 120} ${SIZE + 20}`} role="img" aria-label="Radar des scores par catégorie" className="w-full">
+          <svg viewBox={`-60 -10 ${SIZE + 120} ${SIZE + 20}`} role="img" aria-label={R.radarAria} className="w-full">
             {RINGS.map((ring) => (
               <polygon
                 key={ring}
@@ -123,7 +126,7 @@ export function Radar({
                     strokeLinejoin="round"
                   />
                   {pts.map((p) => {
-                    const text = `${o.name} · ${p.axis.label} : ${formatScore(scoreOf(o.id, p.axis.id))}`;
+                    const text = `${o.name} · ${axisLabel(p.axis)} : ${fmt(scoreOf(o.id, p.axis.id))}`;
                     return (
                       <g key={p.axis.id}>
                         <circle cx={p.x} cy={p.y} r={4} fill={color} stroke="#fffdf9" strokeWidth={2} />
@@ -165,11 +168,11 @@ export function Radar({
 
       <div className="overflow-x-auto rounded-xl border border-line">
         <table className="w-full text-sm">
-          <caption className="sr-only">Score de chaque opportunité, catégorie par catégorie</caption>
+          <caption className="sr-only">{R.radarCaption}</caption>
           <thead>
             <tr className="bg-sand/60">
               <th scope="col" className="px-3 py-2 text-left font-medium">
-                Catégorie
+                {R.category}
               </th>
               {series.map((o) => (
                 <th key={o.id} scope="col" className="px-3 py-2 text-right font-semibold">
@@ -189,7 +192,7 @@ export function Radar({
                 </th>
                 {series.map((o) => (
                   <td key={o.id} className="px-3 py-2 text-right tabular-nums">
-                    {formatScore(scoreOf(o.id, a.id))}
+                    {fmt(scoreOf(o.id, a.id))}
                   </td>
                 ))}
               </tr>

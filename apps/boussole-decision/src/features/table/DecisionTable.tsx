@@ -18,15 +18,8 @@ import {
   updateVersion,
   type CriterionInput,
 } from "@/data/repository";
-import {
-  CATEGORY_BY_KEY,
-  DIRECTION_LABELS,
-  EVALUATION_LABELS,
-  IMPORTANCE_BY_VALUE,
-  IMPORTANCE_LEVELS,
-  NON_NEGOTIABLE_HINT,
-  type CriterionTemplate,
-} from "@/domain/methodology";
+import type { CriterionTemplate } from "@/domain/methodology";
+import { useI18n } from "@/i18n/client";
 import { DEFAULT_WEIGHTS, MAX_WEIGHT, formatScore, rankOpportunities, type OpportunityResult } from "@/domain/scoring";
 import type {
   Category,
@@ -78,6 +71,8 @@ function Table({
 }: Props) {
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
+  const { t, m } = useI18n();
+  const T = t.table;
   const [categories, setCategories] = useState(initial.categories);
   const [criteria, setCriteria] = useState(initial.criteria);
   const [opportunities, setOpportunities] = useState(initial.opportunities);
@@ -117,7 +112,7 @@ function Table({
     try {
       return await track(promise);
     } catch {
-      setError("La dernière modification n'a pas pu être enregistrée. Vérifie ta connexion et réessaie.");
+      setError(T.saveFailed);
       return undefined;
     }
   }
@@ -145,7 +140,7 @@ function Table({
   }
 
   async function removeCriterion(c: Criterion) {
-    if (!confirm(`Supprimer le critère « ${c.label} » et ses évaluations ?`)) return;
+    if (!confirm(T.deleteCriterionConfirm(c.label))) return;
     setCriteria((cs) => cs.filter((x) => x.id !== c.id));
     await guarded(deleteCriterion(db, c.id));
   }
@@ -166,7 +161,7 @@ function Table({
   // --- Opportunités ----------------------------------------------------------------
   async function addOpportunity() {
     const position = opportunities.length ? Math.max(...opportunities.map((o) => o.position)) + 1 : 0;
-    const created = await guarded(createOpportunity(db, versionId, `Opportunité ${opportunities.length + 1}`, position));
+    const created = await guarded(createOpportunity(db, versionId, T.newOpportunityName(opportunities.length + 1), position));
     if (created) {
       setOpportunities((os) => [...os, created]);
       setMobileIndex(opportunities.length);
@@ -174,7 +169,7 @@ function Table({
   }
 
   async function removeOpportunity(o: Opportunity) {
-    if (!confirm(`Supprimer l'opportunité « ${o.name} » et toutes ses cases ?`)) return;
+    if (!confirm(T.deleteOpportunityConfirm(o.name))) return;
     setOpportunities((os) => os.filter((x) => x.id !== o.id));
     setMobileIndex(0);
     await guarded(deleteOpportunity(db, o.id));
@@ -210,8 +205,8 @@ function Table({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-[15px] text-ink-soft" aria-live="polite">
-          <strong className="font-medium text-ink">{criteria.length}</strong> critère{criteria.length > 1 ? "s" : ""} ·{" "}
-          <strong className="font-medium text-ink">{opportunities.length}</strong> opportunité{opportunities.length > 1 ? "s" : ""}
+          <strong className="font-medium text-ink">{criteria.length}</strong> {T.criteriaCount(criteria.length)} ·{" "}
+          <strong className="font-medium text-ink">{opportunities.length}</strong> {T.opportunitiesCount(opportunities.length)}
         </p>
         {!readOnly && <SaveIndicator />}
       </div>
@@ -222,7 +217,7 @@ function Table({
         <WeightsPanel weights={weights} readOnly={readOnly} onChange={changeWeights} />
         <div className="min-w-0 space-y-4">
           {sortedOpps.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto sm:hidden" role="tablist" aria-label="Opportunité affichée">
+            <div className="flex gap-2 overflow-x-auto sm:hidden" role="tablist" aria-label={T.shownOpportunity}>
               {sortedOpps.map((o, i) => (
                 <button
                   key={o.id}
@@ -250,7 +245,7 @@ function Table({
                     scope="col"
                     className="sticky left-0 z-20 w-[45%] min-w-[180px] border-b border-r border-line bg-paper px-3 py-3 text-left font-medium sm:min-w-[300px]"
                   >
-                    Critère <span className="font-normal text-ink-soft">· importance</span>
+                    {T.criterion} <span className="font-normal text-ink-soft">{T.importance}</span>
                   </th>
                   {sortedOpps.map((o) => (
                     <th
@@ -287,7 +282,7 @@ function Table({
                         onClick={addOpportunity}
                         className="whitespace-nowrap text-[15px] font-medium text-link hover:underline"
                       >
-                        + Opportunité
+                        {T.addOpportunity}
                       </button>
                     </th>
                   )}
@@ -295,7 +290,7 @@ function Table({
               </thead>
 
               {categories.map((category) => {
-                const definition = category.key ? CATEGORY_BY_KEY[category.key] : null;
+                const definition = category.key ? m.categoryByKey[category.key] : null;
                 const list = byCategory.get(category.id) ?? [];
                 const existing = new Set(list.map((c) => c.label.trim().toLowerCase()));
                 const ideas = definition?.examples.filter((e) => !existing.has(e.label.toLowerCase())).slice(0, 6) ?? [];
@@ -306,7 +301,9 @@ function Table({
                       <th scope="rowgroup" colSpan={colSpan} className="border-b border-line bg-sand px-3 py-2.5 text-left">
                         <span className="sticky left-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                           {definition || readOnly ? (
-                            <span className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">{category.label}</span>
+                            <span className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">
+                              {definition?.label ?? category.label}
+                            </span>
                           ) : (
                             <CustomCategoryName
                               category={category}
@@ -376,7 +373,7 @@ function Table({
                       <tr>
                         <td colSpan={colSpan} className="border-b border-line px-3 py-2">
                           <AddCriterion
-                            categoryLabel={category.label}
+                            categoryLabel={definition?.label ?? category.label}
                             ideas={ideas}
                             onAdd={(label) =>
                               addCriterion(category, {
@@ -408,8 +405,8 @@ function Table({
               <tfoot>
                 <tr>
                   <th scope="row" className="sticky left-0 z-10 border-t-2 border-ink bg-paper px-3 py-4 text-left align-top">
-                    <span className="block font-medium">Score d&apos;alignement</span>
-                    <span className="block text-[13px] font-normal text-ink-soft">Une boussole, pas un verdict.</span>
+                    <span className="block font-medium">{T.score}</span>
+                    <span className="block text-[13px] font-normal text-ink-soft">{T.scoreHint}</span>
                   </th>
                   {sortedOpps.map((o) => {
                     const entry = resultById.get(o.id);
@@ -430,8 +427,7 @@ function Table({
 
           {opportunities.length === 0 && !readOnly && (
             <Notice>
-              Ajoute une première opportunité avec le bouton <strong className="font-medium">« + Opportunité »</strong> en haut à droite du
-              tableau (par exemple : « Salariée chez… », « Me lancer en indépendante »).
+              {T.firstOpportunityStart} <strong className="font-medium">{T.firstOpportunityButton}</strong> {T.firstOpportunityEnd}
             </Notice>
           )}
         </div>
@@ -441,7 +437,7 @@ function Table({
 
       {resultsHref && opportunities.length > 0 && (
         <div className="flex justify-end">
-          <ButtonLink href={resultsHref}>{readOnly ? "Voir les résultats →" : "Voir mes résultats →"}</ButtonLink>
+          <ButtonLink href={resultsHref}>{readOnly ? T.seeResults : T.seeMyResults}</ButtonLink>
         </div>
       )}
     </div>
@@ -460,6 +456,7 @@ function OpportunityHeader({
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
+  const T = useI18n().t.table;
   if (readOnly)
     return (
       <span data-opp-name className="block text-center text-[16px] font-semibold leading-snug">
@@ -469,7 +466,7 @@ function OpportunityHeader({
   return (
     <div className="relative">
       <textarea
-        aria-label="Nom de l'opportunité"
+        aria-label={T.opportunityName}
         value={name}
         rows={1}
         maxLength={120}
@@ -479,7 +476,7 @@ function OpportunityHeader({
       <button
         type="button"
         onClick={onDelete}
-        aria-label={`Supprimer l'opportunité « ${opportunity.name} »`}
+        aria-label={T.deleteOpportunity(opportunity.name)}
         className="absolute -right-2 -top-1 flex h-7 w-7 items-center justify-center rounded-full text-sm text-ink-soft hover:bg-danger-soft hover:text-danger"
       >
         ✕
@@ -509,7 +506,9 @@ function CriterionCell({
     criterion.label,
     (v) => onPatch({ label: v.trim() || criterion.label }, true) as Promise<void>,
   );
-  const importance = IMPORTANCE_BY_VALUE[criterion.importance];
+  const { t, m } = useI18n();
+  const T = t.table;
+  const importance = m.importanceByValue[criterion.importance];
 
   if (readOnly) {
     return (
@@ -520,10 +519,10 @@ function CriterionCell({
             {importance.label}
           </span>
           {criterion.nonNegotiable && (
-            <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs text-danger">🔒 non négociable</span>
+            <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs text-danger">{T.nonNegotiable}</span>
           )}
           {criterion.direction === "AWAY_FROM" && (
-            <span className="rounded-full bg-blush px-2 py-0.5 text-xs text-accent-deep">↩ à éviter</span>
+            <span className="rounded-full bg-blush px-2 py-0.5 text-xs text-accent-deep">{T.avoid}</span>
           )}
         </div>
       </div>
@@ -534,7 +533,7 @@ function CriterionCell({
     <div className="space-y-1.5">
       <div className="flex flex-col items-stretch gap-1 sm:flex-row sm:items-start">
         <textarea
-          aria-label="Intitulé du critère"
+          aria-label={T.criterionLabel}
           value={label}
           rows={1}
           maxLength={200}
@@ -542,7 +541,7 @@ function CriterionCell({
           className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent px-1.5 py-1 leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
         />
         <select
-          aria-label={`Importance de « ${criterion.label} »`}
+          aria-label={T.importanceOf(criterion.label)}
           title={importance.hint || undefined}
           value={criterion.importance}
           onChange={(e) => onPatch({ importance: e.target.value as Criterion["importance"] })}
@@ -551,7 +550,7 @@ function CriterionCell({
             IMPORTANCE_CLASS[criterion.importance],
           )}
         >
-          {IMPORTANCE_LEVELS.map((l) => (
+          {m.importanceLevels.map((l) => (
             <option key={l.value} value={l.value}>
               {l.label}
             </option>
@@ -563,26 +562,26 @@ function CriterionCell({
           on={criterion.nonNegotiable}
           onClick={() => onPatch({ nonNegotiable: !criterion.nonNegotiable })}
           onClass="bg-danger-soft text-danger border-transparent"
-          title={NON_NEGOTIABLE_HINT}
+          title={m.nonNegotiableHint}
         >
-          🔒 non négociable
+          {T.nonNegotiable}
         </Toggle>
         <Toggle
           on={criterion.direction === "AWAY_FROM"}
           onClick={() => onPatch({ direction: criterion.direction === "AWAY_FROM" ? "TOWARDS" : "AWAY_FROM" })}
           onClass="bg-blush text-accent-deep border-transparent"
-          title={DIRECTION_LABELS.AWAY_FROM.hint}
+          title={m.directions.AWAY_FROM.hint}
         >
-          ↩ à éviter
+          {T.avoid}
         </Toggle>
         <span className="ml-auto flex gap-0.5 opacity-60 transition group-focus-within:opacity-100 group-hover:opacity-100">
-          <IconButton label="Monter" disabled={isFirst} onClick={() => onMove(-1)}>
+          <IconButton label={T.moveUp} disabled={isFirst} onClick={() => onMove(-1)}>
             ↑
           </IconButton>
-          <IconButton label="Descendre" disabled={isLast} onClick={() => onMove(1)}>
+          <IconButton label={T.moveDown} disabled={isLast} onClick={() => onMove(1)}>
             ↓
           </IconButton>
-          <IconButton label={`Supprimer « ${criterion.label} »`} onClick={onDelete} danger>
+          <IconButton label={T.deleteCriterion(criterion.label)} onClick={onDelete} danger>
             ✕
           </IconButton>
         </span>
@@ -660,7 +659,7 @@ function EvaluationSelect({
   label: string;
   onChange: (v: EvaluationValue | null) => void;
 }) {
-  const labels = EVALUATION_LABELS[direction];
+  const labels = useI18n().m.evaluationLabels[direction];
   const cls = cx("w-full max-w-[130px] rounded-[10px] px-2 py-2 text-center text-sm font-medium", evaluationClass(value, direction));
   if (readOnly) return <span className={cx("inline-block", cls)}>{value ? labels[value] : "—"}</span>;
   return (
@@ -682,25 +681,26 @@ function EvaluationSelect({
 
 function ScoreCell({ result, rank }: { result: OpportunityResult; rank: number }) {
   const first = rank === 1 && result.status !== "non_conforme" && result.score !== null;
+  const { t, locale } = useI18n();
+  const T = t.table;
   return (
     <div className="space-y-1">
-      <p className="font-serif text-[34px] italic leading-none">{formatScore(result.score)}</p>
+      <p className="font-serif text-[34px] italic leading-none">{formatScore(result.score, locale)}</p>
       {result.score !== null && (
         <span className={cx("inline-block rounded-full px-2 py-0.5 text-xs", first ? "bg-sage-soft text-sage" : "bg-sand text-ink-soft")}>
-          {rank}
-          {rank === 1 ? "er" : "e"}
+          {T.rank(rank)}
         </span>
       )}
-      {result.status === "non_conforme" && <p className="text-xs font-medium text-danger">⚠️ Ne respecte pas tes non-négociables</p>}
+      {result.status === "non_conforme" && <p className="text-xs font-medium text-danger">{T.failsNonNegotiables}</p>}
       {result.antiContextAlerts.length > 0 && (
         <p className="text-xs font-medium text-danger">
-          ⚡ {result.antiContextAlerts.some((a) => a.severity === "ligne_rouge") ? "Ligne rouge franchie" : "Anti-Contexte présent"}
+          ⚡ {result.antiContextAlerts.some((a) => a.severity === "ligne_rouge") ? T.redLine : T.antiPresent}
         </p>
       )}
       {result.toVerify.length > 0 && result.evaluatedCount > 0 && (
         <p className="text-xs text-ink-soft">
-          {result.toVerify.length} à vérifier
-          {result.status === "a_verifier" && " (dont un non-négociable)"}
+          {T.toCheck(result.toVerify.length)}
+          {result.status === "a_verifier" && T.toCheckNonNegotiable}
         </p>
       )}
     </div>
@@ -721,6 +721,7 @@ function AddCriterion({
   const [label, setLabel] = useState("");
   const [pending, setPending] = useState(false);
   const [showIdeas, setShowIdeas] = useState(false);
+  const T = useI18n().t.table;
   return (
     <div className="sticky left-3 max-w-[calc(100vw-4rem)] space-y-2 sm:max-w-3xl">
       <form
@@ -738,13 +739,13 @@ function AddCriterion({
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           maxLength={200}
-          aria-label={`Nouveau critère : ${categoryLabel}`}
-          placeholder="+ Ajouter un critère (puis Entrée)"
+          aria-label={T.newCriterion(categoryLabel)}
+          placeholder={T.addCriterion}
           className="border-dashed bg-transparent py-2 text-[15px]"
         />
         {label.trim() ? (
           <Button type="submit" variant="secondary" disabled={pending} className="shrink-0">
-            Ajouter
+            {T.add}
           </Button>
         ) : (
           ideas.length > 0 && (
@@ -754,7 +755,7 @@ function AddCriterion({
               onClick={() => setShowIdeas((v) => !v)}
               className="shrink-0 rounded-full px-3 text-sm text-ink-soft hover:bg-sand hover:text-ink"
             >
-              💡 Idées
+              {T.ideas}
             </button>
           )
         )}
@@ -789,10 +790,11 @@ function CustomCategoryName({
   onDelete: () => void;
 }) {
   const [label, setLabel] = useState(category.label);
+  const T = useI18n().t.table;
   return (
     <span className="flex items-center gap-2">
       <input
-        aria-label="Nom de la catégorie"
+        aria-label={T.categoryName}
         value={label}
         maxLength={60}
         onChange={(e) => setLabel(e.target.value)}
@@ -801,7 +803,7 @@ function CustomCategoryName({
       />
       {canDelete && (
         <button type="button" onClick={onDelete} className="text-xs font-normal normal-case text-danger hover:underline">
-          Supprimer
+          {T.delete}
         </button>
       )}
     </span>
@@ -811,10 +813,11 @@ function CustomCategoryName({
 function NewCategory({ onAdd }: { onAdd: (label: string) => Promise<void> }) {
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState("");
+  const T = useI18n().t.table;
   if (!open)
     return (
       <Button type="button" variant="ghost" onClick={() => setOpen(true)} className="-ml-2 text-link">
-        + Ajouter une catégorie de critères
+        {T.addCategory}
       </Button>
     );
   return (
@@ -832,15 +835,15 @@ function NewCategory({ onAdd }: { onAdd: (label: string) => Promise<void> }) {
         value={label}
         onChange={(e) => setLabel(e.target.value)}
         maxLength={60}
-        placeholder="Ex. : Formation, Famille, Créativité…"
-        aria-label="Nom de la nouvelle catégorie"
+        placeholder={T.newCategoryPlaceholder}
+        aria-label={T.newCategoryName}
         autoFocus
       />
       <Button type="submit" variant="secondary" disabled={!label.trim()} className="shrink-0">
-        Créer
+        {T.create}
       </Button>
       <Button type="button" variant="ghost" onClick={() => setOpen(false)} className="shrink-0">
-        Annuler
+        {T.cancel}
       </Button>
     </form>
   );
@@ -858,6 +861,7 @@ function FrozenHeader({
   scrollRef: RefObject<HTMLDivElement | null>;
   theadRef: RefObject<HTMLTableSectionElement | null>;
 }) {
+  const T = useI18n().t.table;
   const [layout, setLayout] = useState<{
     top: number;
     left: number;
@@ -934,7 +938,7 @@ function FrozenHeader({
         className="absolute inset-y-0 left-0 flex items-center border-r border-line bg-paper px-3 text-[15px] font-medium"
         style={{ width: first.width }}
       >
-        Critère <span className="ml-1 font-normal text-ink-soft">· importance</span>
+        {T.criterion} <span className="ml-1 font-normal text-ink-soft">{T.importance}</span>
       </div>
     </div>
   );
@@ -951,6 +955,9 @@ function WeightsPanel({
   onChange: (next: ImportanceWeights) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { t, m } = useI18n();
+  const T = t.table;
+  const IMPORTANCE_LEVELS = m.importanceLevels;
   const isDefault = IMPORTANCE_LEVELS.every((l) => weights[l.value] === DEFAULT_WEIGHTS[l.value]);
   const summary = IMPORTANCE_LEVELS.map((l) => `${l.label} ${l.value === "bonus" ? "+" : "×"}${weights[l.value]}`).join(" · ");
   const set = (level: Importance, value: number) => onChange({ ...weights, [level]: Math.min(MAX_WEIGHT, Math.max(0, value)) });
@@ -966,7 +973,7 @@ function WeightsPanel({
       >
         <span>
           <span id="bareme-titre" className="block font-serif text-xl italic">
-            ⚖️ {readOnly ? "Barème" : "Mon barème"}
+            ⚖️ {readOnly ? T.weightsReadOnly : T.weightsTitle}
           </span>
           <span className="block text-xs text-ink-soft xl:hidden">{summary}</span>
         </span>
@@ -977,7 +984,7 @@ function WeightsPanel({
 
       <div id="bareme-contenu" className={cx("mt-3 space-y-3", open ? "block" : "hidden", "xl:block")}>
         <p className="text-[13px] leading-snug text-ink-soft">
-          Le poids de chaque niveau dans le score. {readOnly ? "" : "Ajuste-le à ta façon : le score se recalcule aussitôt."}
+          {T.weightsIntro} {readOnly ? "" : T.weightsIntroEdit}
         </p>
         <ul className="space-y-1.5">
           {IMPORTANCE_LEVELS.map((l) => {
@@ -993,18 +1000,14 @@ function WeightsPanel({
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">
-                    <IconButton label={`Baisser le poids de « ${l.label} »`} disabled={w <= 0} onClick={() => set(l.value, w - 1)}>
+                    <IconButton label={T.lower(l.label)} disabled={w <= 0} onClick={() => set(l.value, w - 1)}>
                       −
                     </IconButton>
                     <span className="w-7 text-center text-sm font-medium tabular-nums" aria-live="polite">
                       {prefix}
                       {w}
                     </span>
-                    <IconButton
-                      label={`Augmenter le poids de « ${l.label} »`}
-                      disabled={w >= MAX_WEIGHT}
-                      onClick={() => set(l.value, w + 1)}
-                    >
+                    <IconButton label={T.raise(l.label)} disabled={w >= MAX_WEIGHT} onClick={() => set(l.value, w + 1)}>
                       +
                     </IconButton>
                   </span>
@@ -1014,12 +1017,12 @@ function WeightsPanel({
           })}
         </ul>
         <p className="text-[12px] leading-snug text-ink-soft">
-          <b className="font-medium text-ink">Bonus</b> : ajoute jusqu&apos;à ce nombre de points si c&apos;est là, n&apos;en enlève jamais.
-          Un niveau à 0 ne compte pas.
+          <b className="font-medium text-ink">{T.bonus}</b>
+          {T.bonusHint}
         </p>
         {!readOnly && !isDefault && (
           <button type="button" onClick={() => onChange({ ...DEFAULT_WEIGHTS })} className="text-sm text-link underline underline-offset-4">
-            Revenir au barème conseillé
+            {T.resetWeights}
           </button>
         )}
       </div>
@@ -1028,14 +1031,16 @@ function WeightsPanel({
 }
 
 function Legend() {
+  const T = useI18n().t.table;
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-ink-soft">
       <span>
-        <b className="font-medium text-ink">🔒 Non négociable</b> : s&apos;il n&apos;est pas pleinement respecté, l&apos;opportunité est
-        signalée et classée après les autres
+        <b className="font-medium text-ink">{T.legendNonNegotiable}</b>
+        {T.legendNonNegotiableText}
       </span>
       <span>
-        <b className="font-medium text-ink">↩ À éviter</b> : on évalue la présence du risque
+        <b className="font-medium text-ink">{T.legendAvoid}</b>
+        {T.legendAvoidText}
       </span>
     </div>
   );

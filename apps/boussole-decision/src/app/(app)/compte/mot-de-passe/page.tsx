@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
+import { getI18n } from "@/i18n/server";
 import { Card, PageTitle } from "@/components/ui";
 import { NewPasswordForm } from "@/features/auth/forms";
 
-export const metadata: Metadata = { title: "Nouveau mot de passe" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).t.auth.titleNewPassword };
+}
 
 // Page d'arrivée du lien « Mot de passe oublié ».
-export default function NewPasswordPage() {
+export default async function NewPasswordPage() {
+  const { t } = await getI18n();
   return (
     <>
-      <PageTitle title="Choisis un nouveau mot de passe" />
+      <PageTitle title={t.auth.chooseNewPassword} />
       <Card className="max-w-lg">
         <NewPasswordForm />
       </Card>
