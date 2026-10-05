@@ -35,7 +35,14 @@
   </header>
 
   <main class="scene-carte">
-    <svg id="carte" class="carte" role="img" aria-label="Carte du talent" xmlns="http://www.w3.org/2000/svg"></svg>
+    <svg id="carte" class="carte" role="application" aria-label="Carte du talent : glisse pour te déplacer, molette ou pincement pour zoomer" tabindex="0" xmlns="http://www.w3.org/2000/svg"></svg>
+
+    <div class="controles-carte" role="group" aria-label="Navigation dans la carte">
+      <button type="button" class="bouton-rond" id="btn-zoom-plus" title="Zoomer" aria-label="Zoomer"><i data-lucide="plus"></i></button>
+      <button type="button" class="bouton-rond" id="btn-zoom-moins" title="Dézoomer" aria-label="Dézoomer"><i data-lucide="minus"></i></button>
+      <button type="button" class="bouton-rond" id="btn-recentrer" title="Voir toute la carte" aria-label="Voir toute la carte"><i data-lucide="maximize"></i></button>
+      <button type="button" class="bouton-rond" id="btn-reorganiser" title="Réorganiser automatiquement (garde les hexagones déplacés à la main)" aria-label="Réorganiser la carte"><i data-lucide="wand-sparkles"></i></button>
+    </div>
 
     <aside class="legende" id="legende" aria-label="Légende">
       <button type="button" class="legende-titre" id="legende-bascule" aria-expanded="true">
@@ -45,6 +52,8 @@
     </aside>
   </main>
 
+  <aside class="panneau" id="panneau" role="dialog" aria-labelledby="panneau-titre" hidden></aside>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://unpkg.com/lucide@1.52.0/dist/umd/lucide.min.js"></script>
@@ -53,9 +62,12 @@
   <script src="js/modele/demo.js"></script>
   <script src="js/modele/stockage.js"></script>
   <script src="js/geo/placement.js"></script>
+  <script src="js/modele/regles.js"></script>
   <script src="js/vues/outils.js"></script>
   <script src="js/vues/carte.js"></script>
   <script src="js/vues/legende.js"></script>
+  <script src="js/vues/navigation.js"></script>
+  <script src="js/vues/panneau.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js'].forEach((f) => {
+['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -122,6 +122,56 @@ test('une carte vide ou minimale ne plante pas', () => {
   });
   const r = CT.placement.placer(mini);
   assert.ok(r.positions.x && r.positions.y);
+});
+
+
+// Carte placée puis positions mémorisées, comme le fait l'application.
+function cartePlacee() {
+  const c = CT.demo.creer();
+  const r = CT.placement.placer(c);
+  c.competences.forEach((x) => { x.position = r.positions[x.id]; });
+  return { carte: c, res: r };
+}
+
+console.log('\nStabilité et règles');
+
+test('conquérir une frontière ne déplace aucun hexagone', () => {
+  const { carte: c, res: r } = cartePlacee();
+  CT.regles.changerStatut(c, 'vente', 'conquise');
+  const r2 = CT.placement.placer(c);
+  assert.deepStrictEqual(r2.positions, r.positions);
+});
+
+test('passer une compétence à déléguer l\'envoie dans la zone grise, sans laisser de trou', () => {
+  const { carte: c } = cartePlacee();
+  CT.regles.changerStatut(c, 'excel', 'a_deleguer');
+  const r2 = CT.placement.placer(c);
+  const cs = r2.cases.find((x) => x.id === 'excel');
+  assert.strictEqual(cs.zone, 'deleguer');
+  assert.deepStrictEqual(CT.placement.verifier(r2).filter((p) => /Trou/.test(p)), []);
+});
+
+test('déposer sur une case occupée échange les deux hexagones', () => {
+  const { carte: c, res: r } = cartePlacee();
+  const pv = r.positions.vente;
+  const pn = r.positions.negociation;
+  assert.strictEqual(CT.regles.deplacer(c, 'vente', pn, r.cases), 'echange');
+  const r2 = CT.placement.placer(c);
+  assert.deepStrictEqual(r2.positions.vente, pn);
+  assert.deepStrictEqual(r2.positions.negociation, pv);
+});
+
+test('on ne peut pas déposer sur la capitale', () => {
+  const { carte: c, res: r } = cartePlacee();
+  assert.strictEqual(CT.regles.deplacer(c, 'vente', { q: 0, r: 0 }, r.cases), null);
+});
+
+test('réorganiser garde les positions manuelles', () => {
+  const { carte: c, res: r } = cartePlacee();
+  CT.regles.deplacer(c, 'podcast', { q: -8, r: 2 }, r.cases);
+  CT.regles.preparerReorganisation(c);
+  const r2 = CT.placement.placer(c, { reorganiser: true });
+  assert.deepStrictEqual(r2.positions.podcast, { q: -8, r: 2 });
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');

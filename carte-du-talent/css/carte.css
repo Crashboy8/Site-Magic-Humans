@@ -68,20 +68,23 @@ body {
   letter-spacing: .14em;
   paint-order: stroke;
   stroke: #FFFBF2;
-  stroke-width: 5px;
   stroke-linejoin: round;
   pointer-events: none;
 }
 
+.carte .etiquette { stroke-width: .28em; }
+
 .carte .etiquette-region,
 .carte .etiquette-province {
-  font-size: 22px;
   opacity: 0;
   transition: opacity .25s;
 }
 
+.carte .etiquette-region,
+.carte .etiquette-province { text-transform: none; letter-spacing: .02em; }
+.carte .etiquette-province { font-style: italic; font-weight: 700; }
+
 .carte .etiquette-mer {
-  font-size: 15px;
   fill: var(--mer-profonde);
   stroke: rgba(191, 230, 238, .9);
   font-style: italic;
@@ -99,5 +102,25 @@ body {
 .carte.vue-ensemble .etiquette-province { opacity: .95; }
 .carte.vue-ensemble .tuile .nom { opacity: 0; }
 
-.carte .tuile { cursor: pointer; }
+.carte .tuile { cursor: pointer; outline: none; }
 .carte .tuile .nom { transition: opacity .2s; }
+.carte.vue-ensemble .tuile .icone { opacity: .9; }
+
+/* Sélection et focus clavier : anneau doré autour de la tuile. */
+.carte .anneau-selection {
+  fill: none;
+  stroke: #FFD45C;
+  stroke-width: 6;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(255, 196, 61, .9));
+}
+
+.carte .tuile:focus-visible .dessus { stroke: #E9A400; stroke-width: 5; stroke-dasharray: none; }
+
+/* Glisser-déposer */
+.carte.deplacement-en-cours { cursor: grabbing; }
+.carte .tuile.souleve { opacity: .92; filter: drop-shadow(0 14px 12px rgba(20, 50, 60, .35)); pointer-events: none; }
+.carte .case-cible { fill: rgba(255, 255, 255, .35); stroke: #fff; stroke-width: 3; stroke-dasharray: 8 6; pointer-events: none; }
+.carte .case-cible.refus { fill: rgba(200, 60, 60, .2); stroke: #C2412D; }
+.carte .case-cible.echange { fill: rgba(255, 212, 92, .35); stroke: #E9A400; }
+.carte .case-origine { fill: rgba(47, 106, 120, .18); stroke: rgba(255, 255, 255, .7); stroke-width: 2; stroke-dasharray: 4 5; pointer-events: none; }

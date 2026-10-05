@@ -72,8 +72,8 @@
 
   // ---------- Placement ----------
 
-  function placer(carteSource) {
-    const carte = carteSource;
+  function placer(carte, options) {
+    options = options || {};
     const occ = new Map(); // clé -> { id, groupe, zone }
     const cellulesGroupe = new Map(); // groupe -> Set(clés)
     const positions = {};
@@ -127,10 +127,12 @@
       return angles[c.regionId] !== undefined ? angles[c.regionId] : 0;
     }
 
-    // --- Capitale et positions manuelles ---
+    // --- Capitale et positions déjà connues ---
+    // Par défaut, toute position mémorisée est conservée (carte stable) ; avec
+    // { reorganiser: true }, seules les positions déplacées à la main sont gardées.
     occuper({ q: 0, r: 0 }, 'capitale', 'capitale', 'continent');
     comps.forEach((c) => {
-      if (!c.positionManuelle || !c.position) return;
+      if (!c.position || (options.reorganiser && !c.positionManuelle)) return;
       const k = H.cle(c.position.q, c.position.r);
       if (occ.has(k)) return;
       const zone = c.statut === 'ile' ? 'ile' : c.statut === 'a_deleguer' ? 'deleguer' : 'continent';

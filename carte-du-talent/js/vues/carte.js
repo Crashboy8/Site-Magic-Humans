@@ -126,9 +126,10 @@
 
       if (cs.id === 'capitale') {
         tuiles.push(
-          '<g class="tuile tuile-capitale" data-id="capitale">' +
+          '<g class="tuile tuile-capitale" data-id="capitale" tabindex="0" role="button" aria-label="' +
+            O.echapper('Capitale : ' + (carte.talent.nom || 'Mon talent')) + '">' +
           '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="#C48A1F"/>' +
-          '<polygon points="' + polygone(x, y, T * 0.94) + '" fill="url(#ct-or)" stroke="#B9862A" stroke-width="2"/>' +
+          '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="url(#ct-or)" stroke="#B9862A" stroke-width="2"/>' +
           '<polygon points="' + polygone(x, y, T * 0.8) + '" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>' +
           O.iconeSvg('crown', x, y - 27, 20, '#7A5310', 2) +
           texteTuile(carte.talent.nom || 'Mon talent', x, y - 4, '#5B3E0B', 'nom nom-capitale', 4) +
@@ -151,7 +152,8 @@
         fond = 'url(#' + gid + ')';
       }
 
-      let g = '<g class="tuile tuile-' + c.statut + '" data-id="' + O.echapper(c.id) + '" opacity="' + a.opacite + '">';
+      let g = '<g class="tuile tuile-' + c.statut + '" data-id="' + O.echapper(c.id) + '" opacity="' + a.opacite +
+        '" tabindex="0" role="button" aria-label="' + O.echapper(c.nom + ' — ' + CT.schema.LIBELLES_STATUT[c.statut]) + '">';
       if (a.relief) g += '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="' + a.tranche + '"/>';
       g += '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="' + fond + '" stroke="' + a.contour +
         '" stroke-width="' + (a.pointilles ? 2.5 : 1.5) + '"' + (a.pointilles ? ' stroke-dasharray="' + a.pointilles + '"' : '') + '/>';
@@ -169,28 +171,30 @@
     });
 
     // Noms des régions, provinces, îles et zone à déléguer.
+    const etiquettesMer = [];
     placement.etiquettes.forEach((e) => {
       const ex = e.x * T;
-      let ey = e.y * T;
-      let classe = 'etiquette etiquette-' + e.type;
       if (e.type === 'ile' || e.type === 'deleguer') {
-        ey = e.yMax * T + T * 1.45; // sous le groupe, sur l'eau
-        classe += ' etiquette-mer';
+        // Sous le groupe, sur l'eau.
+        etiquettesMer.push('<text class="etiquette etiquette-mer" x="' + ex.toFixed(1) + '" y="' + (e.yMax * T + T * 1.3).toFixed(1) +
+          '" dy="0.8em">' + O.echapper(e.nom) + '</text>');
+        return;
       }
       const couleur = e.type === 'region' ? O.nuance(couleurRegion(carte, e.id) || '#777777', -0.5) : '#3E5A63';
-      etiquettes.push('<text class="' + classe + '" x="' + ex.toFixed(1) + '" y="' + ey.toFixed(1) + '" fill="' + couleur + '">' +
-        O.echapper(e.nom) + '</text>');
+      const lignes = O.couperTexte(e.nom, 14, 3);
+      etiquettes.push('<text class="etiquette etiquette-' + e.type + '" x="' + ex.toFixed(1) + '" y="' + (e.y * T).toFixed(1) +
+        '" fill="' + couleur + '">' + lignes.map((l, i) => '<tspan x="' + ex.toFixed(1) + '" dy="' +
+        (i === 0 ? (0.35 - (lignes.length - 1) * 0.55).toFixed(2) : '1.1') + 'em">' + O.echapper(l) + '</tspan>').join('') + '</text>');
     });
 
-    // Rose des vents, en bas à gauche du cadre.
+    // Rose des vents, en haut à gauche du cadre.
     const rx = cadre.x + T * 1.1;
-    const ry = cadre.y + cadre.h - T * 1.1;
+    const ry = cadre.y + T * 1.3;
     const rose = '<g class="rose" transform="translate(' + rx.toFixed(1) + ' ' + ry.toFixed(1) + ')" opacity=".55">' +
       '<circle r="30" fill="none" stroke="#2F6A78" stroke-width="1.2"/>' +
       '<path d="M0 -38 L7 0 L0 38 L-7 0 Z" fill="#2F6A78"/><path d="M-38 0 L0 -6 L38 0 L0 6 Z" fill="#2F6A78" opacity=".6"/>' +
       '<text y="-44" text-anchor="middle" class="rose-n">N</text></g>';
 
-    svg.setAttribute('viewBox', [cadre.x, cadre.y, cadre.l, cadre.h].map((v) => v.toFixed(1)).join(' '));
     svg.innerHTML =
       '<defs>' + defs.join('') + '</defs>' +
       '<rect class="mer" x="' + (cadre.x - 4000) + '" y="' + (cadre.y - 4000) + '" width="' + (cadre.l + 8000) + '" height="' + (cadre.h + 8000) + '" fill="url(#ct-mer)"/>' +
@@ -198,10 +202,12 @@
       '<g class="hauts-fonds" fill="' + COULEURS.hautFond + '" opacity=".75">' + hautsFonds.join('') + '</g>' +
       '<g class="plages" fill="' + COULEURS.sable + '">' + plages.join('') + '</g>' +
       '<g class="tuiles" filter="url(#ct-ombre)">' + tuiles.join('') + '</g>' +
-      '<g class="etiquettes">' + etiquettes.join('') + '</g>' + rose;
+      '<g class="etiquettes etiquettes-zones">' + etiquettes.join('') + '</g>' +
+      '<g class="etiquettes etiquettes-mer">' + etiquettesMer.join('') + '</g>' + rose +
+      '<g class="calque-interaction"></g>';
 
     return { cadre };
   }
 
-  CT.vueCarte = { rendre, T, couleurDe };
+  CT.vueCarte = { rendre, T, couleurDe, polygone };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});
