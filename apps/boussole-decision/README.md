@@ -33,16 +33,21 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - Catégories de la matrice : Contexte Déclencheur & Flow · Anti-Contexte & Lignes Rouges · Alignement Valeurs & Culture ·
   Conditions de Vie & QVT · Rémunération & Viabilité Financière (+ catégories personnelles).
 - **Tableau de décision** (une seule page, comme une feuille de calcul) : critères en lignes, regroupés par catégorie,
-  opportunités en colonnes, score en bas de chaque colonne.
+  opportunités en colonnes, score en bas de chaque colonne. La ligne des opportunités reste figée en haut de l'écran
+  quand on descend dans les critères.
 - Chaque critère : importance **Critique ×5, Très important ×4, Important ×3, Moyennement important ×2, Bof ×1, Bonus**
   (ajoute des points, n'en retire jamais) ; case **🔒 non négociable** indépendante (`DEALBREAKER`) ;
   direction `TOWARDS` (pour aller vers) ou `AWAY_FROM` (« à éviter » : on évalue la présence du risque).
+- **Barème personnalisable** (encart « Mon barème », à droite du tableau) : la personne règle le poids de chaque niveau
+  (0 à 10) ; il est propre à chaque version (`versions.importance_weights`), recopié lors d'une duplication et
+  verrouillé une fois la version finalisée.
 
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
 - Satisfaction : `TOWARDS` → valeur évaluée ; `AWAY_FROM` → 100 − présence.
 - Score d'alignement global (%) = (Σ poids × satisfaction + bonus) / Σ (poids × 100), sur les critères évalués ;
-  un Bonus satisfait ajoute jusqu'à 1 point de poids ; score plafonné à 100.
+  poids = barème de la version (un niveau à 0 ne compte pas) ; un Bonus satisfait ajoute jusqu'à son poids
+  (1 par défaut) ; score plafonné à 100.
 - « Je ne sais pas encore » et cases vides : exclus du calcul, listés « à vérifier ».
 - Non négociable respecté seulement à 100 % ; sinon l'opportunité est « non conforme » et classée après les autres.
   Inconnu → « à vérifier ».

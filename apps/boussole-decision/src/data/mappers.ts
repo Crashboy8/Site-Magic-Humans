@@ -12,6 +12,8 @@ import type {
   Version,
 } from "@/domain/types";
 
+import { normalizeWeights } from "@/domain/scoring";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Row = Record<string, any>;
 
@@ -54,6 +56,7 @@ export const mapVersion = (r: Row): Version => ({
   insightNote: r.insight_note,
   rankingFeedback: r.ranking_feedback,
   currentStep: r.current_step,
+  importanceWeights: normalizeWeights(r.importance_weights),
   createdAt: r.created_at,
   updatedAt: r.updated_at,
   finalizedAt: r.finalized_at,

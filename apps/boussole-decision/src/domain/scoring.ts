@@ -3,16 +3,17 @@
 // Règles :
 // - Satisfaction d'un critère (0 à 100) : « pour aller vers » → la valeur évaluée ;
 //   « à éviter » → 100 − présence du risque.
-// - Poids : Critique 5, Très important 4, Important 3, Moyennement important 2, Bof 1.
+// - Poids : le barème de la version, par défaut Critique 5, Très important 4, Important 3,
+//   Moyennement important 2, Bof 1 (un niveau à 0 ne compte pas).
 // - Score d'alignement global (%) = (Σ poids × satisfaction + bonus) / Σ (poids × 100),
 //   sur les critères évalués. Un critère Bonus n'entre pas au dénominateur : il ajoute
-//   jusqu'à 1 point de poids s'il est satisfait, et n'en retire jamais. Le score est plafonné à 100.
+//   jusqu'à son poids (1 par défaut) s'il est satisfait, et n'en retire jamais. Le score est plafonné à 100.
 // - « ? À vérifier » et les cases vides sont exclus du calcul et listés « à vérifier ».
 // - Non négociable : respecté seulement à 100 % de satisfaction (« Oui », ou « Absent » pour un risque).
 //   Un échec rend l'opportunité « non conforme » : elle garde son score mais passe après les autres.
 // - Anti-Contexte : un critère « à éviter » présent à 50 % ou plus déclenche une alerte ;
 //   un « à éviter » non négociable franchi, même un peu, est une ligne rouge.
-import type { Criterion, Evaluation, EvaluationValue, Importance, Opportunity } from "./types";
+import type { Criterion, Evaluation, EvaluationValue, Importance, ImportanceWeights, Opportunity } from "./types";
 
 export const EVALUATION_PERCENT: Record<EvaluationValue, number | null> = {
   non: 0,
@@ -23,17 +24,32 @@ export const EVALUATION_PERCENT: Record<EvaluationValue, number | null> = {
   inconnu: null,
 };
 
-export const IMPORTANCE_WEIGHT: Record<Importance, number> = {
+/** Barème par défaut. Pour « bonus » : poids maximal qu'un critère Bonus satisfait ajoute au numérateur. */
+export const DEFAULT_WEIGHTS: ImportanceWeights = {
   critique: 5,
   tres_important: 4,
   important: 3,
   moyen: 2,
   bof: 1,
-  bonus: 0,
+  bonus: 1,
 };
 
-/** Poids maximal qu'un critère Bonus satisfait ajoute au numérateur. */
-export const BONUS_WEIGHT = 1;
+/** Poids maximal d'un niveau dans le barème. */
+export const MAX_WEIGHT = 10;
+
+/** Barème lu en base, ramené à des entiers de 0 à MAX_WEIGHT (valeur par défaut si absente ou invalide). */
+export function normalizeWeights(raw: unknown): ImportanceWeights {
+  const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const out = { ...DEFAULT_WEIGHTS };
+  for (const level of Object.keys(DEFAULT_WEIGHTS) as Importance[]) {
+    const v = Number(source[level]);
+    if (Number.isFinite(v)) out[level] = Math.min(MAX_WEIGHT, Math.max(0, Math.round(v)));
+  }
+  return out;
+}
+
+/** Niveaux retenus pour les points forts et points faibles. */
+const MAJOR_LEVELS: Importance[] = ["critique", "tres_important", "important"];
 
 /** Seuil de présence à partir duquel un Anti-Contexte déclenche une alerte. */
 export const ANTI_CONTEXT_ALERT_THRESHOLD = 50;
@@ -91,14 +107,14 @@ export function satisfactionOf(criterion: Pick<Criterion, "direction">, value: E
   return criterion.direction === "AWAY_FROM" ? 100 - pct : pct;
 }
 
-function alignmentScore(results: CriterionResult[]): number | null {
+function alignmentScore(results: CriterionResult[], weights: ImportanceWeights): number | null {
   let num = 0;
   let den = 0;
   for (const r of results) {
     if (r.satisfaction === null) continue;
-    const weight = IMPORTANCE_WEIGHT[r.criterion.importance];
-    if (weight === 0) {
-      num += BONUS_WEIGHT * r.satisfaction;
+    const weight = weights[r.criterion.importance];
+    if (r.criterion.importance === "bonus") {
+      num += weight * r.satisfaction;
       continue;
     }
     num += weight * r.satisfaction;
@@ -118,6 +134,7 @@ export function scoreOpportunity(
   opportunity: ScoringOpportunity,
   criteria: ScoringCriterion[],
   evaluations: Map<string, EvaluationValue> | Evaluation[],
+  weights: ImportanceWeights = DEFAULT_WEIGHTS,
 ): OpportunityResult {
   const index = evaluations instanceof Map ? evaluations : indexEvaluations(evaluations);
 
@@ -149,19 +166,18 @@ export function scoreOpportunity(
     const inCategory = details.filter((d) => d.criterion.categoryId === categoryId);
     return {
       categoryId,
-      score: alignmentScore(inCategory),
+      score: alignmentScore(inCategory, weights),
       evaluated: inCategory.filter((d) => d.satisfaction !== null).length,
       total: inCategory.length,
     };
   });
 
-  const weightOf = (d: CriterionResult) => IMPORTANCE_WEIGHT[d.criterion.importance];
-  const impact = (d: CriterionResult) => weightOf(d) * Math.abs((d.satisfaction ?? 50) - 50);
-  const major = details.filter((d) => weightOf(d) >= 3 && d.satisfaction !== null);
+  const impact = (d: CriterionResult) => weights[d.criterion.importance] * Math.abs((d.satisfaction ?? 50) - 50);
+  const major = details.filter((d) => MAJOR_LEVELS.includes(d.criterion.importance) && d.satisfaction !== null);
 
   return {
     opportunity,
-    score: alignmentScore(details),
+    score: alignmentScore(details, weights),
     status,
     failedNonNegotiables,
     antiContextAlerts,
@@ -184,10 +200,11 @@ export function rankOpportunities(
   opportunities: ScoringOpportunity[],
   criteria: ScoringCriterion[],
   evaluations: Evaluation[],
+  weights: ImportanceWeights = DEFAULT_WEIGHTS,
 ): OpportunityResult[] {
   const index = indexEvaluations(evaluations);
   return opportunities
-    .map((o) => scoreOpportunity(o, criteria, index))
+    .map((o) => scoreOpportunity(o, criteria, index, weights))
     .sort((a, b) => {
       const ga = a.status === "non_conforme" ? 1 : 0;
       const gb = b.status === "non_conforme" ? 1 : 0;

@@ -51,6 +51,8 @@ export interface Version {
   insightNote: string;
   rankingFeedback: string;
   currentStep: StepKey;
+  /** Barème de la version : poids de chaque niveau d'importance (et du Bonus). */
+  importanceWeights: ImportanceWeights;
   createdAt: string;
   updatedAt: string;
   finalizedAt: string | null;
@@ -72,6 +74,8 @@ export interface Category {
  * « bonus » : ajoute des points si l'opportunité l'offre, n'en retire jamais.
  */
 export type Importance = "critique" | "tres_important" | "important" | "moyen" | "bof" | "bonus";
+/** Barème : poids de chaque niveau dans le score. Pour « bonus », points ajoutés au maximum. */
+export type ImportanceWeights = Record<Importance, number>;
 /** TOWARDS : pour aller vers. AWAY_FROM : pour éviter (on évalue la présence du risque). */
 export type CriterionDirection = "TOWARDS" | "AWAY_FROM";
 
