@@ -302,4 +302,24 @@ select pg_temp.check(not exists (select 1 from app_users where id = '00000000-00
   'le compte invité vide est supprimé');
 select pg_temp.check((select status from versions where id = :'essai_version') = 'finalisee', 'le verrou reste actif après transfert');
 
+-- Barème personnalisé ---------------------------------------------------------------------
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select public.create_profile('Barème') as bareme_profile \gset
+select id as bareme_version from versions where profile_id = :'bareme_profile' \gset
+select pg_temp.check((select importance_weights ->> 'critique' from versions where id = :'bareme_version') = '5',
+  'une nouvelle version reçoit le barème conseillé');
+update versions set importance_weights = importance_weights || '{"critique": 8}' where id = :'bareme_version';
+select public.duplicate_version(:'bareme_version', 'Copie') as bareme_copie \gset
+select pg_temp.check((select importance_weights ->> 'critique' from versions where id = :'bareme_copie') = '8',
+  'une copie reprend le barème de l''originale');
+update versions set status = 'finalisee' where id = :'bareme_version';
+select pg_temp.expect_error(
+  format($$update versions set importance_weights = '{"critique": 1}' where id = %L$$, :'bareme_version'), 'VERSION_FINALISEE');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+update versions set importance_weights = '{"critique": 0}' where id = :'bareme_copie';
+reset role;
+select pg_temp.check((select importance_weights ->> 'critique' from versions where id = :'bareme_copie') = '8',
+  'personne d''autre ne peut changer le barème');
+
 \echo 'Tous les tests de base de données sont passés.'

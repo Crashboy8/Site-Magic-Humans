@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { CAMILLE_CRITERIA, CAMILLE_EVALUATIONS, CAMILLE_OPPORTUNITIES } from "@/content/exemple-camille";
-import { formatScore, rankOpportunities, satisfactionOf, scoreOpportunity, type ScoringCriterion } from "./scoring";
+import {
+  DEFAULT_WEIGHTS,
+  formatScore,
+  normalizeWeights,
+  rankOpportunities,
+  satisfactionOf,
+  scoreOpportunity,
+  type ScoringCriterion,
+} from "./scoring";
 import type { Evaluation } from "./types";
 
 const c = (id: string, over: Partial<ScoringCriterion> = {}): ScoringCriterion => ({
@@ -130,5 +138,40 @@ describe("exemple de Camille (identique à la maquette validée)", () => {
   it("donne forces et faiblesses", () => {
     expect(byId.C.weaknesses.map((w) => w.criterion.id)).toContain("micromanagement");
     expect(byId.A.strengths.map((s) => s.criterion.id)).toContain("terrain");
+  });
+});
+
+describe("barème personnalisé", () => {
+  const criteria = [c("a", { importance: "critique" }), c("b", { importance: "bof" })];
+  const evaluations = [ev("a", "oui"), ev("b", "non")];
+  it("le poids de chaque niveau suit le barème de la personne", () => {
+    const weights = { ...DEFAULT_WEIGHTS, critique: 1, bof: 1 };
+    expect(scoreOpportunity(opp, criteria, evaluations, weights).score).toBe(50);
+  });
+  it("un niveau à 0 ne compte pas", () => {
+    expect(scoreOpportunity(opp, criteria, evaluations, { ...DEFAULT_WEIGHTS, bof: 0 }).score).toBe(100);
+  });
+  it("le Bonus ajoute jusqu'à son poids, jamais plus", () => {
+    const base = [c("a", { importance: "critique" }), c("bonus", { importance: "bonus" })];
+    const r = scoreOpportunity(opp, base, [ev("a", "p25"), ev("bonus", "oui")], { ...DEFAULT_WEIGHTS, bonus: 2 });
+    expect(r.score).toBeCloseTo(((5 * 25 + 2 * 100) / 500) * 100);
+    const sans = scoreOpportunity(opp, base, [ev("a", "p25"), ev("bonus", "oui")], { ...DEFAULT_WEIGHTS, bonus: 0 });
+    expect(sans.score).toBe(25);
+  });
+  it("le barème change le classement", () => {
+    const crit = [c("salaire", { importance: "critique" }), c("sens", { importance: "bof" })];
+    const evs = [ev("salaire", "oui", "x"), ev("sens", "non", "x"), ev("salaire", "non", "y"), ev("sens", "oui", "y")];
+    const opps = [{ id: "x", name: "X" }, { id: "y", name: "Y" }];
+    expect(rankOpportunities(opps, crit, evs)[0].opportunity.id).toBe("x");
+    expect(rankOpportunities(opps, crit, evs, { ...DEFAULT_WEIGHTS, critique: 1, bof: 5 })[0].opportunity.id).toBe("y");
+  });
+  it("un barème absent ou invalide revient au barème conseillé, borné de 0 à 10", () => {
+    expect(normalizeWeights(null)).toEqual(DEFAULT_WEIGHTS);
+    expect(normalizeWeights({ critique: 42, bof: -3, moyen: "x", important: 2.6 })).toEqual({
+      ...DEFAULT_WEIGHTS,
+      critique: 10,
+      bof: 0,
+      important: 3,
+    });
   });
 });

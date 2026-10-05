@@ -12,6 +12,7 @@ import type {
   CriterionDirection,
   InvitationCode,
   Profile,
+  ImportanceWeights,
   StepKey,
   TalentUnique,
   Version,
@@ -115,6 +116,7 @@ export interface VersionPatch {
   insightNote?: string;
   rankingFeedback?: string;
   currentStep?: StepKey;
+  importanceWeights?: ImportanceWeights;
 }
 
 export async function updateVersion(db: Db, id: string, patch: VersionPatch) {
@@ -124,6 +126,7 @@ export async function updateVersion(db: Db, id: string, patch: VersionPatch) {
   if (patch.insightNote !== undefined) row.insight_note = patch.insightNote;
   if (patch.rankingFeedback !== undefined) row.ranking_feedback = patch.rankingFeedback;
   if (patch.currentStep !== undefined) row.current_step = patch.currentStep;
+  if (patch.importanceWeights !== undefined) row.importance_weights = patch.importanceWeights;
   check(await db.from("versions").update(row).eq("id", id));
 }
 

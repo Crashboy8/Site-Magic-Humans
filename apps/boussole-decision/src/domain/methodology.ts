@@ -25,14 +25,14 @@ export function talentSentence(t: Pick<TalentUnique, "mecanisme" | "contexteDecl
   return `Je ${m} dans un environnement où ${c}, afin de ${s}.`;
 }
 
-/** Niveaux d'importance, du plus fort au plus faible, avec leur poids dans le score. */
-export const IMPORTANCE_LEVELS: { value: Importance; label: string; weight: number; hint: string }[] = [
-  { value: "critique", label: "Critique", weight: 5, hint: "Le plus important." },
-  { value: "tres_important", label: "Très important", weight: 4, hint: "" },
-  { value: "important", label: "Important", weight: 3, hint: "" },
-  { value: "moyen", label: "Moyennement important", weight: 2, hint: "" },
-  { value: "bof", label: "Bof", weight: 1, hint: "Compte un peu." },
-  { value: "bonus", label: "Bonus", weight: 0, hint: "Si c'est là, c'est bien ; sinon, ce n'est pas grave." },
+/** Niveaux d'importance, du plus fort au plus faible. Leur poids dépend du barème de la version. */
+export const IMPORTANCE_LEVELS: { value: Importance; label: string; hint: string }[] = [
+  { value: "critique", label: "Critique", hint: "Le plus important." },
+  { value: "tres_important", label: "Très important", hint: "" },
+  { value: "important", label: "Important", hint: "" },
+  { value: "moyen", label: "Moyennement important", hint: "" },
+  { value: "bof", label: "Bof", hint: "Compte un peu." },
+  { value: "bonus", label: "Bonus", hint: "Si c'est là, c'est bien ; sinon, ce n'est pas grave." },
 ];
 
 export const IMPORTANCE_BY_VALUE = Object.fromEntries(IMPORTANCE_LEVELS.map((l) => [l.value, l])) as Record<

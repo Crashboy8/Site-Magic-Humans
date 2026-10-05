@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Button, Input, Notice, cx } from "@/components/ui";
 import { supabaseBrowser } from "@/lib/supabase/client";
@@ -15,6 +15,7 @@ import {
   updateCategory,
   updateCriterion,
   updateOpportunity,
+  updateVersion,
   type CriterionInput,
 } from "@/data/repository";
 import {
@@ -26,8 +27,17 @@ import {
   NON_NEGOTIABLE_HINT,
   type CriterionTemplate,
 } from "@/domain/methodology";
-import { formatScore, rankOpportunities, type OpportunityResult } from "@/domain/scoring";
-import type { Category, CoachComment, Criterion, Evaluation, EvaluationValue, Opportunity } from "@/domain/types";
+import { DEFAULT_WEIGHTS, MAX_WEIGHT, formatScore, rankOpportunities, type OpportunityResult } from "@/domain/scoring";
+import type {
+  Category,
+  CoachComment,
+  Criterion,
+  Evaluation,
+  EvaluationValue,
+  Importance,
+  ImportanceWeights,
+  Opportunity,
+} from "@/domain/types";
 import { InlineComments, type CommentViewer } from "@/features/comments/CommentThread";
 import { IMPORTANCE_CLASS, evaluationClass } from "./styles";
 
@@ -37,6 +47,8 @@ interface Props {
   criteria: Criterion[];
   opportunities: Opportunity[];
   evaluations: Evaluation[];
+  /** Barème de la version (par défaut : Critique ×5 … Bof ×1, Bonus +1). */
+  weights?: ImportanceWeights;
   readOnly: boolean;
   comments: CoachComment[];
   commentViewer: CommentViewer | null;
@@ -53,13 +65,16 @@ export function DecisionTable(props: Props) {
 const EVAL_ORDER: EvaluationValue[] = ["oui", "p75", "p50", "p25", "non", "inconnu"];
 const key = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
 
-function Table({ versionId, readOnly, comments, commentViewer, ...initial }: Props) {
+function Table({ versionId, readOnly, comments, commentViewer, weights: initialWeights = DEFAULT_WEIGHTS, ...initial }: Props) {
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
   const [categories, setCategories] = useState(initial.categories);
   const [criteria, setCriteria] = useState(initial.criteria);
   const [opportunities, setOpportunities] = useState(initial.opportunities);
   const [cells, setCells] = useState(() => new Map(initial.evaluations.map((e) => [key(e.criterionId, e.opportunityId), e.value])));
+  const [weights, setWeights] = useState(initialWeights);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const theadRef = useRef<HTMLTableSectionElement>(null);
   const [mobileIndex, setMobileIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,7 +86,10 @@ function Table({ versionId, readOnly, comments, commentViewer, ...initial }: Pro
       }),
     [cells],
   );
-  const ranking = useMemo(() => rankOpportunities(opportunities, criteria, evaluations), [opportunities, criteria, evaluations]);
+  const ranking = useMemo(
+    () => rankOpportunities(opportunities, criteria, evaluations, weights),
+    [opportunities, criteria, evaluations, weights],
+  );
   const resultById = new Map(ranking.map((r, i) => [r.opportunity.id, { result: r, rank: i + 1 }]));
 
   const byCategory = useMemo(() => {
@@ -169,9 +187,14 @@ function Table({ versionId, readOnly, comments, commentViewer, ...initial }: Pro
     if (created) setCategories((cs) => [...cs, created]);
   }
 
+  // --- Barème -------------------------------------------------------------------------
+  function changeWeights(next: ImportanceWeights) {
+    setWeights(next);
+    guarded(updateVersion(db, versionId, { importanceWeights: next }));
+  }
+
   const colSpan = sortedOpps.length + 1 + (readOnly ? 0 : 1);
-  const commentsFor = (type: "criterion" | "opportunity", id: string) =>
-    comments.filter((c) => c.targetType === type && c.targetId === id);
+  const commentsFor = (type: "criterion" | "opportunity", id: string) => comments.filter((c) => c.targetType === type && c.targetId === id);
 
   return (
     <div className="space-y-4">
@@ -184,199 +207,224 @@ function Table({ versionId, readOnly, comments, commentViewer, ...initial }: Pro
       </div>
       {error && <Notice tone="error">{error}</Notice>}
 
-      {sortedOpps.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto sm:hidden" role="tablist" aria-label="Opportunité affichée">
-          {sortedOpps.map((o, i) => (
-            <button
-              key={o.id}
-              type="button"
-              role="tab"
-              aria-selected={o.id === activeOpp?.id}
-              onClick={() => setMobileIndex(i)}
-              className={cx(
-                "shrink-0 rounded-full px-4 py-2 text-sm",
-                o.id === activeOpp?.id ? "bg-ink text-cream" : "bg-paper text-ink-soft border border-line",
-              )}
-            >
-              {o.name.length > 22 ? `${o.name.slice(0, 22)}…` : o.name}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="overflow-x-auto rounded-2xl border border-line bg-paper">
-        <table className="w-full border-separate border-spacing-0 text-[15px]">
-          <thead>
-            <tr>
-              <th scope="col" className="sticky left-0 z-20 w-[45%] min-w-[180px] border-b border-r border-line bg-paper px-3 py-3 text-left font-medium sm:min-w-[300px]">
-                Critère <span className="font-normal text-ink-soft">· importance</span>
-              </th>
-              {sortedOpps.map((o) => (
-                <th key={o.id} scope="col" className={cx("min-w-[150px] border-b border-l border-line px-3 py-3 text-left align-top font-normal", colClass(o))}>
-                  <OpportunityHeader
-                    opportunity={o}
-                    readOnly={readOnly}
-                    onRename={(name) => {
-                      setOpportunities((os) => os.map((x) => (x.id === o.id ? { ...x, name } : x)));
-                      return updateOpportunity(db, o.id, { name });
-                    }}
-                    onDelete={() => removeOpportunity(o)}
-                  />
-                  {commentViewer && (
-                    <div className="mt-2">
-                      <InlineComments
-                        versionId={versionId}
-                        targetType="opportunity"
-                        targetId={o.id}
-                        initial={commentsFor("opportunity", o.id)}
-                        viewer={commentViewer}
-                      />
-                    </div>
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
+        <WeightsPanel weights={weights} readOnly={readOnly} onChange={changeWeights} />
+        <div className="min-w-0 space-y-4 lg:order-first">
+          {sortedOpps.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto sm:hidden" role="tablist" aria-label="Opportunité affichée">
+              {sortedOpps.map((o, i) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={o.id === activeOpp?.id}
+                  onClick={() => setMobileIndex(i)}
+                  className={cx(
+                    "shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
+                    o.id === activeOpp?.id ? "bg-ink text-cream" : "bg-paper text-ink-soft border border-line",
                   )}
-                </th>
+                >
+                  {o.name.length > 22 ? `${o.name.slice(0, 22)}…` : o.name}
+                </button>
               ))}
-              {!readOnly && (
-                <th scope="col" className="border-b border-l border-line px-3 py-3 text-left font-normal">
-                  <button type="button" onClick={addOpportunity} className="whitespace-nowrap text-[15px] font-medium text-link hover:underline">
-                    + Opportunité
-                  </button>
-                </th>
-              )}
-            </tr>
-          </thead>
+            </div>
+          )}
 
-          {categories.map((category) => {
-            const definition = category.key ? CATEGORY_BY_KEY[category.key] : null;
-            const list = byCategory.get(category.id) ?? [];
-            const existing = new Set(list.map((c) => c.label.trim().toLowerCase()));
-            const ideas = definition?.examples.filter((e) => !existing.has(e.label.toLowerCase())).slice(0, 6) ?? [];
-            if (readOnly && list.length === 0) return null;
-            return (
-              <tbody key={category.id}>
+          <FrozenHeader scrollRef={scrollRef} theadRef={theadRef} />
+          <div ref={scrollRef} className="overflow-x-auto rounded-2xl border border-line bg-paper">
+            <table className="w-full border-separate border-spacing-0 text-[15px]">
+              <thead ref={theadRef}>
                 <tr>
-                  <th scope="rowgroup" colSpan={colSpan} className="border-b border-line bg-sand px-3 py-2.5 text-left">
-                    <span className="sticky left-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      {definition || readOnly ? (
-                        <span className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">{category.label}</span>
-                      ) : (
-                        <CustomCategoryName
-                          category={category}
-                          canDelete={list.length === 0}
-                          onRename={(label) => {
-                            setCategories((cs) => cs.map((c) => (c.id === category.id ? { ...c, label } : c)));
-                            guarded(updateCategory(db, category.id, { label }));
-                          }}
-                          onDelete={() => {
-                            setCategories((cs) => cs.filter((c) => c.id !== category.id));
-                            guarded(deleteCategory(db, category.id));
-                          }}
-                        />
-                      )}
-                      {definition && <span className="text-[13px] font-normal text-ink-soft">{definition.subtitle}</span>}
-                    </span>
+                  <th
+                    scope="col"
+                    className="sticky left-0 z-20 w-[45%] min-w-[180px] border-b border-r border-line bg-paper px-3 py-3 text-left font-medium sm:min-w-[300px]"
+                  >
+                    Critère <span className="font-normal text-ink-soft">· importance</span>
                   </th>
-                </tr>
-                {list.map((c, i) => (
-                  <tr key={c.id} className="group">
-                    <th scope="row" className="sticky left-0 z-10 border-b border-r border-line bg-paper px-3 py-2.5 text-left align-top font-normal">
-                      <CriterionCell
-                        criterion={c}
+                  {sortedOpps.map((o) => (
+                    <th
+                      key={o.id}
+                      scope="col"
+                      className={cx("min-w-[150px] border-b border-l border-line px-3 py-3 text-left align-top font-normal", colClass(o))}
+                    >
+                      <OpportunityHeader
+                        opportunity={o}
                         readOnly={readOnly}
-                        isFirst={i === 0}
-                        isLast={i === list.length - 1}
-                        onPatch={(patch, tracked) => patchCriterion(c, patch, tracked)}
-                        onMove={(d) => moveCriterion(c, d)}
-                        onDelete={() => removeCriterion(c)}
+                        onRename={(name) => {
+                          setOpportunities((os) => os.map((x) => (x.id === o.id ? { ...x, name } : x)));
+                          return updateOpportunity(db, o.id, { name });
+                        }}
+                        onDelete={() => removeOpportunity(o)}
                       />
                       {commentViewer && (
                         <div className="mt-2">
                           <InlineComments
                             versionId={versionId}
-                            targetType="criterion"
-                            targetId={c.id}
-                            initial={commentsFor("criterion", c.id)}
+                            targetType="opportunity"
+                            targetId={o.id}
+                            initial={commentsFor("opportunity", o.id)}
                             viewer={commentViewer}
                           />
                         </div>
                       )}
                     </th>
-                    {sortedOpps.map((o) => {
-                      const value = cells.get(key(c.id, o.id)) ?? null;
-                      return (
-                        <td key={o.id} className={cx("border-b border-l border-line px-2 py-2.5 text-center align-middle", colClass(o))}>
-                          <EvaluationSelect
-                            value={value}
-                            direction={c.direction}
+                  ))}
+                  {!readOnly && (
+                    <th scope="col" className="border-b border-l border-line px-3 py-3 text-left font-normal">
+                      <button
+                        type="button"
+                        onClick={addOpportunity}
+                        className="whitespace-nowrap text-[15px] font-medium text-link hover:underline"
+                      >
+                        + Opportunité
+                      </button>
+                    </th>
+                  )}
+                </tr>
+              </thead>
+
+              {categories.map((category) => {
+                const definition = category.key ? CATEGORY_BY_KEY[category.key] : null;
+                const list = byCategory.get(category.id) ?? [];
+                const existing = new Set(list.map((c) => c.label.trim().toLowerCase()));
+                const ideas = definition?.examples.filter((e) => !existing.has(e.label.toLowerCase())).slice(0, 6) ?? [];
+                if (readOnly && list.length === 0) return null;
+                return (
+                  <tbody key={category.id}>
+                    <tr>
+                      <th scope="rowgroup" colSpan={colSpan} className="border-b border-line bg-sand px-3 py-2.5 text-left">
+                        <span className="sticky left-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                          {definition || readOnly ? (
+                            <span className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">{category.label}</span>
+                          ) : (
+                            <CustomCategoryName
+                              category={category}
+                              canDelete={list.length === 0}
+                              onRename={(label) => {
+                                setCategories((cs) => cs.map((c) => (c.id === category.id ? { ...c, label } : c)));
+                                guarded(updateCategory(db, category.id, { label }));
+                              }}
+                              onDelete={() => {
+                                setCategories((cs) => cs.filter((c) => c.id !== category.id));
+                                guarded(deleteCategory(db, category.id));
+                              }}
+                            />
+                          )}
+                          {definition && <span className="text-[13px] font-normal text-ink-soft">{definition.subtitle}</span>}
+                        </span>
+                      </th>
+                    </tr>
+                    {list.map((c, i) => (
+                      <tr key={c.id} className="group">
+                        <th
+                          scope="row"
+                          className="sticky left-0 z-10 border-b border-r border-line bg-paper px-3 py-2.5 text-left align-top font-normal"
+                        >
+                          <CriterionCell
+                            criterion={c}
                             readOnly={readOnly}
-                            label={`${o.name} — ${c.label}`}
-                            onChange={(v) => setCell(c.id, o.id, v)}
+                            isFirst={i === 0}
+                            isLast={i === list.length - 1}
+                            onPatch={(patch, tracked) => patchCriterion(c, patch, tracked)}
+                            onMove={(d) => moveCriterion(c, d)}
+                            onDelete={() => removeCriterion(c)}
+                          />
+                          {commentViewer && (
+                            <div className="mt-2">
+                              <InlineComments
+                                versionId={versionId}
+                                targetType="criterion"
+                                targetId={c.id}
+                                initial={commentsFor("criterion", c.id)}
+                                viewer={commentViewer}
+                              />
+                            </div>
+                          )}
+                        </th>
+                        {sortedOpps.map((o) => {
+                          const value = cells.get(key(c.id, o.id)) ?? null;
+                          return (
+                            <td
+                              key={o.id}
+                              className={cx("border-b border-l border-line px-2 py-2.5 text-center align-middle", colClass(o))}
+                            >
+                              <EvaluationSelect
+                                value={value}
+                                direction={c.direction}
+                                readOnly={readOnly}
+                                label={`${o.name} — ${c.label}`}
+                                onChange={(v) => setCell(c.id, o.id, v)}
+                              />
+                            </td>
+                          );
+                        })}
+                        {!readOnly && <td className="border-b border-l border-line" />}
+                      </tr>
+                    ))}
+                    {!readOnly && (
+                      <tr>
+                        <td colSpan={colSpan} className="border-b border-line px-3 py-2">
+                          <AddCriterion
+                            categoryLabel={category.label}
+                            ideas={ideas}
+                            onAdd={(label) =>
+                              addCriterion(category, {
+                                label,
+                                ...(definition?.defaults ?? { importance: "important", nonNegotiable: false, direction: "TOWARDS" }),
+                              })
+                            }
+                            onAddIdea={(idea) => addCriterion(category, idea)}
                           />
                         </td>
-                      );
-                    })}
-                    {!readOnly && <td className="border-b border-l border-line" />}
-                  </tr>
-                ))}
-                {!readOnly && (
-                  <tr>
-                    <td colSpan={colSpan} className="border-b border-line px-3 py-2">
-                      <AddCriterion
-                        categoryLabel={category.label}
-                        ideas={ideas}
-                        onAdd={(label) =>
-                          addCriterion(category, {
-                            label,
-                            ...(definition?.defaults ?? { importance: "important", nonNegotiable: false, direction: "TOWARDS" }),
-                          })
-                        }
-                        onAddIdea={(idea) => addCriterion(category, idea)}
-                      />
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            );
-          })}
-
-          {!readOnly && (
-            <tbody>
-              <tr>
-                <td colSpan={colSpan} className="border-b border-line bg-cream/60 px-3 py-2">
-                  <div className="sticky left-3 max-w-[calc(100vw-4rem)] sm:max-w-3xl">
-                    <NewCategory onAdd={addCategory} />
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          )}
-
-          <tfoot>
-            <tr>
-              <th scope="row" className="sticky left-0 z-10 border-t-2 border-ink bg-paper px-3 py-4 text-left align-top">
-                <span className="block font-medium">Score d&apos;alignement</span>
-                <span className="block text-[13px] font-normal text-ink-soft">Une boussole, pas un verdict.</span>
-              </th>
-              {sortedOpps.map((o) => {
-                const entry = resultById.get(o.id);
-                return (
-                  <td key={o.id} className={cx("border-l border-t-2 border-line border-t-ink px-2 py-4 text-center align-top", colClass(o))}>
-                    {entry && <ScoreCell result={entry.result} rank={entry.rank} />}
-                  </td>
+                      </tr>
+                    )}
+                  </tbody>
                 );
               })}
-              {!readOnly && <td className="border-l border-t-2 border-line border-t-ink" />}
-            </tr>
-          </tfoot>
-        </table>
+
+              {!readOnly && (
+                <tbody>
+                  <tr>
+                    <td colSpan={colSpan} className="border-b border-line bg-cream/60 px-3 py-2">
+                      <div className="sticky left-3 max-w-[calc(100vw-4rem)] sm:max-w-3xl">
+                        <NewCategory onAdd={addCategory} />
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              )}
+
+              <tfoot>
+                <tr>
+                  <th scope="row" className="sticky left-0 z-10 border-t-2 border-ink bg-paper px-3 py-4 text-left align-top">
+                    <span className="block font-medium">Score d&apos;alignement</span>
+                    <span className="block text-[13px] font-normal text-ink-soft">Une boussole, pas un verdict.</span>
+                  </th>
+                  {sortedOpps.map((o) => {
+                    const entry = resultById.get(o.id);
+                    return (
+                      <td
+                        key={o.id}
+                        className={cx("border-l border-t-2 border-line border-t-ink px-2 py-4 text-center align-top", colClass(o))}
+                      >
+                        {entry && <ScoreCell result={entry.result} rank={entry.rank} />}
+                      </td>
+                    );
+                  })}
+                  {!readOnly && <td className="border-l border-t-2 border-line border-t-ink" />}
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {opportunities.length === 0 && !readOnly && (
+            <Notice>
+              Ajoute une première opportunité avec le bouton <strong className="font-medium">« + Opportunité »</strong> en haut à droite du
+              tableau (par exemple : « Salariée chez… », « Me lancer en indépendante »).
+            </Notice>
+          )}
+        </div>
       </div>
-
-      {opportunities.length === 0 && !readOnly && (
-        <Notice>
-          Ajoute une première opportunité avec le bouton <strong className="font-medium">« + Opportunité »</strong> en haut à droite du
-          tableau (par exemple : « Salariée chez… », « Me lancer en indépendante »).
-        </Notice>
-      )}
-
 
       <Legend />
     </div>
@@ -395,7 +443,7 @@ function OpportunityHeader({
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
-  if (readOnly) return <span className="block font-serif text-[19px] italic leading-tight">{opportunity.name}</span>;
+  if (readOnly) return <span data-opp-name className="block text-[16px] font-semibold leading-snug">{opportunity.name}</span>;
   return (
     <div className="flex items-start gap-1">
       <textarea
@@ -404,7 +452,7 @@ function OpportunityHeader({
         rows={1}
         maxLength={120}
         onChange={(e) => setName(e.target.value)}
-        className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent px-1 font-serif text-[19px] italic leading-tight hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
+        className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent px-1 text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
       />
       <button
         type="button"
@@ -435,7 +483,10 @@ function CriterionCell({
   onMove: (delta: -1 | 1) => void;
   onDelete: () => void;
 }) {
-  const [label, setLabel] = useAutosavedValue(criterion.label, (v) => onPatch({ label: v.trim() || criterion.label }, true) as Promise<void>);
+  const [label, setLabel] = useAutosavedValue(
+    criterion.label,
+    (v) => onPatch({ label: v.trim() || criterion.label }, true) as Promise<void>,
+  );
   const importance = IMPORTANCE_BY_VALUE[criterion.importance];
 
   if (readOnly) {
@@ -443,9 +494,15 @@ function CriterionCell({
       <div className="space-y-1.5">
         <p className="leading-snug">{criterion.label}</p>
         <div className="flex flex-wrap gap-1.5">
-          <span className={cx("rounded-full px-2.5 py-0.5 text-xs font-medium", IMPORTANCE_CLASS[criterion.importance])}>{importance.label}</span>
-          {criterion.nonNegotiable && <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs text-danger">🔒 non négociable</span>}
-          {criterion.direction === "AWAY_FROM" && <span className="rounded-full bg-blush px-2 py-0.5 text-xs text-accent-deep">↩ à éviter</span>}
+          <span className={cx("rounded-full px-2.5 py-0.5 text-xs font-medium", IMPORTANCE_CLASS[criterion.importance])}>
+            {importance.label}
+          </span>
+          {criterion.nonNegotiable && (
+            <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs text-danger">🔒 non négociable</span>
+          )}
+          {criterion.direction === "AWAY_FROM" && (
+            <span className="rounded-full bg-blush px-2 py-0.5 text-xs text-accent-deep">↩ à éviter</span>
+          )}
         </div>
       </div>
     );
@@ -467,7 +524,10 @@ function CriterionCell({
           title={importance.hint || undefined}
           value={criterion.importance}
           onChange={(e) => onPatch({ importance: e.target.value as Criterion["importance"] })}
-          className={cx("w-full shrink-0 cursor-pointer appearance-none rounded-full sm:w-[132px] px-2 py-1.5 text-center text-xs font-medium", IMPORTANCE_CLASS[criterion.importance])}
+          className={cx(
+            "w-full shrink-0 cursor-pointer appearance-none rounded-full sm:w-[132px] px-2 py-1.5 text-center text-xs font-medium",
+            IMPORTANCE_CLASS[criterion.importance],
+          )}
         >
           {IMPORTANCE_LEVELS.map((l) => (
             <option key={l.value} value={l.value}>
@@ -609,9 +669,7 @@ function ScoreCell({ result, rank }: { result: OpportunityResult; rank: number }
           {rank === 1 ? "er" : "e"}
         </span>
       )}
-      {result.status === "non_conforme" && (
-        <p className="text-xs font-medium text-danger">⚠️ Ne respecte pas tes non-négociables</p>
-      )}
+      {result.status === "non_conforme" && <p className="text-xs font-medium text-danger">⚠️ Ne respecte pas tes non-négociables</p>}
       {result.antiContextAlerts.length > 0 && (
         <p className="text-xs font-medium text-danger">
           ⚡ {result.antiContextAlerts.some((a) => a.severity === "ligne_rouge") ? "Ligne rouge franchie" : "Anti-Contexte présent"}
@@ -766,20 +824,193 @@ function NewCategory({ onAdd }: { onAdd: (label: string) => Promise<void> }) {
   );
 }
 
+/**
+ * Ligne des opportunités figée, comme une ligne figée dans un tableur : quand l'en-tête du tableau
+ * sort de l'écran, une copie reste collée sous le bandeau du site, alignée sur les colonnes
+ * (y compris quand on fait défiler le tableau sur le côté).
+ */
+function FrozenHeader({
+  scrollRef,
+  theadRef,
+}: {
+  scrollRef: RefObject<HTMLDivElement | null>;
+  theadRef: RefObject<HTMLTableSectionElement | null>;
+}) {
+  const [layout, setLayout] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    scrollLeft: number;
+    cells: { width: number; label: string }[];
+  } | null>(null);
+
+  useEffect(() => {
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const box = scrollRef.current;
+      const row = theadRef.current?.rows[0];
+      if (!box || !row) return;
+      const chrome = document.querySelector<HTMLElement>("header[data-chrome]");
+      const top = chrome && getComputedStyle(chrome).position === "sticky" ? chrome.getBoundingClientRect().height : 0;
+      const head = row.getBoundingClientRect();
+      const boxRect = box.getBoundingClientRect();
+      // Visible seulement quand l'en-tête est passé sous le bandeau et que le tableau occupe encore l'écran.
+      if (head.bottom > top || boxRect.bottom < top + 120) {
+        setLayout(null);
+        return;
+      }
+      const cells = Array.from(row.cells).map((cell) => ({
+        width: cell.getBoundingClientRect().width,
+        // Nom de l'opportunité (champ modifiable ou texte en lecture seule) ; vide pour la colonne « + Opportunité ».
+        label: cell.querySelector("textarea")?.value ?? cell.querySelector("[data-opp-name]")?.textContent ?? "",
+      }));
+      setLayout({ top, left: boxRect.left, width: boxRect.width, scrollLeft: box.scrollLeft, cells });
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    const box = scrollRef.current;
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    box?.addEventListener("scroll", schedule, { passive: true });
+    const observer = new ResizeObserver(schedule);
+    if (theadRef.current) observer.observe(theadRef.current);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      box?.removeEventListener("scroll", schedule);
+      observer.disconnect();
+    };
+  }, [scrollRef, theadRef]);
+
+  if (!layout) return null;
+  const [first, ...rest] = layout.cells;
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed z-20 overflow-hidden rounded-b-xl border border-line bg-paper shadow-md"
+      style={{ top: layout.top, left: layout.left, width: layout.width }}
+    >
+      <div className="flex" style={{ transform: `translateX(${-layout.scrollLeft}px)` }}>
+        <div className="shrink-0" style={{ width: first.width }} />
+        {rest.map((cell, i) =>
+          cell.width === 0 ? null : (
+            <div
+              key={i}
+              className="line-clamp-2 shrink-0 border-l border-line px-3 py-2 text-[15px] font-semibold leading-tight"
+              style={{ width: cell.width }}
+            >
+              {cell.label}
+            </div>
+          ),
+        )}
+      </div>
+      <div
+        className="absolute inset-y-0 left-0 flex items-center border-r border-line bg-paper px-3 text-[15px] font-medium"
+        style={{ width: first.width }}
+      >
+        Critère <span className="ml-1 font-normal text-ink-soft">· importance</span>
+      </div>
+    </div>
+  );
+}
+
+/** Barème : poids de chaque niveau d'importance, modifiable par la personne. */
+function WeightsPanel({
+  weights,
+  readOnly,
+  onChange,
+}: {
+  weights: ImportanceWeights;
+  readOnly: boolean;
+  onChange: (next: ImportanceWeights) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const isDefault = IMPORTANCE_LEVELS.every((l) => weights[l.value] === DEFAULT_WEIGHTS[l.value]);
+  const summary = IMPORTANCE_LEVELS.map((l) => `${l.label} ${l.value === "bonus" ? "+" : "×"}${weights[l.value]}`).join(" · ");
+  const set = (level: Importance, value: number) => onChange({ ...weights, [level]: Math.min(MAX_WEIGHT, Math.max(0, value)) });
+
+  return (
+    <aside aria-labelledby="bareme-titre" className="rounded-2xl border border-line bg-paper p-4 lg:sticky lg:top-24">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="bareme-contenu"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-3 text-left lg:pointer-events-none"
+      >
+        <span>
+          <span id="bareme-titre" className="block font-serif text-xl italic">
+            ⚖️ {readOnly ? "Barème" : "Mon barème"}
+          </span>
+          <span className="block text-xs text-ink-soft lg:hidden">{summary}</span>
+        </span>
+        <span aria-hidden className="text-ink-soft lg:hidden">
+          {open ? "▴" : "▾"}
+        </span>
+      </button>
+
+      <div id="bareme-contenu" className={cx("mt-3 space-y-3", open ? "block" : "hidden", "lg:block")}>
+        <p className="text-[13px] leading-snug text-ink-soft">
+          Le poids de chaque niveau dans le score. {readOnly ? "" : "Ajuste-le à ta façon : le score se recalcule aussitôt."}
+        </p>
+        <ul className="space-y-1.5">
+          {IMPORTANCE_LEVELS.map((l) => {
+            const w = weights[l.value];
+            const prefix = l.value === "bonus" ? "+" : "×";
+            return (
+              <li key={l.value} className="flex items-center justify-between gap-2">
+                <span className={cx("rounded-full px-2.5 py-1 text-xs font-medium", IMPORTANCE_CLASS[l.value])}>{l.label}</span>
+                {readOnly ? (
+                  <span className="text-sm font-medium tabular-nums">
+                    {prefix}
+                    {w}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <IconButton label={`Baisser le poids de « ${l.label} »`} disabled={w <= 0} onClick={() => set(l.value, w - 1)}>
+                      −
+                    </IconButton>
+                    <span className="w-7 text-center text-sm font-medium tabular-nums" aria-live="polite">
+                      {prefix}
+                      {w}
+                    </span>
+                    <IconButton
+                      label={`Augmenter le poids de « ${l.label} »`}
+                      disabled={w >= MAX_WEIGHT}
+                      onClick={() => set(l.value, w + 1)}
+                    >
+                      +
+                    </IconButton>
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="text-[12px] leading-snug text-ink-soft">
+          <b className="font-medium text-ink">Bonus</b> : ajoute jusqu&apos;à ce nombre de points si c&apos;est là, n&apos;en enlève jamais.
+          Un niveau à 0 ne compte pas.
+        </p>
+        {!readOnly && !isDefault && (
+          <button type="button" onClick={() => onChange({ ...DEFAULT_WEIGHTS })} className="text-sm text-link underline underline-offset-4">
+            Revenir au barème conseillé
+          </button>
+        )}
+      </div>
+    </aside>
+  );
+}
+
 function Legend() {
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-ink-soft">
-      {IMPORTANCE_LEVELS.filter((l) => l.weight > 0).map((l) => (
-        <span key={l.value}>
-          <b className="font-medium text-ink">{l.label}</b> ×{l.weight}
-        </span>
-      ))}
       <span>
-        <b className="font-medium text-ink">Bonus</b> : ajoute des points si c&apos;est là, n&apos;en enlève jamais
-      </span>
-      <span>
-        <b className="font-medium text-ink">🔒 Non négociable</b> : s&apos;il n&apos;est pas pleinement respecté, l&apos;opportunité est signalée et
-        classée après les autres
+        <b className="font-medium text-ink">🔒 Non négociable</b> : s&apos;il n&apos;est pas pleinement respecté, l&apos;opportunité est
+        signalée et classée après les autres
       </span>
       <span>
         <b className="font-medium text-ink">↩ À éviter</b> : on évalue la présence du risque
