@@ -55,15 +55,6 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - **Profil** : en plus du Talent Unique et de l'Anti-Contexte, « Mes contextes vécus » (situations de réussite
   et d'échec), rappelés dans les garde-fous.
 
-- **Carte du talent** (`/carte-du-talent/`, en préparation, non indexée, accessible sans compte) — étape 1 :
-  modèle gelé (`src/domain/carte.ts`, version 1 : critères personnalisés avec poids 1 à 5 ; lieux avec un score
-  0 à 100 par critère, un statut — à explorer, en cours, conquis, écarté — et une position, ou placement
-  automatique) ; score global = moyenne pondérée, jamais stockée. La carte est enregistrée dans le navigateur
-  (`localStorage`), avec export / import d'un fichier JSON et une démo de 11 opportunités (`src/content/carte-demo.ts`).
-  Rendu SVG : chaque lieu soulève le relief selon son score (courbes de niveau `d3-contour`, teintes
-  hypsométriques, rivages) ; les meilleurs au cœur du territoire, les plus faibles en îles. Textes regroupés
-  dans `src/features/carte/textes.ts` (préparation de la version anglaise).
-
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
 - Satisfaction : `TOWARDS` → valeur évaluée ; `AWAY_FROM` → 100 − présence.
