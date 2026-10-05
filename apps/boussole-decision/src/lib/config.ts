@@ -14,6 +14,7 @@ export function absoluteUrl(path: string, fallbackOrigin?: string): string {
 export const PUBLIC_PATHS = [
   "/bienvenue",
   "/exemple",
+  "/carte-du-talent",
   "/connexion",
   "/inscription",
   "/mot-de-passe-oublie",
