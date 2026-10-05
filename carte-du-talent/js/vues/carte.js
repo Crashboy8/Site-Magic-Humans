@@ -101,6 +101,9 @@
     const plages = [];
     const tuiles = [];
     const etiquettes = [];
+    const eclats = [];
+    const brumes = [];
+    const maintenant = Date.now();
 
     defs.push(
       '<radialGradient id="ct-mer" cx="50%" cy="45%" r="75%">' +
@@ -112,6 +115,13 @@
         '<stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient>',
       '<radialGradient id="ct-or" cx="50%" cy="35%" r="70%">' +
         '<stop offset="0" stop-color="#FFE7A3"/><stop offset="1" stop-color="#E9B23E"/></radialGradient>',
+      '<radialGradient id="ct-eclat">' +
+        '<stop offset="0" stop-color="#FFF4C2" stop-opacity="1"/><stop offset=".45" stop-color="#FFD866" stop-opacity=".75"/>' +
+        '<stop offset="1" stop-color="#FFC93D" stop-opacity="0"/></radialGradient>',
+      '<radialGradient id="ct-lueur" cx="50%" cy="45%" r="60%">' +
+        '<stop offset="0" stop-color="#FFFBE6" stop-opacity="1"/><stop offset=".6" stop-color="#FFE58A" stop-opacity=".55"/>' +
+        '<stop offset="1" stop-color="#FFD24D" stop-opacity=".15"/></radialGradient>',
+      '<filter id="ct-brume" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>',
       '<filter id="ct-ombre" x="-20%" y="-20%" width="140%" height="150%">' +
         '<feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2B4A55" flood-opacity=".22"/></filter>'
     );
@@ -140,6 +150,25 @@
 
       const c = parId[cs.id];
       if (!c) return;
+
+      // Brouillard de guerre : territoire à conquérir pas encore exploré.
+      if (CT.regles.estCache(carte, c)) {
+        tuiles.push('<g class="tuile tuile-brouillard" data-id="' + O.echapper(c.id) +
+          '" tabindex="0" role="button" aria-label="Territoire inexploré">' +
+          '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#E9EFF1" stroke="#C9D5DA" stroke-width="2" stroke-dasharray="3 6"/>' +
+          O.iconeSvg('cloud', x, y - 4, 26, '#9FB2BA', 2) +
+          '<text class="nom nom-brouillard" x="' + x.toFixed(1) + '" y="' + (y + 26).toFixed(1) + '" fill="#8FA3AB">?</text></g>');
+        brumes.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (T * 0.95).toFixed(1) + '"/>');
+        return;
+      }
+
+      // Éclat : halo doré selon le flow des 30 derniers jours (calque séparé, la tuile ne bouge pas).
+      const e = CT.regles.eclat(carte, c.id, maintenant);
+      if (e.niveau > 0) {
+        eclats.push('<circle class="eclat eclat-' + e.niveau + '" data-id="' + O.echapper(c.id) + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) +
+          '" r="' + (T * (1.05 + 0.13 * e.niveau)).toFixed(1) + '" fill="url(#ct-eclat)"/>');
+      }
+
       const a = aspect(c, carte);
       let fond = a.fond;
       // Compétence de jonction : la tuile mêle les couleurs de ses deux régions.
@@ -152,7 +181,7 @@
         fond = 'url(#' + gid + ')';
       }
 
-      let g = '<g class="tuile tuile-' + c.statut + '" data-id="' + O.echapper(c.id) + '" opacity="' + a.opacite +
+      let g = '<g class="tuile tuile-' + c.statut + (e.niveau ? ' brille-' + e.niveau : '') + '" data-id="' + O.echapper(c.id) + '" opacity="' + a.opacite +
         '" tabindex="0" role="button" aria-label="' + O.echapper(c.nom + ' — ' + CT.schema.LIBELLES_STATUT[c.statut]) + '">';
       if (a.relief) g += '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="' + a.tranche + '"/>';
       g += '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="' + fond + '" stroke="' + a.contour +
@@ -160,6 +189,14 @@
       if (a.relief) g += '<polygon points="' + polygone(x, y, T * 0.94) + '" fill="url(#ct-lumiere)" pointer-events="none"/>';
       if (c.statut === 'natale') {
         g += '<polygon points="' + polygone(x, y, T * 0.78) + '" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/>';
+      }
+      // Lumière intérieure et liseré doré : visibles même au milieu du continent.
+      if (e.niveau > 0) {
+        g += '<polygon class="lueur lueur-' + e.niveau + '" points="' + polygone(x, y, T * 0.94) + '" fill="url(#ct-lueur)" pointer-events="none"/>';
+      }
+      if (e.niveau >= 2) {
+        g += '<polygon class="liseret-eclat liseret-' + e.niveau + '" points="' + polygone(x, y, T * 0.86) + '" fill="none" stroke="#FFD24D" stroke-width="' +
+          (1 + e.niveau) + '" pointer-events="none"/>';
       }
       if (c.priorite === 1) {
         g += '<g class="drapeau">' + O.iconeSvg('flag', x + 24, y - 30, 15, '#C2412D', 2.2) + '</g>';
@@ -201,7 +238,9 @@
       '<rect x="' + (cadre.x - 4000) + '" y="' + (cadre.y - 4000) + '" width="' + (cadre.l + 8000) + '" height="' + (cadre.h + 8000) + '" fill="url(#ct-vagues)"/>' +
       '<g class="hauts-fonds" fill="' + COULEURS.hautFond + '" opacity=".75">' + hautsFonds.join('') + '</g>' +
       '<g class="plages" fill="' + COULEURS.sable + '">' + plages.join('') + '</g>' +
+      '<g class="eclats">' + eclats.join('') + '</g>' +
       '<g class="tuiles" filter="url(#ct-ombre)">' + tuiles.join('') + '</g>' +
+      '<g class="brumes" fill="#F4F8FA" filter="url(#ct-brume)" pointer-events="none">' + brumes.join('') + '</g>' +
       '<g class="etiquettes etiquettes-zones">' + etiquettes.join('') + '</g>' +
       '<g class="etiquettes etiquettes-mer">' + etiquettesMer.join('') + '</g>' + rose +
       '<g class="calque-interaction"></g>';

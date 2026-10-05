@@ -28,8 +28,8 @@
       <button type="button" class="bouton-icone" id="btn-importer" title="Importer une carte (JSON)">
         <i data-lucide="upload"></i><span>Importer</span>
       </button>
-      <button type="button" class="bouton-icone" id="btn-reinitialiser" title="Revenir à la carte de démonstration">
-        <i data-lucide="rotate-ccw"></i><span>Démo</span>
+      <button type="button" class="bouton-icone" id="btn-reglages" title="Réglages">
+        <i data-lucide="settings"></i><span>Réglages</span>
       </button>
       <input type="file" id="fichier-import" accept="application/json,.json" hidden>
     </div>
@@ -60,6 +60,7 @@
   <aside class="panneau" id="panneau" role="dialog" aria-labelledby="panneau-titre" hidden></aside>
 
   <div class="flow" id="saisie-flow" hidden></div>
+  <div class="flow reglages" id="reglages" hidden></div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -76,6 +77,8 @@
   <script src="js/vues/navigation.js"></script>
   <script src="js/vues/panneau.js"></script>
   <script src="js/vues/saisieFlow.js"></script>
+  <script src="js/vues/effets.js"></script>
+  <script src="js/vues/reglages.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -36,3 +36,9 @@ Le test vérifie : régions d'un seul tenant, aucun trou, aucune case isolée, j
 - Clic ou toucher sur un hexagone : panneau de détail et changement de statut.
 - Appui long sur un hexagone puis glisser : le déplacer (sur une case occupée, les deux s'échangent).
 - Les positions sont mémorisées : changer un statut ne bouleverse pas la carte. Un hexagone qui change de zone (province, île, zone à déléguer) est reposé automatiquement. Le bouton « Réorganiser » relance le placement complet en gardant les déplacements manuels.
+
+## Éclat, animations et brouillard
+
+- Éclat : chaque hexagone s'illumine selon ses moments de flow des 30 derniers jours (pondérés par l'intensité), de « une lueur » à « rayonnant ».
+- Animations courtes à l'enregistrement d'un moment et à la conquête d'un territoire, sur un calque séparé : les tuiles ne bougent jamais. Les mouvements sont réduits si le système le demande.
+- Brouillard de guerre (Réglages, désactivé par défaut) : les territoires à conquérir non explorés apparaissent sous des nuages ; on les découvre en les explorant.

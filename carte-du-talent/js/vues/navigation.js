@@ -61,9 +61,12 @@
         const cy = vue.y + vue.h / 2;
         proportionner(cx, cy, Math.min(lim.max, Math.max(lim.min, vue.l)));
       }
-      // Le centre de la vue reste au-dessus des terres : on ne perd jamais la carte.
-      const cx = Math.min(cadre.x + cadre.l, Math.max(cadre.x, vue.x + vue.l / 2));
-      const cy = Math.min(cadre.y + cadre.h, Math.max(cadre.y, vue.y + vue.h / 2));
+      // Un morceau de carte reste toujours à l'écran : on ne la perd jamais
+      // (marge d'une demi-vue pour pouvoir dégager un hexagone caché par le panneau).
+      const mx = Math.max(0, vue.l / 2 - T * 2);
+      const my = Math.max(0, vue.h / 2 - T * 2);
+      const cx = Math.min(cadre.x + cadre.l + mx, Math.max(cadre.x - mx, vue.x + vue.l / 2));
+      const cy = Math.min(cadre.y + cadre.h + my, Math.max(cadre.y - my, vue.y + vue.h / 2));
       vue.x = cx - vue.l / 2;
       vue.y = cy - vue.h / 2;
     }

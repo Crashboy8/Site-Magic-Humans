@@ -219,5 +219,43 @@ test('une compétence ajoutée à la volée est placée sur le continent, sans d
   assert.deepStrictEqual(CT.placement.verifier(r).filter((p) => /Trou|coupé/.test(p)), []);
 });
 
+console.log('\nÉclat et brouillard');
+
+test('l\'éclat grandit avec le flow récent et ignore les moments de plus de 30 jours', () => {
+  const { carte: c } = cartePlacee();
+  const maintenant = Date.parse('2026-10-05T12:00:00Z');
+  assert.strictEqual(CT.regles.eclat(c, 'vente', maintenant).niveau, 0);
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], intensite: 5, date: '2026-08-01T10:00:00Z' });
+  assert.strictEqual(CT.regles.eclat(c, 'vente', maintenant).niveau, 0);
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'], intensite: 4, date: '2026-10-04T10:00:00Z' });
+  assert.strictEqual(CT.regles.eclat(c, 'vente', maintenant).niveau, 1);
+  for (let i = 0; i < 8; i++) CT.regles.ajouterMoment(c, { competenceIds: ['vente'], intensite: 5, date: '2026-10-0' + (1 + (i % 4)) + 'T10:00:00Z' });
+  const e = CT.regles.eclat(c, 'vente', maintenant);
+  assert.strictEqual(e.niveau, 4);
+  assert.strictEqual(e.nombre, 9);
+});
+
+test('le brouillard ne cache que les territoires à conquérir non explorés, et seulement s\'il est activé', () => {
+  const { carte: c } = cartePlacee();
+  const nocode = CT.regles.trouver(c, 'nocode');
+  assert.strictEqual(CT.regles.estCache(c, nocode), false);
+  CT.regles.changerPreference(c, 'brouillardDeGuerre', true);
+  assert.strictEqual(CT.regles.estCache(c, nocode), true);
+  assert.strictEqual(CT.regles.estCache(c, CT.regles.trouver(c, 'vente')), false);
+  CT.regles.explorer(c, 'nocode');
+  assert.strictEqual(CT.regles.estCache(c, nocode), false);
+  CT.regles.changerStatut(c, 'podcast', 'frontiere');
+  CT.regles.changerStatut(c, 'podcast', 'a_conquerir');
+  assert.strictEqual(CT.regles.estCache(c, CT.regles.trouver(c, 'podcast')), false);
+});
+
+test('activer le brouillard ou explorer ne déplace aucun hexagone', () => {
+  const { carte: c, res: r } = cartePlacee();
+  CT.regles.changerPreference(c, 'brouillardDeGuerre', true);
+  CT.regles.explorer(c, 'storytelling');
+  CT.regles.ajouterMoment(c, { competenceIds: ['vente'] });
+  assert.deepStrictEqual(CT.placement.placer(c).positions, r.positions);
+});
+
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');
 process.exitCode = echecs ? 1 : 0;

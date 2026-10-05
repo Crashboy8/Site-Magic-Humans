@@ -23,6 +23,7 @@
     const avant = CT.placement.groupeDe(c);
     const ancien = c.statut;
     c.statut = statut;
+    if (statut !== 'a_conquerir') c.exploree = true;
     if (statut === 'ile' && !c.ileId) {
       if (!carte.iles.length) carte.iles.push({ id: CT.schema.nouvelId('ile'), nom: 'Île de flow' });
       c.ileId = carte.iles[0].id;
@@ -211,9 +212,46 @@
       .map((x) => x.c);
   }
 
+  // ---------- Éclat et brouillard ----------
+
+  /*
+   * Éclat d'une compétence : flow des 30 derniers jours, pondéré par l'intensité,
+   * les moments récents comptant un peu plus. Niveau de 0 (aucun) à 4 (rayonnant).
+   */
+  function eclat(carte, id, maintenant) {
+    const t = maintenant || Date.now();
+    const moments = momentsRecents(carte, id, 30, t);
+    let score = 0;
+    moments.forEach((m) => {
+      const age = Math.max(0, (t - Date.parse(m.date)) / JOUR);
+      score += (m.intensite / 5) * (1 - Math.min(age, 30) / 60);
+    });
+    const niveau = score <= 0 ? 0 : score < 1.5 ? 1 : score < 3.5 ? 2 : score < 6 ? 3 : 4;
+    return { niveau, nombre: moments.length, score };
+  }
+
+  // Un territoire à conquérir reste dans le brouillard tant qu'on ne l'a pas exploré.
+  function estCache(carte, c) {
+    return Boolean(carte.preferences.brouillardDeGuerre && c && c.statut === 'a_conquerir' && !c.exploree);
+  }
+
+  function explorer(carte, id) {
+    const c = trouver(carte, id);
+    if (!c || c.exploree) return false;
+    c.exploree = true;
+    return true;
+  }
+
+  function changerPreference(carte, cle, valeur) {
+    if (!(cle in CT.schema.PREFERENCES_DEFAUT)) return false;
+    carte.preferences[cle] = valeur;
+    return true;
+  }
+
   CT.regles = {
     trouver, changerStatut, changerDistance, changerRegion, changerIle, deplacer, remettreAuto,
     preparerReorganisation, momentsDe, momentsRecents, objectifDe, regionDe,
-    ajouterMoment, supprimerMoment, competencesRecentes, ajouterCompetence, normaliserTexte, rechercher
+    ajouterMoment, supprimerMoment, competencesRecentes, ajouterCompetence, normaliserTexte, rechercher,
+    eclat, estCache, explorer, changerPreference
   };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

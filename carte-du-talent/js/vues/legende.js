@@ -27,9 +27,13 @@
       [pastille('#7DCDAE', '#5FA98C'), 'Île de flow'],
       [pastille('#B4BAC2', '#8D949C'), 'À déléguer']
     ].map(([p, t]) => '<li>' + p + t + '</li>').join('');
+    const reperes = '<li><svg class="pastille" viewBox="-12 -12 24 24" aria-hidden="true"><circle r="11" fill="#FFD866" opacity=".55"/>' +
+      '<circle r="6" fill="#FFE9A8"/></svg>Éclat : flow des 30 derniers jours</li>' +
+      (carte.preferences.brouillardDeGuerre ? '<li>' + pastille('#E9EFF1', '#C9D5DA', '1.5 2') + 'Brouillard : territoire inexploré</li>' : '');
     conteneur.innerHTML =
       '<h2>Régions</h2><ul>' + regions + '</ul>' +
-      '<h2>Statuts</h2><ul>' + statuts + '</ul>';
+      '<h2>Statuts</h2><ul>' + statuts + '</ul>' +
+      '<h2>Repères</h2><ul>' + reperes + '</ul>';
   }
 
   CT.vueLegende = { rendre };

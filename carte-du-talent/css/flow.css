@@ -360,3 +360,70 @@ body.panneau-ouvert .bouton-flow { right: calc(min(390px, 100%) + 24px); }
   .flow-pied .bouton { flex: 1; }
   .flow-manque { display: none; }
 }
+
+/* Réglages (même fenêtre que la saisie, plus compacte) */
+
+.reglages-fiche { width: min(460px, 100%); }
+.reglages-tete { background: linear-gradient(180deg, #E3F4F7, var(--papier)); }
+.reglages-tete .surtitre { color: var(--mer-profonde); }
+
+.interrupteur {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.interrupteur-texte { flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 16px; }
+
+.interrupteur input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.glissiere {
+  position: relative;
+  width: 52px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: #D9D2C3;
+  transition: background .2s;
+}
+
+.glissiere::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
+  transition: transform .2s;
+}
+
+.interrupteur input:checked + .glissiere { background: var(--mer-profonde); }
+.interrupteur input:checked + .glissiere::after { transform: translateX(22px); }
+.interrupteur input:focus-visible + .glissiere { outline: 3px solid var(--or); outline-offset: 2px; }
+
+.bouton-large { width: 100%; margin-top: 8px; }
+
+.eclat-texte {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #A87600;
+  font-weight: 700;
+}
+
+.eclat-texte svg { width: 16px; height: 16px; }
+
+@media (max-width: 640px) {
+  .reglages { place-items: end stretch; }
+  .reglages .flow-fiche { height: auto; max-height: 90%; border-radius: 20px 20px 0 0; }
+  .reglages .flow-corps { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+}

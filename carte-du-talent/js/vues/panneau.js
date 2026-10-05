@@ -34,6 +34,8 @@
     ]
   };
 
+  const NIVEAUX_ECLAT = ['', 'une lueur', 'ça brille', 'lumineux', 'rayonnant'];
+
   const dateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 
   function pastilleTuile(c, carte) {
@@ -70,7 +72,10 @@
     if (!tous.length) {
       html += '<p class="vide">Aucun moment de flow enregistré ici pour l\'instant.</p>';
     } else {
-      html += '<p class="chiffres"><strong>' + recents.length + '</strong> sur les 30 derniers jours · ' + tous.length + ' au total</p><ul class="liste-moments">' +
+      const e = CT.regles.eclat(carte, c.id);
+      html += '<p class="chiffres"><strong>' + recents.length + '</strong> sur les 30 derniers jours · ' + tous.length + ' au total</p>' +
+        (e.niveau ? '<p class="eclat-texte"><i data-lucide="sparkles"></i>Éclat : ' + NIVEAUX_ECLAT[e.niveau] + '</p>' : '') +
+        '<ul class="liste-moments">' +
         tous.slice(0, 5).map((m) => '<li><span class="date">' + dateCourte.format(new Date(m.date)) + '</span>' +
           '<span class="intensite" title="Intensité ' + m.intensite + ' sur 5">' + '●'.repeat(m.intensite) + '<span class="pale">' + '●'.repeat(5 - m.intensite) + '</span></span>' +
           (m.note ? '<span class="note">' + O.echapper(m.note) + '</span>' : '') +
@@ -144,6 +149,22 @@
       '<div class="panneau-corps">' + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
   }
 
+  // Territoire caché par le brouillard de guerre : rien n'est dévoilé avant l'exploration.
+  function contenuBrouillard(c, carte) {
+    const r = CT.regles.regionDe(carte, c.regionId);
+    return '<header class="panneau-tete" style="--teinte:#E9EFF1">' +
+      '<svg class="panneau-hex" viewBox="-30 -30 60 64" aria-hidden="true"><polygon points="' +
+      CT.hex.coins(0, 0, 26).map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ') + '" fill="#E1E9EC" stroke="#C9D5DA" stroke-width="2" stroke-dasharray="3 5"/>' +
+      O.iconeSvg('cloud', 0, 0, 26, '#8FA3AB', 2) + '</svg>' +
+      '<div class="panneau-titre"><span class="badge">Brouillard</span><h2 id="panneau-titre">Territoire inexploré</h2>' +
+      '<p class="lieu">' + (r ? 'Au-delà de ' + O.echapper(r.nom) : 'Quelque part au bord de ta carte') + '</p></div>' +
+      '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
+      '<div class="panneau-corps"><section class="panneau-section">' +
+      '<p>Quelque chose t\'attend ici. Explore ce territoire pour découvrir de quoi il s\'agit.</p>' +
+      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="explorer"><i data-lucide="compass"></i>Explorer ce territoire</button></div>' +
+      '</section></div>';
+  }
+
   function contenuCapitale(carte) {
     const compte = {};
     carte.competences.forEach((c) => { compte[c.statut] = (compte[c.statut] || 0) + 1; });
@@ -180,7 +201,7 @@
         if (id !== 'capitale' && !c) { this.fermer(); return; }
         const premier = !ouvert;
         ouvert = id;
-        racine.innerHTML = c ? contenuCompetence(c, carte) : contenuCapitale(carte);
+        racine.innerHTML = !c ? contenuCapitale(carte) : CT.regles.estCache(carte, c) ? contenuBrouillard(c, carte) : contenuCompetence(c, carte);
         racine.hidden = false;
         document.body.classList.add('panneau-ouvert');
         O.rafraichirIcones(racine);

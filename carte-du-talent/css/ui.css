@@ -64,7 +64,7 @@
   transition: background .15s, transform .15s;
 }
 
-.bouton-icone:hover { background: #FFF3DA; }
+@media (hover: hover) { .bouton-icone:hover { background: #FFF3DA; } }
 .bouton-icone:active { transform: scale(.97); }
 .bouton-icone svg { width: 18px; height: 18px; }
 
@@ -163,7 +163,7 @@ button:focus-visible {
   transition: background .15s, transform .15s;
 }
 
-.bouton-rond:hover { background: #FFF3DA; }
+@media (hover: hover) { .bouton-rond:hover { background: #FFF3DA; } }
 .bouton-rond:active { transform: scale(.94); }
 .bouton-rond svg { width: 20px; height: 20px; }
 #btn-reorganiser { margin-top: 6px; }

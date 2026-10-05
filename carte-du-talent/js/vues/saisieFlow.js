@@ -146,6 +146,8 @@
       '</form>';
 
     const $ = (sel) => racine.querySelector(sel);
+    // Le brouillard garde ses secrets : pas de territoire inexploré dans les résultats.
+    const caches = () => rappels.carte().competences.filter((c) => CT.regles.estCache(rappels.carte(), c)).map((c) => c.id);
     const enregistrer = $('#flow-enregistrer');
 
     const selecteur = creerSelecteur($('#flow-competences'), {
@@ -153,7 +155,7 @@
       avecRecentes: true,
       carte: rappels.carte,
       creer: (nom) => rappels.creerCompetence(nom, 'frontiere'),
-      exclure: () => parties.valeurs,
+      exclure: () => parties.valeurs.concat(caches()),
       surChangement(ids) {
         enregistrer.disabled = ids.length === 0;
         $('#flow-manque').hidden = ids.length > 0;
@@ -163,7 +165,7 @@
       placeholder: 'Quelle partie ? (ex. rédaction)',
       carte: rappels.carte,
       creer: (nom) => rappels.creerCompetence(nom, 'a_deleguer'),
-      exclure: () => selecteur.valeurs
+      exclure: () => selecteur.valeurs.concat(caches())
     });
 
     function majCurseurs() {

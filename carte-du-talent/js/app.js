@@ -13,6 +13,11 @@
   let navigation = null;
   let panneau = null;
   let saisieFlow = null;
+  let reglages = null;
+
+  function caseDe(id) {
+    return etat.parCase.get(id) || null;
+  }
 
   const $ = (id) => document.getElementById(id);
 
@@ -121,9 +126,15 @@
     }
     const avant = CT.regles.trouver(etat.carte, id).position;
     let change = false;
-    if (action === 'statut') {
-      change = Boolean(CT.regles.changerStatut(etat.carte, id, valeur));
+    let effet = null;
+    if (action === 'explorer') {
+      change = CT.regles.explorer(etat.carte, id);
+      if (change) { toast('Tu découvres ' + nomDe(id) + ' !'); effet = 'exploration'; }
+    } else if (action === 'statut') {
+      const r = CT.regles.changerStatut(etat.carte, id, valeur);
+      change = Boolean(r);
       if (change) toast(MESSAGES_STATUT[valeur](nomDe(id)));
+      if (r && valeur === 'conquise' && (r.ancien === 'frontiere' || r.ancien === 'a_conquerir')) effet = 'conquete';
     } else if (action === 'region') {
       change = CT.regles.changerRegion(etat.carte, id, valeur);
     } else if (action === 'distance') {
@@ -138,6 +149,7 @@
     if (!change) return;
     appliquer();
     navigation.selectionner(id);
+    if (effet && caseDe(id)) CT.vueEffets[effet]($('carte'), caseDe(id));
     // Si l'hexagone a changé de zone, on le suit des yeux.
     const apres = CT.regles.trouver(etat.carte, id).position;
     if (!avant || !apres || avant.q !== apres.q || avant.r !== apres.r) {
@@ -158,6 +170,7 @@
       const moment = CT.regles.ajouterMoment(etat.carte, saisie);
       if (!moment) return;
       appliquer();
+      CT.vueEffets.flow($('carte'), moment.competenceIds.map(caseDe).filter(Boolean));
       const noms = moment.competenceIds.map(nomDe).join(', ');
       toast('Moment de flow enregistré : ' + noms + '.');
     }
@@ -214,11 +227,7 @@
         })
         .catch((err) => toast(err.message || 'Fichier illisible.'));
     });
-    $('btn-reinitialiser').addEventListener('click', () => {
-      if (!confirm('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).')) return;
-      changerCarte(CT.demo.creer());
-      toast('Carte de démonstration restaurée.');
-    });
+    $('btn-reglages').addEventListener('click', () => reglages.ouvrir());
     $('legende-bascule').addEventListener('click', () => {
       const ouverte = $('legende').classList.toggle('fermee') === false;
       $('legende-bascule').setAttribute('aria-expanded', String(ouverte));
@@ -242,6 +251,19 @@
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
     panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau);
     saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
+    reglages = CT.vueReglages.creer($('reglages'), {
+      carte: () => etat.carte,
+      changerPreference(cle, valeur) {
+        CT.regles.changerPreference(etat.carte, cle, valeur);
+        appliquer();
+        if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
+      },
+      reinitialiser() {
+        if (!confirm('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).')) return;
+        changerCarte(CT.demo.creer());
+        toast('Carte de démonstration restaurée.');
+      }
+    });
     if (window.matchMedia('(max-width: 640px)').matches) $('legende').classList.add('fermee');
     etat.carte = CT.stockage.charger() || CT.demo.creer();
     appliquer({ ajuster: true });
