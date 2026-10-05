@@ -11,7 +11,13 @@ export const STEPS: { key: StepRoute; n: number; title: string; text: string; av
     text: "Mes critères en lignes, mes opportunités en colonnes, et le score qui se calcule en direct.",
     available: true,
   },
-  { key: "resultats", n: 2, title: "Résultats", text: "Classement détaillé, radar, forces et faiblesses.", available: false },
+  {
+    key: "resultats",
+    n: 2,
+    title: "Résultats",
+    text: "Ton classement, ce qui allume ton talent ou l'éteint, le radar, et la place de ton ressenti.",
+    available: true,
+  },
 ];
 
 /** Fil des étapes d'une version. */

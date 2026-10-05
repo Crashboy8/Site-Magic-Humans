@@ -13,6 +13,8 @@ import type {
   InvitationCode,
   Profile,
   ImportanceWeights,
+  ProjectionFeeling,
+  RankingAgreement,
   StepKey,
   TalentUnique,
   Version,
@@ -72,6 +74,8 @@ export async function updateTalent(db: Db, id: string, patch: Partial<TalentUniq
   if (patch.contexteDeclencheur !== undefined) row.talent_contexte_declencheur = patch.contexteDeclencheur;
   if (patch.superBenefice !== undefined) row.talent_super_benefice = patch.superBenefice;
   if (patch.antiContexte !== undefined) row.anti_contexte = patch.antiContexte;
+  if (patch.successSituations !== undefined) row.success_situations = patch.successSituations;
+  if (patch.failureSituations !== undefined) row.failure_situations = patch.failureSituations;
   check(await db.from("profiles").update(row).eq("id", id));
 }
 
@@ -117,6 +121,11 @@ export interface VersionPatch {
   rankingFeedback?: string;
   currentStep?: StepKey;
   importanceWeights?: ImportanceWeights;
+  rankingAgreement?: RankingAgreement | null;
+  projectionFeeling?: ProjectionFeeling | null;
+  projectionNote?: string;
+  chosenOpportunityId?: string | null;
+  nextSteps?: string[];
 }
 
 export async function updateVersion(db: Db, id: string, patch: VersionPatch) {
@@ -127,6 +136,11 @@ export async function updateVersion(db: Db, id: string, patch: VersionPatch) {
   if (patch.rankingFeedback !== undefined) row.ranking_feedback = patch.rankingFeedback;
   if (patch.currentStep !== undefined) row.current_step = patch.currentStep;
   if (patch.importanceWeights !== undefined) row.importance_weights = patch.importanceWeights;
+  if (patch.rankingAgreement !== undefined) row.ranking_agreement = patch.rankingAgreement;
+  if (patch.projectionFeeling !== undefined) row.projection_feeling = patch.projectionFeeling;
+  if (patch.projectionNote !== undefined) row.projection_note = patch.projectionNote;
+  if (patch.chosenOpportunityId !== undefined) row.chosen_opportunity_id = patch.chosenOpportunityId;
+  if (patch.nextSteps !== undefined) row.next_steps = patch.nextSteps;
   check(await db.from("versions").update(row).eq("id", id));
 }
 

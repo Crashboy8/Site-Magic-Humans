@@ -107,12 +107,16 @@ export function satisfactionOf(criterion: Pick<Criterion, "direction">, value: E
   return criterion.direction === "AWAY_FROM" ? 100 - pct : pct;
 }
 
-function alignmentScore(results: CriterionResult[], weights: ImportanceWeights): number | null {
+/** Coefficient appliqué au poids d'un critère (sert à tester la solidité du classement). */
+export type WeightFactor = (criterion: ScoringCriterion) => number;
+
+/** Score d'alignement (0 à 100) d'un ensemble de critères évalués, ou null si aucun critère pondéré n'est évalué. */
+export function alignmentScore(results: CriterionResult[], weights: ImportanceWeights, factor?: WeightFactor): number | null {
   let num = 0;
   let den = 0;
   for (const r of results) {
     if (r.satisfaction === null) continue;
-    const weight = weights[r.criterion.importance];
+    const weight = weights[r.criterion.importance] * (factor ? factor(r.criterion) : 1);
     if (r.criterion.importance === "bonus") {
       num += weight * r.satisfaction;
       continue;
@@ -135,6 +139,7 @@ export function scoreOpportunity(
   criteria: ScoringCriterion[],
   evaluations: Map<string, EvaluationValue> | Evaluation[],
   weights: ImportanceWeights = DEFAULT_WEIGHTS,
+  factor?: WeightFactor,
 ): OpportunityResult {
   const index = evaluations instanceof Map ? evaluations : indexEvaluations(evaluations);
 
@@ -166,7 +171,7 @@ export function scoreOpportunity(
     const inCategory = details.filter((d) => d.criterion.categoryId === categoryId);
     return {
       categoryId,
-      score: alignmentScore(inCategory, weights),
+      score: alignmentScore(inCategory, weights, factor),
       evaluated: inCategory.filter((d) => d.satisfaction !== null).length,
       total: inCategory.length,
     };
@@ -177,7 +182,7 @@ export function scoreOpportunity(
 
   return {
     opportunity,
-    score: alignmentScore(details, weights),
+    score: alignmentScore(details, weights, factor),
     status,
     failedNonNegotiables,
     antiContextAlerts,
@@ -201,10 +206,11 @@ export function rankOpportunities(
   criteria: ScoringCriterion[],
   evaluations: Evaluation[],
   weights: ImportanceWeights = DEFAULT_WEIGHTS,
+  factor?: WeightFactor,
 ): OpportunityResult[] {
   const index = indexEvaluations(evaluations);
   return opportunities
-    .map((o) => scoreOpportunity(o, criteria, index, weights))
+    .map((o) => scoreOpportunity(o, criteria, index, weights, factor))
     .sort((a, b) => {
       const ga = a.status === "non_conforme" ? 1 : 0;
       const gb = b.status === "non_conforme" ? 1 : 0;

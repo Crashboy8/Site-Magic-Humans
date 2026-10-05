@@ -22,6 +22,10 @@ export const CAMILLE = {
     superBenefice: "transformer l'adhésion en passage à l'action",
     antiContexte:
       "Une communication descendante et aseptisée, loin du terrain, où chaque prise de parole doit être validée à plusieurs niveaux.",
+    successSituations:
+      "Quand j'anime un atelier avec des bénévoles et que je vois les gens repartir motivés. Quand je recueille des témoignages sur le terrain.",
+    failureSituations:
+      "Quand je passe mes journées à reformuler des communiqués validés par cinq personnes. Quand je ne vois plus personne et que je tourne en rond devant mon écran.",
   } satisfies TalentUnique,
 };
 

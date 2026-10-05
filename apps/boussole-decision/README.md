@@ -38,9 +38,22 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - Chaque critère : importance **Critique ×5, Très important ×4, Important ×3, Moyennement important ×2, Bof ×1, Bonus**
   (ajoute des points, n'en retire jamais) ; case **🔒 non négociable** indépendante (`DEALBREAKER`) ;
   direction `TOWARDS` (pour aller vers) ou `AWAY_FROM` (« à éviter » : on évalue la présence du risque).
-- **Barème personnalisable** (encart « Mon barème », à droite du tableau) : la personne règle le poids de chaque niveau
+- **Barème personnalisable** (encart « Mon barème », dans la marge de gauche sur grand écran, replié au-dessus du tableau sinon) : la personne règle le poids de chaque niveau
   (0 à 10) ; il est propre à chaque version (`versions.importance_weights`), recopié lors d'une duplication et
   verrouillé une fois la version finalisée.
+
+- **Résultats** (`/versions/{id}/resultats/`, lecture : `src/domain/results.ts`) :
+  verdict en une phrase (en tête, au coude à coude sous 5 points) et podium ; pour chaque opportunité,
+  « ce qui allume ton talent » (Contexte Déclencheur présent, autres atouts) et « ce qui risque de t'éteindre »
+  (non-négociables non respectés, Anti-Contexte présent, ce qui manquerait, à surveiller) ; garde-fous pour
+  l'opportunité choisie, avec les contextes d'échec vécus du profil ; **ikigai** de chaque opportunité (quatre
+  cercles à 25 % : ce que j'aime = qualité de vie + Anti-Contexte évité, ce en quoi je suis doué·e = Contexte
+  Déclencheur, ce dont le monde a besoin = valeurs, ce pour quoi je peux être payé·e = rémunération ; centre doré
+  à 100 %) ; radar par catégorie avec tableau des chiffres ; questions à poser pour les cases « à vérifier » ;
+  solidité du classement (chaque catégorie comptée ×2 puis ×0,5) ; ressenti (« Ce classement correspond-il à
+  ton ressenti ? », projection « tu as signé demain ») et trois prochains pas.
+- **Profil** : en plus du Talent Unique et de l'Anti-Contexte, « Mes contextes vécus » (situations de réussite
+  et d'échec), rappelés dans les garde-fous.
 
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
