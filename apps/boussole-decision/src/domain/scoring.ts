@@ -223,7 +223,8 @@ export function rankOpportunities(
     });
 }
 
-/** Score arrondi pour l'affichage : « 81 % », ou « — » s'il n'est pas calculable. */
-export function formatScore(score: number | null): string {
-  return score === null ? "—" : `${Math.round(score)} %`;
+/** Score arrondi pour l'affichage : « 81 % » (français) ou « 81% » (anglais), ou « — » s'il n'est pas calculable. */
+export function formatScore(score: number | null, locale: "fr" | "en" = "fr"): string {
+  if (score === null) return "—";
+  return locale === "en" ? `${Math.round(score)}%` : `${Math.round(score)} %`;
 }

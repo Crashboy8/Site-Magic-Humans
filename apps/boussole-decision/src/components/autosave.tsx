@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/i18n/client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -54,11 +55,12 @@ export function useSaveTracker(): SaveTracker {
 
 export function SaveIndicator() {
   const { status } = useSaveTracker();
+  const { t } = useI18n();
   const content: Record<SaveStatus, ReactNode> = {
-    idle: <>✓ Enregistré</>,
-    saving: <>Enregistrement…</>,
-    saved: <>✓ Enregistré</>,
-    error: <>⚠️ Non enregistré, nouvel essai en cours…</>,
+    idle: t.common.saved,
+    saving: t.common.saving,
+    saved: t.common.saved,
+    error: t.common.saveError,
   };
   return (
     <p

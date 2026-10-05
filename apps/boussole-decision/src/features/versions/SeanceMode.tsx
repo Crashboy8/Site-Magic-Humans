@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useI18n } from "@/i18n/client";
 
 /**
  * Mode « séance » : plein écran, sans menus, texte agrandi, pour travailler à deux sur grand écran.
@@ -8,6 +9,7 @@ import { useEffect, useState } from "react";
  */
 export function SeanceMode() {
   const [on, setOn] = useState(false);
+  const v = useI18n().t.version;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -36,7 +38,7 @@ export function SeanceMode() {
       className="inline-flex min-h-10 items-center gap-2 rounded-full border border-ink/20 bg-paper px-4 text-sm text-ink hover:bg-sand"
     >
       <span aria-hidden="true">{on ? "⤡" : "⤢"}</span>
-      {on ? "Quitter le mode séance" : "Mode séance"}
+      {on ? v.seanceOff : v.seanceOn}
     </button>
   );
 }

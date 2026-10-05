@@ -119,3 +119,61 @@ export const CAMILLE_EVALUATIONS: Evaluation[] = Object.entries(CAMILLE_GRID).fl
 
 export const CAMILLE_INSIGHT =
   "Je pensais que la sécurité financière primait. En posant mes critères, je réalise que l'Anti-Contexte de la banque m'éteindrait : je serais bien payée mais vidée.";
+
+// --- Version anglaise de l'exemple ----------------------------------------------------------
+
+const CAMILLE_EN = {
+  talent: {
+    mecanisme: "tell stories that make people want to act",
+    contexteDeclencheur: "a meaningful project has to bring very different people on board, close to the field",
+    superBenefice: "turn buy-in into action",
+    antiContexte: "Top-down, sanitised communication, far from the field, where every word has to be approved at several levels.",
+    successSituations: "When I run a workshop with volunteers and see people leave motivated. When I gather testimonies in the field.",
+    failureSituations:
+      "When I spend my days rewording press releases approved by five people. When I no longer see anyone and go round in circles in front of my screen.",
+  } satisfies TalentUnique,
+  criteria: {
+    histoires: "Telling stories that make people want to act",
+    terrain: "Being in direct contact with people in the field",
+    micromanagement: "Micromanagement, approval of every word I say",
+    bienveillance: "Kind and warm colleagues",
+    cause: "Working for a cause, a social commitment",
+    benevolat: "Being able to volunteer on the side",
+    trajet: "Less than 30 minutes' commute",
+    teletravail: "Lots of remote work (2 days a week minimum)",
+    plancher: "At least €3,000 net per month",
+    ideal: "Ideally €4,000 net per month",
+  } as Record<string, string>,
+  opportunities: {
+    A: {
+      name: "A. Communications manager — eco-construction SME (Nantes)",
+      summary: "Employee · SME of 80 people, building sites to visit.",
+      notes: "Salary offered: €3,100 net, little room to grow.",
+    },
+    B: {
+      name: "B. Freelance storytelling consultant",
+      summary: "Self-employed · helping brands and charities tell their stories.",
+      notes: "Income in the first months still uncertain.",
+    },
+    C: {
+      name: "C. Senior communications officer — large banking group (La Défense)",
+      summary: "Employee · corporate communications.",
+      notes: "€4,200 net, profit sharing, good salary prospects.",
+    },
+  } as Record<string, { name: string; summary: string; notes: string }>,
+  insight:
+    "I thought financial security came first. Laying out my criteria, I realise the bank's Anti-Context would switch me off: I'd be well paid but drained.",
+};
+
+/** L'exemple de Camille dans la langue choisie (les évaluations ne changent pas). */
+export function camilleFor(locale: "fr" | "en") {
+  if (locale === "fr") {
+    return { talent: CAMILLE.talent, criteria: CAMILLE_CRITERIA, opportunities: CAMILLE_OPPORTUNITIES, insight: CAMILLE_INSIGHT };
+  }
+  return {
+    talent: CAMILLE_EN.talent,
+    criteria: CAMILLE_CRITERIA.map((c) => ({ ...c, label: CAMILLE_EN.criteria[c.id] ?? c.label })),
+    opportunities: CAMILLE_OPPORTUNITIES.map((o) => ({ ...o, ...CAMILLE_EN.opportunities[o.id] })),
+    insight: CAMILLE_EN.insight,
+  };
+}

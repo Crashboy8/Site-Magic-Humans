@@ -10,7 +10,8 @@ import { duplicateVersion, updateVersion } from "@/data/repository";
 import type { CoachComment, Version } from "@/domain/types";
 import { CommentThread, type CommentViewer } from "@/features/comments/CommentThread";
 import { InlineName } from "./InlineName";
-import { STEPS } from "./StepsNav";
+import { useI18n } from "@/i18n/client";
+import { useSteps } from "./StepsNav";
 
 interface Props {
   version: Version;
@@ -32,6 +33,9 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
   const router = useRouter();
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
+  const { t, locale } = useI18n();
+  const v_ = t.version;
+  const STEPS = useSteps();
   const locked = readOnly || version.status === "finalisee";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +49,7 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
       await fn();
       router.refresh();
     } catch {
-      setError("L'opération n'a pas abouti. Réessaie dans un instant.");
+      setError(v_.actionFailed);
     } finally {
       setBusy(false);
     }
@@ -58,21 +62,26 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
           <h1 className="text-4xl italic sm:text-5xl">
             <InlineName
               value={version.name}
-              label="Nom de la version"
+              label={v_.versionName}
               maxLength={80}
               readOnly={readOnly}
               onSave={(name) => track(updateVersion(db, version.id, { name }))}
             />
           </h1>
-          {version.status === "finalisee" ? <Badge tone="sage">✓ Finalisée</Badge> : <Badge>Brouillon</Badge>}
+          {version.status === "finalisee" ? <Badge tone="sage">{v_.finalized}</Badge> : <Badge>{v_.draft}</Badge>}
           {!readOnly && <SaveIndicator />}
         </div>
 
         {!readOnly && (
           <div className="flex flex-wrap gap-3">
             {version.status === "brouillon" ? (
-              <Button type="button" variant="secondary" disabled={busy} onClick={() => act(() => updateVersion(db, version.id, { status: "finalisee" }))}>
-                ✓ Marquer comme finalisée
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy}
+                onClick={() => act(() => updateVersion(db, version.id, { status: "finalisee" }))}
+              >
+                {v_.markAsFinalized}
               </Button>
             ) : (
               <>
@@ -86,25 +95,27 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
                     })
                   }
                 >
-                  Créer {nextName} à partir de celle-ci
+                  {v_.createFrom(nextName)}
                 </Button>
-                <Button type="button" variant="ghost" disabled={busy} onClick={() => act(() => updateVersion(db, version.id, { status: "brouillon" }))}>
-                  Rouvrir pour modifier
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={busy}
+                  onClick={() => act(() => updateVersion(db, version.id, { status: "brouillon" }))}
+                >
+                  {v_.reopenToEdit}
                 </Button>
               </>
             )}
           </div>
         )}
         {version.status === "finalisee" && !readOnly && (
-          <Notice>
-            Cette version a été finalisée le {formatDate(version.finalizedAt)}. Elle est protégée : pour continuer ta réflexion, crée
-            une nouvelle version à partir d&apos;elle, ou rouvre-la.
-          </Notice>
+          <Notice>{v_.finalizedNotice(formatDate(version.finalizedAt, false, locale))}</Notice>
         )}
         {error && <Notice tone="error">{error}</Notice>}
       </header>
 
-      <nav aria-label="Étapes">
+      <nav aria-label={v_.steps}>
         <ol className="grid gap-3 sm:grid-cols-2">
           {STEPS.map((s) => {
             const inner = (
@@ -113,7 +124,7 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
                 <p className="font-serif text-xl italic">{s.title}</p>
                 <p className="mt-1 text-sm text-ink-soft">{s.text}</p>
                 <p className="mt-3 text-xs uppercase tracking-wider text-ink-soft/80">
-                  {s.available ? (locked ? "Consulter →" : "Commencer →") : "Bientôt disponible"}
+                  {s.available ? (locked ? v_.stepView : v_.stepStart) : v_.comingSoon}
                 </p>
               </>
             );
@@ -136,28 +147,31 @@ function Workspace({ version, readOnly, nextName, comments, commentViewer }: Pro
       </nav>
 
       {commentViewer && (
-        <CommentThread versionId={version.id} targetType="version" targetId={version.id} initial={comments.filter((c) => c.targetType === "version")} viewer={commentViewer} />
+        <CommentThread
+          versionId={version.id}
+          targetType="version"
+          targetId={version.id}
+          initial={comments.filter((c) => c.targetType === "version")}
+          viewer={commentViewer}
+        />
       )}
 
       <section aria-labelledby="ressenti" className="space-y-3">
         <div>
           <h2 id="ressenti" className="text-3xl italic">
-            Ressenti / prise de conscience
+            {v_.insightTitle}
           </h2>
-          <p className="max-w-2xl text-ink-soft">
-            Note ici ce que tu ressens, ce qui te surprend, ce que tu découvres sur toi au fil de ta réflexion. C&apos;est enregistré
-            automatiquement.
-          </p>
+          <p className="max-w-2xl text-ink-soft">{v_.insightIntro}</p>
         </div>
         <label htmlFor="insight" className="sr-only">
-          Ressenti / prise de conscience
+          {v_.insightTitle}
         </label>
         <Textarea
           id="insight"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           readOnly={locked}
-          placeholder={locked ? "Aucune note." : "Ex. : en listant mes critères, je réalise que l'autonomie compte plus que le salaire…"}
+          placeholder={locked ? v_.noNote : v_.insightPlaceholder}
           className="min-h-48 max-w-3xl"
         />
       </section>

@@ -55,6 +55,14 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - **Profil** : en plus du Talent Unique et de l'Anti-Contexte, « Mes contextes vécus » (situations de réussite
   et d'échec), rappelés dans les garde-fous.
 
+- **Français / anglais** : sélecteur FR · EN dans l'en-tête ; la langue est gardée dans le cookie `boussole_lang`
+  (par défaut : celle du navigateur, sinon le français) et les adresses ne changent pas. Textes de l'interface dans
+  `src/i18n/messages/` (un fichier par zone, l'anglais typé sur le français : une traduction manquante ne compile pas),
+  terminologie MO2I dans les deux langues dans `src/domain/methodology.ts` (`getMethodology(locale)`). Côté serveur :
+  `getI18n()` ; côté client : `useI18n()`. Les contenus saisis (critères, opportunités, notes) ne sont pas traduits ;
+  les catégories par défaut s'affichent dans la langue choisie. Les emails envoyés par Supabase restent ceux configurés
+  dans le tableau de bord Supabase (en français).
+
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
 - Satisfaction : `TOWARDS` → valeur évaluée ; `AWAY_FROM` → 100 − présence.

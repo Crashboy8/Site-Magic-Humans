@@ -2,7 +2,8 @@
 
 import { useId } from "react";
 import { cx } from "@/components/ui";
-import { IKIGAI_CIRCLES, IKIGAI_MISSING, IKIGAI_WEAK, type Ikigai, type IkigaiCircleKey } from "@/domain/results";
+import { IKIGAI_CIRCLES, IKIGAI_WEAK, type Ikigai, type IkigaiCircleKey } from "@/domain/results";
+import { useI18n } from "@/i18n/client";
 import { formatScore } from "@/domain/scoring";
 
 // Couleurs du schéma classique de l'ikigai (validées : contraste et daltonisme, avec un libellé dans chaque cercle).
@@ -19,10 +20,10 @@ const D = 70;
 /** Position de chaque cercle : en haut ce que j'aime, à gauche le talent, à droite le monde, en bas la rémunération. */
 const DIRECTION: Record<IkigaiCircleKey, [number, number]> = { aime: [0, -1], doue: [-1, 0], monde: [1, 0], paye: [0, 1] };
 const OVERLAPS = [
-  { label: "Passion", x: C - 62, y: C - 62 },
-  { label: "Mission", x: C + 62, y: C - 62 },
-  { label: "Profession", x: C - 62, y: C + 66 },
-  { label: "Vocation", x: C + 62, y: C + 66 },
+  { key: "passion", x: C - 62, y: C - 62 },
+  { key: "mission", x: C + 62, y: C - 62 },
+  { key: "profession", x: C - 62, y: C + 66 },
+  { key: "vocation", x: C + 62, y: C + 66 },
 ];
 
 /** L'ikigai d'une opportunité : chaque cercle se remplit selon son score ; le centre se dore en approchant 100 %. */
@@ -32,15 +33,13 @@ export function IkigaiChart({ name, ikigai }: { name: string; ikigai: Ikigai }) 
   const t = total === null ? 0 : total / 100;
   const complete = total !== null && total >= 99.5;
   const weak = ikigai.circles.filter((c) => c.score !== null && c.score < IKIGAI_WEAK);
+  const { t: tr, locale } = useI18n();
+  const txt = tr.results;
+  const fmt = (s: number | null) => formatScore(s, locale);
 
   return (
     <figure className="space-y-3">
-      <svg
-        viewBox="0 0 400 400"
-        role="img"
-        aria-label={`Ikigai de ${name} : ${formatScore(total)}`}
-        className="mx-auto w-full max-w-[340px]"
-      >
+      <svg viewBox="0 0 400 400" role="img" aria-label={txt.ikigaiAria(name, fmt(total))} className="mx-auto w-full max-w-[340px]">
         <defs>
           <radialGradient id={`or-${id}`} cx="40%" cy="35%" r="70%">
             <stop offset="0%" stopColor="#fff6cc" />
@@ -69,7 +68,7 @@ export function IkigaiChart({ name, ikigai }: { name: string; ikigai: Ikigai }) 
               strokeDasharray={score === null ? "6 6" : undefined}
               style={{ mixBlendMode: "multiply" }}
             >
-              <title>{`${circle.label} : ${formatScore(score)}`}</title>
+              <title>{`${txt.circles[circle.key].label} : ${fmt(score)}`}</title>
             </circle>
           );
         })}
@@ -82,10 +81,10 @@ export function IkigaiChart({ name, ikigai }: { name: string; ikigai: Ikigai }) 
           return (
             <text key={circle.key} x={x} y={y} textAnchor="middle" className="fill-ink">
               <tspan x={x} dy="-0.2em" className="text-[12px]">
-                {circle.short}
+                {txt.circles[circle.key].short}
               </tspan>
               <tspan x={x} dy="1.25em" className="text-[17px] font-semibold">
-                {formatScore(score)}
+                {fmt(score)}
               </tspan>
             </text>
           );
@@ -93,14 +92,14 @@ export function IkigaiChart({ name, ikigai }: { name: string; ikigai: Ikigai }) 
 
         {OVERLAPS.map((o) => (
           <text
-            key={o.label}
+            key={o.key}
             x={o.x}
             y={o.y}
             textAnchor="middle"
             dominantBaseline="middle"
             className="fill-ink-soft text-[10px] font-semibold uppercase tracking-wider"
           >
-            {o.label}
+            {txt.overlaps[o.key as keyof typeof txt.overlaps]}
           </text>
         ))}
 
@@ -119,10 +118,10 @@ export function IkigaiChart({ name, ikigai }: { name: string; ikigai: Ikigai }) 
           strokeWidth={complete ? 2.5 : 1.5}
         />
         <text x={C} y={C - 6} textAnchor="middle" className="fill-ink text-[12px] font-semibold">
-          Ikigai
+          {txt.ikigai}
         </text>
         <text x={C} y={C + 12} textAnchor="middle" className="fill-ink text-[15px] font-bold">
-          {formatScore(total)}
+          {fmt(total)}
         </text>
         {complete && (
           <text x={C + 30} y={C - 30} className="text-[18px]">
@@ -139,25 +138,22 @@ export function IkigaiChart({ name, ikigai }: { name: string; ikigai: Ikigai }) 
               <li key={circle.key} className="flex items-center justify-between gap-2 rounded-lg bg-cream px-2.5 py-1.5">
                 <span className="flex items-center gap-2">
                   <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: IKIGAI_COLORS[circle.key] }} />
-                  {circle.label}
+                  {txt.circles[circle.key].label}
                 </span>
-                <span className={cx("tabular-nums font-medium", score === null && "text-ink-soft")}>{formatScore(score)}</span>
+                <span className={cx("tabular-nums font-medium", score === null && "text-ink-soft")}>{fmt(score)}</span>
               </li>
             );
           })}
         </ul>
-        {complete && <p className="text-sm font-medium text-ink">✨ Ikigai complet : les quatre cercles sont réunis.</p>}
+        {complete && <p className="text-sm font-medium text-ink">{txt.ikigaiComplete}</p>}
         {weak.map((c) => (
           <p key={c.key} className="text-sm text-ink-soft">
-            <b className="font-medium text-ink">{c.label}</b> est faible : {IKIGAI_MISSING[c.key].toLowerCase()}.
+            <b className="font-medium text-ink">{txt.circles[c.key].label}</b>
+            {txt.ikigaiWeak}
+            {txt.circles[c.key].missing}.
           </p>
         ))}
-        {total === null && (
-          <p className="text-sm text-ink-soft">
-            Pour calculer ton ikigai, ajoute au moins un critère évalué dans chacune des quatre familles (qualité de vie, talent, valeurs,
-            rémunération).
-          </p>
-        )}
+        {total === null && <p className="text-sm text-ink-soft">{txt.ikigaiIncomplete}</p>}
       </figcaption>
     </figure>
   );

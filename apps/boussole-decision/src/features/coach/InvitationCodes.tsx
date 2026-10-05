@@ -7,6 +7,7 @@ import { supabaseBrowser } from "@/lib/supabase/client";
 import { createInvitationCode, deleteInvitationCode, setInvitationCodeDisabled } from "@/data/repository";
 import { generateInvitationCode } from "@/domain/versions";
 import type { InvitationCode } from "@/domain/types";
+import { useI18n } from "@/i18n/client";
 
 export interface CodeUser {
   firstName: string;
@@ -41,6 +42,8 @@ export function InvitationCodes({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const { t, locale } = useI18n();
+  const k = t.coach;
 
   async function act(fn: () => Promise<unknown>) {
     setError(null);
@@ -48,7 +51,7 @@ export function InvitationCodes({
       await fn();
       router.refresh();
     } catch {
-      setError("L'opération n'a pas abouti. Réessaie dans un instant.");
+      setError(k.actionFailed);
     }
   }
 
@@ -78,20 +81,26 @@ export function InvitationCodes({
   return (
     <div className="space-y-5">
       <form onSubmit={create} className="grid gap-4 rounded-2xl border border-line bg-paper p-5 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
-        <Field label="Pour qui ?" htmlFor="code-label" hint="Un code par coaché, utilisable une seule fois.">
-          <Input id="code-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Ex. : Claire D." maxLength={80} />
+        <Field label={k.forWhom} htmlFor="code-label" hint={k.forWhomHint}>
+          <Input
+            id="code-label"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder={k.forWhomPlaceholder}
+            maxLength={80}
+          />
         </Field>
-        <Field label="Expire le (facultatif)" htmlFor="code-exp">
+        <Field label={k.expiresOn} htmlFor="code-exp">
           <Input id="code-exp" type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
         </Field>
         <Button type="submit" disabled={pending} className="sm:mb-7">
-          {pending ? "Création…" : "Générer un code"}
+          {pending ? k.creating : k.generate}
         </Button>
       </form>
       {error && <Notice tone="error">{error}</Notice>}
 
       {codes.length === 0 ? (
-        <p className="text-ink-soft">Aucun code pour l&apos;instant.</p>
+        <p className="text-ink-soft">{k.noCode}</p>
       ) : (
         <ul className="divide-y divide-line rounded-2xl border border-line bg-paper">
           {codes.map((c) => {
@@ -101,50 +110,51 @@ export function InvitationCodes({
               <li key={c.code} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
                 <div className="space-y-1">
                   <p className="flex flex-wrap items-center gap-2">
-                    <span className={state === "disponible" ? "font-mono tracking-wider" : "font-mono tracking-wider text-ink-soft line-through decoration-ink/30"}>
+                    <span
+                      className={
+                        state === "disponible"
+                          ? "font-mono tracking-wider"
+                          : "font-mono tracking-wider text-ink-soft line-through decoration-ink/30"
+                      }
+                    >
                       {c.code}
                     </span>
-                    {state === "disponible" && <Badge tone="sage">Disponible</Badge>}
-                    {state === "utilise" && <Badge>Utilisé</Badge>}
-                    {state === "desactive" && <Badge tone="accent">Désactivé</Badge>}
-                    {state === "expire" && <Badge>Expiré</Badge>}
+                    {state === "disponible" && <Badge tone="sage">{k.available}</Badge>}
+                    {state === "utilise" && <Badge>{k.used}</Badge>}
+                    {state === "desactive" && <Badge tone="accent">{k.disabled}</Badge>}
+                    {state === "expire" && <Badge>{k.expired}</Badge>}
                   </p>
                   <p className="text-sm text-ink-soft">
-                    {c.label || "Sans libellé"}
-                    {users.length > 0 && <> · utilisé par {users.map((u) => u.firstName || u.email).join(", ")}</>}
-                    {c.maxUses > 1 && (
-                      <>
-                        {" "}
-                        · {c.usedCount} / {c.maxUses} utilisations
-                      </>
-                    )}
-                    {c.expiresAt && state !== "utilise" && <> · jusqu&apos;au {formatDate(c.expiresAt)}</>}
-                    <> · créé le {formatDate(c.createdAt)}</>
+                    {c.label || k.noLabel}
+                    {users.length > 0 && k.usedBy(users.map((u) => u.firstName || u.email).join(", "))}
+                    {c.maxUses > 1 && k.uses(c.usedCount, c.maxUses)}
+                    {c.expiresAt && state !== "utilise" && k.until(formatDate(c.expiresAt, false, locale))}
+                    {k.createdOn(formatDate(c.createdAt, false, locale))}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {state === "disponible" && (
                     <Button type="button" variant="secondary" onClick={() => copy(c.code)}>
-                      {copied === c.code ? "✓ Lien copié" : "Copier le lien d'inscription"}
+                      {copied === c.code ? k.linkCopied : k.copyLink}
                     </Button>
                   )}
                   {state === "disponible" && (
                     <Button type="button" variant="ghost" onClick={() => act(() => setInvitationCodeDisabled(db, c.code, true))}>
-                      Désactiver
+                      {k.disable}
                     </Button>
                   )}
                   {state === "desactive" && (
                     <Button type="button" variant="ghost" onClick={() => act(() => setInvitationCodeDisabled(db, c.code, false))}>
-                      Réactiver
+                      {k.enable}
                     </Button>
                   )}
                   {c.usedCount === 0 && (
                     <Button
                       type="button"
                       variant="dangerGhost"
-                      onClick={() => confirm(`Supprimer définitivement le code ${c.code} ?`) && act(() => deleteInvitationCode(db, c.code))}
+                      onClick={() => confirm(k.deleteCodeConfirm(c.code)) && act(() => deleteInvitationCode(db, c.code))}
                     >
-                      Supprimer
+                      {k.delete}
                     </Button>
                   )}
                 </div>

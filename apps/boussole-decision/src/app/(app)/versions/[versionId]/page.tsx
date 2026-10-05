@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getI18n } from "@/i18n/server";
 import { listVersions } from "@/data/repository";
 import { nextVersionName } from "@/domain/versions";
 import { loadVersionContext } from "@/features/versions/context";
@@ -6,7 +7,9 @@ import { VersionHeader } from "@/features/versions/VersionHeader";
 import { VersionWorkspace } from "@/features/versions/VersionWorkspace";
 import { supabaseServer } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Version" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).t.version.titleVersion };
+}
 
 export default async function VersionPage({ params }: PageProps<"/versions/[versionId]">) {
   const { versionId } = await params;

@@ -1,10 +1,13 @@
 import { Notice } from "@/components/ui";
+import { getI18n } from "@/i18n/server";
 
-export function ReadOnlyBanner({ ownerName }: { ownerName: string }) {
+export async function ReadOnlyBanner({ ownerName }: { ownerName: string }) {
+  const { t } = await getI18n();
   return (
     <div className="mb-6">
       <Notice>
-        👀 Tu consultes la boussole de <strong className="font-medium">{ownerName}</strong>, en lecture seule.
+        👀 {t.common.readOnlyIntro} <strong className="font-medium">{ownerName}</strong>
+        {t.common.readOnlyEnd}
       </Notice>
     </div>
   );

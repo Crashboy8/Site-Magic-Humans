@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
+import { useI18n } from "@/i18n/client";
 import {
   type AuthState,
   magicLinkAction,
@@ -20,21 +21,22 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
   const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
+  const t = useI18n().t.auth;
 
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">Te revoilà</h1>
-        <p className="mt-1 text-ink-soft">Connecte-toi pour retrouver tes boussoles.</p>
+        <h1 className="text-3xl italic">{t.welcomeBack}</h1>
+        <p className="mt-1 text-ink-soft">{t.signInIntro}</p>
       </div>
 
-      {linkError && <Notice tone="error">Ce lien n&apos;est plus valable (il a peut-être déjà servi). Demande-en un nouveau.</Notice>}
+      {linkError && <Notice tone="error">{t.linkInvalid}</Notice>}
 
-      <div role="tablist" aria-label="Mode de connexion" className="grid grid-cols-2 rounded-full bg-sand p-1 text-sm">
+      <div role="tablist" aria-label={t.signInMode} className="grid grid-cols-2 rounded-full bg-sand p-1 text-sm">
         {(
           [
-            ["password", "Mot de passe"],
-            ["magic", "Lien par email"],
+            ["password", t.modePassword],
+            ["magic", t.modeMagic],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -52,39 +54,39 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
 
       {mode === "password" ? (
         <form action={pwAction} className="space-y-4">
-          <Field label="Email" htmlFor="email">
+          <Field label={t.email} htmlFor="email">
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </Field>
-          <Field label="Mot de passe" htmlFor="password">
+          <Field label={t.password} htmlFor="password">
             <Input id="password" name="password" type="password" autoComplete="current-password" required />
           </Field>
           {pwState.error && <Notice tone="error">{pwState.error}</Notice>}
           <Button type="submit" className="w-full" disabled={pwPending}>
-            {pwPending ? "Connexion…" : "Me connecter"}
+            {pwPending ? t.signingIn : t.signIn}
           </Button>
           <p className="text-center text-sm">
             <Link href="/mot-de-passe-oublie/" className="text-link underline underline-offset-4">
-              Mot de passe oublié ?
+              {t.forgotPassword}
             </Link>
           </p>
         </form>
       ) : (
         <form action={mlAction} className="space-y-4">
-          <Field label="Email" htmlFor="ml-email" hint="Tu recevras un lien qui te connecte en un clic, sans mot de passe.">
+          <Field label={t.email} htmlFor="ml-email" hint={t.magicHint}>
             <Input id="ml-email" name="email" type="email" autoComplete="email" required />
           </Field>
           {mlState.error && <Notice tone="error">{mlState.error}</Notice>}
           {mlState.message && <Notice tone="success">{mlState.message}</Notice>}
           <Button type="submit" className="w-full" disabled={mlPending}>
-            {mlPending ? "Envoi…" : "Recevoir mon lien de connexion"}
+            {mlPending ? t.sending : t.sendMagicLink}
           </Button>
         </form>
       )}
 
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
-        Pas encore de compte ?{" "}
+        {t.noAccountYet}{" "}
         <Link href="/inscription/" className="font-medium text-link underline underline-offset-4">
-          Créer mon compte
+          {t.createAccount}
         </Link>
       </p>
     </Card>
@@ -94,13 +96,14 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
 export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
   const [state, action, pending] = useActionState(signUpAction, initial);
   const fe = state.fieldErrors ?? {};
+  const t = useI18n().t.auth;
 
   if (state.message) {
     return (
       <Card className="space-y-4 text-center">
-        <h1 className="text-3xl italic">Bienvenue !</h1>
+        <h1 className="text-3xl italic">{t.signUpDone}</h1>
         <Notice tone="success">{state.message}</Notice>
-        <p className="text-sm text-ink-soft">Pense à regarder dans tes courriers indésirables si tu ne le vois pas.</p>
+        <p className="text-sm text-ink-soft">{t.checkSpam}</p>
       </Card>
     );
   }
@@ -108,14 +111,11 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">Créer mon espace</h1>
-        <p className="mt-1 text-ink-soft">
-          Ton compte garde tout ton travail, sur tous tes appareils. Si Pierre t&apos;a donné un code d&apos;invitation, indique-le : il
-          sera ton coach dans l&apos;outil.
-        </p>
+        <h1 className="text-3xl italic">{t.signUpTitle}</h1>
+        <p className="mt-1 text-ink-soft">{t.signUpIntro}</p>
       </div>
       <form action={action} className="space-y-4" noValidate>
-        <Field label="Code d'invitation (facultatif)" htmlFor="code" error={fe.code}>
+        <Field label={t.inviteCode} htmlFor="code" error={fe.code}>
           <Input
             id="code"
             name="code"
@@ -127,28 +127,25 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
             className="font-mono tracking-wider uppercase"
           />
         </Field>
-        <Field label="Prénom" htmlFor="first_name" error={fe.first_name}>
+        <Field label={t.firstName} htmlFor="first_name" error={fe.first_name}>
           <Input id="first_name" name="first_name" autoComplete="given-name" aria-invalid={Boolean(fe.first_name)} />
         </Field>
-        <Field label="Email" htmlFor="email" error={fe.email}>
+        <Field label={t.email} htmlFor="email" error={fe.email}>
           <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(fe.email)} />
         </Field>
-        <Field label="Mot de passe" htmlFor="password" hint="8 caractères minimum." error={fe.password}>
+        <Field label={t.password} htmlFor="password" hint={t.passwordHint} error={fe.password}>
           <Input id="password" name="password" type="password" autoComplete="new-password" aria-invalid={Boolean(fe.password)} />
         </Field>
-        <p className="rounded-xl bg-sand/70 px-4 py-3 text-sm text-ink-soft">
-          🔒 Tes boussoles sont privées. Rien n&apos;est visible par ton coach tant que tu ne choisis pas, profil par profil, de les
-          partager avec lui. Tu peux retirer ce partage à tout moment.
-        </p>
+        <p className="rounded-xl bg-sand/70 px-4 py-3 text-sm text-ink-soft">{t.privacyNote}</p>
         {state.error && <Notice tone="error">{state.error}</Notice>}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Création…" : "Créer mon compte"}
+          {pending ? t.creating : t.createAccount}
         </Button>
       </form>
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
-        Déjà inscrit·e ?{" "}
+        {t.alreadyRegistered}{" "}
         <Link href="/connexion/" className="font-medium text-link underline underline-offset-4">
-          Me connecter
+          {t.signIn}
         </Link>
       </p>
     </Card>
@@ -157,25 +154,26 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
 
 export function ResetPasswordForm() {
   const [state, action, pending] = useActionState(resetPasswordAction, initial);
+  const t = useI18n().t.auth;
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">Mot de passe oublié</h1>
-        <p className="mt-1 text-ink-soft">Indique ton email : tu recevras un lien pour en choisir un nouveau.</p>
+        <h1 className="text-3xl italic">{t.titleForgot}</h1>
+        <p className="mt-1 text-ink-soft">{t.forgotIntro}</p>
       </div>
       <form action={action} className="space-y-4">
-        <Field label="Email" htmlFor="email">
+        <Field label={t.email} htmlFor="email">
           <Input id="email" name="email" type="email" autoComplete="email" required />
         </Field>
         {state.error && <Notice tone="error">{state.error}</Notice>}
         {state.message && <Notice tone="success">{state.message}</Notice>}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Envoi…" : "Envoyer le lien"}
+          {pending ? t.sending : t.sendLink}
         </Button>
       </form>
       <p className="text-center text-sm">
         <Link href="/connexion/" className="text-link underline underline-offset-4">
-          Retour à la connexion
+          {t.backToSignIn}
         </Link>
       </p>
     </Card>
@@ -184,27 +182,29 @@ export function ResetPasswordForm() {
 
 export function NewPasswordForm() {
   const [state, action, pending] = useActionState(updatePasswordAction, initial);
+  const t = useI18n().t.auth;
   return (
     <form action={action} className="space-y-4">
-      <Field label="Nouveau mot de passe" htmlFor="password" hint="8 caractères minimum." error={state.fieldErrors?.password}>
+      <Field label={t.newPassword} htmlFor="password" hint={t.passwordHint} error={state.fieldErrors?.password}>
         <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={8} />
       </Field>
       {state.error && <Notice tone="error">{state.error}</Notice>}
       {state.message && <Notice tone="success">{state.message}</Notice>}
       <Button type="submit" disabled={pending}>
-        {pending ? "Enregistrement…" : "Enregistrer le mot de passe"}
+        {pending ? t.savingPassword : t.savePassword}
       </Button>
     </form>
   );
 }
 
 /** Bouton « Essayer tout de suite » : session invitée et ouverture directe du tableau. */
-export function TrialButton({ label = "Essayer tout de suite", className }: { label?: string; className?: string }) {
+export function TrialButton({ label, className }: { label?: string; className?: string }) {
   const [state, action, pending] = useActionState(startTrialAction, initial);
+  const t = useI18n().t.auth;
   return (
     <form action={action} className={cx("space-y-2", className)}>
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Préparation de ton espace…" : label}
+        {pending ? t.tryNowPending : (label ?? t.tryNowButton)}
       </Button>
       {state.error && <Notice tone="error">{state.error}</Notice>}
     </form>
@@ -213,37 +213,35 @@ export function TrialButton({ label = "Essayer tout de suite", className }: { la
 
 /** Les deux portes d'entrée de la page d'accueil. */
 export function WelcomeChoices() {
+  const t = useI18n().t.auth;
   return (
     <div className="grid gap-4">
       <Card className="space-y-3 border-accent/30 bg-blush/50">
-        <h2 className="font-serif text-2xl italic">Essayer tout de suite</h2>
-        <p className="text-[15px] text-ink-soft">
-          Sans email, sans mot de passe : tu entres directement dans ton tableau de décision. Ton travail est gardé sur cet appareil, et tu
-          pourras le sauvegarder ensuite avec ton email.
-        </p>
+        <h2 className="font-serif text-2xl italic">{t.tryNowTitle}</h2>
+        <p className="text-[15px] text-ink-soft">{t.tryNowText}</p>
         <TrialButton />
         <Link
           href="/exemple/"
           className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent/40 bg-paper px-5 text-[15px] font-medium text-accent-deep hover:bg-blush"
         >
-          👀 Voir d&apos;abord un exemple
+          {t.seeExample}
         </Link>
       </Card>
       <Card className="space-y-3">
-        <h2 className="font-serif text-2xl italic">J&apos;ai déjà un compte, ou je veux en créer un</h2>
-        <p className="text-[15px] text-ink-soft">Tout est sauvegardé avec ton email, et accessible depuis n&apos;importe quel appareil.</p>
+        <h2 className="font-serif text-2xl italic">{t.accountTitle}</h2>
+        <p className="text-[15px] text-ink-soft">{t.accountText}</p>
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
             href="/connexion/"
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/25 bg-paper px-5 text-[15px] font-medium hover:bg-sand"
           >
-            Me connecter
+            {t.signIn}
           </Link>
           <Link
             href="/inscription/"
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-ink/25 bg-paper px-5 text-[15px] font-medium hover:bg-sand"
           >
-            Créer mon compte
+            {t.createAccount}
           </Link>
         </div>
       </Card>
@@ -255,27 +253,28 @@ export function SaveGuestForm() {
   const [state, action, pending] = useActionState(saveGuestAction, initial);
   const [hasAccount, setHasAccount] = useState(false);
   const fe = state.fieldErrors ?? {};
+  const t = useI18n().t.auth;
   if (state.message) return <Notice tone="success">{state.message}</Notice>;
   if (state.existingAccount && state.email) return <ExistingAccountSignIn email={state.email} />;
   if (hasAccount) return <ExistingAccountSignIn onBack={() => setHasAccount(false)} />;
   return (
     <div className="space-y-5">
       <form action={action} className="space-y-4" noValidate>
-        <Field label="Prénom" htmlFor="first_name" error={fe.first_name}>
+        <Field label={t.firstName} htmlFor="first_name" error={fe.first_name}>
           <Input id="first_name" name="first_name" autoComplete="given-name" aria-invalid={Boolean(fe.first_name)} />
         </Field>
-        <Field label="Email" htmlFor="email" error={fe.email} hint="Tu recevras un lien pour confirmer : ouvre-le sur cet appareil.">
+        <Field label={t.email} htmlFor="email" error={fe.email} hint={t.saveEmailHint}>
           <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(fe.email)} />
         </Field>
         {state.error && <Notice tone="error">{state.error}</Notice>}
         <Button type="submit" disabled={pending}>
-          {pending ? "Envoi…" : "Sauvegarder mon travail"}
+          {pending ? t.sending : t.saveButton}
         </Button>
       </form>
       <div className="space-y-2 border-t border-line pt-5">
-        <p className="text-sm text-ink-soft">Tu as déjà un compte ? Connecte-toi : ton essai y sera ajouté.</p>
+        <p className="text-sm text-ink-soft">{t.haveAccountQuestion}</p>
         <Button type="button" variant="secondary" className="w-full" onClick={() => setHasAccount(true)}>
-          Me connecter à mon compte
+          {t.signInToAccount}
         </Button>
       </div>
     </div>
@@ -287,20 +286,22 @@ function ExistingAccountSignIn({ email, onBack }: { email?: string; onBack?: () 
   const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
   const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
   const [typedEmail, setTypedEmail] = useState("");
+  const t = useI18n().t.auth;
   return (
     <div className="space-y-5">
       {email ? (
         <Notice tone="info">
-          Tu as déjà un compte avec <strong>{email}</strong>. Connecte-toi : ton essai y sera ajouté, tu ne perds rien.
+          {t.existingAccount} <strong>{email}</strong>
+          {t.existingAccountEnd}
         </Notice>
       ) : (
-        <p className="text-[15px] text-ink-soft">Connecte-toi à ton compte : ton essai y sera ajouté, tu ne perds rien.</p>
+        <p className="text-[15px] text-ink-soft">{t.signInToAdd}</p>
       )}
       <form action={pwAction} className="space-y-4">
         {email ? (
           <input type="hidden" name="email" value={email} />
         ) : (
-          <Field label="Email" htmlFor="existing-email">
+          <Field label={t.email} htmlFor="existing-email">
             <Input
               id="existing-email"
               name="email"
@@ -312,7 +313,7 @@ function ExistingAccountSignIn({ email, onBack }: { email?: string; onBack?: () 
             />
           </Field>
         )}
-        <Field label="Mot de passe" htmlFor="existing-password">
+        <Field label={t.password} htmlFor="existing-password">
           <Input
             id="existing-password"
             name="password"
@@ -324,25 +325,27 @@ function ExistingAccountSignIn({ email, onBack }: { email?: string; onBack?: () 
         </Field>
         {pwState.error && <Notice tone="error">{pwState.error}</Notice>}
         <Button type="submit" className="w-full" disabled={pwPending}>
-          {pwPending ? "Connexion…" : "Me connecter à mon compte"}
+          {pwPending ? t.signingIn : t.signInToAccount}
         </Button>
       </form>
       <form action={mlAction} className="space-y-3 border-t border-line pt-5">
         <input type="hidden" name="email" value={email ?? typedEmail} />
-        <p className="text-sm text-ink-soft">Pas de mot de passe, ou tu l&apos;as oublié ? Reçois un lien qui te connecte en un clic.</p>
+        <p className="text-sm text-ink-soft">{t.noPasswordHint}</p>
         {mlState.error && <Notice tone="error">{mlState.error}</Notice>}
         {mlState.message ? (
-          <Notice tone="success">{mlState.message} Ouvre-le sur cet appareil pour que ton essai soit ajouté.</Notice>
+          <Notice tone="success">
+            {mlState.message} {t.openOnThisDevice}
+          </Notice>
         ) : (
           <Button type="submit" variant="secondary" className="w-full" disabled={mlPending}>
-            {mlPending ? "Envoi…" : "Recevoir un lien de connexion"}
+            {mlPending ? t.sending : t.receiveLoginLink}
           </Button>
         )}
       </form>
       {onBack && (
         <p className="text-center text-sm">
           <button type="button" onClick={onBack} className="text-link underline underline-offset-4">
-            Je n&apos;ai pas encore de compte
+            {t.noAccountYetLink}
           </button>
         </p>
       )}

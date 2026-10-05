@@ -40,7 +40,7 @@ describe("satisfaction d'un critère", () => {
 describe("score d'alignement global", () => {
   it("pondère Critique ×5 … Bof ×1", () => {
     const r = scoreOpportunity(opp, [c("a", { importance: "critique" }), c("b", { importance: "bof" })], [ev("a", "oui"), ev("b", "non")]);
-    expect(r.score).toBeCloseTo((5 * 100) / 600 * 100);
+    expect(r.score).toBeCloseTo(((5 * 100) / 600) * 100);
   });
   it("Bonus ajoute des points sans jamais en retirer", () => {
     const base = [c("a")];
@@ -106,13 +106,27 @@ describe("classement", () => {
   it("place les non conformes après les autres, même avec un meilleur score", () => {
     const criteria = [c("a"), c("d", { nonNegotiable: true })];
     const evaluations = [ev("a", "oui", "x"), ev("d", "non", "x"), ev("a", "p25", "y"), ev("d", "oui", "y")];
-    const ranked = rankOpportunities([{ id: "x", name: "X" }, { id: "y", name: "Y" }], criteria, evaluations);
+    const ranked = rankOpportunities(
+      [
+        { id: "x", name: "X" },
+        { id: "y", name: "Y" },
+      ],
+      criteria,
+      evaluations,
+    );
     expect(ranked.map((r) => r.opportunity.id)).toEqual(["y", "x"]);
   });
   it("à score égal, la plus complète passe devant", () => {
     const criteria = [c("a"), c("b")];
     const evaluations = [ev("a", "p50", "x"), ev("a", "p50", "y"), ev("b", "p50", "y")];
-    const ranked = rankOpportunities([{ id: "x", name: "X" }, { id: "y", name: "Y" }], criteria, evaluations);
+    const ranked = rankOpportunities(
+      [
+        { id: "x", name: "X" },
+        { id: "y", name: "Y" },
+      ],
+      criteria,
+      evaluations,
+    );
     expect(ranked.map((r) => r.opportunity.id)).toEqual(["y", "x"]);
   });
 });
@@ -161,7 +175,10 @@ describe("barème personnalisé", () => {
   it("le barème change le classement", () => {
     const crit = [c("salaire", { importance: "critique" }), c("sens", { importance: "bof" })];
     const evs = [ev("salaire", "oui", "x"), ev("sens", "non", "x"), ev("salaire", "non", "y"), ev("sens", "oui", "y")];
-    const opps = [{ id: "x", name: "X" }, { id: "y", name: "Y" }];
+    const opps = [
+      { id: "x", name: "X" },
+      { id: "y", name: "Y" },
+    ];
     expect(rankOpportunities(opps, crit, evs)[0].opportunity.id).toBe("x");
     expect(rankOpportunities(opps, crit, evs, { ...DEFAULT_WEIGHTS, critique: 1, bof: 5 })[0].opportunity.id).toBe("y");
   });

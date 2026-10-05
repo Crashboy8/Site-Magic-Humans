@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cx } from "@/components/ui";
+import { useI18n } from "@/i18n/client";
 
 /** Titre renommable sur place (clic, puis Entrée pour valider ou Échap pour annuler). */
 export function InlineName({
@@ -23,6 +24,7 @@ export function InlineName({
   const [draft, setDraft] = useState(value);
   const [current, setCurrent] = useState(value);
   const [error, setError] = useState(false);
+  const v = useI18n().t.version;
 
   if (readOnly) return <span className={className}>{current}</span>;
 
@@ -71,18 +73,18 @@ export function InlineName({
           setDraft(current);
           setEditing(true);
         }}
-        title="Cliquer pour renommer"
+        title={v.clickToRename}
         className={cx("-mx-1 rounded-lg px-1 text-left hover:bg-sand/70", className)}
       >
         {current}
-        <span className="sr-only"> (renommer)</span>
+        <span className="sr-only">{v.rename}</span>
         <span aria-hidden="true" className="ml-2 align-middle text-base not-italic text-ink-soft/60">
           ✎
         </span>
       </button>
       {error && (
         <span role="alert" className="text-sm text-danger">
-          Nom non enregistré
+          {v.nameNotSaved}
         </span>
       )}
     </span>

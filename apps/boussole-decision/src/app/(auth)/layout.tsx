@@ -1,17 +1,21 @@
 import { CompassMark } from "@/components/ui";
+import { LanguageSwitch } from "@/i18n/LanguageSwitch";
+import { getI18n } from "@/i18n/server";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const { t } = await getI18n();
   return (
-    <div className="flex min-h-dvh flex-col items-center px-4 py-10 sm:py-16">
+    <div className="relative flex min-h-dvh flex-col items-center px-4 py-10 sm:py-16">
+      <LanguageSwitch className="absolute right-4 top-4" />
       <header className="mb-8 flex flex-col items-center gap-3 text-center">
         <CompassMark className="h-12 w-12 text-ink" />
-        <p className="font-serif text-3xl italic">Boussole de décision</p>
-        <p className="text-sm uppercase tracking-[0.14em] text-ink-soft">Magic Humans · Talent Unique</p>
+        <p className="font-serif text-3xl italic">{t.common.appName}</p>
+        <p className="text-sm uppercase tracking-[0.14em] text-ink-soft">{t.common.tagline}</p>
       </header>
       <main className="w-full max-w-md">{children}</main>
       <footer className="mt-auto pt-10 text-center text-sm text-ink-soft">
         <a className="underline-offset-4 hover:underline" href="https://www.magichumans.com/">
-          ← Retour au site Magic Humans
+          {t.common.backToSite}
         </a>
       </footer>
     </div>

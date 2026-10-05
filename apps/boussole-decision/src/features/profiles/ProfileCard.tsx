@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { Badge, formatDate } from "@/components/ui";
 import type { Profile, Version } from "@/domain/types";
+import { getI18n } from "@/i18n/server";
 
-export function ProfileCard({ profile, versions, href }: { profile: Profile; versions: Version[]; href?: string }) {
+export async function ProfileCard({ profile, versions, href }: { profile: Profile; versions: Version[]; href?: string }) {
   const latest = [...versions].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
   const finalized = versions.filter((v) => v.status === "finalisee").length;
+  const { t, locale } = await getI18n();
+  const p = t.profile;
   return (
     <Link
       href={href ?? `/profils/${profile.id}/`}
@@ -13,12 +16,10 @@ export function ProfileCard({ profile, versions, href }: { profile: Profile; ver
       <h3 className="text-2xl italic group-hover:text-accent-deep">{profile.name}</h3>
       {profile.description && <p className="mt-2 line-clamp-2 text-[15px] text-ink-soft">{profile.description}</p>}
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-5 text-sm text-ink-soft">
-        <Badge>
-          {versions.length} version{versions.length > 1 ? "s" : ""}
-        </Badge>
-        {finalized > 0 && <Badge tone="sage">{finalized} finalisée{finalized > 1 ? "s" : ""}</Badge>}
-        {profile.sharedWithCoach && <Badge tone="accent">Partagé avec le coach</Badge>}
-        {latest && <span>· modifié le {formatDate(latest.updatedAt)}</span>}
+        <Badge>{p.versionsCount(versions.length)}</Badge>
+        {finalized > 0 && <Badge tone="sage">{p.finalizedCount(finalized)}</Badge>}
+        {profile.sharedWithCoach && <Badge tone="accent">{p.sharedBadge}</Badge>}
+        {latest && <span>{p.modifiedOn(formatDate(latest.updatedAt, false, locale))}</span>}
       </div>
     </Link>
   );
