@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/carte.css">
   <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/flow.css">
 </head>
 <body>
   <header class="entete">
@@ -52,7 +53,13 @@
     </aside>
   </main>
 
+  <button type="button" class="bouton-flow" id="btn-flow">
+    <i data-lucide="waves"></i><span>J'étais dans le flow</span>
+  </button>
+
   <aside class="panneau" id="panneau" role="dialog" aria-labelledby="panneau-titre" hidden></aside>
+
+  <div class="flow" id="saisie-flow" hidden></div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -68,6 +75,7 @@
   <script src="js/vues/legende.js"></script>
   <script src="js/vues/navigation.js"></script>
   <script src="js/vues/panneau.js"></script>
+  <script src="js/vues/saisieFlow.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

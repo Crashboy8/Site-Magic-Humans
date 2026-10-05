@@ -174,5 +174,50 @@ test('réorganiser garde les positions manuelles', () => {
   assert.deepStrictEqual(r2.positions.podcast, { q: -8, r: 2 });
 });
 
+console.log('\nMoments de flow');
+
+test('enregistrer un moment marque les compétences comme explorées et range les parties à déléguer', () => {
+  const { carte: c } = cartePlacee();
+  const m = CT.regles.ajouterMoment(c, {
+    competenceIds: ['message', 'message', 'inconnue'], intensite: 9, defi: 4, maitrise: 0,
+    note: '  Conception du message  ', partiesADeleguer: ['redaction', 'message'], rangerADeleguer: true
+  });
+  assert.deepStrictEqual(m.competenceIds, ['message']);
+  assert.deepStrictEqual(m.partiesADeleguer, ['redaction']);
+  assert.strictEqual(m.intensite, 5);
+  assert.strictEqual(m.maitrise, 1);
+  assert.strictEqual(m.note, 'Conception du message');
+  assert.strictEqual(CT.regles.trouver(c, 'message').exploree, true);
+  assert.strictEqual(c.momentsDeFlow.length, 1);
+});
+
+test('un moment sans compétence est refusé', () => {
+  const { carte: c } = cartePlacee();
+  assert.strictEqual(CT.regles.ajouterMoment(c, { competenceIds: [] }), null);
+});
+
+test('les compétences récentes viennent des derniers moments, puis des frontières', () => {
+  const { carte: c } = cartePlacee();
+  assert.strictEqual(CT.regles.competencesRecentes(c, 6).suggestions[0], 'vente');
+  CT.regles.ajouterMoment(c, { competenceIds: ['chanter'], date: '2026-01-01T10:00:00Z' });
+  CT.regles.ajouterMoment(c, { competenceIds: ['coacher', 'ecouter'], date: '2026-02-01T10:00:00Z' });
+  assert.deepStrictEqual(CT.regles.competencesRecentes(c, 6).recentes, ['coacher', 'ecouter', 'chanter']);
+});
+
+test('la recherche ignore les accents et la casse', () => {
+  const { carte: c } = cartePlacee();
+  assert.strictEqual(CT.regles.rechercher(c, 'theatre')[0].id, 'theatre-impro');
+  assert.strictEqual(CT.regles.rechercher(c, 'REDAC')[0].id, 'redaction');
+});
+
+test('une compétence ajoutée à la volée est placée sur le continent, sans doublon', () => {
+  const { carte: c } = cartePlacee();
+  const n = CT.regles.ajouterCompetence(c, 'Facilitation graphique', 'frontiere');
+  assert.strictEqual(CT.regles.ajouterCompetence(c, 'facilitation GRAPHIQUE'), n);
+  const r = CT.placement.placer(c);
+  assert.ok(r.positions[n.id]);
+  assert.deepStrictEqual(CT.placement.verifier(r).filter((p) => /Trou|coupé/.test(p)), []);
+});
+
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');
 process.exitCode = echecs ? 1 : 0;

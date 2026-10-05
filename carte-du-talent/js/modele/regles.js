@@ -112,8 +112,108 @@
     return carte.regions.find((r) => r.id === id) || null;
   }
 
+  // ---------- Moments de flow ----------
+
+  function entre1et5(v) {
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) ? Math.min(5, Math.max(1, n)) : 3;
+  }
+
+  /*
+   * Enregistre un moment de flow. Les parties à déléguer peuvent, sur demande,
+   * rejoindre la zone à déléguer. Renvoie le moment créé, ou null s'il est vide.
+   */
+  function ajouterMoment(carte, saisie) {
+    const ids = new Set(carte.competences.map((c) => c.id));
+    const competenceIds = [...new Set(saisie.competenceIds || [])].filter((id) => ids.has(id));
+    if (!competenceIds.length) return null;
+    const parties = [...new Set(saisie.partiesADeleguer || [])].filter((id) => ids.has(id) && !competenceIds.includes(id));
+    const date = saisie.date && !Number.isNaN(Date.parse(saisie.date)) ? new Date(saisie.date) : new Date();
+    const moment = {
+      id: CT.schema.nouvelId('flow'),
+      date: date.toISOString(),
+      competenceIds,
+      intensite: entre1et5(saisie.intensite),
+      defi: entre1et5(saisie.defi),
+      maitrise: entre1et5(saisie.maitrise),
+      note: String(saisie.note || '').trim().slice(0, 280),
+      partiesADeleguer: parties
+    };
+    carte.momentsDeFlow.push(moment);
+    competenceIds.forEach((id) => { trouver(carte, id).exploree = true; });
+    if (saisie.rangerADeleguer) parties.forEach((id) => changerStatut(carte, id, 'a_deleguer'));
+    return moment;
+  }
+
+  function supprimerMoment(carte, id) {
+    const avant = carte.momentsDeFlow.length;
+    carte.momentsDeFlow = carte.momentsDeFlow.filter((m) => m.id !== id);
+    return carte.momentsDeFlow.length !== avant;
+  }
+
+  // Compétences des derniers moments (plus récentes d'abord), complétées par les frontières.
+  function competencesRecentes(carte, nombre) {
+    const res = [];
+    [...carte.momentsDeFlow].sort((a, b) => b.date.localeCompare(a.date)).forEach((m) => {
+      m.competenceIds.forEach((id) => { if (!res.includes(id)) res.push(id); });
+    });
+    const recentes = res.slice(0, nombre);
+    const complements = carte.competences
+      .filter((c) => c.statut === 'frontiere' && !recentes.includes(c.id))
+      .sort((a, b) => (a.priorite || 99) - (b.priorite || 99))
+      .map((c) => c.id);
+    return { recentes, suggestions: complements.slice(0, Math.max(0, nombre - recentes.length)) };
+  }
+
+  // Ajoute une compétence saisie à la volée ; le placement automatique la posera.
+  function ajouterCompetence(carte, nom, statut) {
+    const propre = String(nom || '').trim().slice(0, 60);
+    if (!propre) return null;
+    const existante = carte.competences.find((c) => normaliserTexte(c.nom) === normaliserTexte(propre));
+    if (existante) return existante;
+    const c = {
+      id: CT.schema.nouvelId('comp'),
+      nom: propre,
+      icone: 'sparkles',
+      statut: CT.schema.STATUTS.includes(statut) ? statut : 'frontiere',
+      regionId: null,
+      regionJonctionId: null,
+      ileId: null,
+      domaine: null,
+      distance: 'proche',
+      voisines: [],
+      position: null,
+      positionManuelle: false,
+      priorite: null,
+      exploree: true
+    };
+    carte.competences.push(c);
+    return c;
+  }
+
+  // Minuscules sans accents, pour la recherche.
+  function normaliserTexte(s) {
+    return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  }
+
+  function rechercher(carte, texte, exclure) {
+    const q = normaliserTexte(texte);
+    if (!q) return [];
+    return carte.competences
+      .filter((c) => !(exclure || []).includes(c.id))
+      .map((c) => {
+        const n = normaliserTexte(c.nom);
+        const rang = n.startsWith(q) ? 0 : n.split(/[\s'/()-]+/).some((m) => m.startsWith(q)) ? 1 : n.includes(q) ? 2 : -1;
+        return { c, rang };
+      })
+      .filter((x) => x.rang >= 0)
+      .sort((a, b) => a.rang - b.rang || a.c.nom.localeCompare(b.c.nom, 'fr'))
+      .map((x) => x.c);
+  }
+
   CT.regles = {
     trouver, changerStatut, changerDistance, changerRegion, changerIle, deplacer, remettreAuto,
-    preparerReorganisation, momentsDe, momentsRecents, objectifDe, regionDe
+    preparerReorganisation, momentsDe, momentsRecents, objectifDe, regionDe,
+    ajouterMoment, supprimerMoment, competencesRecentes, ajouterCompetence, normaliserTexte, rechercher
   };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

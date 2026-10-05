@@ -64,13 +64,18 @@
     const tous = CT.regles.momentsDe(carte, c.id);
     const recents = CT.regles.momentsRecents(carte, c.id, 30);
     let html = '<section class="panneau-section"><h3><i data-lucide="waves"></i> Moments de flow</h3>';
+    if (c.statut !== 'a_deleguer') {
+      html += '<button type="button" class="bouton bouton-flow-ici" data-action="flow"><i data-lucide="waves"></i>J\'étais dans le flow ici</button>';
+    }
     if (!tous.length) {
       html += '<p class="vide">Aucun moment de flow enregistré ici pour l\'instant.</p>';
     } else {
       html += '<p class="chiffres"><strong>' + recents.length + '</strong> sur les 30 derniers jours · ' + tous.length + ' au total</p><ul class="liste-moments">' +
         tous.slice(0, 5).map((m) => '<li><span class="date">' + dateCourte.format(new Date(m.date)) + '</span>' +
           '<span class="intensite" title="Intensité ' + m.intensite + ' sur 5">' + '●'.repeat(m.intensite) + '<span class="pale">' + '●'.repeat(5 - m.intensite) + '</span></span>' +
-          (m.note ? '<span class="note">' + O.echapper(m.note) + '</span>' : '') + '</li>').join('') + '</ul>';
+          (m.note ? '<span class="note">' + O.echapper(m.note) + '</span>' : '') +
+          '<button type="button" class="supprimer" data-action="supprimer-moment" data-valeur="' + O.echapper(m.id) +
+          '" aria-label="Supprimer ce moment du ' + dateCourte.format(new Date(m.date)) + '" title="Supprimer ce moment"><i data-lucide="trash-2"></i></button></li>').join('') + '</ul>';
     }
     return html + '</section>';
   }

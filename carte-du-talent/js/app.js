@@ -12,6 +12,7 @@
 
   let navigation = null;
   let panneau = null;
+  let saisieFlow = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -42,7 +43,7 @@
   // Marges à laisser libres pour cadrer la carte (légende, boutons, panneau).
   function marges() {
     const telephone = window.matchMedia('(max-width: 640px)').matches;
-    return telephone ? { gauche: 8, droite: 8, haut: 8, bas: 72 } : { gauche: 250, droite: 76, haut: 16, bas: 16 };
+    return telephone ? { gauche: 8, droite: 8, haut: 56, bas: 80 } : { gauche: 250, droite: 76, haut: 16, bas: 80 };
   }
 
   // Partie de la carte que le panneau ne recouvre pas, en pixels relatifs au SVG.
@@ -94,7 +95,7 @@
 
   function nomDe(id) {
     const c = CT.regles.trouver(etat.carte, id);
-    return c ? '« ' + c.nom + ' »' : '';
+    return c ? '«\u00a0' + c.nom + '\u00a0»' : '';
   }
 
   const MESSAGES_STATUT = {
@@ -110,6 +111,14 @@
     const id = panneau.ouvert;
     if (action === 'fermer') { fermerPanneau(); return; }
     if (!id || id === 'capitale') return;
+    if (action === 'flow') { saisieFlow.ouvrir([id]); return; }
+    if (action === 'supprimer-moment') {
+      if (!confirm('Supprimer ce moment de flow ?')) return;
+      CT.regles.supprimerMoment(etat.carte, valeur);
+      appliquer();
+      toast('Moment supprimé.');
+      return;
+    }
     const avant = CT.regles.trouver(etat.carte, id).position;
     let change = false;
     if (action === 'statut') {
@@ -135,6 +144,24 @@
       requestAnimationFrame(() => navigation.rendreVisible(id, zoneLibre()));
     }
   }
+
+  // ---------- Saisie d'un moment de flow ----------
+
+  const rappelsFlow = {
+    carte: () => etat.carte,
+    creerCompetence(nom, statut) {
+      const c = CT.regles.ajouterCompetence(etat.carte, nom, statut);
+      if (c) appliquer();
+      return c;
+    },
+    enregistrer(saisie) {
+      const moment = CT.regles.ajouterMoment(etat.carte, saisie);
+      if (!moment) return;
+      appliquer();
+      const noms = moment.competenceIds.map(nomDe).join(', ');
+      toast('Moment de flow enregistré : ' + noms + '.');
+    }
+  };
 
   // ---------- Glisser-déposer ----------
 
@@ -196,6 +223,10 @@
       const ouverte = $('legende').classList.toggle('fermee') === false;
       $('legende-bascule').setAttribute('aria-expanded', String(ouverte));
     });
+    $('btn-flow').addEventListener('click', () => {
+      const id = panneau.ouvert && panneau.ouvert !== 'capitale' ? panneau.ouvert : null;
+      saisieFlow.ouvrir(id ? [id] : []);
+    });
     $('btn-zoom-plus').addEventListener('click', () => navigation.zoomer(1.4));
     $('btn-zoom-moins').addEventListener('click', () => navigation.zoomer(1 / 1.4));
     $('btn-recentrer').addEventListener('click', () => navigation.ajuster(marges()));
@@ -210,6 +241,7 @@
   function demarrer() {
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
     panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau);
+    saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
     if (window.matchMedia('(max-width: 640px)').matches) $('legende').classList.add('fermee');
     etat.carte = CT.stockage.charger() || CT.demo.creer();
     appliquer({ ajuster: true });
@@ -217,6 +249,6 @@
     CT.outils.rafraichirIcones();
   }
 
-  CT.app = { etat, ouvrir };
+  CT.app = { etat, ouvrir, ouvrirFlow: (ids) => saisieFlow.ouvrir(ids) };
   document.addEventListener('DOMContentLoaded', demarrer);
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

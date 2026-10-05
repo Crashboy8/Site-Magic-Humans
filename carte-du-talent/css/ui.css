@@ -405,12 +405,12 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 24px;
+  bottom: 96px;
   z-index: 50;
   text-align: center;
   max-width: calc(100% - 32px);
   padding: 12px 18px;
-  border-radius: 999px;
+  border-radius: 16px;
   background: var(--encre);
   color: #fff;
   font-weight: 700;
@@ -436,7 +436,7 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
   .fil-rouge { font-size: 12.5px; }
   .bouton-icone { padding: 8px 10px; }
   .bouton-icone span { display: none; }
-  .legende { left: 12px; bottom: 12px; width: auto; max-width: calc(100% - 24px); }
+  .legende { left: 12px; top: 12px; bottom: auto; width: auto; max-width: calc(100% - 80px); max-height: calc(100% - 100px); }
   .controles-carte { right: 12px; top: 12px; }
   .bouton-rond { width: 42px; height: 42px; }
 
