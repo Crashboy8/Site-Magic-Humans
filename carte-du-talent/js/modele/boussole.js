@@ -87,5 +87,26 @@
     return b;
   }
 
-  CT.boussole = { lire, analyser, phrases, filRouge, versBrouillon };
+  /*
+   * Lien « Revenir à ma Boussole » : la Boussole transmet l'adresse de la page d'où l'on vient
+   * (#…&retour=…). Par prudence, seules les adresses de la Boussole sont acceptées (site Magic Humans
+   * ou preview Vercel du projet boussole-decision, chemin /boussole-decision/), jamais un autre site.
+   */
+  function retourValide(adresse) {
+    let u;
+    try { u = new URL(String(adresse || '')); } catch (e) { return null; }
+    const hote = u.hostname.toLowerCase();
+    const autorise = u.protocol === 'https:' && (/^(www\.)?magichumans\.com$/.test(hote) || /^boussole-decision(-[a-z0-9-]+)?\.vercel\.app$/.test(hote) ||
+      /^wwwmagichumanscom(-[a-z0-9-]+)?\.vercel\.app$/.test(hote));
+    if (!autorise || !u.pathname.startsWith('/boussole-decision/') || u.username || u.password) return null;
+    return u.origin + u.pathname + u.search;
+  }
+
+  function lireRetour(hash) {
+    const m = /(?:^#|&)retour=([^&]+)/.exec(String(hash || ''));
+    if (!m) return null;
+    try { return retourValide(decodeURIComponent(m[1])); } catch (e) { return null; }
+  }
+
+  CT.boussole = { lire, analyser, phrases, filRouge, versBrouillon, retourValide, lireRetour };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

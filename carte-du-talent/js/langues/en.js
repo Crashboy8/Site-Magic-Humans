@@ -368,6 +368,7 @@
     "Retour": "Back",
     "Revenir à la carte de démonstration": "Go back to the demo map",
     "Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d'abord si tu veux la garder).": "Go back to the demo map? Your current map will be replaced (export it first if you want to keep it).",
+    "Revenir à ma Boussole": "Back to my Compass",
     "Rien pour cette période.": "Nothing for this period.",
     "Rimer": "Rhyming",
     "Récemment": "Recently",

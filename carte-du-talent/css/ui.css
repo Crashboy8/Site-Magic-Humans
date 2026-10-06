@@ -27,6 +27,25 @@
 
 .marque svg { width: 15px; height: 15px; }
 
+.entete-haut { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+
+/* Lien discret vers la Boussole (affiché seulement quand on en vient) */
+.lien-boussole {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 24px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--encre-douce);
+  text-decoration: underline;
+  text-decoration-color: rgba(95, 107, 112, .4);
+  text-underline-offset: 3px;
+}
+.lien-boussole svg { width: 14px; height: 14px; }
+@media (hover: hover) { .lien-boussole:hover { color: var(--encre); text-decoration-color: currentColor; } }
+.lien-boussole:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
 .entete h1 {
   margin: 2px 0 0;
   font-size: 20px;
@@ -545,6 +564,7 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
 @media (max-width: 640px) {
   .entete { padding: 8px 16px; gap: 8px; }
   .marque { display: none; }
+  .lien-boussole { font-size: 12.5px; min-height: 24px; }
   .entete h1 { margin: 0; font-size: 16px; }
   .fil-rouge { font-size: 12.5px; }
   .bouton-icone { padding: 8px 10px; }
