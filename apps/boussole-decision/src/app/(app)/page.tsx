@@ -3,6 +3,7 @@ import { Card, Notice, PageTitle } from "@/components/ui";
 import { listProfiles, listVersionsForUser } from "@/data/repository";
 import { CreateProfile } from "@/features/profiles/CreateProfile";
 import { ProfileCard } from "@/features/profiles/ProfileCard";
+import { PendingQuizImport } from "@/features/quiz/PendingQuizImport";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 import { getI18n } from "@/i18n/server";
 
@@ -18,7 +19,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
     <>
       <PageTitle eyebrow={p.hello(user.firstName)} title={p.homeTitle}>
         {p.homeIntro}
-      </PageTitle>
+      </PageTitle>      <PendingQuizImport />
 
       {trialAdded && (
         <div className="mb-8 max-w-2xl">

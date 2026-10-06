@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReadOnlyBanner } from "@/components/ReadOnlyBanner";
-import { ButtonLink, Card } from "@/components/ui";
+import { ButtonLink, Card, Notice } from "@/components/ui";
 import { getAppUser, getProfile, listVersions } from "@/data/repository";
 import { ProfileHeader } from "@/features/profiles/ProfileHeader";
 import { ShareWithCoach } from "@/features/profiles/ShareWithCoach";
@@ -15,10 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getI18n()).t.profile.titleProfile };
 }
 
-export default async function ProfilePage({ params }: PageProps<"/profils/[profileId]">) {
+export default async function ProfilePage({ params, searchParams }: PageProps<"/profils/[profileId]">) {
   const { profileId } = await params;
-  const user = await requireUser();
-  const p = (await getI18n()).t.profile;
+  const fromQuiz = (await searchParams).quiz === "1";
+  const user = await requireUser();  const { t } = await getI18n();
+  const p = t.profile;
   const db = await supabaseServer();
   const profile = await getProfile(db, profileId).catch(() => null);
   if (!profile) notFound();
@@ -41,8 +42,12 @@ export default async function ProfilePage({ params }: PageProps<"/profils/[profi
           {readOnly ? p.breadcrumbCoachee(owner?.firstName || owner?.email || "") : p.breadcrumbMine}
         </Link>
       </nav>
-      {readOnly && <ReadOnlyBanner ownerName={owner?.firstName || owner?.email || p.yourCoachee} />}
-      <ProfileHeader profile={profile} readOnly={readOnly} />
+      {readOnly && <ReadOnlyBanner ownerName={owner?.firstName || owner?.email || p.yourCoachee} />}      <ProfileHeader profile={profile} readOnly={readOnly} />
+      {fromQuiz && !readOnly && (
+        <div className="mb-6 max-w-3xl">
+          <Notice tone="success">{t.quiz.added}</Notice>
+        </div>
+      )}
       {tableLink && <div className="mb-8">{tableLink}</div>}
 
       <div className="mb-12 space-y-6">
