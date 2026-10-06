@@ -1,4 +1,4 @@
-// Terminologie officielle Magic Humans / MO2I, en français et en anglais. Toute l'interface s'appuie sur ces textes.
+// Terminologie officielle Magic Humans / MO2I, en français, anglais et espagnol. Toute l'interface s'appuie sur ces textes.
 import type { CategoryKey, CriterionDirection, EvaluationValue, Importance, TalentUnique } from "./types";
 import type { Locale } from "@/i18n/config";
 
@@ -337,7 +337,133 @@ const EN = build({
   ],
 });
 
-const BY_LOCALE: Record<Locale, Methodology> = { fr: FR, en: EN };
+const ES = build({
+  terms: {
+    talentUnique: "Talento Único",
+    talentUniqueDefinition: "La aptitud natural y la forma espontánea de actuar de una persona.",
+    contexteDeclencheur: "Contexto Desencadenante",
+    contexteDeclencheurDefinition:
+      "El entorno, la dinámica de grupo o el tipo de problema concreto que activa al instante el talento y el estado de Flow.",
+    mecanisme: "Mecanismo",
+    mecanismeDefinition: "La forma concreta en que el talento se expresa y transforma la realidad.",
+    superBenefice: "Súper Beneficio",
+    superBeneficeDefinition: "El valor añadido desproporcionado y el impacto profundo que genera de forma natural, sin esfuerzo percibido.",
+    antiContexte: "Anti-Contexto",
+    antiContexteDefinition: "El entorno tóxico o inadecuado que apaga el talento y provoca fricción, cansancio o sufrimiento.",
+    inhibition: "o Contexto de Inhibición",
+  },
+  /** « [Mecanismo] en un entorno donde [Contexto Desencadenante], para [Súper Beneficio]. » (yo implícito). */
+  talentSentence(t) {
+    const m = t.mecanisme.trim().replace(/^yo\s+/i, "");
+    const c = t.contexteDeclencheur.trim().replace(/^(en un entorno )?(donde|en el que)\s+/i, "");
+    const s = t.superBenefice
+      .trim()
+      .replace(/^para\s+/i, "")
+      .replace(/[.\s]+$/, "");
+    if (!m || !c || !s) return null;
+    return `${m.charAt(0).toUpperCase()}${m.slice(1)} en un entorno donde ${c}, para ${s}.`;
+  },
+  sentenceParts: { mecanisme: "(Yo)…", contexte: "…en un entorno donde…", benefice: "…para…" },
+  importanceLevels: [
+    { value: "critique", label: "Crítico", hint: "Lo más importante." },
+    { value: "tres_important", label: "Muy importante", hint: "" },
+    { value: "important", label: "Importante", hint: "" },
+    { value: "moyen", label: "Moderadamente importante", hint: "" },
+    { value: "bof", label: "Secundario", hint: "Cuenta un poco." },
+    { value: "bonus", label: "Extra", hint: "Bien si está; no pasa nada si no está." },
+  ],
+  nonNegotiableHint: "Innegociable: si no se cumple del todo, la oportunidad queda señalada y clasificada detrás de las demás.",
+  directions: {
+    TOWARDS: { label: "A buscar", hint: "Lo que buscas.", question: "¿Te da esto esta oportunidad?" },
+    AWAY_FROM: {
+      label: "A evitar",
+      hint: "Lo que quieres mantener lejos: se evalúa su presencia; cuanto más presente, más baja la puntuación.",
+      question: "¿Está presente este riesgo en esta oportunidad?",
+    },
+  },
+  evaluationLabels: {
+    TOWARDS: { oui: "Sí", p75: "Más bien sí", p50: "A medias", p25: "Más bien no", non: "No", inconnu: "? Por comprobar" },
+    AWAY_FROM: { oui: "Presente", p75: "Bastante presente", p50: "En parte", p25: "Un poco", non: "Ausente", inconnu: "? Por comprobar" },
+  },
+  categories: [
+    {
+      key: "contexte_declencheur",
+      label: "Contexto Desencadenante y Flow",
+      subtitle: "Talento Único MO2I",
+      question:
+        "¿En qué entorno, en qué dinámica de grupo o ante qué tipo de problema se activa al instante tu Talento Único? ¿Qué te pone en Flow?",
+      defaults: DEFAULTS.contexte_declencheur,
+      examples: [
+        w("Mi Mecanismo está en el centro del puesto, no al margen", 5),
+        w("El puesto me trae el tipo de problema que activa mi talento", 5),
+        w("Encuentro la dinámica de grupo que me pone en Flow", 4),
+        w("Mi Súper Beneficio se espera y se reconoce", 4),
+        w("Puedo usar mi talento desde las primeras semanas", 3),
+      ],
+    },
+    {
+      key: "anti_contexte",
+      label: "Anti-Contexto y líneas rojas",
+      subtitle: "Prevenir el sufrimiento",
+      question:
+        "¿Qué entorno apaga tu talento, provoca fricción, cansancio o sufrimiento? ¿Cuáles son tus líneas rojas, las que nunca hay que cruzar?",
+      defaults: DEFAULTS.anti_contexte,
+      examples: [
+        w("Microgestión y control permanente", 4, "AWAY_FROM"),
+        w("Tareas repetitivas sin margen de iniciativa", 3, "AWAY_FROM"),
+        w("Cada decisión sube en cascada para su validación", 3, "AWAY_FROM"),
+        dealbreaker("Gestión basada en el miedo o la humillación", "AWAY_FROM"),
+        dealbreaker("Un trabajo contrario a mis valores fundamentales", "AWAY_FROM"),
+      ],
+    },
+    {
+      key: "valeurs_culture",
+      label: "Alineación de valores y cultura",
+      subtitle: "Lo que te importa",
+      question: "¿Qué valores debe compartir contigo la organización? ¿En qué cultura sientes que perteneces?",
+      defaults: DEFAULTS.valeurs_culture,
+      examples: [
+        w("Impacto medioambiental positivo", 5),
+        w("Autonomía en la organización de mi trabajo", 4),
+        w("Compañeros amables y cercanos", 4),
+        w("Trabajar por una causa, un compromiso social", 3),
+        w("Poder hacer voluntariado aparte", 0),
+        w("Utilidad social del trabajo", 4),
+        w("Decisiones transparentes", 3),
+      ],
+    },
+    {
+      key: "conditions_vie",
+      label: "Condiciones de vida y bienestar en el trabajo",
+      subtitle: "Ritmo, carga mental, tranquilidad",
+      question: "¿Qué ritmo, qué carga mental y qué organización te permiten mantener la calma y la estabilidad a largo plazo?",
+      defaults: DEFAULTS.conditions_vie,
+      examples: [
+        w("Teletrabajo al menos 2 días por semana", 3),
+        w("Menos de 30 minutos de trayecto", 3),
+        w("Horarios compatibles con mi vida familiar", 4),
+        w("Carga mental sostenible, sin urgencias permanentes", 4),
+        w("Viajes frecuentes", 2, "AWAY_FROM"),
+      ],
+    },
+    {
+      key: "remuneration",
+      label: "Remuneración y viabilidad económica",
+      subtitle: "Mínimo innegociable + potencial",
+      question: "¿Por debajo de qué ingresos no es viable para ti? ¿Qué potencial económico buscas más allá?",
+      defaults: DEFAULTS.remuneration,
+      examples: [
+        dealbreaker("Al menos 3.000 € netos al mes", "TOWARDS"),
+        w("Idealmente 4.000 € netos al mes", 3),
+        w("Perspectivas de subida salarial", 1),
+        w("Ingresos estables y previsibles", 3),
+        w("Beneficios sociales (seguro médico, participación en beneficios…)", 1),
+      ],
+    },
+  ],
+});
+
+const BY_LOCALE: Record<Locale, Methodology> = { fr: FR, en: EN, es: ES };
 
 export function getMethodology(locale: Locale): Methodology {
   return BY_LOCALE[locale];

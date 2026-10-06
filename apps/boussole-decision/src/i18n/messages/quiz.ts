@@ -65,4 +65,37 @@ const en: typeof fr = {
   added: "Your quiz result has been added: check your Unique Talent below, then open your table to add your opportunities.",
 };
 
-export const quiz = { fr, en };
+const es: typeof fr = {
+  title: "Tu resultado del test",
+  eyebrow: "Test Talento Único",
+  heading: "Tu resultado se convierte en tu Brújula",
+  intro:
+    "Esto es lo que la Brújula va a crear a partir de tu resultado del test: un nuevo perfil, con tu Talento Único, tu Anti-Contexto y tus primeros criterios. Después podrás modificarlo todo.",
+  loading: "Leyendo tu resultado…",
+  invalid:
+    "Este enlace no contiene un resultado de test legible. Vuelve a hacer el test y haz clic de nuevo en «Usar este resultado en mi Brújula de decisión».",
+  retakeQuiz: "Volver a hacer el test",
+  profileName: "Nombre del perfil",
+  talent: "Tu Talento Único",
+  anti: "Tu Anti-Contexto",
+  success: "🌱 Tus contextos de éxito",
+  failure: "⚡ Tu contexto de fracaso bajo presión",
+  criteriaTitle: "Tus primeros criterios",
+  towards: "Lo que buscas (Contexto Desencadenante)",
+  away: "A evitar (Anti-Contexto)",
+  create: "Crear mi perfil con este resultado",
+  creating: "Creando tu perfil…",
+  tryWithout: "Empezar sin cuenta con este resultado",
+  haveAccount: "Ya tengo una cuenta: iniciar sesión",
+  afterSignIn: "Después de iniciar sesión, tu resultado te esperará en tu página de inicio.",
+  signInFirst: "Inicia sesión o empieza sin cuenta para crear tu perfil.",
+  failed: "No se ha podido crear el perfil. Vuelve a intentarlo en un momento.",
+  pendingTitle: "Tu resultado del test te espera",
+  pendingText: (name: string) =>
+    `Añade «${name}» a tu Brújula: tu Talento Único, tu Anti-Contexto y tus primeros criterios vendrán rellenados.`,
+  pendingAdd: "Añadir a mi Brújula",
+  pendingDismiss: "Más tarde",
+  added: "Tu resultado del test se ha añadido: revisa tu Talento Único abajo y luego abre tu tabla para añadir tus oportunidades.",
+};
+
+export const quiz = { fr, en, es };

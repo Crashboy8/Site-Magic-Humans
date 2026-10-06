@@ -4,8 +4,7 @@ export const BASE_PATH = "/boussole-decision";
 export const CARTE_DU_TALENT_URL = "https://www.magichumans.com/carte-du-talent/";
 
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-export const SUPABASE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+export const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 
 /** URL publique absolue d'une page de l'outil (liens envoyés par email). */
 export function absoluteUrl(path: string, fallbackOrigin?: string): string {
@@ -15,7 +14,8 @@ export function absoluteUrl(path: string, fallbackOrigin?: string): string {
 
 /** Pages accessibles sans être connecté. */
 export const PUBLIC_PATHS = [
-  "/bienvenue",  "/exemple",
+  "/bienvenue",
+  "/exemple",
   "/importer-quiz",
   "/connexion",
   "/inscription",

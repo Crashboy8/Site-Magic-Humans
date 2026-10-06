@@ -76,14 +76,42 @@ const en: typeof fr = {
   newTab: "(opens in a new tab)",
 };
 
-/**
- * Espagnol, comme pour le bouton du quiz. La Boussole n'a pas encore de version espagnole :
- * ces libellés sont prêts pour le jour où « es » rejoindra LOCALES (src/i18n/config.ts).
- */
-export const carteDuTalentEs = {
+const es: typeof fr = {
+  appName: "Brújula de decisión",
+  appDescription: "Elige entre varias oportunidades profesionales con tus propios criterios ponderados. Magic Humans.",
+  tagline: "Magic Humans · Talento Único",
+  footer: "La puntuación es una brújula, no un veredicto. · Magic Humans",
+  language: "Idioma",
+  skipToContent: "Ir al contenido",
+  mainNav: "Navegación principal",
+  backToSite: "← Volver al sitio Magic Humans",
+  home: "← Inicio",
+  myProfiles: "Mis perfiles",
+  comments: "Comentarios",
+  unread: () => " sin leer",
+  coachSpace: "Espacio coach",
+  saveShort: "Guardar",
+  saveLong: "Guardar mi trabajo",
+  myAccount: "Mi cuenta",
+  signOut: "Cerrar sesión",
+  quitTrial: "Salir de la prueba",
+  quitTrialConfirm: "Tu prueba no está guardada: si sales, no podrás recuperarla. ¿Salir de todos modos?",
+  trialBanner: "Modo prueba: tu trabajo se guarda en este dispositivo durante 30 días.",
+  trialBannerLink: "Guardarlo con mi email",
+  notFoundTitle: "Página no encontrada",
+  notFoundText: "No existe, o no tienes acceso a su contenido.",
+  notFoundBack: "Volver a mis perfiles",
+  saved: "✓ Guardado",
+  saving: "Guardando…",
+  saveError: "⚠️ No guardado, reintentando…",
+  readOnlyIntro: "Estás viendo la brújula de",
+  readOnlyEnd: ", en solo lectura.",
+  readOnlyTitle: (name: string) => `Viendo las brújulas de ${name}`,
+  readOnlyText: "Solo lectura: puedes dejar comentarios, pero no modificar nada.",
+  noneYet: "—",
   carteDuTalent: "🗺️ Explorar mi mapa del talento",
   carteDuTalentHint: "Visualiza tu talento como un territorio y descubre qué te lleva al flow (en francés).",
   newTab: "(se abre en una nueva pestaña)",
 };
 
-export const common = { fr, en };
+export const common = { fr, en, es };

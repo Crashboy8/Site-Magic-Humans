@@ -1,6 +1,7 @@
 // Exemple fictif intégré (lecture seule, duplicable comme modèle) :
 // Camille, 34 ans, chargée de communication, en réflexion de carrière.
 // Rédigé avec la terminologie Magic Humans / MO2I.
+import type { Locale } from "@/i18n/config";
 import type {
   Category,
   CategoryKey,
@@ -165,15 +166,60 @@ const CAMILLE_EN = {
     "I thought financial security came first. Laying out my criteria, I realise the bank's Anti-Context would switch me off: I'd be well paid but drained.",
 };
 
+const CAMILLE_ES = {
+  talent: {
+    mecanisme: "contar historias que dan ganas de actuar",
+    contexteDeclencheur: "un proyecto con sentido tiene que implicar a personas muy distintas, cerca del terreno",
+    superBenefice: "transformar la adhesión en acción",
+    antiContexte: "Una comunicación vertical y aséptica, lejos del terreno, en la que cada palabra debe validarse en varios niveles.",
+    successSituations:
+      "Cuando animo un taller con voluntarios y veo a la gente salir motivada. Cuando recojo testimonios sobre el terreno.",
+    failureSituations:
+      "Cuando paso el día reformulando comunicados validados por cinco personas. Cuando ya no veo a nadie y doy vueltas delante de mi pantalla.",
+  } satisfies TalentUnique,
+  criteria: {
+    histoires: "Contar historias que dan ganas de actuar",
+    terrain: "Estar en contacto directo con la gente sobre el terreno",
+    micromanagement: "Microgestión, validación de cada palabra que digo",
+    bienveillance: "Compañeros amables y cercanos",
+    cause: "Trabajar por una causa, un compromiso social",
+    benevolat: "Poder hacer voluntariado aparte",
+    trajet: "Menos de 30 minutos de trayecto",
+    teletravail: "Mucho teletrabajo (2 días por semana como mínimo)",
+    plancher: "Al menos 3.000 € netos al mes",
+    ideal: "Idealmente 4.000 € netos al mes",
+  } as Record<string, string>,
+  opportunities: {
+    A: {
+      name: "A. Responsable de comunicación — pyme de ecoconstrucción (Nantes)",
+      summary: "Asalariada · pyme de 80 personas, obras que visitar.",
+      notes: "Salario propuesto: 3.100 € netos, poco margen de evolución.",
+    },
+    B: {
+      name: "B. Consultora freelance en storytelling",
+      summary: "Autónoma · ayudar a marcas y asociaciones a contar su historia.",
+      notes: "Ingresos de los primeros meses aún inciertos.",
+    },
+    C: {
+      name: "C. Responsable sénior de comunicación — gran grupo bancario (La Défense)",
+      summary: "Asalariada · comunicación corporativa.",
+      notes: "4.200 € netos, participación en beneficios, buenas perspectivas salariales.",
+    },
+  } as Record<string, { name: string; summary: string; notes: string }>,
+  insight:
+    "Creía que la seguridad económica era lo primero. Al poner mis criterios por escrito, me doy cuenta de que el Anti-Contexto del banco me apagaría: estaría bien pagada, pero agotada.",
+};
+
 /** L'exemple de Camille dans la langue choisie (les évaluations ne changent pas). */
-export function camilleFor(locale: "fr" | "en") {
+export function camilleFor(locale: Locale) {
   if (locale === "fr") {
     return { talent: CAMILLE.talent, criteria: CAMILLE_CRITERIA, opportunities: CAMILLE_OPPORTUNITIES, insight: CAMILLE_INSIGHT };
   }
+  const tr = locale === "es" ? CAMILLE_ES : CAMILLE_EN;
   return {
-    talent: CAMILLE_EN.talent,
-    criteria: CAMILLE_CRITERIA.map((c) => ({ ...c, label: CAMILLE_EN.criteria[c.id] ?? c.label })),
-    opportunities: CAMILLE_OPPORTUNITIES.map((o) => ({ ...o, ...CAMILLE_EN.opportunities[o.id] })),
-    insight: CAMILLE_EN.insight,
+    talent: tr.talent,
+    criteria: CAMILLE_CRITERIA.map((c) => ({ ...c, label: tr.criteria[c.id] ?? c.label })),
+    opportunities: CAMILLE_OPPORTUNITIES.map((o) => ({ ...o, ...tr.opportunities[o.id] })),
+    insight: tr.insight,
   };
 }

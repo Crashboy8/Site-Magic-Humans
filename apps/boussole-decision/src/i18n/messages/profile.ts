@@ -167,4 +167,85 @@ const en: typeof fr = {
   failurePlaceholder: "E.g. when I'm too isolated, too much in my head, behind a screen all day watching videos.",
 };
 
-export const profile = { fr, en };
+const es: typeof fr = {
+  hello: (name: string) => (name ? `Hola, ${name}:` : "Hola:"),
+  homeTitle: "Tus brújulas",
+  homeIntro:
+    "Cada perfil corresponde a una etapa de tu vida profesional. Dentro, comparas tus oportunidades a partir de lo que de verdad te importa.",
+  myProfiles: "Mis perfiles",
+  startHere: "Todo empieza aquí.",
+  startHereText:
+    "Crea tu primer perfil, por ejemplo «Reconversión 2026». En él definirás tus criterios y después compararás tus oportunidades.",
+  exampleTitle: "El ejemplo de Camille",
+  exampleText: "Responsable de comunicación, 34 años, compara tres oportunidades. Una tabla completa para ver cómo puede quedar.",
+  seeExample: "👀 Ver el ejemplo",
+
+  versionsCount: (n: number) => `${n} versi${n !== 1 ? "ones" : "ón"}`,
+  finalizedCount: (n: number) => `${n} finalizada${n !== 1 ? "s" : ""}`,
+  sharedBadge: "Compartido con el coach",
+  modifiedOn: (date: string) => `· modificado el ${date}`,
+
+  newProfileButton: "+ Nuevo perfil",
+  newProfile: "Nuevo perfil",
+  newProfileIntro: "Un perfil corresponde a una etapa de tu vida profesional. Podrás crear varias versiones en él.",
+  profileName: "Nombre del perfil",
+  nameSuggestions: "Sugerencias de nombres",
+  suggestions: ["Reconversión 2026", "Vuelta tras la baja parental", "Nuevo puesto interno", "Empezar como autónomo"],
+  profileDescription: "Unas palabras sobre este momento (opcional)",
+  profileDescriptionPlaceholder: "Ej.: dejo mi puesto actual en junio y dudo entre varias opciones.",
+  nameRequired: "Ponle un nombre a este perfil.",
+  createFailed: "No se ha podido crear el perfil. Vuelve a intentarlo en un momento.",
+  creating: "Creando…",
+  create: "Crear el perfil",
+  cancel: "Cancelar",
+  firstVersionName: "Borrador",
+
+  titleProfile: "Perfil",
+  eyebrow: "Perfil",
+  deleteProfile: "Eliminar este perfil",
+  deleteConfirm: (name: string) => `¿Eliminar el perfil «${name}» y todas sus versiones? Esta acción es definitiva.`,
+  breadcrumbMine: "← Mis perfiles",
+  breadcrumbCoachee: (name: string) => `← Perfiles de ${name}`,
+  breadcrumb: "Ruta de navegación",
+  yourCoachee: "tu coachee",
+  openTable: "Abrir mi tabla: criterios y oportunidades →",
+  viewTable: "Ver la tabla de decisión →",
+  nextStepTitle: "Siguiente paso: tu tabla de decisión",
+  nextStepText:
+    "Pon tus criterios en filas (lo que te importa, lo que quieres evitar), añade tus oportunidades profesionales en columnas y mira cómo se calcula la puntuación en directo.",
+  versionsTitle: "Versiones",
+  versionsIntro:
+    "Tu reflexión evoluciona: duplica una versión para crear otra nueva sin perder la anterior. Una versión finalizada está protegida; reábrela si quieres retocarla.",
+
+  shareTitle: "Compartir con mi coach",
+  sharedOn: "✓ Este perfil está compartido con tu coach.",
+  sharedOff: "🔒 Este perfil es privado: tu coach no lo ve.",
+  shareExplainStart: "Si lo activas, tu coach podrá",
+  shareExplainReadOnly: "consultarlo en solo lectura",
+  shareExplainMiddle:
+    ": tu Talento Único y todas las versiones de este perfil (criterios, oportunidades, evaluaciones, resultados y sensaciones). Podrá dejar comentarios, pero",
+  shareExplainNever: "nunca podrá modificar nada",
+  shareExplainOthers:
+    "Tus otros perfiles siguen siendo privados. Puedes dejar de compartir en cualquier momento: tu coach ya no tendrá acceso a nada.",
+  shareFailed: "No se ha podido guardar el ajuste. Vuelve a intentarlo en un momento.",
+
+  myTalent: (term: string) => `Mi ${term}`,
+  talentGuides: "Guía la elección de tus criterios.",
+  placeholderMecanisme: "simplificar y aclarar las ideas complejas",
+  placeholderContexte: "hay caos o falta de visión",
+  placeholderBenefice: "devolver movimiento y serenidad al grupo",
+  myAnti: (term: string) => `Mi ${term}`,
+  notFilled: "Sin rellenar.",
+  placeholderAnti: "Ej.: reuniones interminables en las que no se decide nada, un control permanente de cada detalle…",
+  livedTitle: "Mis contextos vividos",
+  livedIntro:
+    "Situaciones concretas sacadas de tu vida. Hacen tangibles tu Contexto Desencadenante y tu Anti-Contexto, y vuelven en tus resultados como salvaguardas.",
+  successTitle: "🌱 Mis contextos de éxito",
+  successHint: "¿Cuándo das lo mejor de ti? ¿Con quién, dónde, haciendo qué?",
+  successPlaceholder: "Ej.: cuando estoy con gente, creo un espacio de relación, con un objetivo y un marco comunes.",
+  failureTitle: "⚡ Mis contextos de fracaso",
+  failureHint: "¿En qué situaciones te apagas? Aquellas en las que puedes caer fácilmente, sin darte cuenta.",
+  failurePlaceholder: "Ej.: cuando estoy demasiado aislado, demasiado en mi cabeza, todo el día delante de una pantalla viendo vídeos.",
+};
+
+export const profile = { fr, en, es };

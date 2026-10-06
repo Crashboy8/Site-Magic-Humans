@@ -276,4 +276,150 @@ const en: typeof fr = {
   ],
 };
 
-export const results = { fr, en };
+const es: typeof fr = {
+  titleResults: "Mis resultados",
+  headingMine: "Mis resultados",
+  heading: "Resultados",
+  intro:
+    "Tu clasificación, lo que enciende tu talento y lo que amenaza con apagarlo en cada oportunidad, y después el lugar de tus sensaciones. Todo se actualiza cuando modificas tu tabla.",
+  finalizedNotice: "Esta versión está finalizada: tus respuestas están protegidas. Reábrela o crea una nueva versión para modificarlas.",
+
+  emptyTitle: "Todavía no hay resultados",
+  emptyText:
+    "Añade al menos una oportunidad y rellena algunas casillas de tu tabla: tus resultados aparecerán aquí, con tu clasificación, lo que enciende tu talento y lo que amenaza con apagarlo.",
+  backToTable: "← Volver a mi tabla",
+
+  verdict: "Veredicto",
+  onlyOne: (score: string) => ` es por ahora la única oportunidad evaluada: ${score} de alineación.`,
+  leads: (score: string) => ` va en cabeza (${score}), por delante de `,
+  leadsEnd: (score: string) => ` (${score}).`,
+  and: " y ",
+  tie: (a: string, b: string) => ` están codo con codo (${a} y ${b}): tus sensaciones decidirán.`,
+  allFail:
+    "Ninguna oportunidad cumple por ahora todos tus innegociables. ¿Es momento de buscar otras, o alguno de estos criterios es en realidad negociable?",
+  compassNote: "La puntuación es una brújula, no un veredicto: ilumina tu decisión, no la toma por ti.",
+  notRated: "sin evaluar",
+  badgeNonNegotiable: "🔒 Innegociable no cumplido",
+  badgeRedLine: "Línea roja cruzada",
+  badgeAnti: "Anti-Contexto presente",
+  badgeToCheck: (n: number) => `${n} por comprobar`,
+
+  contextsTitle: "Éxito o fracaso, oportunidad por oportunidad",
+  contextsIntroStart: "En cada oportunidad, ¿estarías en tu",
+  contextsSuccess: "contexto de éxito",
+  contextsMiddle: "(tu Contexto Desencadenante) o en tu",
+  contextsFailure: "contexto de fracaso",
+  contextsEnd: "(tu Anti-Contexto)?",
+  ignitesTitle: "🌱 Lo que enciende tu talento aquí",
+  triggerPresent: "Tu Contexto Desencadenante está presente",
+  otherAssets: "Otros puntos fuertes",
+  nothingGood: "Todavía nada claramente a su favor.",
+  extinguishTitle: "⚡ Lo que amenaza con apagarte",
+  failedNonNegotiables: "Innegociables no cumplidos",
+  antiPresent: "Tu Anti-Contexto está presente",
+  missing: "Lo que te faltaría",
+  watch: "A vigilar",
+  noFailureSignal: "Ninguna señal de contexto de fracaso. 👍",
+
+  guardTitle: "Tus salvaguardas",
+  guardIntroStart: "Incluso la mejor oportunidad tiene sus trampas. Si eliges",
+  guardIntroEnd: ", estas son las señales que vigilar para no caer en tu contexto de fracaso.",
+  watchOut: "Vigila:",
+  inThisOpportunity: (value: string) => `(${value} en esta oportunidad)`,
+  noAntiRisk: "No se ha detectado ningún riesgo de Anti-Contexto en tu tabla para esta oportunidad.",
+  livedFailures: "Tus contextos de fracaso vividos",
+  askYourself: "Pregúntate: en esta oportunidad, ¿qué podría hacerte caer en esto? ¿Y qué te protegerá?",
+  describeFailuresStart:
+    "💡 Describe tus contextos de fracaso vividos («cuando estoy demasiado aislado, todo el día delante de una pantalla…») en",
+  yourProfile: "tu perfil",
+  describeFailuresEnd: ": aparecerán aquí como salvaguardas.",
+
+  ikigaiTitle: "El ikigai de cada oportunidad",
+  ikigaiIntro:
+    "Cuatro círculos que cuentan un 25 % cada uno: lo que amo (mi calidad de vida, sin mi Anti-Contexto), aquello en lo que soy bueno (mi Contexto Desencadenante), lo que el mundo necesita (mis valores, mis elecciones) y aquello por lo que me pueden pagar (mi remuneración). Cuanto más se juntan los cuatro, más dorado se vuelve el centro.",
+  ikigai: "Ikigai",
+  ikigaiAria: (name: string, score: string) => `Ikigai de ${name}: ${score}`,
+  ikigaiComplete: "✨ Ikigai completo: los cuatro círculos se juntan.",
+  ikigaiWeak: " es débil: ",
+  ikigaiIncomplete:
+    "Para calcular tu ikigai, añade al menos un criterio evaluado en cada una de las cuatro familias (calidad de vida, talento, valores, remuneración).",
+  overlaps: { passion: "Pasión", mission: "Misión", profession: "Profesión", vocation: "Vocación" },
+  circles: {
+    aime: { label: "Lo que amo", short: "Lo amo", missing: "cómodo, pero con una sensación de vacío" },
+    doue: { label: "Aquello en lo que soy bueno", short: "Soy bueno", missing: "emocionante, pero con una sensación de incertidumbre" },
+    monde: {
+      label: "Lo que el mundo necesita",
+      short: "El mundo lo necesita",
+      missing: "satisfactorio, pero con una sensación de inutilidad",
+    },
+    paye: {
+      label: "Aquello por lo que me pueden pagar",
+      short: "Me pagan",
+      missing: "alegría y plenitud, pero no lo suficiente para vivir",
+    },
+  },
+
+  radarTitle: "El radar de tus oportunidades",
+  radarIntro:
+    "La puntuación de cada oportunidad, categoría por categoría: cuanto más grande es la forma, mejor te encaja la oportunidad. En el eje del Anti-Contexto, una puntuación alta significa que el riesgo se evita.",
+  legend: "Leyenda",
+  radarAria: "Radar de las puntuaciones por categoría",
+  radarCaption: "La puntuación de cada oportunidad, categoría por categoría",
+  category: "Categoría",
+  antiAvoided: "Anti-Contexto evitado",
+
+  questionsTitle: "Lo que todavía tienes que comprobar",
+  questionsIntro:
+    "Las casillas marcadas «? Por comprobar» o vacías no cuentan en la puntuación. Estas son las preguntas que hacer (en una entrevista, a un futuro compañero, a un cliente…) para completar tu tabla.",
+  questionTowards: (label: string) => `¿Tendré de verdad: «${label}»?`,
+  questionAway: (label: string) => `¿Está presente este riesgo aquí: «${label}»?`,
+  nonNegotiable: "innegociable",
+
+  stabilityTitle: "¿Se sostiene tu clasificación?",
+  stabilityIntro: "Hemos recalculado haciendo que cada categoría cuente el doble y luego la mitad.",
+  solid: "Tu clasificación es sólida.",
+  solidText: (name: string) => ` Aunque una categoría contara el doble o la mitad para ti, ${name} seguiría en primer lugar.`,
+  sensitive: "Tu clasificación es sensible.",
+  sensitiveLeader: (name: string) => ` ${name} va en cabeza, pero:`,
+  flip: (category: string, emphasis: "plus" | "moins", name: string) =>
+    `si «${category}» contara ${emphasis === "plus" ? "el doble" : "la mitad"} para ti, ${name} pasaría delante.`,
+  stabilityHint:
+    "La verdadera pregunta pasa a ser: ¿cuánto peso quieres dar a estas categorías? Puedes ajustar los niveles de importancia y tu baremo en",
+  yourTable: "tu tabla",
+
+  feelingsTitle: "¿Y tus sensaciones?",
+  feelingsIntro:
+    "Las cifras no lo dicen todo. A menudo es cuando la clasificación te sorprende cuando descubres el criterio que de verdad importa.",
+  agreementQuestion: "¿Esta clasificación coincide con lo que sientes?",
+  agreeYes: "👍 Sí",
+  agreeNotReally: "🤔 No del todo",
+  agreeNo: "👎 No",
+  missingQuestion: "¿Qué falta en tus criterios? ¿Qué sabe tu intuición que la tabla ignora?",
+  noNote: "Ninguna nota.",
+  feedbackPlaceholder: "Ej.: me doy cuenta de que el ambiente del equipo cuenta más de lo que pensaba…",
+  addAsCriterionStart: "Si es un criterio, añádelo a",
+  addAsCriterionEnd: ": la clasificación se actualizará.",
+  projectionStart: "Imagina: mañana has firmado por",
+  projectionEnd: ". ¿Qué sientes primero?",
+  projectionLabel: "Lo que sientes primero",
+  relief: "😌 Alivio",
+  mixed: "😐 Sensaciones encontradas",
+  disappointment: "😟 Decepción",
+  disappointmentHint:
+    "Quizá tu intuición te dice algo que tus criterios todavía no expresan. ¿Hacia qué otra oportunidad se fue tu corazón?",
+  reliefHint: "Tu cabeza y tu intuición apuntan en la misma dirección. 🧭",
+  whatYouFeel: "Lo que sientes",
+  projectionPlaceholder: "Escribe lo que te venga, sin filtro…",
+
+  nextStepsTitle: "Mis próximos pasos",
+  nextStepsIntro: "Una decisión se construye avanzando. Escribe tres acciones concretas, pequeñas y con fecha si es posible.",
+  forWhich: "¿Para qué oportunidad?",
+  action: (n: number) => `Acción ${n}`,
+  stepPlaceholders: [
+    "Ej.: llamar a alguien que ya hace este trabajo",
+    "Ej.: pedir un día de inmersión",
+    "Ej.: hablarlo con mi coach en la próxima sesión",
+  ],
+};
+
+export const results = { fr, en, es };

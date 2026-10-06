@@ -38,7 +38,8 @@ describe("résultat du quiz", () => {
   it("borne les textes et exige un nom et un mécanisme", () => {
     expect(parseQuizResult({ ...sample, name: "" })).toBeNull();
     expect(parseQuizResult({ ...sample, mecanisme: "x".repeat(5000) })?.mecanisme).toHaveLength(400);
-    expect(parseQuizResult({ ...sample, lang: "es" })?.lang).toBe("fr");
+    expect(parseQuizResult({ ...sample, lang: "es" })?.lang).toBe("es");
+    expect(parseQuizResult({ ...sample, lang: "de" })?.lang).toBe("fr");
   });
 });
 
@@ -52,5 +53,23 @@ describe("phrase du Talent Unique", () => {
     expect(
       fr.talentSentence({ mecanisme: "sais écouter", contexteDeclencheur: "il y a des gens", superBenefice: "relier les autres" }),
     ).toContain("afin de relier");
+  });
+});
+
+describe("version espagnole", () => {
+  it("formule le Talent Unique en espagnol", async () => {
+    const { getMethodology } = await import("./methodology");
+    expect(
+      getMethodology("es").talentSentence({
+        mecanisme: "sé llegar al fondo de las cosas",
+        contexteDeclencheur: "hay problemas complejos",
+        superBenefice: "ayudar a directivos y equipos a decidir",
+      }),
+    ).toBe("Sé llegar al fondo de las cosas en un entorno donde hay problemas complejos, para ayudar a directivos y equipos a decidir.");
+  });
+  it("reconnaît l'espagnol du navigateur", async () => {
+    const { localeFromAcceptLanguage } = await import("@/i18n/config");
+    expect(localeFromAcceptLanguage("es-ES,es;q=0.9,en;q=0.8")).toBe("es");
+    expect(localeFromAcceptLanguage("de-DE,de;q=0.9")).toBe("fr");
   });
 });

@@ -33,4 +33,21 @@ const en: typeof fr = {
   startTable: "Start my table",
 };
 
-export const example = { fr, en };
+const es: typeof fr = {
+  title: "Un ejemplo",
+  eyebrow: "Ejemplo ficticio",
+  heading: "La tabla de Camille",
+  intro:
+    "Camille, 34 años, responsable de comunicación, duda entre tres oportunidades. Esta es la tabla que ha rellenado: sus criterios en filas, ordenados de Crítico a Extra, sus oportunidades en columnas y la puntuación resultante.",
+  herTalent: "Su Talento Único",
+  antiLabel: "Anti-Contexto:",
+  herFeeling: "Sus sensaciones",
+  feelingText:
+    "La mejor pagada (el banco) queda última: su Anti-Contexto está muy presente. El trabajo como freelance está cerca de la cabeza, pero quedan dos puntos por comprobar, entre ellos su ingreso mínimo, que para ella es innegociable.",
+  yourTurn: "Te toca",
+  yourTurnText: "Construye tu propia tabla con tus criterios y tus oportunidades.",
+  goToCompasses: "Ir a mis brújulas",
+  startTable: "Empezar mi tabla",
+};
+
+export const example = { fr, en, es };
