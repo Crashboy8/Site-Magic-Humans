@@ -1,7 +1,7 @@
 // Espace coach, codes d'invitation, commentaires.
 const fr = {
   titleCoach: "Espace coach",
-  titleCoachee: "Coaché",
+  titleCoachee: "Coaché·e",
   eyebrow: "Espace coach",
   title: "Tes coachés",
   intro:
@@ -15,15 +15,15 @@ const fr = {
   nothingShared: "Rien de partagé",
   codesTitle: "Codes d'invitation",
   codesIntro:
-    "Génère un code par coaché. Le lien copié pré-remplit le code sur la page d'inscription. Un code non utilisé peut être désactivé à tout moment.",
+    "Génère un code par coaché. Le lien copié préremplit le code sur la page d'inscription. Un code non utilisé peut être désactivé à tout moment.",
   backToCoach: "← Espace coach",
   coacheeEyebrow: "Coaché·e",
   noSharedProfile: (name: string) =>
     `${name || "Ce coaché"} n'a encore partagé aucun profil avec toi. Le partage se fait à son initiative, profil par profil, depuis son espace.`,
   // Codes
-  forWhom: "Pour qui ?",
+  forWhom: "Pour qui ?",
   forWhomHint: "Un code par coaché, utilisable une seule fois.",
-  forWhomPlaceholder: "Ex. : Claire D.",
+  forWhomPlaceholder: "Ex. : Claire D.",
   expiresOn: "Expire le (facultatif)",
   creating: "Création…",
   generate: "Générer un code",
@@ -42,16 +42,16 @@ const fr = {
   disable: "Désactiver",
   enable: "Réactiver",
   delete: "Supprimer",
-  deleteCodeConfirm: (code: string) => `Supprimer définitivement le code ${code} ?`,
+  deleteCodeConfirm: (code: string) => `Supprimer définitivement le code ${code} ?`,
   actionFailed: "L'opération n'a pas abouti. Réessaie dans un instant.",
   // Commentaires
   titleComments: "Commentaires",
   commentsEyebrow: "Ton coach t'a écrit",
   commentsIntro:
-    "Les nouveaux commentaires de ton coach sur les profils que tu partages avec lui. Ouvre la version concernée pour les lire en contexte : ils seront alors marqués comme lus.",
+    "Les nouveaux commentaires de ton coach sur les profils que tu partages avec lui. Ouvre la version concernée pour les lire en contexte : ils seront alors marqués comme lus.",
   noNewComment: "Aucun nouveau commentaire. ✓",
   target: { version: "sur la version", criterion: "sur un critère", opportunity: "sur une opportunité" },
-  deleteCommentConfirm: "Supprimer ce commentaire ?",
+  deleteCommentConfirm: "Supprimer ce commentaire ?",
   threadCoach: "Tes commentaires pour ton coaché",
   threadOwner: "Commentaires de ton coach",
   you: "Toi",
@@ -64,7 +64,7 @@ const fr = {
   send: "Envoyer au coaché",
   commentsCount: (n: number) => `${n} commentaire${n > 1 ? "s" : ""}`,
   comment: "Commenter",
-  unreadCount: (n: number) => `, dont ${n} nouveau(x)`,
+  unreadCount: (n: number) => `, dont ${n} nouveau${n > 1 ? "x" : ""}`,
 };
 
 const en: typeof fr = {

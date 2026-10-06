@@ -65,18 +65,18 @@ export const CAMILLE_CRITERIA = [
   crit("trajet", "conditions_vie", "Moins de 30 min de trajet", "important"),
   crit("teletravail", "conditions_vie", "Beaucoup de télétravail (2 j / semaine minimum)", "moyen"),
   // Rémunération & Viabilité Financière
-  crit("plancher", "remuneration", "Minimum 3 000 € net / mois", "critique", { nonNegotiable: true }),
-  crit("ideal", "remuneration", "Idéalement 4 000 € net / mois", "important"),
+  crit("plancher", "remuneration", "Minimum 3 000 € net / mois", "critique", { nonNegotiable: true }),
+  crit("ideal", "remuneration", "Idéalement 4 000 € net / mois", "important"),
 ].map((c, position) => ({ ...c, versionId: "exemple", position })) satisfies Criterion[];
 
 export const CAMILLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "A",
     versionId: "exemple",
-    name: "A. Responsable com' — PME éco-construction (Nantes)",
+    name: "A. Responsable com' — PME écoconstruction (Nantes)",
     summary: "Salariée · PME de 80 personnes, chantiers à visiter.",
     url: "",
-    notes: "Salaire proposé : 3 100 € net, peu de marge d'évolution.",
+    notes: "Salaire proposé : 3 100 € net, peu de marge d'évolution.",
     position: 0,
   },
   {
@@ -94,7 +94,7 @@ export const CAMILLE_OPPORTUNITIES: Opportunity[] = [
     name: "C. Chargée de com' senior — grand groupe bancaire (La Défense)",
     summary: "Salariée · communication institutionnelle.",
     url: "",
-    notes: "4 200 € net, intéressement, belles perspectives salariales.",
+    notes: "4 200 € net, intéressement, belles perspectives salariales.",
     position: 2,
   },
 ];
@@ -118,7 +118,7 @@ export const CAMILLE_EVALUATIONS: Evaluation[] = Object.entries(CAMILLE_GRID).fl
 );
 
 export const CAMILLE_INSIGHT =
-  "Je pensais que la sécurité financière primait. En posant mes critères, je réalise que l'Anti-Contexte de la banque m'éteindrait : je serais bien payée mais vidée.";
+  "Je pensais que la sécurité financière primait. En posant mes critères, je réalise que l'Anti-Contexte de la banque m'éteindrait : je serais bien payée mais vidée.";
 
 // --- Version anglaise de l'exemple ----------------------------------------------------------
 
