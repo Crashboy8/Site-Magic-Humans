@@ -14,8 +14,8 @@ Prototype autonome : visualiser son talent comme un territoire en hexagones. HTM
   4. Progrès et objectifs : flow par semaine, tops, défi / maîtrise, frontières, proposition de conquête confirmée par la personne, objectif Vente (les moments de flow comptent comme sessions).
   5. Bibliothèque (59 compétences) et suggestions en hexagones fantômes ; un refus est définitif ; accepter ne bouge rien.
   - Ajustement : sur téléphone, Exporter et Importer sont dans les Réglages.
+  6. Création guidée au premier lancement : accueil, 6 questions avec saisie en vrac et exemples, filtre « Est-ce que ça élargit ton domaine d'action ? », regroupement par glisser-déposer (ou toucher puis « Poser ici »), génération de la carte. Brouillon gardé à chaque saisie. Démo et nouvelle création accessibles depuis les Réglages.
 - **Reste à faire** :
-  6. Création guidée au premier lancement : 6 écrans, saisie en vrac, écran de regroupement par glisser-déposer, filtre « Est-ce que ça élargit ton domaine d'action ? ». La démo reste accessible depuis les Réglages.
   7. Finitions : passe responsive générale, relecture, documentation.
 - **Méthode** : à chaque étape, tests (`node carte-du-talent/tests/placement.test.js`), captures ordinateur + téléphone, puis push sur la branche. Ton bienveillant partout, jamais culpabilisant.
 
@@ -35,6 +35,7 @@ carte-du-talent/
 ├── js/modele/stats.js    statistiques de progrès (calculs purs)
 ├── js/modele/bibliotheque.js  59 compétences par domaine (icône, liens vers les voisines)
 ├── js/modele/suggestions.js   suggestions de territoires à conquérir
+├── js/modele/creation.js      brouillon de la création guidée et génération de la carte
 ├── js/vues/              rendu SVG, navigation (zoom, glisser-déposer), panneau, légende, outils
 ├── js/app.js             point d'entrée
 └── tests/placement.test.js

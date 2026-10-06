@@ -5,6 +5,7 @@
   'use strict';
 
   const CLE = 'carteDuTalent.v1';
+  const CLE_BROUILLON = 'carteDuTalent.brouillon';
 
   function charger() {
     try {
@@ -51,5 +52,23 @@
     });
   }
 
-  CT.stockage = { charger, sauvegarder, effacer, exporter, importer };
+  // Brouillon de la création guidée : rien n'est perdu si la page se ferme en cours de route.
+  function chargerBrouillon() {
+    try {
+      const brut = localStorage.getItem(CLE_BROUILLON);
+      return brut ? CT.creation.normaliserBrouillon(JSON.parse(brut)) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function sauvegarderBrouillon(brouillon) {
+    try { localStorage.setItem(CLE_BROUILLON, JSON.stringify(brouillon)); } catch (e) { /* stockage indisponible */ }
+  }
+
+  function effacerBrouillon() {
+    try { localStorage.removeItem(CLE_BROUILLON); } catch (e) { /* stockage indisponible */ }
+  }
+
+  CT.stockage = { charger, sauvegarder, effacer, exporter, importer, chargerBrouillon, sauvegarderBrouillon, effacerBrouillon };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

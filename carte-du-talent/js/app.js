@@ -18,6 +18,7 @@
   let saisieFlow = null;
   let reglages = null;
   let progres = null;
+  let creation = null;
 
   function caseDe(id) {
     return etat.parCase.get(id) || null;
@@ -73,6 +74,8 @@
   }
 
   function enregistrer() {
+    // Premier lancement : rien n'est enregistré tant que la personne n'a pas choisi sa carte.
+    if (etat.premierLancement) return;
     if (!CT.stockage.sauvegarder(etat.carte)) toast('Impossible d\'enregistrer dans ce navigateur. Pense à exporter ta carte.');
   }
 
@@ -115,6 +118,7 @@
   }
 
   function changerCarte(carte) {
+    etat.premierLancement = false;
     etat.carte = carte;
     fermerPanneau();
     appliquer({ ajuster: true });
@@ -384,6 +388,23 @@
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
     panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau, { suggestions: () => etat.suggestions });
     saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
+    creation = CT.vueCreation.creer($('creation'), {
+      toast,
+      confirmer: (m) => confirm(m),
+      doitAccueillir: () => etat.premierLancement,
+      demo() {
+        etat.premierLancement = false;
+        enregistrer();
+        toast('Voici la carte de démonstration. Tu pourras créer la tienne depuis les Réglages.');
+      },
+      terminer(carte) {
+        if (!etat.premierLancement && !confirm('Remplacer ta carte actuelle par cette nouvelle carte ? Exporte-la d\'abord si tu veux la garder.')) return false;
+        etat.premierLancement = false;
+        changerCarte(carte);
+        toast('Voici ta carte ! Touche un hexagone pour l\'ajuster ou le déplacer.');
+        return true;
+      }
+    });
     progres = CT.vueProgres.creer($('progres'), { carte: () => etat.carte, action: actionProgres });
     reglages = CT.vueReglages.creer($('reglages'), {
       carte: () => etat.carte,
@@ -398,6 +419,7 @@
         toast('Carte exportée. Garde ce fichier précieusement.');
       },
       importer() { $('fichier-import').click(); },
+      creer() { creation.ouvrir(); },
       retablirSuggestions() {
         const n = CT.suggestions.retablirRefusees(etat.carte);
         appliquer();
@@ -410,8 +432,12 @@
       }
     });
     if (window.matchMedia('(max-width: 640px)').matches) $('legende').classList.add('fermee');
-    etat.carte = CT.stockage.charger() || CT.demo.creer();
+    const enregistree = CT.stockage.charger();
+    // Premier lancement : la démo s'affiche derrière l'accueil, sans être enregistrée.
+    etat.premierLancement = !enregistree;
+    etat.carte = enregistree || CT.demo.creer();
     appliquer({ ajuster: true });
+    if (etat.premierLancement) creation.ouvrir({ accueil: true });
     brancher();
     CT.outils.rafraichirIcones();
   }

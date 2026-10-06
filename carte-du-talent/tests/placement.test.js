@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js'].forEach((f) => {
+['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js', 'modele/creation.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -412,6 +412,72 @@ test('ajouter depuis la bibliothèque, sans fantôme, ne bouge rien non plus', (
   const r3 = CT.placement.placer(c);
   assert.ok(r3.positions[nouvelle.id]);
   Object.keys(r.positions).forEach((id) => assert.deepStrictEqual(r3.positions[id], r.positions[id], id + ' a bougé'));
+});
+
+console.log('\nCréation guidée');
+
+function brouillonExemple() {
+  const C = CT.creation;
+  const b = C.nouveauBrouillon();
+  b.talent = { nom: 'Faire grandir les équipes', filRouge: 'La confiance en mouvement' };
+  C.ajouter(b, 'regions', 'Écouter, Fédérer\nTransmettre');
+  const [ecouter, federer, transmettre] = b.regions.map((r) => r.id);
+  C.ajouter(b, 'moments', 'Coacher un manager, animer un séminaire, Escalade');
+  C.ajouter(b, 'conquises', 'Excel, Anglais, Conduire, Facilitation d\'ateliers');
+  C.ajouter(b, 'frontieres', 'Vente; Prise de parole en public');
+  C.ajouter(b, 'deleguer', 'Comptabilité\nAdministratif');
+  const t = (liste, texte) => b[liste].find((x) => x.texte === texte).id;
+  C.ranger(b, 'moments', t('moments', 'Coacher un manager'), ecouter);
+  C.ranger(b, 'moments', t('moments', 'animer un séminaire'), federer);
+  C.ranger(b, 'moments', t('moments', 'Escalade'), 'ile');
+  b.conquises.find((x) => x.texte === 'Excel').distance = 'eloignee';
+  b.conquises.find((x) => x.texte === 'Anglais').distance = 'eloignee';
+  b.conquises.find((x) => x.texte === 'Conduire').elargit = false;
+  C.ranger(b, 'conquises', t('conquises', 'Excel'), transmettre);
+  C.ranger(b, 'frontieres', t('frontieres', 'Vente'), federer);
+  return { b, ecouter, federer, transmettre };
+}
+
+test('la saisie en vrac découpe, nettoie et évite les doublons', () => {
+  assert.deepStrictEqual(CT.creation.decouper('- Accueillir, animer ;\n coacher\nAnimer'), ['Accueillir', 'animer', 'coacher']);
+  const b = CT.creation.nouveauBrouillon();
+  CT.creation.ajouter(b, 'regions', 'Un, Deux');
+  CT.creation.ajouter(b, 'regions', 'deux, Trois');
+  assert.deepStrictEqual(b.regions.map((r) => r.nom), ['Un', 'Deux', 'Trois']);
+});
+
+test('la carte générée respecte les réponses (natal, île, filtre, provinces, délégation)', () => {
+  const { b, ecouter, federer, transmettre } = brouillonExemple();
+  const c = CT.creation.genererCarte(b);
+  const par = (nom) => c.competences.find((x) => x.nom === nom);
+  assert.strictEqual(c.talent.nom, 'Faire grandir les équipes');
+  assert.strictEqual(par('Coacher un manager').statut, 'natale');
+  assert.strictEqual(par('Coacher un manager').regionId, ecouter);
+  assert.strictEqual(par('Escalade').statut, 'ile');
+  assert.strictEqual(par('Conduire'), undefined, 'écarté par le filtre');
+  assert.strictEqual(par('Excel').distance, 'eloignee');
+  assert.strictEqual(par('Excel').domaine, 'numerique');
+  assert.strictEqual(par('Anglais').regionId, ecouter, 'non rangé : première région');
+  assert.strictEqual(par('Vente').statut, 'frontiere');
+  assert.strictEqual(par('Vente').regionId, federer);
+  assert.strictEqual(par('Comptabilité').statut, 'a_deleguer');
+  assert.strictEqual(par('Transmettre').statut, 'natale', 'une région sans cœur reçoit son nom');
+  assert.strictEqual(par('Transmettre').regionId, transmettre);
+  assert.strictEqual(par('Facilitation d\'ateliers').bibliothequeId, 'facilitation');
+});
+
+test('la carte générée se place sans trou ni région coupée', () => {
+  const c = CT.creation.genererCarte(brouillonExemple().b);
+  const r = CT.placement.placer(c);
+  assert.deepStrictEqual(CT.placement.verifier(r).filter((p) => /Trou|coupé|Continent/.test(p)), []);
+  c.competences.forEach((x) => assert.ok(r.positions[x.id], x.nom + ' sans place'));
+});
+
+test('un brouillon abîmé se relit sans planter', () => {
+  const b = CT.creation.normaliserBrouillon({ etape: 42, regions: [{ id: 'a', nom: 'A' }], moments: [{ id: 'm', texte: 'x', zone: 'inconnue' }], conquises: 'n/a' });
+  assert.strictEqual(b.etape, 9);
+  assert.strictEqual(b.moments[0].zone, null);
+  assert.deepStrictEqual(b.conquises, []);
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');
