@@ -4,7 +4,8 @@
 // Comme pour l'import du quiz, les données voyagent dans l'ancre du lien (#b=…, JSON encodé en
 // base64url) : rien ne passe par les journaux du serveur, et la carte n'a pas besoin de compte.
 // Les critères ne sont pas transmis : ils servent à comparer des opportunités, pas à dessiner la carte.
-// La langue suit celle de la Boussole (&lang=…), même sans Talent Unique rempli.
+// La langue suit celle de la Boussole (&lang=…), même sans Talent Unique rempli. L'adresse de la page
+// (&retour=…) permet à la carte d'afficher un lien « Revenir à ma Boussole ».
 
 import type { TalentUnique } from "./types";
 
@@ -41,8 +42,8 @@ export function encodeBase64Url(data: unknown): string {
 }
 
 /** Lien vers la carte : le Talent Unique dans l'ancre (s'il est rempli) et la langue de la Boussole. */
-export function carteDuTalentHref(baseUrl: string, talent: TalentUnique, lang: "fr" | "en" = "fr"): string {
+export function carteDuTalentHref(baseUrl: string, talent: TalentUnique, lang: "fr" | "en" = "fr", retour?: string): string {
   const data = carteLinkData(talent);
-  const params = [data ? `b=${encodeBase64Url(data)}` : "", `lang=${lang}`].filter(Boolean);
+  const params = [data ? `b=${encodeBase64Url(data)}` : "", `lang=${lang}`, retour ? `retour=${encodeURIComponent(retour)}` : ""].filter(Boolean);
   return `${baseUrl}#${params.join("&")}`;
 }

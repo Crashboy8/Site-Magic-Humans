@@ -588,6 +588,13 @@ test('chaque texte passé à T() a sa traduction anglaise', () => {
     });
     for (const m of src.matchAll(new RegExp('pluriel\\([^,]+, ' + lit + ', ' + lit, 'g'))) { verifier(m[1]); verifier(m[2]); }
   });
+  // Textes visibles de la page HTML statique, traduits au chargement (CT.i18n.traduirePage).
+  const html = fs.readFileSync(path.join(racine, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '');
+  for (const m of html.matchAll(/>([^<>]*[A-Za-zÀ-ÿ]{2,}[^<>]*)</g)) {
+    const t = m[1].trim();
+    if (t && !/^(FR|EN)$/.test(t)) verifier(t);
+  }
+  for (const m of html.matchAll(/\b(?:title|aria-label|content)="([^"]*[a-zà-ÿ]{3,} [^"]*)"/g)) verifier(m[1]);
   assert.deepStrictEqual([...manquants], []);
 });
 
@@ -596,6 +603,23 @@ test('T() garde le français par défaut et remplace les variables', () => {
   assert.strictEqual(CT.i18n.T('Entre {a} et {b}', { a: 'X', b: 'Y' }), 'Entre X et Y');
   assert.strictEqual(CT.i18n.cle('Capitale : x'), 'Capitale : x');
   assert.ok(CT.EN['Capitale : {nom}'], 'clé sans espace insécable');
+});
+
+test('le lien de retour vers la Boussole n\'accepte que les adresses de la Boussole', () => {
+  const ok = (u) => CT.boussole.retourValide(u);
+  assert.strictEqual(ok('https://www.magichumans.com/boussole-decision/profils/abc/'), 'https://www.magichumans.com/boussole-decision/profils/abc/');
+  assert.strictEqual(ok('https://boussole-decision-git-claude-zm-retour-magic-humans.vercel.app/boussole-decision/'), 'https://boussole-decision-git-claude-zm-retour-magic-humans.vercel.app/boussole-decision/');
+  assert.strictEqual(ok('https://www.magichumans.com/boussole-decision/x/#ancre'), 'https://www.magichumans.com/boussole-decision/x/', 'ancre retirée');
+  assert.strictEqual(ok('https://evil.example/boussole-decision/'), null, 'autre site');
+  assert.strictEqual(ok('https://www.magichumans.com.evil.example/boussole-decision/'), null, 'faux sous-domaine');
+  assert.strictEqual(ok('https://www.magichumans.com/quiz/'), null, 'autre page du site');
+  assert.strictEqual(ok('http://www.magichumans.com/boussole-decision/'), null, 'http');
+  assert.strictEqual(ok('javascript:alert(1)'), null);
+  assert.strictEqual(ok('https://user:pw@www.magichumans.com/boussole-decision/'), null);
+  const lien = '#b=xyz&lang=fr&retour=' + encodeURIComponent('https://www.magichumans.com/boussole-decision/profils/abc/');
+  assert.strictEqual(CT.boussole.lireRetour(lien), 'https://www.magichumans.com/boussole-decision/profils/abc/');
+  assert.strictEqual(CT.boussole.lire(lien), null, 'b invalide, sans effet sur le retour');
+  assert.strictEqual(CT.boussole.lireRetour('#lang=fr'), null);
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');

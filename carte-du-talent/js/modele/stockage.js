@@ -8,6 +8,7 @@
 
   const CLE = 'carteDuTalent.v1';
   const CLE_BROUILLON = 'carteDuTalent.brouillon';
+  const CLE_RETOUR = 'carteDuTalent.retourBoussole';
 
   function charger() {
     try {
@@ -68,9 +69,18 @@
     try { localStorage.setItem(CLE_BROUILLON, JSON.stringify(brouillon)); } catch (e) { /* stockage indisponible */ }
   }
 
+  // Adresse de la Boussole d'où l'on est venu (lien « Revenir à ma Boussole »).
+  function chargerRetour() {
+    try { return localStorage.getItem(CLE_RETOUR); } catch (e) { return null; }
+  }
+
+  function sauvegarderRetour(adresse) {
+    try { localStorage.setItem(CLE_RETOUR, adresse); } catch (e) { /* stockage indisponible */ }
+  }
+
   function effacerBrouillon() {
     try { localStorage.removeItem(CLE_BROUILLON); } catch (e) { /* stockage indisponible */ }
   }
 
-  CT.stockage = { charger, sauvegarder, effacer, exporter, importer, chargerBrouillon, sauvegarderBrouillon, effacerBrouillon };
+  CT.stockage = { charger, sauvegarder, effacer, exporter, importer, chargerBrouillon, sauvegarderBrouillon, effacerBrouillon, chargerRetour, sauvegarderRetour };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

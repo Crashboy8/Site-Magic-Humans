@@ -388,8 +388,18 @@
 
   // Arrivée depuis la Boussole (#b=…) : la création s'ouvre sur un écran de choix, rien n'est remplacé.
   // L'ancre est retirée pour qu'un rechargement ne relance pas l'import.
+  // Lien discret « Revenir à ma Boussole », affiché dès qu'on est arrivé une fois depuis la Boussole.
+  function majLienBoussole() {
+    const adresse = CT.boussole.retourValide(CT.stockage.chargerRetour());
+    const lien = $('lien-boussole');
+    lien.hidden = !adresse;
+    if (adresse) lien.href = adresse;
+  }
+
   function accueillirBoussole() {
-    if (!/(?:^#|&)(?:b|lang)=/.test(location.hash)) return false;
+    if (!/(?:^#|&)(?:b|lang|retour)=/.test(location.hash)) return false;
+    const retour = CT.boussole.lireRetour(location.hash);
+    if (retour) { CT.stockage.sauvegarderRetour(retour); majLienBoussole(); }
     // Un nouveau lien dans une autre langue (onglet déjà ouvert) : on recharge dans cette langue, ancre comprise.
     const langueLien = CT.i18n.depuisLien();
     if (langueLien && langueLien !== CT.i18n.langue) { CT.i18n.choisir(langueLien); location.reload(); return true; }
@@ -472,6 +482,7 @@
     etat.premierLancement = !enregistree;
     etat.carte = enregistree || CT.demo.creer();
     appliquer({ ajuster: true });
+    majLienBoussole();
     let rouvrir = false;
     try { rouvrir = sessionStorage.getItem('carteDuTalent.rouvrirCreation') === '1'; sessionStorage.removeItem('carteDuTalent.rouvrirCreation'); } catch (e) { /* stockage indisponible */ }
     if (accueillirBoussole()) { /* écran de choix ouvert */ } else if (rouvrir) creation.ouvrir({ accueil: etat.premierLancement && !CT.stockage.chargerBrouillon() });

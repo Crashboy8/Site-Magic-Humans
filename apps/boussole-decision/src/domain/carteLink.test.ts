@@ -53,6 +53,11 @@ describe("carteDuTalentHref", () => {
     expect(carteDuTalentHref("https://x/", talent, "en")).toMatch(/^https:\/\/x\/#b=[A-Za-z0-9_-]+&lang=en$/);
   });
 
+  it("transmet l'adresse de retour vers la Boussole, encodée", () => {
+    const href = carteDuTalentHref("https://x/", empty, "fr", "https://www.magichumans.com/boussole-decision/profils/a b/");
+    expect(href).toBe("https://x/#lang=fr&retour=https%3A%2F%2Fwww.magichumans.com%2Fboussole-decision%2Fprofils%2Fa%20b%2F");
+  });
+
   it("transmet aussi un profil partiellement rempli", () => {
     expect(decode(carteDuTalentHref("https://x/", { ...empty, successSituations: "Écrire" })).success).toBe("Écrire");
   });
