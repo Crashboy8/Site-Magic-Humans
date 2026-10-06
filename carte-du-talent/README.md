@@ -2,6 +2,23 @@
 
 Prototype autonome : visualiser son talent comme un territoire en hexagones. HTML, CSS et JavaScript vanilla, sans build ni serveur (s'ouvre aussi en double-cliquant sur `index.html`). Page en `noindex`, absente du sitemap.
 
+## Note de reprise (à jour au 6 octobre 2026)
+
+- **Branche de travail** : `claude/zealous-mayer-oibrrc` (dépôt `Crashboy8/Site-Magic-Humans`). Aucune PR ouverte.
+- **Prévisualisation** : https://wwwmagichumanscom-git-claude-zealous-mayer-oibrrc-magic-humans.vercel.app/carte-du-talent/
+- **Fait et validé** :
+  1. Socle : modèle versionné, localStorage, export / import JSON, carte de démonstration, placement géographique, rendu SVG en relief.
+  2. Navigation : zoom, pincement, déplacement, appui long pour déplacer un hexagone, panneau latéral, changements de statut. Positions mémorisées (rien ne bouge sans raison).
+  2b. Éclat selon le flow des 30 derniers jours, animations de flow et de conquête, brouillard de guerre (Réglages).
+  3. Saisie express d'un moment de flow (téléphone d'abord), découpage flow / à déléguer.
+  4. Progrès et objectifs : flow par semaine, tops, défi / maîtrise, frontières, proposition de conquête confirmée par la personne, objectif Vente (les moments de flow comptent comme sessions).
+  5. Bibliothèque (59 compétences) et suggestions en hexagones fantômes ; un refus est définitif ; accepter ne bouge rien.
+  - Ajustement : sur téléphone, Exporter et Importer sont dans les Réglages.
+- **Reste à faire** :
+  6. Création guidée au premier lancement : 6 écrans, saisie en vrac, écran de regroupement par glisser-déposer, filtre « Est-ce que ça élargit ton domaine d'action ? ». La démo reste accessible depuis les Réglages.
+  7. Finitions : passe responsive générale, relecture, documentation.
+- **Méthode** : à chaque étape, tests (`node carte-du-talent/tests/placement.test.js`), captures ordinateur + téléphone, puis push sur la branche. Ton bienveillant partout, jamais culpabilisant.
+
 ## Structure
 
 ```

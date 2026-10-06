@@ -33,6 +33,8 @@
           '<section class="flow-bloc">' +
             '<p class="sous-titre">Données</p>' +
             '<p class="aide">Ta carte est enregistrée dans ce navigateur. Exporte-la de temps en temps pour ne jamais la perdre.</p>' +
+            '<div class="reglages-donnees"><button type="button" class="bouton bouton-secondaire" data-action="exporter"><i data-lucide="download"></i>Exporter ma carte</button>' +
+            '<button type="button" class="bouton bouton-secondaire" data-action="importer"><i data-lucide="upload"></i>Importer une carte</button></div>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="demo"><i data-lucide="rotate-ccw"></i>Revenir à la carte de démonstration</button>' +
           '</section>' +
         '</div>' +
@@ -45,6 +47,8 @@
       if (!b) return;
       if (b.getAttribute('data-action') === 'fermer') fermer();
       if (b.getAttribute('data-action') === 'demo') { fermer(); rappels.reinitialiser(); }
+      if (b.getAttribute('data-action') === 'exporter') rappels.exporter();
+      if (b.getAttribute('data-action') === 'importer') { fermer(); rappels.importer(); }
       if (b.getAttribute('data-action') === 'retablir') { rappels.retablirSuggestions(); majRefusees(); }
     });
     brouillard.addEventListener('change', () => rappels.changerPreference('brouillardDeGuerre', brouillard.checked));

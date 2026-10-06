@@ -518,6 +518,8 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
   .fil-rouge { font-size: 12.5px; }
   .bouton-icone { padding: 8px 10px; }
   .bouton-icone span { display: none; }
+  /* Sur téléphone, Exporter et Importer sont dans les Réglages. */
+  #btn-exporter, #btn-importer { display: none; }
   .legende { left: 12px; top: 12px; bottom: auto; width: auto; max-width: calc(100% - 80px); max-height: calc(100% - 100px); }
   .controles-carte { right: 12px; top: 12px; }
   .bouton-rond { width: 42px; height: 42px; }

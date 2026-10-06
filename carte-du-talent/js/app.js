@@ -393,6 +393,11 @@
         if (cle === 'seuilConquete') toast('Seuil de conquête : ' + etat.carte.preferences.seuilConquete + ' moments de flow.');
         if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
       },
+      exporter() {
+        CT.stockage.exporter(etat.carte);
+        toast('Carte exportée. Garde ce fichier précieusement.');
+      },
+      importer() { $('fichier-import').click(); },
       retablirSuggestions() {
         const n = CT.suggestions.retablirRefusees(etat.carte);
         appliquer();

@@ -427,3 +427,6 @@ body.panneau-ouvert .bouton-flow { right: calc(min(390px, 100%) + 24px); }
   .reglages .flow-fiche { height: auto; max-height: 90%; border-radius: 20px 20px 0 0; }
   .reglages .flow-corps { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
 }
+
+.reglages-donnees { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+@media (max-width: 380px) { .reglages-donnees { grid-template-columns: 1fr; } }
