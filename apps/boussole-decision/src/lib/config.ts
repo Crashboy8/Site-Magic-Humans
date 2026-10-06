@@ -31,7 +31,10 @@ export function isPublicPath(pathname: string): boolean {
 /**
  * Adresse de redirection vers une page de l'outil. On vise le domaine public (NEXT_PUBLIC_SITE_URL)
  * et non le domaine technique de l'app, vers lequel les requêtes sont relayées.
+ * Sur une preview Vercel, on reste sur le domaine de la preview : sinon la redirection
+ * renverrait vers le site en production, qui ne contient pas les changements testés.
  */
 export function redirectUrl(path: string, request: { url: string }): URL {
-  return new URL(`${BASE_PATH}${path}`, process.env.NEXT_PUBLIC_SITE_URL || request.url);
+  const origin = process.env.VERCEL_ENV === "preview" ? request.url : process.env.NEXT_PUBLIC_SITE_URL || request.url;
+  return new URL(`${BASE_PATH}${path}`, origin);
 }
