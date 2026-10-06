@@ -56,7 +56,7 @@
     const texte = '<text class="nom-toutes" fill="#33312D">' + lignes.map((l, i) => '<tspan x="' + x.toFixed(1) + '" y="' + (y0 + i * hauteur).toFixed(1) + '">' + O.echapper(l) + '</tspan>').join('') + '</text>';
     const points = H.coins(x, y, TAILLE * 0.94).map((q) => q.x.toFixed(1) + ',' + q.y.toFixed(1)).join(' ');
     return '<g class="tuile-toutes tuile-toutes-' + statut + (choisie ? ' choisie' : '') + '" data-action="choisir" data-valeur="' + O.echapper(entree.id) + '" tabindex="0" role="button" aria-pressed="' + choisie +
-      '" aria-label="' + O.echapper(entree.nom + ' — ' + nomStatut(existante)) + '">' +
+      '" aria-label="' + O.echapper(entree.nom + ', ' + nomStatut(existante)) + '">' +
       '<polygon points="' + points + '" fill="' + fond + '" stroke="' + contour + '" stroke-width="' + (choisie ? 3.5 : 1.6) + '"' + (tirets ? ' stroke-dasharray="' + tirets + '"' : '') + '/>' +
       O.iconeSvg(entree.icone, x, y - 15, 18, encre, 2) + texte + '</g>';
   }

@@ -367,6 +367,71 @@ test('accepter une terre à découvrir la pose sur le continent (pas au large) e
   assert.ok(!CT.horizon.disposer(carte, res2).tuiles.some((x) => x.entreeId === t.entreeId));
 });
 
+test('un appui enregistré dans l\'autre langue s\'affiche dans la langue courante', () => {
+  const f = O.facilite(CT.schema.normaliser({ talent: { nom: 'X' }, competences: [
+    { id: 'a', nom: 'Preparing a training course', statut: 'conquise', bibliothequeId: 'preparer-formation', domaine: 'pedagogie' }
+  ] }), CT.bibliotheque.trouver('facilitation'));
+  assert.ok(f.raison.includes('Préparer une formation'), f.raison);
+  assert.ok(!f.raison.includes('Preparing'), f.raison);
+  assert.strictEqual(CT.bibliotheque.nomAffiche({ nom: 'Préparer un cours', bibliothequeId: 'conception-cours' }), 'Préparer un cours');
+  assert.strictEqual(CT.bibliotheque.nomAffiche({ nom: 'Donner du feedback', bibliothequeId: 'feedback' }), 'Donner du feedback');
+});
+
+test('en anglais, une compétence de bibliothèque ajoutée par le bilan s\'affiche en anglais', () => {
+  const { spawnSync } = require('child_process');
+  const dir = path.join(__dirname, '..', 'js');
+  const fichiers = ['langues/en.js', 'langues/en-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js',
+    'modele/stats.js', 'modele/bibliotheque.js', 'modele/bibliotheque-plus.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js',
+    'modele/creation.js', 'modele/boussole.js', 'modele/orientation-donnees.js', 'modele/orientation.js'];
+  const script = `
+    global.window = {};
+    global.location = { hash: '#lang=en' };
+    global.localStorage = { getItem() { return null; }, setItem() {} };
+    global.navigator = { language: 'en', languages: ['en'] };
+    const path = require('path');
+    const assert = require('assert');
+    const dir = ${JSON.stringify(dir)};
+    ${JSON.stringify(fichiers)}.forEach((f) => require(path.join(dir, f)));
+    const CT = globalThis.CarteTalent;
+    assert.strictEqual(CT.i18n.langue, 'en');
+    const carte = CT.schema.normaliser({ talent: { nom: 'X' }, regions: [{ id: 'r', nom: 'Accueil', couleur: '#F2A65A' }] });
+    const n = CT.orientation.appliquerBilan(carte, ['feedback', 'ecoute-active', 'animer-groupe', 'prise-parole', 'accompagnement-individuel', 'conflits', 'vulgarisation', 'redaction', 'conception-cours', 'facilitation', 'mentorat'], ['Mon truc à moi', 'Préparer un cours'], Date.now());
+    assert.ok(n >= 11, n + ' ajouts');
+    const aff = (id) => CT.bibliotheque.nomAffiche(carte.competences.find((c) => c.bibliothequeId === id));
+    assert.strictEqual(aff('feedback'), 'Giving feedback');
+    assert.strictEqual(aff('ecoute-active'), 'Active listening');
+    assert.strictEqual(aff('animer-groupe'), 'Leading a group');
+    assert.strictEqual(aff('prise-parole'), 'Public speaking');
+    assert.strictEqual(aff('accompagnement-individuel'), 'One-to-one support');
+    assert.strictEqual(aff('conflits'), 'Conflict management');
+    assert.strictEqual(aff('vulgarisation'), 'Making things accessible');
+    assert.strictEqual(aff('redaction'), 'Writing');
+    assert.strictEqual(aff('conception-cours'), 'Designing a course');
+    assert.strictEqual(aff('facilitation'), 'Workshop facilitation');
+    assert.strictEqual(aff('mentorat'), 'Mentoring');
+    assert.strictEqual(CT.bibliotheque.nomAffiche({ nom: ${JSON.stringify('Donner du feedback')}, bibliothequeId: 'feedback' }), 'Giving feedback');
+    assert.strictEqual(CT.bibliotheque.nomAffiche({ nom: ${JSON.stringify('Mentorat')}, bibliothequeId: 'mentorat' }), 'Mentoring');
+    assert.strictEqual(CT.bibliotheque.nomAffiche({ nom: ${JSON.stringify('Préparer une formation')}, bibliothequeId: 'preparer-formation' }), 'Preparing a training course');
+    const libre = carte.competences.find((c) => c.nom === ${JSON.stringify('Mon truc à moi')});
+    assert.ok(libre && !libre.bibliothequeId);
+    assert.strictEqual(CT.bibliotheque.nomAffiche(libre), ${JSON.stringify('Mon truc à moi')});
+    const alias = carte.competences.find((c) => c.nom === ${JSON.stringify('Préparer un cours')});
+    assert.ok(alias && alias.bibliothequeId, 'rapproché de la bibliothèque');
+    assert.strictEqual(CT.bibliotheque.nomAffiche(alias), ${JSON.stringify('Préparer un cours')});
+    const appui = CT.schema.normaliser({ talent: { nom: 'X' }, competences: [
+      { id: 'a', nom: ${JSON.stringify('Préparer une formation')}, statut: 'conquise', bibliothequeId: 'preparer-formation', domaine: 'pedagogie' }
+    ] });
+    const raison = CT.orientation.facilite(appui, CT.bibliotheque.trouver('animer-formation')).raison;
+    assert.ok(raison.includes('Preparing a training course'), raison);
+    assert.ok(!/Préparer une formation/.test(raison), raison);
+    assert.strictEqual(CT.i18n.T('Compétences manquantes : {liste}', { liste: 'Writing' }), 'Missing skills: Writing');
+    assert.strictEqual(CT.i18n.T('Plan : {nom}', { nom: 'Mentoring' }), 'Plan: Mentoring');
+    assert.strictEqual(CT.i18n.T('Plan en cours : {nom}, {n} actions sur 12', { nom: 'Mentoring', n: 2 }), 'Plan in progress: Mentoring, 2 of 12 actions');
+  `;
+  const r = spawnSync(process.execPath, ['-e', script], { encoding: 'utf8' });
+  assert.strictEqual(r.status, 0, (r.stderr || r.stdout || 'échec du sous-processus').slice(0, 1500));
+});
+
 console.log('\nCompatibilité');
 
 test('les cartes enregistrées avant l\'orientation pro restent lisibles', () => {

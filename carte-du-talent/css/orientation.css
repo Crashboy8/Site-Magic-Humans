@@ -103,7 +103,18 @@
 .tuile-horizon { opacity: .78; cursor: pointer; }
 .tuile-horizon:hover, .tuile-horizon:focus { opacity: 1; }
 .nom-horizon { font-size: 11px; }
-.etiquette-horizon { font-size: 15px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.carte .etiquettes-horizon { font-size: 14px; }
+.carte .etiquette-horizon {
+  font-size: inherit;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: 1;
+  stroke: #F7FBFC;
+  stroke-width: .45em;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
 
 /* Synthèse d'une page */
 .synthese-page { max-width: 794px; margin: 0 auto; padding: 32px; background: #fff; }
@@ -113,11 +124,72 @@
 .impression-seule { display: none; }
 
 @media print {
-  @page { size: A4; margin: 12mm; }
+  @page { size: A4; margin: 8mm; }
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
   body > *:not(#synthese) { display: none !important; }
-  #synthese, #synthese .progres-page { position: static !important; inset: auto; overflow: visible; background: #fff; box-shadow: none; transform: none; }
+  #synthese {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: #fff !important;
+  }
+  #synthese .progres-page {
+    position: static !important;
+    inset: auto !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
   .synthese-actions, .ecran-seul { display: none !important; }
   .impression-seule { display: block !important; }
-  .synthese-page { padding: 0; max-width: none; }
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .synthese-page {
+    padding: 0;
+    margin: 0;
+    max-width: none;
+    background: #fff;
+    font-size: 10.5pt;
+    line-height: 1.28;
+  }
+  .synthese-page h1 { margin: 0 0 1mm; font-size: 16pt; line-height: 1.15; }
+  .synthese-page h2 { margin: 2.5mm 0 1mm; font-size: 12pt; }
+  .synthese-page p, .synthese-talent { margin: 0 0 1mm; }
+  .synthese-carte {
+    display: block;
+    width: 100%;
+    height: 62mm;
+    margin: 1mm 0 1.5mm;
+    overflow: hidden;
+    border-radius: 6px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .synthese-carte .tuiles,
+  .synthese-carte .tuile { filter: none !important; }
+  .synthese-pistes { gap: 1.2mm; margin: 0; padding-left: 4.5mm; }
+  .synthese-appel {
+    margin: 2mm 0;
+    padding: 2mm 3mm;
+    background: #FFF0F4;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .synthese-appel h2 { margin-top: 0; }
+  .synthese-appel p { margin: 0 0 1mm; }
+  .note-source, .synthese-page footer { margin: 1.5mm 0 0; font-size: 8pt; }
+  .synthese-page,
+  .synthese-appel,
+  .synthese-carte,
+  .synthese-carte * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

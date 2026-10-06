@@ -12,9 +12,13 @@
   const P = CT.pistes;
   const OR = CT.orientation;
 
+  function nomCarte(c) {
+    return CT.bibliotheque.nomAffiche(c);
+  }
+
   function lienHexagone(c) {
     return '<button type="button" class="lien-carte puce-hex" data-action="voir" data-valeur="' + O.echapper(c.id) + '">' +
-      '<i data-lucide="' + O.echapper(c.icone) + '"></i>' + O.echapper(c.nom) + '</button>';
+      '<i data-lucide="' + O.echapper(c.icone) + '"></i>' + O.echapper(nomCarte(c)) + '</button>';
   }
 
   function manquante(carte, m) {
@@ -111,7 +115,7 @@
       sem.actions.map((texte, k) => '<label class="action-plan"><input type="checkbox" data-action="cocher" data-valeur="' + (i * 3 + k) + '"' + (sem.faites[k] ? ' checked' : '') + '> <span>' + O.echapper(texte) + '</span></label>').join('') + '</div>').join('');
     const conquise = s.competence.statut === 'conquise' || s.competence.statut === 'natale';
     return '<section class="carte-progres carte-large plan-30"><h3><i data-lucide="flag"></i> ' + T('Mon plan sur 30 jours') + '</h3>' +
-      '<p class="plan-nom">' + O.echapper(T('Plan : {nom}', { nom: s.competence.nom })) + '</p>' +
+      '<p class="plan-nom">' + O.echapper(T('Plan : {nom}', { nom: nomCarte(s.competence) })) + '</p>' +
       '<p class="discret">' + O.echapper(T('Jour {j} sur 30 · {n} actions sur 12', { j: Math.min(30, s.jours + 1), n: s.faites })) + '</p>' +
       '<div class="progression" aria-hidden="true"><span style="width:' + Math.round(100 * s.progression) + '%"></span></div>' +
       (s.depasse ? '<p class="discret">' + T('Les 30 jours sont passés, ton plan reste ouvert : avance à ton rythme.') + '</p>' : '') +
@@ -142,9 +146,9 @@
           (pour.length ? '<span class="discret pour-piste">' + O.echapper(T('pour : {pistes}', { pistes: pour.join(T(', ')) })) + '</span>' : '') +
           '<span class="fleches">' +
           '<button type="button" class="fleche" data-action="priorite" data-valeur="' + O.echapper(c.id) + '|-1"' + (i === 0 ? ' disabled' : '') +
-          ' aria-label="' + O.echapper(T('Monter {nom}', { nom: c.nom })) + '"><i data-lucide="arrow-up"></i></button>' +
+          ' aria-label="' + O.echapper(T('Monter {nom}', { nom: nomCarte(c) })) + '"><i data-lucide="arrow-up"></i></button>' +
           '<button type="button" class="fleche" data-action="priorite" data-valeur="' + O.echapper(c.id) + '|1"' + (i === liste.length - 1 ? ' disabled' : '') +
-          ' aria-label="' + O.echapper(T('Descendre {nom}', { nom: c.nom })) + '"><i data-lucide="arrow-down"></i></button></span></li>';
+          ' aria-label="' + O.echapper(T('Descendre {nom}', { nom: nomCarte(c) })) + '"><i data-lucide="arrow-down"></i></button></span></li>';
       }).join('') + '</ol></section>';
   }
 
@@ -192,6 +196,15 @@
     });
 
     racine.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); fermer(); } });
+    // Échap ferme aussi quand le focus n'est pas dans le panneau (un dialogue au-dessus passe avant).
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !ouvert) return;
+      const dessus = ['bilan', 'synthese'].some((id) => { const el = document.getElementById(id); return el && !el.hidden; });
+      if (dessus) return;
+      e.preventDefault();
+      e.stopPropagation();
+      fermer();
+    }, true);
 
     function ouvrir() {
       dernierFocus = document.activeElement;

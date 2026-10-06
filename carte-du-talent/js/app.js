@@ -153,7 +153,7 @@
 
   function nomDe(id) {
     const c = CT.regles.trouver(etat.carte, id);
-    return c ? T('« {nom} »', { nom: c.nom }) : '';
+    return c ? T('« {nom} »', { nom: CT.bibliotheque.nomAffiche(c) }) : '';
   }
 
   const MESSAGES_STATUT = {
@@ -270,7 +270,7 @@
     if (!r || r.deja) return null;
     appliquer();
     if (caseDe(r.c.id)) CT.vueEffets.conquete($('carte'), caseDe(r.c.id));
-    toast(T('Bien vu ! « {nom} » rejoint tes territoires conquis. Tes pistes sont recalculées.', { nom: r.c.nom }));
+    toast(T('Bien vu ! « {nom} » rejoint tes territoires conquis. Tes pistes sont recalculées.', { nom: CT.bibliotheque.nomAffiche(r.c) }));
     return r.c;
   }
 
@@ -376,7 +376,7 @@
       const r = CT.orientation.cocherAction(carte, Number(valeur));
       if (!r) return;
       appliquer();
-      if (r.vientDeFinir) toast(T('Plan terminé, bravo ! « {nom} » peut passer en territoire conquis quand tu le sens.', { nom: carte.plan.competenceId && CT.regles.trouver(carte, carte.plan.competenceId).nom }));
+      if (r.vientDeFinir) toast(T('Plan terminé, bravo ! « {nom} » peut passer en territoire conquis quand tu le sens.', { nom: CT.bibliotheque.nomAffiche(CT.regles.trouver(carte, carte.plan.competenceId)) }));
       else if (carte.plan.faites[Number(valeur)]) toast(T('Action cochée : {n} sur 12.', { n: r.faites }));
       return;
     }

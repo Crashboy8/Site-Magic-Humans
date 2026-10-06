@@ -69,7 +69,7 @@
       const d = CT.schema.DOMAINES[entree.domaine];
       raison = d ? T('Prolonge ta province {domaine}', { domaine: d.nom.toLowerCase() }) : T('Prolonge ta province éloignée');
     } else if (appuis.length) {
-      raison = T('Proche de {noms}', { noms: appuis.slice(0, 2).map((a) => T('« {nom} »', { nom: a.c.nom })).join(T(' et ')) });
+      raison = T('Proche de {noms}', { noms: appuis.slice(0, 2).map((a) => T('« {nom} »', { nom: CT.bibliotheque.nomAffiche(a.c) })).join(T(' et ')) });
     } else {
       const r = CT.regles.regionDe(carte, regionId);
       raison = r ? T('Dans le prolongement de {nom}', { nom: r.nom }) : T('Une piste à explorer');

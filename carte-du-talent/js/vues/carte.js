@@ -80,6 +80,10 @@
     return a;
   }
 
+  function nomCarte(c) {
+    return CT.bibliotheque.nomAffiche(c);
+  }
+
   function texteTuile(nom, x, y, couleur, classe, lignesMax) {
     const lignes = O.couperTexte(nom, 13, lignesMax || 3);
     const hauteur = 13.5;
@@ -190,13 +194,14 @@
 
       // Suggestion : hexagone fantôme, à l'endroit exact où il se poserait.
       if (c.fantome) {
+        const nomSugg = nomCarte(c);
         tuiles.push('<g class="tuile tuile-suggestion" data-id="' + O.echapper(c.id) + '" tabindex="0" role="button" aria-label="' +
-          O.echapper(CT.i18n.T('Suggestion : {nom}', { nom: c.nom })) + '">' +
+          O.echapper(CT.i18n.T('Suggestion : {nom}', { nom: nomSugg })) + '">' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#FFFDF5" fill-opacity=".72" stroke="#E9A400" stroke-width="2.5" stroke-dasharray="6 5"/>' +
           '<g class="plus-suggestion"><circle cx="' + (x + 25).toFixed(1) + '" cy="' + (y - 29).toFixed(1) + '" r="10" fill="#E9A400"/>' +
           O.iconeSvg('plus', x + 25, y - 29, 13, '#fff', 3) + '</g>' +
           O.iconeSvg(c.icone, x, y - 20, 22, '#8A6A2A', 2) +
-          texteTuile(c.nom, x, y - 6, '#6E5A2E', 'nom nom-suggestion') + '</g>');
+          texteTuile(nomSugg, x, y - 6, '#6E5A2E', 'nom nom-suggestion') + '</g>');
         return;
       }
 
@@ -231,8 +236,9 @@
       }
 
       const plan = c.statut === 'frontiere' ? CT.orientation.drapeauPlan(carte, c.id) : null;
+      const visible = nomCarte(c);
       let g = '<g class="tuile tuile-' + c.statut + (e.niveau ? ' brille-' + e.niveau : '') + '" data-id="' + O.echapper(c.id) + '" opacity="' + a.opacite +
-        '" tabindex="0" role="button" aria-label="' + O.echapper(plan ? CT.i18n.T('{nom}, plan sur 30 jours : {n} actions sur 12', { nom: c.nom, n: plan.faites }) : c.nom + ' — ' + CT.schema.LIBELLES_STATUT[c.statut]) + '">';
+        '" tabindex="0" role="button" aria-label="' + O.echapper(plan ? CT.i18n.T('{nom}, plan sur 30 jours : {n} actions sur 12', { nom: visible, n: plan.faites }) : visible + ', ' + CT.schema.LIBELLES_STATUT[c.statut]) + '">';
       if (a.relief) g += '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="' + a.tranche + '"/>';
       g += '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="' + fond + '" stroke="' + a.contour +
         '" stroke-width="' + (a.pointilles ? 2.5 : 1.5) + '"' + (a.pointilles ? ' stroke-dasharray="' + a.pointilles + '"' : '') + '/>';
@@ -260,7 +266,7 @@
           (c.priorite ? '<text class="rang-priorite" x="' + (x + 24).toFixed(1) + '" y="' + (y - 14).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#C2412D">' + c.priorite + '</text>' : '') + '</g>';
       }
       g += O.iconeSvg(c.icone, x, y - 20, 22, a.encre, 2);
-      g += texteTuile(c.nom, x, y - 6, a.texte, 'nom');
+      g += texteTuile(visible, x, y - 6, a.texte, 'nom');
       g += '</g>';
       tuiles.push(g);
     });
@@ -291,18 +297,22 @@
       '<path d="M0 -38 L7 0 L0 38 L-7 0 Z" fill="#2F6A78"/><path d="M-38 0 L0 -6 L38 0 L0 6 Z" fill="#2F6A78" opacity=".6"/>' +
       '<text y="-44" text-anchor="middle" class="rose-n">N</text></g>';
 
+    // La synthèse cadre la mer sur la carte : un rectangle de 8000 unités déborde à l'impression.
+    const page = svg.classList && svg.classList.contains('synthese-carte');
+    const debord = page ? 8 : 4000;
     svg.innerHTML =
       '<defs>' + defs.join('') + '</defs>' +
-      '<rect class="mer" x="' + (cadre.x - 4000) + '" y="' + (cadre.y - 4000) + '" width="' + (cadre.l + 8000) + '" height="' + (cadre.h + 8000) + '" fill="url(#ct-mer)"/>' +
-      '<rect x="' + (cadre.x - 4000) + '" y="' + (cadre.y - 4000) + '" width="' + (cadre.l + 8000) + '" height="' + (cadre.h + 8000) + '" fill="url(#ct-vagues)"/>' +
+      '<rect class="mer" x="' + (cadre.x - debord) + '" y="' + (cadre.y - debord) + '" width="' + (cadre.l + 2 * debord) + '" height="' + (cadre.h + 2 * debord) + '" fill="url(#ct-mer)"/>' +
+      '<rect x="' + (cadre.x - debord) + '" y="' + (cadre.y - debord) + '" width="' + (cadre.l + 2 * debord) + '" height="' + (cadre.h + 2 * debord) + '" fill="url(#ct-vagues)"/>' +
       '<g class="hauts-fonds" fill="' + COULEURS.hautFond + '" opacity=".75">' + hautsFonds.join('') + '</g>' +
       '<g class="plages" fill="' + COULEURS.sable + '">' + plages.join('') + '</g>' +
       '<g class="horizon" aria-label="' + O.echapper(CT.i18n.T('Terres à découvrir autour de ta carte')) + '">' + tuilesHorizon.join('') + '</g>' +
       '<g class="eclats">' + eclats.join('') + '</g>' +
-      '<g class="tuiles" filter="url(#ct-ombre)">' + tuiles.join('') + '</g>' +
+      '<g class="tuiles"' + (page ? '' : ' filter="url(#ct-ombre)"') + '>' + tuiles.join('') + '</g>' +
       '<g class="brumes" fill="#F4F8FA" filter="url(#ct-brume)" pointer-events="none">' + brumes.join('') + '</g>' +
       '<g class="etiquettes etiquettes-zones">' + etiquettes.join('') + '</g>' +
-      '<g class="etiquettes etiquettes-mer">' + etiquettesMer.join('') + '</g>' + etiquettesHorizon.join('') + rose +
+      '<g class="etiquettes etiquettes-mer">' + etiquettesMer.join('') + '</g>' +
+      '<g class="etiquettes etiquettes-horizon">' + etiquettesHorizon.join('') + '</g>' + rose +
       '<g class="calque-interaction"></g>';
 
     return { cadre: cadreTotal, cadreTerres };

@@ -183,7 +183,7 @@
     return '<header class="panneau-tete" style="--teinte:' + O.nuance(couleur, 0.75) + '">' + pastilleTuile(c, carte) +
       '<div class="panneau-titre"><span class="badge badge-' + c.statut + '">' + S.LIBELLES_STATUT[c.statut] +
       (c.statut === 'frontiere' && c.priorite ? ' · ' + T('priorité n°{rang}', { rang: c.priorite }) : '') + '</span>' +
-      '<h2 id="panneau-titre">' + O.echapper(c.nom) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
+      '<h2 id="panneau-titre">' + O.echapper(CT.bibliotheque.nomAffiche(c)) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
       '<div class="panneau-corps">' + sectionProposition(c, carte) + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionPriorite(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
   }

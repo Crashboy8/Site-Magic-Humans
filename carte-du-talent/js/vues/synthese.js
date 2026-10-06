@@ -15,11 +15,11 @@
     return '<li><strong>' + O.echapper(x.evaluation.piste.nom) + '</strong> · ' +
       O.echapper(T('Correspondance : {n} %', { n: x.evaluation.pourcentage })) + ' · ' + O.echapper(x.lien.libelle) +
       (x.infos ? '<br>' + O.echapper(x.infos.statutLibelle) + ' · ' + O.echapper(x.infos.revenu) + '*' : '') +
-      (manquantes.length ? '<br><span class="discret">' + T('Compétences manquantes') + ' : ' + O.echapper(manquantes.join(T(', '))) + '</span>' : '') + '</li>';
+      (manquantes.length ? '<br><span class="discret">' + O.echapper(T('Compétences manquantes : {liste}', { liste: manquantes.join(T(', ')) })) + '</span>' : '') + '</li>';
   }
 
   function prochaine(carte, s) {
-    if (s.plan) return '<p>' + O.echapper(T('Plan en cours : {nom}, {n} actions sur 12', { nom: s.plan.competence.nom, n: s.plan.faites })) + '</p>';
+    if (s.plan) return '<p>' + O.echapper(T('Plan en cours : {nom}, {n} actions sur 12', { nom: CT.bibliotheque.nomAffiche(s.plan.competence), n: s.plan.faites })) + '</p>';
     if (!s.prochaine) return '';
     const p = s.prochaine;
     return '<p><strong>' + O.echapper(p.entree.nom) + '</strong> · ' +

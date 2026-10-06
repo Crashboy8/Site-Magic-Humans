@@ -62,7 +62,7 @@
     const cle = points >= 4 ? 'facile' : points >= 1 ? 'accessible' : 'exigeant';
     appuis.sort((a, b) => (ACQUIS.includes(b.statut) ? 1 : 0) - (ACQUIS.includes(a.statut) ? 1 : 0) || a.nom.localeCompare(b.nom, 'fr'));
     let raison;
-    if (appuis.length) raison = T('Tu t\'appuies sur {noms}.', { noms: appuis.slice(0, 2).map((c) => T('« {nom} »', { nom: c.nom })).join(T(' et ')) });
+    if (appuis.length) raison = T('Tu t\'appuies sur {noms}.', { noms: appuis.slice(0, 2).map((c) => T('« {nom} »', { nom: CT.bibliotheque.nomAffiche(c) })).join(T(' et ')) });
     else if (memeDomaine) raison = T('Tu connais déjà le domaine {domaine}.', { domaine: CT.schema.DOMAINES[entree.domaine].nom.toLowerCase() });
     else raison = T('Nouveau territoire pour toi : compte un peu plus de temps, c\'est normal.');
     return { cle, libelle: LIBELLES_FACILITE[cle], points, raison, appuis: appuis.map((c) => c.id) };
