@@ -22,7 +22,72 @@
     "#screen-amour .am-body{padding-bottom:12px}",
     "#screen-amour ol.items{list-style:none;margin:0;padding:0}",
     "#screen-amour label.rsrc-opt,#screen-amour button.rsrc-opt{transition:border-color .15s,background .15s}",
-    "#screen-amour label.rsrc-opt:hover,#screen-amour button.rsrc-opt:hover{border-color:var(--accent)}",
+    "#screen-amour{--sage:#146B3A;--sage-soft:#E5F6EB;--sage-track:#C6E8D4;--coral:#C2412D;--coral-soft:#FDE8E3;--coral-track:#F8D2CB;--pink:#B4235A;--pink-soft:#FDE7F0;--pink-track:#F8D0E0;--gold:#8A5A00;--gold-soft:#FFF3CC;--gold-track:#F8E7B5;--sky:#17679E;--sky-soft:#E6F4FC;--sky-track:#D3ECF8;--am:var(--pink);--am-soft:var(--pink-soft)}",
+    "#screen-amour[data-tone=sage]{--am:var(--sage);--am-soft:var(--sage-soft)}",
+    "#screen-amour[data-tone=coral]{--am:var(--coral);--am-soft:var(--coral-soft)}",
+    "#screen-amour[data-tone=pink]{--am:var(--pink);--am-soft:var(--pink-soft)}",
+    "#screen-amour[data-tone=gold]{--am:var(--gold);--am-soft:var(--gold-soft)}",
+    "#screen-amour[data-tone=sky]{--am:var(--sky);--am-soft:var(--sky-soft)}",
+    "#screen-amour .am-group[data-tone=sage],#screen-amour section[data-tone=sage]{--am:var(--sage);--am-soft:var(--sage-soft)}",
+    "#screen-amour .am-group[data-tone=coral],#screen-amour section[data-tone=coral]{--am:var(--coral);--am-soft:var(--coral-soft)}",
+    "#screen-amour .am-group[data-tone=gold],#screen-amour section[data-tone=gold]{--am:var(--gold);--am-soft:var(--gold-soft)}",
+    "#screen-amour .am-group[data-tone=pink],#screen-amour section[data-tone=pink]{--am:var(--pink);--am-soft:var(--pink-soft)}",
+    "#screen-amour .am-group[data-tone=sky],#screen-amour section[data-tone=sky]{--am:var(--sky);--am-soft:var(--sky-soft)}",
+    "#screen-amour .eyebrow{display:flex;align-items:center;gap:8px;color:var(--am)}",
+    "#screen-amour .legend b{color:var(--am)}",
+    "#screen-amour .legend [data-ico-tone=sage] b,#screen-amour .am-ico[data-ico-tone=sage],#screen-amour .rule[data-tone=sage] .k{color:var(--sage)}",
+    "#screen-amour .legend [data-ico-tone=coral] b,#screen-amour .am-ico[data-ico-tone=coral],#screen-amour .rule[data-tone=coral] .k{color:var(--coral)}",
+    "#screen-amour .legend [data-ico-tone=pink] b,#screen-amour .am-ico[data-ico-tone=pink],#screen-amour .rule[data-tone=pink] .k{color:var(--pink)}",
+    "#screen-amour .legend [data-ico-tone=gold] b,#screen-amour .am-ico[data-ico-tone=gold],#screen-amour .rule[data-tone=gold] .k{color:var(--gold)}",
+    "#screen-amour .legend [data-ico-tone=sky] b,#screen-amour .am-ico[data-ico-tone=sky],#screen-amour .rule[data-tone=sky] .k{color:var(--sky)}",
+    "#screen-amour .am-ico{display:inline-flex;flex:none;line-height:0;color:var(--am)}",
+    "#screen-amour .am-ico svg{width:20px;height:20px;display:block}",
+    "#screen-amour .rsrc-opt{border-width:2px}",
+    "#screen-amour .rsrc-opt.picked,#screen-amour .am-rank-item{background:var(--am-soft);border-color:var(--am)}",
+    "#screen-amour .rsrc-opt[data-item-tone=sage].picked,#screen-amour .am-rank-item[data-item-tone=sage]{background:var(--sage-soft);border-color:var(--sage)}",
+    "#screen-amour .rsrc-opt[data-item-tone=coral].picked,#screen-amour .am-rank-item[data-item-tone=coral]{background:var(--coral-soft);border-color:var(--coral)}",
+    "#screen-amour .rsrc-opt[data-item-tone=pink].picked,#screen-amour .am-rank-item[data-item-tone=pink]{background:var(--pink-soft);border-color:var(--pink)}",
+    "#screen-amour .rsrc-opt[data-item-tone=gold].picked,#screen-amour .am-rank-item[data-item-tone=gold]{background:var(--gold-soft);border-color:var(--gold)}",
+    "#screen-amour .rsrc-opt[data-item-tone=sky].picked,#screen-amour .am-rank-item[data-item-tone=sky]{background:var(--sky-soft);border-color:var(--sky)}",
+    "#screen-amour .rsrc-opt[data-item-tone=sage] .am-ico{color:var(--sage)}",
+    "#screen-amour .rsrc-opt[data-item-tone=coral] .am-ico{color:var(--coral)}",
+    "#screen-amour .rsrc-opt[data-item-tone=pink] .am-ico{color:var(--pink)}",
+    "#screen-amour .rsrc-opt[data-item-tone=gold] .am-ico{color:var(--gold)}",
+    "#screen-amour .rsrc-opt[data-item-tone=sky] .am-ico{color:var(--sky)}",
+    "#screen-amour .rsrc-opt.has-ico{display:grid;grid-template-columns:28px 1fr;column-gap:10px;row-gap:2px;align-items:center}",
+    "#screen-amour .rsrc-opt.has-ico .am-ico{grid-row:1 / span 2}",
+    "#screen-amour .rsrc-opt.has-ico strong,#screen-amour .rsrc-opt.has-ico .muted{grid-column:2}",
+    "#screen-amour label.rsrc-opt:hover,#screen-amour button.rsrc-opt:hover{border-color:var(--am)}",
+    "#screen-amour .progress{gap:5px}",
+    "#screen-amour .progress span{height:7px;border-radius:7px}",
+    "#screen-amour .progress span[data-tone=sage]{background:var(--sage-track)}",
+    "#screen-amour .progress span[data-tone=coral]{background:var(--coral-track)}",
+    "#screen-amour .progress span[data-tone=pink]{background:var(--pink-track)}",
+    "#screen-amour .progress span[data-tone=gold]{background:var(--gold-track)}",
+    "#screen-amour .progress span[data-tone=sky]{background:var(--sky-track)}",
+    "#screen-amour .progress span[data-tone=split]{background:linear-gradient(90deg,var(--sage-track),var(--coral-track))}",
+    "#screen-amour .progress span.done[data-tone=sage],#screen-amour .progress span.is-now[data-tone=sage]{background:var(--sage)}",
+    "#screen-amour .progress span.done[data-tone=coral],#screen-amour .progress span.is-now[data-tone=coral]{background:var(--coral)}",
+    "#screen-amour .progress span.done[data-tone=pink],#screen-amour .progress span.is-now[data-tone=pink]{background:var(--pink)}",
+    "#screen-amour .progress span.done[data-tone=gold],#screen-amour .progress span.is-now[data-tone=gold]{background:var(--gold)}",
+    "#screen-amour .progress span.done[data-tone=sky],#screen-amour .progress span.is-now[data-tone=sky]{background:var(--sky)}",
+    "#screen-amour .progress span.done[data-tone=split],#screen-amour .progress span.is-now[data-tone=split]{background:linear-gradient(90deg,var(--sage),var(--coral))}",
+    "#screen-amour .progress span.is-now{height:9px}",
+    "#screen-amour .snum{color:var(--am)}",
+    "#screen-amour .legend{position:relative}",
+    "#screen-amour .am-pop{position:absolute;right:4px;top:-4px;color:var(--am);pointer-events:none;animation:am-heart .9s ease forwards}",
+    "@keyframes am-heart{0%{opacity:0;transform:translateY(6px) scale(.4)}35%{opacity:1;transform:translateY(-4px) scale(1.15)}100%{opacity:0;transform:translateY(-22px) scale(1)}}",
+    "#screen-amour .am-sentence{display:flex;gap:10px;align-items:flex-start}",
+    "#screen-amour .am-sentence .am-ico{margin-top:.15em}",
+    "#screen-amour .rule strong{display:flex;align-items:flex-start;gap:8px}",
+    "#screen-amour .rule[data-tone=sage]{background:var(--sage-soft);border-color:var(--sage)}",
+    "#screen-amour .rule[data-tone=coral]{background:var(--coral-soft);border-color:var(--coral)}",
+    "#screen-amour .rule[data-tone=pink]{background:var(--pink-soft);border-color:var(--pink)}",
+    "#screen-amour .rule[data-tone=gold]{background:var(--gold-soft);border-color:var(--gold)}",
+    "#screen-amour .rule[data-tone=sky]{background:var(--sky-soft);border-color:var(--sky)}",
+    "#screen-amour .rhead{background:linear-gradient(120deg,var(--pink-soft),var(--gold-soft) 52%,var(--sage-soft));border-radius:var(--radius);padding:26px 20px 22px;margin-top:10px}",
+    "@media (prefers-color-scheme: dark){:root:not([data-theme=light]) #screen-amour{--sage:#8ED4AE;--sage-soft:#1A3326;--sage-track:#24543A;--coral:#F0A090;--coral-soft:#3A221C;--coral-track:#5A322C;--pink:#F3A3C0;--pink-soft:#3A2030;--pink-track:#5A2840;--gold:#F0D078;--gold-soft:#3A3018;--gold-track:#5A4818;--sky:#8ECAF0;--sky-soft:#1A2C3A;--sky-track:#1E4560}}",
+    ":root[data-theme=dark] #screen-amour{--sage:#8ED4AE;--sage-soft:#1A3326;--sage-track:#24543A;--coral:#F0A090;--coral-soft:#3A221C;--coral-track:#5A322C;--pink:#F3A3C0;--pink-soft:#3A2030;--pink-track:#5A2840;--gold:#F0D078;--gold-soft:#3A3018;--gold-track:#5A4818;--sky:#8ECAF0;--sky-soft:#1A2C3A;--sky-track:#1E4560}",
     "#screen-amour .rsrc-opt strong,#screen-amour .rsrc-opt .muted{display:block}",
     "#screen-amour label.rsrc-opt:focus-within{outline:2px solid var(--accent);outline-offset:3px}",
     "#screen-amour .am-rank-item.is-dragging{position:relative;z-index:3;box-shadow:0 8px 24px rgba(0,0,0,.12)}",
@@ -40,7 +105,7 @@
     "#screen-amour .rule .quote{color:var(--ink);font-size:1.15rem}",
     "#screen-amour .rule .btn{align-self:flex-start;margin-top:4px}",
     "@media(max-width:420px){#screen-amour .am-nav-row .btn{padding:12px 10px;font-size:.92rem}}",
-    "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item{animation:none!important;transition:none!important}}",
+    "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item{animation:none!important;transition:none!important}#screen-amour .am-pop{display:none}}",
     "@media print{",
     "@page{size:A4;margin:12mm}",
     "body{background:#fff!important;color:#1B1816!important}",
@@ -76,6 +141,93 @@
   let held = null;
   let focusSel = "";
   let pendingLive = "";
+  let armed = true;
+
+  const PATHS = {
+    leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>',
+    cloud: '<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+    message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+    hand: '<path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 14"/>',
+    compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+    gem: '<path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+    home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3 1.5 1 3 2.5 3 4.5a2.5 2.5 0 0 0 5 0c0-4-3-7-3-10 4 2 6 6 6 10a6 6 0 0 1-12 0c0-1 .5-2.5 1.5-4"/>',
+    zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+    flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+    phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    battery: '<rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/>',
+    heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    anchor: '<circle cx="12" cy="5" r="3"/><line x1="12" x2="12" y1="22" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    userx: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/>',
+    repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+    spark: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+    help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/>',
+    box: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+    star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    timer: '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="12" y1="14" y2="10"/><circle cx="12" cy="14" r="8"/>',
+    mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    snow: '<line x1="2" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="22"/><path d="m20 16-4-4 4-4"/><path d="m4 8 4 4-4 4"/><path d="m16 4-4 4-4-4"/><path d="m8 20 4-4 4 4"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+    pulse: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+    pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+    coffee: '<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/>',
+    swords: '<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/>',
+    tree: '<path d="M12 22v-6"/><path d="M7 22h10"/><path d="m12 2 5 8h-3l3 6H7l3-6H7z"/>'
+  };
+  const SCREEN_TONE = { ressource: "gold", langages: "pink", ennea: "gold", valeurs: "sky", instinct: "pink", stress: "coral", freins: "sky", demain: "sage", etape: "pink" };
+  const SCREEN_ICON = { nourrit: "leaf", ressource: "sun", langages: "message", ennea: "compass", valeurs: "gem", instinct: "flame", stress: "zap", freins: "anchor", demain: "flag", etape: "pen" };
+  const GROUP_TONE = { nourrit: "sage", vide: "coral", modere: "gold", fort: "coral" };
+  const ITEM_TONE = { sp: "sage", so: "sky", sx: "pink" };
+  const CARD_ICON = {
+    ressource: { seul: "user", raconter: "message", bouger: "pulse", mains: "hand", evader: "moon", monde: "pin", tendresse: "heart", douceur: "coffee", rien: "moon", moi: "user", nature: "tree", sport: "pulse", adeux: "users", proches: "users", sortir: "pin", decouvrir: "compass", projet: "pen" },
+    langages: { paroles: "message", moments: "clock", cadeaux: "gift", services: "hand", toucher: "heart" },
+    instinct: { sp: "home", so: "users", sx: "flame" },
+    stress: { D: "arrow", I: "smile", S: "shield", C: "search", fight: "swords", flight: "arrow", freeze: "snow", fawn: "heart" },
+    freins: { rejet: "userx", blesser: "heart", moment: "clock", espoir: "spark", habitude: "repeat", seul: "user", flou: "help", regard: "eye", contraintes: "box", energie: "battery", parfait: "star", passe: "history" },
+    demain: { a5: "timer", voix: "mic", rappel: "bell" }
+  };
+
+  function ico(name, tone) {
+    if (!PATHS[name]) return "";
+    return '<span class="am-ico"' + (tone ? ' data-ico-tone="' + tone + '"' : "") + ' aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + PATHS[name] + "</svg></span>";
+  }
+  function cardIcon(screenId, itemId) {
+    const bag = CARD_ICON[screenId];
+    return bag ? bag[itemId] || "" : "";
+  }
+  function currentTone(s) {
+    if (!s) return "pink";
+    if (s.id === "nourrit" && phase !== "rank") {
+      const g = activeGroups(s)[0];
+      if (g && GROUP_TONE[g.id]) return GROUP_TONE[g.id];
+    }
+    if (s.id === "nourrit") return "sage";
+    return SCREEN_TONE[s.id] || "pink";
+  }
+  function barTone(sc) {
+    if (sc.id === "nourrit") return "split";
+    return SCREEN_TONE[sc.id] || "pink";
+  }
+  function questionIcon(s) {
+    if (s.id === "nourrit" && phase !== "rank") {
+      const g = activeGroups(s)[0];
+      if (g && g.id === "vide") return "cloud";
+    }
+    return SCREEN_ICON[s.id] || "heart";
+  }
 
   function esc(t) {
     return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) {
@@ -193,32 +345,37 @@
     return base + (ok ? " " + Q.counterOk : "");
   }
 
-  function countersHtml(s) {
+  function counterSpan(text, tone) {
+    return "<span" + (tone ? ' data-ico-tone="' + tone + '"' : "") + "><b>" + esc(text) + "</b></span>";
+  }
+
+  function countersHtml(s, pop) {
     const bits = [];
     if (s.type === "pick" && phase !== "rank") {
       activeGroups(s).forEach(function (g) {
         const x = chosenIds(s, g).length;
         const ok = x >= g.min;
-        bits.push("<span><b>" + esc(counterText(g.counter, x, g.min, ok)) + "</b></span>");
+        const tone = GROUP_TONE[g.id] || "";
+        bits.push(counterSpan(counterText(g.counter, x, g.min, ok), tone));
       });
     } else if (s.type === "rank") {
       const x = ensure(s).order.length;
       const ok = x >= s.minRanked;
-      bits.push("<span><b>" + esc(fill(Q.rankCounter, { x: x, min: s.minRanked }) + (ok ? " " + Q.counterOk : "")) + "</b></span>");
+      bits.push(counterSpan(fill(Q.rankCounter, { x: x, min: s.minRanked }) + (ok ? " " + Q.counterOk : ""), ""));
     } else if (s.type === "commit") {
       const bag = ensure(s);
       const x = (String(bag.engagement || "").trim().length >= 5 ? 1 : 0) + (bag.moment ? 1 : 0);
       const ok = x >= 2;
-      bits.push("<span><b>" + esc(fill(Q.engagementCounter, { x: x, min: 2 }) + (ok ? " " + Q.counterOk : "")) + "</b></span>");
+      bits.push(counterSpan(fill(Q.engagementCounter, { x: x, min: 2 }) + (ok ? " " + Q.counterOk : ""), ""));
     } else if (s.rank && phase === "rank") {
       s.rank.groups.forEach(function (gid) {
         const g = s.groups.find(function (x) { return x.id === gid; });
         const x = (ensure(s).order[gid] || []).length;
-        bits.push("<span><b>" + esc(counterText(g.counter, x, g.min, true)) + "</b></span>");
+        bits.push(counterSpan(counterText(g.counter, x, g.min, true), GROUP_TONE[gid] || ""));
       });
     }
     if (!bits.length) return "";
-    return '<div class="legend" aria-live="polite">' + bits.join("") + "</div>";
+    return '<div class="legend" aria-live="polite">' + bits.join("") + (pop ? '<span class="am-pop">' + ico("heart") + "</span>" : "") + "</div>";
   }
 
   function live(msg) {
@@ -240,8 +397,10 @@
   function rankItemHtml(s, gid, id, index, total, removable) {
     const label = labelFor(s, gid, id);
     const handleId = "am-handle-" + (gid || "rank") + "-" + id;
-    return '<li class="item am-rank-item' + (removable ? " has-remove" : "") + '" data-id="' + esc(id) + '">' +
-      '<div class="txt"><span class="snum">' + (index + 1) + "</span> " + esc(label) + "</div>" +
+    const mark = cardIcon(s.id, id);
+    const tone = ITEM_TONE[id] || "";
+    return '<li class="item am-rank-item' + (removable ? " has-remove" : "") + '" data-id="' + esc(id) + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + ">" +
+      '<div class="txt"><span class="snum">' + (index + 1) + "</span> " + (mark ? ico(mark, tone) : "") + " " + esc(label) + "</div>" +
       '<div class="choices">' +
       '<button type="button" class="choice am-handle" id="' + esc(handleId) + '" aria-label="' + esc("Déplacer « " + label + " »") + '" aria-describedby="am-rank-help">⠿</button>' +
       '<button type="button" class="choice am-up" data-act="up" data-group="' + esc(gid || "") + '" data-index="' + index + '" aria-label="' + esc(Q.up + " « " + label + " »") + '"' + (index === 0 ? " disabled" : "") + ">↑</button>" +
@@ -268,13 +427,16 @@
     return activeGroups(s).map(function (g) {
       const bag = ensure(s);
       const picked = bag.picked[g.id] || [];
-      let html = '<section class="am-group" id="am-group-' + esc(g.id) + '">';
+      const gTone = GROUP_TONE[g.id] || "";
+      let html = '<section class="am-group" id="am-group-' + esc(g.id) + '"' + (gTone ? ' data-tone="' + gTone + '"' : "") + ">";
       if (g.title && !s.splitGroups) html += "<h3>" + esc(g.title) + "</h3>";
       if (g.help) html += '<p class="muted">' + esc(g.help) + "</p>";
       html += '<div class="items">';
       g.items.forEach(function (it) {
         const on = picked.indexOf(it.id) !== -1;
-        html += '<label class="rsrc-opt' + (on ? " picked" : "") + '"><input class="am-sr" type="checkbox" data-act="check" data-group="' + esc(g.id) + '" data-id="' + esc(it.id) + '"' + (on ? " checked" : "") + "><strong>" + esc(it.label) + "</strong>" +
+        const mark = cardIcon(s.id, it.id);
+        const tone = ITEM_TONE[it.id] || "";
+        html += '<label class="rsrc-opt' + (on ? " picked" : "") + (mark ? " has-ico" : "") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + '><input class="am-sr" type="checkbox" data-act="check" data-group="' + esc(g.id) + '" data-id="' + esc(it.id) + '"' + (on ? " checked" : "") + ">" + (mark ? ico(mark, tone) : "") + "<strong>" + esc(it.label) + "</strong>" +
           (it.hint ? '<span class="muted">' + esc(it.hint) + "</span>" : "") + "</label>";
       });
       if (g.other) {
@@ -299,7 +461,8 @@
     return s.rank.groups.map(function (gid) {
       const g = s.groups.find(function (x) { return x.id === gid; });
       const ids = bag.order[gid] || [];
-      return "<section><h3>" + esc(g.title || g.counter || "") + "</h3>" + listHtml(s, gid, ids, false, s.rank.divider) + "</section>";
+      const tone = GROUP_TONE[gid] || "";
+      return "<section" + (tone ? ' data-tone="' + tone + '"' : "") + "><h3>" + esc(g.title || g.counter || "") + "</h3>" + listHtml(s, gid, ids, false, s.rank.divider) + "</section>";
     }).join("");
   }
 
@@ -311,7 +474,9 @@
     html += listHtml(s, "", order, true, null);
     html += '<div class="items am-pool">';
     left.forEach(function (it) {
-      html += '<button type="button" class="rsrc-opt" data-act="pool" data-id="' + esc(it.id) + '"><strong>' + esc(it.label) + "</strong>" +
+      const mark = cardIcon(s.id, it.id);
+      const tone = ITEM_TONE[it.id] || "";
+      html += '<button type="button" class="rsrc-opt' + (mark ? " has-ico" : "") + '" data-act="pool" data-id="' + esc(it.id) + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + ">" + (mark ? ico(mark, tone) : "") + "<strong>" + esc(it.label) + "</strong>" +
         (it.hint ? '<span class="muted">' + esc(it.hint) + "</span>" : "") + "</button>";
     });
     html += "</div>";
@@ -405,18 +570,22 @@
     const n = D.screens.length;
     const k = deficit(s);
     const ok = k === 0;
-    const segs = D.screens.map(function (_, i) {
-      return '<span class="' + (i < qi || (i === qi && ok) ? "done" : "") + '"></span>';
+    const segs = D.screens.map(function (sc, i) {
+      const cls = [(i < qi || (i === qi && ok)) ? "done" : "", i === qi ? "is-now" : ""].filter(Boolean).join(" ");
+      return '<span class="' + cls + '" data-tone="' + barTone(sc) + '"></span>';
     }).join("");
     const suffix = s.rank && s.rank.mode === "step" && phase === "rank" ? Q.rankSuffix : "";
+    const pop = !scroll && ok && armed;
+    armed = !ok;
+    root.dataset.tone = currentTone(s);
     root.innerHTML =
       '<div class="am-stage' + (scroll ? " am-in" : "") + '">' +
       '<div class="progress" aria-hidden="true">' + segs + "</div>" +
-      '<div class="qhead"><span class="eyebrow">' + esc(fill(Q.progress, { i: s.n, n: n }) + " · " + s.eyebrow + suffix) + "</span>" +
+      '<div class="qhead"><span class="eyebrow">' + ico(questionIcon(s)) + esc(fill(Q.progress, { i: s.n, n: n }) + " · " + s.eyebrow + suffix) + "</span>" +
       (s.badge && phase !== "rank" ? '<span class="tag">' + esc(s.badge) + "</span>" : "") +
       "<h2>" + esc(title) + "</h2>" +
       (help ? '<p class="muted">' + esc(help) + "</p>" : "") +
-      countersHtml(s) +
+      countersHtml(s, pop) +
       "</div>" +
       '<div class="am-body">' + body +
       '<p id="am-rank-help" class="am-sr">' + esc(Q.rankHelp) + "</p>" +
@@ -440,10 +609,16 @@
 
   function showIntro() {
     const I = U.intro;
+    const introTones = ["sage", "gold", "pink", "coral"];
+    armed = true;
+    delete root.dataset.tone;
     root.innerHTML =
-      '<div class="hero"><span class="eyebrow">' + esc(I.eyebrow) + "</span><h1>" + I.h1 + '</h1><p class="lead">' + esc(I.lead) + "</p></div>" +
+      '<div class="hero"><span class="eyebrow">' + ico("heart") + esc(I.eyebrow) + "</span><h1>" + I.h1 + '</h1><p class="lead">' + esc(I.lead) + "</p></div>" +
       '<div class="stack-lg" style="padding-top:18px"><div class="howto"><div class="rules">' +
-      I.bullets.map(function (b, i) { return '<div class="rule"><span class="k">' + (i + 1) + "</span><strong>" + esc(b) + "</strong></div>"; }).join("") +
+      I.bullets.map(function (b, i) {
+        const tone = introTones[i] || "pink";
+        return '<div class="rule" data-tone="' + tone + '"><span class="k">' + (i + 1) + "</span><strong>" + esc(b) + "</strong></div>";
+      }).join("") +
       "</div>" +
       '<p class="howto-tip">' + esc(I.howto) + "</p></div>" +
       '<div class="hello"><div class="field"><label for="am-prenom">' + esc(I.nameLabel) + "</label>" +
@@ -586,16 +761,19 @@
 
     root.innerHTML =
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
-      '<div class="rhead"><span class="eyebrow">Quiz Amour</span><div class="alloy">' + esc(head) + "</div></div>" +
+      '<div class="rhead"><span class="eyebrow">' + ico("heart", "pink") + 'Quiz Amour</span><div class="alloy">' + esc(head) + "</div></div>" +
       '<div class="stack-lg" style="padding-top:8px">' +
       '<section class="rs" id="sec-phrases"><h2>' + esc(R.sentencesH) + "</h2>" +
-      '<div class="panel">' + profile.sentences.map(function (s, i) { return '<p class="' + (i === 0 ? "quote" : "") + '">' + esc(s) + "</p>"; }).join("") + "</div>" +
+      '<div class="panel">' + profile.sentences.map(function (sentence, i) {
+        const mark = [{ icon: "leaf", tone: "sage" }, { icon: "cloud", tone: "coral" }, { icon: "compass", tone: "gold" }][i] || { icon: "heart", tone: "pink" };
+        return '<p class="am-sentence' + (i === 0 ? " quote" : "") + '">' + ico(mark.icon, mark.tone) + "<span>" + esc(sentence) + "</span></p>";
+      }).join("") + "</div>" +
       '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>' +
       '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + '</h2><div class="stack">' +
-      '<article class="rule"><span class="k">1</span><strong>' + esc(R.nowStep) + "</strong>" + stepBody + "</article>" +
-      '<article class="rule"><span class="k">2</span><strong>' + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
+      '<article class="rule" data-tone="sage"><span class="k">1</span><strong>' + ico("flag", "sage") + esc(R.nowStep) + "</strong>" + stepBody + "</article>" +
+      '<article class="rule" data-tone="sky"><span class="k">2</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
-      '<article class="rule"><span class="k">3</span><strong>' + esc(R.nowPierre) + "</strong><p>" + esc(pierreLine) + "</p>" +
+      '<article class="rule" data-tone="pink"><span class="k">3</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(pierreLine) + "</p>" +
       '<a class="btn" data-cta-place="quiz_amour_resultat" href="' + esc(D.config.calendly) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
       '<div class="row-actions"><button type="button" class="btn ghost" data-act="print">' + esc(R.nowPdf) + "</button></div></section>" +
@@ -608,6 +786,7 @@
       '<section class="rs"><h2>' + esc(R.ethicsH) + '</h2><div class="prose"><p>' + esc(R.ethicsP) + '</p><p><a class="link" href="/quiz-amour/">' + esc(R.restart) + "</a></p></div></section>" +
       "</div></div>";
 
+    delete root.dataset.tone;
     root.dataset.share = profile.shareText;
     root.dataset.ics = JSON.stringify({ engagement: profile.etape.engagement, time: profile.demain.time });
     answers = {};
