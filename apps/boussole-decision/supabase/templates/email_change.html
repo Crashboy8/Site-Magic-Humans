@@ -1,8 +1,22 @@
+{{/* Langue de la personne : user_metadata.lang (fr par défaut), enregistrée par la Boussole. */}}
+{{ $l := or .Data.lang "fr" }}
 <div style="font-family:Georgia,serif;background:#fbf7f0;padding:32px;color:#3a2f24">
   <div style="max-width:520px;margin:0 auto;background:#fffdf9;border:1px solid #e8dfd2;border-radius:16px;padding:32px">
+{{ if eq $l "en" }}
+    <p style="font-style:italic;font-size:22px;margin:0 0 16px">Decision Compass</p>
+    <p style="font-family:Arial,sans-serif;font-size:16px;line-height:1.6">To save your work, confirm your email address. Everything you've already filled in will be kept.</p>
+    <p style="margin:28px 0"><a href="{{ .ConfirmationURL }}" style="background:#b34716;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-family:Arial,sans-serif;font-size:15px">Save my work</a></p>
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:#6b5d4e">If you didn't make this request, simply ignore this email.<br>Magic Humans · Pierre Sarazin</p>
+{{ else if eq $l "es" }}
+    <p style="font-style:italic;font-size:22px;margin:0 0 16px">Brújula de decisión</p>
+    <p style="font-family:Arial,sans-serif;font-size:16px;line-height:1.6">Para guardar tu trabajo, confirma tu dirección de email. Todo lo que ya has rellenado se conservará.</p>
+    <p style="margin:28px 0"><a href="{{ .ConfirmationURL }}" style="background:#b34716;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-family:Arial,sans-serif;font-size:15px">Guardar mi trabajo</a></p>
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:#6b5d4e">Si no has hecho esta solicitud, simplemente ignora este email.<br>Magic Humans · Pierre Sarazin</p>
+{{ else }}
     <p style="font-style:italic;font-size:22px;margin:0 0 16px">Boussole de décision</p>
     <p style="font-family:Arial,sans-serif;font-size:16px;line-height:1.6">Pour sauvegarder ton travail, confirme ton adresse email. Tout ce que tu as déjà rempli sera conservé.</p>
     <p style="margin:28px 0"><a href="{{ .ConfirmationURL }}" style="background:#b34716;color:#fff;text-decoration:none;padding:12px 24px;border-radius:999px;font-family:Arial,sans-serif;font-size:15px">Sauvegarder mon travail</a></p>
     <p style="font-family:Arial,sans-serif;font-size:13px;color:#6b5d4e">Si tu n'es pas à l'origine de cette demande, ignore simplement cet email.<br>Magic Humans · Pierre Sarazin</p>
+{{ end }}
   </div>
 </div>

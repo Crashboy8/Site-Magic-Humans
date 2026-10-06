@@ -11,7 +11,7 @@ import { supabaseServer } from "@/lib/supabase/server";
  * et premiers critères. Sans session, `startTrial` ouvre d'abord un essai sans compte.
  */
 export async function importQuizAction(raw: string, startTrial: boolean): Promise<{ error?: string }> {
-  const { t } = await getI18n();
+  const { locale, t } = await getI18n();
   let quiz = null;
   try {
     quiz = parseQuizResult(JSON.parse(raw));
@@ -24,7 +24,7 @@ export async function importQuizAction(raw: string, startTrial: boolean): Promis
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) {
     if (!startTrial) return { error: t.quiz.signInFirst };
-    const { error } = await supabase.auth.signInAnonymously();
+    const { error } = await supabase.auth.signInAnonymously({ options: { data: { lang: locale } } });
     if (error) return { error: t.auth.errors.trialDisabled };
   }
 
