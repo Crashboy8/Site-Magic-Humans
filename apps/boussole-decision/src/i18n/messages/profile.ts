@@ -8,7 +8,7 @@ const fr = {
   myProfiles: "Mes profils",
   startHere: "Tout commence ici.",
   startHereText:
-    "Crée ton premier profil, par exemple « Reconversion 2026 ». Tu y définiras tes critères, puis tu y compareras tes opportunités.",
+    "Crée ton premier profil, par exemple « Reconversion 2026 ». Tu y définiras tes critères, puis tu y compareras tes opportunités.",
   exampleTitle: "L'exemple de Camille",
   exampleText: "Chargée de communication, 34 ans, elle compare trois opportunités. Un tableau complet pour voir ce que ça peut donner.",
   seeExample: "👀 Voir l'exemple",
@@ -27,7 +27,7 @@ const fr = {
   nameSuggestions: "Suggestions de noms",
   suggestions: ["Reconversion 2026", "Retour après congé parental", "Nouveau poste en interne", "Lancement en indépendant"],
   profileDescription: "Quelques mots sur ce moment (facultatif)",
-  profileDescriptionPlaceholder: "Ex. : je quitte mon poste actuel en juin et j'hésite entre plusieurs pistes.",
+  profileDescriptionPlaceholder: "Ex. : je quitte mon poste actuel en juin et j'hésite entre plusieurs pistes.",
   nameRequired: "Donne un nom à ce profil.",
   createFailed: "Le profil n'a pas pu être créé. Réessaie dans un instant.",
   creating: "Création…",
@@ -40,31 +40,31 @@ const fr = {
   titleProfile: "Profil",
   eyebrow: "Profil",
   deleteProfile: "Supprimer ce profil",
-  deleteConfirm: (name: string) => `Supprimer le profil « ${name} » et toutes ses versions ? Cette action est définitive.`,
+  deleteConfirm: (name: string) => `Supprimer le profil « ${name} » et toutes ses versions ? Cette action est définitive.`,
   breadcrumbMine: "← Mes profils",
   breadcrumbCoachee: (name: string) => `← Profils de ${name}`,
   breadcrumb: "Fil d'Ariane",
   yourCoachee: "ton coaché",
-  openTable: "Ouvrir mon tableau : critères et opportunités →",
+  openTable: "Ouvrir mon tableau : critères et opportunités →",
   viewTable: "Voir le tableau de décision →",
-  nextStepTitle: "Étape suivante : ton tableau de décision",
+  nextStepTitle: "Étape suivante : ton tableau de décision",
   nextStepText:
     "Pose tes critères en lignes (ce qui compte pour toi, ce que tu veux éviter), ajoute tes opportunités professionnelles en colonnes, et vois le score se calculer en direct.",
   versionsTitle: "Versions",
   versionsIntro:
-    "Ta réflexion évolue : duplique une version pour en créer une nouvelle sans perdre la précédente. Une version finalisée est protégée ; rouvre-la si tu veux la retoucher.",
+    "Ta réflexion évolue : duplique une version pour en créer une nouvelle sans perdre la précédente. Une version finalisée est protégée ; rouvre-la si tu veux la retoucher.",
 
   // Partage
   shareTitle: "Partager avec mon coach",
   sharedOn: "✓ Ce profil est partagé avec ton coach.",
-  sharedOff: "🔒 Ce profil est privé : ton coach ne le voit pas.",
+  sharedOff: "🔒 Ce profil est privé : ton coach ne le voit pas.",
   shareExplainStart: "Si tu l'actives, ton coach pourra",
   shareExplainReadOnly: "consulter en lecture seule",
   shareExplainMiddle:
     ": ton Talent Unique et toutes les versions de ce profil (critères, opportunités, évaluations, résultats et ressenti). Il pourra y laisser des commentaires, mais",
   shareExplainNever: "ne pourra jamais rien modifier",
   shareExplainOthers:
-    "Tes autres profils restent privés. Tu peux retirer le partage à tout moment : ton coach n'aura alors plus accès à rien.",
+    "Tes autres profils restent privés. Tu peux retirer le partage à tout moment : ton coach n'aura alors plus accès à rien.",
   shareFailed: "Le réglage n'a pas pu être enregistré. Réessaie dans un instant.",
 
   // Talent Unique
@@ -75,16 +75,16 @@ const fr = {
   placeholderBenefice: "remettre du mouvement et de la sérénité dans le groupe",
   myAnti: (term: string) => `Mon ${term}`,
   notFilled: "Non renseigné.",
-  placeholderAnti: "Ex. : des réunions sans fin où rien ne se décide, un contrôle permanent de chaque détail…",
+  placeholderAnti: "Ex. : des réunions sans fin où rien ne se décide, un contrôle permanent de chaque détail…",
   livedTitle: "Mes contextes vécus",
   livedIntro:
     "Des situations concrètes, tirées de ta vie. Elles rendent ton Contexte Déclencheur et ton Anti-Contexte palpables, et reviennent dans tes résultats comme garde-fous.",
   successTitle: "🌱 Mes contextes de réussite",
-  successHint: "Quand es-tu à ton meilleur ? Avec qui, où, en train de faire quoi ?",
-  successPlaceholder: "Ex. : quand je suis avec des gens, que je crée un espace relationnel, avec un objectif et un cadre communs.",
+  successHint: "Quand es-tu au meilleur de toi-même ? Avec qui, où, en train de faire quoi ?",
+  successPlaceholder: "Ex. : quand je suis avec des gens, que je crée un espace relationnel, avec un objectif et un cadre communs.",
   failureTitle: "⚡ Mes contextes d'échec",
-  failureHint: "Dans quelles situations t'éteins-tu ? Celles où tu peux glisser facilement, sans t'en rendre compte.",
-  failurePlaceholder: "Ex. : quand je suis trop isolé, trop dans ma tête, derrière un écran toute la journée à regarder des vidéos.",
+  failureHint: "Dans quelles situations t'éteins-tu ? Celles où tu peux glisser facilement, sans t'en rendre compte.",
+  failurePlaceholder: "Ex. : quand je suis trop isolé, trop dans ma tête, derrière un écran toute la journée à regarder des vidéos.",
 };
 
 const en: typeof fr = {

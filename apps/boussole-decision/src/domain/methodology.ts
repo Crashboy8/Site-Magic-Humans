@@ -116,15 +116,15 @@ const FR = build({
     { value: "important", label: "Important", hint: "" },
     { value: "moyen", label: "Moyennement important", hint: "" },
     { value: "bof", label: "Bof", hint: "Compte un peu." },
-    { value: "bonus", label: "Bonus", hint: "Si c'est là, c'est bien ; sinon, ce n'est pas grave." },
+    { value: "bonus", label: "Bonus", hint: "Si c'est là, c'est bien ; sinon, ce n'est pas grave." },
   ],
-  nonNegotiableHint: "Non négociable : si ce n'est pas pleinement le cas, l'opportunité est signalée et classée après les autres.",
+  nonNegotiableHint: "Non négociable : si ce n'est pas pleinement le cas, l'opportunité est signalée et classée après les autres.",
   directions: {
-    TOWARDS: { label: "Pour aller vers", hint: "Ce que tu recherches.", question: "Cette opportunité t'apporte-t-elle cela ?" },
+    TOWARDS: { label: "Pour aller vers", hint: "Ce que tu recherches.", question: "Cette opportunité t'apporte-t-elle cela ?" },
     AWAY_FROM: {
       label: "Pour éviter",
-      hint: "Ce que tu veux fuir : on évalue sa présence ; plus il est présent, plus le score baisse.",
-      question: "Ce risque est-il présent dans cette opportunité ?",
+      hint: "Ce que tu veux fuir : on évalue sa présence ; plus il est présent, plus le score baisse.",
+      question: "Ce risque est-il présent dans cette opportunité ?",
     },
   },
   evaluationLabels: {
@@ -137,7 +137,7 @@ const FR = build({
       label: "Contexte Déclencheur & Flow",
       subtitle: "Talent Unique MO2I",
       question:
-        "Dans quel environnement, quelle dynamique de groupe ou face à quel type de problème ton Talent Unique s'active-t-il instantanément ? Qu'est-ce qui te met en Flow ?",
+        "Dans quel environnement, quelle dynamique de groupe ou face à quel type de problème ton Talent Unique s'active-t-il instantanément ? Qu'est-ce qui te met en Flow ?",
       defaults: DEFAULTS.contexte_declencheur,
       examples: [
         w("Mon Mécanisme est au cœur du poste, pas à la marge", 5),
@@ -152,7 +152,7 @@ const FR = build({
       label: "Anti-Contexte & Lignes Rouges",
       subtitle: "Prévention de la souffrance",
       question:
-        "Quel environnement éteint ton talent, génère de la friction, de la fatigue ou de la souffrance ? Quelles sont tes lignes rouges, à ne jamais franchir ?",
+        "Quel environnement éteint ton talent, génère de la friction, de la fatigue ou de la souffrance ? Quelles sont tes lignes rouges, à ne jamais franchir ?",
       defaults: DEFAULTS.anti_contexte,
       examples: [
         w("Micro-management et contrôle permanent", 4, "AWAY_FROM"),
@@ -166,7 +166,7 @@ const FR = build({
       key: "valeurs_culture",
       label: "Alignement Valeurs & Culture",
       subtitle: "Ce qui compte pour toi",
-      question: "Quelles valeurs l'organisation doit-elle partager avec toi ? Dans quelle culture te sens-tu à ta place ?",
+      question: "Quelles valeurs l'organisation doit-elle partager avec toi ? Dans quelle culture te sens-tu à ta place ?",
       defaults: DEFAULTS.valeurs_culture,
       examples: [
         w("Impact environnemental positif", 5),
@@ -182,7 +182,7 @@ const FR = build({
       key: "conditions_vie",
       label: "Conditions de Vie & QVT",
       subtitle: "Rythme, charge mentale, sérénité",
-      question: "Quel rythme, quelle charge mentale et quelle organisation te permettent de rester serein·e dans la durée ?",
+      question: "Quel rythme, quelle charge mentale et quelle organisation te permettent de rester serein·e dans la durée ?",
       defaults: DEFAULTS.conditions_vie,
       examples: [
         w("Télétravail au moins 2 jours / semaine", 3),
@@ -196,11 +196,11 @@ const FR = build({
       key: "remuneration",
       label: "Rémunération & Viabilité Financière",
       subtitle: "Seuil plancher éliminatoire + potentiel",
-      question: "En dessous de quel revenu ce n'est pas viable pour toi ? Quel potentiel financier recherches-tu au-delà ?",
+      question: "En dessous de quel revenu ce n'est pas viable pour toi ? Quel potentiel financier recherches-tu au-delà ?",
       defaults: DEFAULTS.remuneration,
       examples: [
-        dealbreaker("Minimum 3 000 € net / mois", "TOWARDS"),
-        w("Idéalement 4 000 € net / mois", 3),
+        dealbreaker("Minimum 3 000 € net / mois", "TOWARDS"),
+        w("Idéalement 4 000 € net / mois", 3),
         w("Perspective d'évolution salariale", 1),
         w("Revenus stables et prévisibles", 3),
         w("Avantages (mutuelle, intéressement…)", 1),
