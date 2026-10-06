@@ -5,6 +5,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const O = CT.outils;
   const S = CT.schema;
 
@@ -12,31 +14,31 @@
   const ACTIONS = {
     natale: [],
     conquise: [
-      ['frontiere', 'Je le travaille encore', 'mountain', false],
-      ['a_deleguer', 'À déléguer', 'send', false]
+      ['frontiere', T('Je le travaille encore'), 'mountain', false],
+      ['a_deleguer', T('À déléguer'), 'send', false]
     ],
     frontiere: [
-      ['conquise', 'Je l\'ai conquis', 'trophy', true],
-      ['a_conquerir', 'Pas pour maintenant', 'pause', false],
-      ['a_deleguer', 'À déléguer', 'send', false]
+      ['conquise', T('Je l\'ai conquis'), 'trophy', true],
+      ['a_conquerir', T('Pas pour maintenant'), 'pause', false],
+      ['a_deleguer', T('À déléguer'), 'send', false]
     ],
     a_conquerir: [
-      ['frontiere', 'J\'y vais : c\'est une frontière', 'mountain', true],
-      ['conquise', 'Je l\'ai déjà conquis', 'trophy', false],
-      ['a_deleguer', 'À déléguer', 'send', false]
+      ['frontiere', T('J\'y vais : c\'est une frontière'), 'mountain', true],
+      ['conquise', T('Je l\'ai déjà conquis'), 'trophy', false],
+      ['a_deleguer', T('À déléguer'), 'send', false]
     ],
     a_deleguer: [
-      ['conquise', 'Finalement, je le garde', 'trophy', false],
-      ['frontiere', 'Je veux l\'apprendre', 'mountain', false]
+      ['conquise', T('Finalement, je le garde'), 'trophy', false],
+      ['frontiere', T('Je veux l\'apprendre'), 'mountain', false]
     ],
     ile: [
-      ['conquise', 'Rattacher au continent', 'link', false]
+      ['conquise', T('Rattacher au continent'), 'link', false]
     ]
   };
 
-  const NIVEAUX_ECLAT = ['', 'une lueur', 'ça brille', 'lumineux', 'rayonnant'];
+  const NIVEAUX_ECLAT = ['', T('une lueur'), T('ça brille'), T('lumineux'), T('rayonnant')];
 
-  const dateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
+  const dateCourte = new Intl.DateTimeFormat(CT.i18n.langue === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'short' });
 
   function pastilleTuile(c, carte) {
     const couleur = c ? CT.vueCarte.couleurDe(c, carte) : '#F4C95D';
@@ -51,36 +53,37 @@
     const R = (id) => { const r = CT.regles.regionDe(carte, id); return r ? r.nom : ''; };
     if (c.statut === 'ile') {
       const ile = carte.iles.find((i) => i.id === c.ileId);
-      return 'Île « ' + (ile ? ile.nom : 'de flow') + ' », hors du talent principal';
+      return T('Île « {nom} », hors du talent principal', { nom: ile ? ile.nom : T('de flow') });
     }
-    if (c.statut === 'a_deleguer') return 'Zone à déléguer';
+    if (c.statut === 'a_deleguer') return T('Zone à déléguer');
     if (c.distance === 'eloignee' && c.statut !== 'natale') {
       const d = S.DOMAINES[c.domaine];
-      return 'Province ' + (d ? d.nom.toLowerCase() : 'éloignée') + (c.regionId ? ', du côté de ' + R(c.regionId) : '');
+      const province = d ? T('Province {domaine}', { domaine: d.nom.toLowerCase() }) : T('Province éloignée');
+      return c.regionId ? T('{province}, du côté de {region}', { province, region: R(c.regionId) }) : province;
     }
     if (!c.regionId) return '';
-    return c.regionJonctionId ? 'Entre ' + R(c.regionId) + ' et ' + R(c.regionJonctionId) : 'Région ' + R(c.regionId);
+    return c.regionJonctionId ? T('Entre {a} et {b}', { a: R(c.regionId), b: R(c.regionJonctionId) }) : T('Région {nom}', { nom: R(c.regionId) });
   }
 
   function sectionFlow(c, carte) {
     const tous = CT.regles.momentsDe(carte, c.id);
     const recents = CT.regles.momentsRecents(carte, c.id, 30);
-    let html = '<section class="panneau-section"><h3><i data-lucide="waves"></i> Moments de flow</h3>';
+    let html = '<section class="panneau-section"><h3><i data-lucide="waves"></i> ' + T('Moments de flow') + '</h3>';
     if (c.statut !== 'a_deleguer') {
-      html += '<button type="button" class="bouton bouton-flow-ici" data-action="flow"><i data-lucide="waves"></i>J\'étais dans le flow ici</button>';
+      html += '<button type="button" class="bouton bouton-flow-ici" data-action="flow"><i data-lucide="waves"></i>' + T('J\'étais dans le flow ici') + '</button>';
     }
     if (!tous.length) {
-      html += '<p class="vide">Aucun moment de flow enregistré ici pour l\'instant.</p>';
+      html += '<p class="vide">' + T('Aucun moment de flow enregistré ici pour l\'instant.') + '</p>';
     } else {
       const e = CT.regles.eclat(carte, c.id);
-      html += '<p class="chiffres"><strong>' + recents.length + '</strong> sur les 30 derniers jours · ' + tous.length + ' au total</p>' +
-        (e.niveau ? '<p class="eclat-texte"><i data-lucide="sparkles"></i>Éclat : ' + NIVEAUX_ECLAT[e.niveau] + '</p>' : '') +
+      html += '<p class="chiffres">' + T('<strong>{recents}</strong> sur les 30 derniers jours · {total} au total', { recents: recents.length, total: tous.length }) + '</p>' +
+        (e.niveau ? '<p class="eclat-texte"><i data-lucide="sparkles"></i>' + T('Éclat : {niveau}', { niveau: NIVEAUX_ECLAT[e.niveau] }) + '</p>' : '') +
         '<ul class="liste-moments">' +
         tous.slice(0, 5).map((m) => '<li><span class="date">' + dateCourte.format(new Date(m.date)) + '</span>' +
-          '<span class="intensite" title="Intensité ' + m.intensite + ' sur 5">' + '●'.repeat(m.intensite) + '<span class="pale">' + '●'.repeat(5 - m.intensite) + '</span></span>' +
+          '<span class="intensite" title="' + O.echapper(T('Intensité {n} sur 5', { n: m.intensite })) + '">' + '●'.repeat(m.intensite) + '<span class="pale">' + '●'.repeat(5 - m.intensite) + '</span></span>' +
           (m.note ? '<span class="note">' + O.echapper(m.note) + '</span>' : '') +
           '<button type="button" class="supprimer" data-action="supprimer-moment" data-valeur="' + O.echapper(m.id) +
-          '" aria-label="Supprimer ce moment du ' + dateCourte.format(new Date(m.date)) + '" title="Supprimer ce moment"><i data-lucide="trash-2"></i></button></li>').join('') + '</ul>';
+          '" aria-label="' + O.echapper(T('Supprimer ce moment du {date}', { date: dateCourte.format(new Date(m.date)) })) + '" title="' + O.echapper(T('Supprimer ce moment')) + '"><i data-lucide="trash-2"></i></button></li>').join('') + '</ul>';
     }
     return html + '</section>';
   }
@@ -89,55 +92,55 @@
   function sectionProposition(c, carte) {
     const f = CT.stats.propositionsConquete(carte).find((x) => x.c.id === c.id);
     if (!f) return '';
-    return '<section class="panneau-section proposition-panneau"><p><strong>' + f.nombre + ' moments de flow ici.</strong> Ce territoire te semble-t-il conquis ?</p>' +
-      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="conquerir"><i data-lucide="trophy"></i>Oui, je l\'ai conquis</button>' +
-      '<button type="button" class="bouton bouton-secondaire" data-action="pas-encore">Pas encore</button></div></section>';
+    return '<section class="panneau-section proposition-panneau"><p>' + T('<strong>{n} moments de flow ici.</strong> Ce territoire te semble-t-il conquis ?', { n: f.nombre }) + '</p>' +
+      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="conquerir"><i data-lucide="trophy"></i>' + T('Oui, je l\'ai conquis') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="pas-encore">' + T('Pas encore') + '</button></div></section>';
   }
 
   function sectionObjectif(c, carte) {
     const o = CT.regles.objectifDe(carte, c.id);
     if (!o && c.statut !== 'frontiere') return '';
-    let html = '<section class="panneau-section"><h3><i data-lucide="target"></i> Objectif</h3>';
+    let html = '<section class="panneau-section"><h3><i data-lucide="target"></i> ' + T('Objectif') + '</h3>';
     if (o) {
       const a = CT.stats.suiviObjectif(carte, o).actuelle;
-      const maintenant = o.frequence.periode === 'mois' ? 'ce mois-ci' : 'cette semaine';
+      const maintenant = o.frequence.periode === 'mois' ? T('ce mois-ci') : T('cette semaine');
       html += '<p class="objectif"><strong>' + O.echapper(o.description || c.nom) + '</strong><br><span class="discret">' +
-        (a.fait >= a.cible ? 'Objectif atteint ' + maintenant : a.fait + ' sur ' + a.cible + ' ' + maintenant) + '</span></p>' +
+        (a.fait >= a.cible ? T('Objectif atteint {quand}', { quand: maintenant }) : T('{fait} sur {cible} {quand}', { fait: a.fait, cible: a.cible, quand: maintenant })) + '</span></p>' +
         '<div class="actions-ligne"><button type="button" class="bouton bouton-secondaire bouton-compact" data-action="session" data-valeur="' + O.echapper(o.id) + '">' +
-        '<i data-lucide="plus"></i>J\'ai fait une session</button>' +
-        '<button type="button" class="bouton-lien" data-action="progres">Voir le suivi</button></div>';
+        '<i data-lucide="plus"></i>' + T('J\'ai fait une session') + '</button>' +
+        '<button type="button" class="bouton-lien" data-action="progres">' + T('Voir le suivi') + '</button></div>';
     } else {
-      html += '<p class="vide">Pas encore d\'objectif sur cette frontière.</p>' +
-        '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="nouvel-objectif"><i data-lucide="target"></i>Me fixer un objectif</button>';
+      html += '<p class="vide">' + T('Pas encore d\'objectif sur cette frontière.') + '</p>' +
+        '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="nouvel-objectif"><i data-lucide="target"></i>' + T('Me fixer un objectif') + '</button>';
     }
     return html + '</section>';
   }
 
   function sectionStatut(c, carte) {
     const actions = ACTIONS[c.statut] || [];
-    let html = '<section class="panneau-section"><h3><i data-lucide="flag"></i> Statut</h3>';
+    let html = '<section class="panneau-section"><h3><i data-lucide="flag"></i> ' + T('Statut') + '</h3>';
     if (actions.length) {
       html += '<div class="actions">' + actions.map(([statut, libelle, icone, principale]) =>
         '<button type="button" class="bouton ' + (principale ? 'bouton-principal' : 'bouton-secondaire') +
         '" data-action="statut" data-valeur="' + statut + '"><i data-lucide="' + icone + '"></i>' + libelle + '</button>').join('') + '</div>';
     }
-    html += '<label class="champ"><span>Autre statut</span><select data-action="statut">' +
+    html += '<label class="champ"><span>' + T('Autre statut') + '</span><select data-action="statut">' +
       S.STATUTS.map((s) => '<option value="' + s + '"' + (s === c.statut ? ' selected' : '') + '>' + S.LIBELLES_STATUT[s] + '</option>').join('') +
       '</select></label>';
 
     if (c.statut !== 'ile' && c.statut !== 'a_deleguer') {
-      html += '<label class="champ"><span>Région la plus proche</span><select data-action="region">' +
+      html += '<label class="champ"><span>' + T('Région la plus proche') + '</span><select data-action="region">' +
         carte.regions.map((r) => '<option value="' + O.echapper(r.id) + '"' + (r.id === c.regionId ? ' selected' : '') + '>' + O.echapper(r.nom) + '</option>').join('') +
         '</select></label>';
     }
     if (c.statut === 'ile' && carte.iles.length > 1) {
-      html += '<label class="champ"><span>Île</span><select data-action="ile">' +
+      html += '<label class="champ"><span>' + T('Île') + '</span><select data-action="ile">' +
         carte.iles.map((i) => '<option value="' + O.echapper(i.id) + '"' + (i.id === c.ileId ? ' selected' : '') + '>' + O.echapper(i.nom) + '</option>').join('') +
         '</select></label>';
     }
     if (c.statut !== 'natale' && c.statut !== 'ile' && c.statut !== 'a_deleguer') {
-      html += '<div class="champ"><span>Distance au talent</span><div class="segments" role="group" aria-label="Distance au talent">' +
-        [['proche', 'Proche'], ['eloignee', 'Éloignée']].map(([v, l]) => '<button type="button" data-action="distance" data-valeur="' + v +
+      html += '<div class="champ"><span>' + T('Distance au talent') + '</span><div class="segments" role="group" aria-label="' + O.echapper(T('Distance au talent')) + '">' +
+        [['proche', T('Proche')], ['eloignee', T('Éloignée')]].map(([v, l]) => '<button type="button" data-action="distance" data-valeur="' + v +
           '" aria-pressed="' + (c.distance === v) + '">' + l + '</button>').join('') + '</div></div>';
     }
     return html + '</section>';
@@ -146,10 +149,10 @@
   function sectionPosition(c) {
     let html = '<section class="panneau-section panneau-astuce">';
     if (c.positionManuelle) {
-      html += '<p><i data-lucide="hand"></i> Tu as placé cet hexagone à la main.</p>' +
-        '<button type="button" class="bouton bouton-lien" data-action="remettre"><i data-lucide="undo-2"></i>Le remettre à sa place automatique</button>';
+      html += '<p><i data-lucide="hand"></i> ' + T('Tu as placé cet hexagone à la main.') + '</p>' +
+        '<button type="button" class="bouton bouton-lien" data-action="remettre"><i data-lucide="undo-2"></i>' + T('Le remettre à sa place automatique') + '</button>';
     } else {
-      html += '<p><i data-lucide="move"></i> Astuce : maintiens appuyé un hexagone pour le déplacer.</p>';
+      html += '<p><i data-lucide="move"></i> ' + T('Astuce : maintiens appuyé un hexagone pour le déplacer.') + '</p>';
     }
     return html + '</section>';
   }
@@ -158,9 +161,9 @@
     const couleur = CT.vueCarte.couleurDe(c, carte);
     return '<header class="panneau-tete" style="--teinte:' + O.nuance(couleur, 0.75) + '">' + pastilleTuile(c, carte) +
       '<div class="panneau-titre"><span class="badge badge-' + c.statut + '">' + S.LIBELLES_STATUT[c.statut] +
-      (c.priorite === 1 ? ' · priorité n°1' : '') + '</span>' +
+      (c.priorite === 1 ? ' · ' + T('priorité n°1') : '') + '</span>' +
       '<h2 id="panneau-titre">' + O.echapper(c.nom) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
-      '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
+      '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
       '<div class="panneau-corps">' + sectionProposition(c, carte) + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
   }
 
@@ -171,12 +174,12 @@
       '<svg class="panneau-hex" viewBox="-30 -30 60 64" aria-hidden="true"><polygon points="' +
       CT.hex.coins(0, 0, 26).map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ') + '" fill="#E1E9EC" stroke="#C9D5DA" stroke-width="2" stroke-dasharray="3 5"/>' +
       O.iconeSvg('cloud', 0, 0, 26, '#8FA3AB', 2) + '</svg>' +
-      '<div class="panneau-titre"><span class="badge">Brouillard</span><h2 id="panneau-titre">Territoire inexploré</h2>' +
-      '<p class="lieu">' + (r ? 'Au-delà de ' + O.echapper(r.nom) : 'Quelque part au bord de ta carte') + '</p></div>' +
-      '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
+      '<div class="panneau-titre"><span class="badge">' + T('Brouillard') + '</span><h2 id="panneau-titre">' + T('Territoire inexploré') + '</h2>' +
+      '<p class="lieu">' + (r ? T('Au-delà de {nom}', { nom: O.echapper(r.nom) }) : T('Quelque part au bord de ta carte')) + '</p></div>' +
+      '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
       '<div class="panneau-corps"><section class="panneau-section">' +
-      '<p>Quelque chose t\'attend ici. Explore ce territoire pour découvrir de quoi il s\'agit.</p>' +
-      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="explorer"><i data-lucide="compass"></i>Explorer ce territoire</button></div>' +
+      '<p>' + T('Quelque chose t\'attend ici. Explore ce territoire pour découvrir de quoi il s\'agit.') + '</p>' +
+      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="explorer"><i data-lucide="compass"></i>' + T('Explorer ce territoire') + '</button></div>' +
       '</section></div>';
   }
 
@@ -188,13 +191,13 @@
       return '<li><span class="puce" style="background:' + r.couleur + '"></span>' + O.echapper(r.nom) + '<span class="discret">' + n + '</span></li>';
     }).join('');
     return '<header class="panneau-tete" style="--teinte:#FFF1C9">' + pastilleTuile(null, carte) +
-      '<div class="panneau-titre"><span class="badge badge-capitale">Capitale · ton talent</span>' +
-      '<h2 id="panneau-titre">' + O.echapper(carte.talent.nom || 'Mon talent') + '</h2>' +
-      (carte.talent.filRouge ? '<p class="lieu">Fil rouge : ' + O.echapper(carte.talent.filRouge) + '</p>' : '') + '</div>' +
-      '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
-      '<div class="panneau-corps"><section class="panneau-section"><h3><i data-lucide="map"></i> Ton territoire</h3>' +
+      '<div class="panneau-titre"><span class="badge badge-capitale">' + T('Capitale · ton talent') + '</span>' +
+      '<h2 id="panneau-titre">' + O.echapper(carte.talent.nom || T('Mon talent')) + '</h2>' +
+      (carte.talent.filRouge ? '<p class="lieu">' + T('Fil rouge : {texte}', { texte: O.echapper(carte.talent.filRouge) }) + '</p>' : '') + '</div>' +
+      '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
+      '<div class="panneau-corps"><section class="panneau-section"><h3><i data-lucide="map"></i> ' + T('Ton territoire') + '</h3>' +
       '<ul class="bilan">' + S.STATUTS.filter((s) => compte[s]).map((s) => '<li>' + S.LIBELLES_STATUT[s] + '<strong>' + compte[s] + '</strong></li>').join('') + '</ul></section>' +
-      '<section class="panneau-section"><h3><i data-lucide="layers"></i> Régions</h3><ul class="bilan">' + regions + '</ul></section></div>';
+      '<section class="panneau-section"><h3><i data-lucide="layers"></i> ' + T('Régions') + '</h3><ul class="bilan">' + regions + '</ul></section></div>';
   }
 
   // ---------- Suggestions ----------
@@ -206,30 +209,30 @@
       O.iconeSvg(icone, 0, 0, 24, '#8A6A2A', 2) + '</svg>' +
       '<div class="panneau-titre"><span class="badge badge-suggestion">' + badge + '</span><h2 id="panneau-titre">' + O.echapper(titre) + '</h2>' +
       '<p class="lieu">' + sousTitre + '</p></div>' +
-      '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>';
+      '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>';
   }
 
   function contenuSuggestions(carte, suggestions) {
-    let html = teteSuggestions('Territoires à explorer', 'Des idées proches de ce que tu vis déjà. Prends ce qui te parle, laisse le reste.', 'Suggestions', 'lightbulb') +
+    let html = teteSuggestions(T('Territoires à explorer'), T('Des idées proches de ce que tu vis déjà. Prends ce qui te parle, laisse le reste.'), T('Suggestions'), 'lightbulb') +
       '<div class="panneau-corps"><section class="panneau-section">';
     if (!suggestions.length) {
-      html += '<p class="vide">Tu as fait le tour des suggestions pour l\'instant. La bibliothèque ci-dessous en garde d\'autres.</p>';
+      html += '<p class="vide">' + T('Tu as fait le tour des suggestions pour l\'instant. La bibliothèque ci-dessous en garde d\'autres.') + '</p>';
     } else {
-      html += '<p class="discret">Elles apparaissent en pointillés dorés sur ta carte, à l\'endroit où elles se poseraient.</p><ul class="suggestions">' +
+      html += '<p class="discret">' + T('Elles apparaissent en pointillés dorés sur ta carte, à l\'endroit où elles se poseraient.') + '</p><ul class="suggestions">' +
         suggestions.map((p) => '<li class="suggestion">' +
           '<button type="button" class="suggestion-nom" data-action="voir-suggestion" data-valeur="' + O.echapper(p.entree.id) + '">' +
           '<i data-lucide="' + O.echapper(p.entree.icone) + '"></i><span><strong>' + O.echapper(p.entree.nom) + '</strong>' +
           '<span class="discret">' + O.echapper(p.raison) + '</span></span></button>' +
           '<div class="suggestion-actions"><button type="button" class="bouton bouton-principal bouton-compact" data-action="accepter" data-valeur="' + O.echapper(p.entree.id) + '">' +
-          '<i data-lucide="plus"></i>Ajouter</button>' +
-          '<button type="button" class="bouton-lien bouton-lien-discret" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">Pas pour moi</button></div></li>').join('') + '</ul>';
+          '<i data-lucide="plus"></i>' + T('Ajouter') + '</button>' +
+          '<button type="button" class="bouton-lien bouton-lien-discret" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">' + T('Pas pour moi') + '</button></div></li>').join('') + '</ul>';
     }
     html += '</section>' +
-      '<section class="panneau-section"><h3><i data-lucide="pencil"></i> Ton idée à toi</h3>' +
-      '<form class="idee" data-form="idee"><label class="visuellement-cache" for="idee-nom">Nom de la compétence</label>' +
-      '<input type="text" id="idee-nom" name="nom" maxlength="60" placeholder="Ex. : Animer un podcast en direct" autocomplete="off">' +
-      '<button type="submit" class="bouton bouton-secondaire bouton-compact"><i data-lucide="plus"></i>Ajouter</button></form>' +
-      '<p class="discret">Elle rejoint tes territoires à conquérir. Tu pourras ajuster sa région dans son panneau.</p></section>' +
+      '<section class="panneau-section"><h3><i data-lucide="pencil"></i> ' + T('Ton idée à toi') + '</h3>' +
+      '<form class="idee" data-form="idee"><label class="visuellement-cache" for="idee-nom">' + T('Nom de la compétence') + '</label>' +
+      '<input type="text" id="idee-nom" name="nom" maxlength="60" placeholder="' + O.echapper(T('Ex. : Animer un podcast en direct')) + '" autocomplete="off">' +
+      '<button type="submit" class="bouton bouton-secondaire bouton-compact"><i data-lucide="plus"></i>' + T('Ajouter') + '</button></form>' +
+      '<p class="discret">' + T('Elle rejoint tes territoires à conquérir. Tu pourras ajuster sa région dans son panneau.') + '</p></section>' +
       sectionBibliotheque(carte, suggestions) + '</div>';
     return html;
   }
@@ -242,24 +245,24 @@
     });
     const domaines = Object.keys(S.DOMAINES).filter((d) => parDomaine[d]);
     if (!domaines.length) return '';
-    return '<section class="panneau-section"><h3><i data-lucide="library"></i> Toute la bibliothèque</h3>' +
+    return '<section class="panneau-section"><h3><i data-lucide="library"></i> ' + T('Toute la bibliothèque') + '</h3>' +
       domaines.map((d) => '<details class="domaine"><summary><span class="pastille-couleur" style="background:' + S.DOMAINES[d].couleur + '"></span>' +
         S.DOMAINES[d].nom + '<span class="discret">' + parDomaine[d].length + '</span></summary><ul>' +
         parDomaine[d].map((x) => '<li><i data-lucide="' + O.echapper(x.icone) + '"></i><span>' + O.echapper(x.nom) + '</span>' +
-          '<button type="button" class="bouton-lien" data-action="accepter" data-valeur="' + O.echapper(x.id) + '">Ajouter</button></li>').join('') +
+          '<button type="button" class="bouton-lien" data-action="accepter" data-valeur="' + O.echapper(x.id) + '">' + T('Ajouter') + '</button></li>').join('') +
         '</ul></details>').join('') + '</section>';
   }
 
   function contenuSuggestion(p) {
-    return teteSuggestions(p.entree.nom, O.echapper(p.raison), 'Suggestion', p.entree.icone) +
+    return teteSuggestions(p.entree.nom, O.echapper(p.raison), T('Suggestion'), p.entree.icone) +
       '<div class="panneau-corps"><section class="panneau-section">' +
-      '<p>Si ce territoire t\'attire, ajoute-le à ta carte. Sinon, laisse-le : il ne te sera plus proposé.</p>' +
+      '<p>' + T('Si ce territoire t\'attire, ajoute-le à ta carte. Sinon, laisse-le : il ne te sera plus proposé.') + '</p>' +
       '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="accepter" data-valeur="' + O.echapper(p.entree.id) + '">' +
-      '<i data-lucide="plus"></i>Ajouter à mes territoires à conquérir</button>' +
+      '<i data-lucide="plus"></i>' + T('Ajouter à mes territoires à conquérir') + '</button>' +
       '<button type="button" class="bouton bouton-secondaire" data-action="accepter-frontiere" data-valeur="' + O.echapper(p.entree.id) + '">' +
-      '<i data-lucide="mountain"></i>Je le travaille déjà : frontière</button>' +
-      '<button type="button" class="bouton bouton-secondaire" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">Pas pour moi</button></div>' +
-      '<button type="button" class="bouton-lien" data-action="retour-suggestions"><i data-lucide="arrow-left"></i>Toutes les suggestions</button>' +
+      '<i data-lucide="mountain"></i>' + T('Je le travaille déjà : frontière') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">' + T('Pas pour moi') + '</button></div>' +
+      '<button type="button" class="bouton-lien" data-action="retour-suggestions"><i data-lucide="arrow-left"></i>' + T('Toutes les suggestions') + '</button>' +
       '</section></div>';
   }
 

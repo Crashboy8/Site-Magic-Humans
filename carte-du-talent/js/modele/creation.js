@@ -5,6 +5,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const COULEURS = ['#F2A65A', '#5DB88A', '#9A8CDB', '#E5738E', '#F2C53D', '#6FB7D6', '#C99AD0', '#B5C97F'];
   const ICONES_REGION = ['heart-handshake', 'sprout', 'graduation-cap', 'drama', 'zap', 'compass', 'star', 'sun'];
   const MAX_REGIONS = 8;
@@ -19,7 +21,17 @@
     ['scene', ['theatre', 'impro', 'scene', 'chant', 'musique', 'clown']],
     ['pedagogie', ['former', 'formation', 'enseigner', 'pedagogie', 'cours']],
     ['communication', ['ecrire', 'redaction', 'reseaux', 'podcast', 'video', 'parole']]
-  ];
+  ].concat(CT.i18n.langue === 'en' ? [
+    // Mots anglais : seulement pour une carte en anglais (« ai » ne doit pas attraper « aider »).
+    ['numerique', ['ai', 'software', 'digital', 'website', 'coding', 'computer', 'spreadsheet']],
+    ['langues', ['english', 'spanish', 'german', 'italian', 'portuguese', 'chinese', 'arabic', 'language']],
+    ['organisation', ['accounting', 'bookkeeping', 'invoic', 'paperwork', 'scheduling', 'management']],
+    ['corps', ['dance', 'dancing', 'running', 'juggling', 'climbing', 'swimming', 'cycling', 'martial arts', 'fitness']],
+    ['business', ['sales', 'selling', 'negotiat', 'prospecting']],
+    ['scene', ['theater', 'theatre', 'stage', 'singing', 'music', 'clown']],
+    ['pedagogie', ['teach', 'training', 'course', 'lesson']],
+    ['communication', ['writing', 'social media', 'speaking']]
+  ] : []);
 
   // Icône devinée d'après un début de mot (le premier qui correspond l'emporte).
   const MOTS_ICONE = [
@@ -33,7 +45,14 @@
     ['anglais', 'languages'], ['espagnol', 'languages'], ['allemand', 'languages'], ['italien', 'languages'], ['langue', 'languages'],
     ['vente', 'handshake'], ['negoci', 'scale'], ['compta', 'calculator'], ['budget', 'wallet'], ['admin', 'folder-open'], ['factur', 'receipt'],
     ['organis', 'calendar-check'], ['projet', 'kanban'], ['revel', 'gem'], ['talent', 'gem'], ['conseil', 'message-circle'], ['discut', 'messages-square']
-  ];
+  ].concat(CT.i18n.langue === 'en' ? [
+    ['listen', 'ear'], ['welcom', 'hand-heart'], ['smil', 'smile'], ['laugh', 'laugh'], ['humor', 'laugh'], ['humour', 'laugh'], ['facilitat', 'party-popper'],
+    ['energ', 'zap'], ['team', 'users'], ['communit', 'users-round'], ['stage', 'clapperboard'], ['sing', 'mic-vocal'], ['rhym', 'feather'], ['danc', 'footprints'],
+    ['juggl', 'orbit'], ['walk', 'footprints'], ['run', 'person-standing'], ['teach', 'graduation-cap'], ['train', 'clipboard-list'], ['workshop', 'lightbulb'],
+    ['speak', 'mic'], ['writ', 'pen-line'], ['social', 'share-2'], ['ai', 'bot'], ['website', 'globe'], ['english', 'languages'], ['spanish', 'languages'],
+    ['german', 'languages'], ['language', 'languages'], ['sell', 'handshake'], ['sales', 'handshake'], ['negotiat', 'scale'], ['accounting', 'calculator'],
+    ['invoic', 'receipt'], ['project', 'kanban'], ['reveal', 'gem'], ['advice', 'message-circle'], ['conversation', 'messages-square']
+  ] : []);
 
   const N = (s) => CT.regles.normaliserTexte(s);
 
@@ -161,7 +180,7 @@
     const premiere = regions[0] ? regions[0].id : null;
     const regionDe = (zone) => (zone && zone !== 'ile' ? zone : premiere);
     const competences = [];
-    const ile = { id: 'ile-flow', nom: 'Îles de flow' };
+    const ile = { id: 'ile-flow', nom: T('Îles de flow') };
     let avecIle = false;
     const vus = new Set();
 

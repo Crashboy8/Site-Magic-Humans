@@ -4,6 +4,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const etat = {
     carte: null,
     placement: null,
@@ -76,7 +78,7 @@
   function enregistrer() {
     // Premier lancement : rien n'est enregistré tant que la personne n'a pas choisi sa carte.
     if (etat.premierLancement) return;
-    if (!CT.stockage.sauvegarder(etat.carte)) toast('Impossible d\'enregistrer dans ce navigateur. Pense à exporter ta carte.');
+    if (!CT.stockage.sauvegarder(etat.carte)) toast(T('Impossible d\'enregistrer dans ce navigateur. Pense à exporter ta carte.'));
   }
 
   // Marges à laisser libres pour cadrer la carte (légende, boutons, panneau).
@@ -98,8 +100,8 @@
   }
 
   function rendre(options) {
-    $('talent-nom').textContent = etat.carte.talent.nom || 'Mon talent';
-    $('talent-fil').textContent = etat.carte.talent.filRouge ? 'Fil rouge : ' + etat.carte.talent.filRouge : '';
+    $('talent-nom').textContent = etat.carte.talent.nom || T('Mon talent');
+    $('talent-fil').textContent = etat.carte.talent.filRouge ? T('Fil rouge : {texte}', { texte: etat.carte.talent.filRouge }) : '';
     const { cadre } = CT.vueCarte.rendre($('carte'), etat.affichage.carte, etat.affichage.placement);
     navigation.majCadre(cadre, { ajuster: options && options.ajuster, marges: marges() });
     CT.vueLegende.rendre($('legende-contenu'), etat.carte);
@@ -107,7 +109,7 @@
     if (progres && progres.ouvert) progres.rendre();
     const propositions = CT.stats.propositionsConquete(etat.carte).length;
     $('alerte-progres').hidden = propositions === 0;
-    $('btn-progres').setAttribute('aria-label', 'Progrès et objectifs' + (propositions ? ' (' + propositions + ' proposition' + (propositions > 1 ? 's' : '') + ' de conquête)' : ''));
+    $('btn-progres').setAttribute('aria-label', T('Progrès et objectifs') + (propositions ? ' (' + CT.i18n.Tn(propositions, '{n} proposition de conquête', '{n} propositions de conquête') + ')' : ''));
   }
 
   // Toute modification du modèle passe par ici.
@@ -140,16 +142,16 @@
 
   function nomDe(id) {
     const c = CT.regles.trouver(etat.carte, id);
-    return c ? '«\u00a0' + c.nom + '\u00a0»' : '';
+    return c ? T('« {nom} »', { nom: c.nom }) : '';
   }
 
   const MESSAGES_STATUT = {
-    conquise: (n) => 'Bravo ! ' + n + ' rejoint tes territoires conquis.',
-    frontiere: (n) => n + ' devient une frontière : c\'est là que tu grandis.',
-    a_conquerir: (n) => n + ' attendra son heure. Il reste visible sur ta carte.',
-    a_deleguer: (n) => n + ' rejoint la zone à déléguer. Tu peux le confier à d\'autres.',
-    ile: (n) => n + ' devient une île de flow, hors de ton talent principal.',
-    natale: (n) => n + ' fait partie de ton territoire natal.'
+    conquise: (n) => T('Bravo ! {nom} rejoint tes territoires conquis.', { nom: n }),
+    frontiere: (n) => T('{nom} devient une frontière : c\'est là que tu grandis.', { nom: n }),
+    a_conquerir: (n) => T('{nom} attendra son heure. Il reste visible sur ta carte.', { nom: n }),
+    a_deleguer: (n) => T('{nom} rejoint la zone à déléguer. Tu peux le confier à d\'autres.', { nom: n }),
+    ile: (n) => T('{nom} devient une île de flow, hors de ton talent principal.', { nom: n }),
+    natale: (n) => T('{nom} fait partie de ton territoire natal.', { nom: n })
   };
 
   function surActionPanneau(action, valeur) {
@@ -162,10 +164,10 @@
     if (action === 'nouvel-objectif') { progres.ouvrir({ nouvelObjectif: id }); return; }
     if (['conquerir', 'pas-encore', 'session'].includes(action)) { actionProgres(action, action === 'session' ? valeur : id); return; }
     if (action === 'supprimer-moment') {
-      if (!confirm('Supprimer ce moment de flow ?')) return;
+      if (!confirm(T('Supprimer ce moment de flow ?'))) return;
       CT.regles.supprimerMoment(etat.carte, valeur);
       appliquer();
-      toast('Moment supprimé.');
+      toast(T('Moment supprimé.'));
       return;
     }
     const avant = CT.regles.trouver(etat.carte, id).position;
@@ -173,7 +175,7 @@
     let effet = null;
     if (action === 'explorer') {
       change = CT.regles.explorer(etat.carte, id);
-      if (change) { toast('Tu découvres ' + nomDe(id) + ' !'); effet = 'exploration'; }
+      if (change) { toast(T('Tu découvres {nom} !', { nom: nomDe(id) })); effet = 'exploration'; }
     } else if (action === 'statut') {
       const r = CT.regles.changerStatut(etat.carte, id, valeur);
       change = Boolean(r);
@@ -188,7 +190,7 @@
     } else if (action === 'remettre') {
       CT.regles.remettreAuto(etat.carte, id);
       change = true;
-      toast(nomDe(id) + ' retrouve sa place automatique.');
+      toast(T('{nom} retrouve sa place automatique.', { nom: nomDe(id) }));
     }
     if (!change) return;
     appliquer();
@@ -219,7 +221,7 @@
       navigation.selectionner(null);
       panneau.afficher('suggestions', carte);
       if (caseDe(c.id)) CT.vueEffets.exploration($('carte'), caseDe(c.id));
-      toast(nomDe(c.id) + (c.statut === 'frontiere' ? ' devient une frontière de ta carte.' : ' rejoint tes territoires à conquérir.'));
+      toast(T(c.statut === 'frontiere' ? '{nom} devient une frontière de ta carte.' : '{nom} rejoint tes territoires à conquérir.', { nom: nomDe(c.id) }));
       return true;
     }
     if (action === 'refuser') {
@@ -228,7 +230,7 @@
       appliquer();
       navigation.selectionner(null);
       panneau.afficher('suggestions', carte);
-      toast('D\'accord, « ' + entree.nom + ' » : cette suggestion ne te sera plus proposée.');
+      toast(T('D\'accord, « {nom} » : cette suggestion ne te sera plus proposée.', { nom: entree.nom }));
       return true;
     }
     if (action === 'ajouter-idee') {
@@ -237,7 +239,7 @@
       appliquer();
       panneau.afficher('suggestions', carte);
       if (caseDe(c.id)) CT.vueEffets.exploration($('carte'), caseDe(c.id));
-      toast(nomDe(c.id) + ' rejoint tes territoires à conquérir.');
+      toast(T('{nom} rejoint tes territoires à conquérir.', { nom: nomDe(c.id) }));
       return true;
     }
     return false;
@@ -260,26 +262,26 @@
     if (action === 'pas-encore') {
       if (!CT.regles.reporterConquete(carte, valeur)) return;
       appliquer();
-      toast('D\'accord, pas encore. La question reviendra après quelques moments de plus.');
+      toast(T('D\'accord, pas encore. La question reviendra après quelques moments de plus.'));
       return;
     }
     if (action === 'session') {
       if (!CT.regles.noterSession(carte, valeur)) return;
       appliquer();
-      toast('Session notée.');
+      toast(T('Session notée.'));
       return;
     }
     if (action === 'retirer-session') {
-      if (CT.regles.retirerSession(carte, valeur)) { appliquer(); toast('Dernière session retirée.'); }
+      if (CT.regles.retirerSession(carte, valeur)) { appliquer(); toast(T('Dernière session retirée.')); }
       return;
     }
     if (action === 'enregistrer-objectif') {
-      if (CT.regles.definirObjectif(carte, valeur.competenceId, valeur)) { appliquer(); toast('Objectif enregistré.'); }
+      if (CT.regles.definirObjectif(carte, valeur.competenceId, valeur)) { appliquer(); toast(T('Objectif enregistré.')); }
       return;
     }
     if (action === 'supprimer-objectif') {
-      if (!confirm('Supprimer cet objectif ? Les moments de flow restent sur ta carte.')) return;
-      if (CT.regles.supprimerObjectif(carte, valeur)) { appliquer(); toast('Objectif supprimé.'); }
+      if (!confirm(T('Supprimer cet objectif ? Les moments de flow restent sur ta carte.'))) return;
+      if (CT.regles.supprimerObjectif(carte, valeur)) { appliquer(); toast(T('Objectif supprimé.')); }
     }
   }
 
@@ -300,11 +302,11 @@
       CT.vueEffets.flow($('carte'), moment.competenceIds.map(caseDe).filter(Boolean));
       const nouvelle = CT.stats.propositionsConquete(etat.carte).find((f) => !avant.has(f.c.id));
       if (nouvelle) {
-        toast(nomDe(nouvelle.c.id) + ' atteint ' + nouvelle.nombre + ' moments de flow : une proposition t\'attend dans Progrès.');
+        toast(T('{nom} atteint {n} moments de flow : une proposition t\'attend dans Progrès.', { nom: nomDe(nouvelle.c.id), n: nouvelle.nombre }));
         return;
       }
-      const noms = moment.competenceIds.map(nomDe).join(', ');
-      toast('Moment de flow enregistré : ' + noms + '.');
+      const noms = moment.competenceIds.map(nomDe).join(T(', '));
+      toast(T('Moment de flow enregistré : {noms}.', { noms }));
     }
   };
 
@@ -330,12 +332,12 @@
       const o = occupant(cel);
       const resultat = CT.regles.deplacer(etat.carte, id, cel, etat.placement.cases);
       if (!resultat) {
-        if (o && o.id === 'capitale') toast('La capitale reste au centre de ta carte.');
+        if (o && o.id === 'capitale') toast(T('La capitale reste au centre de ta carte.'));
         return;
       }
       appliquer();
       ouvrir(id);
-      if (resultat === 'echange') toast(nomDe(id) + ' et ' + nomDe(o.id) + ' ont échangé leur place.');
+      if (resultat === 'echange') toast(T('{a} et {b} ont échangé leur place.', { a: nomDe(id), b: nomDe(o.id) }));
     }
   };
 
@@ -344,7 +346,7 @@
   function brancher() {
     $('btn-exporter').addEventListener('click', () => {
       CT.stockage.exporter(etat.carte);
-      toast('Carte exportée. Garde ce fichier précieusement.');
+      toast(T('Carte exportée. Garde ce fichier précieusement.'));
     });
     $('btn-importer').addEventListener('click', () => $('fichier-import').click());
     $('fichier-import').addEventListener('change', (e) => {
@@ -353,11 +355,11 @@
       if (!fichier) return;
       CT.stockage.importer(fichier)
         .then((carte) => {
-          if (!confirm('Remplacer ta carte actuelle par celle du fichier « ' + fichier.name + ' » ?')) return;
+          if (!confirm(T('Remplacer ta carte actuelle par celle du fichier « {nom} » ?', { nom: fichier.name }))) return;
           changerCarte(carte);
-          toast('Carte importée.');
+          toast(T('Carte importée.'));
         })
-        .catch((err) => toast(err.message || 'Fichier illisible.'));
+        .catch((err) => toast(err instanceof SyntaxError ? T('Fichier illisible.') : err.message || T('Fichier illisible.')));
     });
     $('btn-reglages').addEventListener('click', () => reglages.ouvrir());
     $('btn-progres').addEventListener('click', () => progres.ouvrir());
@@ -377,17 +379,20 @@
     $('btn-zoom-moins').addEventListener('click', () => navigation.zoomer(1 / 1.4));
     $('btn-recentrer').addEventListener('click', () => navigation.ajuster(marges()));
     $('btn-reorganiser').addEventListener('click', () => {
-      if (!confirm('Réorganiser automatiquement la carte ? Les hexagones que tu as déplacés à la main restent où ils sont.')) return;
+      if (!confirm(T('Réorganiser automatiquement la carte ? Les hexagones que tu as déplacés à la main restent où ils sont.'))) return;
       CT.regles.preparerReorganisation(etat.carte);
       appliquer({ reorganiser: true });
-      toast('Carte réorganisée.');
+      toast(T('Carte réorganisée.'));
     });
   }
 
   // Arrivée depuis la Boussole (#b=…) : la création s'ouvre sur un écran de choix, rien n'est remplacé.
   // L'ancre est retirée pour qu'un rechargement ne relance pas l'import.
   function accueillirBoussole() {
-    if (!/(?:^#|&)b=/.test(location.hash)) return false;
+    if (!/(?:^#|&)(?:b|lang)=/.test(location.hash)) return false;
+    // Un nouveau lien dans une autre langue (onglet déjà ouvert) : on recharge dans cette langue, ancre comprise.
+    const langueLien = CT.i18n.depuisLien();
+    if (langueLien && langueLien !== CT.i18n.langue) { CT.i18n.choisir(langueLien); location.reload(); return true; }
     const donnees = CT.boussole.lire(location.hash);
     history.replaceState(null, '', location.pathname + location.search);
     if (!donnees) return false;
@@ -395,7 +400,25 @@
     return true;
   }
 
+  // Changer de langue recharge la page (les textes sont fixés au chargement). Rien n'est perdu :
+  // la carte et le brouillon de création sont enregistrés ; une création ouverte est rouverte.
+  function changerLangue(l) {
+    if (!CT.i18n.choisir(l)) return;
+    try { if (creation && creation.ouvert) sessionStorage.setItem('carteDuTalent.rouvrirCreation', '1'); } catch (e) { /* stockage indisponible */ }
+    location.reload();
+  }
+
+  function brancherLangue() {
+    document.documentElement.lang = CT.i18n.langue;
+    document.querySelectorAll('.entete [data-langue]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-langue') === CT.i18n.langue));
+      b.addEventListener('click', () => changerLangue(b.getAttribute('data-langue')));
+    });
+  }
+
   function demarrer() {
+    CT.i18n.traduirePage();
+    brancherLangue();
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
     panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau, { suggestions: () => etat.suggestions });
     saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
@@ -406,13 +429,13 @@
       demo() {
         etat.premierLancement = false;
         enregistrer();
-        toast('Voici la carte de démonstration. Tu pourras créer la tienne depuis les Réglages.');
+        toast(T('Voici la carte de démonstration. Tu pourras créer la tienne depuis les Réglages.'));
       },
       terminer(carte) {
-        if (!etat.premierLancement && !confirm('Remplacer ta carte actuelle par cette nouvelle carte ? Exporte-la d\'abord si tu veux la garder.')) return false;
+        if (!etat.premierLancement && !confirm(T('Remplacer ta carte actuelle par cette nouvelle carte ? Exporte-la d\'abord si tu veux la garder.'))) return false;
         etat.premierLancement = false;
         changerCarte(carte);
-        toast('Voici ta carte ! Touche un hexagone pour l\'ajuster ou le déplacer.');
+        toast(T('Voici ta carte ! Touche un hexagone pour l\'ajuster ou le déplacer.'));
         return true;
       }
     });
@@ -422,24 +445,25 @@
       changerPreference(cle, valeur) {
         CT.regles.changerPreference(etat.carte, cle, valeur);
         appliquer();
-        if (cle === 'seuilConquete') toast('Seuil de conquête : ' + etat.carte.preferences.seuilConquete + ' moments de flow.');
-        if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
+        if (cle === 'seuilConquete') toast(T('Seuil de conquête : {n} moments de flow.', { n: etat.carte.preferences.seuilConquete }));
+        if (cle === 'brouillardDeGuerre') toast(valeur ? T('Brouillard activé : les territoires inexplorés sont sous les nuages.') : T('Brouillard désactivé : toute ta carte est visible.'));
       },
       exporter() {
         CT.stockage.exporter(etat.carte);
-        toast('Carte exportée. Garde ce fichier précieusement.');
+        toast(T('Carte exportée. Garde ce fichier précieusement.'));
       },
       importer() { $('fichier-import').click(); },
       creer() { creation.ouvrir(); },
       retablirSuggestions() {
         const n = CT.suggestions.retablirRefusees(etat.carte);
         appliquer();
-        toast(n ? 'Les suggestions écartées pourront à nouveau t\'être proposées.' : 'Aucune suggestion écartée.');
+        toast(n ? T('Les suggestions écartées pourront à nouveau t\'être proposées.') : T('Aucune suggestion écartée.'));
       },
+      changerLangue,
       reinitialiser() {
-        if (!confirm('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).')) return;
+        if (!confirm(T('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).'))) return;
         changerCarte(CT.demo.creer());
-        toast('Carte de démonstration restaurée.');
+        toast(T('Carte de démonstration restaurée.'));
       }
     });
     if (window.matchMedia('(max-width: 640px)').matches) $('legende').classList.add('fermee');
@@ -448,7 +472,10 @@
     etat.premierLancement = !enregistree;
     etat.carte = enregistree || CT.demo.creer();
     appliquer({ ajuster: true });
-    if (!accueillirBoussole() && etat.premierLancement) creation.ouvrir({ accueil: true });
+    let rouvrir = false;
+    try { rouvrir = sessionStorage.getItem('carteDuTalent.rouvrirCreation') === '1'; sessionStorage.removeItem('carteDuTalent.rouvrirCreation'); } catch (e) { /* stockage indisponible */ }
+    if (accueillirBoussole()) { /* écran de choix ouvert */ } else if (rouvrir) creation.ouvrir({ accueil: etat.premierLancement && !CT.stockage.chargerBrouillon() });
+    else if (etat.premierLancement) creation.ouvrir({ accueil: true });
     // Le même onglet peut recevoir un nouveau lien de la Boussole sans être rechargé.
     window.addEventListener('hashchange', accueillirBoussole);
     brancher();

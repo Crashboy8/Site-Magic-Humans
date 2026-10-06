@@ -72,7 +72,7 @@ const en: typeof fr = {
   readOnlyText: "Read-only: you can leave comments, but not change anything.",
   noneYet: "—",
   carteDuTalent: "🗺️ Explore my talent map",
-  carteDuTalentHint: "Your map starts from your Unique Talent: you can adjust everything before creating it (in French).",
+  carteDuTalentHint: "Your map starts from your Unique Talent: you can adjust everything before creating it.",
   newTab: "(opens in a new tab)",
 };
 
@@ -82,7 +82,7 @@ const en: typeof fr = {
  */
 export const carteDuTalentEs = {
   carteDuTalent: "🗺️ Explorar mi mapa del talento",
-  carteDuTalentHint: "Tu mapa parte de tu Talento Único: podrás ajustarlo todo antes de crearlo (en francés).",
+  carteDuTalentHint: "Tu mapa parte de tu Talento Único: podrás ajustarlo todo antes de crearlo (en francés o inglés).",
   newTab: "(se abre en una nueva pestaña)",
 };
 

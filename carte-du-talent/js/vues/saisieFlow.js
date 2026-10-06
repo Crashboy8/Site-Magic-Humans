@@ -6,13 +6,15 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const O = CT.outils;
 
   const CURSEURS = [
     ['intensite', 'Intensité', 'Quelle force avait ce moment ?', ['Léger', 'Agréable', 'Prenant', 'Intense', 'Total']],
     ['defi', 'Défi', 'À quel point c\'était exigeant ?', ['Très facile', 'Facile', 'Juste bien', 'Exigeant', 'Très exigeant']],
     ['maitrise', 'Maîtrise', 'À quel point tu te sentais à l\'aise ?', ['Je débute', 'Je tâtonne', 'À l\'aise', 'Solide', 'Expert']]
-  ];
+  ].map(([cle, nom, aide, niveaux]) => [cle, T(nom), T(aide), niveaux.map((n) => T(n))]);
 
   function couleurPuce(c, carte) {
     return CT.vueCarte.couleurDe(c, carte);
@@ -52,7 +54,7 @@
         const exact = carte.competences.some((c) => CT.regles.normaliserTexte(c.nom) === CT.regles.normaliserTexte(texte));
         zoneResultats.innerHTML = trouves.map((c) => puce(c, carte, 'choisir', false)).join('') +
           (exact ? '' : '<button type="button" class="puce-competence puce-creer" data-action="creer"><i data-lucide="plus"></i>' +
-            '<span class="libelle">Ajouter « ' + O.echapper(texte.trim()) + ' » à ma carte</span></button>');
+            '<span class="libelle">' + T('Ajouter « {nom} » à ma carte', { nom: O.echapper(texte.trim()) }) + '</span></button>');
       } else {
         zoneResultats.innerHTML = '';
       }
@@ -63,7 +65,7 @@
           return libres.length ? '<p class="sous-titre">' + titre + '</p><div class="puces">' +
             libres.map((id) => puce(CT.regles.trouver(carte, id), carte, 'choisir', false)).join('') + '</div>' : '';
         };
-        zoneRecentes.innerHTML = texte ? '' : bloc('Récemment', recentes) + bloc(recentes.length ? 'Tes frontières' : 'Pour commencer : tes frontières', suggestions);
+        zoneRecentes.innerHTML = texte ? '' : bloc(T('Récemment'), recentes) + bloc(recentes.length ? T('Tes frontières') : T('Pour commencer : tes frontières'), suggestions);
       }
       O.rafraichirIcones(racine);
       if (options.surChangement) options.surChangement(choisis.slice());
@@ -115,9 +117,9 @@
     racine.innerHTML =
       '<div class="flow-fond" data-action="fermer"></div>' +
       '<form class="flow-fiche" role="dialog" aria-modal="true" aria-labelledby="flow-titre" novalidate>' +
-        '<header class="flow-tete"><div><p class="surtitre"><i data-lucide="waves"></i> Moment de flow</p>' +
-        '<h2 id="flow-titre">Qu\'est-ce qui t\'a mis dans le flow ?</h2></div>' +
-        '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
+        '<header class="flow-tete"><div><p class="surtitre"><i data-lucide="waves"></i> ' + T('Moment de flow') + '</p>' +
+        '<h2 id="flow-titre">' + T('Qu\'est-ce qui t\'a mis dans le flow ?') + '</h2></div>' +
+        '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
         '<div class="flow-corps">' +
           '<section class="flow-bloc"><div id="flow-competences"></div></section>' +
           '<section class="flow-bloc flow-curseurs">' + CURSEURS.map(([cle, nom, aide, niveaux]) =>
@@ -129,20 +131,20 @@
           '</section>' +
           '<section class="flow-bloc">' +
             '<button type="button" class="depliant" data-action="deplier" data-cible="flow-deleguer" aria-expanded="false">' +
-            '<i data-lucide="scissors"></i><span>Une partie de cette activité est à déléguer ?</span><i data-lucide="chevron-down" class="chevron"></i></button>' +
+            '<i data-lucide="scissors"></i><span>' + T('Une partie de cette activité est à déléguer ?') + '</span><i data-lucide="chevron-down" class="chevron"></i></button>' +
             '<div id="flow-deleguer" class="deplie" hidden>' +
-              '<p class="aide">Par exemple : concevoir le message t\'a mis dans le flow, le rédiger beaucoup moins.</p>' +
+              '<p class="aide">' + T('Par exemple : concevoir le message t\'a mis dans le flow, le rédiger beaucoup moins.') + '</p>' +
               '<div id="flow-parties"></div>' +
-              '<label class="case"><input type="checkbox" id="flow-ranger"> <span>Les ranger aussi dans ma zone à déléguer</span></label>' +
+              '<label class="case"><input type="checkbox" id="flow-ranger"> <span>' + T('Les ranger aussi dans ma zone à déléguer') + '</span></label>' +
             '</div>' +
           '</section>' +
           '<section class="flow-bloc flow-details">' +
-            '<label class="champ"><span>Note (facultative)</span><input type="text" id="flow-note" maxlength="280" placeholder="Un mot pour t\'en souvenir"></label>' +
-            '<label class="champ champ-date"><span>Quand ?</span><input type="datetime-local" id="flow-date"></label>' +
+            '<label class="champ"><span>' + T('Note (facultative)') + '</span><input type="text" id="flow-note" maxlength="280" placeholder="' + O.echapper(T('Un mot pour t\'en souvenir')) + '"></label>' +
+            '<label class="champ champ-date"><span>' + T('Quand ?') + '</span><input type="datetime-local" id="flow-date"></label>' +
           '</section>' +
         '</div>' +
-        '<footer class="flow-pied"><p class="flow-manque" id="flow-manque">Choisis au moins une compétence.</p>' +
-        '<button type="submit" class="bouton bouton-principal" id="flow-enregistrer" disabled><i data-lucide="check"></i>Enregistrer ce moment</button></footer>' +
+        '<footer class="flow-pied"><p class="flow-manque" id="flow-manque">' + T('Choisis au moins une compétence.') + '</p>' +
+        '<button type="submit" class="bouton bouton-principal" id="flow-enregistrer" disabled><i data-lucide="check"></i>' + T('Enregistrer ce moment') + '</button></footer>' +
       '</form>';
 
     const $ = (sel) => racine.querySelector(sel);
@@ -151,7 +153,7 @@
     const enregistrer = $('#flow-enregistrer');
 
     const selecteur = creerSelecteur($('#flow-competences'), {
-      placeholder: 'Chercher une compétence…',
+      placeholder: T('Chercher une compétence…'),
       avecRecentes: true,
       carte: rappels.carte,
       creer: (nom) => rappels.creerCompetence(nom, 'frontiere'),
@@ -162,7 +164,7 @@
       }
     });
     const parties = creerSelecteur($('#flow-parties'), {
-      placeholder: 'Quelle partie ? (ex. rédaction)',
+      placeholder: T('Quelle partie ? (ex. rédaction)'),
       carte: rappels.carte,
       creer: (nom) => rappels.creerCompetence(nom, 'a_deleguer'),
       exclure: () => selecteur.valeurs.concat(caches())
@@ -176,9 +178,9 @@
         $('#flow-' + cle).style.setProperty('--remplissage', ((v[cle] - 1) / 4 * 100) + '%');
       });
       let obs = '';
-      if (v.defi >= 4 && v.maitrise >= 4) obs = 'Défi et maîtrise élevés : la zone de flow par excellence.';
-      else if (v.defi >= 4 && v.maitrise <= 2) obs = 'Beaucoup de défi pour ta maîtrise actuelle : un terrain où tu grandis.';
-      else if (v.defi <= 2 && v.maitrise >= 4) obs = 'Peu de défi pour ta maîtrise : un moment fluide et ressourçant.';
+      if (v.defi >= 4 && v.maitrise >= 4) obs = T('Défi et maîtrise élevés : la zone de flow par excellence.');
+      else if (v.defi >= 4 && v.maitrise <= 2) obs = T('Beaucoup de défi pour ta maîtrise actuelle : un terrain où tu grandis.');
+      else if (v.defi <= 2 && v.maitrise >= 4) obs = T('Peu de défi pour ta maîtrise : un moment fluide et ressourçant.');
       $('#flow-observation').textContent = obs;
     }
 

@@ -64,6 +64,31 @@
   transition: background .15s, transform .15s;
 }
 
+/* Choix de la langue : deux boutons collés (en-tête et Réglages) */
+.choix-langue {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid #E6DCC6;
+  border-radius: 999px;
+  background: #fff;
+  overflow: hidden;
+}
+.choix-langue button {
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--encre-douce);
+  font: 700 13px var(--police);
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.choix-langue button + button { border-left: 1px solid #E6DCC6; }
+.choix-langue button[aria-pressed="true"] { background: var(--encre); color: #fff; }
+@media (hover: hover) { .choix-langue button[aria-pressed="false"]:hover { background: #FFF3DA; color: var(--encre); } }
+.reglages-fiche .choix-langue button { min-height: 44px; padding: 0 16px; font-size: 15px; letter-spacing: 0; }
+
 @media (hover: hover) { .bouton-icone:hover { background: #FFF3DA; } }
 .bouton-icone:active { transform: scale(.97); }
 .bouton-icone svg { width: 18px; height: 18px; }
@@ -524,6 +549,7 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
   .fil-rouge { font-size: 12.5px; }
   .bouton-icone { padding: 8px 10px; }
   .bouton-icone span { display: none; }
+  .choix-langue-entete button { min-width: 36px; padding: 0 6px; }
   /* Sur téléphone, Exporter et Importer sont dans les Réglages. */
   #btn-exporter, #btn-importer { display: none; }
   .legende { left: 12px; top: 12px; bottom: auto; width: auto; max-width: calc(100% - 80px); max-height: calc(100% - 100px); }

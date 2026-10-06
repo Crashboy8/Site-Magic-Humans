@@ -137,12 +137,12 @@
       if (cs.id === 'capitale') {
         tuiles.push(
           '<g class="tuile tuile-capitale" data-id="capitale" tabindex="0" role="button" aria-label="' +
-            O.echapper('Capitale : ' + (carte.talent.nom || 'Mon talent')) + '">' +
+            O.echapper(CT.i18n.T('Capitale : {nom}', { nom: carte.talent.nom || CT.i18n.T('Mon talent') })) + '">' +
           '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="#C48A1F"/>' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="url(#ct-or)" stroke="#B9862A" stroke-width="2"/>' +
           '<polygon points="' + polygone(x, y, T * 0.8) + '" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>' +
           O.iconeSvg('crown', x, y - 27, 20, '#7A5310', 2) +
-          texteTuile(carte.talent.nom || 'Mon talent', x, y - 4, '#5B3E0B', 'nom nom-capitale', 4) +
+          texteTuile(carte.talent.nom || CT.i18n.T('Mon talent'), x, y - 4, '#5B3E0B', 'nom nom-capitale', 4) +
           '</g>'
         );
         return;
@@ -154,7 +154,7 @@
       // Suggestion : hexagone fantôme, à l'endroit exact où il se poserait.
       if (c.fantome) {
         tuiles.push('<g class="tuile tuile-suggestion" data-id="' + O.echapper(c.id) + '" tabindex="0" role="button" aria-label="' +
-          O.echapper('Suggestion : ' + c.nom) + '">' +
+          O.echapper(CT.i18n.T('Suggestion : {nom}', { nom: c.nom })) + '">' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#FFFDF5" fill-opacity=".72" stroke="#E9A400" stroke-width="2.5" stroke-dasharray="6 5"/>' +
           '<g class="plus-suggestion"><circle cx="' + (x + 25).toFixed(1) + '" cy="' + (y - 29).toFixed(1) + '" r="10" fill="#E9A400"/>' +
           O.iconeSvg('plus', x + 25, y - 29, 13, '#fff', 3) + '</g>' +
@@ -166,7 +166,7 @@
       // Brouillard de guerre : territoire à conquérir pas encore exploré.
       if (CT.regles.estCache(carte, c)) {
         tuiles.push('<g class="tuile tuile-brouillard" data-id="' + O.echapper(c.id) +
-          '" tabindex="0" role="button" aria-label="Territoire inexploré">' +
+          '" tabindex="0" role="button" aria-label="' + O.echapper(CT.i18n.T('Territoire inexploré')) + '">' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#E9EFF1" stroke="#C9D5DA" stroke-width="2" stroke-dasharray="3 6"/>' +
           O.iconeSvg('cloud', x, y - 4, 26, '#9FB2BA', 2) +
           '<text class="nom nom-brouillard" x="' + x.toFixed(1) + '" y="' + (y + 26).toFixed(1) + '" fill="#6B828B">?</text></g>');
@@ -226,11 +226,12 @@
       if (e.type === 'ile' || e.type === 'deleguer') {
         // Sous le groupe, sur l'eau.
         etiquettesMer.push('<text class="etiquette etiquette-mer" x="' + ex.toFixed(1) + '" y="' + (e.yMax * T + T * 1.3).toFixed(1) +
-          '" dy="0.8em">' + O.echapper(e.nom) + '</text>');
+          '" dy="0.8em">' + O.echapper(CT.i18n.T(e.nom)) + '</text>');
         return;
       }
       const couleur = e.type === 'region' ? O.nuance(couleurRegion(carte, e.id) || '#777777', -0.5) : '#3E5A63';
-      const lignes = O.couperTexte(e.nom, 14, 3);
+      // Les noms par défaut de la géographie (« Province », « Zone à déléguer »…) sont traduits ici.
+      const lignes = O.couperTexte(e.type === 'region' ? e.nom : CT.i18n.T(e.nom), 14, 3);
       etiquettes.push('<text class="etiquette etiquette-' + e.type + '" x="' + ex.toFixed(1) + '" y="' + (e.y * T).toFixed(1) +
         '" fill="' + couleur + '">' + lignes.map((l, i) => '<tspan x="' + ex.toFixed(1) + '" dy="' +
         (i === 0 ? (0.35 - (lignes.length - 1) * 0.55).toFixed(2) : '1.1') + 'em">' + O.echapper(l) + '</tspan>').join('') + '</text>');

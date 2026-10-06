@@ -36,6 +36,10 @@
       <button type="button" class="bouton-icone" id="btn-reglages" title="Réglages">
         <i data-lucide="settings"></i><span>Réglages</span>
       </button>
+      <div class="choix-langue choix-langue-entete" role="group" aria-label="Langue">
+        <button type="button" data-langue="fr" lang="fr" title="Français" aria-pressed="false">FR</button>
+        <button type="button" data-langue="en" lang="en" title="English" aria-pressed="false">EN</button>
+      </div>
       <input type="file" id="fichier-import" accept="application/json,.json" hidden>
     </div>
   </header>
@@ -73,6 +77,8 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://unpkg.com/lucide@1.52.0/dist/umd/lucide.min.js"></script>
+  <script src="js/langues/en.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/geo/hex.js"></script>
   <script src="js/modele/schema.js"></script>
   <script src="js/modele/demo.js"></script>

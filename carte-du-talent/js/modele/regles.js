@@ -5,6 +5,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const JOUR = 24 * 3600 * 1000;
 
   function trouver(carte, id) {
@@ -26,7 +28,7 @@
     if (statut !== 'a_conquerir') c.exploree = true;
     if (statut !== 'frontiere') c.reportConquete = null;
     if (statut === 'ile' && !c.ileId) {
-      if (!carte.iles.length) carte.iles.push({ id: CT.schema.nouvelId('ile'), nom: 'Île de flow' });
+      if (!carte.iles.length) carte.iles.push({ id: CT.schema.nouvelId('ile'), nom: T('Île de flow') });
       c.ileId = carte.iles[0].id;
     }
     if (statut !== 'ile') c.ileId = null;
@@ -266,7 +268,7 @@
     const fois = Math.min(99, Math.max(1, Math.round(Number(valeurs.fois) || 1)));
     const periode = valeurs.periode === 'mois' ? 'mois' : 'semaine';
     const description = String(valeurs.description || '').trim().slice(0, 120) ||
-      c.nom + ' : ' + fois + (fois > 1 ? ' sessions' : ' session') + ' par ' + periode;
+      CT.i18n.Tn(fois, '{nom} : {n} session par {periode}', '{nom} : {n} sessions par {periode}', { nom: c.nom, periode: T(periode) });
     let o = objectifDe(carte, competenceId);
     if (!o) {
       o = { id: CT.schema.nouvelId('obj'), competenceId, description, frequence: { fois, periode }, progression: [] };
