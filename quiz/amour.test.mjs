@@ -101,6 +101,21 @@ function randomAnswers(r) {
   return a;
 }
 
+test("question 1 en deux sous-écrans, même numéro", () => {
+  const s = screen("nourrit");
+  assert.equal(s.splitGroups, true);
+  assert.equal(s.n, 1);
+  assert.equal(s.groups[0].id, "nourrit");
+  assert.equal(s.groups[0].min, 3);
+  assert.equal(s.groups[0].stepTitle, "Coche au moins 3 choses qui te nourrissent.");
+  assert.equal(s.groups[1].id, "vide");
+  assert.equal(s.groups[1].min, 2);
+  assert.equal(s.groups[1].stepTitle, "Coche au moins 2 choses qui te vident.");
+  assert.match(D.ui.quiz.moreDown, /plus bas/);
+  assert.equal(screen("ressource").splitGroups, undefined);
+  assert.equal(screen("stress").splitGroups, undefined);
+});
+
 test("10 questions, ids uniques, types pick/rank/commit, n de 1 à 10", () => {
   assert.equal(D.version, 3);
   assert.equal(D.screens.length, 10);

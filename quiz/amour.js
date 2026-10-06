@@ -19,7 +19,7 @@
     "#screen-amour .am-counters{position:sticky;top:0;z-index:2;background:var(--bg);display:flex;flex-wrap:wrap;gap:8px;padding:8px 0}",
     "#screen-amour .am-count{font-weight:700;font-size:1rem;border-radius:999px;padding:6px 12px;background:var(--surface);border:1px solid var(--line)}",
     "#screen-amour .am-count.is-ok{background:var(--good-soft);color:var(--good)}",
-    "#screen-amour .am-group{margin:14px 0}",
+    "#screen-amour .am-group{margin:14px 0;scroll-margin-top:72px}",
     "#screen-amour .am-gh{margin:0 0 8px}",
     "#screen-amour .am-gh h3{font-size:1.1rem;font-weight:700;margin:0}",
     "#screen-amour .am-body{padding-bottom:var(--am-nav-h,76px)}",
@@ -50,10 +50,13 @@
     "#screen-amour .am-safety legend{font-size:.95rem;margin-bottom:8px}",
     "#screen-amour .am-add{margin-top:8px}",
     "#screen-amour .am-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}",
-    "#screen-amour .am-more{color:var(--muted);font-size:.95rem}",
-    "#screen-amour .qnav{position:sticky;bottom:var(--mh-cookie-banner-h,0px);z-index:4;background:var(--bg);display:flex;flex-direction:column;flex-wrap:nowrap;gap:6px;padding:8px 0 4px}",
+    "#screen-amour .am-more{color:var(--muted);font-size:.95rem;margin:0}",
+    "#screen-amour button.am-more{display:block;width:100%;background:none;border:0;padding:0;text-align:left;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-decoration:underline}",
+    "#screen-amour .qnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.12);padding:8px 16px calc(8px + env(safe-area-inset-bottom,0px))}",
+    "#screen-amour .am-nav-inner{max-width:700px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:6px}",
     "#screen-amour .am-nav-row{display:flex;flex-wrap:nowrap;align-items:center;gap:8px}",
     "#screen-amour .am-nav-row .btn{flex:1 1 0;justify-content:center;white-space:nowrap;min-width:0;padding:12px 8px;font-size:clamp(.82rem,3.4vw,1rem)}",
+    "#screen-amour .am-nav-row .btn:disabled{opacity:1;background:var(--surface);color:var(--ink);border:2px solid var(--ink);cursor:not-allowed}",
     "#screen-amour details .am-split{display:grid !important;grid-template-columns:1fr;gap:10px}",
     "@media(min-width:720px){#screen-amour details .am-split.cols-2{grid-template-columns:1fr 1fr}#screen-amour details .am-split.cols-3{grid-template-columns:1fr 1fr 1fr}}",
     "@media(prefers-reduced-motion:reduce){#screen-amour .am-rank-item{transition:none !important}}"
@@ -76,6 +79,7 @@
   let prenom = "";
   let qi = 0;
   let phase = "ask";
+  let groupStep = 0;
   let answers = {};
   let lastPrefix = "";
   let held = null;
@@ -138,9 +142,18 @@
     });
   }
 
+  function activeGroups(s) {
+    if (!s.groups) return [];
+    if (s.splitGroups && phase !== "rank") {
+      const i = Math.max(0, Math.min(groupStep, s.groups.length - 1));
+      return [s.groups[i]];
+    }
+    return s.groups;
+  }
+
   function deficit(s) {
     if (s.type === "pick" && !(s.rank && s.rank.mode === "step" && phase === "rank")) {
-      return s.groups.reduce(function (sum, g) { return sum + Math.max(0, g.min - chosenIds(s, g).length); }, 0);
+      return activeGroups(s).reduce(function (sum, g) { return sum + Math.max(0, g.min - chosenIds(s, g).length); }, 0);
     }
     if (s.type === "rank" || (s.rank && phase === "rank")) {
       if (s.type === "rank") return Math.max(0, s.minRanked - ensure(s).order.length);
@@ -154,6 +167,36 @@
     return 0;
   }
 
+  function moreCue(s) {
+    if (s.type !== "pick" || phase === "rank" || !s.groups) return null;
+    if (s.splitGroups) {
+      const g = activeGroups(s)[0];
+      if (!g) return null;
+      const k = Math.max(0, g.min - chosenIds(s, g).length);
+      return k > 0 ? { k: k, down: false } : null;
+    }
+    const defs = s.groups.map(function (g) {
+      return { g: g, k: Math.max(0, g.min - chosenIds(s, g).length) };
+    });
+    const firstOpen = defs.findIndex(function (d) { return d.k > 0; });
+    if (firstOpen < 0) return null;
+    if (firstOpen > 0) {
+      const open = defs[firstOpen];
+      return { k: open.k, down: true, label: open.g.counter || open.g.title, id: open.g.id };
+    }
+    const total = defs.reduce(function (sum, d) { return sum + d.k; }, 0);
+    return { k: total, down: false };
+  }
+
+  function moreHtml(s) {
+    const cue = moreCue(s);
+    if (!cue) return "";
+    if (cue.down) {
+      return '<button type="button" class="am-more" data-act="scroll-group" data-group="' + esc(cue.id) + '">' + esc(fill(Q.moreDown, { k: cue.k, label: cue.label })) + "</button>";
+    }
+    return '<p class="am-more">' + esc(fill(Q.more, { k: cue.k })) + "</p>";
+  }
+
   function counterText(label, x, min, ok) {
     const base = label ? fill(Q.counter, { label: label, x: x, min: min }) : fill(Q.counterBare, { x: x, min: min });
     return base + (ok ? " " + Q.counterOk : "");
@@ -162,7 +205,7 @@
   function countersHtml(s) {
     const bits = [];
     if (s.type === "pick" && phase !== "rank") {
-      s.groups.forEach(function (g) {
+      activeGroups(s).forEach(function (g) {
         const x = chosenIds(s, g).length;
         const ok = x >= g.min;
         bits.push('<span class="am-count' + (ok ? " is-ok" : "") + '">' + esc(counterText(g.counter, x, g.min, ok)) + "</span>");
@@ -230,10 +273,10 @@
   }
 
   function pickHtml(s) {
-    return s.groups.map(function (g) {
+    return activeGroups(s).map(function (g) {
       const bag = ensure(s);
       const picked = bag.picked[g.id] || [];
-      let html = '<section class="am-group">';
+      let html = '<section class="am-group" id="am-group-' + esc(g.id) + '">';
       if (g.title) html += '<div class="am-gh"><h3>' + esc(g.title) + "</h3></div>";
       if (g.help) html += '<p class="am-help">' + esc(g.help) + "</p>";
       html += '<div class="am-picks">';
@@ -352,6 +395,20 @@
     return "<section><h3>" + esc(s.rank.title) + "</h3><p class=\"am-help\">" + esc(Q.rankHelp) + "</p>" + listHtml(s, gid, ids, false, null) + "</section>";
   }
 
+  function pinNav() {
+    const nav = root.querySelector(".qnav");
+    const block = root.querySelector(".am-body");
+    if (!nav) return;
+    const vv = window.visualViewport;
+    const lift = vv ? Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)) : 0;
+    let cookie = 0;
+    if (document.body.classList.contains("mh-cookie-open")) {
+      cookie = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mh-cookie-banner-h")) || 0;
+    }
+    nav.style.bottom = (lift + cookie) + "px";
+    if (block) block.style.paddingBottom = (nav.offsetHeight + cookie + 12) + "px";
+  }
+
   function shell(s, title, help, body, buttonLabel, scroll) {
     const n = D.screens.length;
     const k = deficit(s);
@@ -371,13 +428,11 @@
       '<div class="am-body">' + body +
       '<p id="am-rank-help" class="am-sr">' + esc(Q.rankHelp) + "</p>" +
       '<p id="am-live" class="am-sr" aria-live="polite"></p></div>' +
-      '<div class="qnav">' +
-      (ok ? "" : '<p class="am-more">' + esc(fill(Q.more, { k: k })) + "</p>") +
+      '<div class="qnav"><div class="am-nav-inner">' +
+      moreHtml(s) +
       '<div class="am-nav-row"><button type="button" class="btn ghost" data-act="prev">' + esc(Q.prev) + "</button>" +
-      '<button type="button" class="btn" data-act="next"' + (ok ? "" : " disabled") + ' aria-disabled="' + (ok ? "false" : "true") + '">' + esc(buttonLabel) + "</button></div></div>";
-    const nav = root.querySelector(".qnav");
-    const block = root.querySelector(".am-body");
-    if (nav && block) block.style.paddingBottom = nav.offsetHeight + "px";
+      '<button type="button" class="btn" data-act="next"' + (ok ? "" : " disabled") + ' aria-disabled="' + (ok ? "false" : "true") + '">' + esc(buttonLabel) + "</button></div></div></div>";
+    pinNav();
     if (focusSel) {
       const el = document.getElementById(focusSel);
       if (el) el.focus();
@@ -420,11 +475,14 @@
       shell(s, s.title, s.help, commitHtml(s), Q.finish, scroll);
       return;
     }
-    const button = s.rank && s.rank.mode === "step" ? s.rank.cta : (qi === D.screens.length - 1 ? Q.finish : Q.next);
+    const onSplit = s.splitGroups && groupStep < s.groups.length - 1;
+    const button = onSplit ? Q.next : (s.rank && s.rank.mode === "step" ? s.rank.cta : (qi === D.screens.length - 1 ? Q.finish : Q.next));
+    const g = s.splitGroups ? activeGroups(s)[0] : null;
+    const title = g && g.stepTitle ? g.stepTitle : s.title;
     let body = pickHtml(s);
     if (s.id === "demain") body += demainExtra(s);
     if (s.rank && s.rank.mode === "inline") body += inlineRank(s);
-    shell(s, s.title, s.help, body, button, scroll);
+    shell(s, title, s.help, body, button, scroll);
   }
 
   function moveRank(s, gid, index, dir) {
@@ -694,6 +752,7 @@
       prenom = cleanName(ev.target.value);
       qi = 0;
       phase = "ask";
+      groupStep = 0;
       showQuestion(true);
       return;
     }
@@ -758,7 +817,8 @@
       const next = root.querySelector("[data-act=next]");
       if (next) { next.disabled = k > 0; next.setAttribute("aria-disabled", k > 0 ? "true" : "false"); }
       const more = root.querySelector(".am-more");
-      if (more) more.textContent = k > 0 ? fill(Q.more, { k: k }) : "";
+      const cue = moreCue(s);
+      if (more) more.textContent = cue ? (cue.down ? fill(Q.moreDown, { k: cue.k, label: cue.label }) : fill(Q.more, { k: cue.k })) : "";
       return;
     }
     if (el.id === "am-engagement") {
@@ -798,6 +858,7 @@
       prenom = cleanName(input ? input.value : "");
       qi = 0;
       phase = "ask";
+      groupStep = 0;
       showQuestion(true);
       return;
     }
@@ -865,17 +926,38 @@
       showQuestion(false);
       return;
     }
+    if (act === "scroll-group") {
+      const target = document.getElementById("am-group-" + btn.getAttribute("data-group"));
+      if (target && target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     if (act === "prev") {
-      if (s && s.rank && s.rank.mode === "step" && phase === "rank") { phase = "ask"; showQuestion(true); return; }
+      if (s && s.splitGroups && phase !== "rank" && groupStep > 0) {
+        groupStep -= 1;
+        showQuestion(true);
+        return;
+      }
+      if (s && s.rank && s.rank.mode === "step" && phase === "rank") {
+        phase = "ask";
+        groupStep = s.splitGroups ? s.groups.length - 1 : 0;
+        showQuestion(true);
+        return;
+      }
       if (qi <= 0) { showIntro(); return; }
       qi -= 1;
       const prev = screenAt(qi);
       phase = prev.rank && prev.rank.mode === "step" && (ensure(prev).order[prev.rank.groups[0]] || []).length ? "rank" : "ask";
+      groupStep = 0;
       showQuestion(true);
       return;
     }
     if (act === "next") {
       if (!s || deficit(s) > 0) return;
+      if (s.splitGroups && phase !== "rank" && groupStep < s.groups.length - 1) {
+        groupStep += 1;
+        showQuestion(true);
+        return;
+      }
       if (s.rank && s.rank.mode === "step" && phase !== "rank") {
         resync(s);
         phase = "rank";
@@ -885,6 +967,7 @@
       if (qi < D.screens.length - 1) {
         qi += 1;
         phase = "ask";
+        groupStep = 0;
         showQuestion(true);
         return;
       }
@@ -906,6 +989,17 @@
     }
     if (act === "ics") icsFile();
   });
+
+  window.addEventListener("resize", pinNav);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", pinNav);
+    window.visualViewport.addEventListener("scroll", pinNav);
+  }
+  if (window.MutationObserver) {
+    const watchNav = new MutationObserver(pinNav);
+    watchNav.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    watchNav.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+  }
 
   showIntro();
 })();

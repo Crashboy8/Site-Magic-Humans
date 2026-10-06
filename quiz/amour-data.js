@@ -52,6 +52,7 @@ const AMOUR_DATA = {
       "prev": "← Précédent",
       "finish": "Voir mes résultats →",
       "more": "Encore {k} choix pour continuer.",
+      "moreDown": "Coche encore {k} pour « {label} », plus bas ↓",
       "idea": "Idée : {antidote}",
       "timeAsk": "À quelle heure demain ?",
       "engagementCounter": "Engagement + moment : {x}/{min} minimum",
@@ -136,10 +137,12 @@ const AMOUR_DATA = {
       "n": 1,
       "eyebrow": "Ce qui te nourrit, ce qui te vide",
       "title": "Coche au moins 3 choses qui te nourrissent, et au moins 2 qui te vident.",
+      "splitGroups": true,
       "groups": [
         {
           "id": "nourrit",
           "title": "Ce qui me nourrit dans une relation",
+          "stepTitle": "Coche au moins 3 choses qui te nourrissent.",
           "counter": "Ce qui me nourrit",
           "min": 3,
           "items": [
@@ -261,6 +264,7 @@ const AMOUR_DATA = {
         {
           "id": "vide",
           "title": "Ce qui me vide dans une relation",
+          "stepTitle": "Coche au moins 2 choses qui te vident.",
           "counter": "Ce qui me vide",
           "min": 2,
           "items": [
