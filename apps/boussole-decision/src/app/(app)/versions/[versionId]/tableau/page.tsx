@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Notice } from "@/components/ui";
+import { isLoveProfile, LOVE_TEXTS } from "@/content/amour";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
+import { LoveGuide } from "@/features/amour/LoveGuide";
 import { getI18n } from "@/i18n/server";
 import { DecisionTable } from "@/features/table/DecisionTable";
 import { loadVersionContext } from "@/features/versions/context";
@@ -26,6 +28,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
   const { t, m } = await getI18n();
   const T = t.table;
   const sentence = m.talentSentence(ctx.profile.talent);
+  const love = isLoveProfile(ctx.profile);
 
   return (
     <>
@@ -39,25 +42,34 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
           {T.introMiddle} <strong className="font-medium text-ink">{T.introCols}</strong>
           {T.introEnd}
         </p>
-        {sentence && (
-          <details className="max-w-3xl rounded-xl bg-blush/70 px-5 py-3">
-            <summary className="cursor-pointer text-sm font-medium text-ink">{T.talentReminder}</summary>
-            <p className="mt-2 font-serif text-xl italic">{sentence}</p>
-            {ctx.profile.talent.antiContexte && (
-              <p className="mt-1 text-sm text-ink-soft">
-                <span className="font-medium text-ink">{T.antiLabel}</span> {ctx.profile.talent.antiContexte}
-              </p>
+        {love ? (
+          <>
+            <Notice>{LOVE_TEXTS.tableNotice}</Notice>
+            <LoveGuide />
+          </>
+        ) : (
+          <>
+            {sentence && (
+              <details className="max-w-3xl rounded-xl bg-blush/70 px-5 py-3">
+                <summary className="cursor-pointer text-sm font-medium text-ink">{T.talentReminder}</summary>
+                <p className="mt-2 font-serif text-xl italic">{sentence}</p>
+                {ctx.profile.talent.antiContexte && (
+                  <p className="mt-1 text-sm text-ink-soft">
+                    <span className="font-medium text-ink">{T.antiLabel}</span> {ctx.profile.talent.antiContexte}
+                  </p>
+                )}
+              </details>
             )}
-          </details>
-        )}
-        {!sentence && ctx.isOwner && (
-          <Notice>
-            {T.tipStart}{" "}
-            <Link href={`/profils/${ctx.profile.id}/`} className="font-medium text-link underline underline-offset-4">
-              {T.tipLink}
-            </Link>{" "}
-            {T.tipEnd}
-          </Notice>
+            {!sentence && ctx.isOwner && (
+              <Notice>
+                {T.tipStart}{" "}
+                <Link href={`/profils/${ctx.profile.id}/`} className="font-medium text-link underline underline-offset-4">
+                  {T.tipLink}
+                </Link>{" "}
+                {T.tipEnd}
+              </Notice>
+            )}
+          </>
         )}
         {ctx.isOwner && ctx.version.status === "finalisee" && <Notice>{T.finalizedNotice}</Notice>}
       </header>
