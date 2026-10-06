@@ -1,0 +1,68 @@
+# Carte du Talent (prototype)
+
+Visualiser son talent comme un territoire en hexagones : un cœur (le talent), des régions (les sous-talents), des territoires conquis, des frontières que l'on repousse, des îles où l'on se ressource et une zone à déléguer. L'application aide à repérer ce qui met dans le flow et à voir ses compétences s'étendre.
+
+Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il s'ouvre aussi en double-cliquant sur `index.html`. La page est en `noindex` (balise meta et en-tête `X-Robots-Tag` dans `vercel.json`) et absente du sitemap.
+
+## Note de reprise (à jour au 6 octobre 2026)
+
+- **Branche** : `claude/zealous-mayer-oibrrc` (dépôt `Crashboy8/Site-Magic-Humans`). Pas de PR ouverte pour l'instant.
+- **Prévisualisation Vercel** : https://wwwmagichumanscom-git-claude-zealous-mayer-oibrrc-magic-humans.vercel.app/carte-du-talent/
+- **Toutes les étapes du cahier des charges sont faites et validées** (1 à 7, détail ci-dessous).
+- **Pistes pour la suite** (non commencées) : renommer une compétence ou une région depuis la carte ; choisir les régions voisines après la création ; transformer les moments de flow saisis pendant la création en moments datés ; tests sur un vrai téléphone (glisser-déposer au doigt, fluidité des animations).
+- **Méthode suivie** : à chaque étape, tests automatiques, vérification dans un navigateur automatisé (ordinateur et téléphone), captures, puis push. Ton bienveillant partout, jamais culpabilisant. Les positions et la logique de placement ne bougent pas sans raison.
+
+## Ce que fait l'application
+
+1. **La carte** : capitale au centre, régions placées selon leurs voisines, jonctions entre deux régions, provinces éloignées par domaine (numérique, langues…), îles séparées par l'eau, zone à déléguer à l'écart. Relief, mer, plages, légende.
+2. **La navigation** : zoom (molette, pincement, boutons), déplacement, noms adaptés au zoom. Appui long sur un hexagone pour le déplacer (échange si la case est occupée). Panneau latéral (feuille en bas sur téléphone) avec statut, moments de flow, objectif et changements de statut, de région, de distance au talent. Les positions sont mémorisées ; « Réorganiser » relance le placement en gardant les déplacements manuels.
+3. **L'éclat et les animations** : un hexagone s'illumine selon ses moments de flow des 30 derniers jours (4 niveaux). Animations courtes à l'enregistrement d'un moment et à la conquête, sur un calque à part : aucune tuile ne bouge. Brouillard de guerre en option.
+4. **La saisie express d'un moment de flow** : bouton toujours visible, recherche sans accents, compétences récentes, trois curseurs (intensité, défi, maîtrise), découpage flow / à déléguer, note et date facultatives.
+5. **Progrès et objectifs** : flow par semaine, compétences et régions qui mènent au flow, grille défi / maîtrise, frontières en cours. Au seuil (10 moments par défaut), l'appli propose de passer une frontière en conquise ; la personne confirme (« Pas encore » reporte de 5 moments). Objectifs liés aux frontières (ex. : Vente, 2 sessions par semaine) ; les moments de flow comptent comme sessions.
+6. **Bibliothèque et suggestions** : 59 compétences par domaine. Six suggestions en hexagones fantômes, à l'endroit exact où elles se poseraient ; accepter ne bouge rien, refuser est définitif (rétablissable dans les Réglages). Idée libre ou choix dans toute la bibliothèque.
+7. **Création guidée** : au premier lancement, accueil puis 6 questions (talent et fil rouge, sous-talents à réordonner avec des flèches, moments de flow, compétences apprises proches ou éloignées, envies, ce qui vide), filtre « Est-ce que ça élargit ton domaine d'action ? », regroupement par glisser-déposer ou « toucher puis Poser ici ». Brouillon enregistré à chaque saisie.
+
+**Réglages** : affichage (brouillard de guerre), progrès (seuil de conquête), suggestions écartées, sauvegarde (exporter / importer en JSON), repartir d'une autre carte (création guidée ou carte de démonstration, toujours après confirmation).
+
+**Accessibilité** : contrastes du texte au-dessus de 4,5:1 (boutons principaux, petits titres, liens), focus clavier visible partout (contour bleu canard), hexagones accessibles au clavier (Tab, Entrée, Échap, flèches), mouvements réduits si le système le demande.
+
+## Structure
+
+```
+carte-du-talent/
+├── index.html
+├── css/
+│   ├── carte.css       jetons de couleur, rendu de la carte, effets
+│   ├── ui.css          en-tête, légende, panneau, boutons, mobile
+│   ├── flow.css        saisie express, réglages
+│   ├── progres.css     écran Progrès
+│   └── creation.css    création guidée
+├── js/
+│   ├── geo/hex.js              grille hexagonale (coordonnées axiales)
+│   ├── geo/placement.js        placement géographique automatique (fonction pure)
+│   ├── modele/schema.js        modèle de données, normalisation, version
+│   ├── modele/stockage.js      localStorage, export / import JSON, brouillon de création
+│   ├── modele/demo.js          carte de démonstration
+│   ├── modele/regles.js        règles métier (statuts, déplacements, flow, objectifs)
+│   ├── modele/stats.js         statistiques de progrès (calculs purs)
+│   ├── modele/bibliotheque.js  59 compétences (domaine, icône, liens vers les voisines)
+│   ├── modele/suggestions.js   suggestions de territoires à conquérir
+│   ├── modele/creation.js      brouillon de la création guidée et génération de la carte
+│   ├── vues/                   rendu SVG, navigation, panneau, saisie, progrès, réglages, création, effets
+│   └── app.js                  point d'entrée
+└── tests/placement.test.js
+```
+
+Tous les scripts s'attachent à l'espace de noms global `CarteTalent`. Le modèle, le placement et les statistiques n'utilisent pas le DOM : ils pourront servir de module à une future application de gamification.
+
+## Tests
+
+```bash
+node carte-du-talent/tests/placement.test.js --carte
+```
+
+43 tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée.
+
+## Mise en ligne
+
+Le site est déployé par Vercel depuis la branche principale. Une fois la branche fusionnée, la carte est servie à `https://www.magichumans.com/carte-du-talent/`, toujours en `noindex`. Aucune autre page du site n'est modifiée ; seul `vercel.json` reçoit l'en-tête `X-Robots-Tag` pour ce dossier.
