@@ -48,4 +48,10 @@ describe("loveReading", () => {
   it("aucune évaluation : pas de tranche", () => {
     expect(read({}).band).toBeNull();
   });
+  it("énergie à 25 % : alerte après sécurité, ligne rouge et critique ; à 50 %, pas d'alerte", () => {
+    const low = read({ ...all("oui"), respect: "p25", incompatibilite: "p25", energie: "p25" });
+    expect(low.alerts.map((a) => a.kind)).toEqual(["securite", "ligne_rouge", "critique", "energie"]);
+    const mid = read({ ...all("oui"), energie: "p50" });
+    expect(mid.alerts.map((a) => a.kind)).not.toContain("energie");
+  });
 });

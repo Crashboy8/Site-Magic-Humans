@@ -8,6 +8,7 @@ import { LoveStart } from "./LoveStart";
 function clientWantsLove(): boolean {
   const params = new URLSearchParams(window.location.search);
   if (params.get("theme") === "amour") return true;
+  if (/^#amour=/.test(window.location.hash)) return true;
   if (/^#q=/.test(window.location.hash)) return false;
   try {
     if (sessionStorage.getItem("mh_theme") === "amour") return true;
@@ -15,7 +16,7 @@ function clientWantsLove(): boolean {
     /* navigation privée */
   }
   if (document.cookie.split(";").some((part) => part.trim() === "mh_theme=amour")) return true;
-  return document.referrer.includes("theme=amour");
+  return document.referrer.includes("theme=amour") || document.referrer.includes("/quiz-amour");
 }
 
 /**

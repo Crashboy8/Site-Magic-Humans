@@ -1,7 +1,7 @@
-/* Quiz Amour · écrans (intro, une question, résultats).
-   Démarre au chargement, uniquement si quiz/index.html a posé MH_THEME = "amour".
-   Aucune réponse n'est envoyée ni gardée (pas de localStorage, pas d'adresse personnelle).
-   La réponse à la question de sécurité (q28) sert au calcul puis est oubliée : elle n'entre pas dans le texte copié. */
+/* Quiz Amour v1.2 · écrans (intro, 11 étapes, résultats).
+   Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
+   Aucune réponse n'est envoyée ni gardée. La sécurité, le prénom et l'ennéagramme
+   ne partent pas vers un serveur : seul le clic Boussole ouvre une ancre #amour=. */
 (function () {
   const D = window.AMOUR_DATA;
   const E = window.AmourEngine;
@@ -13,16 +13,23 @@
 
   const style = document.createElement("style");
   style.textContent = [
-    ".am-grid-row{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}",
-    ".am-grid-ends{display:flex;justify-content:space-between;gap:12px;font-size:.92rem;line-height:1.35}",
-    ".am-grid-ends span{flex:1 1 0;min-width:0}",
-    ".am-grid-ends span:last-child{text-align:right}",
-    ".am-dots{display:flex;justify-content:space-between;align-items:center;gap:6px}",
-    ".am-dot{width:44px;height:44px;min-width:44px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-weight:700;cursor:pointer;padding:0}",
-    ".am-dot[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}",
-    ".am-firm{display:flex;flex-direction:column;gap:8px;margin-top:14px}",
-    "#screen-amour .rsrc-opt{min-height:44px}",
-    "#screen-amour .am-firm .rsrc-opt{min-height:44px}"
+    ".am-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:10px}",
+    ".am-blockq{font-weight:700;margin:6px 0 2px}",
+    ".am-tag{display:block;font-size:.85rem;color:var(--muted);margin-top:2px}",
+    ".am-chips{display:flex;flex-wrap:wrap;gap:8px}",
+    ".am-chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer}",
+    ".am-chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}",
+    ".am-chip:disabled,.am-pm-btn:disabled{opacity:.45;cursor:not-allowed}",
+    ".am-pm-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}",
+    ".am-pm-row .txt{flex:1 1 auto}",
+    ".am-pm-btn{width:44px;height:44px;min-width:44px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}",
+    ".am-pm-btn.plus[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}",
+    ".am-pm-btn.minus[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}",
+    ".am-pm-row.is-minus .txt{color:var(--muted);text-decoration:line-through}",
+    ".am-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}",
+    ".am-seg button{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:.9rem;cursor:pointer}",
+    ".am-seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}",
+    "#screen-amour .rsrc-opt{min-height:44px}"
   ].join("");
   document.head.appendChild(style);
 
@@ -38,11 +45,6 @@
   if (footer) footer.textContent = U.footer;
   document.title = U.pageTitle + " | Magic Humans";
   document.documentElement.lang = "fr";
-
-  const PARTS = [];
-  D.questions.forEach(function (q) {
-    if (PARTS.indexOf(q.part) === -1) PARTS.push(q.part);
-  });
 
   let prenom = "";
   let qi = 0;
@@ -63,30 +65,15 @@
   function ul(items) {
     return '<ul class="clean">' + items.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
   }
-  function section(id, num, title, body) {
-    return '<section class="rs" id="' + id + '"><h2><span class="snum">' + num + "</span> " + esc(title) + "</h2>" + body + "</section>";
+  function screenAt(i) { return D.screens[i]; }
+  function topicOf(id) { return D.valueTopics.filter(function (t) { return t.id === id; })[0]; }
+  function screenBad(s) {
+    return E.missingAnswers(answers, D).some(function (id) {
+      return id === s.id || id.indexOf(s.id + ".") === 0;
+    });
   }
-
-  function optionById(q, id) {
-    return (q.options || []).filter(function (o) { return o.id === id; })[0] || null;
-  }
-  function isNeutral(q, pos) {
-    const opt = optionById(q, pos);
-    return !!(opt && opt.neutral);
-  }
-  function complete(q) {
-    const a = answers[q.id];
-    if (q.type === "single") return !!(a && optionById(q, a));
-    if (q.type === "value") {
-      if (!a || !optionById(q, a.pos)) return false;
-      if (isNeutral(q, a.pos)) return true;
-      return D.firmness.some(function (f) { return f.id === a.firm; });
-    }
-    if (q.type === "grid") {
-      if (!a) return false;
-      return q.axes.every(function (ax) { return [-2, -1, 0, 1, 2].indexOf(a[ax.id]) !== -1; });
-    }
-    return false;
+  function bag(id) {
+    return answers[id] && typeof answers[id] === "object" ? answers[id] : {};
   }
 
   function showIntro() {
@@ -113,78 +100,183 @@
     scrollTop();
   }
 
-  function dotLabel(v, ax) {
-    if (v < 0) return ax.left;
-    if (v > 0) return ax.right;
-    return "ni l'un ni l'autre";
+  function segButtons(items, act, extra) {
+    return '<div class="am-seg">' + items.map(function (it) {
+      const pressed = it.pressed;
+      return '<button type="button" data-act="' + act + '"' + extra(it) + ' aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(it.label) + "</button>";
+    }).join("") + "</div>";
+  }
+
+  function blockHtml(s, b) {
+    const value = bag(s.id)[b.id];
+    let html = '<p class="am-blockq">' + esc(b.text) + "</p>";
+    if (b.kind === "single") {
+      html += '<div class="stack">';
+      b.options.forEach(function (o) {
+        const pressed = value === o.id;
+        html += '<button type="button" class="rsrc-opt' + (pressed ? " picked" : "") + '" data-act="opt" data-block="' + esc(b.id) + '" data-id="' + esc(o.id) + '" aria-pressed="' + (pressed ? "true" : "false") + '">' +
+          esc(o.label) + (o.tag ? '<span class="am-tag">' + esc(o.tag) + "</span>" : "") + "</button>";
+      });
+      html += "</div>";
+    } else if (b.kind === "second") {
+      const ofValue = bag(s.id)[b.of];
+      const none = value == null;
+      html += '<div class="am-chips">';
+      html += '<button type="button" class="am-chip" data-act="second" data-block="' + esc(b.id) + '" data-id="" aria-pressed="' + (none ? "true" : "false") + '">' + esc(U.quiz.secondNone) + "</button>";
+      b.options.forEach(function (o) {
+        const pressed = value === o.id;
+        const disabled = o.id === ofValue;
+        html += '<button type="button" class="am-chip" data-act="second" data-block="' + esc(b.id) + '" data-id="' + esc(o.id) + '" aria-pressed="' + (pressed ? "true" : "false") + '"' + (disabled ? " disabled" : "") + ">" + esc(o.label) + "</button>";
+      });
+      html += "</div>";
+    } else if (b.kind === "multi") {
+      const chosen = Array.isArray(value) ? value : [];
+      html += '<div class="am-chips">';
+      b.options.forEach(function (o) {
+        const pressed = chosen.indexOf(o.id) !== -1;
+        const disabled = !pressed && chosen.length >= b.max;
+        html += '<button type="button" class="am-chip" data-act="multi" data-block="' + esc(b.id) + '" data-id="' + esc(o.id) + '" aria-pressed="' + (pressed ? "true" : "false") + '"' + (disabled ? " disabled" : "") + ">" + esc(o.label) + "</button>";
+      });
+      html += "</div>";
+    } else if (b.kind === "self") {
+      html += segButtons(b.options.map(function (o) {
+        return { id: o.id, label: o.label, pressed: value === o.id };
+      }), "self", function (it) {
+        return ' data-block="' + esc(b.id) + '" data-id="' + esc(it.id) + '"';
+      });
+    }
+    return html;
+  }
+
+  function questionBody(s) {
+    if (s.type === "plusminus") {
+      const cur = bag(s.id);
+      const plus = cur.plus || [];
+      const minus = cur.minus || [];
+      let html = '<p class="muted">' + esc(U.quiz.plusLegend) + " · " + esc(U.quiz.minusLegend) + "</p>";
+      html += '<p class="muted">' + esc(fill(U.quiz.plusLeft, { n: s.plusCount - plus.length })) + " · " + esc(fill(U.quiz.minusLeft, { n: s.minusCount - minus.length })) + "</p>";
+      html += '<div class="stack">';
+      s.items.forEach(function (item) {
+        const isPlus = plus.indexOf(item.id) !== -1;
+        const isMinus = minus.indexOf(item.id) !== -1;
+        html += '<div class="am-pm-row' + (isMinus ? " is-minus" : "") + '"><p class="txt">' + esc(item.label) + "</p>";
+        html += '<button type="button" class="am-pm-btn plus" data-act="pm-plus" data-id="' + esc(item.id) + '" aria-pressed="' + (isPlus ? "true" : "false") + '" aria-label="' + esc("Ce qui me nourrit : " + item.label) + '"' + (!isPlus && plus.length >= s.plusCount ? " disabled" : "") + ">+</button>";
+        html += '<button type="button" class="am-pm-btn minus" data-act="pm-minus" data-id="' + esc(item.id) + '" aria-pressed="' + (isMinus ? "true" : "false") + '" aria-label="' + esc("Ce qui m'éteint : " + item.label) + '"' + (!isMinus && minus.length >= s.minusCount ? " disabled" : "") + ">−</button>";
+        html += "</div>";
+      });
+      return html + "</div>";
+    }
+    if (s.type === "blocks") {
+      let html = '<div class="stack">';
+      for (let i = 0; i < s.blocks.length; i++) {
+        const b = s.blocks[i];
+        const next = s.blocks[i + 1];
+        if (next && next.kind === "self" && next.id === b.id + "Self") {
+          html += '<div class="am-card">' + blockHtml(s, b) + blockHtml(s, next) + "</div>";
+          i += 1;
+        } else {
+          html += '<div class="am-card">' + blockHtml(s, b) + "</div>";
+        }
+      }
+      return html + "</div>";
+    }
+    if (s.type === "sort") {
+      const cur = bag(s.id);
+      let html = '<div class="stack">';
+      s.items.forEach(function (id) {
+        html += '<div class="am-card"><p class="am-blockq">' + esc(D.flaws[id].label) + "</p>";
+        html += segButtons(D.flawColumns.map(function (col) {
+          return { id: col.id, label: col.label, pressed: cur[id] === col.id, flaw: id };
+        }), "sort", function (it) {
+          return ' data-id="' + esc(it.flaw) + '" data-col="' + esc(it.id) + '"';
+        });
+        html += "</div>";
+      });
+      return html + "</div>";
+    }
+    if (s.type === "values") {
+      const cur = bag(s.id);
+      let html = '<div class="stack">';
+      s.topics.forEach(function (topicId) {
+        const topic = topicOf(topicId);
+        const row = cur[topicId] || {};
+        const opt = topic.options.filter(function (o) { return o.id === row.pos; })[0];
+        html += '<div class="am-card"><p class="am-blockq">' + esc(topic.topicLabel) + '</p><div class="am-chips">';
+        topic.options.forEach(function (o) {
+          const pressed = row.pos === o.id;
+          html += '<button type="button" class="am-chip" data-act="pos" data-topic="' + esc(topicId) + '" data-id="' + esc(o.id) + '" title="' + esc(o.label) + '" aria-label="' + esc(o.label) + '" aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(o.chip) + "</button>";
+        });
+        html += "</div>";
+        if (opt && !opt.neutral) {
+          html += '<p class="am-blockq">' + esc(U.quiz.firmnessLabel) + "</p>";
+          html += segButtons(D.firmness.map(function (f) {
+            return { id: f.id, label: f.label, pressed: row.firm === f.id, topic: topicId };
+          }), "firm", function (it) {
+            return ' data-topic="' + esc(it.topic) + '" data-id="' + esc(it.id) + '"';
+          });
+        }
+        html += "</div>";
+      });
+      return html + "</div>";
+    }
+    let html = '<div class="stack">';
+    s.options.forEach(function (o) {
+      const pressed = answers[s.id] === o.id;
+      html += '<button type="button" class="rsrc-opt' + (pressed ? " picked" : "") + '" data-act="choice" data-id="' + esc(o.id) + '" aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(o.label) + "</button>";
+    });
+    return html + "</div>";
   }
 
   function showQuestion(doScroll) {
-    const q = D.questions[qi];
-    const n = D.questions.length;
+    const s = screenAt(qi);
+    const n = D.screens.length;
+    const ok = !screenBad(s);
     const last = qi === n - 1;
-    const ok = complete(q);
-    const a = answers[q.id];
-    let hint = U.quiz.hintSingle;
-    if (q.type === "value") hint = U.quiz.hintValue;
-    if (q.type === "grid") hint = U.quiz.hintGrid;
-
-    let body = "";
-    if (q.type === "single" || q.type === "value") {
-      body += '<div class="stack" style="padding-top:8px">';
-      q.options.forEach(function (o) {
-        const pressed = q.type === "single" ? a === o.id : a && a.pos === o.id;
-        body += '<button type="button" class="rsrc-opt' + (pressed ? " picked" : "") + '" data-act="opt" data-id="' + esc(o.id) + '" aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(o.label) + "</button>";
-      });
-      body += "</div>";
-      if (q.type === "value" && a && a.pos && !isNeutral(q, a.pos)) {
-        body += '<div class="am-firm" role="group" aria-label="' + esc(U.quiz.firmnessLabel) + '">';
-        body += '<p class="rsrc-q"><span class="qstem">' + esc(U.quiz.firmnessLabel) + "</span></p>";
-        D.firmness.forEach(function (f) {
-          const pressed = a.firm === f.id;
-          body += '<button type="button" class="rsrc-opt' + (pressed ? " picked" : "") + '" data-act="firm" data-id="' + esc(f.id) + '" aria-pressed="' + (pressed ? "true" : "false") + '">' + esc(f.label) + "</button>";
-        });
-        body += "</div>";
-      }
-    } else if (q.type === "grid") {
-      body += '<p class="muted">' + esc(U.quiz.gridHelp) + "</p>";
-      body += '<div class="stack" style="padding-top:8px">';
-      q.axes.forEach(function (ax) {
-        const cur = a ? a[ax.id] : undefined;
-        body += '<div class="am-grid-row">';
-        body += '<div class="am-grid-ends"><span>' + esc(ax.left) + "</span><span>" + esc(ax.right) + "</span></div>";
-        body += '<div class="am-dots" role="group" aria-label="' + esc(ax.left + " / " + ax.right) + '">';
-        [-2, -1, 0, 1, 2].forEach(function (v) {
-          const pressed = cur === v;
-          body += '<button type="button" class="am-dot" data-act="dot" data-axis="' + esc(ax.id) + '" data-v="' + v + '" aria-pressed="' + (pressed ? "true" : "false") + '" aria-label="' + esc(dotLabel(v, ax)) + '"></button>';
-        });
-        body += "</div></div>";
-      });
-      body += "</div>";
-    }
-
-    const segs = D.questions.map(function (_, i) {
-      return '<span class="' + (i < qi || (i === qi && ok) ? "done" : "") + '"></span>';
+    const segs = D.screens.map(function (_, i) {
+      const done = i < qi || (i === qi && ok);
+      return '<span class="' + (done ? "done" : "") + '"></span>';
     }).join("");
-
     root.innerHTML =
       '<div class="progress" aria-hidden="true">' + segs + "</div>" +
       '<div class="qhead">' +
-        '<span class="eyebrow">' + esc(fill(U.quiz.part, { p: PARTS.indexOf(q.part) + 1, n: PARTS.length, label: U.parts[q.part] || "" })) + "</span>" +
-        '<p class="muted">' + esc(fill(U.quiz.count, { i: qi + 1, n: n })) + "</p>" +
-        "<h2>" + esc(q.text) + "</h2>" +
-        (q.private ? '<p class="muted">' + esc(U.quiz.privacy) + "</p>" : "") +
+        '<span class="eyebrow">' + esc(fill(U.quiz.count, { i: qi + 1, n: n }) + " · " + s.eyebrow) + "</span>" +
+        "<h2>" + esc(s.text) + "</h2>" +
+        (s.help ? '<p class="muted">' + esc(s.help) + "</p>" : "") +
+        (s.private ? '<p class="muted">' + esc(U.quiz.privacy) + "</p>" : "") +
       "</div>" +
-      body +
+      questionBody(s) +
       '<div class="qnav">' +
         '<button type="button" class="btn ghost" data-act="prev">' + esc(U.quiz.prev) + "</button>" +
-        '<span class="hint" id="am-hint">' + (ok ? "" : esc(hint)) + "</span>" +
+        '<span class="hint">' + (ok ? "" : esc(U.quiz.hints[s.type])) + "</span>" +
         '<button type="button" class="btn" data-act="next"' + (ok ? "" : " disabled") + ">" + esc(last ? U.quiz.last : U.quiz.next) + "</button>" +
       "</div>";
     if (doScroll) scrollTop();
   }
 
-  function langPanel(kind) {
+  function toggleSign(sign, itemId) {
+    const s = screenAt(qi);
+    const cur = { plus: (bag(s.id).plus || []).slice(), minus: (bag(s.id).minus || []).slice() };
+    const other = sign === "plus" ? "minus" : "plus";
+    const max = sign === "plus" ? s.plusCount : s.minusCount;
+    if (cur[sign].indexOf(itemId) !== -1) cur[sign] = cur[sign].filter(function (id) { return id !== itemId; });
+    else if (cur[sign].length < max) {
+      cur[sign].push(itemId);
+      cur[other] = cur[other].filter(function (id) { return id !== itemId; });
+    }
+    answers[s.id] = cur;
+  }
+
+  function setBlock(blockId, value) {
+    const s = screenAt(qi);
+    const cur = Object.assign({}, bag(s.id));
+    cur[blockId] = value;
+    s.blocks.forEach(function (b) {
+      if (b.kind === "second" && b.of === blockId && cur[b.id] === value) cur[b.id] = null;
+    });
+    answers[s.id] = cur;
+  }
+
+  function langPanel(kind, profileLang) {
     const id = kind === "recv" ? profileLang.recv : profileLang.give;
     const id2 = kind === "recv" ? profileLang.recv2 : profileLang.give2;
     const L = D.languages[id];
@@ -192,29 +284,21 @@
     const body = kind === "recv" ? L.recv : L.give;
     const lab = kind === "recv" ? R.recvLab : R.giveLab;
     let second = "";
-    if (id2) {
-      second = '<p><span class="lab">' + esc(R.secondaryLab) + "</span> " + esc(D.languages[id2].name) + "</p>";
-    } else if (kind === "recv" && profileLang.noSecondary) {
-      second = "<p>" + esc(profileLang.noSecondary) + "</p>";
-    }
+    if (id2) second = '<p><span class="lab">' + esc(R.secondaryLab) + "</span> " + esc(D.languages[id2].name) + "</p>";
+    else if (kind === "recv" && profileLang.noSecondary) second = "<p>" + esc(profileLang.noSecondary) + "</p>";
     return '<div class="panel"><p class="lab">' + esc(lab) + "</p><h3>" + esc(L.name) + "</h3><p>" + esc(body) + '</p><p class="lab">' + esc(R.tipsLab) + "</p>" + ul(tips) + second + "</div>";
   }
 
-  let profileLang = null;
-
   function showResults(profile) {
-    profileLang = profile.languages;
-    const toc = [
-      ["sec-lang", R.langH], ["sec-imago", R.imagoH], ["sec-needs", R.needsH], ["sec-anti", R.antiH],
-      ["sec-ress", R.ressH], ["sec-mask", R.maskH], ["sec-nn", R.nnH], ["sec-partner", R.partnerH],
-      ["sec-key", R.keyH], ["sec-plan", R.planH], ["sec-boussole", R.boussoleLab], ["sec-cta", R.ctaH],
-      ["sec-export", R.exportH], ["sec-matching", R.matchingH], ["sec-ethics", R.ethicsH]
-    ];
+    const boussoleHref = D.config.boussoleUrl + "#amour=" + E.encodePayload(profile.boussole);
     const L = profile.languages;
+    const en = profile.ennea;
+    const type = D.ennea.types[en.type];
+    const instinct = D.instincts[en.instinct];
     const pat = profile.pattern;
     const P = pat.id ? D.patterns[pat.id] : null;
-    const mask = D.masks[profile.mask.id];
     const nn = profile.nonNegotiables;
+    const bothCriticalEmpty = !nn.values.length && !nn.flaws.length;
 
     let imago = '<div class="panel"><p>' + esc(pat.levelText) + "</p>";
     if (P) {
@@ -225,81 +309,120 @@
     }
     imago += '<p class="lab">' + esc(R.imagoQuestionsLab) + "</p>" + ul(pat.questions);
     if (profile.pastAbuse) imago += "<p>" + esc(profile.pastAbuse) + "</p>";
-    imago += '<p class="muted">' + esc(R.imagoDisclaimer) + "</p>" +
-      '<p class="muted">' + esc(R.imagoCredit) + "</p></div>";
+    imago += '<p class="muted">' + esc(R.imagoDisclaimer) + "</p><p class=\"muted\">" + esc(R.imagoCredit) + "</p></div>";
 
-    const needs = '<div class="grid2">' + profile.needs.top.map(function (id) {
+    const nourrit = profile.needs.top.filter(Boolean).map(function (id) {
       const N = D.needs[id];
-      return '<div class="panel"><h3>' + esc(N.name) + "</h3><p>" + esc(N.desc) + '</p><p class="lab">' + esc(R.ctxLab) + '</p><p class="lab">' + esc(R.needsPartnerLab) + "</p><p>" + esc(N.partner) + "</p></div>";
-    }).join("") + "</div>";
+      return '<div class="panel"><h3>' + esc(N.name) + "</h3><p>" + esc(N.desc) + '</p><p class="lab">' + esc(R.needsPartnerLab) + "</p><p>" + esc(N.partner) + "</p></div>";
+    }).join("") +
+      '<div class="panel ctx-bad"><p>' + esc(R.antiIntro) + "</p><p>" + esc(D.needs[profile.needs.anti].anti) + "</p></div>";
 
-    const nnCritical = nn.critical.length
-      ? '<ul class="clean">' + nn.critical.map(function (x) { return '<li><span class="dot r"></span>' + esc(x) + "</li>"; }).join("") + "</ul>"
-      : "<p>" + esc(R.nnNoneCritical) + "</p>";
+    const recharge = D.recharge[profile.recharge.soir];
+    const weekend = D.recharge[profile.recharge.weekend];
+    let ress = "<p>" + esc(profile.recharge.line) + "</p><p>" + esc(recharge.couple) + "</p>";
+    if (!profile.recharge.same) ress += "<p>" + esc(weekend.couple) + "</p>";
+    ress += '<p class="lab">' + esc(R.drainsLab) + "</p>" + ul(profile.recharge.drains.map(function (id) { return D.drains[id].label; }));
+    ress += "<p>" + esc(R.rechargeRule) + "</p>";
 
-    const partnerCols =
-      '<div class="grid3">' +
-        '<div class="panel ctx-good"><p class="lab">' + esc(R.completeLab) + "</p>" + ul(profile.partner.complete) +
-          (profile.forme.noComplement ? "<p>" + esc(profile.forme.noComplement) + "</p>" : "") + "</div>" +
-        '<div class="panel"><p class="lab">' + esc(R.frictionLab) + "</p>" + ul(profile.partner.friction) + "</div>" +
-        '<div class="panel ctx-bad"><p class="lab">' + esc(R.criticalLab) + "</p>" + ul(profile.partner.critical) + "</div>" +
-      "</div>" +
+    const pairs = '<p class="lab">' + esc(R.pairsLab) + "</p>" + ul(en.pairs.map(function (p) {
+      return fill(R.pairPrefix, { name: D.instincts[p.partner].name }) + " " + p.text;
+    }));
+    const enneaHtml =
+      "<h3>Type " + esc(String(type.n)) + ", " + esc(type.name) + "</h3>" +
+      "<p>" + esc(en.confidenceText) + "</p><p>" + esc(type.couple) + "</p>" +
+      "<p><strong>" + esc(R.piegeLab) + "</strong> " + esc(type.piege) + "</p>" +
+      "<h3>" + esc(instinct.name) + "</h3><p>" + esc(instinct.desc) + "</p><p>" + esc(en.instinctLine) + "</p>" +
+      pairs + "<p class=\"muted\">" + esc(R.pairsNote) + "</p>" +
+      '<p class="muted">' + esc(D.ennea.disclaimer) + "</p><p class=\"muted\">" + esc(D.ennea.credit) + "</p>";
+
+    const quotidien = profile.quotidien.items.map(function (it) {
+      let line = "<p><strong>" + esc(it.name) + ".</strong> " + esc(it.note) + "</p>";
+      if (it.complement) line += "<p>" + esc(it.complement) + "</p>";
+      if (it.friction) line += "<p>" + esc(it.friction) + "</p>";
+      return line;
+    }).join("") +
+      (profile.quotidien.noFriction ? "<p>" + esc(profile.quotidien.noFriction) + "</p>" : "") +
+      (profile.quotidien.noComplement ? "<p>" + esc(profile.quotidien.noComplement) + "</p>" : "");
+
+    function flawCol(title, ids) {
+      const labels = ids.map(function (id) { return D.flaws[id].label; });
+      return '<div class="panel"><p class="lab">' + esc(title) + "</p>" + (labels.length ? ul(labels) : "<p>aucun</p>") + "</div>";
+    }
+    const flawsHtml = "<p>" + esc(R.flawsIntro) + "</p>" + flawCol("Acceptable", profile.flaws.ok) + flawCol("À discuter", profile.flaws.discuter) + flawCol("Non négociable", profile.flaws.nn) +
+      (profile.flaws.note ? "<p>" + esc(profile.flaws.note) + "</p>" : "");
+
+    let nnHtml = '<div class="prose"><p>' + esc(R.nnIntro) + "</p></div><div class=\"panel\">";
+    if (bothCriticalEmpty) nnHtml += "<p>" + esc(R.nnNoneCritical) + "</p>";
+    else {
+      if (nn.values.length) nnHtml += '<p class="lab">' + esc(R.nnCriticalLab) + "</p>" + ul(nn.values);
+      if (nn.flaws.length) nnHtml += '<p class="lab">' + esc(R.nnFlawsLab) + "</p>" + ul(nn.flaws);
+    }
+    if (nn.strong.length) nnHtml += '<p class="lab">' + esc(R.nnStrongLab) + "</p>" + ul(nn.strong);
+    if (nn.soft.length) nnHtml += '<p class="lab">' + esc(R.nnSoftLab) + "</p>" + ul(nn.soft);
+    nnHtml += '<p class="lab">' + esc(R.nnUniversalLab) + "</p>" + ul(nn.universal) + "</div>";
+
+    const partner =
+      '<div class="prose"><p>' + esc(R.partnerIntro) + "</p></div>" +
+      '<div class="panel ctx-good"><p class="lab">' + esc(R.completeLab) + "</p>" + ul(profile.partner.complete) + "</div>" +
+      '<div class="panel"><p class="lab">' + esc(R.frictionLab) + "</p>" + ul(profile.partner.friction) + "</div>" +
+      '<div class="panel ctx-bad"><p class="lab">' + esc(R.criticalLab) + "</p>" + ul(profile.partner.critical) + "</div>" +
       "<h3>" + esc(R.gridH) + "</h3>" +
-      '<div class="grid2">' + D.riskGrid.map(function (g) {
+      D.riskGrid.map(function (g) {
         return '<div class="panel"><p class="lab">' + esc(g.level) + "</p><h3>" + esc(g.label) + "</h3><p>" + esc(g.text) + "</p></div>";
-      }).join("") + "</div>";
+      }).join("");
 
     const matchingHtml = esc(fill(R.matchingP, { email: D.config.matchingEmail })).replace(
       esc(D.config.matchingEmail),
       '<a href="mailto:' + esc(D.config.matchingEmail) + '">' + esc(D.config.matchingEmail) + "</a>"
     );
+    const boussoleBtn = '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.boussoleBtn) + "</a>";
+
+    function section(id, title, body) {
+      return '<section class="rs" id="' + id + '"><h2>' + esc(title) + "</h2>" + body + "</section>";
+    }
 
     root.innerHTML =
       (profile.safety ? '<div class="panel ctx-bad" role="alert"><p class="lab">' + esc(profile.safety.title) + "</p><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       '<div class="rhead">' +
         '<span class="eyebrow">' + esc(fill(R.eyebrow, { prenom: profile.prenom })) + "</span>" +
         '<h2 class="alloy">' + esc(R.titlePrefix) + " <em>" + esc(profile.title) + "</em></h2>" +
-        '<p class="lead"><strong>' + esc(R.summaryLab) + "</strong> " + esc(profile.summary) + "</p>" +
-        "<p>" + esc(profile.opener) + "</p>" +
-        '<nav class="toc">' + toc.map(function (item) { return '<a href="#' + item[0] + '">' + esc(item[1]) + "</a>"; }).join("") + "</nav>" +
       "</div>" +
-      section("sec-lang", "2", R.langH,
-        '<div class="grid2">' + langPanel("recv") + langPanel("give") + "</div>" +
-        '<div class="prose"><p>' + esc(L.gap) + "</p><p class=\"muted\">" + esc(R.langCredit) + "</p></div>") +
-      section("sec-imago", "3", R.imagoH, imago) +
-      section("sec-needs", "4", R.needsH, needs) +
-      section("sec-anti", "5", R.antiH, '<div class="panel ctx-bad"><p>' + esc(R.antiIntro) + "</p><p>" + esc(profile.needs.anti) + "</p></div>") +
-      section("sec-ress", "6", R.ressH, '<div class="panel equation"><p>' + esc(profile.needs.ress) + "</p></div>") +
-      section("sec-mask", "7", R.maskH,
-        '<div class="prose"><p>' + esc(D.maskIntro) + "</p></div>" +
-        '<div class="panel"><p class="lab">' + esc(R.maskLab) + "</p><h3>" + esc(mask.name) + "</h3>" +
-          '<p class="lab">' + esc(R.qualityLab) + "</p><p>" + esc(mask.quality) + "</p>" +
-          '<p class="lab">' + esc(R.overflowLab) + "</p><p>" + esc(mask.overflow) + "</p>" +
-          '<p class="lab">' + esc(R.maskPartnerLab) + "</p><p>" + esc(mask.partner) + "</p>" +
-          '<p class="lab">' + esc(R.exerciseLab) + "</p><p>" + esc(mask.exercise) + "</p></div>") +
-      section("sec-nn", "8", R.nnH,
-        '<div class="prose"><p>' + esc(R.nnIntro) + "</p></div><div class=\"panel\">" +
-          '<p class="lab">' + esc(R.nnCriticalLab) + "</p>" + nnCritical +
-          (nn.strong.length ? '<p class="lab">' + esc(R.nnStrongLab) + "</p>" + ul(nn.strong) : "") +
-          (nn.soft.length ? '<p class="lab">' + esc(R.nnSoftLab) + "</p>" + ul(nn.soft) : "") +
-          '<p class="lab">' + esc(R.nnUniversalLab) + "</p>" + ul(nn.universal) +
-        "</div>") +
-      section("sec-partner", "9", R.partnerH, '<div class="prose"><p>' + esc(R.partnerIntro) + "</p></div>" + partnerCols) +
-      section("sec-key", "10", R.keyH, '<div class="prose">' + ul(profile.keyMessages) + "</div>") +
-      section("sec-plan", "11", R.planH, "<ol class=\"clean\">" + profile.plan.map(function (step) { return "<li>" + esc(step) + "</li>"; }).join("") + "</ol>") +
-      section("sec-boussole", "12", R.boussoleLab,
-        '<div class="panel stack"><p>' + esc(R.boussoleP) + '</p><div class="row-actions"><a class="btn" data-act="boussole" href="' + esc(D.config.boussoleUrl) + '" target="_blank" rel="noopener noreferrer">' + esc(R.boussoleBtn) + "</a></div></div>") +
+      '<div class="panel" id="sec-phrases"><h3>' + esc(R.sentencesH) + "</h3>" +
+        profile.sentences.map(function (s) { return "<p>" + esc(s) + "</p>"; }).join("") +
+        '<p class="muted">' + esc(D.ennea.disclaimer) + "</p></div>" +
+      '<div class="row-actions">' +
+        '<a class="btn" data-cta-place="quiz_amour_3phrases" href="' + esc(D.config.calendly) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + "</a>" +
+        boussoleBtn +
+        '<button type="button" class="btn ghost" data-act="copy-short">' + esc(R.copyShortBtn) + "</button>" +
+        '<span class="toast" id="am-toast-short" aria-live="polite"></span>' +
+      "</div>" +
+      '<p class="muted">' + esc(R.boussoleNote) + "</p>" +
+      "<details><summary>" + esc(R.detailsSummary) + "</summary><div>" +
+        section("sec-nourrit", R.nourritH, nourrit) +
+        section("sec-ress", R.ressH, '<div class="panel">' + ress + "</div>") +
+        section("sec-lang", R.langH, langPanel("recv", L) + langPanel("give", L) + '<p>' + esc(L.gap) + '</p><p class="muted">' + esc(R.langCredit) + "</p>") +
+        section("sec-ennea", R.enneaH, '<div class="panel">' + enneaHtml + "</div>") +
+        section("sec-quotidien", R.quotidienH, quotidien) +
+        section("sec-flaws", R.flawsH, flawsHtml) +
+        section("sec-nn", R.nnH, nnHtml) +
+        section("sec-partner", R.partnerH, partner) +
+        section("sec-imago", R.imagoH, imago) +
+        section("sec-key", R.keyH, '<div class="prose">' + ul(profile.keyMessages) + "</div>") +
+      "</div></details>" +
       '<section class="rs" id="sec-cta"><div class="cta" data-cta-place="quiz_amour_resultat">' +
         '<span class="eyebrow">' + esc(R.ctaEyebrow) + "</span><h3>" + esc(R.ctaH) + "</h3><p>" + esc(R.ctaP) + "</p><p>" + esc(R.ctaSign) + "</p>" +
         '<div class="cta-actions"><a class="btn" href="' + esc(D.config.calendly) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + "</a>" +
         '<a class="btn alt" href="' + esc(D.config.site) + '" target="_blank" rel="noopener noreferrer">' + esc(R.siteBtn) + "</a></div></div></section>" +
-      section("sec-export", "14", R.exportH,
-        '<div class="panel"><p>' + esc(R.exportP) + '</p><textarea id="am-export" readonly>' + esc(profile.exportText) + '</textarea>' +
+      section("sec-boussole", R.boussoleLab, '<div class="panel"><p>' + esc(R.boussoleP) + '</p><div class="row-actions">' + boussoleBtn + "</div></div>") +
+      section("sec-export", R.exportH,
+        '<div class="panel"><p>' + esc(R.exportP) + '</p><textarea id="am-export" readonly>' + esc(profile.exportText) + "</textarea>" +
+        '<textarea id="am-share" readonly hidden>' + esc(profile.shareText) + "</textarea>" +
         '<div class="row-actions"><button type="button" class="btn" data-act="copy">' + esc(R.copyBtn) + '</button><span class="toast" id="am-toast" aria-live="polite"></span></div></div>') +
-      section("sec-matching", "15", R.matchingH, '<div class="panel"><p class="muted">' + matchingHtml + "</p></div>") +
-      section("sec-ethics", "16", R.ethicsH,
-        '<div class="prose"><p>' + esc(R.ethicsP) + '</p><p><a class="link" href="' + esc(location.pathname + "?theme=amour") + '">' + esc(R.restart) + "</a></p></div>");
+      section("sec-matching", R.matchingH, '<div class="panel"><p class="muted">' + matchingHtml + "</p></div>") +
+      section("sec-ethics", R.ethicsH,
+        '<div class="prose"><p>' + esc(R.ethicsP) + '</p><p><a class="link" href="/quiz-amour/">' + esc(R.restart) + "</a></p></div>");
 
+    root.dataset.share = profile.shareText;
     answers = {};
     scrollTop();
   }
@@ -308,6 +431,17 @@
     try { sessionStorage.setItem("mh_theme", "amour"); } catch (e) { /* mode privé */ }
     const secure = location.protocol === "https:" ? "; Secure" : "";
     document.cookie = "mh_theme=amour; Path=/; Max-Age=7200; SameSite=Lax" + secure;
+  }
+
+  function copyText(text, toast, area) {
+    const done = function (msg) { if (toast) toast.textContent = msg; };
+    const fallback = function () {
+      if (area) { area.hidden = false; area.focus(); area.select(); }
+      done(R.copyFallback);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(R.copied); }, fallback);
+    } else fallback();
   }
 
   function startQuiz() {
@@ -334,42 +468,71 @@
     const btn = ev.target.closest("[data-act]");
     if (!btn || !root.contains(btn)) return;
     const act = btn.getAttribute("data-act");
-    const q = D.questions[qi];
+    const s = screenAt(qi);
 
     if (act === "start") { startQuiz(); return; }
-    if (act === "opt" && q) {
+    if (act === "pm-plus" && s && s.type === "plusminus") { toggleSign("plus", btn.getAttribute("data-id")); showQuestion(false); return; }
+    if (act === "pm-minus" && s && s.type === "plusminus") { toggleSign("minus", btn.getAttribute("data-id")); showQuestion(false); return; }
+    if (act === "opt" && s && s.type === "blocks") { setBlock(btn.getAttribute("data-block"), btn.getAttribute("data-id")); showQuestion(false); return; }
+    if (act === "second" && s && s.type === "blocks") {
       const id = btn.getAttribute("data-id");
-      if (q.type === "single") answers[q.id] = id;
-      if (q.type === "value") {
-        const prev = answers[q.id] && typeof answers[q.id] === "object" ? answers[q.id] : {};
-        answers[q.id] = isNeutral(q, id) ? { pos: id } : { pos: id, firm: prev.firm };
-      }
+      setBlock(btn.getAttribute("data-block"), id ? id : null);
       showQuestion(false);
       return;
     }
-    if (act === "firm" && q && q.type === "value") {
-      const prev = answers[q.id] && typeof answers[q.id] === "object" ? answers[q.id] : {};
-      answers[q.id] = { pos: prev.pos, firm: btn.getAttribute("data-id") };
+    if (act === "multi" && s && s.type === "blocks") {
+      const blockId = btn.getAttribute("data-block");
+      const id = btn.getAttribute("data-id");
+      const block = s.blocks.filter(function (b) { return b.id === blockId; })[0];
+      const cur = Object.assign({}, bag(s.id));
+      const chosen = Array.isArray(cur[blockId]) ? cur[blockId].slice() : [];
+      const at = chosen.indexOf(id);
+      if (at !== -1) chosen.splice(at, 1);
+      else if (chosen.length < block.max) chosen.push(id);
+      cur[blockId] = chosen;
+      answers[s.id] = cur;
       showQuestion(false);
       return;
     }
-    if (act === "dot" && q && q.type === "grid") {
-      const prev = answers[q.id] && typeof answers[q.id] === "object" ? answers[q.id] : {};
-      const next = {};
-      Object.keys(prev).forEach(function (k) { next[k] = prev[k]; });
-      next[btn.getAttribute("data-axis")] = Number(btn.getAttribute("data-v"));
-      answers[q.id] = next;
+    if (act === "self" && s && s.type === "blocks") { setBlock(btn.getAttribute("data-block"), btn.getAttribute("data-id")); showQuestion(false); return; }
+    if (act === "sort" && s && s.type === "sort") {
+      const id = btn.getAttribute("data-id");
+      const col = btn.getAttribute("data-col");
+      const cur = Object.assign({}, bag(s.id));
+      if (cur[id] === col) delete cur[id];
+      else cur[id] = col;
+      answers[s.id] = cur;
       showQuestion(false);
       return;
     }
+    if (act === "pos" && s && s.type === "values") {
+      const topicId = btn.getAttribute("data-topic");
+      const opt = topicOf(topicId).options.filter(function (o) { return o.id === btn.getAttribute("data-id"); })[0];
+      const cur = Object.assign({}, bag(s.id));
+      const prev = cur[topicId] || {};
+      cur[topicId] = opt.neutral ? { pos: opt.id } : { pos: opt.id, firm: prev.firm };
+      answers[s.id] = cur;
+      showQuestion(false);
+      return;
+    }
+    if (act === "firm" && s && s.type === "values") {
+      const topicId = btn.getAttribute("data-topic");
+      const cur = Object.assign({}, bag(s.id));
+      const prev = cur[topicId] || {};
+      cur[topicId] = { pos: prev.pos, firm: btn.getAttribute("data-id") };
+      answers[s.id] = cur;
+      showQuestion(false);
+      return;
+    }
+    if (act === "choice" && s && s.type === "single") { answers[s.id] = btn.getAttribute("data-id"); showQuestion(false); return; }
     if (act === "prev") {
       if (qi <= 0) showIntro();
       else { qi -= 1; showQuestion(true); }
       return;
     }
     if (act === "next") {
-      if (!q || !complete(q)) return;
-      if (qi < D.questions.length - 1) { qi += 1; showQuestion(true); return; }
+      if (!s || screenBad(s)) return;
+      if (qi < D.screens.length - 1) { qi += 1; showQuestion(true); return; }
       const snapshot = answers;
       let profile;
       try { profile = E.computeLoveProfile(snapshot, D, prenom); }
@@ -378,20 +541,13 @@
       return;
     }
     if (act === "boussole") rememberTheme();
+    if (act === "copy-short") {
+      copyText(root.dataset.share || "", document.getElementById("am-toast-short"), document.getElementById("am-share"));
+      return;
+    }
     if (act === "copy") {
       const ta = document.getElementById("am-export");
-      const toast = document.getElementById("am-toast");
-      const text = ta ? ta.value : "";
-      const done = function (msg) { if (toast) toast.textContent = msg; };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () { done(R.copied); }, function () {
-          if (ta) { ta.focus(); ta.select(); }
-          done(R.copyFallback);
-        });
-      } else {
-        if (ta) { ta.focus(); ta.select(); }
-        done(R.copyFallback);
-      }
+      copyText(ta ? ta.value : "", document.getElementById("am-toast"), ta);
     }
   });
 
