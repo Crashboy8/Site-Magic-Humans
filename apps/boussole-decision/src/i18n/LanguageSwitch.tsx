@@ -7,7 +7,7 @@ import { setLocaleAction } from "./actions";
 import { useI18n } from "./client";
 import { LOCALES } from "./config";
 
-/** Sélecteur FR · EN : enregistre le choix et réaffiche la page dans la nouvelle langue. */
+/** Sélecteur FR · EN · ES : enregistre le choix et réaffiche la page dans la nouvelle langue. */
 export function LanguageSwitch({ className }: { className?: string }) {
   const { locale, t } = useI18n();
   const router = useRouter();

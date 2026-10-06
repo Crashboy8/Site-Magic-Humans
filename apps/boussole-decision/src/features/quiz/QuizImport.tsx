@@ -1,21 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Button, Card, Notice } from "@/components/ui";
 import { decodeQuizHash, type QuizResult } from "@/domain/quizImport";
+import { setLocaleAction } from "@/i18n/actions";
 import { useI18n } from "@/i18n/client";
 import { importQuizAction } from "./actions";
 import { clearPendingQuiz, savePendingQuiz, useLocationHash } from "./storage";
 
 /** Page d'arrivée du lien du quiz : aperçu du profil qui sera créé, puis création en un clic. */
 export function QuizImport({ signedIn }: { signedIn: boolean }) {
-  const { t, m } = useI18n();
+  const { locale, t, m } = useI18n();
   const Q = t.quiz;
+  const router = useRouter();
   const hash = useLocationHash();
   const quiz = useMemo(() => (hash === null ? undefined : decodeQuizHash(hash)), [hash]);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  // La Boussole s'ouvre dans la langue où le quiz a été passé (une seule fois : le sélecteur reste libre ensuite).
+  const langApplied = useRef(false);
+  useEffect(() => {
+    if (!quiz || langApplied.current) return;
+    langApplied.current = true;
+    if (quiz.lang !== locale) void setLocaleAction(quiz.lang).then(() => router.refresh());
+  }, [quiz, locale, router]);
 
   if (quiz === undefined) return <p className="text-ink-soft">{Q.loading}</p>;
   if (quiz === null)

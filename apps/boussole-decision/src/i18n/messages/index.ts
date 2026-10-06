@@ -1,4 +1,4 @@
-// Dictionnaires de l'interface, par langue. Chaque fichier définit le français, puis l'anglais avec la même forme
+// Dictionnaires de l'interface, par langue. Chaque fichier définit le français, puis l'anglais et l'espagnol avec la même forme
 // (TypeScript signale toute traduction manquante).
 import type { Locale } from "../config";
 import { auth } from "./auth";
@@ -34,5 +34,17 @@ const en: typeof fr = {
   quiz: quiz.en,
 };
 
+const es: typeof fr = {
+  common: common.es,
+  auth: auth.es,
+  profile: profile.es,
+  version: version.es,
+  coach: coach.es,
+  table: table.es,
+  results: results.es,
+  example: example.es,
+  quiz: quiz.es,
+};
+
 export type Messages = typeof fr;
-export const MESSAGES: Record<Locale, Messages> = { fr, en };
+export const MESSAGES: Record<Locale, Messages> = { fr, en, es };

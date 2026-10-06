@@ -4,8 +4,10 @@
 // Le lien porte le résultat dans son ancre (#q=…, JSON encodé en base64url) : rien ne passe par les
 // journaux du serveur, et la personne crée elle-même son profil en un clic.
 
+import { isLocale, type Locale } from "@/i18n/config";
+
 export interface QuizResult {
-  lang: "fr" | "en";
+  lang: Locale;
   /** Archétypes dominant et secondaire (clés du quiz), pour mémoire. */
   archetypes: string[];
   /** Nom du profil à créer, ex. « Mon Talent Unique : Analyste Fédérateur ». */
@@ -37,7 +39,7 @@ export function parseQuizResult(raw: unknown): QuizResult | null {
   const r = raw as Record<string, unknown>;
   if (r.v !== 1) return null;
   const result: QuizResult = {
-    lang: r.lang === "en" ? "en" : "fr",
+    lang: isLocale(r.lang) ? r.lang : "fr",
     archetypes: list(r.archetypes, 2, 40),
     name: text(r.name, 120),
     mecanisme: text(r.mecanisme, 400),

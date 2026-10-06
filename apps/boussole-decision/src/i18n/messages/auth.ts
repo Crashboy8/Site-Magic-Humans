@@ -249,4 +249,125 @@ const en: typeof fr = {
   },
 };
 
-export const auth = { fr, en };
+const es: typeof fr = {
+  titleWelcome: "Bienvenida",
+  titleSignIn: "Iniciar sesión",
+  titleSignUp: "Registro",
+  titleForgot: "Contraseña olvidada",
+  titleSave: "Guardar mi trabajo",
+  titleAccount: "Mi cuenta",
+  titleAccountCreated: "Cuenta creada",
+  titleNewPassword: "Nueva contraseña",
+
+  welcomeHeading: "Elegir con el corazón y con la cabeza",
+  welcomeText:
+    "Compara tus oportunidades profesionales a partir de lo que de verdad te importa: tu Talento Único, tus valores, tus condiciones de vida.",
+  tryNowTitle: "Probar ahora mismo",
+  tryNowText:
+    "Sin email ni contraseña: entras directamente en tu tabla de decisión. Tu trabajo se guarda en este dispositivo, y podrás guardarlo después con tu email.",
+  tryNowButton: "Probar ahora mismo",
+  tryNowPending: "Preparando tu espacio…",
+  seeExample: "👀 Ver primero un ejemplo",
+  accountTitle: "Ya tengo una cuenta, o quiero crear una",
+  accountText: "Todo se guarda con tu email y está disponible desde cualquier dispositivo.",
+  signIn: "Iniciar sesión",
+  createAccount: "Crear mi cuenta",
+  firstTrialProfile: "Mi primera prueba",
+
+  welcomeBack: "Qué bien verte de nuevo",
+  signInIntro: "Inicia sesión para encontrar tus brújulas.",
+  linkInvalid: "Este enlace ya no es válido (quizá ya se usó). Pide uno nuevo.",
+  signInMode: "Forma de iniciar sesión",
+  modePassword: "Contraseña",
+  modeMagic: "Enlace por email",
+  email: "Email",
+  password: "Contraseña",
+  signingIn: "Iniciando sesión…",
+  forgotPassword: "¿Olvidaste tu contraseña?",
+  magicHint: "Recibirás un enlace que te conecta con un clic, sin contraseña.",
+  sending: "Enviando…",
+  sendMagicLink: "Recibir mi enlace de acceso",
+  noAccountYet: "¿Todavía no tienes cuenta?",
+
+  signUpDone: "¡Bienvenido/a!",
+  checkSpam: "Si no lo ves, revisa tu carpeta de correo no deseado.",
+  signUpTitle: "Crear mi espacio",
+  signUpIntro:
+    "Tu cuenta guarda todo tu trabajo, en todos tus dispositivos. Si Pierre te dio un código de invitación, indícalo: será tu coach en la herramienta.",
+  inviteCode: "Código de invitación (opcional)",
+  firstName: "Nombre",
+  passwordHint: "Mínimo 8 caracteres.",
+  privacyNote:
+    "🔒 Tus brújulas son privadas. Tu coach no ve nada hasta que decidas, perfil por perfil, compartirlas con él. Puedes dejar de compartir en cualquier momento.",
+  creating: "Creando…",
+  alreadyRegistered: "¿Ya tienes cuenta?",
+
+  forgotIntro: "Indica tu email: recibirás un enlace para elegir una nueva.",
+  sendLink: "Enviar el enlace",
+  backToSignIn: "Volver al inicio de sesión",
+  newPassword: "Nueva contraseña",
+  savingPassword: "Guardando…",
+  savePassword: "Guardar la contraseña",
+  chooseNewPassword: "Elige una nueva contraseña",
+
+  trialEyebrow: "Modo prueba",
+  saveIntro:
+    "Añade tu email: todo lo que has rellenado se conserva y queda vinculado a tu cuenta. Podrás encontrarlo desde cualquier dispositivo y, si quieres, compartirlo con tu coach.",
+  saveEmailHint: "Recibirás un enlace de confirmación: ábrelo en este dispositivo.",
+  saveButton: "Guardar mi trabajo",
+  haveAccountQuestion: "¿Ya tienes una cuenta? Inicia sesión: tu prueba se añadirá a ella.",
+  signInToAccount: "Iniciar sesión en mi cuenta",
+  existingAccount: "Ya tienes una cuenta con",
+  existingAccountEnd: ". Inicia sesión: tu prueba se añadirá a ella, no pierdes nada.",
+  signInToAdd: "Inicia sesión en tu cuenta: tu prueba se añadirá a ella, no pierdes nada.",
+  noPasswordHint: "¿Sin contraseña, o la olvidaste? Recibe un enlace que te conecta con un clic.",
+  openOnThisDevice: "Ábrelo en este dispositivo para que tu prueba se añada.",
+  receiveLoginLink: "Recibir un enlace de acceso",
+  noAccountYetLink: "Todavía no tengo cuenta",
+  trialAdded: "Ya has iniciado sesión: tu prueba se ha añadido a tu cuenta y aparece en tus perfiles.",
+
+  myInfo: "Mis datos",
+  registered: "Registro",
+  coacheePrivacy:
+    "Tus brújulas son privadas. Tu coach solo ve los perfiles que decidas compartir con él, en solo lectura, y puedes dejar de compartir en cualquier momento.",
+  changePassword: "Cambiar la contraseña",
+  backToProfiles: "← Volver a mis perfiles",
+  thanks: (name: string) => (name ? `¡Gracias, ${name}!` : "¡Gracias!"),
+  workSaved: "Tu trabajo está guardado",
+  accountCreatedWith: (email: string) =>
+    `Tu cuenta se ha creado con la dirección ${email || "indicada"}. Todo lo que rellenaste durante la prueba se conserva.`,
+  confirmationPending: "La confirmación está en curso: recarga la página en unos segundos.",
+  choosePasswordOptional: "Elegir una contraseña (opcional)",
+  orMagicLink: "Si no, siempre podrás iniciar sesión con un enlace recibido por email.",
+  findMyCompasses: "Ir a mis brújulas →",
+
+  errors: {
+    invalidCredentials: "Email o contraseña incorrectos.",
+    emailNotConfirmed: "Tu dirección de email aún no está confirmada: haz clic en el enlace que recibiste por email.",
+    alreadyRegistered: "Ya existe una cuenta con este email. Inicia sesión o usa «¿Olvidaste tu contraseña?».",
+    passwordTooShort: "La contraseña debe tener al menos 8 caracteres.",
+    rateLimit: "Demasiados intentos en poco tiempo. Espera un minuto y vuelve a intentarlo.",
+    noAccount: "No hay ninguna cuenta asociada a este email. Crea tu cuenta, o prueba la herramienta directamente.",
+    badInviteCode: "Este código de invitación no es (o ya no es) válido.",
+    trialDisabled: "La prueba sin cuenta aún no está activada. Crea tu cuenta para empezar.",
+    emailInUse: "Esta dirección ya la usa una cuenta. Inicia sesión con ella.",
+    generic: "Se ha producido un error. Vuelve a intentarlo en un momento.",
+    firstNameRequired: "Indica tu nombre.",
+    emailInvalid: "Esta dirección de email no parece válida.",
+    min8: "Al menos 8 caracteres.",
+    inviteCodeCheck: "Este código de invitación no es (o ya no es) válido. Compruébalo con Pierre.",
+    emailAndPassword: "Indica tu email y tu contraseña.",
+    trialExpired: "Tu sesión de prueba ha caducado. Empieza una nueva prueba o crea tu cuenta.",
+  },
+  messages: {
+    accountCreated: (email: string) =>
+      `Tu cuenta está creada. Acabamos de enviar un email de confirmación a ${email}: haz clic en el enlace que contiene para empezar.`,
+    magicLinkSent: (email: string) => `¡Listo! Acabamos de enviar un enlace de acceso a ${email}. Es válido durante una hora.`,
+    resetSent: "Si existe una cuenta con esta dirección, acabamos de enviar un email para elegir una nueva contraseña.",
+    passwordSaved: "Tu contraseña está guardada.",
+    almostDone: (email: string) =>
+      `¡Casi listo! Acabamos de enviar un email a ${email}. Ábrelo en este dispositivo y haz clic en el enlace: tu trabajo quedará guardado en tu cuenta.`,
+  },
+};
+
+export const auth = { fr, en, es };

@@ -69,4 +69,39 @@ const en: typeof fr = {
   noneYet: "—",
 };
 
-export const common = { fr, en };
+const es: typeof fr = {
+  appName: "Brújula de decisión",
+  appDescription: "Elige entre varias oportunidades profesionales con tus propios criterios ponderados. Magic Humans.",
+  tagline: "Magic Humans · Talento Único",
+  footer: "La puntuación es una brújula, no un veredicto. · Magic Humans",
+  language: "Idioma",
+  skipToContent: "Ir al contenido",
+  mainNav: "Navegación principal",
+  backToSite: "← Volver al sitio Magic Humans",
+  home: "← Inicio",
+  myProfiles: "Mis perfiles",
+  comments: "Comentarios",
+  unread: () => " sin leer",
+  coachSpace: "Espacio coach",
+  saveShort: "Guardar",
+  saveLong: "Guardar mi trabajo",
+  myAccount: "Mi cuenta",
+  signOut: "Cerrar sesión",
+  quitTrial: "Salir de la prueba",
+  quitTrialConfirm: "Tu prueba no está guardada: si sales, no podrás recuperarla. ¿Salir de todos modos?",
+  trialBanner: "Modo prueba: tu trabajo se guarda en este dispositivo durante 30 días.",
+  trialBannerLink: "Guardarlo con mi email",
+  notFoundTitle: "Página no encontrada",
+  notFoundText: "No existe, o no tienes acceso a su contenido.",
+  notFoundBack: "Volver a mis perfiles",
+  saved: "✓ Guardado",
+  saving: "Guardando…",
+  saveError: "⚠️ No guardado, reintentando…",
+  readOnlyIntro: "Estás viendo la brújula de",
+  readOnlyEnd: ", en solo lectura.",
+  readOnlyTitle: (name: string) => `Viendo las brújulas de ${name}`,
+  readOnlyText: "Solo lectura: puedes dejar comentarios, pero no modificar nada.",
+  noneYet: "—",
+};
+
+export const common = { fr, en, es };

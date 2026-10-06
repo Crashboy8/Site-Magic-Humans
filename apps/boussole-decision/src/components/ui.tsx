@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import type { Locale } from "@/i18n/config";
 
 export function cx(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -114,9 +115,9 @@ export function PageTitle({ eyebrow, title, children }: { eyebrow?: string; titl
   );
 }
 
-export function formatDate(iso: string | null, withTime = false, locale: "fr" | "en" = "fr"): string {
+export function formatDate(iso: string | null, withTime = false, locale: Locale = "fr"): string {
   if (!iso) return "";
-  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "fr-FR", {
+  return new Intl.DateTimeFormat({ fr: "fr-FR", en: "en-GB", es: "es-ES" }[locale], {
     day: "numeric",
     month: "long",
     year: "numeric",
