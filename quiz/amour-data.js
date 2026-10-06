@@ -1,8 +1,8 @@
-/* Quiz Amour v1.2 (mode ?theme=amour) · Magic Humans · données et textes, FR uniquement.
+/* Quiz Amour v1.4 (mode ?theme=amour) · Magic Humans · données et textes, FR uniquement.
    Fichier de données pur : aucune logique d'affichage. Lu par quiz/amour.js et par les tests. */
 (function (root) {
 const AMOUR_DATA = {
-  "version": 2,
+  "version": 4,
   "config": {
     "calendly": "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=quiz-amour&utm_campaign=amoureux-mais-malheureux",
     "site": "https://www.magichumans.com/",
@@ -15,79 +15,105 @@ const AMOUR_DATA = {
     "brand": "Magic Humans · Quiz Amour",
     "footer": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur ton appareil : rien n'est enregistré ni envoyé.",
     "intro": {
-      "eyebrow": "Sommet Love & Connexion · Gratuit · 11 étapes · 8 à 10 minutes",
+      "eyebrow": "Sommet Love & Connexion · Gratuit · 10 questions · environ 6 minutes",
       "h1": "Amoureux, mais <em>malheureux</em> ?",
-      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. Ce quiz t'aide à voir clair sur ce dont tu as vraiment besoin, sur ce qui t'éteint, et sur le type de partenaire qui te correspond, ou qui risque de te faire souffrir.",
+      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 6 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
       "bullets": [
-        "Ce qui te nourrit en couple, et ce qui t'éteint",
-        "Ton ressourcement, pour éviter une relation qui pompe ton énergie",
-        "Tes langages de l'amour et ta piste ennéagramme, avec ton sous-type",
-        "Les défauts que tu peux accepter, et tes vrais non-négociables"
+        "Ce qui te nourrit en couple, et ce qui te vide",
+        "Ton ressourcement, pour ne plus t'épuiser dans une relation",
+        "Tes langages de l'amour, tes valeurs et ta piste ennéagramme",
+        "Ta façon de réagir sous stress, ce qui te freine, et ta prochaine étape"
       ],
-      "howto": "Réponds avec ton premier élan, en pensant à ce que tu vis vraiment, pas à ce qui serait idéal. Il n'y a ni bonne ni mauvaise réponse.",
+      "howto": "Réponds avec ton premier élan. Il n'y a ni bonne ni mauvaise réponse.",
       "nameLabel": "Ton prénom",
-      "nameHelp": "Il sert seulement à personnaliser tes résultats, il ne quitte pas ton appareil.",
-      "nameErr": "Indique ton prénom pour personnaliser tes résultats.",
-      "start": "Commencer le quiz →"
+      "nameHelp": "Il sert seulement à personnaliser tes résultats.",
+      "start": "Commencer →"
     },
     "quiz": {
-      "count": "Étape {i} sur {n}",
-      "prev": "← Retour",
+      "progress": "Question {i} sur {n}",
+      "rankSuffix": " · Classer",
+      "counter": "{label} : {x}/{min} minimum",
+      "counterBare": "{x}/{min} minimum",
+      "counterOk": "✓",
+      "rankHelp": "Fais glisser les cartes, ou utilise les flèches ↑ ↓.",
+      "rankTapHelp": "Touche les cartes dans l'ordre : la 1re touchée devient ton n° 1. Tu peux aussi les faire glisser.",
+      "rankCounter": "Classés : {x}/{min} minimum",
+      "rankEmpty": "Touche une carte ci-dessous pour la placer.",
+      "rankZone": "Ton classement",
+      "up": "Monter",
+      "down": "Descendre",
+      "remove": "Retirer du classement",
+      "live": "{label}, position {pos} sur {total}.",
+      "grabbed": "{label} saisi. Flèches pour déplacer, Espace pour déposer, Échap pour annuler.",
+      "placed": "« {label} » placé en position {pos} sur {total}.",
+      "unchecked": "« {label} » a été décochée.",
+      "addOther": "+ Ajouter une autre valeur",
       "next": "Suivant →",
-      "last": "Voir mes résultats →",
-      "firmnessLabel": "C'est...",
-      "privacy": "Cette réponse n'est ni enregistrée ni transmise.",
-      "hints": {
-        "plusminus": "Mets 3 « + » et 2 « − ».",
-        "blocks": "Réponds à chaque partie de l'écran.",
-        "sort": "Range chaque défaut dans une colonne.",
-        "values": "Complète chaque ligne.",
-        "single": "Choisis la réponse qui te ressemble le plus."
-      },
-      "secondNone": "Pas de second choix",
-      "plusLegend": "+ ce qui te nourrit",
-      "minusLegend": "− ce qui t'éteint",
-      "plusLeft": "« + » restants : {n}",
-      "minusLeft": "« − » restants : {n}"
+      "prev": "← Précédent",
+      "finish": "Voir mes résultats →",
+      "more": "Encore {k} choix pour continuer.",
+      "moreDown": "Coche encore {k} pour « {label} », plus bas ↓",
+      "idea": "Idée : {antidote}",
+      "timeAsk": "À quelle heure demain ?",
+      "engagementCounter": "Engagement + moment : {x}/{min} minimum",
+      "engagementLabel": "Mon engagement",
+      "shareBlock": "Partage-le à quelqu'un, et choisis un moment.",
+      "whoLabel": "À qui ?",
+      "whenLabel": "Quand ?",
+      "chars": "{n}/{max}"
     },
     "results": {
-      "eyebrow": "Résultats de {prenom}",
-      "titlePrefix": "Ton profil amoureux :",
-      "langH": "Tes langages de l'amour",
-      "langCredit": "D'après le concept des 5 langages de l'amour de Gary Chapman.",
-      "recvLab": "Ce dont tu as besoin pour te sentir aimé·e",
-      "giveLab": "La façon dont tu donnes de l'amour",
-      "secondaryLab": "En second :",
-      "tipsLab": "Concrètement",
-      "imagoH": "Le scénario qui se répète peut-être",
-      "imagoCredit": "Inspiré de la thérapie Imago de Harville Hendrix : nous sommes souvent attirés par ce qui nous est familier, y compris par ce qui nous a blessés.",
-      "imagoDisclaimer": "Ceci est une hypothèse de réflexion, pas un diagnostic. Toi seul·e sais si elle te parle.",
-      "imagoQuestionsLab": "Trois questions à te poser",
-      "reactiveLab": "Le type de partenaire qui réactive ce scénario",
-      "healingLab": "Le type de partenaire avec qui tu peux en sortir",
-      "needsPartnerLab": "Ce que cela demande à un partenaire",
-      "antiIntro": "Ton Anti-Contexte, c'est l'environnement qui éteint ce qu'il y a de meilleur en toi. En couple, le voici :",
+      "headerNamed": "{prenom}, voici ton profil amoureux",
+      "headerAnon": "Voici ton profil amoureux",
+      "sentencesH": "Ton profil en 3 phrases",
+      "glanceH": "Tes classements en un coup d'œil",
+      "detailsSummary": "Voir mon profil détaillé",
+      "copyShortBtn": "Copier mes 3 phrases",
+      "boussoleNote": "Ta Boussole sera préréglée avec tes résultats. Ta réponse sur la sécurité n'est jamais transmise.",
+      "nourritLab": "Ce qui te nourrit",
+      "videLab": "Ce qui te vide",
+      "langLab": "Tes langages de l'amour",
+      "valuesLab": "Tes valeurs",
+      "instinctLab": "Ton sous-type",
+      "rechargeLab": "Ta recharge",
+      "stressLab": "Sous stress",
+      "brakeLab": "Ton frein n° 1",
+      "demainLab": "Demain",
+      "stepLab": "Ton engagement",
+      "noMoreMark": "ce que tu ne veux plus vivre",
+      "nnMark": "non-négociable",
+      "shareWith": "à partager avec {who}",
+      "icsBtn": "Ajouter le rappel à mon agenda",
+      "discussPrefix": "À discuter :",
+      "relive": "Un partenaire qui te fait revivre {short}.",
+      "ownOpposite": "Un partenaire qui ne partage pas « {texte} ».",
+      "needsH": "Ce qui te nourrit, ce qui te vide",
       "ressH": "Ton ressourcement",
-      "nnH": "Mes non-négociables",
-      "nnIntro": "Ce sont les points sur lesquels tu ne peux pas plier sans te trahir. Les connaître tôt évite des années de souffrance.",
-      "nnCriticalLab": "Non-négociables (incompatibilité critique si l'autre est à l'opposé)",
-      "nnStrongLab": "Très importants (frictions fortes, à aborder tôt)",
-      "nnSoftLab": "Zones de souplesse",
-      "nnUniversalLab": "Pour tout le monde, sans exception",
-      "nnNoneCritical": "Tu n'as indiqué aucun point non négociable. C'est peut-être une vraie souplesse. Mais si tu as tendance à tout accepter, demande-toi : sur quoi ai-je déjà plié, et l'ai-je regretté ?",
+      "langH": "Tes langages de l'amour",
+      "enneaH": "Ta piste ennéagramme",
+      "instinctH": "Ton sous-type",
+      "stressH": "Toi sous stress",
+      "brakesH": "Tes freins",
       "partnerH": "Le partenaire qui te correspond",
-      "partnerIntro": "Le bon critère n'est pas « quelqu'un sans défauts ». C'est quelqu'un dont tu peux accepter les défauts sur le long terme, parce qu'ils ne touchent pas tes besoins essentiels. Le même fond, des talents différents en surface.",
+      "partnerIntro": "Le partenaire qui te correspond, d'après tes réponses.",
       "completeLab": "Qui te complète",
       "frictionLab": "Qui risque de frotter (à négocier)",
       "criticalLab": "Incompatibilité critique (à ne pas négocier)",
       "gridH": "Comment lire les niveaux de risque",
       "keyH": "Ce qu'il faut retenir",
+      "piegeLab": "Ton piège :",
+      "pairPrefix": "Avec un partenaire {name} :",
+      "pairsNote": "Ces tendances ne décident de rien : elles éclairent les frictions possibles, pour en parler tôt.",
+      "tipsLab": "Concrètement",
+      "rechargeRule": "La règle d'or : après un moment ensemble, tu dois avoir plus d'énergie qu'avant. Si une relation te vide durablement, ce n'est pas un détail, c'est une information.",
+      "rechargeSame": "Ton profil de recharge est net : {title}.",
+      "rechargeMixed": "Tu te recharges de deux façons : {soirTitle} en semaine, {weekendTitle} le week-end.",
       "boussoleLab": "La Boussole Relation",
       "boussoleP": "Tu es en couple, ou tu hésites sur une relation ? La Boussole Relation t'aide à l'évaluer calmement, critère par critère. Elle sera préréglée avec tes résultats : tes besoins, ce qui te vide, tes défauts acceptables et tes non-négociables. Une alerte s'affiche si un point essentiel est touché, quel que soit le score.",
       "boussoleBtn": "Évaluer ma relation avec la Boussole →",
       "ctaEyebrow": "Appel Découverte · offert",
       "ctaH": "Et si on en parlait ensemble ?",
-      "ctaP": "Ce quiz pose des hypothèses. Pendant un Appel Découverte offert, nous regardons ta situation réelle : ce qui se répète, ce dont tu as besoin, et ce que tu veux construire. Tu repars avec des idées claires, que tu décides ou non d'aller plus loin avec moi.",
+      "ctaP": "Tu viens d'écrire ta prochaine étape. Pendant un Appel Découverte offert, on regarde ensemble ta situation réelle : ce qui te nourrit, ce qui se répète, et comment tenir ton engagement. Tu repars avec des idées claires, que tu décides ou non d'aller plus loin avec moi.",
       "ctaSign": "Pierre Sarazin, coach Profileur de talent, Magic Humans",
       "ctaBtn": "Réserver mon Appel Découverte offert →",
       "siteBtn": "Découvrir Magic Humans",
@@ -98,856 +124,1014 @@ const AMOUR_DATA = {
       "copyFallback": "Sélectionne le texte puis copie-le.",
       "matchingH": "Bientôt : des rencontres entre participants",
       "matchingP": "Un projet de mise en relation entre participants du Sommet est en préparation. Le principe est simple : aucune coordonnée n'est jamais échangée sans un double consentement, le tien et celui de l'autre personne. Ce quiz n'envoie rien. Si le projet t'intéresse, écris simplement à {email} avec ton prénom.",
-      "restart": "Recommencer le quiz",
+      "restart": "Refaire le quiz",
       "ethicsH": "Une note importante",
       "ethicsP": "Ce quiz n'est pas un outil de diagnostic. Si tu vis de la peur, des humiliations, du contrôle ou de la violence dans ta relation, ce n'est pas un problème de compatibilité : parles-en à un professionnel. En France : 3919 (violences conjugales, gratuit et anonyme, 24h/24), 17 ou 112 en cas de danger immédiat, 114 par SMS. Hors de France, contacte les services d'urgence de ton pays.",
-      "nnFlawsLab": "Défauts non négociables pour toi",
-      "sentencesH": "Ton profil en 3 phrases",
-      "detailsSummary": "Voir mon profil détaillé",
-      "copyShortBtn": "Copier mes 3 phrases",
-      "boussoleNote": "Ta Boussole sera préréglée avec tes résultats. Ta réponse sur la sécurité n'est jamais transmise.",
-      "nourritH": "Ce qui te nourrit, ce qui t'éteint",
-      "enneaH": "Ta piste ennéagramme",
-      "quotidienH": "Ton quotidien à deux",
-      "piegeLab": "Ton piège :",
-      "pairPrefix": "Avec un partenaire {name} :",
-      "flawsH": "Les défauts que tu peux accepter",
-      "flawsIntro": "Le bon critère n'est pas « quelqu'un sans défauts ». C'est quelqu'un dont tu peux accepter les défauts sur le long terme, parce qu'ils ne touchent pas tes besoins essentiels.",
-      "flawsTooMany": "Tu as beaucoup de non-négociables. C'est peut-être juste. Mais vérifie qu'ils ne servent pas aussi à te protéger de l'engagement : lesquels sont vraiment vitaux pour toi ?",
-      "flawsNone": "Tu n'as classé aucun défaut en non négociable. Belle souplesse, ou habitude de tout accepter ? Repense aux défauts qui t'ont déjà fait partir.",
-      "rechargeSame": "Ton profil de recharge est net : {title}.",
-      "rechargeMixed": "Tu te recharges de deux façons : {soirTitle} en semaine, {weekendTitle} le week-end.",
-      "rechargeRule": "La règle d'or : après un moment ensemble, tu dois avoir plus d'énergie qu'avant. Si une relation te vide durablement, ce n'est pas un détail, c'est une information.",
-      "drainsLab": "Ce qui te vide",
-      "instinctNet": "Ta réponse est nette.",
-      "instinctNuance": "Tu as aussi une part « {name2} » : {desc2}",
-      "pairsLab": "Avec un partenaire de chaque sous-type",
-      "pairsNote": "Ces tendances ne décident de rien : elles éclairent les frictions possibles, pour en parler tôt."
+      "pastH": "Une relation passée",
+      "nowH": "Et maintenant ?",
+      "nowStep": "Ta prochaine étape",
+      "nowStepEmpty": "Choisis un petit pas pour ta relation cette semaine.",
+      "nowTest": "Teste ta relation",
+      "nowTestP": "Vérifie si ton ou ta partenaire (actuel·le ou futur·e) te correspond vraiment, critère par critère.",
+      "nowBoussole": "Ouvrir ma Boussole Relation",
+      "nowPierre": "Fais le point avec Pierre",
+      "nowCall": "Réserver mon Appel Découverte offert",
+      "nowPdf": "Télécharger mon profil (PDF)",
+      "nowGeneric": "En 1 h, on regarde comment ça joue dans tes choix amoureux.",
+      "nowStress": {
+        "fight": "Tu as tendance à contre-attaquer sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
+        "flight": "Tu as tendance à fuir sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
+        "freeze": "Tu as tendance à te figer sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
+        "fawn": "Tu as tendance à céder pour apaiser sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux."
+      }
     }
   },
   "screens": [
     {
-      "id": "plusmoins",
-      "type": "plusminus",
-      "eyebrow": "Ce qui te nourrit",
-      "text": "En couple, qu'est-ce qui te nourrit, et qu'est-ce qui t'éteint ?",
-      "help": "Comme dans le QCM Magic Humans : mets 3 « + » sur ce qui te fait du bien, et 2 « − » sur ce qui t'éteint. Le reste, tu laisses.",
-      "plusCount": 3,
-      "minusCount": 2,
-      "items": [
+      "id": "nourrit",
+      "type": "pick",
+      "n": 1,
+      "eyebrow": "Ce qui te nourrit, ce qui te vide",
+      "title": "Coche au moins 3 choses qui te nourrissent, et au moins 2 qui te vident.",
+      "splitGroups": true,
+      "groups": [
         {
-          "id": "rituels",
-          "label": "Des rituels qui reviennent : le marché du samedi, le film du dimanche soir.",
-          "plus": {
-            "securite": 2
-          },
-          "minus": {
-            "legerete": 2
-          }
-        },
-        {
-          "id": "imprevu",
-          "label": "L'imprévu : partir sur un coup de tête, changer de plan au dernier moment.",
-          "plus": {
-            "legerete": 2,
-            "liberte": 1
-          },
-          "minus": {
-            "securite": 2
-          }
-        },
-        {
-          "id": "espace",
-          "label": "Que chacun garde ses soirées, ses amis, ses projets à soi.",
-          "plus": {
-            "liberte": 2
-          },
-          "minus": {
-            "profondeur": 2
-          }
-        },
-        {
-          "id": "fusion",
-          "label": "Se voir tous les jours et se raconter chaque détail.",
-          "plus": {
-            "profondeur": 2
-          },
-          "minus": {
-            "liberte": 2
-          }
-        },
-        {
-          "id": "admiration",
-          "label": "Se dire souvent ce qu'on admire chez l'autre, même devant les amis.",
-          "plus": {
-            "reconnaissance": 2
-          },
-          "minus": {
-            "harmonie": 1
-          }
-        },
-        {
-          "id": "attentions",
-          "label": "Recevoir souvent des preuves d'amour : messages, petits mots, attentions.",
-          "plus": {
-            "reconnaissance": 2
-          },
-          "minus": {
-            "liberte": 2
-          }
-        },
-        {
-          "id": "franchise",
-          "label": "Se dire les choses franchement, quitte à hausser un peu le ton.",
-          "plus": {
-            "profondeur": 2
-          },
-          "minus": {
-            "harmonie": 2
-          }
-        },
-        {
-          "id": "calme",
-          "label": "Des soirées calmes à la maison, sans enjeu.",
-          "plus": {
-            "harmonie": 2
-          },
-          "minus": {
-            "legerete": 2
-          }
-        },
-        {
-          "id": "taquiner",
-          "label": "Se taquiner, rire de tout, ne rien prendre trop au sérieux.",
-          "plus": {
-            "legerete": 2
-          },
-          "minus": {
-            "reconnaissance": 2
-          }
-        },
-        {
-          "id": "projets",
-          "label": "Des projets clairs : savoir où l'on sera dans un an.",
-          "plus": {
-            "securite": 2
-          },
-          "minus": {
-            "liberte": 2
-          }
-        },
-        {
-          "id": "profondes",
-          "label": "Des conversations profondes sur nos émotions, jusque tard.",
-          "plus": {
-            "profondeur": 2
-          },
-          "minus": {
-            "legerete": 2
-          }
-        },
-        {
-          "id": "paix",
-          "label": "Éviter les disputes, quitte à laisser passer certaines choses.",
-          "plus": {
-            "harmonie": 2
-          },
-          "minus": {
-            "profondeur": 2
-          }
-        }
-      ]
-    },
-    {
-      "id": "ressource",
-      "type": "blocks",
-      "eyebrow": "Ton ressourcement",
-      "text": "Qu'est-ce qui te recharge, et qu'est-ce qui te vide ?",
-      "help": "Une relation qui te correspond te laisse plus d'énergie qu'avant, pas moins. Commençons par ce qui te remplit.",
-      "blocks": [
-        {
-          "id": "soir",
-          "kind": "single",
-          "text": "En fin de journée, ce qui te recharge vraiment :",
-          "options": [
+          "id": "nourrit",
+          "title": "Ce qui me nourrit dans une relation",
+          "stepTitle": "Coche au moins 3 choses qui te nourrissent.",
+          "counter": "Ce qui me nourrit",
+          "min": 3,
+          "items": [
             {
-              "id": "solitaire",
-              "label": "Un moment seul·e, au calme, sans que personne ne me demande rien."
+              "id": "ecoute",
+              "label": "Être écouté·e, vraiment",
+              "hint": "Il ou elle pose son téléphone quand je parle.",
+              "short": "être écouté·e",
+              "need": "profondeur",
+              "lang": "moments"
             },
             {
-              "id": "relationnel",
-              "label": "Une soirée douce avec mon ou ma partenaire, sans enjeu, juste se raconter."
+              "id": "rire",
+              "label": "Rire ensemble",
+              "hint": "Des fous rires, des blagues qu'on est seuls à comprendre.",
+              "short": "rire ensemble",
+              "need": "legerete"
             },
             {
-              "id": "sensoriel",
-              "label": "Bouger, cuisiner, bricoler : faire quelque chose avec mon corps ou mes mains."
+              "id": "fiable",
+              "label": "Pouvoir compter sur l'autre",
+              "hint": "Ce qui est promis est fait, sans que j'aie à relancer.",
+              "short": "pouvoir compter sur l'autre",
+              "need": "securite"
             },
             {
-              "id": "evasion",
-              "label": "M'évader : un livre, une série, un podcast, des idées nouvelles."
+              "id": "espace",
+              "label": "Garder mon espace",
+              "hint": "Mes soirées, mes amis, mes projets à moi.",
+              "short": "garder ton espace",
+              "need": "liberte"
             },
             {
-              "id": "elan",
-              "label": "Voir du monde, sortir, de l'animation."
+              "id": "tendresse",
+              "label": "La tendresse au quotidien",
+              "hint": "Un câlin en passant, une main dans le dos.",
+              "short": "la tendresse au quotidien",
+              "need": "harmonie",
+              "lang": "toucher"
+            },
+            {
+              "id": "admiration",
+              "label": "Me sentir admiré·e",
+              "hint": "Il ou elle est fier·e de moi, et le dit.",
+              "short": "te sentir admiré·e",
+              "need": "reconnaissance",
+              "lang": "paroles"
+            },
+            {
+              "id": "projets",
+              "label": "Construire des projets à deux",
+              "hint": "Un voyage, une maison, un rêve commun.",
+              "short": "construire des projets à deux",
+              "need": "securite"
+            },
+            {
+              "id": "aventure",
+              "label": "L'aventure et la nouveauté",
+              "hint": "Partir sur un coup de tête, tester un nouvel endroit.",
+              "short": "l'aventure et la nouveauté",
+              "need": "legerete"
+            },
+            {
+              "id": "calme",
+              "label": "Un quotidien calme et doux",
+              "hint": "Des soirées tranquilles, sans tension.",
+              "short": "un quotidien calme et doux",
+              "need": "harmonie"
+            },
+            {
+              "id": "profondeur",
+              "label": "Des conversations profondes",
+              "hint": "Parler de nos émotions, de nos peurs, jusque tard.",
+              "short": "les conversations profondes",
+              "need": "profondeur",
+              "lang": "moments"
+            },
+            {
+              "id": "rituels",
+              "label": "Nos petits rituels",
+              "hint": "Le café du matin, le film du dimanche soir.",
+              "short": "vos petits rituels",
+              "need": "securite",
+              "lang": "moments"
+            },
+            {
+              "id": "soutien",
+              "label": "Être soutenu·e dans mes projets",
+              "hint": "Il ou elle m'encourage quand je doute.",
+              "short": "être soutenu·e",
+              "need": "reconnaissance",
+              "lang": "paroles"
+            },
+            {
+              "id": "desir",
+              "label": "Le désir et la complicité physique",
+              "hint": "Se sentir désiré·e, longtemps après le début.",
+              "short": "le désir et la complicité",
+              "need": "profondeur",
+              "lang": "toucher"
+            },
+            {
+              "id": "partage",
+              "label": "Partager les tâches sans compter",
+              "hint": "Chacun fait sa part, sans avoir à négocier.",
+              "short": "le partage des tâches",
+              "need": "harmonie",
+              "lang": "services"
             }
-          ]
-        },
-        {
-          "id": "weekend",
-          "kind": "single",
-          "text": "Le week-end, ce qu'il te faut pour être plein·e d'énergie le lundi :",
-          "options": [
-            {
-              "id": "solitaire",
-              "label": "Une vraie plage de temps rien que pour moi."
-            },
-            {
-              "id": "relationnel",
-              "label": "Du temps tranquille à deux ou avec quelques proches, sans programme."
-            },
-            {
-              "id": "sensoriel",
-              "label": "La nature, le sport, le jardin, des activités concrètes."
-            },
-            {
-              "id": "evasion",
-              "label": "Une expo, un film, une découverte, apprendre quelque chose."
-            },
-            {
-              "id": "elan",
-              "label": "Des sorties, des amis, une fête, du mouvement."
-            }
-          ]
+          ],
+          "other": {
+            "id": "autre",
+            "label": "Autre",
+            "placeholder": "Écris ce qui te nourrit",
+            "maxLength": 60,
+            "max": 1
+          }
         },
         {
           "id": "vide",
-          "kind": "multi",
-          "text": "Ce qui te vide le plus dans une relation (1 ou 2 choix) :",
-          "min": 1,
-          "max": 2,
-          "options": [
+          "title": "Ce qui me vide dans une relation",
+          "stepTitle": "Coche au moins 2 choses qui te vident.",
+          "counter": "Ce qui me vide",
+          "min": 2,
+          "items": [
             {
-              "id": "pas_seul",
-              "label": "Ne jamais avoir un moment à moi."
+              "id": "justifier",
+              "label": "Devoir me justifier de tout",
+              "hint": "Où tu étais ? Avec qui ? Pourquoi si tard ?",
+              "short": "devoir te justifier de tout",
+              "need": "liberte",
+              "energy": true
             },
             {
-              "id": "sorties",
-              "label": "Devoir sortir ou recevoir alors que je suis épuisé·e."
+              "id": "critiques",
+              "label": "Les critiques répétées",
+              "hint": "Rien n'est jamais assez bien.",
+              "short": "les critiques répétées",
+              "need": "reconnaissance",
+              "conflict": true
             },
             {
-              "id": "casanier",
-              "label": "Rester enfermé·e à la maison tout le week-end."
+              "id": "silences",
+              "label": "Les silences et les bouderies",
+              "hint": "Il ou elle se ferme pendant des jours.",
+              "short": "les silences qui durent",
+              "need": "profondeur",
+              "conflict": true
             },
             {
-              "id": "conflits",
-              "label": "Les tensions qui traînent, les non-dits."
+              "id": "cris",
+              "label": "Les cris et les piques",
+              "hint": "Le ton monte vite, l'ironie blesse.",
+              "short": "les cris et les piques",
+              "need": "harmonie",
+              "energy": true,
+              "conflict": true
             },
             {
-              "id": "plaintes",
-              "label": "Porter les problèmes de l'autre tous les soirs."
-            },
-            {
-              "id": "bruit",
-              "label": "Le bruit, les écrans allumés en permanence."
+              "id": "flou",
+              "label": "Ne jamais savoir où on va",
+              "hint": "Pas de projet, pas d'engagement clair.",
+              "short": "ne jamais savoir où vous allez",
+              "need": "securite"
             },
             {
               "id": "charge",
-              "label": "Porter seul·e la charge du quotidien."
+              "label": "Porter seul·e la charge du quotidien",
+              "hint": "Courses, rendez-vous, ménage : tout repose sur moi.",
+              "short": "porter seul·e la charge du quotidien",
+              "need": "reconnaissance",
+              "energy": true
             },
             {
-              "id": "imprevu",
-              "label": "L'imprévu permanent, ne jamais savoir ce qu'on fait."
+              "id": "ecrans",
+              "label": "Un partenaire absent, toujours sur son écran",
+              "hint": "Là physiquement, ailleurs dans sa tête.",
+              "short": "un partenaire absent",
+              "need": "profondeur"
+            },
+            {
+              "id": "jalousie",
+              "label": "La jalousie",
+              "hint": "Chaque sortie entre amis devient un sujet.",
+              "short": "la jalousie",
+              "need": "liberte",
+              "conflict": true
+            },
+            {
+              "id": "routine",
+              "label": "La routine sans surprise",
+              "hint": "Les mêmes soirées, encore et encore.",
+              "short": "la routine sans surprise",
+              "need": "legerete"
+            },
+            {
+              "id": "promesses",
+              "label": "Les promesses non tenues",
+              "hint": "« On en reparle demain », et demain n'arrive jamais.",
+              "short": "les promesses non tenues",
+              "need": "securite"
+            },
+            {
+              "id": "fusion",
+              "label": "L'étouffement",
+              "hint": "Tout faire à deux, tout le temps.",
+              "short": "l'étouffement",
+              "need": "liberte",
+              "energy": true
+            },
+            {
+              "id": "indifference",
+              "label": "L'indifférence",
+              "hint": "Mes efforts passent inaperçus.",
+              "short": "l'indifférence",
+              "need": "reconnaissance"
             }
-          ]
+          ],
+          "other": {
+            "id": "autre",
+            "label": "Autre",
+            "placeholder": "Écris ce qui te vide",
+            "maxLength": 60,
+            "max": 1
+          }
+        }
+      ],
+      "rank": {
+        "mode": "step",
+        "groups": [
+          "nourrit",
+          "vide"
+        ],
+        "title": "Classe tes choix : le plus important en haut.",
+        "cta": "Classer mes choix →",
+        "divider": {
+          "group": "vide",
+          "after": 1,
+          "text": "En haut : ce que tu ne veux plus vivre."
+        }
+      }
+    },
+    {
+      "id": "ressource",
+      "type": "pick",
+      "n": 2,
+      "eyebrow": "Ton ressourcement",
+      "title": "Qu'est-ce qui te recharge vraiment ? Coche au moins 2 choses pour le soir et au moins 2 pour le week-end.",
+      "help": "Une relation qui te correspond te laisse plus d'énergie qu'avant, pas moins.",
+      "groups": [
+        {
+          "id": "soir",
+          "title": "En fin de journée, pour recharger mes batteries",
+          "counter": "Le soir",
+          "min": 2,
+          "items": [
+            {
+              "id": "seul",
+              "label": "Un moment seul·e, au calme",
+              "hint": "Personne ne me demande rien pendant une demi-heure.",
+              "recharge": "solitaire",
+              "short": "un moment seul·e, au calme"
+            },
+            {
+              "id": "raconter",
+              "label": "Me raconter ma journée à deux",
+              "hint": "Sur le canapé, sans écran.",
+              "recharge": "relationnel",
+              "short": "te raconter ta journée à deux"
+            },
+            {
+              "id": "bouger",
+              "label": "Bouger",
+              "hint": "Une course, du yoga, une marche.",
+              "recharge": "sensoriel",
+              "short": "bouger"
+            },
+            {
+              "id": "mains",
+              "label": "Faire quelque chose de mes mains",
+              "hint": "Cuisiner, bricoler, jardiner.",
+              "recharge": "sensoriel",
+              "short": "faire quelque chose de tes mains"
+            },
+            {
+              "id": "evader",
+              "label": "M'évader",
+              "hint": "Un livre, une série, un podcast.",
+              "recharge": "evasion",
+              "short": "t'évader"
+            },
+            {
+              "id": "monde",
+              "label": "Voir du monde",
+              "hint": "Un verre avec des amis, un appel qui fait du bien.",
+              "recharge": "elan",
+              "short": "voir du monde"
+            },
+            {
+              "id": "tendresse",
+              "label": "Un moment de tendresse",
+              "hint": "Un long câlin, un massage.",
+              "recharge": "relationnel",
+              "short": "un moment de tendresse"
+            },
+            {
+              "id": "douceur",
+              "label": "La douceur, rien à faire",
+              "hint": "Un bain, une bougie, ma playlist.",
+              "recharge": "solitaire",
+              "short": "la douceur, rien à faire"
+            }
+          ],
+          "other": {
+            "id": "autre",
+            "label": "Autre",
+            "placeholder": "Écris ce qui te recharge",
+            "maxLength": 60,
+            "max": 1
+          }
+        },
+        {
+          "id": "weekend",
+          "title": "Le week-end, pour être plein·e d'énergie le lundi",
+          "counter": "Le week-end",
+          "min": 2,
+          "items": [
+            {
+              "id": "rien",
+              "label": "Rien de prévu",
+              "hint": "Pas de réveil, pas de programme.",
+              "recharge": "solitaire",
+              "short": "rien de prévu"
+            },
+            {
+              "id": "moi",
+              "label": "Un temps rien que pour moi",
+              "hint": "Quelques heures seul·e, sans culpabiliser.",
+              "recharge": "solitaire",
+              "short": "un temps rien que pour toi"
+            },
+            {
+              "id": "nature",
+              "label": "La nature",
+              "hint": "Forêt, mer, montagne, un grand bol d'air.",
+              "recharge": "sensoriel",
+              "short": "la nature"
+            },
+            {
+              "id": "sport",
+              "label": "Du sport",
+              "hint": "Rando, vélo, un match.",
+              "recharge": "sensoriel",
+              "short": "du sport"
+            },
+            {
+              "id": "adeux",
+              "label": "Un vrai temps à deux",
+              "hint": "Une journée rien que nous, téléphones coupés.",
+              "recharge": "relationnel",
+              "short": "un vrai temps à deux"
+            },
+            {
+              "id": "proches",
+              "label": "Mes proches",
+              "hint": "Un déjeuner de famille, les amis de toujours.",
+              "recharge": "relationnel",
+              "short": "tes proches"
+            },
+            {
+              "id": "sortir",
+              "label": "Sortir, faire la fête",
+              "hint": "Un concert, un dîner, danser.",
+              "recharge": "elan",
+              "short": "sortir, faire la fête"
+            },
+            {
+              "id": "decouvrir",
+              "label": "Découvrir, apprendre",
+              "hint": "Une expo, une ville, un atelier.",
+              "recharge": "evasion",
+              "short": "découvrir, apprendre"
+            },
+            {
+              "id": "projet",
+              "label": "Avancer sur un projet perso",
+              "hint": "Écrire, créer, construire.",
+              "recharge": "evasion",
+              "short": "avancer sur un projet perso"
+            }
+          ],
+          "other": {
+            "id": "autre",
+            "label": "Autre",
+            "placeholder": "Écris ce qui te recharge",
+            "maxLength": 60,
+            "max": 1
+          }
         }
       ]
     },
     {
       "id": "langages",
-      "type": "blocks",
+      "type": "rank",
+      "n": 3,
       "eyebrow": "Tes langages de l'amour",
-      "text": "Comment tu reçois l'amour, et comment tu le donnes",
-      "help": "D'après les 5 langages de l'amour de Gary Chapman.",
-      "blocks": [
-        {
-          "id": "recv",
-          "kind": "single",
-          "text": "Un soir, après une journée difficile, qu'est-ce qui te ferait le plus de bien venant de ton partenaire ?",
-          "options": [
-            {
-              "id": "paroles",
-              "label": "Des mots sincères : « Je suis fier·e de toi, tu as assuré. »"
-            },
-            {
-              "id": "moments",
-              "label": "Une soirée vraiment ensemble, téléphones rangés, rien que vous deux."
-            },
-            {
-              "id": "cadeaux",
-              "label": "Trouver un petit mot ou ta douceur préférée, pensée pour toi."
-            },
-            {
-              "id": "services",
-              "label": "Découvrir que le dîner est prêt et que ce qui te pesait a été réglé."
-            },
-            {
-              "id": "toucher",
-              "label": "Un long câlin, une main dans le dos, sans rien dire."
-            }
-          ]
-        },
-        {
-          "id": "recv2",
-          "kind": "second",
-          "text": "Et en second, si tu hésites (facultatif) :",
-          "of": "recv",
-          "options": [
-            {
-              "id": "paroles",
-              "label": "Les mots"
-            },
-            {
-              "id": "moments",
-              "label": "Le temps à deux"
-            },
-            {
-              "id": "cadeaux",
-              "label": "Les attentions"
-            },
-            {
-              "id": "services",
-              "label": "L'aide concrète"
-            },
-            {
-              "id": "toucher",
-              "label": "Le contact"
-            }
-          ]
-        },
-        {
-          "id": "give",
-          "kind": "single",
-          "text": "Ton partenaire traverse une période difficile. Ton premier réflexe :",
-          "options": [
-            {
-              "id": "paroles",
-              "label": "Lui envoyer des messages d'encouragement, lui rappeler ses forces."
-            },
-            {
-              "id": "moments",
-              "label": "Libérer du temps pour être là et l'écouter longuement."
-            },
-            {
-              "id": "cadeaux",
-              "label": "Lui préparer une surprise pour lui changer les idées."
-            },
-            {
-              "id": "services",
-              "label": "Prendre en charge une partie de ses tâches pour l'alléger."
-            },
-            {
-              "id": "toucher",
-              "label": "Rester tout près, offrir tes bras."
-            }
-          ]
-        },
-        {
-          "id": "give2",
-          "kind": "second",
-          "text": "Et en second, si tu hésites (facultatif) :",
-          "of": "give",
-          "options": [
-            {
-              "id": "paroles",
-              "label": "Les mots"
-            },
-            {
-              "id": "moments",
-              "label": "Le temps à deux"
-            },
-            {
-              "id": "cadeaux",
-              "label": "Les attentions"
-            },
-            {
-              "id": "services",
-              "label": "L'aide concrète"
-            },
-            {
-              "id": "toucher",
-              "label": "Le contact"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "enneaBase",
-      "type": "blocks",
-      "eyebrow": "Ta piste ennéagramme (1 sur 3)",
-      "text": "Lequel de ces portraits te ressemble le plus, au fond ?",
-      "help": "Choisis avec ton premier élan. Si tu hésites vraiment, ajoute un deuxième portrait. C'est un point de départ, pas un verdict.",
-      "blocks": [
-        {
-          "id": "first",
-          "kind": "single",
-          "text": "Lequel de ces portraits te ressemble le plus ?",
-          "options": [
-            {
-              "id": "t1",
-              "label": "Je veux bien faire les choses. Je vois vite ce qui pourrait être mieux, et je suis exigeant·e, avec moi d'abord."
-            },
-            {
-              "id": "t2",
-              "label": "J'ai besoin de me sentir utile et aimé·e. Je devine ce dont les autres ont besoin, souvent avant eux."
-            },
-            {
-              "id": "t3",
-              "label": "J'avance vers des objectifs. Réussir, être efficace et reconnu·e pour ce que je fais me porte."
-            },
-            {
-              "id": "t4",
-              "label": "Je ressens tout intensément. J'ai besoin d'authenticité et d'être compris·e dans ce que j'ai d'unique."
-            },
-            {
-              "id": "t5",
-              "label": "J'ai besoin de comprendre avant d'agir, et de garder du temps et de l'espace pour moi."
-            },
-            {
-              "id": "t6",
-              "label": "J'anticipe les risques pour être prêt·e. La confiance et la loyauté sont essentielles pour moi."
-            },
-            {
-              "id": "t7",
-              "label": "J'aime les idées, les projets, les découvertes. Je déteste me sentir enfermé·e ou m'ennuyer."
-            },
-            {
-              "id": "t8",
-              "label": "Je vais droit au but, je protège les miens et je n'aime pas qu'on me contrôle."
-            },
-            {
-              "id": "t9",
-              "label": "Je cherche la paix. Je m'adapte facilement et j'évite les conflits, parfois au détriment de mes envies."
-            }
-          ]
-        },
-        {
-          "id": "second",
-          "kind": "second",
-          "text": "Un deuxième portrait, si tu hésites (facultatif) :",
-          "of": "first",
-          "options": [
-            {
-              "id": "t1",
-              "label": "Type 1, le Perfectionniste"
-            },
-            {
-              "id": "t2",
-              "label": "Type 2, l'Altruiste"
-            },
-            {
-              "id": "t3",
-              "label": "Type 3, le Battant"
-            },
-            {
-              "id": "t4",
-              "label": "Type 4, le Romantique"
-            },
-            {
-              "id": "t5",
-              "label": "Type 5, l'Observateur"
-            },
-            {
-              "id": "t6",
-              "label": "Type 6, le Loyal"
-            },
-            {
-              "id": "t7",
-              "label": "Type 7, l'Épicurien"
-            },
-            {
-              "id": "t8",
-              "label": "Type 8, le Protecteur"
-            },
-            {
-              "id": "t9",
-              "label": "Type 9, le Médiateur"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "enneaStress",
-      "type": "blocks",
-      "eyebrow": "Ta piste ennéagramme (2 sur 3)",
-      "text": "Quand ça va mal dans ton couple, tu as tendance à...",
-      "help": "Pense à une vraie dispute, pas à ce que tu voudrais faire.",
-      "blocks": [
-        {
-          "id": "stress",
-          "kind": "single",
-          "text": "Quand ça va mal dans ton couple, tu as tendance à...",
-          "options": [
-            {
-              "id": "t1",
-              "label": "Devenir critique, pointer ce qui ne va pas, te raidir."
-            },
-            {
-              "id": "t2",
-              "label": "Donner encore plus, puis en vouloir à l'autre de ne pas le voir."
-            },
-            {
-              "id": "t3",
-              "label": "Te jeter dans le travail ou l'action, et faire comme si tout allait bien."
-            },
-            {
-              "id": "t4",
-              "label": "Te replier sur ton émotion, te sentir incompris·e, prendre tes distances."
-            },
-            {
-              "id": "t5",
-              "label": "Te retirer dans ta tête, te couper de tes émotions, t'isoler pour réfléchir."
-            },
-            {
-              "id": "t6",
-              "label": "T'inquiéter, imaginer le pire, chercher à être rassuré·e, ou soupçonner."
-            },
-            {
-              "id": "t7",
-              "label": "Fuir dans les sorties, les projets ou l'humour, et éviter le sujet lourd."
-            },
-            {
-              "id": "t8",
-              "label": "Monter au front, hausser le ton, reprendre le contrôle."
-            },
-            {
-              "id": "t9",
-              "label": "Faire le dos rond, dire oui pour avoir la paix, laisser le problème s'endormir."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "instinct",
-      "type": "blocks",
-      "eyebrow": "Ta piste ennéagramme (3 sur 3)",
-      "text": "Un samedi libre en couple, ton idéal c'est…",
-      "help": "Pas de bonne réponse : chacun nourrit sa vie de couple à sa façon.",
-      "blocks": [
-        {
-          "id": "samedi",
-          "kind": "single",
-          "text": "Ton samedi idéal :",
-          "options": [
-            {
-              "id": "sp",
-              "label": "Un cocon à la maison, tranquille et confortable.",
-              "tag": "conservation"
-            },
-            {
-              "id": "so",
-              "label": "Un dîner avec des amis, voir du monde ensemble.",
-              "tag": "social"
-            },
-            {
-              "id": "sx",
-              "label": "Un tête-à-tête intense, une longue discussion rien que vous deux.",
-              "tag": "tête-à-tête"
-            }
-          ]
-        },
-        {
-          "id": "souci",
-          "kind": "single",
-          "text": "Et ce qui te ferait le plus souffrir dans un couple :",
-          "options": [
-            {
-              "id": "sp",
-              "label": "Manquer de sécurité : un foyer instable, des soucis d'argent, l'imprévu permanent."
-            },
-            {
-              "id": "so",
-              "label": "Être tenu·e à l'écart : un partenaire qui ne partage pas sa vie sociale, ou que tes proches n'apprécient pas."
-            },
-            {
-              "id": "sx",
-              "label": "Perdre l'étincelle : une relation tiède, sans désir ni vraie connexion."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "quotidien",
-      "type": "blocks",
-      "eyebrow": "Ton quotidien à deux",
-      "text": "Trois petites scènes du quotidien. Que fais-tu, honnêtement ?",
-      "help": "Ta réponse dit à la fois ton style et ce que tu peux tolérer chez l'autre.",
-      "blocks": [
-        {
-          "id": "ordre",
-          "kind": "single",
-          "text": "Ton partenaire laisse traîner la vaisselle et ses vêtements depuis 3 jours.",
-          "options": [
-            {
-              "id": "ouvert",
-              "label": "Ça ne me dérange pas."
-            },
-            {
-              "id": "tait",
-              "label": "Je range sans rien dire, mais ça m'agace."
-            },
-            {
-              "id": "accord",
-              "label": "J'en parle calmement et on se répartit les tâches."
-            },
-            {
-              "id": "conflit",
-              "label": "Pour moi, c'est un sujet de dispute qui revient sans cesse."
-            }
-          ]
-        },
-        {
-          "id": "ordreSelf",
-          "kind": "self",
-          "text": "Et toi, honnêtement :",
-          "options": [
-            {
-              "id": "gauche",
-              "label": "Plutôt bordélique"
-            },
-            {
-              "id": "milieu",
-              "label": "Entre les deux"
-            },
-            {
-              "id": "droite",
-              "label": "Plutôt ordonné·e"
-            }
-          ]
-        },
-        {
-          "id": "argent",
-          "kind": "single",
-          "text": "Ton partenaire rentre avec un objet à 300 €, acheté sur un coup de cœur.",
-          "options": [
-            {
-              "id": "ouvert",
-              "label": "Tant mieux, s'il se fait plaisir."
-            },
-            {
-              "id": "tait",
-              "label": "Je ne dis rien, mais je refais les comptes dans ma tête."
-            },
-            {
-              "id": "accord",
-              "label": "On en parle et on se fixe chacun un budget plaisir."
-            },
-            {
-              "id": "conflit",
-              "label": "Ça me met hors de moi, l'argent est un vrai sujet de tension."
-            }
-          ]
-        },
-        {
-          "id": "argentSelf",
-          "kind": "self",
-          "text": "Et toi, honnêtement :",
-          "options": [
-            {
-              "id": "gauche",
-              "label": "Plutôt dépensier·ère"
-            },
-            {
-              "id": "milieu",
-              "label": "Entre les deux"
-            },
-            {
-              "id": "droite",
-              "label": "Plutôt économe"
-            }
-          ]
-        },
-        {
-          "id": "vacances",
-          "kind": "single",
-          "text": "Vous partez en vacances dans une semaine. Ton partenaire n'a rien réservé et te dit : « On verra sur place ! »",
-          "options": [
-            {
-              "id": "ouvert",
-              "label": "Génial, j'adore l'aventure."
-            },
-            {
-              "id": "tait",
-              "label": "Je réserve tout seul·e, en ruminant."
-            },
-            {
-              "id": "accord",
-              "label": "On se met d'accord : on réserve les nuits, on improvise le reste."
-            },
-            {
-              "id": "conflit",
-              "label": "Ça m'angoisse, c'est un sujet de dispute à chaque voyage."
-            }
-          ]
-        },
-        {
-          "id": "vacancesSelf",
-          "kind": "self",
-          "text": "Et toi, honnêtement :",
-          "options": [
-            {
-              "id": "gauche",
-              "label": "Plutôt spontané·e"
-            },
-            {
-              "id": "milieu",
-              "label": "Entre les deux"
-            },
-            {
-              "id": "droite",
-              "label": "Plutôt planificateur·rice"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "defauts",
-      "type": "sort",
-      "eyebrow": "Les défauts",
-      "text": "Personne n'est parfait. Quels défauts pourrais-tu vivre au quotidien ?",
-      "help": "Range chaque défaut dans une colonne. Rappel : on ne change pas l'autre. Sois honnête sur ce que tu pourrais encore accepter dans dix ans.",
+      "title": "Pour te sentir aimé·e, qu'est-ce qui compte le plus ? Classe au moins tes 2 premiers.",
+      "help": "Touche les cartes dans l'ordre : la 1re touchée devient ton n° 1. Tu peux aussi les faire glisser.",
+      "footnote": "D'après les 5 langages de l'amour de Gary Chapman.",
+      "minRanked": 2,
+      "autoCompleteLast": true,
       "items": [
-        "desordre",
-        "retard",
-        "depensier",
-        "radin",
-        "ecrans",
-        "casanier",
-        "fetard",
-        "jaloux",
-        "susceptible",
-        "boude",
-        "colere",
-        "indecis",
-        "controle",
-        "travail",
-        "froid"
+        {
+          "id": "paroles",
+          "label": "Les paroles valorisantes",
+          "hint": "« Je suis fier·e de toi. »"
+        },
+        {
+          "id": "moments",
+          "label": "Les moments de qualité",
+          "hint": "Une soirée rien qu'à deux, téléphones rangés."
+        },
+        {
+          "id": "cadeaux",
+          "label": "Les attentions et les cadeaux",
+          "hint": "Un petit mot, ta douceur préférée."
+        },
+        {
+          "id": "services",
+          "label": "Les services rendus",
+          "hint": "Le dîner est prêt, la corvée est faite."
+        },
+        {
+          "id": "toucher",
+          "label": "Le toucher",
+          "hint": "Un câlin, une main tenue."
+        }
       ]
+    },
+    {
+      "id": "ennea",
+      "type": "pick",
+      "n": 4,
+      "eyebrow": "Ta piste ennéagramme",
+      "title": "Laquelle de ces phrases te ressemble le plus ? Coche au moins 1 phrase, puis classe-les si tu en coches plusieurs.",
+      "help": "C'est un point de départ, pas un verdict.",
+      "groups": [
+        {
+          "id": "types",
+          "counter": "",
+          "min": 1,
+          "items": [
+            {
+              "id": "t1",
+              "label": "« Je vois tout de suite ce qui pourrait être mieux. »",
+              "hint": "On me dit exigeant·e. Je le suis d'abord avec moi."
+            },
+            {
+              "id": "t2",
+              "label": "« Je sens ce dont les autres ont besoin, avant eux. »",
+              "hint": "Je donne beaucoup, j'oublie parfois de demander."
+            },
+            {
+              "id": "t3",
+              "label": "« J'avance, je réussis, et j'aime que ça se voie. »",
+              "hint": "Objectifs, efficacité : je déteste perdre du temps."
+            },
+            {
+              "id": "t4",
+              "label": "« Je ressens tout plus fort que les autres. »",
+              "hint": "J'ai besoin de vrai, le superficiel m'ennuie."
+            },
+            {
+              "id": "t5",
+              "label": "« J'ai besoin de comprendre, et de mon espace pour ça. »",
+              "hint": "Je réfléchis avant de parler, je me recharge seul·e."
+            },
+            {
+              "id": "t6",
+              "label": "« Je pense à ce qui pourrait mal tourner, pour protéger les miens. »",
+              "hint": "La confiance se gagne, et je suis fidèle quand elle est là."
+            },
+            {
+              "id": "t7",
+              "label": "« La vie est trop courte pour s'ennuyer. »",
+              "hint": "Projets, voyages, idées : j'ai horreur d'être enfermé·e."
+            },
+            {
+              "id": "t8",
+              "label": "« Je fonce, je dis les choses en face, et personne ne me contrôle. »",
+              "hint": "Direct·e et protecteur·rice, j'ai du mal à montrer ma fragilité."
+            },
+            {
+              "id": "t9",
+              "label": "« Tant que tout le monde va bien, je vais bien. »",
+              "hint": "Je m'adapte facilement, parfois au point de m'oublier."
+            }
+          ]
+        }
+      ],
+      "rank": {
+        "mode": "inline",
+        "groups": [
+          "types"
+        ],
+        "title": "Classe-les : la plus toi en haut."
+      }
     },
     {
       "id": "valeurs",
-      "type": "values",
-      "eyebrow": "Tes valeurs et ta direction",
-      "text": "Ce qui compte pour ton projet de vie",
-      "help": "Pour chaque ligne, choisis ta position, puis dis si c'est négociable.",
-      "topics": [
-        "enfants",
-        "lieu",
-        "argent",
-        "famille",
-        "spiritualite",
-        "liberte"
+      "type": "pick",
+      "n": 5,
+      "eyebrow": "Tes valeurs",
+      "title": "Coche au moins 3 valeurs qui comptent vraiment pour toi dans un couple.",
+      "exclusive": [
+        [
+          "enfants",
+          "sans_enfants"
+        ]
+      ],
+      "groups": [
+        {
+          "id": "valeurs",
+          "counter": "",
+          "min": 3,
+          "items": [
+            {
+              "id": "honnetete",
+              "label": "Honnêteté",
+              "hint": "Se dire la vérité, même quand elle dérange."
+            },
+            {
+              "id": "fidelite",
+              "label": "Fidélité",
+              "hint": "Exclusivité et loyauté."
+            },
+            {
+              "id": "respect",
+              "label": "Respect",
+              "hint": "Pas de mépris, même en colère."
+            },
+            {
+              "id": "engagement",
+              "label": "Engagement",
+              "hint": "Choisir l'autre chaque jour, pour longtemps."
+            },
+            {
+              "id": "famille",
+              "label": "Famille",
+              "hint": "Les proches tiennent une grande place."
+            },
+            {
+              "id": "enfants",
+              "label": "Avoir des enfants",
+              "hint": "Fonder une famille, ou l'agrandir."
+            },
+            {
+              "id": "sans_enfants",
+              "label": "Une vie sans enfants",
+              "hint": "Le couple d'abord, sans projet d'enfant."
+            },
+            {
+              "id": "liberte",
+              "label": "Liberté",
+              "hint": "Chacun garde sa vie et ses choix."
+            },
+            {
+              "id": "securite_fin",
+              "label": "Sécurité financière",
+              "hint": "Épargner, prévoir, ne pas manquer."
+            },
+            {
+              "id": "independance_fin",
+              "label": "Indépendance financière",
+              "hint": "Chacun ses comptes, chacun son autonomie."
+            },
+            {
+              "id": "generosite",
+              "label": "Générosité",
+              "hint": "Donner, partager, recevoir."
+            },
+            {
+              "id": "spiritualite",
+              "label": "Spiritualité ou foi",
+              "hint": "Une pratique, une quête de sens."
+            },
+            {
+              "id": "ambition",
+              "label": "Ambition",
+              "hint": "Réussir, se dépasser, grandir."
+            },
+            {
+              "id": "simplicite",
+              "label": "Simplicité",
+              "hint": "Une vie sobre, sans course au toujours plus."
+            },
+            {
+              "id": "aventure",
+              "label": "Aventure",
+              "hint": "Voyager, bouger, changer d'air."
+            },
+            {
+              "id": "ailleurs",
+              "label": "Pouvoir partir vivre ailleurs",
+              "hint": "Une autre ville, un autre pays."
+            },
+            {
+              "id": "racines",
+              "label": "Rester près de mes racines",
+              "hint": "Ma ville, ma région, mes proches."
+            },
+            {
+              "id": "nature",
+              "label": "Respect de la nature",
+              "hint": "Consommer moins, vivre plus vert."
+            },
+            {
+              "id": "humour",
+              "label": "Humour",
+              "hint": "Ne pas se prendre au sérieux."
+            },
+            {
+              "id": "culture",
+              "label": "Culture et curiosité",
+              "hint": "Livres, expos, débats, apprendre encore."
+            },
+            {
+              "id": "sante",
+              "label": "Santé et sport",
+              "hint": "Prendre soin de son corps."
+            },
+            {
+              "id": "solidarite",
+              "label": "Solidarité",
+              "hint": "S'engager pour les autres."
+            },
+            {
+              "id": "transparence",
+              "label": "Transparence",
+              "hint": "Pas de secrets sur ce qui engage le couple."
+            },
+            {
+              "id": "traditions",
+              "label": "Traditions",
+              "hint": "Fêtes, rituels, valeurs transmises."
+            },
+            {
+              "id": "creativite",
+              "label": "Créativité",
+              "hint": "Créer, inventer, s'exprimer."
+            }
+          ],
+          "other": {
+            "id": "autre",
+            "label": "Ma valeur à moi",
+            "placeholder": "Ajoute ta valeur",
+            "maxLength": 40,
+            "max": 3
+          }
+        }
+      ],
+      "rank": {
+        "mode": "step",
+        "groups": [
+          "valeurs"
+        ],
+        "title": "Classe toutes tes valeurs : la plus importante en haut.",
+        "cta": "Classer mes valeurs →",
+        "divider": {
+          "group": "valeurs",
+          "after": 3,
+          "text": "Au-dessus de cette ligne : tes non-négociables."
+        }
+      }
+    },
+    {
+      "id": "instinct",
+      "type": "rank",
+      "n": 6,
+      "eyebrow": "Ton sous-type en couple",
+      "title": "Classe ces 3 façons de vivre le couple : la plus toi en haut.",
+      "help": "Pour t'aider, imagine un samedi libre en couple.",
+      "minRanked": 2,
+      "autoCompleteLast": true,
+      "items": [
+        {
+          "id": "sp",
+          "label": "Conservation · je sécurise",
+          "hint": "Un samedi libre en couple, ton idéal c'est un cocon à la maison, tranquille et confortable."
+        },
+        {
+          "id": "so",
+          "label": "Social · je connecte",
+          "hint": "Un samedi libre en couple, ton idéal c'est un dîner avec des amis, voir du monde ensemble."
+        },
+        {
+          "id": "sx",
+          "label": "Tête-à-tête · j'intensifie",
+          "hint": "Un samedi libre en couple, ton idéal c'est un tête-à-tête intense, une longue discussion rien que vous deux."
+        }
       ]
     },
     {
-      "id": "histoires",
-      "type": "blocks",
-      "eyebrow": "Tes histoires",
-      "text": "Ce qui se répète peut-être dans tes histoires",
-      "help": "Pense à tes relations passées, pas seulement à la dernière.",
-      "blocks": [
+      "id": "stress",
+      "type": "pick",
+      "n": 7,
+      "eyebrow": "Toi, sous stress",
+      "title": "Comment réagis-tu quand ça chauffe ? Coche au moins 1 réaction pour chaque niveau de stress.",
+      "groups": [
         {
-          "id": "scene",
-          "kind": "single",
-          "text": "Laquelle de ces scènes te semble la plus familière ?",
-          "options": [
+          "id": "modere",
+          "title": "Stress modéré",
+          "help": "Un malentendu, un retard, une remarque qui pique.",
+          "counter": "Stress modéré",
+          "min": 1,
+          "items": [
             {
-              "id": "attente",
-              "label": "Il est 23 h. Ton message est lu depuis trois heures, toujours sans réponse, et tu n'arrives pas à penser à autre chose."
+              "id": "D",
+              "label": "Je prends les choses en main",
+              "hint": "Je tranche vite, je veux que ça avance."
             },
             {
-              "id": "etouffement",
-              "label": "Ton partenaire te demande, encore, ce que tu fais ce soir et avec qui. Tu sens l'air te manquer."
+              "id": "I",
+              "label": "Je dédramatise",
+              "hint": "Je parle, je plaisante, je cherche à alléger."
             },
             {
-              "id": "effacement",
-              "label": "On te demande où tu veux dîner. Tu réponds « comme tu veux », comme d'habitude, alors que tu avais une idée."
+              "id": "S",
+              "label": "Je fais le dos rond",
+              "hint": "J'attends que ça passe, je garde la paix."
             },
             {
-              "id": "jamaisassez",
-              "label": "Tu as préparé un bon dîner. Ton partenaire remarque surtout que c'est un peu trop salé, et ça te touche plus que de raison."
-            },
-            {
-              "id": "sauveur",
-              "label": "Ton partenaire traverse encore une crise. Tu annules ta soirée pour le ou la soutenir, comme souvent."
-            },
-            {
-              "id": "aucun",
-              "label": "Aucune de ces scènes ne me parle vraiment."
+              "id": "C",
+              "label": "J'analyse",
+              "hint": "Je veux des faits, je cherche ce qui s'est vraiment passé."
             }
           ]
         },
         {
-          "id": "attirance",
-          "kind": "single",
-          "text": "Au début, la personne qui t'attire le plus fort est souvent...",
-          "options": [
+          "id": "fort",
+          "title": "Stress fort",
+          "help": "Une grosse dispute, la peur de perdre l'autre.",
+          "counter": "Stress fort",
+          "min": 1,
+          "items": [
             {
-              "id": "attente",
-              "label": "un peu insaisissable, difficile à cerner, pas toujours disponible."
+              "id": "fight",
+              "label": "Je contre-attaque",
+              "hint": "Le ton monte, je veux avoir le dernier mot."
             },
             {
-              "id": "etouffement",
-              "label": "très présente, très demandeuse, qui veut tout partager tout de suite."
+              "id": "flight",
+              "label": "Je fuis",
+              "hint": "Je claque la porte, je sors, je m'occupe ailleurs."
             },
             {
-              "id": "effacement",
-              "label": "une forte personnalité, sûre d'elle, qui prend beaucoup de place."
+              "id": "freeze",
+              "label": "Je me fige",
+              "hint": "Je n'arrive plus à parler ni à penser."
             },
             {
-              "id": "jamaisassez",
-              "label": "exigeante, brillante, difficile à impressionner."
-            },
-            {
-              "id": "sauveur",
-              "label": "blessée, en difficulté, qui a besoin de quelqu'un comme toi."
-            },
-            {
-              "id": "aucun",
-              "label": "Je ne remarque pas de type particulier."
+              "id": "fawn",
+              "label": "Je cède pour apaiser",
+              "hint": "Je dis oui, je m'excuse, même quand je ne suis pas d'accord."
             }
           ]
         }
       ]
     },
     {
-      "id": "securite",
-      "type": "single",
-      "private": true,
-      "eyebrow": "Respect et sécurité",
-      "text": "Dernière question, et elle compte. Dans une relation, t'est-il arrivé d'avoir peur de l'autre, ou de te sentir régulièrement rabaissé·e, contrôlé·e ou menacé·e ?",
-      "options": [
+      "id": "freins",
+      "type": "pick",
+      "n": 8,
+      "eyebrow": "Ce qui te freine",
+      "title": "Qu'est-ce qui t'empêche d'agir dans ta vie amoureuse ? Coche au moins 1 frein.",
+      "groups": [
         {
-          "id": "non",
-          "label": "Non, jamais."
-        },
-        {
-          "id": "passe",
-          "label": "Oui, dans une relation passée."
-        },
-        {
-          "id": "doute",
-          "label": "Je ne suis pas sûr·e, parfois je me pose la question."
-        },
-        {
-          "id": "present",
-          "label": "Oui, dans ma relation actuelle."
+          "id": "freins",
+          "counter": "",
+          "min": 1,
+          "items": [
+            {
+              "id": "rejet",
+              "label": "La peur d'être rejeté·e",
+              "hint": "Et si l'autre disait non ?"
+            },
+            {
+              "id": "blesser",
+              "label": "La peur de blesser l'autre",
+              "hint": "Je préfère me taire que faire de la peine."
+            },
+            {
+              "id": "moment",
+              "label": "Attendre le bon moment",
+              "hint": "Après les vacances, après son anniversaire..."
+            },
+            {
+              "id": "espoir",
+              "label": "Espérer que l'autre change",
+              "hint": "Ça va s'arranger tout seul."
+            },
+            {
+              "id": "habitude",
+              "label": "Le confort de l'habitude",
+              "hint": "Ce n'est pas parfait, mais c'est connu."
+            },
+            {
+              "id": "seul",
+              "label": "La peur d'être seul·e",
+              "hint": "Plutôt mal accompagné·e que seul·e ?"
+            },
+            {
+              "id": "flou",
+              "label": "Ne pas savoir ce que je veux",
+              "hint": "Un jour oui, un jour non."
+            },
+            {
+              "id": "regard",
+              "label": "Le regard des autres",
+              "hint": "La famille, les amis, ce qu'ils vont dire."
+            },
+            {
+              "id": "contraintes",
+              "label": "Les contraintes matérielles",
+              "hint": "Le logement, l'argent, les enfants, l'organisation."
+            },
+            {
+              "id": "energie",
+              "label": "Le manque de temps ou d'énergie",
+              "hint": "Le soir, je n'ai plus la force."
+            },
+            {
+              "id": "parfait",
+              "label": "Attendre la personne parfaite",
+              "hint": "Personne n'est jamais tout à fait assez bien."
+            },
+            {
+              "id": "passe",
+              "label": "Les blessures du passé",
+              "hint": "J'ai déjà souffert, alors je me protège."
+            }
+          ],
+          "other": {
+            "id": "autre",
+            "label": "Autre",
+            "placeholder": "Écris ce qui te freine",
+            "maxLength": 60,
+            "max": 1
+          }
         }
       ]
+    },
+    {
+      "id": "demain",
+      "type": "pick",
+      "n": 9,
+      "eyebrow": "Passer à l'action demain",
+      "title": "Comment veux-tu passer à l'action dès demain ? Coche au moins 1 case.",
+      "badge": "En test : dis-nous si ça t'aide.",
+      "groups": [
+        {
+          "id": "actions",
+          "counter": "",
+          "min": 1,
+          "items": [
+            {
+              "id": "a5",
+              "label": "Une action de 5 minutes",
+              "hint": "Envoyer le message, poser la question, réserver la soirée."
+            },
+            {
+              "id": "voix",
+              "label": "Un engagement dit à voix haute",
+              "hint": "Je le dis maintenant, tout haut : « Demain, je... »"
+            },
+            {
+              "id": "rappel",
+              "label": "Un rappel à heure fixe",
+              "hint": "Je choisis une heure, et je reçois un rappel dans mon agenda."
+            }
+          ]
+        }
+      ],
+      "time": {
+        "when": "rappel",
+        "label": "À quelle heure demain ?",
+        "options": [
+          "08:00",
+          "12:30",
+          "18:00",
+          "21:00"
+        ]
+      }
+    },
+    {
+      "id": "etape",
+      "type": "commit",
+      "n": 10,
+      "eyebrow": "Ta prochaine étape",
+      "title": "Quelle est ta prochaine étape dans ta relation ? Écris ton engagement en une phrase.",
+      "help": "Pour t'inspirer, touche un exemple : il se recopie dans ton engagement.",
+      "examples": [
+        {
+          "id": "besoin",
+          "label": "Dire clairement ce dont j'ai besoin"
+        },
+        {
+          "id": "soiree",
+          "label": "Proposer une soirée rien qu'à deux"
+        },
+        {
+          "id": "question",
+          "label": "Poser la question qui compte (enfants, projet, lieu de vie)"
+        },
+        {
+          "id": "limite",
+          "label": "Mettre une limite claire"
+        },
+        {
+          "id": "boussole",
+          "label": "Faire le point sur ma relation avec la Boussole"
+        },
+        {
+          "id": "jetaime",
+          "label": "Oser dire « je t'aime »"
+        },
+        {
+          "id": "recul",
+          "label": "Prendre quelques jours de recul"
+        },
+        {
+          "id": "accompagner",
+          "label": "Me faire accompagner"
+        }
+      ],
+      "engagement": {
+        "placeholder": "Cette semaine, je...",
+        "minLength": 5,
+        "maxLength": 140
+      },
+      "share": {
+        "title": "Partage-le à quelqu'un, et choisis un moment.",
+        "whoPlaceholder": "son prénom",
+        "whoMaxLength": 40,
+        "moments": [
+          "soir",
+          "demain",
+          "weekend",
+          "semaine"
+        ]
+      },
+      "safety": {
+        "text": "Une dernière chose : dans une relation, t'est-il arrivé d'avoir peur de l'autre, ou de te sentir rabaissé·e, contrôlé·e ou menacé·e ?",
+        "options": [
+          {
+            "id": "non",
+            "label": "Non, jamais"
+          },
+          {
+            "id": "passe",
+            "label": "Oui, par le passé"
+          },
+          {
+            "id": "doute",
+            "label": "Je ne suis pas sûr·e"
+          },
+          {
+            "id": "present",
+            "label": "Oui, aujourd'hui"
+          }
+        ],
+        "note": "Cette réponse n'est ni enregistrée ni transmise."
+      }
     }
   ],
   "order": {
@@ -970,12 +1154,24 @@ const AMOUR_DATA = {
       "t8",
       "t9"
     ],
-    "pattern": [
-      "attente",
-      "effacement",
-      "jamaisassez",
-      "sauveur",
-      "etouffement"
+    "lang": [
+      "paroles",
+      "moments",
+      "cadeaux",
+      "services",
+      "toucher"
+    ],
+    "instinct": [
+      "sp",
+      "so",
+      "sx"
+    ],
+    "recharge": [
+      "solitaire",
+      "relationnel",
+      "sensoriel",
+      "evasion",
+      "elan"
     ]
   },
   "needs": {
@@ -1071,131 +1267,62 @@ const AMOUR_DATA = {
       "risk": "Un partenaire très casanier qui vit tes sorties comme une trahison."
     }
   },
-  "drains": {
-    "pas_seul": {
-      "label": "Ne jamais avoir un moment à moi.",
-      "short": "ne jamais avoir un moment à toi"
-    },
-    "sorties": {
-      "label": "Devoir sortir ou recevoir alors que je suis épuisé·e.",
-      "short": "devoir sortir quand tu es épuisé·e"
-    },
-    "casanier": {
-      "label": "Rester enfermé·e à la maison tout le week-end.",
-      "short": "rester enfermé·e tout le week-end"
-    },
-    "conflits": {
-      "label": "Les tensions qui traînent, les non-dits.",
-      "short": "les tensions qui traînent"
-    },
-    "plaintes": {
-      "label": "Porter les problèmes de l'autre tous les soirs.",
-      "short": "porter les problèmes de l'autre tous les soirs"
-    },
-    "bruit": {
-      "label": "Le bruit, les écrans allumés en permanence.",
-      "short": "le bruit et les écrans permanents"
-    },
-    "charge": {
-      "label": "Porter seul·e la charge du quotidien.",
-      "short": "porter seul·e la charge du quotidien"
-    },
-    "imprevu": {
-      "label": "L'imprévu permanent, ne jamais savoir ce qu'on fait.",
-      "short": "l'imprévu permanent"
-    }
-  },
   "languages": {
     "paroles": {
       "name": "Les paroles valorisantes",
       "lower": "les paroles valorisantes",
       "recv": "Les mots comptent énormément pour toi. Un compliment sincère, un « je t'aime » dit au bon moment, un message qui reconnaît ce que tu fais te remplissent pour plusieurs jours. À l'inverse, une critique sèche ou un long silence peuvent te blesser plus que l'autre ne l'imagine.",
-      "recvTips": [
+      "tips": [
         "Dis-le clairement à ton partenaire : « Ce qui me touche le plus, c'est quand tu me dis ce que tu apprécies chez moi. »",
         "Remarque les mots gentils quand ils arrivent, et dis merci : on répète ce qui est accueilli.",
         "Si les reproches sont fréquents, demande qu'ils soient formulés sur un fait précis, jamais sur ce que tu es."
       ],
-      "give": "Tu aimes avec des mots. Tu encourages, tu complimentes, tu écris. C'est un vrai cadeau, à condition que l'autre les entende comme tu les donnes.",
-      "giveTips": [
-        "Si ton partenaire a un autre langage, accompagne tes mots d'un geste dans le sien.",
-        "Tes mots ont du poids, dans les deux sens : en période de tension, ils peuvent aussi blesser plus que tu ne le penses."
-      ],
-      "sentence": "« Ce qui me touche le plus, c'est quand tu me dis ce que tu aimes chez moi. »",
       "partnerHint": "met des mots sur ce qu'il ou elle ressent et apprécie chez toi"
     },
     "moments": {
       "name": "Les moments de qualité",
       "lower": "les moments de qualité",
       "recv": "Pour toi, l'amour, c'est de la présence. Pas seulement être dans la même pièce : être vraiment là, attentif, sans écran, disponible. Une soirée où l'autre t'écoute pleinement vaut plus qu'un beau cadeau. Être remis·e à plus tard, encore et encore, te fait douter d'être important·e.",
-      "recvTips": [
+      "tips": [
         "Propose un rendez-vous fixe, même court : 30 minutes par jour sans téléphone, ou une soirée par semaine rien qu'à deux.",
         "Dis ce qui compte : « Quand tu poses ton téléphone pour m'écouter, je me sens aimé·e. »",
         "Repère les moments partagés qui existent déjà (un café, un trajet) et donne-leur de la valeur."
       ],
-      "give": "Tu aimes en donnant ton temps et ton attention. Tu organises des moments, tu écoutes, tu es là. C'est précieux, et rare.",
-      "giveTips": [
-        "Si l'autre a besoin d'autre chose (des mots, de l'aide concrète), ta présence peut passer inaperçue : demande-lui ce qui le ou la touche.",
-        "Garde aussi des moments pour toi seul·e : on ne peut pas être présent·e à l'autre si on s'est vidé·e."
-      ],
-      "sentence": "« Ce qui me touche le plus, c'est quand on prend du temps rien que pour nous, sans écran. »",
       "partnerHint": "t'offre du temps et une attention pleine, sans distraction"
     },
     "cadeaux": {
       "name": "Les cadeaux",
       "lower": "les cadeaux et les attentions",
       "recv": "Ce n'est pas une question de prix. Ce qui te touche, c'est la preuve que l'autre a pensé à toi : un petit mot, un objet trouvé en route, une attention pour une date qui compte. Un oubli, surtout répété, peut te faire sentir invisible.",
-      "recvTips": [
+      "tips": [
         "Explique que ce n'est pas matériel : « Un petit rien qui prouve que tu as pensé à moi me touche énormément. »",
         "Partage tes dates importantes et quelques idées simples : on ne devine pas toujours.",
         "Garde une trace des attentions reçues (une boîte, une photo) : elles nourrissent dans les jours plus difficiles."
       ],
-      "give": "Tu aimes par les attentions. Tu penses à l'autre, tu trouves l'objet qui lui ressemble, tu marques les dates. C'est une façon de dire « je t'ai dans la tête ».",
-      "giveTips": [
-        "Si l'autre ne réagit pas beaucoup, ce n'est pas forcément de l'ingratitude : son langage est peut-être ailleurs.",
-        "Varie avec des « cadeaux de temps » ou des mots écrits : ils parlent à plus de monde."
-      ],
-      "sentence": "« Ce qui me touche le plus, c'est un petit rien qui me prouve que tu as pensé à moi. »",
       "partnerHint": "pense à toi et te le prouve par de petites attentions"
     },
     "services": {
       "name": "Les services rendus",
       "lower": "les services rendus",
       "recv": "Pour toi, aimer se voit dans les actes. Quand l'autre prend en charge une tâche, anticipe ce qui te pèse, partage vraiment la charge du quotidien, tu te sens aimé·e. Les belles paroles sans actes, en revanche, sonnent creux.",
-      "recvTips": [
+      "tips": [
         "Nomme précisément ce qui te soulagerait : « Si tu t'occupes des courses le samedi, je me sens soutenu·e. »",
         "Remercie les gestes concrets : ils sont ton carburant, dis-le.",
         "Si la charge est déséquilibrée depuis longtemps, mets le sujet sur la table calmement, liste à l'appui."
       ],
-      "give": "Tu aimes en agissant. Tu rends service, tu répares, tu facilites la vie de l'autre. On peut compter sur toi.",
-      "giveTips": [
-        "Attention à ne pas devenir la personne qui fait tout : aimer n'est pas se sacrifier.",
-        "Si l'autre attend des mots ou du temps, tes services peuvent passer pour de la routine : ajoutes-y un moment ou une phrase."
-      ],
-      "sentence": "« Ce qui me touche le plus, c'est quand tu me soulages concrètement, sans que j'aie à demander. »",
       "partnerHint": "agit concrètement et partage vraiment la charge du quotidien"
     },
     "toucher": {
       "name": "Le toucher physique",
-      "lower": "le toucher physique",
+      "lower": "le toucher",
       "recv": "Le contact physique est ton langage le plus direct : une main tenue, un câlin, une caresse en passant. Il te rassure et te relie, bien au-delà de la sexualité. Un partenaire distant physiquement peut te donner le sentiment d'être rejeté·e, même s'il t'aime.",
-      "recvTips": [
+      "tips": [
         "Dites-le simplement : « Un câlin le matin, ta main dans la mienne, c'est ce qui me rassure le plus. »",
         "Propose des gestes du quotidien, pas seulement des moments intimes.",
         "Si l'autre est peu tactile, cherche ensemble des gestes qui lui conviennent aussi, sans forcer."
       ],
-      "give": "Tu aimes par le contact. Tu prends la main, tu enlaces, tu rassures par le corps. C'est chaleureux et apaisant.",
-      "giveTips": [
-        "Vérifie que l'autre reçoit le toucher comme toi : pour certaines personnes, il faut d'abord des mots ou du temps.",
-        "Le consentement et le rythme de l'autre restent la règle, même dans un couple installé."
-      ],
-      "sentence": "« Ce qui me touche le plus, c'est un câlin, ta main dans la mienne, le contact. »",
       "partnerHint": "est à l'aise avec le contact physique et l'offre spontanément"
     }
-  },
-  "langGap": {
-    "same": "Tu donnes l'amour dans la langue où tu aimes le recevoir. C'est cohérent, et cela te rend lisible. Le risque : croire que tout le monde fonctionne ainsi. Si ton partenaire a un autre langage, tu pourrais te sentir peu aimé·e alors qu'il ou elle t'aime à sa façon.",
-    "diff": "Tu ne donnes pas l'amour dans la langue où tu as besoin de le recevoir. C'est très fréquent, et c'est une source classique de malentendus : tu peux beaucoup donner sans jamais recevoir ce qui te nourrit, simplement parce que personne ne le sait. Ton premier pas : le dire.",
-    "noSecondary": "Un seul langage ressort nettement chez toi. C'est une information précieuse : tu sais exactement ce qui te nourrit."
   },
   "ennea": {
     "types": {
@@ -1254,12 +1381,11 @@ const AMOUR_DATA = {
         "piege": "t'effacer pour éviter le conflit"
       }
     },
-    "confidence": {
-      "forte": "Ton portrait et ta réaction sous pression vont dans le même sens : c'est une piste solide, à confirmer avec le temps.",
-      "a_verifier": "Ton portrait et ta réaction sous pression ne disent pas tout à fait la même chose. Garde deux pistes ouvertes : {typeLabel} et {altLabel}."
-    },
     "disclaimer": "L'ennéagramme est une hypothèse de départ, pas une étiquette. Trois écrans ne suffisent pas à trouver ton type avec certitude : prends ce résultat comme une piste à explorer, idéalement accompagné·e.",
-    "credit": "L'ennéagramme décrit 9 motivations de base et 3 instincts (conservation, social, tête-à-tête)."
+    "credit": "L'ennéagramme décrit 9 motivations de base et 3 instincts (conservation, social, tête-à-tête).",
+    "stressHint": "Ta réaction sous stress fort va dans le même sens que ta piste.",
+    "confidenceOne": "C'est ta piste principale, à confirmer avec le temps.",
+    "confidenceMany": "Tu hésites entre {typeLabel} et {altLabel} : garde les deux pistes ouvertes."
   },
   "instincts": {
     "sp": {
@@ -1286,440 +1412,333 @@ const AMOUR_DATA = {
     "sp-sx": "Conservation et tête-à-tête : l'un cherche la sécurité, l'autre l'intensité. Ensemble, vous pouvez allier stabilité et passion, si l'un ne vit pas l'autre comme « trop calme » ou « trop intense ».",
     "so-sx": "Social et tête-à-tête : l'un s'épanouit en groupe, l'autre veut l'exclusivité. Friction classique : les soirées entre amis. Un accord simple aide, par exemple une sortie à plusieurs, puis une soirée rien qu'à deux."
   },
-  "scenarios": {
-    "ordre": {
-      "name": "l'ordre et le rangement",
-      "friction": "Un partenaire très bordélique, dont le désordre envahit ton espace.",
-      "completeLeft": "Un partenaire un peu plus organisé que toi peut alléger ta charge mentale, sans t'enfermer.",
-      "completeRight": "Un partenaire un peu plus détendu sur l'ordre peut t'aider à lâcher prise et à profiter."
+  "values": {
+    "honnetete": {
+      "short": "l'honnêteté",
+      "opposite": "Un partenaire qui ment ou cache des choses importantes.",
+      "direction": false
     },
-    "argent": {
-      "name": "l'argent au quotidien",
-      "friction": "Un partenaire dépensier, qui t'inquiète à chaque fin de mois.",
-      "completeLeft": "Un partenaire un peu plus prudent que toi peut sécuriser vos projets communs.",
-      "completeRight": "Un partenaire un peu plus généreux avec l'argent peut t'aider à te faire plaisir."
+    "fidelite": {
+      "short": "la fidélité",
+      "opposite": "Un partenaire qui ne veut pas d'exclusivité.",
+      "direction": false
     },
-    "vacances": {
-      "name": "l'imprévu et la planification",
-      "friction": "Un partenaire qui improvise tout et te laisse sans visibilité.",
-      "completeLeft": "Un partenaire plus organisé peut donner un cadre rassurant à tes envies.",
-      "completeRight": "Un partenaire plus spontané peut mettre de l'imprévu et de la fantaisie dans ta vie."
+    "respect": {
+      "short": "le respect",
+      "opposite": "Un partenaire méprisant, même « pour rire ».",
+      "direction": false
+    },
+    "engagement": {
+      "short": "l'engagement",
+      "opposite": "Un partenaire qui refuse de s'engager.",
+      "direction": true
+    },
+    "famille": {
+      "short": "la famille",
+      "opposite": "Un partenaire qui met les proches à distance.",
+      "direction": false
+    },
+    "enfants": {
+      "short": "avoir des enfants",
+      "opposite": "Un partenaire qui ne veut pas d'enfants.",
+      "direction": true
+    },
+    "sans_enfants": {
+      "short": "une vie sans enfants",
+      "opposite": "Un partenaire qui veut absolument des enfants.",
+      "direction": true
+    },
+    "liberte": {
+      "short": "la liberté",
+      "opposite": "Un partenaire qui veut tout partager, tout le temps.",
+      "direction": false
+    },
+    "securite_fin": {
+      "short": "la sécurité financière",
+      "opposite": "Un partenaire qui dépense sans compter.",
+      "direction": true
+    },
+    "independance_fin": {
+      "short": "l'indépendance financière",
+      "opposite": "Un partenaire qui veut tout mettre en commun.",
+      "direction": true
+    },
+    "generosite": {
+      "short": "la générosité",
+      "opposite": "Un partenaire qui compte tout.",
+      "direction": false
+    },
+    "spiritualite": {
+      "short": "la spiritualité ou la foi",
+      "opposite": "Un partenaire qui rejette ta foi ou ta quête de sens.",
+      "direction": false
+    },
+    "ambition": {
+      "short": "l'ambition",
+      "opposite": "Un partenaire qui freine tes projets.",
+      "direction": true
+    },
+    "simplicite": {
+      "short": "la simplicité",
+      "opposite": "Un partenaire qui court toujours après plus.",
+      "direction": true
+    },
+    "aventure": {
+      "short": "l'aventure",
+      "opposite": "Un partenaire qui refuse de bouger.",
+      "direction": false
+    },
+    "ailleurs": {
+      "short": "pouvoir partir vivre ailleurs",
+      "opposite": "Un partenaire qui ne quittera jamais sa ville.",
+      "direction": true
+    },
+    "racines": {
+      "short": "rester près de tes racines",
+      "opposite": "Un partenaire qui veut partir loin.",
+      "direction": true
+    },
+    "nature": {
+      "short": "le respect de la nature",
+      "opposite": "Un partenaire indifférent à la planète.",
+      "direction": false
+    },
+    "humour": {
+      "short": "l'humour",
+      "opposite": "Un partenaire qui prend tout au sérieux.",
+      "direction": false
+    },
+    "culture": {
+      "short": "la culture et la curiosité",
+      "opposite": "Un partenaire qui n'a envie de rien découvrir.",
+      "direction": false
+    },
+    "sante": {
+      "short": "la santé et le sport",
+      "opposite": "Un partenaire qui se néglige complètement.",
+      "direction": false
+    },
+    "solidarite": {
+      "short": "la solidarité",
+      "opposite": "Un partenaire indifférent aux autres.",
+      "direction": false
+    },
+    "transparence": {
+      "short": "la transparence",
+      "opposite": "Un partenaire qui garde des secrets sur ce qui vous engage.",
+      "direction": false
+    },
+    "traditions": {
+      "short": "les traditions",
+      "opposite": "Un partenaire qui méprise tes traditions.",
+      "direction": false
+    },
+    "creativite": {
+      "short": "la créativité",
+      "opposite": "Un partenaire qui trouve ta créativité inutile.",
+      "direction": false
     }
   },
-  "scenarioNotes": {
-    "ouvert": "Cette différence ne te gêne pas : elle peut même te compléter.",
-    "tait": "Attention au silence : faire à la place de l'autre sans rien dire nourrit une rancœur qui finit par exploser. Dis-le tôt, calmement.",
-    "accord": "Tu sais transformer une différence en accord : c'est exactement ce qui rend la complémentarité vivable.",
-    "conflit": "Ici, la différence t'use. Avec un partenaire très différent sur ce point, la même dispute risque de revenir pendant des années.",
-    "noFriction": "Aucune scène du quotidien ne t'use vraiment. Garde quand même un œil sur ce qui touche tes besoins essentiels.",
-    "noComplement": "Tu es plutôt au milieu sur ces différences du quotidien. C'est une vraie souplesse : la plupart des écarts de forme seront faciles à vivre."
-  },
-  "flaws": {
-    "desordre": {
-      "label": "Bordélique, laisse traîner ses affaires",
-      "short": "bordélique"
+  "stress": {
+    "modere": {
+      "D": {
+        "short": "prends les choses en main",
+        "text": "Sous pression, tu passes à l'action et tu tranches. Précieux, tant que l'autre a le temps de suivre.",
+        "partner": "Un partenaire qui ose te dire « attends » sans s'écraser."
+      },
+      "I": {
+        "short": "dédramatises",
+        "text": "Tu allèges l'ambiance par la parole et l'humour. Veille à ne pas glisser sur ce qui compte.",
+        "partner": "Un partenaire qui rit avec toi, puis revient au sujet avec douceur."
+      },
+      "S": {
+        "short": "fais le dos rond",
+        "text": "Tu protèges la paix et tu attends que l'orage passe. Le risque : laisser les problèmes s'accumuler.",
+        "partner": "Un partenaire patient, qui t'invite à parler sans te presser."
+      },
+      "C": {
+        "short": "analyses",
+        "text": "Tu cherches les faits et la logique. Le risque : avoir raison, mais rater l'émotion de l'autre.",
+        "partner": "Un partenaire qui accepte les faits, et toi qui accueilles ses émotions."
+      }
     },
-    "retard": {
-      "label": "Souvent en retard",
-      "short": "souvent en retard"
+    "fort": {
+      "fight": {
+        "short": "contre-attaquer",
+        "text": "Sous stress fort, tu passes en mode combat : le ton monte et tu veux avoir le dernier mot.",
+        "tip": "Dis « je fais une pause de 20 minutes et je reviens », puis reviens vraiment."
+      },
+      "flight": {
+        "short": "fuir",
+        "text": "Sous stress fort, tu t'échappes : tu sors, tu t'occupes, tu évites le sujet.",
+        "tip": "Fixe un moment précis pour reparler du sujet, pour que ta pause ne devienne pas une fuite."
+      },
+      "freeze": {
+        "short": "te figer",
+        "text": "Sous stress fort, tu te figes : plus de mots, plus d'idées. Ce n'est pas de l'indifférence.",
+        "tip": "Prépare une phrase simple : « Je suis bloqué·e, laisse-moi un moment, je reviens vers toi. »"
+      },
+      "fawn": {
+        "short": "céder pour apaiser",
+        "text": "Sous stress fort, tu cèdes pour que ça s'arrête, même quand tu n'es pas d'accord.",
+        "tip": "Remplace le « oui » réflexe par : « Je ne suis pas sûr·e, j'y réfléchis et je te dis. »"
+      }
     },
-    "depensier": {
-      "label": "Dépensier·ère",
-      "short": "dépensier·ère"
-    },
-    "radin": {
-      "label": "Très près de ses sous",
-      "short": "très près de ses sous"
-    },
-    "ecrans": {
-      "label": "Toujours sur son téléphone ou devant un écran",
-      "short": "collé·e à ses écrans"
-    },
-    "casanier": {
-      "label": "Casanier·ère, n'aime pas sortir",
-      "short": "casanier·ère"
-    },
-    "fetard": {
-      "label": "Fêtard·e, a besoin de sortir souvent",
-      "short": "qui a besoin de sortir sans arrêt"
-    },
-    "jaloux": {
-      "label": "Jaloux·se, veut savoir où tu es",
-      "short": "jaloux·se"
-    },
-    "susceptible": {
-      "label": "Susceptible, se vexe vite",
-      "short": "susceptible"
-    },
-    "boude": {
-      "label": "Boude ou se ferme au lieu de parler",
-      "short": "qui boude au lieu de parler"
-    },
-    "colere": {
-      "label": "S'emporte vite, hausse le ton",
-      "short": "qui s'emporte vite"
-    },
-    "indecis": {
-      "label": "Indécis·e, a du mal à s'engager",
-      "short": "qui a du mal à s'engager"
-    },
-    "controle": {
-      "label": "Veut tout organiser, tout contrôler",
-      "short": "qui veut tout contrôler"
-    },
-    "travail": {
-      "label": "Très pris·e par son travail",
-      "short": "absorbé·e par son travail"
-    },
-    "froid": {
-      "label": "Peu démonstratif·ve, dit rarement « je t'aime »",
-      "short": "peu démonstratif·ve"
+    "families": {
+      "fight": [
+        "t1",
+        "t3",
+        "t8"
+      ],
+      "flight": [
+        "t4",
+        "t5",
+        "t7"
+      ],
+      "freeze": [
+        "t5",
+        "t6",
+        "t9"
+      ],
+      "fawn": [
+        "t2",
+        "t6",
+        "t9"
+      ]
     }
   },
-  "flawColumns": [
+  "brakes": {
+    "rejet": {
+      "short": "la peur d'être rejeté·e",
+      "antidote": "Commence petit : une demande simple, une réponse simple. Un non à une demande n'est pas un non à toi."
+    },
+    "blesser": {
+      "short": "la peur de blesser l'autre",
+      "antidote": "Dire ce que tu ressens avec douceur n'est pas blesser. Te taire, à la longue, blesse davantage."
+    },
+    "moment": {
+      "short": "attendre le bon moment",
+      "antidote": "Choisis un jour cette semaine, et note-le maintenant. Le bon moment, c'est celui que tu décides."
+    },
+    "espoir": {
+      "short": "espérer que l'autre change",
+      "antidote": "Regarde ce qui est là aujourd'hui, pas ce qui pourrait être. Choisis en fonction des actes."
+    },
+    "habitude": {
+      "short": "le confort de l'habitude",
+      "antidote": "Écris ce que cette situation te coûte vraiment, en énergie et en joie. Le confort a un prix."
+    },
+    "seul": {
+      "short": "la peur d'être seul·e",
+      "antidote": "Fais une liste de ce qui te nourrit hors du couple. Plus elle est longue, plus tu choisis librement."
+    },
+    "flou": {
+      "short": "ne pas savoir ce que tu veux",
+      "antidote": "Relis tes 3 non-négociables : ils sont ta boussole quand tu doutes."
+    },
+    "regard": {
+      "short": "le regard des autres",
+      "antidote": "C'est toi qui vis ta relation, chaque jour. Demande-toi : « Qu'est-ce que je choisirais si personne ne savait ? »"
+    },
+    "contraintes": {
+      "short": "les contraintes matérielles",
+      "antidote": "Sépare la décision et l'organisation. On peut décider d'abord, puis organiser pas à pas."
+    },
+    "energie": {
+      "short": "le manque de temps ou d'énergie",
+      "antidote": "Une action de 5 minutes suffit pour avancer. Pas besoin d'attendre d'avoir de l'énergie."
+    },
+    "parfait": {
+      "short": "attendre la personne parfaite",
+      "antidote": "Cherche la bonne personne pour toi, pas la personne parfaite. Tes non-négociables suffisent à trier."
+    },
+    "passe": {
+      "short": "les blessures du passé",
+      "antidote": "Ton passé explique ta prudence, il ne décide pas de ton avenir. Te faire accompagner peut aider."
+    }
+  },
+  "actions": {
+    "a5": "Demain, prends 5 minutes pour ta prochaine étape. Fais-la avant midi si tu peux.",
+    "voix": "Dis ton engagement à voix haute, maintenant. Ce qu'on dit tout haut, on le tient plus souvent.",
+    "rappel": "Ton rappel : demain à {heure}."
+  },
+  "times": [
     {
-      "id": "ok",
-      "label": "Acceptable"
+      "id": "08:00",
+      "label": "8 h"
     },
     {
-      "id": "discuter",
-      "label": "À discuter"
+      "id": "12:30",
+      "label": "12 h 30"
     },
     {
-      "id": "nn",
-      "label": "Non négociable"
+      "id": "18:00",
+      "label": "18 h"
+    },
+    {
+      "id": "21:00",
+      "label": "21 h"
     }
   ],
-  "valueTopics": [
+  "nextSteps": [
     {
-      "id": "enfants",
-      "topicLabel": "Les enfants",
-      "levels": {
-        "souple": "Fort",
-        "important": "Critique",
-        "nn": "Critique"
-      },
-      "options": [
-        {
-          "id": "oui",
-          "chip": "J'en veux",
-          "label": "J'en veux (ou j'en veux d'autres).",
-          "mine": "Avoir des enfants (ou d'autres enfants)",
-          "opposite": "Un partenaire qui ne veut pas d'enfants"
-        },
-        {
-          "id": "non",
-          "chip": "Je n'en veux pas",
-          "label": "Je n'en veux pas (ou pas d'autres).",
-          "mine": "Une vie sans enfants (ou sans autres enfants)",
-          "opposite": "Un partenaire qui veut absolument des enfants"
-        },
-        {
-          "id": "miens",
-          "chip": "J'ai des enfants, à accueillir",
-          "label": "J'ai déjà des enfants, et ils doivent être pleinement accueillis.",
-          "mine": "Que mes enfants soient pleinement accueillis",
-          "opposite": "Un partenaire qui ne veut pas partager sa vie avec mes enfants"
-        },
-        {
-          "id": "flou",
-          "chip": "Je ne sais pas",
-          "label": "Je ne sais pas encore.",
-          "neutral": true
-        }
-      ]
+      "id": "besoin",
+      "label": "Dire clairement ce dont j'ai besoin",
+      "prefix": "Cette semaine, je dis clairement ce dont j'ai besoin."
     },
     {
-      "id": "lieu",
-      "topicLabel": "Le lieu de vie",
-      "levels": {
-        "souple": "Faible",
-        "important": "Fort",
-        "nn": "Critique"
-      },
-      "options": [
-        {
-          "id": "ville",
-          "chip": "En ville",
-          "label": "En ville, près de tout.",
-          "mine": "Vivre en ville",
-          "opposite": "Un partenaire qui ne se voit vivre qu'à la campagne, loin de tout"
-        },
-        {
-          "id": "campagne",
-          "chip": "À la campagne",
-          "label": "À la campagne, au calme, près de la nature.",
-          "mine": "Vivre au calme, près de la nature",
-          "opposite": "Un partenaire qui ne peut vivre qu'en pleine ville"
-        },
-        {
-          "id": "ailleurs",
-          "chip": "Ailleurs, bouger",
-          "label": "Ailleurs, à l'étranger ou en mouvement : j'ai besoin de bouger.",
-          "mine": "Garder la possibilité de partir vivre ailleurs",
-          "opposite": "Un partenaire qui ne quittera jamais sa région"
-        },
-        {
-          "id": "racines",
-          "chip": "Près de mes racines",
-          "label": "Là où sont mes racines, près de mes proches.",
-          "mine": "Rester près de mes racines et de mes proches",
-          "opposite": "Un partenaire qui veut partir vivre loin, ou à l'étranger"
-        },
-        {
-          "id": "egal",
-          "chip": "Peu importe",
-          "label": "Peu importe, tant qu'on est bien.",
-          "neutral": true
-        }
-      ]
+      "id": "soiree",
+      "label": "Proposer une soirée rien qu'à deux",
+      "prefix": "Cette semaine, je propose une soirée rien qu'à deux."
     },
     {
-      "id": "argent",
-      "topicLabel": "L'argent",
-      "levels": {
-        "souple": "Faible",
-        "important": "Fort",
-        "nn": "Critique"
-      },
-      "options": [
-        {
-          "id": "securite",
-          "chip": "Épargner, prévoir",
-          "label": "être en sécurité : épargner, prévoir, ne pas manquer.",
-          "mine": "Une gestion prudente de l'argent, une épargne pour l'avenir",
-          "opposite": "Un partenaire qui dépense sans compter ou s'endette facilement"
-        },
-        {
-          "id": "vivre",
-          "chip": "Profiter",
-          "label": "profiter de la vie : voyages, sorties, plaisirs.",
-          "mine": "Profiter de la vie, sans tout calculer",
-          "opposite": "Un partenaire qui vit chaque dépense comme un danger"
-        },
-        {
-          "id": "commun",
-          "chip": "Tout en commun",
-          "label": "construire ensemble, en toute transparence, en mettant tout en commun.",
-          "mine": "Une transparence totale et un argent mis en commun",
-          "opposite": "Un partenaire secret ou très cloisonné sur l'argent"
-        },
-        {
-          "id": "autonomie",
-          "chip": "Chacun son indépendance",
-          "label": "garder chacun son indépendance financière.",
-          "mine": "Garder mon indépendance financière",
-          "opposite": "Un partenaire qui veut tout mettre en commun, sans compte à soi"
-        },
-        {
-          "id": "egal",
-          "chip": "Je m'adapte",
-          "label": "Je m'adapte, ce n'est pas un sujet pour moi.",
-          "neutral": true
-        }
-      ]
+      "id": "question",
+      "label": "Poser la question qui compte (enfants, projet, lieu de vie)",
+      "prefix": "Cette semaine, je pose la question qui compte pour moi."
     },
     {
-      "id": "famille",
-      "topicLabel": "La place de la famille",
-      "levels": {
-        "souple": "Faible",
-        "important": "Fort",
-        "nn": "Critique"
-      },
-      "options": [
-        {
-          "id": "proche",
-          "chip": "Très présente",
-          "label": "Très présente : repas réguliers, vacances ensemble, entraide.",
-          "mine": "Une famille très présente dans notre vie",
-          "opposite": "Un partenaire qui veut garder la famille à distance"
-        },
-        {
-          "id": "bulle",
-          "chip": "À distance",
-          "label": "À distance : je préfère que notre couple reste notre bulle.",
-          "mine": "Un couple protégé, avec la famille à distance",
-          "opposite": "Un partenaire dont la famille décide ou s'invite en permanence"
-        },
-        {
-          "id": "equilibre",
-          "chip": "Présente, avec des limites",
-          "label": "Présente, avec des limites claires.",
-          "neutral": true
-        }
-      ]
+      "id": "limite",
+      "label": "Mettre une limite claire",
+      "prefix": "Cette semaine, je pose une limite claire."
     },
     {
-      "id": "spiritualite",
-      "topicLabel": "La spiritualité",
-      "levels": {
-        "souple": "Faible",
-        "important": "Fort",
-        "nn": "Critique"
-      },
-      "options": [
-        {
-          "id": "centrale",
-          "chip": "Au centre de ma vie",
-          "label": "Elle est au centre de ma vie (pratique, communauté, rituels).",
-          "mine": "Partager ma foi ou ma pratique spirituelle",
-          "opposite": "Un partenaire qui rejette ou méprise ce qui est sacré pour moi"
-        },
-        {
-          "id": "intime",
-          "chip": "Personnelle",
-          "label": "Elle compte, mais je la vis de façon personnelle.",
-          "mine": "Que ma vie intérieure soit respectée, même si elle n'est pas partagée",
-          "opposite": "Un partenaire qui se moque de ma quête de sens"
-        },
-        {
-          "id": "absente",
-          "chip": "Absente",
-          "label": "Elle ne fait pas partie de ma vie.",
-          "mine": "Une vie sans pratique religieuse imposée",
-          "opposite": "Un partenaire qui voudrait m'imposer une pratique religieuse"
-        },
-        {
-          "id": "egal",
-          "chip": "Je m'adapte",
-          "label": "Je m'adapte facilement à ce que vit l'autre.",
-          "neutral": true
-        }
-      ]
+      "id": "boussole",
+      "label": "Faire le point sur ma relation avec la Boussole",
+      "prefix": "Cette semaine, je fais le point sur ma relation avec la Boussole."
     },
     {
-      "id": "liberte",
-      "topicLabel": "Liberté et fusion",
-      "levels": {
-        "souple": "Faible",
-        "important": "Critique",
-        "nn": "Critique"
-      },
-      "options": [
-        {
-          "id": "fusion",
-          "chip": "Fusion",
-          "label": "Fusion : tout partager, se voir tous les jours, faire presque tout ensemble.",
-          "mine": "Une relation très proche, où l'on partage presque tout",
-          "opposite": "Un partenaire qui a besoin de beaucoup d'indépendance et de temps seul"
-        },
-        {
-          "id": "liberte",
-          "chip": "Liberté",
-          "label": "Liberté : chacun sa vie, ses amis, ses temps seuls, et on se retrouve.",
-          "mine": "Une relation qui respecte largement mon indépendance",
-          "opposite": "Un partenaire qui veut tout partager et vit mal mes temps seuls"
-        },
-        {
-          "id": "entre",
-          "chip": "Entre les deux",
-          "label": "Entre les deux : proches, avec chacun son jardin secret.",
-          "neutral": true
-        }
-      ]
+      "id": "jetaime",
+      "label": "Oser dire « je t'aime »",
+      "prefix": "Cette semaine, j'ose dire « je t'aime »."
+    },
+    {
+      "id": "recul",
+      "label": "Prendre quelques jours de recul",
+      "prefix": "Cette semaine, je prends quelques jours de recul."
+    },
+    {
+      "id": "accompagner",
+      "label": "Me faire accompagner",
+      "prefix": "Cette semaine, je réserve un moment pour me faire accompagner."
     }
   ],
-  "firmness": [
+  "moments": [
     {
-      "id": "souple",
-      "label": "Négociable"
+      "id": "soir",
+      "label": "Ce soir"
     },
     {
-      "id": "important",
-      "label": "Important"
+      "id": "demain",
+      "label": "Demain"
     },
     {
-      "id": "nn",
-      "label": "Non négociable"
+      "id": "weekend",
+      "label": "Ce week-end"
+    },
+    {
+      "id": "semaine",
+      "label": "Cette semaine"
     }
-  ],
-  "patterns": {
-    "attente": {
-      "name": "Le scénario de l'attente",
-      "summary": "Il se peut que tu sois souvent attiré·e par des personnes peu disponibles, et que tu passes beaucoup d'énergie à attendre un signe, une preuve, un engagement. Plus l'autre se dérobe, plus tu t'accroches.",
-      "imago": "Selon l'approche Imago, nous sommes attirés par ce qui nous est familier. Si une présence a manqué ou était imprévisible autrefois, l'incertitude peut ressembler, sans qu'on le veuille, à de l'amour. L'intensité de l'attente n'est pas la preuve de l'amour.",
-      "trigger": "un message sans réponse, un plan annulé, un silence",
-      "reactive": "Une personne insaisissable, ambiguë, qui souffle le chaud et le froid.",
-      "healing": "Une personne régulière et fiable, dont la présence te semblera peut-être moins « électrique » au début. Ce calme n'est pas de l'ennui : c'est de la sécurité.",
-      "questions": [
-        "Dans mes histoires, qui attendait l'autre, et qu'est-ce que j'attendais vraiment ?",
-        "Est-ce que je confonds parfois l'intensité de l'attente avec la force de l'amour ?",
-        "Quelle personne fiable ai-je trouvée « pas assez excitante », et pourquoi ?"
-      ],
-      "step": "La prochaine fois qu'un silence t'angoisse, note ce que tu ressens avant d'agir, et attends une heure avant de relancer.",
-      "danger": "l'attirance pour les personnes insaisissables"
-    },
-    "etouffement": {
-      "name": "Le scénario de l'étouffement",
-      "summary": "Il se peut qu'au bout d'un moment, la proximité te donne l'impression d'étouffer. Tu as besoin d'air, l'autre le vit comme un rejet, il ou elle se rapproche, et tu recules encore.",
-      "imago": "Selon l'approche Imago, ce qui a été vécu autrefois laisse des traces. Si l'on a peu respecté ton espace, une relation proche peut réveiller la sensation d'être envahi·e, même quand l'autre ne te veut que du bien.",
-      "trigger": "les questions sur ton emploi du temps, les demandes de présence",
-      "reactive": "Une personne très fusionnelle, qui vit mal tes temps seuls et te demande des comptes.",
-      "healing": "Une personne proche et sécurisante, qui a aussi sa propre vie et te laisse respirer sans se sentir abandonnée.",
-      "questions": [
-        "Quand je me sens envahi·e, est-ce l'autre qui en fait trop, ou une vieille alarme qui sonne ?",
-        "Ai-je déjà dit clairement de quel espace j'ai besoin, avec des mots simples et un rythme précis ?",
-        "Qu'est-ce que je risquerais si je me laissais vraiment approcher ?"
-      ],
-      "step": "Annonce tes temps seuls à l'avance (« jeudi soir, j'ai besoin d'être seul·e, et samedi je suis tout à toi ») au lieu de t'éloigner sans prévenir.",
-      "danger": "ta tendance à fuir dès que l'autre se rapproche"
-    },
-    "effacement": {
-      "name": "Le scénario de l'effacement",
-      "summary": "Il se peut que tu t'adaptes tellement à l'autre que tu finisses par te perdre de vue. Tu dis oui pour préserver le lien, et un jour, la fatigue ou la colère remonte d'un coup.",
-      "imago": "Selon l'approche Imago, nous rejouons parfois ce que nous avons appris pour être aimés. Si être sage et ne pas déranger était la condition pour recevoir de l'affection, s'effacer peut sembler normal, voire vertueux.",
-      "trigger": "le sentiment que tes besoins passent toujours après",
-      "reactive": "Une forte personnalité qui prend beaucoup de place, décide pour deux et ne te pose pas de questions.",
-      "healing": "Une personne curieuse de toi, qui te demande ton avis et te laisse le temps de répondre.",
-      "questions": [
-        "Quand ai-je dit oui pour la dernière fois alors que je pensais non ?",
-        "Qu'est-ce que je crains qu'il arrive si je dis ce que je veux vraiment ?",
-        "Dans mes relations, qui choisit les sorties, le rythme, les projets ?"
-      ],
-      "step": "Cette semaine, exprime une préférence par jour, même minuscule (le film, le restaurant, l'heure). C'est un muscle.",
-      "danger": "ta tendance à t'effacer pour garder le lien"
-    },
-    "jamaisassez": {
-      "name": "Le scénario du « jamais assez »",
-      "summary": "Il se peut que tu aies souvent l'impression de devoir mériter l'amour. Tu te sens jugé·e, pas tout à fait à la hauteur, et tu es peut-être attiré·e par des personnes exigeantes dont tu attends l'approbation.",
-      "imago": "Selon l'approche Imago, nous cherchons parfois chez l'autre la reconnaissance qui nous a manqué. Si l'amour semblait conditionné à la réussite, séduire quelqu'un de difficile à impressionner peut ressembler à une victoire, et ses critiques, à une vérité.",
-      "trigger": "une remarque, même gentille, sur ce que tu as mal fait",
-      "reactive": "Une personne exigeante, critique, avare de compliments, qui te fait sentir que tu pourrais mieux faire.",
-      "healing": "Une personne qui t'apprécie tel·le que tu es, et te le dit, sans que tu aies à le gagner.",
-      "questions": [
-        "De qui ai-je le plus cherché l'approbation dans ma vie, et est-ce que cela ressemble à mes histoires ?",
-        "Suis-je attiré·e par l'amour qu'on me donne, ou par celui que je dois conquérir ?",
-        "Qu'est-ce que je me dis quand quelqu'un m'aime sans condition ?"
-      ],
-      "step": "Note chaque soir une chose que tu as bien faite, sans la minimiser. Puis observe qui, autour de toi, te la dit naturellement.",
-      "danger": "l'attirance pour les personnes qui te font sentir « pas assez »"
-    },
-    "sauveur": {
-      "name": "Le scénario du sauveur",
-      "summary": "Il se peut que tu tombes souvent amoureux·se de personnes en difficulté, que tu veux aider, soutenir, réparer. Tu donnes beaucoup, et tu attends, parfois longtemps, que l'autre change.",
-      "imago": "Selon l'approche Imago, nos rôles d'enfance nous suivent. Si tu as pris soin des autres très tôt, être indispensable peut ressembler à être aimé·e. Mais on ne peut pas changer quelqu'un : lui demander de changer, c'est lui demander d'arrêter d'être lui-même.",
-      "trigger": "voir l'autre aller mal sans pouvoir l'aider",
-      "reactive": "Une personne blessée, instable ou en crise, qui a besoin d'être sauvée et te fait sentir indispensable.",
-      "healing": "Une personne autonome, qui prend soin d'elle-même et peut aussi prendre soin de toi.",
-      "questions": [
-        "Est-ce que j'aime la personne telle qu'elle est aujourd'hui, ou celle qu'elle pourrait devenir ?",
-        "Qui prend soin de moi, dans mes relations ?",
-        "Que me reste-t-il si je ne suis plus celui ou celle qui aide ?"
-      ],
-      "step": "Avant d'aider, demande : « Est-ce que tu veux que je t'aide, ou que je t'écoute ? » Et laisse l'autre répondre.",
-      "danger": "l'envie de sauver quelqu'un plutôt que de l'aimer tel qu'il est"
-    }
-  },
-  "patternLevels": {
-    "net": "Ce scénario ressort nettement de tes réponses. Il mérite qu'on s'y arrête.",
-    "leger": "Ce scénario apparaît un peu dans tes réponses. Prends-le comme une piste légère, à vérifier avec tes souvenirs réels.",
-    "aucun": "Aucun scénario répété ne ressort clairement de tes réponses. Tant mieux, ou peut-être pas encore visible. Si tu as déjà vécu plusieurs histoires douloureuses qui se ressemblent, regarde ce qu'elles ont en commun : le début, le type de personne, la façon dont cela s'est terminé."
-  },
-  "aucunQuestions": [
-    "Qu'ont en commun les personnes qui m'ont le plus attiré·e ?",
-    "Comment mes histoires importantes se sont-elles terminées, et qui est parti ?",
-    "Qu'est-ce que je répète, même dans les histoires heureuses ?"
   ],
   "safety": {
     "present": {
@@ -1751,7 +1770,7 @@ const AMOUR_DATA = {
     {
       "level": "Hors grille",
       "label": "Signaux d'alerte",
-      "text": "Mépris, humiliation, contrôle, menaces, violence physique, psychologique, sexuelle ou économique. Ce ne sont pas des incompatibilités : ce sont des signaux de danger, qui appellent l'aide d'un professionnel."
+      "text": "Mépris, humiliation, contrôle, menaces, violence physique, psychologique ou économique, et toute atteinte au corps. Ce ne sont pas des incompatibilités : ce sont des signaux de danger, qui appellent l'aide d'un professionnel."
     }
   ],
   "universal": [
@@ -1769,54 +1788,992 @@ const AMOUR_DATA = {
     "Le même fond, des formes différentes : partager les valeurs profondes, et avoir des talents différents en surface, c'est souvent la recette d'un couple qui dure."
   ],
   "sentences": {
-    "need": "{prenom}, ce dont tu as vraiment besoin : {needs}, te sentir aimé·e à travers {recvLower}, et du temps pour te recharger {rechargeShort}.",
-    "danger": "Ce qui te met en danger : {anti}, {nnDanger}, et {third}.",
-    "ennea": "Ta piste ennéagramme, à vérifier : type {n} ({name}), sous-type {instinctName}. {instinctCouple}",
-    "nnFallback": "l'espoir de changer l'autre un jour"
+    "need": "{prenom}, ce qui te nourrit vraiment : {n1}, {n2} et {n3}. Tu te sens aimé·e surtout par {lang1} et {lang2}, et tu te recharges {rechargeShort}.",
+    "danger": "Ce qui te met en danger : {v1} et {v2}, une relation qui ne respecte pas {val1}, et ton frein : {brake1}.",
+    "ennea": "Ta piste ennéagramme : type {n} ({name}), sous-type {instinct}. Sous stress fort, tu as tendance à {stress}."
   },
   "shareTemplate": [
-    "Mon profil amoureux · Quiz Amour Magic Humans",
     "{s1}",
     "{s2}",
     "{s3}",
-    "Fais le quiz toi aussi : {quizUrl}"
+    "Fais le quiz : {quizUrl}"
   ],
   "exportTemplate": [
-    "TON PROFIL AMOUREUX · Quiz Amour Magic Humans",
-    "{prenom} · {title}",
-    "",
     "{s1}",
     "{s2}",
     "{s3}",
     "",
-    "Ce qui te nourrit : {needNames}",
-    "Ce qui t'éteint : {antiText}",
-    "Ton ressourcement : {rechargeLine}",
-    "Ce qui te vide : {drainList}",
-    "Tes langages : pour te sentir aimé·e, {recvName} (en second : {recv2Name}) ; pour donner, {giveName} (en second : {give2Name})",
-    "Ta piste ennéagramme : {typeLabel}, sous-type {instinctName}. {confidenceText}",
-    "Ton scénario à explorer : {patternName}",
+    "{glance}",
     "",
-    "Défauts acceptables : {flawsOk}",
-    "À discuter : {flawsDiscuter}",
-    "Non négociables : {flawsNn}",
-    "",
-    "Tes non-négociables de vie :",
-    "{nnList}",
-    "",
-    "Le partenaire qui te complète :",
-    "{completeList}",
-    "",
-    "Ce qui risque de frotter :",
-    "{frictionList}",
-    "",
-    "Incompatibilité critique pour toi :",
-    "{criticalList}",
-    "",
-    "Appel Découverte offert avec Pierre Sarazin : {calendly}",
-    "Refaire le quiz : {quizUrl}"
+    "Appel Découverte offert avec Pierre Sarazin : {calendly}"
   ]
 };
+AMOUR_DATA.profil = {
+    "version": 1,
+    "order": [
+      "securite",
+      "profondeur",
+      "admiration",
+      "liberte",
+      "harmonie",
+      "complicite",
+      "intensite"
+    ],
+    "besoins": {
+      "securite": {
+        "name": "Sécurité",
+        "key": "J'ai besoin de savoir sur quoi je peux compter.",
+        "noun": "Ancre",
+        "adj": "Fidèle",
+        "lower": "la sécurité",
+        "de": "de sécurité",
+        "color": "#1F7A7A",
+        "ink": "#17605F",
+        "tint": "#E6F2F2",
+        "dark": "#5FC4C4",
+        "icon": "anchor",
+        "who": "quelqu'un de constant, qui tient parole et aime les repères",
+        "s1": "aimes en construisant un lien solide, sur lequel on peut compter",
+        "secNeed": "que ce lien reste fiable dans la durée",
+        "bloomShort": "la parole donnée est tenue et que l'avenir se dessine à deux",
+        "fadeShort": "le flou s'installe et que les promesses restent en l'air",
+        "bloom": "Tu donnes le meilleur de toi dans une relation stable, où chacun fait ce qu'il dit. La régularité ne t'ennuie pas : elle te détend. Quand tu sais où vous allez, tu peux enfin lâcher la vigilance et montrer toute ta tendresse.",
+        "bloomList": [
+          "Un ou une partenaire qui prévient quand il ou elle a un empêchement, sans que tu aies à demander.",
+          "Des projets posés à deux : un voyage réservé, un logement, une date dans l'agenda.",
+          "Des rituels qui reviennent : le message du soir, le dîner du dimanche."
+        ],
+        "secBloom": "tu as aussi besoin de repères et de parole tenue",
+        "fade": "Ce qui t'use, ce n'est pas un grand drame, c'est l'incertitude qui dure. Un message sans réponse, un projet repoussé, une humeur imprévisible, et tu passes en mode veille. Tu deviens vigilant·e, tu poses des questions, et l'autre peut croire que tu le contrôles alors que tu cherches juste un sol stable.",
+        "fadeList": [
+          "Les plans qui changent au dernier moment, sans explication.",
+          "« On verra » comme seule réponse à « où va-t-on ? ».",
+          "Un ou une partenaire chaleureux·se un jour, distant·e le lendemain."
+        ],
+        "alarm": "Si tu te surprends à vérifier, relancer ou deviner l'humeur de l'autre plusieurs fois par jour, ce n'est pas toi qui es « trop » : c'est ton besoin de sécurité qui crie.",
+        "secFade": "le flou durable finit toujours par te peser",
+        "rel": {
+          "rythme": "Un rythme régulier, avec des rendez-vous qui reviennent. L'imprévu te va s'il reste l'exception.",
+          "proximite": "Une proximité stable : se voir souvent, se donner des nouvelles, sans forcément tout faire ensemble.",
+          "independance": "Chacun peut avoir sa vie, à condition que les règles soient claires : qui fait quoi, quand on se voit, ce qui reste à deux.",
+          "conflits": "Tu as besoin que les conflits se terminent par une décision claire. Une dispute laissée en suspens te travaille des jours."
+        },
+        "secCond": "des engagements tenus, même petits",
+        "partnerFond": "quelqu'un de constant, qui rassure par ses actes plus que par ses promesses",
+        "sayPartner": [
+          "« J'ai besoin de savoir sur quoi je peux compter. Quand tu fais ce que tu dis, je me détends. »",
+          "« Si tu as un empêchement, préviens-moi, même d'un mot. Ça change tout pour moi. »",
+          "« J'aimerais qu'on parle de nos projets pour l'année qui vient. »"
+        ],
+        "sayDate": [
+          "« J'aime les relations où l'on sait où l'on va, sans se presser. »",
+          "Une question à poser : « Qu'est-ce qui compte le plus pour toi dans une relation qui dure ? »"
+        ],
+        "trigger": "tu sens le lien vaciller : un silence, un doute, une promesse oubliée",
+        "calm": "une phrase qui rassure sur le lien, avant de chercher une solution"
+      },
+      "profondeur": {
+        "name": "Profondeur",
+        "key": "J'ai besoin d'être connu·e vraiment, pas seulement aimé·e.",
+        "noun": "Miroir",
+        "adj": "Profond·e",
+        "lower": "la profondeur",
+        "de": "de profondeur",
+        "color": "#5B4BA0",
+        "ink": "#4A3C8A",
+        "tint": "#EEEBF7",
+        "dark": "#A99BE6",
+        "icon": "waves",
+        "who": "quelqu'un qui aime les vraies conversations et ose parler de ce qu'il ressent",
+        "s1": "aimes en profondeur, avec des conversations vraies et le cœur ouvert",
+        "secNeed": "de pouvoir tout dire, même ce qui est fragile",
+        "bloomShort": "tu peux tout dire et que l'autre cherche vraiment à te comprendre",
+        "fadeShort": "la relation reste en surface et que les émotions sont tues",
+        "bloom": "Tu t'épanouis quand la relation devient un lieu où l'on peut tout dire. Une soirée à parler de vos rêves et de vos peurs te nourrit plus qu'un grand restaurant. Quand tu te sens compris·e, tu deviens un ou une partenaire d'une loyauté et d'une écoute rares.",
+        "bloomList": [
+          "Un ou une partenaire qui pose des questions et écoute la réponse jusqu'au bout.",
+          "Des conversations qui durent tard, sans téléphone sur la table.",
+          "Le droit d'être triste, inquiet·e ou ému·e sans être jugé·e."
+        ],
+        "secBloom": "tu as aussi besoin de vraies conversations, pas seulement de bons moments",
+        "fade": "Ce qui t'éteint, c'est la solitude à deux. Un ou une partenaire qui change de sujet, qui se moque de ta sensibilité ou qui est toujours ailleurs te laisse face à toi-même. Peu à peu, tu te tais, et le lien se vide sans bruit.",
+        "fadeList": [
+          "« Tu te prends la tête » en réponse à ce qui te touche.",
+          "Des silences qui durent des jours après une dispute.",
+          "Un ou une partenaire présent·e physiquement, absent·e dans sa tête."
+        ],
+        "alarm": "Si tu te surprends à garder pour toi ce qui compte le plus, parce que « de toute façon, il ou elle ne comprendra pas », ton besoin de profondeur n'est plus nourri.",
+        "secFade": "une relation qui reste en surface finit par te laisser seul·e à deux",
+        "rel": {
+          "rythme": "Un rythme qui laisse le temps de se parler vraiment : moins de sorties, plus de vrais moments.",
+          "proximite": "Une proximité émotionnelle forte : savoir ce que l'autre vit, ressent, espère.",
+          "independance": "Tu acceptes la distance physique, pas la distance du cœur. Ton ou ta partenaire peut voyager, tant qu'il ou elle te raconte.",
+          "conflits": "Tu as besoin de parler jusqu'à comprendre. Un conflit balayé sans explication reste ouvert en toi."
+        },
+        "secCond": "des moments réguliers pour vraiment se parler",
+        "partnerFond": "quelqu'un de curieux de ton monde intérieur, qui ose aussi parler du sien",
+        "sayPartner": [
+          "« Ce soir, j'aimerais qu'on se parle vraiment. Pas de l'organisation : de nous. »",
+          "« Quand je te raconte quelque chose qui me touche, j'ai juste besoin que tu m'écoutes jusqu'au bout. »",
+          "« Dis-moi une chose que tu n'as encore jamais osé me dire. Je t'écoute, sans juger. »"
+        ],
+        "sayDate": [
+          "« Je préfère une vraie conversation à dix sujets légers. »",
+          "Une question à poser : « Qu'est-ce qui t'a le plus fait grandir ces dernières années ? »"
+        ],
+        "trigger": "tu te sens incompris·e, ou quand l'autre se ferme au lieu de parler",
+        "calm": "être écouté·e sans être corrigé·e, même deux minutes"
+      },
+      "admiration": {
+        "name": "Admiration",
+        "key": "J'ai besoin de me sentir vu·e et choisi·e.",
+        "noun": "Étoile",
+        "adj": "Brillant·e",
+        "lower": "l'admiration",
+        "de": "d'admiration",
+        "color": "#C2417A",
+        "ink": "#A2305F",
+        "tint": "#F9E9F0",
+        "dark": "#F08DB8",
+        "icon": "sparkles",
+        "who": "quelqu'un qui a besoin d'être vu et valorisé, et qui sait valoriser en retour",
+        "s1": "aimes avec chaleur, en rayonnant quand on te regarde avec fierté",
+        "secNeed": "d'un regard fier de toi",
+        "bloomShort": "l'autre est fier·e de toi et te le dit",
+        "fadeShort": "tes efforts passent inaperçus et que l'on te prend pour acquis·e",
+        "bloom": "Tu t'épanouis quand tu te sens choisi·e, chaque jour, et pas seulement au début. Un mot de fierté, un merci sincère, un compliment devant tes amis te donnent des ailes. Ce n'est pas de la vanité : c'est la preuve que l'autre te voit vraiment.",
+        "bloomList": [
+          "Un ou une partenaire qui remarque tes efforts, et qui le dit.",
+          "Être soutenu·e dans tes projets, surtout quand tu doutes.",
+          "Des attentions qui montrent que tu comptes, pas seulement des habitudes."
+        ],
+        "secBloom": "tu as aussi besoin de mots de fierté et de reconnaissance",
+        "fade": "Ce qui t'éteint, c'est l'indifférence. Quand ce que tu fais devient normal, quand on te critique plus qu'on ne te remercie, tu te mets à en faire toujours plus pour être enfin vu·e. Ou tu te fermes, blessé·e, sans le dire.",
+        "fadeList": [
+          "Les critiques répétées, surtout devant les autres.",
+          "Tes réussites accueillies par un « ah, bien » distrait.",
+          "Porter seul·e la charge du quotidien, sans un merci."
+        ],
+        "alarm": "Si tu te surprends à en faire toujours plus en espérant un regard qui ne vient pas, ton besoin d'admiration est à sec.",
+        "secFade": "l'indifférence finit par te ternir, même dans une relation stable",
+        "rel": {
+          "rythme": "Un rythme vivant, avec des moments où l'on se met en valeur : un dîner, une sortie, une fête.",
+          "proximite": "Une proximité qui se voit : des gestes, des mots, une fierté affichée, y compris devant les autres.",
+          "independance": "Tu aimes avoir tes projets, et que l'autre s'y intéresse. Tu as besoin d'un soutien, pas d'un public.",
+          "conflits": "Tu as besoin qu'on critique un acte, jamais ta personne. Une remarque blessante devant les autres te marque longtemps."
+        },
+        "secCond": "des mots de fierté et de merci, souvent",
+        "partnerFond": "quelqu'un qui sait dire « bravo » et « merci », et qui est fier·e de toi devant les autres",
+        "sayPartner": [
+          "« Ça me ferait du bien que tu me dises ce que tu apprécies chez moi. »",
+          "« Quand tu remarques ce que j'ai fait, j'ai envie d'en faire encore plus pour nous. »",
+          "« J'ai besoin que tu sois fier·e de moi, et que tu me le dises, même simplement. »"
+        ],
+        "sayDate": [
+          "« Ce qui me touche le plus, c'est qu'on remarque les efforts, même petits. »",
+          "Une question à poser : « De quoi es-tu le plus fier ou la plus fière en ce moment ? »"
+        ],
+        "trigger": "tu te sens critiqué·e, comparé·e ou oublié·e",
+        "calm": "entendre ce qui a de la valeur en toi, avant d'entendre ce qui ne va pas"
+      },
+      "liberte": {
+        "name": "Liberté",
+        "key": "J'ai besoin d'air pour aimer pleinement.",
+        "noun": "Oiseau",
+        "adj": "Libre",
+        "lower": "la liberté",
+        "de": "de liberté",
+        "color": "#2F80C0",
+        "ink": "#1F5F96",
+        "tint": "#E7F1F9",
+        "dark": "#7DB9EA",
+        "icon": "feather",
+        "who": "quelqu'un qui a sa propre vie et laisse de l'air",
+        "s1": "aimes en restant toi-même, avec de l'espace pour respirer",
+        "secNeed": "de garder de l'air et une vie à toi",
+        "bloomShort": "l'autre te fait confiance et te laisse respirer",
+        "fadeShort": "tu dois te justifier de tout et que la relation t'enferme",
+        "bloom": "Tu t'épanouis dans une relation où chacun garde sa vie : tes amis, tes projets, tes moments seul·e. Plus tu te sens libre, plus tu reviens vers l'autre avec envie. Ce n'est pas un manque d'amour, c'est ta façon d'aimer sans t'éteindre.",
+        "bloomList": [
+          "Une soirée seul·e ou entre amis, sans culpabilité ni interrogatoire au retour.",
+          "Un ou une partenaire qui a sa propre vie et ses propres passions.",
+          "Des décisions prises à deux, sans contrôle ni comptes à rendre."
+        ],
+        "secBloom": "tu as aussi besoin de moments rien qu'à toi",
+        "fade": "Ce qui t'éteint, c'est de te sentir surveillé·e ou retenu·e. Les « tu étais où ? », la jalousie, le « on fait tout ensemble » te serrent la gorge. Tu commences par t'éloigner en pensée, puis tu cherches une sortie, même si tu aimes l'autre.",
+        "fadeList": [
+          "Devoir rendre des comptes sur ton emploi du temps.",
+          "La jalousie à chaque sortie entre amis.",
+          "Un agenda rempli à deux, sans qu'on te demande ton avis."
+        ],
+        "alarm": "Si tu te surprends à rêver de soirées seul·e comme d'une évasion, ou à mentir sur des choses anodines pour avoir la paix, ton besoin de liberté étouffe.",
+        "secFade": "une relation qui t'enferme finit par te faire fuir",
+        "rel": {
+          "rythme": "Un rythme souple, avec des temps forts ensemble et des temps pour toi, sans avoir à t'en excuser.",
+          "proximite": "Une proximité choisie plutôt qu'obligée : tu reviens vers l'autre parce que tu en as envie.",
+          "independance": "Forte : tes amis, tes projets, ton argent, ton temps. Tu veux un ou une partenaire, pas un emploi du temps partagé.",
+          "conflits": "Tu as besoin de recul avant d'en parler. Coincé·e dans une discussion, tu t'échappes ; avec un peu d'air, tu reviens avec des solutions."
+        },
+        "secCond": "du temps pour toi, sans avoir à te justifier",
+        "partnerFond": "quelqu'un qui a sa propre vie, qui te fait confiance et ne vit pas tes temps seuls comme un abandon",
+        "sayPartner": [
+          "« Quand je prends du temps pour moi, ce n'est pas contre toi. C'est comme ça que je reviens vers toi avec envie. »",
+          "« J'ai besoin que tu me fasses confiance, sans que j'aie à tout expliquer. »",
+          "« On peut se voir un peu moins, mais mieux. Qu'est-ce qui te ferait plaisir pour nos soirées à deux ? »"
+        ],
+        "sayDate": [
+          "« J'aime les relations où chacun garde sa vie, et où l'on se retrouve parce qu'on en a envie. »",
+          "Une question à poser : « Qu'est-ce que tu fais quand tu as une journée rien qu'à toi ? »"
+        ],
+        "trigger": "tu te sens coincé·e, contrôlé·e ou pressé·e de répondre",
+        "calm": "un peu d'espace, et la certitude qu'on en reparlera plus tard"
+      },
+      "harmonie": {
+        "name": "Harmonie",
+        "key": "J'ai besoin de douceur et de paix entre nous.",
+        "noun": "Oasis",
+        "adj": "Paisible",
+        "lower": "l'harmonie",
+        "de": "d'harmonie",
+        "color": "#5E8C4A",
+        "ink": "#446A35",
+        "tint": "#EDF4E9",
+        "dark": "#9CCB84",
+        "icon": "leaf",
+        "who": "quelqu'un de doux, qui cherche la paix et la tendresse",
+        "s1": "aimes avec douceur, en créant autour de toi un cocon apaisant",
+        "secNeed": "d'un quotidien doux, sans cris ni piques",
+        "bloomShort": "le quotidien est doux et que les désaccords se disent sans cris",
+        "fadeShort": "les piques et les tensions deviennent ordinaires",
+        "bloom": "Tu t'épanouis dans une relation tendre et apaisée. Les gestes du quotidien, une main dans le dos, une soirée tranquille, te remplissent profondément. Dans ce climat, tu offres une douceur et une gentillesse qui font du bien à tout le monde.",
+        "bloomList": [
+          "Des soirées calmes, à deux, sans tension dans l'air.",
+          "La tendresse au quotidien : un câlin en passant, un mot doux.",
+          "Des désaccords qui se disent calmement, puis une vraie réconciliation."
+        ],
+        "secBloom": "tu as aussi besoin de calme et de tendresse au quotidien",
+        "fade": "Ce qui t'éteint, ce sont les éclats de voix, l'ironie, les tensions qui durent. Pour éviter le conflit, tu arrondis les angles, tu te tais, tu t'adaptes. Les non-dits s'accumulent, jusqu'au jour où tu pars sans que l'autre ait rien vu venir.",
+        "fadeList": [
+          "Les cris, les piques, l'ironie qui blesse.",
+          "Une ambiance tendue qui dure des jours.",
+          "Devoir toujours céder pour que la paix revienne."
+        ],
+        "alarm": "Si tu te surprends à te taire pour éviter une dispute, encore et encore, ton besoin d'harmonie te coûte ta voix.",
+        "secFade": "les tensions qui durent finissent par t'épuiser",
+        "rel": {
+          "rythme": "Un rythme doux et prévisible, avec des soirées calmes et des moments de tendresse.",
+          "proximite": "Une proximité tendre : des gestes, de la douceur, une présence qui apaise.",
+          "independance": "Modérée : tu aimes partager beaucoup, sans fusion, tant que l'ambiance reste paisible.",
+          "conflits": "Tu as besoin de désaccords sans cris ni piques. Parler calmement, au bon moment, puis se réconcilier vraiment."
+        },
+        "secCond": "des désaccords sans cris ni piques",
+        "partnerFond": "quelqu'un de calme et de doux, qui sait se disputer sans blesser, puis se réconcilier",
+        "sayPartner": [
+          "« J'ai besoin qu'on puisse être en désaccord sans hausser le ton. »",
+          "« Un câlin en rentrant, ça change toute ma soirée. »",
+          "« Je ne dis pas toujours quand quelque chose me gêne. Si tu me sens loin, demande-moi doucement. »"
+        ],
+        "sayDate": [
+          "« Ce que j'aime le plus, c'est quand on se sent bien ensemble, simplement. »",
+          "Une question à poser : « Comment fais-tu quand tu n'es pas d'accord avec quelqu'un que tu aimes ? »"
+        ],
+        "trigger": "le ton monte, ou quand tu sens une tension que personne ne nomme",
+        "calm": "une voix calme et un geste doux, avant toute discussion"
+      },
+      "complicite": {
+        "name": "Complicité",
+        "key": "J'ai besoin de rire et de faire équipe avec toi.",
+        "noun": "Équipe",
+        "adj": "Joueur·se",
+        "lower": "la complicité",
+        "de": "de complicité",
+        "color": "#B87500",
+        "ink": "#8F5D00",
+        "tint": "#FBF1DF",
+        "dark": "#F2B84B",
+        "icon": "laugh",
+        "who": "quelqu'un qui aime rire, faire équipe et partager le quotidien",
+        "s1": "aimes en équipe, avec du rire et des projets partagés",
+        "secNeed": "de rire et de faire équipe au quotidien",
+        "bloomShort": "vous riez ensemble et que vous avancez comme une équipe",
+        "fadeShort": "tout devient lourd et que tu portes seul·e le quotidien",
+        "bloom": "Tu t'épanouis quand le couple est une équipe joyeuse. Des blagues que vous êtes seuls à comprendre, des petits projets, des tâches partagées sans compter : pour toi, c'est ça, l'amour. Dans une relation légère et solidaire, tu deviens un ou une partenaire plein·e d'énergie et de bonne humeur.",
+        "bloomList": [
+          "Des fous rires et des blagues que vous êtes seuls à comprendre.",
+          "Des tâches partagées sans avoir à négocier.",
+          "Des petits projets à deux : une recette, un week-end, un meuble à monter."
+        ],
+        "secBloom": "tu as aussi besoin de rire et de faire des choses ensemble",
+        "fade": "Ce qui t'éteint, c'est la lourdeur. Les reproches permanents, le sérieux en continu, la charge du quotidien qui repose sur toi te vident. Tu perds ta joie, tu deviens irritable, et tu finis par chercher la légèreté ailleurs.",
+        "fadeList": [
+          "Porter seul·e les courses, les rendez-vous, l'organisation.",
+          "Un ou une partenaire qui ne rit plus à tes blagues.",
+          "Des bouderies qui durent, au lieu de régler et de passer à autre chose."
+        ],
+        "alarm": "Si tu te surprends à préférer rire avec tes amis plutôt qu'avec ton ou ta partenaire, ton besoin de complicité est en panne.",
+        "secFade": "un quotidien sans rire ni entraide finit par te vider",
+        "rel": {
+          "rythme": "Un rythme animé : des rires, des sorties, des idées, des petits projets à deux.",
+          "proximite": "Une proximité de coéquipiers : faire ensemble, partager les tâches, se raconter les petites choses.",
+          "independance": "Tu aimes faire beaucoup à deux, mais pas tout. Chacun peut avoir ses amis, tant que vous restez une équipe.",
+          "conflits": "Tu as besoin de régler vite et de passer à autre chose. Une bouderie qui dure te pèse plus que la dispute elle-même."
+        },
+        "secCond": "du rire et des choses faites ensemble",
+        "partnerFond": "quelqu'un qui aime rire, qui fait sa part sans compter et qui se vit comme ton coéquipier ou ta coéquipière",
+        "sayPartner": [
+          "« On fait une super équipe quand on rit ensemble. On se garde un moment pour ça cette semaine ? »",
+          "« J'aimerais qu'on se répartisse les tâches autrement, pour que ce ne soit plus un sujet de tension. »",
+          "« Tu te souviens de notre dernier fou rire ? J'en veux d'autres. »"
+        ],
+        "sayDate": [
+          "« Pour moi, un couple, c'est d'abord une équipe qui rit ensemble. »",
+          "Une question à poser : « Quel est ton plus beau fou rire ? »"
+        ],
+        "trigger": "tu te sens seul·e face aux problèmes, ou quand la bonne humeur disparaît",
+        "calm": "un geste d'équipe : « on regarde ça ensemble »"
+      },
+      "intensite": {
+        "name": "Intensité",
+        "key": "J'ai besoin que notre histoire vibre.",
+        "noun": "Volcan",
+        "adj": "Passionné·e",
+        "lower": "l'intensité",
+        "de": "d'intensité",
+        "color": "#D64534",
+        "ink": "#B0352A",
+        "tint": "#FBEAE8",
+        "dark": "#F28B7D",
+        "icon": "flame",
+        "who": "quelqu'un qui aime l'élan, la passion et la nouveauté",
+        "s1": "aimes avec passion, en cherchant ce qui fait vibrer",
+        "secNeed": "que ça vibre encore, longtemps après le début",
+        "bloomShort": "la relation garde du désir, de l'élan et de la nouveauté",
+        "fadeShort": "la routine s'installe et que le désir s'endort",
+        "bloom": "Tu t'épanouis dans une relation vivante, où l'on se désire, où l'on se surprend, où l'on ose. L'aventure à deux te fait vibrer : un voyage improvisé, un projet un peu fou, une soirée qui ne ressemble à aucune autre. Quand ça vibre, tu donnes une énergie et une générosité incroyables.",
+        "bloomList": [
+          "Te sentir désiré·e, longtemps après le début.",
+          "Des surprises, des découvertes, des week-ends improvisés.",
+          "Un ou une partenaire qui ose, qui propose, qui te bouscule un peu."
+        ],
+        "secBloom": "tu as aussi besoin d'élan, de surprise et de désir",
+        "fade": "Ce qui t'éteint, c'est la routine sans surprise. Les mêmes soirées, les mêmes conversations, un désir qui s'endort : tu t'éteins à petit feu. Le risque, c'est de chercher l'étincelle ailleurs, ou de créer des drames pour sentir que ça vit encore.",
+        "fadeList": [
+          "Les mêmes soirées, encore et encore.",
+          "Un ou une partenaire qui ne propose jamais rien de nouveau.",
+          "Un désir qui s'endort sans qu'on en parle."
+        ],
+        "alarm": "Si tu te surprends à provoquer une dispute pour ressentir quelque chose, ou à rêver d'une autre vie, ton besoin d'intensité n'est plus nourri.",
+        "secFade": "la routine finit par éteindre ta flamme",
+        "rel": {
+          "rythme": "Un rythme qui change : de la nouveauté, des surprises, des projets qui font vibrer.",
+          "proximite": "Une proximité forte, physique et émotionnelle. Tu as besoin de te sentir désiré·e, longtemps après le début.",
+          "independance": "Tu as besoin de vivre tes propres aventures, puis de les partager avec passion.",
+          "conflits": "Tu t'enflammes vite et tu pardonnes vite. Il te faut un ou une partenaire qui ne fuit pas l'intensité, sans entrer dans l'escalade."
+        },
+        "secCond": "de la nouveauté et du désir, régulièrement",
+        "partnerFond": "quelqu'un qui ose, qui propose, qui garde le désir vivant et ne craint pas l'intensité",
+        "sayPartner": [
+          "« J'ai envie qu'on se surprenne encore. On s'organise une soirée qui ne ressemble à aucune autre ? »",
+          "« Me sentir désiré·e, c'est ce qui me fait me sentir aimé·e. »",
+          "« Quand on ose des choses nouvelles ensemble, je retombe amoureux·se de toi. »"
+        ],
+        "sayDate": [
+          "« Ce qui me fait vibrer, c'est découvrir, oser, ne pas m'ennuyer. »",
+          "Une question à poser : « Quelle est la chose la plus folle que tu aies faite sur un coup de tête ? »"
+        ],
+        "trigger": "tu sens l'autre s'éloigner, ou quand la relation devient tiède",
+        "calm": "un vrai contact, un regard, une main tenue, plutôt qu'un long discours"
+      }
+    },
+    "alliages": {
+      "securite+profondeur": "Tu veux du solide et du vrai. Tu t'engages lentement, mais quand tu t'engages, c'est en profondeur : tu veux connaître l'autre et pouvoir compter sur lui. Ton défi : laisser la relation respirer avant d'avoir toutes les réponses.",
+      "securite+admiration": "Tu as besoin d'un lien fiable et d'un regard qui te valorise. Tu donnes beaucoup pour que la relation tienne, et tu as besoin que ce soit vu. Ton défi : demander la reconnaissance au lieu d'attendre qu'elle vienne seule.",
+      "securite+liberte": "Tu veux un port d'attache et de l'air. C'est un mélange rare et précieux : une relation stable où chacun garde sa vie. Ton défi : dire clairement tes deux besoins, pour que l'autre ne croie pas que tu souffles le chaud et le froid.",
+      "securite+harmonie": "Tu rêves d'un foyer doux et sûr. Tu apportes de la constance et de la paix, deux choses qui font du bien sur la durée. Ton défi : ne pas confondre paix et silence, et oser mettre les sujets sensibles sur la table.",
+      "securite+complicite": "Tu veux une équipe solide qui rit ensemble. Pour toi, le couple, ce sont des projets et des fous rires, des rituels et des blagues. Ton défi : garder la légèreté, même quand l'organisation prend toute la place.",
+      "securite+intensite": "Tu veux la flamme et le port d'attache. Tu as besoin que ça vibre, mais pas que ça tangue. Ton défi : accepter qu'une relation stable puisse aussi être intense, et qu'une relation intense ne soit pas forcément instable.",
+      "profondeur+admiration": "Tu veux être vu·e vraiment, jusque dans ce que tu caches. Les compliments de surface ne te suffisent pas : tu veux être admiré·e pour qui tu es. Ton défi : te montrer aussi dans tes fragilités, c'est là que l'autre peut t'aimer en entier.",
+      "profondeur+liberte": "Tu as un monde intérieur riche, et tu as besoin d'espace pour l'habiter. Tu aimes les conversations qui vont loin, puis le retour au calme, seul·e. Ton défi : prévenir quand tu te retires, pour que l'autre ne le prenne pas pour un rejet.",
+      "profondeur+harmonie": "Tu aimes avec douceur et sincérité. Tu écoutes, tu comprends, tu apaises. Ton défi : dire aussi ce qui te blesse, sans attendre que l'autre le devine.",
+      "profondeur+complicite": "Tu veux pouvoir tout dire et tout rire avec la même personne. Tu passes d'une discussion profonde à un fou rire, et c'est ta force. Ton défi : ne pas utiliser l'humour pour esquiver ce qui fait mal.",
+      "profondeur+intensite": "Tu aimes fort et en vrai. Tu cherches une connexion rare, des échanges qui marquent, une relation qui ne ressemble à aucune autre. Ton défi : laisser une place au calme, sans croire que l'amour faiblit.",
+      "admiration+liberte": "Tu veux briller et rester libre. Tu as besoin d'un ou d'une partenaire fier·e de toi, qui ne te retient pas. Ton défi : offrir aussi ta présence, pour que l'autre ne se sente pas spectateur de ta vie.",
+      "admiration+harmonie": "Tu as besoin de mots doux et d'un regard qui te valorise. Tu donnes beaucoup de gentillesse, et tu as besoin qu'elle te revienne. Ton défi : dire ce que tu attends, plutôt que de t'effacer en espérant être remarqué·e.",
+      "admiration+complicite": "Tu veux un ou une partenaire qui t'encourage et qui rit avec toi. Tu mets de la vie et de la chaleur partout où tu passes. Ton défi : accepter les moments plus calmes sans croire que l'amour baisse.",
+      "admiration+intensite": "Tu aimes avec panache. Tu veux te sentir désiré·e, choisi·e, admiré·e, et que ça se voie. Ton défi : te souvenir que la constance est aussi une preuve d'amour, même quand elle fait moins de bruit.",
+      "liberte+harmonie": "Tu veux une relation légère, au bon sens du mot : sans pression, sans cris, sans contrôle. Tu laisses l'autre libre et tu attends la même chose. Ton défi : ne pas fuir les désaccords au nom de la paix.",
+      "liberte+complicite": "Tu veux un ou une complice de route, pas quelqu'un qui te retient. Rire, partir, se retrouver : c'est ta façon d'aimer. Ton défi : accepter un minimum de cadre, il protège votre liberté au lieu de la réduire.",
+      "liberte+intensite": "Tu aimes l'aventure, la nouveauté, l'élan. Une relation, pour toi, c'est un voyage. Ton défi : rester quand l'excitation des débuts retombe, c'est souvent là que commence le plus beau.",
+      "harmonie+complicite": "Tu veux un quotidien doux et joyeux. Tu crées une ambiance où l'on se sent bien, simplement. Ton défi : garder ta voix quand un sujet fâche, au lieu de tout arrondir.",
+      "harmonie+intensite": "Tu veux la tendresse et la flamme. Tu as besoin de douceur au quotidien et de moments qui te font vibrer. Ton défi : accepter que l'intensité bouscule parfois la paix, et que ce n'est pas grave.",
+      "complicite+intensite": "Tu veux une histoire vivante : rire, oser, surprendre. Avec toi, l'ennui n'a pas sa place. Ton défi : laisser aussi de la place aux moments simples et aux conversations sérieuses."
+    },
+    "couples": {
+      "securite+complicite": {
+        "type": "nourrit",
+        "text": "Vous formez une vraie équipe : l'un pose les repères, l'autre met la bonne humeur. Les projets avancent, et on rit en chemin."
+      },
+      "admiration+complicite": {
+        "type": "nourrit",
+        "text": "Vous vous faites briller l'un l'autre. Les encouragements, les rires et les sorties à deux vous nourrissent tous les deux."
+      },
+      "admiration+intensite": {
+        "type": "nourrit",
+        "text": "Vous vous admirez et vous vous désirez. Chacun se sent choisi, et la relation garde du relief."
+      },
+      "liberte+intensite": {
+        "type": "nourrit",
+        "text": "Vous partagez le goût de l'aventure et le respect de l'espace de chacun. Personne ne retient l'autre, et c'est ce qui vous rapproche."
+      },
+      "liberte+harmonie": {
+        "type": "nourrit",
+        "text": "L'un a besoin d'air, l'autre de calme : vous vous laissez respirer sans tension. Les retrouvailles sont douces, sans reproches."
+      },
+      "profondeur+harmonie": {
+        "type": "nourrit",
+        "text": "Douceur et écoute : vous pouvez tout vous dire sans crainte. Le terrain idéal pour se confier et grandir ensemble."
+      },
+      "securite+profondeur": {
+        "type": "nourrit",
+        "text": "L'un veut du vrai, l'autre du solide : ensemble, vous construisez une confiance profonde. Les promesses sont tenues et les choses importantes sont dites."
+      },
+      "securite+liberte": {
+        "type": "frotte",
+        "text": "L'un cherche des repères, l'autre de l'air. Au début, ça s'équilibre. Puis viennent « tu n'es jamais là » et « tu m'étouffes ». À poser tôt : le rythme des rendez-vous et des nouvelles."
+      },
+      "admiration+liberte": {
+        "type": "frotte",
+        "text": "L'un vit sa vie, l'autre a besoin d'être regardé et célébré. Le risque : que l'un se sente oublié et l'autre surveillé. Ça marche avec des moments rien qu'à deux, annoncés et tenus."
+      },
+      "profondeur+admiration": {
+        "type": "frotte",
+        "text": "L'un a besoin d'éclat et de reconnaissance, l'autre de vérité et d'intimité. Le risque : que l'un trouve l'autre trop grave, et l'autre trop en surface. Ça marche si chacun dit ce qu'il admire chez l'autre."
+      },
+      "profondeur+complicite": {
+        "type": "frotte",
+        "text": "L'un veut parler du fond, l'autre préfère alléger. Au début, c'est charmant. Puis viennent « tu fuis tout dans l'humour » et « tu dramatises ». Ça marche avec des temps pour rire et des temps pour parler, sans les mélanger."
+      },
+      "harmonie+complicite": {
+        "type": "frotte",
+        "text": "L'un veut de l'animation, l'autre de la tranquillité. Le soir, le week-end, les invitations deviennent des sujets. Ça marche si chacun garde ses sorties ou ses soirées calmes, sans culpabiliser."
+      },
+      "harmonie+intensite": {
+        "type": "frotte",
+        "text": "L'un cherche la paix, l'autre l'étincelle. Ce qui fait vibrer l'un épuise l'autre. Ça marche quand l'intensité passe par la passion et la nouveauté, jamais par les disputes."
+      },
+      "securite+intensite": {
+        "type": "frotte",
+        "text": "L'un veut que ça vibre, l'autre que ça tienne. Le premier trouve le second trop calme, le second trouve le premier trop instable. Ça marche si l'aventure se prévoit un peu, et si la routine accepte des surprises."
+      },
+      "securite+harmonie": {
+        "type": "proche",
+        "text": "Même besoin de paix et de stabilité : la vie à deux est simple. Veillez à ne pas laisser la routine endormir le désir."
+      },
+      "securite+admiration": {
+        "type": "proche",
+        "text": "L'un donne de la constance, l'autre de la chaleur dans les mots. Ça roule, à condition de se dire merci souvent."
+      },
+      "profondeur+liberte": {
+        "type": "proche",
+        "text": "Deux personnes qui ont besoin de temps à elles et d'un monde intérieur. Vous vous comprenez sans vous justifier. Veillez à garder des moments vraiment partagés."
+      },
+      "liberte+complicite": {
+        "type": "proche",
+        "text": "Légèreté et liberté : on se sent bien, sans pression. Veillez à poser quand même des projets communs."
+      },
+      "admiration+harmonie": {
+        "type": "proche",
+        "text": "Gentillesse et mots qui valorisent : vous savez vous faire du bien. Veillez à oser les désaccords."
+      },
+      "profondeur+intensite": {
+        "type": "proche",
+        "text": "Une connexion forte, presque magnétique. Veillez à garder des repères stables pour éviter les montagnes russes."
+      },
+      "complicite+intensite": {
+        "type": "proche",
+        "text": "Une relation vivante, pleine d'idées et de fous rires. Veillez à garder une place pour le sérieux et le repos."
+      },
+      "securite+securite": {
+        "type": "miroir",
+        "text": "Deux profils Sécurité : un foyer solide, vite. Prévoyez de la nouveauté à deux, pour que le confort ne remplace pas le désir."
+      },
+      "profondeur+profondeur": {
+        "type": "miroir",
+        "text": "Deux profils Profondeur : des conversations sans fin, une intimité rare. Pensez aussi à vous amuser et à alléger."
+      },
+      "admiration+admiration": {
+        "type": "miroir",
+        "text": "Deux profils Admiration : vous savez vous valoriser. Attention à ne pas vous disputer la lumière."
+      },
+      "liberte+liberte": {
+        "type": "miroir",
+        "text": "Deux profils Liberté : aucune pression, beaucoup de respect. Attention à ne pas devenir colocataires."
+      },
+      "harmonie+harmonie": {
+        "type": "miroir",
+        "text": "Deux profils Harmonie : une douceur de chaque instant. Attention aux non-dits qui s'accumulent, faute de conflit."
+      },
+      "complicite+complicite": {
+        "type": "miroir",
+        "text": "Deux profils Complicité : une équipe joyeuse. Attention à ne jamais aborder les sujets qui comptent."
+      },
+      "intensite+intensite": {
+        "type": "miroir",
+        "text": "Deux profils Intensité : une passion magnétique. Attention aux montagnes russes et à la jalousie."
+      }
+    },
+    "pieges": {
+      "fight": {
+        "name": "l'escalade",
+        "title": "L'escalade",
+        "short": "tu montes en puissance pour ne pas perdre",
+        "mech": "Quand tu as peur de perdre l'autre ou de ne pas être entendu·e, tu montes en puissance : le ton, les arguments, le dernier mot. Sur le moment, ça ressemble à de la force. En réalité, c'est une alarme, et l'autre n'entend plus que le bruit.",
+        "exits": [
+          "Repère le signal du corps (chaleur, voix qui monte) : c'est le moment de t'arrêter, pas d'accélérer.",
+          "Dis « je fais une pause de 20 minutes et je reviens », puis reviens vraiment.",
+          "Au retour, commence par ce que tu ressens, pas par ce que l'autre a fait : « J'ai eu peur que... »"
+        ],
+        "exitShort": "annonce une pause de 20 minutes, puis reviens vraiment"
+      },
+      "flight": {
+        "name": "la porte de sortie",
+        "title": "La porte de sortie",
+        "short": "tu t'échappes pour ne pas exploser",
+        "mech": "Quand la tension monte, tu pars : physiquement, dans ton téléphone, dans le travail. Tu crois protéger la relation. L'autre, lui, vit ton départ comme un abandon, et la tension revient plus fort la fois suivante.",
+        "exits": [
+          "Tu as le droit de faire une pause. Annonce-la, au lieu de disparaître.",
+          "Fixe tout de suite le moment où vous en reparlez : « On en reparle ce soir, à 21 h. »",
+          "Reviens avec une seule phrase vraie, même courte : c'est elle qui rassure."
+        ],
+        "exitShort": "annonce ta pause et fixe tout de suite l'heure où vous en reparlez"
+      },
+      "freeze": {
+        "name": "le blanc",
+        "title": "Le blanc",
+        "short": "ta tête se vide et les mots ne viennent plus",
+        "mech": "Quand ça devient trop fort, ta tête se vide. Plus de mots, plus d'idées. L'autre peut y voir de l'indifférence, alors que tu es submergé·e, et son insistance te fige encore plus.",
+        "exits": [
+          "Prépare à l'avance ta phrase de secours : « Je suis bloqué·e, laisse-moi un moment, je reviens vers toi. »",
+          "Respire lentement, pose les pieds bien à plat : ton corps doit se calmer avant ta tête.",
+          "Si parler est trop dur, écris ce que tu ressens, et donne-le ensuite."
+        ],
+        "exitShort": "dis ta phrase de secours, « je suis bloqué·e, je reviens vers toi », et reviens"
+      },
+      "fawn": {
+        "name": "le oui qui coûte",
+        "title": "Le oui qui coûte",
+        "short": "tu cèdes pour que ça s'arrête",
+        "mech": "Pour que la dispute s'arrête, tu dis oui, tu t'excuses, tu cèdes. Le calme revient vite, mais ton besoin, lui, passe à la trappe. À force, tu accumules, et tu finis par t'éloigner sans rien dire.",
+        "exits": [
+          "Remplace le oui réflexe par : « Je ne suis pas sûr·e, j'y réfléchis et je te dis. »",
+          "Avant de céder, demande-toi : de quoi ai-je besoin, là, tout de suite ?",
+          "Dis une chose vraie par jour, même petite. C'est un muscle."
+        ],
+        "exitShort": "remplace le oui réflexe par « j'y réfléchis et je te dis »"
+      }
+    },
+    "weights": {
+      "nourrit": {
+        "ecoute": {
+          "p": "profondeur",
+          "s": "harmonie"
+        },
+        "rire": {
+          "p": "complicite"
+        },
+        "fiable": {
+          "p": "securite"
+        },
+        "espace": {
+          "p": "liberte"
+        },
+        "tendresse": {
+          "p": "harmonie",
+          "s": "complicite"
+        },
+        "admiration": {
+          "p": "admiration"
+        },
+        "projets": {
+          "p": "complicite",
+          "s": "securite"
+        },
+        "aventure": {
+          "p": "intensite",
+          "s": "liberte"
+        },
+        "calme": {
+          "p": "harmonie",
+          "s": "securite"
+        },
+        "profondeur": {
+          "p": "profondeur"
+        },
+        "rituels": {
+          "p": "securite",
+          "s": "complicite"
+        },
+        "soutien": {
+          "p": "admiration",
+          "s": "securite"
+        },
+        "desir": {
+          "p": "intensite",
+          "s": "complicite"
+        },
+        "partage": {
+          "p": "complicite",
+          "s": "harmonie"
+        }
+      },
+      "vide": {
+        "justifier": {
+          "p": "liberte"
+        },
+        "critiques": {
+          "p": "admiration",
+          "s": "harmonie"
+        },
+        "silences": {
+          "p": "profondeur",
+          "s": "harmonie"
+        },
+        "cris": {
+          "p": "harmonie"
+        },
+        "flou": {
+          "p": "securite"
+        },
+        "charge": {
+          "p": "complicite",
+          "s": "admiration"
+        },
+        "ecrans": {
+          "p": "profondeur",
+          "s": "complicite"
+        },
+        "jalousie": {
+          "p": "liberte"
+        },
+        "routine": {
+          "p": "intensite",
+          "s": "complicite"
+        },
+        "promesses": {
+          "p": "securite"
+        },
+        "fusion": {
+          "p": "liberte"
+        },
+        "indifference": {
+          "p": "admiration",
+          "s": "profondeur"
+        }
+      },
+      "ressource": {
+        "seul": "liberte",
+        "raconter": "profondeur",
+        "bouger": "intensite",
+        "mains": "securite",
+        "evader": "profondeur",
+        "monde": "complicite",
+        "tendresse": "harmonie",
+        "douceur": "harmonie",
+        "rien": "harmonie",
+        "moi": "liberte",
+        "nature": "liberte",
+        "sport": "intensite",
+        "adeux": "complicite",
+        "proches": "securite",
+        "sortir": "intensite",
+        "decouvrir": "profondeur",
+        "projet": "admiration"
+      },
+      "langages": {
+        "paroles": {
+          "p": "admiration"
+        },
+        "moments": {
+          "p": "profondeur",
+          "s": "complicite"
+        },
+        "cadeaux": {
+          "p": "harmonie",
+          "s": "admiration"
+        },
+        "services": {
+          "p": "securite",
+          "s": "complicite"
+        },
+        "toucher": {
+          "p": "harmonie",
+          "s": "intensite"
+        }
+      },
+      "ennea": {
+        "t1": {
+          "p": "securite",
+          "s": "admiration"
+        },
+        "t2": {
+          "p": "admiration",
+          "s": "harmonie"
+        },
+        "t3": {
+          "p": "admiration",
+          "s": "intensite"
+        },
+        "t4": {
+          "p": "profondeur",
+          "s": "intensite"
+        },
+        "t5": {
+          "p": "liberte",
+          "s": "profondeur"
+        },
+        "t6": {
+          "p": "securite",
+          "s": "complicite"
+        },
+        "t7": {
+          "p": "intensite",
+          "s": "complicite"
+        },
+        "t8": {
+          "p": "liberte",
+          "s": "intensite"
+        },
+        "t9": {
+          "p": "harmonie",
+          "s": "securite"
+        }
+      },
+      "valeurs": {
+        "honnetete": "profondeur",
+        "fidelite": "securite",
+        "respect": "harmonie",
+        "engagement": "securite",
+        "famille": "complicite",
+        "enfants": "securite",
+        "sans_enfants": "liberte",
+        "liberte": "liberte",
+        "securite_fin": "securite",
+        "independance_fin": "liberte",
+        "generosite": "harmonie",
+        "spiritualite": "profondeur",
+        "ambition": "admiration",
+        "simplicite": "harmonie",
+        "aventure": "intensite",
+        "ailleurs": "liberte",
+        "racines": "complicite",
+        "nature": "harmonie",
+        "humour": "complicite",
+        "culture": "profondeur",
+        "sante": "intensite",
+        "solidarite": "complicite",
+        "transparence": "profondeur",
+        "traditions": "securite",
+        "creativite": "admiration"
+      },
+      "instinct": {
+        "sp": {
+          "p": "securite",
+          "s": "harmonie"
+        },
+        "so": {
+          "p": "complicite",
+          "s": "admiration"
+        },
+        "sx": {
+          "p": "intensite",
+          "s": "profondeur"
+        }
+      },
+      "stress": {
+        "D": "admiration",
+        "I": "complicite",
+        "S": "harmonie",
+        "C": "securite",
+        "fight": "intensite",
+        "flight": "liberte",
+        "freeze": "profondeur",
+        "fawn": "harmonie"
+      }
+    },
+    "points": {
+      "nourrit": {
+        "p": [
+          6,
+          4,
+          2
+        ],
+        "s": [
+          3,
+          2,
+          1
+        ]
+      },
+      "vide": {
+        "p": [
+          4,
+          2
+        ],
+        "s": [
+          2,
+          1
+        ]
+      },
+      "ressource": 1,
+      "langages": {
+        "p": [
+          3,
+          2,
+          1,
+          0
+        ],
+        "s": [
+          1,
+          1,
+          0
+        ]
+      },
+      "ennea": {
+        "p": [
+          4,
+          2,
+          0
+        ],
+        "s": [
+          2,
+          1,
+          0
+        ]
+      },
+      "valeurs": [
+        3,
+        3,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "instinct": {
+        "p": [
+          4,
+          2,
+          0
+        ],
+        "s": [
+          2,
+          1,
+          0
+        ]
+      },
+      "stress": 1
+    },
+    "boussoleBoost": {
+      "securite": "frictions",
+      "harmonie": "frictions",
+      "liberte": "energie",
+      "profondeur": "langage",
+      "admiration": "langage",
+      "complicite": "complementarite",
+      "intensite": "complementarite"
+    },
+    "ui": {
+      "eyebrowNamed": "{prenom}, ton profil amoureux (hypothèse) · 1 combinaison parmi 42",
+      "eyebrowAnon": "Ton profil amoureux (hypothèse) · 1 combinaison parmi 42",
+      "domSec": "Dominante {domName} ({domKey}) · Secondaire {secName} ({secKey})",
+      "alliageLab": "Ton alliage",
+      "barsLab": "Tes 7 besoins amoureux",
+      "netLine": "Ton besoin dominant ressort très nettement.",
+      "mixedLine": "Tes deux premiers besoins pèsent presque autant : tu peux aussi te lire comme {inverse}.",
+      "whyLab": "Pourquoi ce profil ?",
+      "whyIntro": "Ce qui a le plus pesé vers {domName} :",
+      "whyNote": "Chaque réponse donne des points à un ou deux besoins. Ton profil réunit les deux besoins qui en ont le plus. C'est une hypothèse, à confronter à ton histoire réelle.",
+      "toc": [
+        "T'épanouir",
+        "T'éteindre",
+        "Ta relation",
+        "Ton ou ta partenaire",
+        "Les mots à dire",
+        "Sous stress",
+        "Et maintenant ?"
+      ],
+      "sentences": {
+        "s1": "{prenom}, ton profil amoureux est {profil} : tu {s1}, et tu as besoin {secNeed}.",
+        "s2": "Tu t'épanouis quand {bloomShort}, et tu t'éteins quand {fadeShort}.",
+        "s3": "Sous stress fort, ton piège, c'est {trapName} : {trapShort}. Pour en sortir, {exitShort}."
+      },
+      "s1h": "Là où tu t'épanouis en amour",
+      "s1top": "Ce que tu as classé en tête, « {short} », parle de ton besoin {de}.",
+      "s1recharge": "Côté énergie, {title} : {couple}",
+      "s2h": "Là où tu t'éteins",
+      "s2alarmLab": "Signal d'alerte",
+      "s2noMore": "Ta bête noire, « {short} », touche directement ton besoin {de}.",
+      "s2noMoreOwn": "Ta bête noire, « {short} », c'est ce que tu ne veux plus vivre. Note-la : c'est une information en or.",
+      "s2test": "Le test des 10 ans : si un ou une partenaire te fait vivre ça, pourras-tu le supporter dix ans, même 20 % pire ? Si la réponse est non, écoute-la, même amoureux·se.",
+      "s3h": "Le type de relation qui te correspond",
+      "s3rows": {
+        "rythme": "Rythme",
+        "proximite": "Proximité",
+        "independance": "Indépendance",
+        "conflits": "Conflits"
+      },
+      "s3sec": "Ton besoin secondaire ({name}) ajoute une condition : {cond}.",
+      "s3instinct": "Ton sous-type ({name}) : {couple}",
+      "s4h": "Le ou la partenaire compatible",
+      "s4rule": "La règle : le fond pareil, la forme différente. Partager les mêmes besoins profonds et les mêmes valeurs, avoir des façons différentes de les vivre.",
+      "s4fond": "Au fond, il te faut {fond}.",
+      "s4fondSec": "Et pour ton besoin secondaire : {fond}.",
+      "s4lang": "Pour que tu te sentes aimé·e : quelqu'un qui {hint}.",
+      "s4stress": "Quand ça chauffe : {partner}",
+      "s4nourrit": "Ça nourrit",
+      "s4proche": "Proches de toi (facile, à entretenir)",
+      "s4frotte": "Ça frotte (à poser tôt)",
+      "s4critical": "Incompatible (non négociable)",
+      "s4profileLine": "Un profil {name} ({who})",
+      "s4mirrorLab": "Avec quelqu'un qui te ressemble",
+      "s5h": "Les phrases à dire",
+      "s5partner": "À ton ou ta partenaire",
+      "s5date": "Lors d'un premier rendez-vous",
+      "s6h": "Ton piège classique sous stress, et comment en sortir",
+      "s6trigger": "Chez toi, ça s'allume surtout quand {trigger}.",
+      "s6early": "Avant d'en arriver là, sous stress modéré, tu {modere} : c'est ton signal précoce. Agis à ce moment-là.",
+      "s6calm": "Ce dont tu as vraiment besoin à ce moment-là : {calm}.",
+      "s6exitLab": "Pour en sortir, en 3 temps",
+      "s6also": "Tu as aussi coché : {others}.",
+      "why": {
+        "nourrit": "« {short} », classé n° {rank} dans ce qui te nourrit",
+        "vide": "« {short} », dans ce qui te vide",
+        "ressource": "ta recharge « {short} »",
+        "langages": "{lower}, ton langage de l'amour n° {rank}",
+        "ennea": "ta piste ennéagramme (une hypothèse, pas un verdict)",
+        "valeurs": "{short}, ta valeur n° {rank}",
+        "instinct": "ton sous-type {name}",
+        "stress": "ta façon de réagir sous stress"
+      }
+    },
+    "icons": {
+      "anchor": "<path d=\"M12 6v16\"/> <path d=\"m19 13 2-1a9 9 0 0 1-18 0l2 1\"/> <path d=\"M9 11h6\"/> <circle cx=\"12\" cy=\"4\" r=\"2\"/>",
+      "waves": "<path d=\"M2 12q2.5 2 5 0t5 0 5 0 5 0\"/> <path d=\"M2 19q2.5 2 5 0t5 0 5 0 5 0\"/> <path d=\"M2 5q2.5 2 5 0t5 0 5 0 5 0\"/>",
+      "sparkles": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\"/> <path d=\"M20 2v4\"/> <path d=\"M22 4h-4\"/> <circle cx=\"4\" cy=\"20\" r=\"2\"/>",
+      "feather": "<path d=\"M14.086 18.412A2 2 0 0112.67 19H5v-7.672a2 2 0 01.586-1.414L11.75 3.75a6 6 0 118.49 8.49z\"/> <path d=\"M16 8 2 22\"/> <path d=\"M17.488 15H9\"/>",
+      "leaf": "<path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\"/> <path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\"/>",
+      "laugh": "<path d=\"M15 10V9\"/> <path d=\"M7.084 14.302a5.12 5.12 0 009.833 0 .24.24 0 00-.235-.302H7.32a.24.24 0 00-.235.302\"/> <path d=\"M9 10V9\"/> <circle cx=\"12\" cy=\"12\" r=\"10\"/>",
+      "flame": "<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\"/>",
+      "sun": "<circle cx=\"12\" cy=\"12\" r=\"4\"/> <path d=\"M12 2v2\"/> <path d=\"M12 20v2\"/> <path d=\"m4.93 4.93 1.41 1.41\"/> <path d=\"m17.66 17.66 1.41 1.41\"/> <path d=\"M2 12h2\"/> <path d=\"M20 12h2\"/> <path d=\"m6.34 17.66-1.41 1.41\"/> <path d=\"m19.07 4.93-1.41 1.41\"/>",
+      "cloud-rain": "<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/> <path d=\"M16 14v6\"/> <path d=\"M8 14v6\"/> <path d=\"M12 16v6\"/>",
+      "house": "<path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>",
+      "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/> <path d=\"M16 3.128a4 4 0 0 1 0 7.744\"/> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/> <circle cx=\"9\" cy=\"7\" r=\"4\"/>",
+      "message-circle-heart": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\"/> <path d=\"M7.828 13.07A3 3 0 0 1 12 8.764a3 3 0 0 1 5.004 2.224 3 3 0 0 1-.832 2.083l-3.447 3.62a1 1 0 0 1-1.45-.001z\"/>",
+      "life-buoy": "<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m4.93 4.93 4.24 4.24\"/> <path d=\"m14.83 9.17 4.24-4.24\"/> <path d=\"m14.83 14.83 4.24 4.24\"/> <path d=\"m9.17 14.83-4.24 4.24\"/> <circle cx=\"12\" cy=\"12\" r=\"4\"/>",
+      "compass": "<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z\"/>"
+    }
+  };
 if (typeof module !== "undefined" && module.exports) module.exports = AMOUR_DATA;
 else root.AMOUR_DATA = AMOUR_DATA;
 })(typeof window !== "undefined" ? window : globalThis);

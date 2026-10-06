@@ -84,6 +84,22 @@ describe("lovePrefill", () => {
     expect(parsed?.notes.energie).toHaveLength(LOVE_NOTE_MAX);
   });
 
+  it("décode une ancre produite par le quiz v1.3", () => {
+    const encoded =
+      "eyJ2IjoyLCJpbXAiOnsiZW5lcmdpZSI6InRyZXNfaW1wb3J0YW50IiwiZnJpY3Rpb25zIjoiaW1wb3J0YW50IiwibGFuZ2FnZSI6ImltcG9ydGFudCIsImNvbXBsZW1lbnRhcml0ZSI6Im1veWVuIn0sIm5vdGVzIjp7ImJlc29pbnMiOiJDZSBxdWkgdGUgbm91cnJpdCA6IMOqdHJlIMOpY291dMOpwrdlLCByaXJlIGVuc2VtYmxlLCBwb3V2b2lyIGNvbXB0ZXIgc3VyIGwnYXV0cmUuIENlIHF1aSB0ZSB2aWRlIDogZGV2b2lyIHRlIGp1c3RpZmllciBkZSB0b3V0IGV0IGxlcyBjcml0aXF1ZXMgcsOpcMOpdMOpZXMuIiwidmFsZXVycyI6IlRlcyB2YWxldXJzLCBkYW5zIGwnb3JkcmUgOiBsJ2hvbm7DqnRldMOpLCBsYSBmaWTDqWxpdMOpLCBsZSByZXNwZWN0LiIsImRlZmF1dHMiOiJDZSBxdWUgdHUgYXMgZHUgbWFsIMOgIHZpdnJlIGNoZXogbCdhdXRyZSA6IGxlcyBjcml0aXF1ZXMgcsOpcMOpdMOpZXMuIiwiZnJpY3Rpb25zIjoiU291cyBzdHJlc3MgZm9ydCwgdHUgYXMgdGVuZGFuY2Ugw6AgY29udHJlLWF0dGFxdWVyLiBTb3VzIHN0cmVzcyBtb2TDqXLDqSwgdHUgcHJlbmRzIGxlcyBjaG9zZXMgZW4gbWFpbi4gUmVww6hyZSBzaSB2b3MgZGlzcHV0ZXMgZmluaXNzZW50IHBhciB1biB2cmFpIGFjY29yZC4iLCJlbmVyZ2llIjoiVHUgdGUgcmVjaGFyZ2VzIHNldWzCt2UsIGF1IGNhbG1lLiBDZSBxdWkgdGUgdmlkZSA6IGRldm9pciB0ZSBqdXN0aWZpZXIgZGUgdG91dCBldCBsZXMgY3JpdGlxdWVzIHLDqXDDqXTDqWVzLiIsImxhbmdhZ2UiOiJUdSB0ZSBzZW5zIGFpbcOpwrdlIHN1cnRvdXQgcGFyIGxlcyBwYXJvbGVzIHZhbG9yaXNhbnRlcywgcHVpcyBsZXMgbW9tZW50cyBkZSBxdWFsaXTDqS4iLCJjb21wbGVtZW50YXJpdGUiOiJUb24gc291cy10eXBlIGRvbWluYW50IDogY29uc2VydmF0aW9uLiBDb25zZXJ2YXRpb24gZXQgdMOqdGUtw6AtdMOqdGUgOiBsJ3VuIGNoZXJjaGUgbGEgc8OpY3VyaXTDqSwgbCdhdXRyZSBsJ2ludGVuc2l0w6kuIEVuc2VtYmxlLCB2b3VzIHBvdXZleiBhbGxpZXIgc3RhYmlsaXTDqSBldCBwYXNzaW9uLCBzaSBsJ3VuIG5lIHZpdCBwYXMgbCdhdXRyZSBjb21tZSDCqyB0cm9wIGNhbG1lIMK7IG91IMKrIHRyb3AgaW50ZW5zZSDCuy4iLCJpbmNvbXBhdGliaWxpdGUiOiJUZXMgbm9uLW7DqWdvY2lhYmxlcyBkJ2FwcsOocyBsZSBxdWl6IDogbCdob25uw6p0ZXTDqSA7IGxhIGZpZMOpbGl0w6kgOyBsZSByZXNwZWN0LiBDZSBxdWUgdHUgbmUgdmV1eCBwbHVzIHZpdnJlIDogZGV2b2lyIHRlIGp1c3RpZmllciBkZSB0b3V0LiJ9fQ";
+    const parsed = parseLovePrefill(decodeLoveHash("#amour=" + encoded));
+    expect(parsed?.notes.besoins).toContain("être écouté·e");
+    expect(parsed?.notes.valeurs).toContain("l'honnêteté");
+    expect(parsed?.notes.incompatibilite).toContain("devoir te justifier de tout");
+    const rows = applyLovePrefill(parsed);
+    expect(weightOf(rows)).toBe(42);
+    expect(rows).toHaveLength(10);
+    const byKey = Object.fromEntries(rows.map((row) => [row.key, row]));
+    expect(byKey.energie.importance).toBe("tres_important");
+    expect(byKey.incompatibilite.description).toContain(LOVE_TEXTS.quizNoteLabel);
+    expect(byKey.respect.description).toBe(LOVE_TEMPLATE.criteria.find((c) => c.key === "respect")?.guide);
+  });
+
   it("refuse une ancre absente, illisible ou d'une autre version", () => {
     expect(decodeLoveHash("")).toBeNull();
     expect(decodeLoveHash("#amour=!!!")).toBeNull();

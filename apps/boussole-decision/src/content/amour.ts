@@ -62,7 +62,7 @@ export const LOVE_TEMPLATE = {
     },
     {
       key: "defauts", category: "quotidien", label: "Ses défauts, je peux vivre avec dans 10 ans",
-      guide: "Pense à ses deux défauts qui t'agacent le plus. Dans ton Quiz Amour, les avais-tu rangés en « acceptable », « à discuter » ou « non négociable » ? S'ils ne changent jamais, peux-tu vivre avec dans dix ans, sereinement ?",
+      guide: "Pense à ce qui te vide le plus chez l'autre (ton Quiz Amour l'a classé). Est-ce rare, ou installé ? Si ça ne change jamais, peux-tu vivre avec dans dix ans, sereinement ?",
       importance: "critique", nonNegotiable: false, direction: "TOWARDS", critical: true,
       alert: "Certains de ses défauts te semblent difficiles à vivre sur le long terme. Rappelle-toi : on ne change pas quelqu'un. Lui demander de changer, c'est lui demander d'arrêter d'être lui-même. La vraie question est donc : peux-tu l'accepter tel·le qu'il ou elle est ?",
     },
@@ -86,7 +86,7 @@ export const LOVE_TEMPLATE = {
     },
     {
       key: "complementarite", category: "quotidien", label: "Nos différences me complètent plus qu'elles ne m'usent",
-      guide: "Ses différences avec toi (ordonné·e ou bordélique, économe ou dépensier·ère, spontané·e ou planificateur·rice) t'enrichissent-elles, ou te fatiguent-elles ?",
+      guide: "Vos différences (de rythme, de sociabilité, de façon de vivre le couple) t'enrichissent-elles, ou te fatiguent-elles ?",
       importance: "moyen", nonNegotiable: false, direction: "TOWARDS", critical: false,
       alert: "",
     },
@@ -161,7 +161,7 @@ export const LOVE_TEXTS = {
     heading: "Boussole Relation : cette relation me correspond-elle ?",
     intro: "Évalue une relation (actuelle, ou qui commence) avec dix critères qui comptent vraiment. Tu peux ajuster les poids, ajouter une colonne pour comparer, et tout reste privé. Une alerte s'affiche si un point essentiel est touché, quel que soit le score total.",
     button: "Commencer ma Boussole Relation",
-    prefilled: "Ta Boussole sera préréglée avec les résultats de ton Quiz Amour : tes besoins, ce qui te vide, tes défauts acceptables et tes non-négociables. Ta réponse sur la sécurité n'est jamais transmise.",
+    prefilled: "Ta Boussole sera préréglée avec les résultats de ton Quiz Amour : ce qui te nourrit, ce qui te vide, tes valeurs et tes non-négociables. Ta réponse sur la sécurité et tes textes libres ne sont jamais transmis.",
     note: "Sans compte : ton travail est gardé 30 jours. Tu pourras le sauvegarder avec ton email.",
     backToQuiz: "Revenir au Quiz Amour",
     failed: "La Boussole Relation n'a pas pu être créée. Réessaye dans un instant.",
