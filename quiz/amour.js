@@ -85,7 +85,32 @@
     "#screen-amour .rule[data-tone=pink]{background:var(--pink-soft);border-color:var(--pink)}",
     "#screen-amour .rule[data-tone=gold]{background:var(--gold-soft);border-color:var(--gold)}",
     "#screen-amour .rule[data-tone=sky]{background:var(--sky-soft);border-color:var(--sky)}",
-    "#screen-amour .rhead{background:linear-gradient(120deg,var(--pink-soft),var(--gold-soft) 52%,var(--sage-soft));border-radius:var(--radius);padding:26px 20px 22px;margin-top:10px}",
+    "#screen-amour .rhead{background:linear-gradient(120deg,var(--dom-tint,var(--pink-soft)),var(--sec-tint,var(--sage-soft)));border-radius:var(--radius);padding:26px 20px 22px;margin-top:10px}",
+    "#screen-amour .alloy{font-size:clamp(2.4rem,8vw,3.8rem);line-height:1.02}",
+    "#screen-amour .alloy em{font-style:normal;color:var(--sc,var(--accent));font-weight:500}",
+    "#screen-amour .am-pills{display:flex;flex-wrap:wrap;gap:8px}",
+    "#screen-amour .pr-domsec{margin:0 0 12px}",
+    "#screen-amour .am-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border-radius:999px;background:var(--bt);color:var(--bc);font-weight:700;margin:0 8px 8px 0}",
+    "#screen-amour .am-pill small{display:block;font-weight:700;text-transform:uppercase;font-size:.68rem;letter-spacing:.08em;opacity:.85}",
+    "#screen-amour .pr-bars{display:grid;gap:8px}",
+    "#screen-amour .pr-bar{display:grid;grid-template-columns:minmax(0,118px) 1fr auto;align-items:center;gap:8px;font-size:.9rem}",
+    "#screen-amour .pr-bar-n{display:flex;align-items:center;gap:6px;color:var(--bc);font-weight:700;min-width:0}",
+    "#screen-amour .pr-bar-n span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    "#screen-amour .pr-track{height:10px;border-radius:99px;background:var(--line);overflow:hidden}",
+    "#screen-amour .pr-track i{display:block;height:100%;background:var(--bf);border-radius:99px}",
+    "#screen-amour .pr-score{color:var(--bc);font-weight:700;font-variant-numeric:tabular-nums}",
+    "#screen-amour .pr-sec .snum{color:var(--bc)}",
+    "#screen-amour .pr-rows{display:grid;gap:8px}",
+    "#screen-amour .pr-rows div{display:grid;grid-template-columns:108px 1fr;gap:8px}",
+    "#screen-amour .pr-rows b{color:var(--bc)}",
+    "#screen-amour .pr-say li{font-family:var(--display);font-size:1.12rem;line-height:1.35;margin:6px 0}",
+    "#screen-amour .pr-exit{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;margin:8px 0}",
+    "#screen-amour .pr-exit .k{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700}",
+    "@media(min-width:720px){#screen-amour .pr-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}}",
+    "@media (prefers-color-scheme: dark){:root:not([data-theme=light]) #screen-amour .alloy em{color:var(--sc-dark,var(--sc))} :root:not([data-theme=light]) #screen-amour .rhead{background:linear-gradient(120deg,color-mix(in srgb,var(--dom-color,#F3A3C0) 24%,var(--surface)),color-mix(in srgb,var(--sec-color,#8ED4AE) 24%,var(--surface)))} :root:not([data-theme=light]) #screen-amour [style*=\"--bcd\"]{--bc:var(--bcd);--bt:color-mix(in srgb,var(--bf) 22%,var(--surface))}}",
+    ":root[data-theme=dark] #screen-amour .alloy em{color:var(--sc-dark,var(--sc))}",
+    ":root[data-theme=dark] #screen-amour .rhead{background:linear-gradient(120deg,color-mix(in srgb,var(--dom-color,#F3A3C0) 24%,var(--surface)),color-mix(in srgb,var(--sec-color,#8ED4AE) 24%,var(--surface)))}",
+    ":root[data-theme=dark] #screen-amour [style*='--bcd']{--bc:var(--bcd);--bt:color-mix(in srgb,var(--bf) 22%,var(--surface))}",
     "@media (prefers-color-scheme: dark){:root:not([data-theme=light]) #screen-amour{--sage:#8ED4AE;--sage-soft:#1A3326;--sage-track:#2F6B48;--coral:#F0A090;--coral-soft:#3A221C;--coral-track:#7A4034;--pink:#F3A3C0;--pink-soft:#3A2030;--pink-track:#7A3854;--gold:#F0D078;--gold-soft:#3A3018;--gold-track:#7A5C20;--sky:#8ECAF0;--sky-soft:#1A2C3A;--sky-track:#2E6288}}",
     ":root[data-theme=dark] #screen-amour{--sage:#8ED4AE;--sage-soft:#1A3326;--sage-track:#2F6B48;--coral:#F0A090;--coral-soft:#3A221C;--coral-track:#7A4034;--pink:#F3A3C0;--pink-soft:#3A2030;--pink-track:#7A3854;--gold:#F0D078;--gold-soft:#3A3018;--gold-track:#7A5C20;--sky:#8ECAF0;--sky-soft:#1A2C3A;--sky-track:#2E6288}",
     "#screen-amour .rsrc-opt strong,#screen-amour .rsrc-opt .muted{display:block}",
@@ -107,14 +132,26 @@
     "@media(max-width:420px){#screen-amour .am-nav-row .btn{padding:12px 10px;font-size:.92rem}}",
     "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item{animation:none!important;transition:none!important}#screen-amour .am-pop{display:none}}",
     "@media print{",
-    "@page{size:A4;margin:12mm}",
-    "body{background:#fff!important;color:#1B1816!important}",
+    "@page{size:A4;margin:9mm}",
+    "body{background:#fff!important;color:#1B1816!important;font-size:8.6pt;line-height:1.3}",
     ".topbar,footer,.wrap>div:last-child,.mh-cookie-banner,.am-screen-only,#screen-amour .qnav,#screen-amour .btn,#screen-amour .row-actions{display:none!important}",
     ".wrap{max-width:none!important;padding:0!important}",
-    "#screen-amour .alloy{font-size:22pt!important}",
-    "#screen-amour .rs{padding-top:10px;gap:8px;break-inside:avoid}",
-    "#screen-amour .rule{break-inside:avoid;padding:10px 12px}",
-    "#screen-amour .quote{font-size:12.5pt}",
+    "#screen-amour .alloy{font-size:26pt!important;margin:2px 0 4px}",
+    "#screen-amour .rs{padding-top:6px;gap:6px;break-inside:auto}",
+    "#screen-amour .rs p{margin:4px 0}",
+    "#screen-amour ul.clean li{margin:2px 0}",
+    "#screen-amour .panel{break-inside:avoid;padding:8px 10px;margin:6px 0}",
+    "#screen-amour .rule{break-inside:avoid;padding:8px 10px;margin:3px 0}",
+    "#screen-amour #sec-now .rule p{display:none!important}",
+    "#screen-amour .quote{font-size:11.5pt}",
+    "#screen-amour .pr-hide,#screen-amour .toc,#screen-amour .pr-bars,#screen-amour details{display:none!important}",
+    "#screen-amour .pr-cols,#screen-amour .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}",
+    "#screen-amour .fond li:nth-child(n+3){display:none}",
+    "#screen-amour .am-pill{padding:3px 10px 3px 6px}",
+    "#screen-amour .pr-say li{font-size:9.5pt}",
+    "#screen-amour .pr-exit .k{color:#fff}",
+    "#screen-amour .rs h2{font-size:13.5pt;margin:0 0 4px}",
+    "*{print-color-adjust:exact;-webkit-print-color-adjust:exact}",
     "}"
   ].join("");
   document.head.appendChild(style);
@@ -673,9 +710,106 @@
     return "<ul class=\"clean\">" + items.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
   }
 
+  function needStyle(id) {
+    const b = D.profil.besoins[id];
+    return "--bc:" + b.ink + ";--bcd:" + b.dark + ";--bf:" + b.color + ";--bt:" + b.tint;
+  }
+  function profilSvg(name) {
+    const inner = D.profil.icons[name];
+    if (!inner) return "";
+    return '<span class="am-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + "</svg></span>";
+  }
+  function profilReport(profile) {
+    const pr = profile.profil;
+    const U = D.profil.ui;
+    const B = D.profil.besoins;
+    const dom = B[pr.dom];
+    const sec = B[pr.sec];
+    const headStyle = "--sc:" + sec.ink + ";--sc-dark:" + sec.dark + ";--dom-tint:" + dom.tint + ";--sec-tint:" + sec.tint + ";--dom-color:" + dom.color + ";--sec-color:" + sec.color;
+    const pills =
+      '<div class="am-pills"><span class="am-pill" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + "<span><small>Dominante</small>" + esc(dom.name) + "</span></span>" +
+      '<span class="am-pill" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>Secondaire</small>" + esc(sec.name) + "</span></span></div>";
+    const bars = pr.bars.map(function (bar) {
+      const b = B[bar.id];
+      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + "<span>" + esc(b.name) + '</span></span><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(bar.score)) + "</span></div>";
+    }).join("");
+    const why = '<details class="pr-hide"><summary>' + esc(U.whyLab) + "</summary><p>" + esc(fill(U.whyIntro, { domName: dom.name })) + "</p><ul class=\"clean\">" +
+      pr.why.map(function (line) { return "<li>" + esc(line) + "</li>"; }).join("") +
+      "</ul><p class=\"muted\">" + esc(U.whyNote) + "</p></details>";
+    const header =
+      '<div class="rhead" style="' + headStyle + '"><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
+      '<div class="alloy">' + esc(pr.name.noun) + " <em>" + esc(pr.name.adj) + "</em></div>" +
+      '<p class="pr-domsec">' + esc(pr.header.domSec) + "</p>" + pills +
+      '<div class="panel"><span class="lab">' + esc(U.alliageLab) + '</span><p class="quote">' + esc(pr.header.alliage) + "</p></div>" +
+      '<div class="panel pr-hide"><span class="lab">' + esc(U.barsLab) + '</span><div class="pr-bars">' + bars + "</div>" +
+      (pr.header.marginLine ? "<p>" + esc(pr.header.marginLine) + "</p>" : "") + "</div>" + why + "</div>";
+    const marks = [dom.icon, "cloud-rain", "life-buoy"];
+    const tones = [pr.dom, pr.dom, pr.dom];
+    const phrases =
+      '<section class="rs" id="sec-phrases"><h2>' + esc(R.sentencesH) + "</h2>" +
+      '<div class="panel">' + profile.sentences.map(function (sentence, i) {
+        return '<p class="am-sentence' + (i === 0 ? " quote" : "") + '" style="' + needStyle(tones[i]) + '">' + profilSvg(marks[i]) + "<span>" + esc(sentence) + "</span></p>";
+      }).join("") + "</div>" +
+      '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>';
+    const hrefs = ["#am-s1", "#am-s2", "#am-s3", "#am-s4", "#am-s5", "#am-s6", "#sec-now"];
+    const toc = '<nav class="toc" aria-label="Sommaire">' + U.toc.map(function (label, i) {
+      return '<a href="' + hrefs[i] + '">' + esc(label) + "</a>";
+    }).join("") + "</nav>";
+    const sections = pr.sections.map(function (secItem, i) {
+      const style = needStyle(pr.dom);
+      let body = "";
+      if (secItem.lead) body += "<p>" + esc(secItem.lead) + "</p>";
+      if (secItem.list) {
+        body += '<div class="panel ' + (i === 0 ? "ctx-good" : "ctx-bad") + '"><span class="lab">' + esc(i === 0 ? "Tes contextes fertiles" : "Tes contextes toxiques") + "</span><ul class=\"clean\">" +
+          secItem.list.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul>" +
+          (secItem.alarm ? "<p><strong>" + esc(U.s2alarmLab) + " :</strong> " + esc(secItem.alarm) + "</p>" : "") +
+          "</div>";
+      }
+      if (secItem.rows) {
+        body += '<div class="pr-rows">' + secItem.rows.map(function (row) {
+          return "<div><b>" + esc(row.label) + "</b><span>" + esc(row.text) + "</span></div>";
+        }).join("") + "</div>";
+      }
+      if (secItem.rule) body += "<p>" + esc(secItem.rule) + "</p>";
+      if (secItem.fond) body += '<ul class="clean fond">' + secItem.fond.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul>";
+      if (secItem.nourrit) {
+        const pair = function (item) { return "<p><strong>" + esc(item.label) + "</strong> " + esc(item.text) + "</p>"; };
+        body += '<div class="grid2">';
+        body += '<div class="panel ctx-good"><span class="lab">' + esc(U.s4nourrit) + "</span>" + secItem.nourrit.map(pair).join("") + "</div>";
+        body += '<div class="panel"><span class="lab">' + esc(U.s4frotte) + "</span>" + secItem.frotte.map(pair).join("") + "</div>";
+        body += "</div>";
+        body += '<div class="panel pr-hide"><span class="lab">' + esc(U.s4proche) + "</span>" + secItem.proche.map(pair).join("") +
+          "<p><strong>" + esc(U.s4mirrorLab) + " :</strong> " + esc(secItem.mirror) + "</p></div>";
+        body += '<div class="panel ctx-bad"><span class="lab">' + esc(U.s4critical) + '</span><ul class="clean">' +
+          secItem.critical.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div>";
+      }
+      if (secItem.partner) {
+        body += '<div class="grid2"><div class="panel"><span class="lab">' + esc(U.s5partner) + '</span><ul class="clean pr-say">' +
+          secItem.partner.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div>";
+        body += '<div class="panel"><span class="lab">' + esc(U.s5date) + '</span><ul class="clean pr-say">' +
+          secItem.date.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div></div>";
+      }
+      if (secItem.trap) body += "<h3>" + esc(secItem.trap) + "</h3>";
+      if (secItem.exits) {
+        body += '<div class="panel"><span class="lab">' + esc(U.s6exitLab) + "</span>" + secItem.exits.map(function (item, n) {
+          return '<div class="pr-exit"><span class="k">' + (n + 1) + "</span><p>" + esc(item) + "</p></div>";
+        }).join("") + "</div>";
+      }
+      if (secItem.extra) {
+        body += secItem.extra.map(function (line, j) {
+          const hide = i === 2 || (i === 0 && j !== 0) || (i === 1 && j !== 1) || (i === 5 && j !== 0);
+          return '<p class="' + (hide ? "pr-hide" : "") + '">' + esc(line) + "</p>";
+        }).join("");
+      }
+      if (secItem.also) body += "<p>" + esc(secItem.also) + "</p>";
+      return '<section class="rs pr-sec" id="am-s' + (i + 1) + '" style="' + style + '"><p class="snum">' + profilSvg(secItem.icon) + " " + (i + 1) + "</p><h2>" + esc(secItem.title) + "</h2>" + body + "</section>";
+    });
+    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + toc +
+      '<div class="pr-cols">' + sections[0] + sections[1] + "</div>" +
+      sections.slice(2).join("") + "</div>";
+  }
+
   function showResults(profile) {
-    const named = prenom;
-    const head = named ? fill(R.headerNamed, { prenom: named }) : R.headerAnon;
     const boussoleHref = D.config.boussoleUrl + "#amour=" + E.encodePayload(profile.boussole);
     const fortId = (profile.stress.fort || [])[0];
     const pierreLine = (R.nowStress && R.nowStress[fortId]) || R.nowGeneric;
@@ -723,9 +857,6 @@
 
     const type = D.ennea.types[profile.ennea.type];
     const detail =
-      '<section class="rs"><h2>' + esc(R.needsH) + "</h2><p>" + esc(D.needs[profile.needs.top[0]].desc) + "</p>" +
-      (profile.needs.top[1] ? "<p>" + esc(D.needs[profile.needs.top[1]].desc) + "</p>" : "") +
-      (profile.needs.anti ? "<p>" + esc(D.needs[profile.needs.anti].anti || D.needs[profile.needs.anti].danger || "") + "</p>" : "") + "</section>" +
       '<section class="rs"><h2>' + esc(R.ressH) + "</h2><p>" + esc(profile.recharge.line) + "</p><p>" + esc(D.recharge[profile.recharge.profile].couple) + "</p><p>" + esc(D.recharge[profile.recharge.profile].fit) + "</p><p>" + esc(D.recharge[profile.recharge.profile].risk) + "</p><p>" + esc(R.rechargeRule) + "</p></section>" +
       '<section class="rs"><h2>' + esc(R.langH) + "</h2>" + [profile.languages.lang1, profile.languages.lang2].filter(Boolean).map(function (id) {
         const L = D.languages[id];
@@ -761,14 +892,7 @@
 
     root.innerHTML =
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
-      '<div class="rhead"><span class="eyebrow">' + ico("heart", "pink") + 'Quiz Amour</span><div class="alloy">' + esc(head) + "</div></div>" +
-      '<div class="stack-lg" style="padding-top:8px">' +
-      '<section class="rs" id="sec-phrases"><h2>' + esc(R.sentencesH) + "</h2>" +
-      '<div class="panel">' + profile.sentences.map(function (sentence, i) {
-        const mark = [{ icon: "leaf", tone: "sage" }, { icon: "cloud", tone: "coral" }, { icon: "compass", tone: "gold" }][i] || { icon: "heart", tone: "pink" };
-        return '<p class="am-sentence' + (i === 0 ? " quote" : "") + '">' + ico(mark.icon, mark.tone) + "<span>" + esc(sentence) + "</span></p>";
-      }).join("") + "</div>" +
-      '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>' +
+      profilReport(profile) +
       '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + '</h2><div class="stack">' +
       '<article class="rule" data-tone="sage"><span class="k">1</span><strong>' + ico("flag", "sage") + esc(R.nowStep) + "</strong>" + stepBody + "</article>" +
       '<article class="rule" data-tone="sky"><span class="k">2</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
@@ -784,7 +908,7 @@
       '<textarea id="am-share" readonly hidden>' + esc(profile.shareText) + '</textarea><div class="row-actions"><button type="button" class="btn" data-act="copy">' + esc(R.copyBtn) + '</button><span class="toast" id="am-toast" aria-live="polite"></span></div></div></section>' +
       '<section class="rs"><h2>' + esc(R.matchingH) + '</h2><div class="panel"><p class="muted">' + matching + "</p></div></section>" +
       '<section class="rs"><h2>' + esc(R.ethicsH) + '</h2><div class="prose"><p>' + esc(R.ethicsP) + '</p><p><a class="link" href="/quiz-amour/">' + esc(R.restart) + "</a></p></div></section>" +
-      "</div></div>";
+      "</div>";
 
     delete root.dataset.tone;
     root.dataset.share = profile.shareText;

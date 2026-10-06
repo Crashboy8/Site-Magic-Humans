@@ -381,32 +381,6 @@
     const nourritCards = nourritOrder.map((id) => card(nourritScreen, "nourrit", id));
     const videCards = videOrder.map((id) => card(nourritScreen, "vide", id));
 
-    const nShort = (i) => nourritCards[i] ? nourritCards[i].short : "";
-    const vShort = (i) => videCards[i] ? videCards[i].short : "";
-    const s1 = fill(D.sentences.need, {
-      prenom,
-      n1: nShort(0),
-      n2: nShort(1),
-      n3: nShort(2),
-      lang1: D.languages[languages.lang1].lower,
-      lang2: D.languages[languages.lang2].lower,
-      rechargeShort: D.recharge[profile].short,
-    });
-    const s2 = fill(D.sentences.danger, {
-      v1: vShort(0),
-      v2: vShort(1),
-      val1: nonNegotiables[0] ? nonNegotiables[0].short : "",
-      brake1: String(brakeFirst).indexOf("autre:") === 0 ? shortOf(D, freinsScreen, "freins", brakeFirst) : D.brakes[brakeFirst].short,
-    });
-    const stressShort = fort.map((id) => D.stress.fort[id].short).join(" ou ");
-    const s3 = fill(D.sentences.ennea, {
-      n: D.ennea.types[enneaType].n,
-      name: D.ennea.types[enneaType].name,
-      instinct: D.instincts[instinct].name,
-      stress: stressShort,
-    });
-    const sentences = [s1, s2, s3];
-
     const complete = [
       D.needs[need1].partner,
       "Un partenaire qui " + D.languages[languages.lang1].partnerHint,
@@ -421,6 +395,22 @@
     const critical = nonNegotiables.map((v) => v.opposite);
     if (videCards[0]) critical.push(fill(D.ui.results.relive, { short: videCards[0].short }));
     critical.push(D.universalCritical);
+
+    const profil = computeProfil({
+      prenom,
+      nourrit: nourritCards,
+      vide: videCards,
+      recharge: { profile, picks: { soir: soirIds, weekend: weekIds } },
+      languages,
+      ennea: { all: typeOrder, instinct, instinct2, instinctLast },
+      values: { order: valueEntries },
+      stress: { modere, fort },
+      partner: { critical },
+    }, D);
+    const sentences = profil.sentences;
+    const s1 = sentences[0];
+    const s2 = sentences[1];
+    const s3 = sentences[2];
 
     const topVide = videOrder.slice(0, 2);
     const energyHit = topVide.some((id) => {
@@ -441,6 +431,8 @@
       langage: 2 + Math.min(2, langHits),
       complementarite: 1 + (modere.length >= 2 ? 1 : 0) + (nourritOrder.indexOf("aventure") !== -1 || nourritOrder.indexOf("espace") !== -1 ? 1 : 0),
     };
+    const boostKey = D.profil.boussoleBoost[profil.boussoleDom];
+    if (boostKey) priority[boostKey] += 1;
     const imp = assignImportance(priority);
     const weightSum = 6 * WEIGHTS.critique + ADJUSTABLE.reduce((sum, key) => sum + WEIGHTS[imp[key]], 0);
     if (weightSum !== 42) throw new Error("Poids total " + weightSum);
@@ -505,9 +497,10 @@
     glanceLines.push("« " + etape.engagement + " »" + (etape.who ? " · " + fill(D.ui.results.shareWith, { who: etape.who }) : "") + " · " + momentLabel);
 
     const shareText = D.shareTemplate.map((line) => fill(line, { s1, s2, s3, quizUrl: D.config.quizUrl })).join("\n");
-    const exportText = D.exportTemplate.map((line) => fill(line, {
+    const exportBody = D.exportTemplate.map((line) => fill(line, {
       s1, s2, s3, glance: glanceLines.join("\n"), calendly: D.config.calendly,
     })).join("\n");
+    const exportText = "Mon profil amoureux (hypothèse) : " + profil.name.text + ".\n" + exportBody;
 
     delete D._answers;
 
@@ -533,6 +526,7 @@
       partner: { complete, friction, critical },
       keyMessages: D.keyMessages,
       boussole,
+      profil,
     };
   }
 
@@ -548,7 +542,215 @@
     return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
 
-  const api = { computeLoveProfile, missingAnswers, boussolePayload, encodePayload, fill, rankingState };
+  /* Profil amoureux v1.4. Q4 (ennéagramme) est un éclairage : il n'entre pas dans le score affiché ni dans la Boussole. */
+  const PROFIL_SOURCES = ["nourrit", "vide", "valeurs", "langages", "instinct", "ressource", "stress"];
+
+  function profilAt(arr, i) {
+    return Array.isArray(arr) ? (i < arr.length ? arr[i] : arr[arr.length - 1]) : arr;
+  }
+  function profilPairKey(P, a, b) {
+    const ia = P.order.indexOf(a);
+    const ib = P.order.indexOf(b);
+    return ia <= ib ? a + "+" + b : b + "+" + a;
+  }
+  function profilAdd(out, need, pts, src, rank, ref) {
+    if (need && pts > 0) out.push({ need, pts, src, rank, ref });
+  }
+  function profilPoints(out, w, tbl, i, src, ref) {
+    if (!w) return;
+    if (typeof w === "string") {
+      profilAdd(out, w, typeof tbl === "number" ? tbl : profilAt(tbl, i), src, i + 1, ref);
+      return;
+    }
+    profilAdd(out, w.p, profilAt(tbl.p, i), src, i + 1, ref);
+    if (w.s) profilAdd(out, w.s, profilAt(tbl.s, i), src, i + 1, ref);
+  }
+  function contributions(base, D) {
+    const P = D.profil;
+    const W = P.weights;
+    const PT = P.points;
+    const out = [];
+    base.nourrit.forEach((c, i) => profilPoints(out, W.nourrit[c.id], PT.nourrit, i, "nourrit", c));
+    base.vide.forEach((c, i) => profilPoints(out, W.vide[c.id], PT.vide, i, "vide", c));
+    ["soir", "weekend"].forEach((g) => (base.recharge.picks[g] || []).forEach((id) => profilPoints(out, W.ressource[id], PT.ressource, 0, "ressource", { id, g })));
+    base.languages.order.forEach((id, i) => profilPoints(out, W.langages[id], PT.langages, i, "langages", { id }));
+    base.values.order.forEach((v, i) => { if (!v.own) profilPoints(out, W.valeurs[v.id], PT.valeurs, i, "valeurs", v); });
+    [base.ennea.instinct, base.ennea.instinct2, base.ennea.instinctLast].forEach((id, i) => {
+      if (id) profilPoints(out, W.instinct[id], PT.instinct, i, "instinct", { id });
+    });
+    base.stress.modere.concat(base.stress.fort).forEach((id) => profilPoints(out, W.stress[id], PT.stress, 0, "stress", { id }));
+    return out;
+  }
+  function exposure(P) {
+    const e = {};
+    P.order.forEach((n) => { e[n] = 0; });
+    Object.keys(P.weights).forEach((src) => {
+      if (src === "ennea") return;
+      const pt = P.points[src];
+      const unitP = typeof pt === "number" ? pt : Array.isArray(pt) ? pt[0] : pt.p[0];
+      const unitS = typeof pt === "object" && !Array.isArray(pt) ? pt.s[0] : 0;
+      Object.keys(P.weights[src]).forEach((key) => {
+        const w = P.weights[src][key];
+        if (typeof w === "string") e[w] += unitP;
+        else { e[w.p] += unitP; if (w.s) e[w.s] += unitS; }
+      });
+    });
+    return e;
+  }
+  function rank(P, contribs) {
+    const raw = {};
+    const nour = {};
+    const vide = {};
+    const expo = exposure(P);
+    P.order.forEach((n) => { raw[n] = 0; nour[n] = 0; vide[n] = 0; });
+    contribs.forEach((c) => {
+      raw[c.need] += c.pts;
+      if (c.src === "nourrit") nour[c.need] += c.pts;
+      if (c.src === "vide") vide[c.need] += c.pts;
+    });
+    const ranking = P.order.slice().sort((a, b) =>
+      raw[b] * expo[a] - raw[a] * expo[b] || nour[b] - nour[a] || vide[b] - vide[a] || P.order.indexOf(a) - P.order.indexOf(b));
+    const scores = {};
+    P.order.forEach((n) => { scores[n] = Math.round((1000 * raw[n]) / expo[n]) / 10; });
+    return { raw, scores, ranking, expo };
+  }
+  function whyLabel(D, c) {
+    const w = D.profil.ui.why;
+    switch (c.src) {
+      case "nourrit": return fill(w.nourrit, { short: c.ref.short, rank: c.rank });
+      case "vide": return fill(w.vide, { short: c.ref.short });
+      case "ressource": {
+        const screen = D.screens.find((x) => x.id === "ressource");
+        const group = screen.groups.find((g) => g.id === c.ref.g);
+        const item = group.items.find((it) => it.id === c.ref.id);
+        return fill(w.ressource, { short: item ? item.short : c.ref.id });
+      }
+      case "langages": return fill(w.langages, { lower: D.languages[c.ref.id].lower, rank: c.rank });
+      case "valeurs": return fill(w.valeurs, { short: c.ref.short, rank: c.rank });
+      case "instinct": return fill(w.instinct, { name: D.instincts[c.ref.id].name });
+      default: return w.stress;
+    }
+  }
+  function computeProfil(base, D) {
+    const P = D.profil;
+    const U = P.ui;
+    const B = P.besoins;
+    const contribs = contributions(base, D);
+    const ranked = rank(P, contribs);
+    const scores = ranked.scores;
+    const ranking = ranked.ranking;
+    const dom = ranking[0];
+    const sec = ranking[1];
+    const d = B[dom];
+    const s = B[sec];
+    const name = { noun: d.noun, adj: s.adj, text: d.noun + " " + s.adj };
+    const inverse = s.noun + " " + d.adj;
+    const margin = scores[sec] >= 0.95 * scores[dom] ? "mixte" : scores[sec] < 0.6 * scores[dom] ? "net" : null;
+    const max = Math.max(1, scores[dom]);
+    const bars = ranking.map((id) => ({ id, score: scores[id], pct: Math.round((scores[id] / max) * 100) }));
+    const byKey = {};
+    contribs.filter((c) => c.need === dom).forEach((c) => {
+      const k = c.src === "stress" ? "stress" : c.src + ":" + (c.ref.id || "");
+      if (!byKey[k]) byKey[k] = { c, pts: 0 };
+      byKey[k].pts += c.pts;
+    });
+    const why = Object.keys(byKey).map((k) => byKey[k]).sort((a, b) =>
+      b.pts - a.pts || PROFIL_SOURCES.indexOf(a.c.src) - PROFIL_SOURCES.indexOf(b.c.src) || a.c.rank - b.c.rank
+    ).slice(0, 3).map((x) => whyLabel(D, x.c));
+    const boussoleDom = dom;
+    let anti = null;
+    for (let i = 0; i < base.vide.length; i++) {
+      const w = P.weights.vide[base.vide[i].id];
+      if (w) { anti = w.p; break; }
+    }
+    const noMore = base.vide[0];
+    const noMoreNeed = noMore && P.weights.vide[noMore.id] ? P.weights.vide[noMore.id].p : null;
+    const top = base.nourrit[0];
+    const topNeed = top && P.weights.nourrit[top.id] ? P.weights.nourrit[top.id].p : null;
+    const fortOrder = D.stress.order_fort || ["fight", "flight", "freeze", "fawn"];
+    const fortIds = fortOrder.filter((id) => base.stress.fort.indexOf(id) !== -1);
+    const trapId = fortIds[0];
+    const trap = P.pieges[trapId];
+    const prenom = base.prenom || "Toi";
+    const sentences = [
+      fill(U.sentences.s1, { prenom, profil: name.text, s1: d.s1, secNeed: s.secNeed }),
+      fill(U.sentences.s2, { bloomShort: d.bloomShort, fadeShort: d.fadeShort }),
+      fill(U.sentences.s3, { trapName: trap.name, trapShort: trap.short, exitShort: trap.exitShort }),
+    ];
+    const rc = D.recharge[base.recharge.profile];
+    const s1 = {
+      title: U.s1h, icon: "sun", lead: d.bloom, list: d.bloomList.slice(),
+      extra: [
+        "Ton besoin secondaire (" + s.name + ") ajoute une couleur : " + s.secBloom + ".",
+        top ? (topNeed ? fill(U.s1top, { short: top.short, de: B[topNeed].de }) : "") : "",
+        fill(U.s1recharge, { title: lc1(rc.title), couple: lc1(rc.couple) }),
+      ].filter(Boolean),
+    };
+    const s2 = {
+      title: U.s2h, icon: "cloud-rain", lead: d.fade, list: d.fadeList.slice(), alarm: d.alarm,
+      extra: [
+        "Et comme " + s.lower + " compte aussi pour toi, " + s.secFade + ".",
+        noMore ? (noMoreNeed ? fill(U.s2noMore, { short: noMore.short, de: B[noMoreNeed].de }) : fill(U.s2noMoreOwn, { short: noMore.short })) : "",
+        U.s2test,
+      ].filter(Boolean),
+    };
+    const s3 = {
+      title: U.s3h, icon: "house",
+      rows: ["rythme", "proximite", "independance", "conflits"].map((k) => ({ label: U.s3rows[k], text: d.rel[k] })),
+      extra: [
+        fill(U.s3sec, { name: s.name, cond: s.secCond }),
+        fill(U.s3instinct, { name: D.instincts[base.ennea.instinct].name, couple: lc1(D.instincts[base.ennea.instinct].couple) }),
+      ],
+    };
+    const group = (type) => P.order.filter((o) => o !== dom && P.couples[profilPairKey(P, dom, o)].type === type)
+      .map((o) => ({ id: o, label: fill(U.s4profileLine, { name: B[o].name, who: B[o].who }), text: P.couples[profilPairKey(P, dom, o)].text }));
+    const firstModere = base.stress.modere[0];
+    const s4 = {
+      title: U.s4h, icon: "users", rule: U.s4rule,
+      fond: [
+        fill(U.s4fond, { fond: d.partnerFond }),
+        fill(U.s4fondSec, { fond: s.partnerFond }),
+        fill(U.s4lang, { hint: D.languages[base.languages.lang1].partnerHint }),
+        firstModere ? fill(U.s4stress, { partner: lc1(D.stress.modere[firstModere].partner) }) : "",
+      ].filter(Boolean),
+      nourrit: group("nourrit"), proche: group("proche"), frotte: group("frotte"),
+      mirror: P.couples[profilPairKey(P, dom, dom)].text,
+      critical: base.partner.critical.slice(),
+    };
+    const s5 = {
+      title: U.s5h, icon: "message-circle-heart",
+      partner: d.sayPartner.concat([s.sayPartner[0]]),
+      date: d.sayDate.concat([s.sayDate[0]]),
+    };
+    const others = fortIds.slice(1).map((id) => P.pieges[id].name);
+    const s6 = {
+      title: U.s6h, icon: "life-buoy", trap: trap.title, lead: trap.mech,
+      extra: [
+        fill(U.s6trigger, { trigger: d.trigger }),
+        base.stress.modere.length ? fill(U.s6early, { modere: base.stress.modere.map((id) => D.stress.modere[id].short).join(" ou ") }) : "",
+        fill(U.s6calm, { calm: d.calm }),
+      ].filter(Boolean),
+      exits: trap.exits.slice(),
+    };
+    if (others.length) s6.also = fill(U.s6also, { others: others.join(", ") });
+    return {
+      dom, sec, name, inverse, margin, raw: ranked.raw, scores, ranking, bars, why, trapId, anti, boussoleDom,
+      header: {
+        eyebrow: base.prenom && base.prenom !== "Toi" ? fill(U.eyebrowNamed, { prenom: base.prenom }) : U.eyebrowAnon,
+        domSec: fill(U.domSec, { domName: d.name, domKey: d.key, secName: s.name, secKey: s.key }),
+        alliage: P.alliages[profilPairKey(P, dom, sec)],
+        marginLine: margin === "mixte" ? fill(U.mixedLine, { inverse }) : margin === "net" ? U.netLine : undefined,
+      },
+      sentences,
+      sections: [s1, s2, s3, s4, s5, s6],
+    };
+  }
+  function boussoleBoost(profil, D) { return D.profil.boussoleBoost[profil.boussoleDom]; }
+
+  const api = {
+    computeLoveProfile, missingAnswers, boussolePayload, encodePayload, fill, rankingState,
+    computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
+  };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.AmourEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -133,7 +133,7 @@ test("question 1 en deux sous-écrans, même numéro", () => {
 });
 
 test("10 questions, ids uniques, types pick/rank/commit, n de 1 à 10", () => {
-  assert.equal(D.version, 3);
+  assert.equal(D.version, 4);
   assert.equal(D.screens.length, 10);
   assert.equal(new Set(D.screens.map((s) => s.id)).size, 10);
   D.screens.forEach((s, i) => {
@@ -277,12 +277,10 @@ test("phrases", () => {
   a.ressource.picked.soir = ["seul", "douceur"];
   a.ressource.picked.weekend = ["moi", "rien"];
   const p = E.computeLoveProfile(a, D, "Léa");
-  assert.equal(
-    p.sentences[0],
-    "Léa, ce qui te nourrit vraiment : être écouté·e, rire ensemble et pouvoir compter sur l'autre. Tu te sens aimé·e surtout par les moments de qualité et le toucher, et tu te recharges seul·e, au calme."
-  );
-  assert.ok(p.sentences[1].includes("ton frein :"));
-  assert.ok(p.sentences[2].includes("sous-type") && p.sentences[2].includes("tu as tendance à"));
+  assert.match(p.sentences[0], /^Léa, ton profil amoureux est /);
+  assert.match(p.sentences[1], /^Tu t'épanouis quand /);
+  assert.match(p.sentences[2], /^Sous stress fort, ton piège/);
+  assert.equal(p.profil.name.text, p.profil.name.noun + " " + p.profil.name.adj);
 });
 
 test("valeurs", () => {
@@ -362,6 +360,206 @@ test("préréglage", () => {
   assert.ok(p.boussole.notes.incompatibilite.includes("la fidélité"));
   assert.ok(p.boussole.notes.incompatibilite.includes("le respect"));
   assert.ok(p.boussole.notes.incompatibilite.includes("devoir te justifier de tout"));
+});
+
+const P = D.profil;
+
+function camilleAnswers() {
+  const pick = (groups) => {
+    const bag = { picked: {}, other: {}, order: {} };
+    for (const [groupId, ids] of Object.entries(groups)) {
+      bag.picked[groupId] = ids.slice();
+      bag.other[groupId] = [];
+      bag.order[groupId] = ids.slice();
+    }
+    return bag;
+  };
+  return {
+    nourrit: pick({ nourrit: ["profondeur", "fiable", "desir", "ecoute"], vide: ["silences", "promesses", "routine"] }),
+    ressource: pick({ soir: ["raconter", "evader"], weekend: ["adeux", "decouvrir", "nature"] }),
+    langages: { order: ["moments", "toucher", "paroles"] },
+    ennea: pick({ types: ["t4", "t6"] }),
+    valeurs: pick({ valeurs: ["honnetete", "fidelite", "enfants", "culture", "aventure"] }),
+    instinct: { order: ["sx", "sp", "so"] },
+    stress: pick({ modere: ["C"], fort: ["freeze", "fawn"] }),
+    freins: pick({ freins: ["moment"] }),
+    demain: pick({ actions: ["a5"] }),
+    etape: { engagement: "Cette semaine, je propose une soirée rien qu'à deux.", moment: "weekend", safety: null },
+  };
+}
+
+test("v1.4 · 7 besoins complets, couleurs et icônes", () => {
+  assert.equal(P.order.length, 7);
+  const fields = ["name", "key", "noun", "adj", "lower", "de", "color", "ink", "tint", "icon", "who", "s1", "secNeed", "bloomShort", "fadeShort", "bloom", "secBloom", "fade", "alarm", "secFade", "secCond", "partnerFond", "trigger", "calm"];
+  const nouns = {
+    securite: "Ancre", profondeur: "Miroir", admiration: "Étoile", liberte: "Oiseau",
+    harmonie: "Oasis", complicite: "Équipe", intensite: "Volcan",
+  };
+  const adjs = {
+    securite: "Fidèle", profondeur: "Profond·e", admiration: "Brillant·e", liberte: "Libre",
+    harmonie: "Paisible", complicite: "Joueur·se", intensite: "Passionné·e",
+  };
+  for (const id of P.order) {
+    const b = P.besoins[id];
+    for (const f of fields) assert.ok(typeof b[f] === "string" && b[f].trim(), id + "." + f);
+    assert.equal(b.noun, nouns[id]);
+    assert.equal(b.adj, adjs[id]);
+    assert.equal(b.bloomList.length, 3);
+    assert.equal(b.fadeList.length, 3);
+    assert.equal(b.sayPartner.length, 3);
+    assert.equal(b.sayDate.length, 2);
+    for (const k of ["rythme", "proximite", "independance", "conflits"]) assert.ok(b.rel[k]);
+    assert.ok(P.icons[b.icon], "icône " + b.icon);
+    assert.match(b.color, /^#[0-9A-F]{6}$/);
+    assert.match(b.ink, /^#[0-9A-F]{6}$/);
+  }
+  assert.equal(new Set(P.order.map((id) => P.besoins[id].noun)).size, 7);
+  assert.equal(new Set(P.order.map((id) => P.besoins[id].adj)).size, 7);
+});
+
+test("v1.4 · contraste : ink >= 4.5:1 et color >= 3:1 sur blanc", () => {
+  const L = (h) => {
+    const v = [1, 3, 5].map((i) => parseInt(h.substr(i, 2), 16) / 255).map((x) => x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  };
+  const cr = (a) => 1.05 / (L(a) + 0.05);
+  for (const id of P.order) {
+    assert.ok(cr(P.besoins[id].ink) >= 4.5, id + " ink");
+    assert.ok(cr(P.besoins[id].color) >= 3, id + " color");
+  }
+});
+
+test("v1.4 · 42 combinaisons ordonnées : un nom unique, un alliage, des couples", () => {
+  const names = new Set();
+  for (const a of P.order) for (const b of P.order) {
+    if (a === b) {
+      assert.equal(P.couples[E.pairKey(P, a, b)].type, "miroir");
+      continue;
+    }
+    names.add(P.besoins[a].noun + " " + P.besoins[b].adj);
+    assert.ok(P.alliages[E.pairKey(P, a, b)], "alliage " + a + "+" + b);
+    assert.ok(P.couples[E.pairKey(P, a, b)], "couple " + a + "+" + b);
+  }
+  assert.equal(names.size, 42);
+  assert.ok(names.has("Miroir Passionné·e"));
+  assert.equal(Object.keys(P.alliages).length, 21);
+  assert.equal(Object.keys(P.couples).length, 28);
+  for (const a of P.order) {
+    const t = (type) => P.order.filter((o) => o !== a && P.couples[E.pairKey(P, a, o)].type === type).length;
+    assert.equal(t("nourrit"), 2, a);
+    assert.equal(t("proche"), 2, a);
+    assert.equal(t("frotte"), 2, a);
+  }
+});
+
+test("v1.4 · table de pondération : chaque option de Q1 à Q7 est connue", () => {
+  const ids = (sid, gid) => (gid ? screen(sid).groups.find((g) => g.id === gid).items : screen(sid).items).map((it) => it.id);
+  const check = (tbl, list) => {
+    assert.deepEqual(Object.keys(tbl).sort(), list.slice().sort());
+    for (const v of Object.values(tbl)) {
+      const w = typeof v === "string" ? { p: v } : v;
+      assert.ok(P.order.includes(w.p));
+      if (w.s) assert.ok(P.order.includes(w.s));
+    }
+  };
+  check(P.weights.nourrit, ids("nourrit", "nourrit"));
+  check(P.weights.vide, ids("nourrit", "vide"));
+  check(P.weights.ressource, ids("ressource", "soir").concat(ids("ressource", "weekend")).filter((v, i, a) => a.indexOf(v) === i));
+  check(P.weights.langages, ids("langages"));
+  check(P.weights.ennea, ids("ennea", "types"));
+  check(P.weights.valeurs, ids("valeurs", "valeurs"));
+  check(P.weights.instinct, ids("instinct"));
+  check(P.weights.stress, ids("stress", "modere").concat(ids("stress", "fort")));
+});
+
+test("v1.4 · aucun tiret long, jamais « sexuel », aucun TODO dans le profil", () => {
+  for (const t of allStrings(P)) {
+    assert.ok(!/[\u2013\u2014]/.test(t), t);
+    assert.ok(!/sexuel/i.test(t), t);
+    assert.ok(!/TODO/.test(t), t);
+  }
+});
+
+test("v1.4 · déterministe et complet sur 3000 réponses, sans l'ennéagramme dans le score", () => {
+  const r = rnd(42);
+  const seen = new Set();
+  for (let i = 0; i < 3000; i++) {
+    const a = randomAnswers(r);
+    const love = E.computeLoveProfile(a, D, i % 2 ? "Léa" : "");
+    const p1 = love.profil;
+    const flipped = JSON.parse(JSON.stringify(a));
+    flipped.ennea = { picked: { types: ["t" + (1 + (i % 9))] }, other: { types: [] }, order: { types: ["t" + (1 + (i % 9))] } };
+    const love2 = E.computeLoveProfile(flipped, D, i % 2 ? "Léa" : "");
+    assert.deepEqual(p1.scores, love2.profil.scores);
+    assert.equal(p1.name.text, love2.profil.name.text);
+    assert.equal(p1.boussoleDom, love2.profil.boussoleDom);
+    assert.equal(E.encodePayload(love.boussole), E.encodePayload(love2.boussole));
+    assert.equal(p1.dom, p1.boussoleDom);
+    assert.notEqual(p1.dom, p1.sec);
+    assert.equal(p1.sentences.length, 3);
+    assert.equal(p1.sections.length, 6);
+    for (const s of p1.sections) assert.ok(s.title && (s.lead || s.rows || s.fond || s.partner));
+    assert.equal(p1.sections[3].nourrit.length, 2);
+    assert.equal(p1.sections[3].frotte.length, 2);
+    assert.ok(p1.sections[3].critical.length >= 1);
+    assert.equal(p1.sections[4].partner.length, 4);
+    assert.equal(p1.sections[4].date.length, 3);
+    assert.equal(p1.sections[5].exits.length, 3);
+    assert.ok(p1.why.length >= 1);
+    for (const t of allStrings({ h: p1.header, s: p1.sentences, sec: p1.sections, n: p1.name, w: p1.why })) {
+      assert.ok(t.trim().length > 0);
+      assert.ok(!/undefined|null|NaN|\{\w+\}/.test(t), t);
+      assert.ok(!/[\u2013\u2014]/.test(t), t);
+      assert.ok(!/sexuel/i.test(t), t);
+    }
+    seen.add(p1.name.text);
+  }
+  assert.ok(seen.size >= 30, "variété : " + seen.size);
+});
+
+test("v1.4 · calcul de référence (firstAnswers), sans Q4", () => {
+  const p = E.computeLoveProfile(firstAnswers(), D, "Léa").profil;
+  assert.deepEqual(p.scores, {
+    securite: 16.7, profondeur: 27.9, admiration: 19.4, liberte: 16.2, harmonie: 21.6, complicite: 12.5, intensite: 3.2,
+  });
+  assert.equal(p.name.text, "Miroir Paisible");
+});
+
+test("v1.4 · égalités : ratio, puis nourrit, puis vide, puis ordre fixe", () => {
+  const r = E.rank(P, [
+    { need: "securite", pts: 54, src: "valeurs" },
+    { need: "complicite", pts: 56, src: "nourrit" },
+    { need: "liberte", pts: 37, src: "vide" },
+    { need: "intensite", pts: 31, src: "valeurs" },
+  ]);
+  assert.deepEqual(r.ranking.slice(0, 4), ["complicite", "liberte", "securite", "intensite"]);
+  assert.deepEqual(E.rank(P, []).ranking, P.order);
+});
+
+test("v1.4 · exposition sans l'ennéagramme", () => {
+  assert.deepEqual(E.exposure(P), {
+    securite: 54, profondeur: 43, admiration: 36, liberte: 37, harmonie: 51, complicite: 56, intensite: 31,
+  });
+});
+
+test("v1.4 · exemple Camille : Miroir Passionné·e, Q4 sans effet", () => {
+  const a = camilleAnswers();
+  const love = E.computeLoveProfile(a, D, "Camille");
+  const p = love.profil;
+  assert.equal(p.name.text, "Miroir Passionné·e");
+  assert.equal(p.margin, "net");
+  assert.equal(p.trapId, "freeze");
+  assert.equal(p.boussoleDom, "profondeur");
+  assert.equal(love.boussole.imp.langage, "tres_important");
+  assert.deepEqual(p.scores, {
+    securite: 27.8, profondeur: 58.1, admiration: 2.8, liberte: 2.7, harmonie: 13.7, complicite: 7.1, intensite: 32.3,
+  });
+  assert.match(p.sentences[0], /^Camille, ton profil amoureux est Miroir Passionné·e : /);
+  const other = camilleAnswers();
+  other.ennea = { picked: { types: ["t8"] }, other: { types: [] }, order: { types: ["t8"] } };
+  const love2 = E.computeLoveProfile(other, D, "Camille");
+  assert.equal(E.encodePayload(love.boussole), E.encodePayload(love2.boussole));
+  assert.equal(love2.profil.name.text, "Miroir Passionné·e");
 });
 
 test("encodage", () => {
