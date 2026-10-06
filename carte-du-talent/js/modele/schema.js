@@ -5,32 +5,34 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const VERSION = 1;
 
   const STATUTS = ['natale', 'conquise', 'frontiere', 'a_conquerir', 'a_deleguer', 'ile'];
 
   const LIBELLES_STATUT = {
-    natale: 'Territoire natal',
-    conquise: 'Territoire conquis',
-    frontiere: 'Frontière',
-    a_conquerir: 'À conquérir',
-    a_deleguer: 'À déléguer',
-    ile: 'Île de flow'
+    natale: T('Territoire natal'),
+    conquise: T('Territoire conquis'),
+    frontiere: T('Frontière'),
+    a_conquerir: T('À conquérir'),
+    a_deleguer: T('À déléguer'),
+    ile: T('Île de flow')
   };
 
   // Domaines de compétences : servent à regrouper les provinces éloignées et la bibliothèque.
   const DOMAINES = {
-    relation: { nom: 'Relation', couleur: '#E9A48C' },
-    animation: { nom: 'Animation', couleur: '#EFC66A' },
-    scene: { nom: 'Scène', couleur: '#E58FA6' },
-    pedagogie: { nom: 'Pédagogie', couleur: '#A99BE0' },
-    communication: { nom: 'Communication', couleur: '#8FC3D6' },
-    numerique: { nom: 'Numérique', couleur: '#86A9C9' },
-    langues: { nom: 'Langues', couleur: '#C7A47E' },
-    business: { nom: 'Business', couleur: '#A9C27A' },
-    corps: { nom: 'Corps', couleur: '#E6A86B' },
-    creation: { nom: 'Création', couleur: '#C99AD0' },
-    organisation: { nom: 'Organisation', couleur: '#A8B0B8' }
+    relation: { nom: T('Relation'), couleur: '#E9A48C' },
+    animation: { nom: T('Animation'), couleur: '#EFC66A' },
+    scene: { nom: T('Scène'), couleur: '#E58FA6' },
+    pedagogie: { nom: T('Pédagogie'), couleur: '#A99BE0' },
+    communication: { nom: T('Communication'), couleur: '#8FC3D6' },
+    numerique: { nom: T('Numérique'), couleur: '#86A9C9' },
+    langues: { nom: T('Langues'), couleur: '#C7A47E' },
+    business: { nom: T('Business'), couleur: '#A9C27A' },
+    corps: { nom: T('Corps'), couleur: '#E6A86B' },
+    creation: { nom: T('Création'), couleur: '#C99AD0' },
+    organisation: { nom: T('Organisation'), couleur: '#A8B0B8' }
   };
 
   const PREFERENCES_DEFAUT = { brouillardDeGuerre: false, seuilConquete: 10 };
@@ -85,7 +87,7 @@
       .filter((r) => r && r.id)
       .map((r) => ({
         id: String(r.id),
-        nom: texte(r.nom, 'Région'),
+        nom: texte(r.nom, T('Région')),
         couleur: /^#[0-9a-f]{6}$/i.test(r.couleur) ? r.couleur : '#9DB8A0',
         icone: texte(r.icone, 'map'),
         voisines: liste(r.voisines).map(String)
@@ -129,7 +131,7 @@
       c.voisines = c.voisines.filter((v) => v !== c.id && idsComp.has(v));
       // Une compétence d'île sans île connue est rattachée à une île par défaut.
       if (c.statut === 'ile' && !c.ileId) {
-        if (!carte.iles.length) carte.iles.push({ id: 'ile-flow', nom: 'Île de flow' });
+        if (!carte.iles.length) carte.iles.push({ id: 'ile-flow', nom: T('Île de flow') });
         c.ileId = carte.iles[0].id;
       }
     });

@@ -6,6 +6,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const POIDS_STATUT = { natale: 1, conquise: 1, frontiere: 1.3, a_conquerir: 0.6, ile: 0.5, a_deleguer: 0 };
   const DOMAINES_ELOIGNES = ['numerique', 'langues', 'organisation'];
 
@@ -65,12 +67,12 @@
     let raison;
     if (distance === 'eloignee') {
       const d = CT.schema.DOMAINES[entree.domaine];
-      raison = 'Prolonge ta province ' + (d ? d.nom.toLowerCase() : 'éloignée');
+      raison = d ? T('Prolonge ta province {domaine}', { domaine: d.nom.toLowerCase() }) : T('Prolonge ta province éloignée');
     } else if (appuis.length) {
-      raison = 'Proche de ' + appuis.slice(0, 2).map((a) => '« ' + a.c.nom + ' »').join(' et ');
+      raison = T('Proche de {noms}', { noms: appuis.slice(0, 2).map((a) => T('« {nom} »', { nom: a.c.nom })).join(T(' et ')) });
     } else {
       const r = CT.regles.regionDe(carte, regionId);
-      raison = r ? 'Dans le prolongement de ' + r.nom : 'Une piste à explorer';
+      raison = r ? T('Dans le prolongement de {nom}', { nom: r.nom }) : T('Une piste à explorer');
     }
 
     return { entree, score, appuis: appuis.map((a) => a.c.id), regionId, regionJonctionId, distance, raison };

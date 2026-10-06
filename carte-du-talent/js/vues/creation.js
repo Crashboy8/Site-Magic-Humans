@@ -6,6 +6,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const O = CT.outils;
   const C = CT.creation;
 
@@ -50,7 +52,15 @@
   // Une phrase de la Boussole ajoutée telle quelle : ses virgules ne doivent pas la découper.
   const sansVirgule = (t) => t.replace(/\s*[,;]\s*/g, ' ');
 
-  const LIBELLE_TYPE = { moments: 'flow', conquises: 'appris', frontieres: 'envie' };
+  // Textes des questions, traduits une fois pour toutes.
+  Object.values(QUESTIONS).forEach((q) => {
+    q.titre = T(q.titre);
+    q.aide = T(q.aide);
+    q.placeholder = T(q.placeholder);
+    q.exemples = q.exemples.map((e) => T(e));
+  });
+
+  const LIBELLE_TYPE = { moments: T('flow'), conquises: T('appris'), frontieres: T('envie') };
 
   function creer(racine, rappels) {
     let brouillon = null;
@@ -68,34 +78,34 @@
 
     function tete(etape) {
       const question = etape <= 6;
-      const libelle = question ? 'Question ' + etape + ' sur 6' : etape === 7 ? 'Presque fini : le filtre' : 'Dernière étape : le regroupement';
+      const libelle = question ? T('Question {n} sur 6', { n: etape }) : etape === 7 ? T('Presque fini : le filtre') : T('Dernière étape : le regroupement');
       const avance = Math.round(Math.min(etape, 8) / 8 * 100);
-      return '<header class="creation-tete"><div class="creation-progression"><span class="surtitre"><i data-lucide="map"></i> Créer ma carte · ' + libelle + '</span>' +
-        '<div class="barre-progression" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + avance + '" aria-label="Avancement"><span style="width:' + avance + '%"></span></div></div>' +
-        '<button type="button" class="fermer" data-action="quitter" aria-label="Quitter (ta saisie est gardée)" title="Quitter : ta saisie est gardée"><i data-lucide="x"></i></button></header>';
+      return '<header class="creation-tete"><div class="creation-progression"><span class="surtitre"><i data-lucide="map"></i> ' + T('Créer ma carte') + ' · ' + libelle + '</span>' +
+        '<div class="barre-progression" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + avance + '" aria-label="' + O.echapper(T('Avancement')) + '"><span style="width:' + avance + '%"></span></div></div>' +
+        '<button type="button" class="fermer" data-action="quitter" aria-label="' + O.echapper(T('Quitter (ta saisie est gardée)')) + '" title="' + O.echapper(T('Quitter : ta saisie est gardée')) + '"><i data-lucide="x"></i></button></header>';
     }
 
     function pied(etape, peutContinuer, libelleSuite) {
       return '<footer class="creation-pied">' +
-        (etape > 1 ? '<button type="button" class="bouton-lien" data-action="retour"><i data-lucide="arrow-left"></i>Retour</button>' : '<span></span>') +
+        (etape > 1 ? '<button type="button" class="bouton-lien" data-action="retour"><i data-lucide="arrow-left"></i>' + T('Retour') + '</button>' : '<span></span>') +
         '<button type="button" class="bouton bouton-principal" data-action="suite"' + (peutContinuer ? '' : ' disabled') + '>' +
-        (libelleSuite || 'Continuer') + '<i data-lucide="arrow-right"></i></button></footer>';
+        (libelleSuite || T('Continuer')) + '<i data-lucide="arrow-right"></i></button></footer>';
     }
 
     function ecranAccueil() {
       const enCours = CT.stockage.chargerBrouillon();
       const reprendre = enCours && (enCours.talent.nom || enCours.regions.length);
       return '<div class="creation-accueil"><div class="accueil-hex" aria-hidden="true">' + hexDecor() + '</div>' +
-        '<h1>Bienvenue sur ta Carte du Talent</h1>' +
-        '<p>Ta carte montre ton talent comme un territoire : un cœur, des régions, des frontières que tu repousses, des îles où tu te ressources. ' +
-        'Six questions suffisent pour la dessiner. Compte une dizaine de minutes.</p>' +
+        '<h1>' + T('Bienvenue sur ta Carte du Talent') + '</h1>' +
+        '<p>' + T('Ta carte montre ton talent comme un territoire : un cœur, des régions, des frontières que tu repousses, des îles où tu te ressources.') + ' ' +
+        T('Six questions suffisent pour la dessiner. Compte une dizaine de minutes.') + '</p>' +
         '<div class="accueil-actions">' +
         (reprendre
-          ? '<button type="button" class="bouton bouton-principal" data-action="reprendre"><i data-lucide="play"></i>Reprendre ma carte (' + (enCours.etape > 6 ? 'dernière étape' : 'question ' + enCours.etape) + ')</button>' +
-            '<button type="button" class="bouton bouton-secondaire" data-action="recommencer"><i data-lucide="rotate-ccw"></i>Recommencer de zéro</button>'
-          : '<button type="button" class="bouton bouton-principal" data-action="commencer"><i data-lucide="sparkles"></i>Créer ma carte</button>') +
-        '<button type="button" class="bouton bouton-secondaire" data-action="demo"><i data-lucide="eye"></i>Explorer la carte de démonstration</button>' +
-        '</div><p class="discret">Tout reste dans ce navigateur. Tu pourras exporter ta carte à tout moment.</p></div>';
+          ? '<button type="button" class="bouton bouton-principal" data-action="reprendre"><i data-lucide="play"></i>' + T('Reprendre ma carte ({etape})', { etape: enCours.etape > 6 ? T('dernière étape') : T('question {n}', { n: enCours.etape }) }) + '</button>' +
+            '<button type="button" class="bouton bouton-secondaire" data-action="recommencer"><i data-lucide="rotate-ccw"></i>' + T('Recommencer de zéro') + '</button>'
+          : '<button type="button" class="bouton bouton-principal" data-action="commencer"><i data-lucide="sparkles"></i>' + T('Créer ma carte') + '</button>') +
+        '<button type="button" class="bouton bouton-secondaire" data-action="demo"><i data-lucide="eye"></i>' + T('Explorer la carte de démonstration') + '</button>' +
+        '</div><p class="discret">' + T('Tout reste dans ce navigateur. Tu pourras exporter ta carte à tout moment.') + '</p></div>';
     }
 
     // Arrivée depuis la Boussole : rien n'est remplacé tant que la personne n'a pas choisi.
@@ -103,30 +113,29 @@
       const enCours = CT.stockage.chargerBrouillon();
       const reprendre = enCours && (enCours.talent.nom || enCours.regions.length);
       return '<div class="creation-accueil"><div class="accueil-hex" aria-hidden="true">' + hexDecor() + '</div>' +
-        '<h1 id="creation-titre">Ta carte à partir de ta Boussole</h1>' +
-        '<p>Ton talent et tes contextes vécus sont prêts : la création guidée s\'ouvre pré-remplie. Tu ajustes chaque étape, puis tu crées ta carte.</p>' +
-        (arrivee.carteExistante ? '<p class="note-boussole"><i data-lucide="shield-check"></i>Ta carte actuelle reste en place tant que tu n\'as pas créé la nouvelle. ' +
-          'Pense à l\'exporter depuis les Réglages si tu veux la garder.</p>' : '') +
-        (reprendre ? '<p class="note-boussole"><i data-lucide="info"></i>Tu avais commencé une création (' + (enCours.etape > 6 ? 'dernière étape' : 'question ' + enCours.etape) +
-          ') : commencer avec ta Boussole la remplacera.</p>' : '') +
+        '<h1 id="creation-titre">' + T('Ta carte à partir de ta Boussole') + '</h1>' +
+        '<p>' + T('Ton talent et tes contextes vécus sont prêts : la création guidée s\'ouvre pré-remplie. Tu ajustes chaque étape, puis tu crées ta carte.') + '</p>' +
+        (arrivee.carteExistante ? '<p class="note-boussole"><i data-lucide="shield-check"></i>' + T('Ta carte actuelle reste en place tant que tu n\'as pas créé la nouvelle.') + ' ' +
+          T('Pense à l\'exporter depuis les Réglages si tu veux la garder.') + '</p>' : '') +
+        (reprendre ? '<p class="note-boussole"><i data-lucide="info"></i>' + T('Tu avais commencé une création ({etape}) : commencer avec ta Boussole la remplacera.', { etape: enCours.etape > 6 ? T('dernière étape') : T('question {n}', { n: enCours.etape }) }) + '</p>' : '') +
         '<div class="accueil-actions">' +
-        '<button type="button" class="bouton bouton-principal" data-action="boussole-commencer"><i data-lucide="sparkles"></i>Commencer avec ma Boussole</button>' +
-        (reprendre ? '<button type="button" class="bouton bouton-secondaire" data-action="reprendre"><i data-lucide="play"></i>Reprendre ma création en cours</button>' : '') +
+        '<button type="button" class="bouton bouton-principal" data-action="boussole-commencer"><i data-lucide="sparkles"></i>' + T('Commencer avec ma Boussole') + '</button>' +
+        (reprendre ? '<button type="button" class="bouton bouton-secondaire" data-action="reprendre"><i data-lucide="play"></i>' + T('Reprendre ma création en cours') + '</button>' : '') +
         (arrivee.carteExistante
-          ? '<button type="button" class="bouton bouton-secondaire" data-action="garder"><i data-lucide="map"></i>Garder ma carte</button>'
-          : '<button type="button" class="bouton bouton-secondaire" data-action="demo"><i data-lucide="eye"></i>Explorer la carte de démonstration</button>') +
-        '</div><p class="discret">Tout reste dans ce navigateur : rien n\'est envoyé.</p></div>';
+          ? '<button type="button" class="bouton bouton-secondaire" data-action="garder"><i data-lucide="map"></i>' + T('Garder ma carte') + '</button>'
+          : '<button type="button" class="bouton bouton-secondaire" data-action="demo"><i data-lucide="eye"></i>' + T('Explorer la carte de démonstration') + '</button>') +
+        '</div><p class="discret">' + T('Tout reste dans ce navigateur : rien n\'est envoyé.') + '</p></div>';
     }
 
     // Encart « Depuis ta Boussole » : les phrases du profil, à ajouter (et raccourcir si besoin).
     function encartBoussole(etape) {
       const bo = brouillon.boussole;
       if (!bo) return '';
-      const tete = '<aside class="encart-boussole" aria-labelledby="encart-boussole-titre"><h3 id="encart-boussole-titre"><i data-lucide="compass"></i>Depuis ta Boussole</h3>';
+      const tete = '<aside class="encart-boussole" aria-labelledby="encart-boussole-titre"><h3 id="encart-boussole-titre"><i data-lucide="compass"></i>' + T('Depuis ta Boussole') + '</h3>';
       if (etape === 1) {
-        const lignes = [['Je…', bo.mecanisme], ['…dans un environnement où…', bo.contexte], ['…afin de…', bo.benefice]].filter(([, t]) => t);
+        const lignes = [[T('Je…'), bo.mecanisme], [T('…dans un environnement où…'), bo.contexte], [T('…afin de…'), bo.benefice]].filter(([, t]) => t);
         if (!lignes.length) return '';
-        return tete + '<p class="discret">Ton Talent Unique, pour t\'aider à le dire en une phrase courte.</p><dl class="rappel-boussole">' +
+        return tete + '<p class="discret">' + T('Ton Talent Unique, pour t\'aider à le dire en une phrase courte.') + '</p><dl class="rappel-boussole">' +
           lignes.map(([l, t]) => '<dt>' + l + '</dt><dd>' + O.echapper(t) + '</dd>').join('') + '</dl></aside>';
       }
       const source = etape === 3 ? 'reussites' : etape === 6 ? 'echecs' : null;
@@ -135,18 +144,18 @@
       const max = C.longueurMax(q.liste);
       const deja = new Set(brouillon[q.liste].map((x) => CT.regles.normaliserTexte(x.texte)));
       const liste = bo[source];
-      const intro = etape === 3 ? 'Tes contextes de réussite. Ajoute ceux qui sont de vrais moments de flow.' : 'Tes contextes d\'échec. Ajoute ce que tu pourrais confier à d\'autres.';
+      const intro = etape === 3 ? T('Tes contextes de réussite. Ajoute ceux qui sont de vrais moments de flow.') : T('Tes contextes d\'échec. Ajoute ce que tu pourrais confier à d\'autres.');
       const anti = etape === 6 && bo.antiContexte
-        ? '<p class="rappel-anti"><strong>Ton Anti-Contexte :</strong> ' + O.echapper(bo.antiContexte) + '</p>' : '';
+        ? '<p class="rappel-anti"><strong>' + T('Ton Anti-Contexte :') + '</strong> ' + O.echapper(bo.antiContexte) + '</p>' : '';
       if (!liste.length && !anti) return '';
-      return tete + (liste.length ? '<p class="discret">' + intro + ' Une phrase trop longue pour un hexagone va dans le champ : raccourcis-la, puis ajoute-la.</p>' +
+      return tete + (liste.length ? '<p class="discret">' + intro + ' ' + T('Une phrase trop longue pour un hexagone va dans le champ : raccourcis-la, puis ajoute-la.') + '</p>' +
         '<ul class="phrases-boussole">' + liste.map((t, i) => {
           const ajoute = deja.has(CT.regles.normaliserTexte(sansVirgule(t)));
           const long = t.length > max;
           return '<li><span>' + O.echapper(t) + '</span>' + (ajoute
-            ? '<span class="phrase-ajoutee"><i data-lucide="check"></i>Ajouté</span>'
+            ? '<span class="phrase-ajoutee"><i data-lucide="check"></i>' + T('Ajouté') + '</span>'
             : '<button type="button" class="bouton-lien" data-action="boussole-ajouter" data-source="' + source + '" data-index="' + i + '">' +
-              '<i data-lucide="' + (long ? 'pencil' : 'plus') + '"></i>' + (long ? 'Raccourcir' : 'Ajouter') + '<span class="visuellement-cache"> : ' + O.echapper(t) + '</span></button>') + '</li>';
+              '<i data-lucide="' + (long ? 'pencil' : 'plus') + '"></i>' + (long ? T('Raccourcir') : T('Ajouter')) + '<span class="visuellement-cache"> : ' + O.echapper(t) + '</span></button>') + '</li>';
         }).join('') + '</ul>' : '') + anti + '</aside>';
     }
 
@@ -160,13 +169,13 @@
     }
 
     function ecranTalent() {
-      return '<div class="creation-question"><h2 id="creation-titre">Quel est ton talent ?</h2>' +
-        '<p class="aide-question">Une phrase qui dit ce que tu fais naturellement, mieux que la plupart des gens, et qui te donne de l\'énergie.</p>' +
-        '<label class="champ champ-grand"><span>Ton talent</span><input type="text" id="creation-talent" maxlength="120" value="' + O.echapper(brouillon.talent.nom) +
-        '" placeholder="Ex. : Créer des dynamiques humaines positives" autocomplete="off"></label>' +
-        '<label class="champ champ-grand"><span>Le fil rouge qui relie tout (facultatif)</span><input type="text" id="creation-fil" maxlength="160" value="' +
-        O.echapper(brouillon.talent.filRouge) + '" placeholder="Ex. : la mise en scène des échanges humains" autocomplete="off"></label>' +
-        '<p class="discret">Pas besoin que ce soit parfait. Tu pourras y revenir plus tard.</p>' + encartBoussole(1) + '</div>';
+      return '<div class="creation-question"><h2 id="creation-titre">' + T('Quel est ton talent ?') + '</h2>' +
+        '<p class="aide-question">' + T('Une phrase qui dit ce que tu fais naturellement, mieux que la plupart des gens, et qui te donne de l\'énergie.') + '</p>' +
+        '<label class="champ champ-grand"><span>' + T('Ton talent') + '</span><input type="text" id="creation-talent" maxlength="120" value="' + O.echapper(brouillon.talent.nom) +
+        '" placeholder="' + O.echapper(T('Ex. : Créer des dynamiques humaines positives')) + '" autocomplete="off"></label>' +
+        '<label class="champ champ-grand"><span>' + T('Le fil rouge qui relie tout (facultatif)') + '</span><input type="text" id="creation-fil" maxlength="160" value="' +
+        O.echapper(brouillon.talent.filRouge) + '" placeholder="' + O.echapper(T('Ex. : la mise en scène des échanges humains')) + '" autocomplete="off"></label>' +
+        '<p class="discret">' + T('Pas besoin que ce soit parfait. Tu pourras y revenir plus tard.') + '</p>' + encartBoussole(1) + '</div>';
     }
 
     function ecranListe(etape) {
@@ -178,45 +187,45 @@
       let liste;
       if (q.liste === 'regions') {
         // Liste ordonnée : l'ordre décide des voisinages sur la carte.
-        liste = (elements.length > 1 ? '<p class="aide-ordre"><i data-lucide="arrow-down-up"></i>L\'ordre compte : deux régions qui se suivent seront voisines sur ta carte, et la dernière touchera la première. Utilise les flèches pour rapprocher celles qui se ressemblent.</p>' : '') +
+        liste = (elements.length > 1 ? '<p class="aide-ordre"><i data-lucide="arrow-down-up"></i>' + T('L\'ordre compte : deux régions qui se suivent seront voisines sur ta carte, et la dernière touchera la première. Utilise les flèches pour rapprocher celles qui se ressemblent.') + '</p>' : '') +
           '<ol class="lignes lignes-regions">' + elements.map((x, i) => '<li style="--couleur:' + x.couleur + '">' +
           '<span class="pastille-couleur" style="background:' + x.couleur + '"></span><span class="ligne-nom">' + O.echapper(x.nom) + '</span>' +
           '<span class="fleches">' +
-          '<button type="button" class="fleche" data-action="monter" data-id="' + x.id + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Monter ' + O.echapper(x.nom) + '"><i data-lucide="arrow-up"></i></button>' +
-          '<button type="button" class="fleche" data-action="descendre" data-id="' + x.id + '"' + (i === elements.length - 1 ? ' disabled' : '') + ' aria-label="Descendre ' + O.echapper(x.nom) + '"><i data-lucide="arrow-down"></i></button></span>' +
-          '<button type="button" class="retirer-element" data-action="retirer" data-id="' + x.id + '" aria-label="Retirer ' + O.echapper(x.nom) + '"><i data-lucide="x"></i></button></li>').join('') + '</ol>';
+          '<button type="button" class="fleche" data-action="monter" data-id="' + x.id + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="' + O.echapper(T('Monter {nom}', { nom: x.nom })) + '"><i data-lucide="arrow-up"></i></button>' +
+          '<button type="button" class="fleche" data-action="descendre" data-id="' + x.id + '"' + (i === elements.length - 1 ? ' disabled' : '') + ' aria-label="' + O.echapper(T('Descendre {nom}', { nom: x.nom })) + '"><i data-lucide="arrow-down"></i></button></span>' +
+          '<button type="button" class="retirer-element" data-action="retirer" data-id="' + x.id + '" aria-label="' + O.echapper(T('Retirer {nom}', { nom: x.nom })) + '"><i data-lucide="x"></i></button></li>').join('') + '</ol>';
       } else if (q.liste === 'conquises') {
         liste = '<ul class="lignes">' + elements.map((x) => '<li><span class="ligne-nom">' + O.echapper(x.texte) + '</span>' +
-          '<span class="segments segments-compacts" role="group" aria-label="Distance au talent de ' + O.echapper(x.texte) + '">' +
-          [['proche', 'Proche'], ['eloignee', 'Éloigné']].map(([v, l]) => '<button type="button" data-action="distance" data-id="' + x.id + '" data-valeur="' + v +
+          '<span class="segments segments-compacts" role="group" aria-label="' + O.echapper(T('Distance au talent de {nom}', { nom: x.texte })) + '">' +
+          [['proche', T('Proche')], ['eloignee', T('Éloigné')]].map(([v, l]) => '<button type="button" data-action="distance" data-id="' + x.id + '" data-valeur="' + v +
             '" aria-pressed="' + (x.distance === v) + '">' + l + '</button>').join('') + '</span>' +
-          '<button type="button" class="retirer-element" data-action="retirer" data-id="' + x.id + '" aria-label="Retirer ' + O.echapper(x.texte) + '"><i data-lucide="x"></i></button></li>').join('') + '</ul>';
+          '<button type="button" class="retirer-element" data-action="retirer" data-id="' + x.id + '" aria-label="' + O.echapper(T('Retirer {nom}', { nom: x.texte })) + '"><i data-lucide="x"></i></button></li>').join('') + '</ul>';
       } else {
         liste = '<ul class="puces-saisie">' + elements.map((x) => '<li' + (q.liste === 'regions' ? ' style="--couleur:' + x.couleur + '"' : '') + '>' +
           (q.liste === 'regions' ? '<span class="pastille-couleur" style="background:' + x.couleur + '"></span>' : '') + O.echapper(nomDe(x)) +
-          '<button type="button" data-action="retirer" data-id="' + x.id + '" aria-label="Retirer ' + O.echapper(nomDe(x)) + '"><i data-lucide="x"></i></button></li>').join('') + '</ul>';
+          '<button type="button" data-action="retirer" data-id="' + x.id + '" aria-label="' + O.echapper(T('Retirer {nom}', { nom: nomDe(x) })) + '"><i data-lucide="x"></i></button></li>').join('') + '</ul>';
       }
       const plein = q.liste === 'regions' && elements.length >= C.MAX_REGIONS;
       return '<div class="creation-question"><h2 id="creation-titre">' + q.titre + '</h2><p class="aide-question">' + q.aide + '</p>' +
         '<form class="saisie-vrac" data-form="vrac"><label class="visuellement-cache" for="creation-saisie">' + O.echapper(q.titre) + '</label>' +
         '<input type="text" id="creation-saisie" autocomplete="off" enterkeyhint="enter" placeholder="' + O.echapper(q.placeholder) + '"' + (plein ? ' disabled' : '') + '>' +
-        '<button type="submit" class="bouton bouton-secondaire"' + (plein ? ' disabled' : '') + '><i data-lucide="plus"></i>Ajouter</button></form>' +
+        '<button type="submit" class="bouton bouton-secondaire"' + (plein ? ' disabled' : '') + '><i data-lucide="plus"></i>' + T('Ajouter') + '</button></form>' +
         (alerte ? '<p class="alerte-saisie" role="alert">' + O.echapper(alerte) + '</p>' : '') +
-        '<p class="discret">Tu peux en écrire plusieurs d\'un coup, séparés par des virgules.' + (plein ? ' Huit régions au maximum.' : '') + '</p>' +
+        '<p class="discret">' + T('Tu peux en écrire plusieurs d\'un coup, séparés par des virgules.') + (plein ? ' ' + T('Huit régions au maximum.') : '') + '</p>' +
         liste + encartBoussole(etape) +
-        (exemples.length && !plein ? '<div class="exemples"><span class="discret">Exemples :</span>' + exemples.map((e) =>
+        (exemples.length && !plein ? '<div class="exemples"><span class="discret">' + T('Exemples :') + '</span>' + exemples.map((e) =>
           '<button type="button" class="puce-exemple" data-action="exemple" data-valeur="' + O.echapper(e) + '"><i data-lucide="plus"></i>' + O.echapper(e) + '</button>').join('') + '</div>' : '') +
         '</div>';
     }
 
     function ecranFiltre() {
-      return '<div class="creation-question"><h2 id="creation-titre">Est-ce que ça élargit ton domaine d\'action ?</h2>' +
-        '<p class="aide-question">Conduire ou faire du vélo, c\'est utile, mais ça n\'élargit pas vraiment ton terrain de jeu. Garde ce qui ouvre de nouvelles possibilités.</p>' +
+      return '<div class="creation-question"><h2 id="creation-titre">' + T('Est-ce que ça élargit ton domaine d\'action ?') + '</h2>' +
+        '<p class="aide-question">' + T('Conduire ou faire du vélo, c\'est utile, mais ça n\'élargit pas vraiment ton terrain de jeu. Garde ce qui ouvre de nouvelles possibilités.') + '</p>' +
         '<ul class="lignes">' + brouillon.conquises.map((x) => '<li class="' + (x.elargit === false ? 'ecarte' : '') + '"><span class="ligne-nom">' + O.echapper(x.texte) + '</span>' +
-          '<span class="segments segments-compacts" role="group" aria-label="' + O.echapper(x.texte) + ' élargit-il ton domaine d\'action ?">' +
-          [[true, 'Oui'], [false, 'Non']].map(([v, l]) => '<button type="button" data-action="elargit" data-id="' + x.id + '" data-valeur="' + v +
+          '<span class="segments segments-compacts" role="group" aria-label="' + O.echapper(T('{nom} élargit-il ton domaine d\'action ?', { nom: x.texte })) + '">' +
+          [[true, T('Oui')], [false, T('Non')]].map(([v, l]) => '<button type="button" data-action="elargit" data-id="' + x.id + '" data-valeur="' + v +
             '" aria-pressed="' + ((x.elargit !== false) === v) + '">' + l + '</button>').join('') + '</span></li>').join('') + '</ul>' +
-        '<p class="discret">Ce que tu marques « Non » ne sera pas mis sur ta carte.</p></div>';
+        '<p class="discret">' + T('Ce que tu marques « Non » ne sera pas mis sur ta carte.') + '</p></div>';
     }
 
     function carteElement(liste, el) {
@@ -232,16 +241,16 @@
         return '<section class="zone' + (id === null ? ' zone-a-ranger' : '') + (selection ? ' zone-active' : '') + '" data-zone="' + (id === null ? '' : id) + '"' +
           (couleur ? ' style="--couleur:' + couleur + '"' : '') + '>' +
           '<header class="zone-tete">' + (icone ? '<i data-lucide="' + icone + '"></i>' : '') + '<span>' + O.echapper(titre) + '</span>' +
-          (selection && id !== null ? '<button type="button" class="poser-ici" data-action="poser" data-zone="' + id + '">Poser ici</button>' : '') + '</header>' +
+          (selection && id !== null ? '<button type="button" class="poser-ici" data-action="poser" data-zone="' + id + '">' + T('Poser ici') + '</button>' : '') + '</header>' +
           (aide ? '<p class="discret">' + aide + '</p>' : '') +
-          '<div class="zone-elements">' + (dedans.length ? dedans.map((x) => carteElement(x.liste, x.el)).join('') : '<span class="zone-vide">' + (id === null ? 'Tout est rangé.' : 'Glisse un élément ici') + '</span>') + '</div></section>';
+          '<div class="zone-elements">' + (dedans.length ? dedans.map((x) => carteElement(x.liste, x.el)).join('') : '<span class="zone-vide">' + (id === null ? T('Tout est rangé.') : T('Glisse un élément ici')) + '</span>') + '</div></section>';
       };
-      return '<div class="creation-question creation-large"><h2 id="creation-titre">Range chaque élément dans sa région</h2>' +
-        '<p class="aide-question">Glisse-le dans la région qu\'il nourrit. Sur téléphone, touche un élément puis « Poser ici ». ' +
-        'Ce qui est hors de ton talent va sur une île.</p>' +
-        zone(null, 'À ranger', null, 'inbox', items.some((x) => !x.el.zone) ? 'Ce qui reste ici rejoindra ta première région ; tu pourras l\'ajuster sur la carte.' : '') +
+      return '<div class="creation-question creation-large"><h2 id="creation-titre">' + T('Range chaque élément dans sa région') + '</h2>' +
+        '<p class="aide-question">' + T('Glisse-le dans la région qu\'il nourrit. Sur téléphone, touche un élément puis « Poser ici ».') + ' ' +
+        T('Ce qui est hors de ton talent va sur une île.') + '</p>' +
+        zone(null, T('À ranger'), null, 'inbox', items.some((x) => !x.el.zone) ? T('Ce qui reste ici rejoindra ta première région ; tu pourras l\'ajuster sur la carte.') : '') +
         '<div class="zones">' + brouillon.regions.map((r) => zone(r.id, r.nom, r.couleur, r.icone)).join('') +
-        zone('ile', 'Hors de mon talent : île de flow', '#7DCDAE', 'palmtree') + '</div></div>';
+        zone('ile', T('Hors de mon talent : île de flow'), '#7DCDAE', 'palmtree') + '</div></div>';
     }
 
     function rendre() {
@@ -258,9 +267,9 @@
         else if (e <= 6) {
           corps = ecranListe(e);
           if (e === 2) peut = brouillon.regions.length > 0;
-          if (e === 6) suite = 'Continuer';
+          if (e === 6) suite = T('Continuer');
         } else if (e === 7) corps = ecranFiltre();
-        else { corps = ecranRegroupement(); suite = 'Créer ma carte'; }
+        else { corps = ecranRegroupement(); suite = T('Créer ma carte'); }
         html = tete(e) + '<div class="creation-corps">' + corps + '</div>' + pied(e, peut, suite);
       }
       const focusId = document.activeElement && racine.contains(document.activeElement) ? document.activeElement.id : null;
@@ -323,8 +332,8 @@
       if (longs.length) {
         // Rien n'est coupé en silence : la personne raccourcit elle-même.
         const valeur = champ.value;
-        alerte = 'Trop long pour un hexagone (' + C.longueurMax(q.liste) + ' caractères au plus) : raccourcis « ' +
-          (longs[0].length > 50 ? longs[0].slice(0, 50) + '…' : longs[0]) + ' ».';
+        alerte = T('Trop long pour un hexagone ({max} caractères au plus) : raccourcis « {texte} ».',
+          { max: C.longueurMax(q.liste), texte: longs[0].length > 50 ? longs[0].slice(0, 50) + '…' : longs[0] });
         rendre();
         const garde = racine.querySelector('#creation-saisie');
         if (garde) { garde.value = valeur; garde.focus(); }
@@ -351,12 +360,12 @@
       const valeur = b.getAttribute('data-valeur');
       const q = QUESTIONS[brouillon && brouillon.etape];
       if (action === 'commencer' || action === 'recommencer') {
-        if (action === 'recommencer' && !rappels.confirmer('Recommencer de zéro ? Tes réponses en cours seront effacées.')) return;
+        if (action === 'recommencer' && !rappels.confirmer(T('Recommencer de zéro ? Tes réponses en cours seront effacées.'))) return;
         brouillon = C.nouveauBrouillon(); accueil = false; aller(1); return;
       }
       if (action === 'reprendre') { arrivee = null; brouillon = CT.stockage.chargerBrouillon() || C.nouveauBrouillon(); accueil = false; aller(Math.min(brouillon.etape, 8)); return; }
       if (action === 'demo') { arrivee = null; fermer(); rappels.demo(); return; }
-      if (action === 'garder') { arrivee = null; fermer(); rappels.toast('Ta carte est inchangée.'); return; }
+      if (action === 'garder') { arrivee = null; fermer(); rappels.toast(T('Ta carte est inchangée.')); return; }
       if (action === 'boussole-commencer') {
         brouillon = CT.boussole.versBrouillon(arrivee.donnees);
         arrivee = null; accueil = false; aller(1); return;
@@ -366,7 +375,7 @@
         if (!t) return;
         if (t.length <= C.longueurMax(q.liste)) { C.ajouter(brouillon, q.liste, sansVirgule(t)); alerte = ''; enregistrer(); rendre(); return; }
         // Trop longue : elle va dans le champ, à raccourcir avant de l'ajouter.
-        alerte = 'Raccourcis cette phrase en quelques mots (' + C.longueurMax(q.liste) + ' caractères au plus), puis ajoute-la.';
+        alerte = T('Raccourcis cette phrase en quelques mots ({max} caractères au plus), puis ajoute-la.', { max: C.longueurMax(q.liste) });
         rendre();
         const champ = racine.querySelector('#creation-saisie');
         if (champ) { champ.value = t; champ.focus(); champ.select(); }
@@ -374,7 +383,7 @@
       }
       if (action === 'quitter') {
         if (rappels.doitAccueillir()) { accueil = true; rendre(); } else fermer();
-        rappels.toast('Ta saisie est gardée : tu pourras reprendre depuis les Réglages.');
+        rappels.toast(T('Ta saisie est gardée : tu pourras reprendre depuis les Réglages.'));
         return;
       }
       if (action === 'suite') { aller(prochaine(brouillon.etape)); return; }

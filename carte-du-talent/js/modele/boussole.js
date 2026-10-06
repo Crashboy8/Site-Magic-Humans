@@ -6,6 +6,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const LONGUEUR_TALENT = 120;
   const LONGUEUR_FIL = 160;
   const MAX_PHRASES = 12;
@@ -59,8 +61,8 @@
   // « dans un environnement où …, afin de … », selon ce qui est rempli.
   function filRouge(d) {
     const parties = [];
-    if (d.contexte) parties.push('dans un environnement où ' + d.contexte);
-    if (d.benefice) parties.push('afin de ' + d.benefice);
+    if (d.contexte) parties.push(T('dans un environnement où {texte}', { texte: d.contexte }));
+    if (d.benefice) parties.push(T('afin de {texte}', { texte: d.benefice }));
     return majuscule(parties.join(', '));
   }
 

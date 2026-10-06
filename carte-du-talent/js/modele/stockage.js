@@ -4,6 +4,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const CLE = 'carteDuTalent.v1';
   const CLE_BROUILLON = 'carteDuTalent.brouillon';
 
@@ -34,7 +36,7 @@
     const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'carte-du-talent-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.download = T('carte-du-talent') + '-' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -46,7 +48,7 @@
     return fichier.text().then((txt) => {
       const brut = JSON.parse(txt);
       if (!brut || !Array.isArray(brut.competences) || !brut.talent) {
-        throw new Error('Ce fichier ne ressemble pas à une Carte du Talent.');
+        throw new Error(T('Ce fichier ne ressemble pas à une Carte du Talent.'));
       }
       return CT.schema.normaliser(brut);
     });
