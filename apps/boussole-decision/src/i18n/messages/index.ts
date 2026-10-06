@@ -6,6 +6,7 @@ import { coach } from "./coach";
 import { example } from "./example";
 import { common } from "./common";
 import { profile } from "./profile";
+import { quiz } from "./quiz";
 import { results } from "./results";
 import { table } from "./table";
 import { version } from "./version";
@@ -19,6 +20,7 @@ const fr = {
   table: table.fr,
   results: results.fr,
   example: example.fr,
+  quiz: quiz.fr,
 };
 const en: typeof fr = {
   common: common.en,
@@ -29,6 +31,7 @@ const en: typeof fr = {
   table: table.en,
   results: results.en,
   example: example.en,
+  quiz: quiz.en,
 };
 
 export type Messages = typeof fr;

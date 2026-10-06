@@ -84,6 +84,11 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
     compte invité est supprimé.
   - **« Me connecter / Créer mon compte »** : email + mot de passe ou lien magique. Le code d'invitation est **facultatif**
     (à usage unique, désactivable) ; sans code, la personne est rattachée au coach principal (premier compte coach).
+- **Depuis le quiz Talent Unique** (`/quiz/`) : le bouton « Utiliser ce résultat dans ma Boussole » ouvre
+  `/importer-quiz/#q=…` (résultat en JSON base64url dans l'ancre, jamais envoyé au serveur avant le clic). La page
+  montre un aperçu, puis crée un profil prérempli : Talent Unique, contextes vécus, conditions fertiles en critères
+  « à rechercher » et environnements toxiques en critères « à éviter » (`src/features/quiz/`, `src/domain/quizImport.ts`).
+  Sans compte : essai invité ; avec un compte : après connexion, un bandeau sur l'accueil propose l'ajout.
 - Deux rôles : `coach` et `coache`. Les essais non sauvegardés n'apparaissent jamais au coach.
 - Les essais jamais sauvegardés sont supprimés après 30 jours (`purge_stale_guests`, planifiée chaque nuit via pg_cron).
 - Chaque table porte `user_id` ; les règles RLS limitent chaque personne à ses propres données.

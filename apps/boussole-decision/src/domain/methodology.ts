@@ -105,7 +105,9 @@ const FR = build({
       .replace(/^afin de\s+/i, "")
       .replace(/[.\s]+$/, "");
     if (!m || !c || !s) return null;
-    return `Je ${m} dans un environnement où ${c}, afin de ${s}.`;
+    // Élision devant une voyelle ou un h muet : « afin d'aider ».
+    const afin = /^[aeiouyhàâéèêëîïôûù]/i.test(s) ? "afin d'" : "afin de ";
+    return `Je ${m} dans un environnement où ${c}, ${afin}${s}.`;
   },
   sentenceParts: { mecanisme: "Je…", contexte: "…dans un environnement où…", benefice: "…afin de…" },
   importanceLevels: [

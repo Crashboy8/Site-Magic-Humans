@@ -2351,6 +2351,37 @@ function chartHTML(p){
 }
 const li = arr => arr.map(x=>`<li>${x}</li>`).join("");
 
+/* ---------- Lien vers la Boussole de décision : le résultat devient un profil prérempli ---------- */
+const BOUSSOLE_TXT = {
+  fr:{lab:"Ta Boussole de décision", p:"Tu hésites entre plusieurs pistes ? Crée ton profil dans la Boussole de décision : ton Talent Unique, ton Anti-Contexte et tes premiers critères y sont déjà remplis à partir de ce résultat.", btn:"🧭 Utiliser ce résultat dans ma Boussole de décision"},
+  en:{lab:"Your Decision Compass", p:"Hesitating between several paths? Create your profile in the Decision Compass: your Unique Talent, your Anti-Context and your first criteria are already filled in from this result.", btn:"🧭 Use this result in my Decision Compass"},
+  es:{lab:"Tu Brújula de decisión", p:"¿Dudas entre varios caminos? Crea tu perfil en la Brújula de decisión (en inglés): tu Talento Único, tu Anti-Contexto y tus primeros criterios ya vienen rellenados a partir de este resultado.", btn:"🧭 Usar este resultado en mi Brújula de decisión"}
+};
+function boussoleUrl(p, quizLang){
+  const lg = quizLang === "fr" ? "fr" : "en"; // la Boussole existe en français et en anglais
+  const A = lg === "fr" ? A_FR : A_EN, d = A[p.D], s = A[p.S];
+  // Le quiz parle à la 2e personne ; le profil est écrit à la 1re.
+  const moi = t => lg === "fr"
+    ? t.replace(/\bta\b/g,"ma").replace(/\btes\b/g,"mes").replace(/\bton\b/g,"mon").replace(/\btoi\b/g,"moi")
+    : t.replace(/\byour\b/g,"my").replace(/\bYour\b/g,"My");
+  const low = t => t.charAt(0).toLowerCase() + t.slice(1);
+  const fertile = d.fertile.map(moi), toxic = d.toxic.map(moi);
+  const data = {
+    v:1, lang:lg, archetypes:[p.D, p.S],
+    name:(lg === "fr" ? "Mon Talent Unique : " : "My Unique Talent: ") + L(lg).X.alloyName(p),
+    mecanisme:(lg === "fr" ? "sais " : "know how to ") + d.inf,
+    contexte:(lg === "fr" ? "il y a " : "I find ") + fertile.slice(0,2).map(low).join(lg === "fr" ? ", et " : ", and "),
+    benefice:(lg === "fr" ? "aider " + d.pitch.who + " à " : "help " + d.pitch.who + " ") + d.pitch.result,
+    antiContexte:toxic.join(" ; ").replace(/ ; /g, lg === "fr" ? " ; " : "; "),
+    success:[...d.flow, ...s.flow.slice(0,1)].map(moi).join(". ") + ".",
+    failure:d.survival.mode + (lg === "fr" ? " : " : ": ") + d.survival.desc,
+    fertile:fertile.slice(0,3), toxic:toxic.slice(0,3)
+  };
+  const bytes = new TextEncoder().encode(JSON.stringify(data));
+  let bin = ""; bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return "/boussole-decision/importer-quiz/#q=" + btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+
 function renderReport(p, ctx){
   lastReport = {p, ctx};
   const {A, X} = C(), R = T().r, d=A[p.D], s=A[p.S], ax=A[p.axis], r=X.parts(p);
@@ -2486,6 +2517,11 @@ function renderReport(p, ctx){
     <div class="panel stack">
       ${["ctx","exp","fin"].map((k,i)=>`<div class="slider"><label for="sl-${k}">${R.sliders[i]} <output id="o-${k}">5</output></label><input type="range" id="sl-${k}" min="0" max="10" value="5"></div>`).join("")}
       <p class="reading" id="reading" aria-live="polite"></p>
+    </div>
+    <div class="panel stack" id="boussole">
+      <span class="lab">${(BOUSSOLE_TXT[lang]||BOUSSOLE_TXT.fr).lab}</span>
+      <p>${(BOUSSOLE_TXT[lang]||BOUSSOLE_TXT.fr).p}</p>
+      <div class="row-actions"><a class="btn" href="${boussoleUrl(p, lang)}" target="_blank" rel="noopener" data-boussole>${(BOUSSOLE_TXT[lang]||BOUSSOLE_TXT.fr).btn}</a></div>
     </div>
     <div class="cta">
       <span class="eyebrow">${R.ctaEyebrow}</span>
