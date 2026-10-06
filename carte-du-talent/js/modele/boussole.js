@@ -23,20 +23,27 @@
       benefice: texte(brut.benefice, 400),
       antiContexte: texte(brut.antiContexte, 1000),
       success: typeof brut.success === 'string' ? brut.success.slice(0, 2000) : '',
-      failure: typeof brut.failure === 'string' ? brut.failure.slice(0, 2000) : ''
+      failure: typeof brut.failure === 'string' ? brut.failure.slice(0, 2000) : '',
+      soustalents: Array.isArray(brut.soustalents) ? brut.soustalents.map((t) => texte(t, 40).replace(/[,;]/g, ' ')).filter(Boolean).slice(0, 6) : []
     };
-    return Object.values(d).some(Boolean) ? d : null;
+    return d.mecanisme || d.contexte || d.benefice || d.antiContexte || d.success || d.failure ? d : null;
   }
 
-  // Décode l'ancre « #b=… » ; null si absente ou invalide.
+  // « sais aller au fond des choses » → « aller au fond des choses » (le quiz écrit « Je sais… »).
+  const sansSais = (t) => t.replace(/^(?:sais|sé|know how to)\s+/i, '');
+
+  // Décode l'ancre « #b=… » (Boussole) ou « #q=… » (quiz, même format) ; null si absente ou invalide.
   function lire(hash) {
-    const m = /(?:^|[#&])b=([A-Za-z0-9_-]+)/.exec(String(hash || ''));
+    const m = /(?:^|[#&])(b|q)=([A-Za-z0-9_-]+)/.exec(String(hash || ''));
     if (!m) return null;
+    const quiz = m[1] === 'q';
     try {
-      const b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+      const b64 = m[2].replace(/-/g, '+').replace(/_/g, '/');
       const binaire = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
       const octets = Uint8Array.from(binaire, (c) => c.charCodeAt(0));
-      return analyser(JSON.parse(new TextDecoder().decode(octets)));
+      const d = analyser(JSON.parse(new TextDecoder().decode(octets)));
+      if (d && quiz) { d.mecanisme = sansSais(d.mecanisme); d.source = 'quiz'; }
+      return d;
     } catch (e) {
       return null;
     }
@@ -76,13 +83,15 @@
     const fil = filRouge(d);
     b.talent.nom = talent.length <= LONGUEUR_TALENT ? talent : '';
     b.talent.filRouge = fil.length <= LONGUEUR_FIL ? fil : '';
+    if (d.soustalents && d.soustalents.length) CT.creation.ajouter(b, 'regions', d.soustalents.join(';'));
     b.boussole = {
       mecanisme: d.mecanisme,
       contexte: d.contexte,
       benefice: d.benefice,
       antiContexte: d.antiContexte,
       reussites: phrases(d.success),
-      echecs: phrases(d.failure)
+      echecs: phrases(d.failure),
+      source: d.source === 'quiz' ? 'quiz' : ''
     };
     return b;
   }

@@ -191,7 +191,7 @@
       const o = CT.regles.objectifDe(carte, f.c.id);
       return '<li><div class="frontiere-tete"><button type="button" class="lien-carte" data-action="voir" data-valeur="' + O.echapper(f.c.id) + '">' +
         '<i data-lucide="' + O.echapper(f.c.icone) + '"></i>' + O.echapper(f.c.nom) + '</button>' +
-        (f.c.priorite === 1 ? '<span class="puce-etat">' + T('priorité n°1') + '</span>' : '') +
+        (f.c.priorite ? '<span class="puce-etat">' + T('priorité n°{rang}', { rang: f.c.priorite }) + '</span>' : '') +
         (f.pret ? '<span class="puce-etat puce-prete"><i data-lucide="trophy"></i>' + T('prête') + '</span>' : '') + '</div>' +
         '<div class="progression" role="progressbar" aria-valuemin="0" aria-valuemax="' + f.seuil + '" aria-valuenow="' + Math.min(f.nombre, f.seuil) + '" aria-label="' + O.echapper(f.c.nom) + '">' +
         '<span style="width:' + (f.ratio * 100).toFixed(1) + '%"></span></div>' +

@@ -24,8 +24,10 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 3. **L'éclat et les animations** : un hexagone s'illumine selon ses moments de flow des 30 derniers jours (4 niveaux). Animations courtes à l'enregistrement d'un moment et à la conquête, sur un calque à part : aucune tuile ne bouge. Brouillard de guerre en option.
 4. **La saisie express d'un moment de flow** : bouton toujours visible, recherche sans accents, compétences récentes, trois curseurs (intensité, défi, maîtrise), découpage flow / à déléguer, note et date facultatives.
 5. **Progrès et objectifs** : flow par semaine, compétences et régions qui mènent au flow, grille défi / maîtrise, frontières en cours. Au seuil (10 moments par défaut), l'appli propose de passer une frontière en conquise ; la personne confirme (« Pas encore » reporte de 5 moments). Objectifs liés aux frontières (ex. : Vente, 2 sessions par semaine) ; les moments de flow comptent comme sessions.
-6. **Bibliothèque et suggestions** : 59 compétences par domaine. Six suggestions en hexagones fantômes, à l'endroit exact où elles se poseraient ; accepter ne bouge rien, refuser est définitif (rétablissable dans les Réglages). Idée libre ou choix dans toute la bibliothèque.
+6. **Bibliothèque et suggestions** : 156 compétences par domaine (14 domaines). Six suggestions en hexagones fantômes, à l'endroit exact où elles se poseraient ; accepter ne bouge rien, refuser est définitif (rétablissable dans les Réglages). Idée libre ou choix dans toute la bibliothèque.
 7. **Création guidée** : au premier lancement, accueil puis 6 questions (talent et fil rouge, sous-talents à réordonner avec des flèches, moments de flow, compétences apprises proches ou éloignées, envies, ce qui vide), filtre « Est-ce que ça élargit ton domaine d'action ? », regroupement par glisser-déposer ou « toucher puis Poser ici ». Brouillon enregistré à chaque saisie.
+
+8bis. **Retours de test de la création** : au moins 30 idées par question (sous-talents, flow, appris, envies), par grands domaines avec « Voir plus » ; trois territoires à conquérir par région dès la création (brouillard de guerre, choisis par proximité de domaine) ; regroupement final pré-rangé avec la raison (ce qui ne colle nulle part devient une île) ; import du quiz (`/quiz/` → bouton « Créer ma carte du talent », ancre `#q=`, même encodage que vers la Boussole).
 
 8. **Arrivée depuis la Boussole de décision** : le bouton « Explorer ma carte du talent » porte le Talent Unique du profil dans l'ancre du lien (`#b=…`, JSON en base64url, jamais envoyé au serveur ; les critères ne sont pas transmis). Un écran de choix s'ouvre : « Commencer avec ma Boussole », « Reprendre ma création en cours » s'il y en a une, « Garder ma carte » si une carte existe. Rien n'est remplacé avant la confirmation finale. La création s'ouvre pré-remplie (talent = mécanisme, fil rouge = contexte déclencheur et super bénéfice s'ils tiennent en 160 caractères) ; un encart « Depuis ta Boussole » propose les contextes de réussite (question 3) et d'échec (question 6, avec l'Anti-Contexte en rappel), à ajouter un par un. Rien n'est coupé automatiquement : une phrase trop longue va dans le champ pour être raccourcie.
 
@@ -58,7 +60,8 @@ carte-du-talent/
 │   ├── modele/demo.js          carte de démonstration
 │   ├── modele/regles.js        règles métier (statuts, déplacements, flow, objectifs)
 │   ├── modele/stats.js         statistiques de progrès (calculs purs)
-│   ├── modele/bibliotheque.js  59 compétences (domaine, icône, liens vers les voisines)
+│   ├── modele/bibliotheque.js  156 compétences (domaine, icône, liens vers les voisines)
+│   ├── modele/idees.js         idées par domaine (questions 2 à 5), domaines d'un texte
 │   ├── modele/suggestions.js   suggestions de territoires à conquérir
 │   ├── modele/creation.js      brouillon de la création guidée et génération de la carte
 │   ├── modele/boussole.js      lecture du lien de la Boussole (#b=…) et brouillon pré-rempli

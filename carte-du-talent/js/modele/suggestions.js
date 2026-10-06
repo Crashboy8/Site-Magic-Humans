@@ -92,6 +92,55 @@
       .slice(0, nombre || 6);
   }
 
+  /*
+   * Territoires à conquérir autour d'une carte qui vient d'être créée : au moins `parRegion` par région,
+   * choisis dans la bibliothèque selon les sous-talents et les moments de flow de la région
+   * (liens, domaine, mots communs). Une entrée n'est proposée qu'une fois.
+   */
+  function pourRegions(carte, parRegion) {
+    const idees = CT.idees;
+    const libres = disponibles(carte);
+    const profils = carte.regions.map((r) => {
+      const comps = carte.competences.filter((c) => c.regionId === r.id && ['natale', 'conquise', 'frontiere'].includes(c.statut));
+      const grands = new Set(idees ? idees.domainesDe(r.nom) : []);
+      comps.forEach((c) => (idees ? idees.domainesDe(c.nom) : []).forEach((d) => grands.add(d)));
+      return { r, comps, grands };
+    });
+    const score = (p, x) => {
+      let s = 0;
+      p.comps.forEach((c) => {
+        if (x.liens.some((l) => correspond(c.nom, l))) s += 3;
+        if (c.domaine && c.domaine === x.domaine) s += 2;
+      });
+      if (idees && p.grands.has(idees.DOMAINE_BIBLIOTHEQUE[x.domaine])) s += 1.5;
+      // Mots communs entre le nom de l'entrée et la région ou ses compétences (« Bricoler » ~ « Bricolage »).
+      if (idees) {
+        const mots = idees.racines(x.nom);
+        const communs = (t) => [...idees.racines(t)].some((m) => mots.has(m));
+        if (communs(p.r.nom)) s += 2.5;
+        p.comps.forEach((c) => { if (communs(c.nom)) s += 2.5; });
+      }
+      return s;
+    };
+    const pris = new Set();
+    const retenues = [];
+    for (let tour = 0; tour < parRegion; tour++) {
+      profils.forEach((p) => {
+        const meilleur = libres.filter((x) => !pris.has(x.id)).map((x) => ({ x, s: score(p, x) }))
+          .sort((a, b) => b.s - a.s || a.x.nom.localeCompare(b.x.nom, 'fr'))[0];
+        if (!meilleur) return;
+        pris.add(meilleur.x.id);
+        const eloignee = p.comps.some((c) => c.distance === 'eloignee' && c.domaine === meilleur.x.domaine);
+        const proche = p.comps.find((c) => meilleur.x.liens.some((l) => correspond(c.nom, l)));
+        const comp = versCompetence({ entree: meilleur.x, regionId: p.r.id, regionJonctionId: null, distance: eloignee ? 'eloignee' : 'proche',
+          appuis: proche ? [proche.id] : [] });
+        comp.exploree = false;
+        retenues.push(comp);
+      });
+    }
+    return retenues;
+  }
+
   // Compétence prête à être ajoutée (ou à être montrée en fantôme sur la carte).
   function versCompetence(p, statut, id) {
     return {
@@ -128,6 +177,7 @@
       c.position = { q: o.position.q, r: o.position.r };
     }
     carte.competences.push(c);
+    if (c.statut === 'frontiere') { c.priorite = 99; CT.regles.classerFrontieres(carte); }
     return c;
   }
 
@@ -143,5 +193,5 @@
     return n;
   }
 
-  CT.suggestions = { disponibles, profil, proposer, versCompetence, accepter, refuser, retablirRefusees, dejaSurLaCarte };
+  CT.suggestions = { pourRegions, disponibles, profil, proposer, versCompetence, accepter, refuser, retablirRefusees, dejaSurLaCarte };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

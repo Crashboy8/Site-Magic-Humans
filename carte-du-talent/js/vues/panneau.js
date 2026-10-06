@@ -116,6 +116,19 @@
     return html + '</section>';
   }
 
+  // Classement des territoires en conquête : 1 = celui qu'on attaque d'abord.
+  function sectionPriorite(c, carte) {
+    if (c.statut !== 'frontiere') return '';
+    const liste = CT.regles.frontieres(carte);
+    const rang = liste.findIndex((x) => x.id === c.id) + 1;
+    const bouton = (sens, icone, libelle, desactive) => '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="priorite" data-valeur="' + sens + '"' +
+      (desactive ? ' disabled' : '') + '><i data-lucide="' + icone + '"></i>' + libelle + '</button>';
+    return '<section class="panneau-section"><h3><i data-lucide="flag"></i> ' + T('Priorité') + '</h3>' +
+      '<p><strong>' + T('En conquête : n°{rang} sur {total}', { rang, total: liste.length }) + '</strong></p>' +
+      (liste.length > 1 ? '<div class="actions-ligne">' + bouton('-1', 'arrow-up', T('Plus prioritaire'), rang === 1) + bouton('1', 'arrow-down', T('Moins prioritaire'), rang === liste.length) + '</div>' : '') +
+      '</section>';
+  }
+
   function sectionStatut(c, carte) {
     const actions = ACTIONS[c.statut] || [];
     let html = '<section class="panneau-section"><h3><i data-lucide="flag"></i> ' + T('Statut') + '</h3>';
@@ -161,10 +174,10 @@
     const couleur = CT.vueCarte.couleurDe(c, carte);
     return '<header class="panneau-tete" style="--teinte:' + O.nuance(couleur, 0.75) + '">' + pastilleTuile(c, carte) +
       '<div class="panneau-titre"><span class="badge badge-' + c.statut + '">' + S.LIBELLES_STATUT[c.statut] +
-      (c.priorite === 1 ? ' · ' + T('priorité n°1') : '') + '</span>' +
+      (c.statut === 'frontiere' && c.priorite ? ' · ' + T('priorité n°{rang}', { rang: c.priorite }) : '') + '</span>' +
       '<h2 id="panneau-titre">' + O.echapper(c.nom) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
-      '<div class="panneau-corps">' + sectionProposition(c, carte) + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
+      '<div class="panneau-corps">' + sectionProposition(c, carte) + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionPriorite(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
   }
 
   // Territoire caché par le brouillard de guerre : rien n'est dévoilé avant l'exploration.
@@ -179,7 +192,8 @@
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
       '<div class="panneau-corps"><section class="panneau-section">' +
       '<p>' + T('Quelque chose t\'attend ici. Explore ce territoire pour découvrir de quoi il s\'agit.') + '</p>' +
-      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="explorer"><i data-lucide="compass"></i>' + T('Explorer ce territoire') + '</button></div>' +
+      '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="explorer"><i data-lucide="compass"></i>' + T('Explorer ce territoire') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="statut" data-valeur="frontiere"><i data-lucide="flag"></i>' + T('J\'y vais : le conquérir') + '</button></div>' +
       '</section></div>';
   }
 
