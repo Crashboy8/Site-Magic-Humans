@@ -21,6 +21,7 @@
   let reglages = null;
   let progres = null;
   let pistes = null;
+  let bilan = null;
   let toutes = null;
   let creation = null;
 
@@ -110,6 +111,7 @@
     if (panneau.ouvert) panneau.afficher(panneau.ouvert, etat.carte);
     if (progres && progres.ouvert) progres.rendre();
     if (pistes && pistes.ouvert) pistes.rendre();
+    if (bilan && bilan.ouvert) bilan.rendre();
     if (toutes && toutes.ouvert) toutes.rendre();
     const propositions = CT.stats.propositionsConquete(etat.carte).length;
     $('alerte-progres').hidden = propositions === 0;
@@ -308,6 +310,15 @@
         : T('« {piste} » est visée : tu as déjà tout ce qu\'il faut.', { piste: piste.nom }));
       return;
     }
+    if (action === 'deja') {
+      const r = CT.orientation.marquerAcquise(carte, valeur);
+      if (!r || r.deja) return;
+      appliquer();
+      if (caseDe(r.c.id)) CT.vueEffets.conquete($('carte'), caseDe(r.c.id));
+      toast(T('Bien vu ! « {nom} » rejoint tes territoires conquis. Tes pistes sont recalculées.', { nom: r.c.nom }));
+      return;
+    }
+    if (action === 'bilan') { bilan.ouvrir(); return; }
     if (action === 'abandonner') {
       if (CT.pistes.abandonner(carte, valeur)) { appliquer(); toast(T('Piste retirée. Tes territoires en conquête restent sur la carte.')); }
       return;
@@ -424,7 +435,10 @@
     });
     $('btn-reglages').addEventListener('click', () => reglages.ouvrir());
     $('btn-progres').addEventListener('click', () => progres.ouvrir());
-    $('btn-pistes').addEventListener('click', () => pistes.ouvrir());
+    $('btn-pistes').addEventListener('click', () => {
+      pistes.ouvrir();
+      if (CT.orientation.doitProposerBilan(etat.carte)) bilan.ouvrir();
+    });
     $('btn-toutes').addEventListener('click', () => toutes.ouvrir());
     $('legende-bascule').addEventListener('click', () => {
       const ouverte = $('legende').classList.toggle('fermee') === false;
@@ -527,6 +541,19 @@
     });
     progres = CT.vueProgres.creer($('progres'), { carte: () => etat.carte, action: actionProgres });
     pistes = CT.vuePistes.creer($('pistes'), { carte: () => etat.carte, action: actionPistes });
+    bilan = CT.vueBilan.creer($('bilan'), {
+      carte: () => etat.carte,
+      ajouter(ids, libres) {
+        const n = CT.orientation.appliquerBilan(etat.carte, ids, libres);
+        appliquer();
+        toast(CT.i18n.Tn(n, '{n} compétence rejoint ta carte. Regarde comme ton territoire s\'agrandit !', '{n} compétences rejoignent ta carte. Regarde comme ton territoire s\'agrandit !'));
+      },
+      plusTard() {
+        CT.orientation.reporterBilan(etat.carte);
+        appliquer();
+        toast(T('C\'est noté. Tu pourras faire ton bilan à tout moment depuis Mes pistes.'));
+      }
+    });
     toutes = CT.vueToutes.creer($('toutes'), { carte: () => etat.carte, action: actionToutes });
     reglages = CT.vueReglages.creer($('reglages'), {
       carte: () => etat.carte,

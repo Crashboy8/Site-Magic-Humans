@@ -270,5 +270,5 @@
 
   ];
 
-  CT.bibliotheque = { ENTREES, trouver: (id) => ENTREES.find((x) => x.id === id) || null };
+  CT.bibliotheque = { ENTREES, entree: e, trouver: (id) => ENTREES.find((x) => x.id === id) || null };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

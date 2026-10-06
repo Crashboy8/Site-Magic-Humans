@@ -1,0 +1,85 @@
+/* Carte du Talent, orientation pro : compétences manquantes, infos des pistes, talent, bilan d'acquis */
+
+.pistes-outils { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.liste-manquantes { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.manquante { padding: 6px 10px; border: 1.5px dashed #D9C79B; border-radius: 12px; background: #FFFBF2; }
+.manquante-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.manquante-ligne svg { width: 16px; height: 16px; color: var(--encre-douce); flex-shrink: 0; }
+.manquante-nom { flex: 1; min-width: 0; font-weight: 700; }
+.manquante-meta { font-size: 13px; color: var(--encre-douce); }
+
+.bouton-deja {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 4px 12px;
+  border: 1.5px solid var(--accent-bouton);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--accent-fort);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bouton-deja:hover { background: #FFF0F4; }
+.bouton-deja svg { color: inherit; }
+
+.fiche summary { padding: 4px 0; font-size: 14px; color: var(--accent-fort); cursor: pointer; }
+.fiche p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin: 6px 0 0; font-size: 14px; }
+.fiche p svg { width: 15px; height: 15px; align-self: center; color: var(--encre-douce); }
+.fiche h5 { margin: 10px 0 4px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--encre-douce); }
+.premieres-actions { display: grid; gap: 4px; margin: 0; padding-left: 20px; font-size: 14px; }
+
+.piste-infos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.piste-infos dt { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--encre-douce); }
+.piste-infos dt svg { width: 14px; height: 14px; }
+.piste-infos dd { margin: 2px 0 0; font-size: 14px; }
+.note-revenu { display: block; font-size: 12px; }
+
+.piste-talent { padding-left: 12px; border-left: 4px solid #D9D4CC; }
+.piste-talent p { margin: 4px 0 0; font-size: 14px; }
+.piste-talent.niveau-fort { border-left-color: var(--or); }
+.piste-talent.niveau-moyen { border-left-color: #F2D488; }
+.piste-talent.niveau-faible { border-left-color: #D9D4CC; }
+
+.note-source { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--encre-douce); }
+
+/* Bilan d'acquis */
+.bilan-corps { display: grid; gap: 16px; max-width: 760px; margin: 0 auto; padding: 12px 24px calc(110px + env(safe-area-inset-bottom)); }
+.bilan-famille { margin: 0; padding: 0; border: 0; min-width: 0; }
+.bilan-famille legend { display: flex; align-items: center; gap: 6px; padding: 0; margin-bottom: 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--encre-douce); }
+.bilan-famille legend svg { width: 15px; height: 15px; }
+.choix-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.choix-bilan { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 10px; border: 1.5px solid #EFE4CC; border-radius: 12px; background: #FFFDF6; cursor: pointer; }
+.choix-bilan input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--accent-bouton); }
+.choix-bilan svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--encre-douce); }
+.choix-bilan.acquis { opacity: .7; cursor: default; }
+.bilan-libre { display: grid; gap: 6px; }
+.bilan-libre label { font-weight: 700; }
+.bilan-libre input { min-height: 44px; padding: 8px 12px; border: 1.5px solid #D9C79B; border-radius: 12px; background: #fff; font: inherit; color: var(--encre); }
+.bilan-libre .aide { margin: 0; font-size: 13px; color: var(--encre-douce); }
+.bilan-pied {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 12px 24px calc(12px + env(safe-area-inset-bottom));
+  background: var(--papier);
+  box-shadow: 0 -10px 16px -12px rgba(31, 72, 84, .35);
+}
+.bilan-compte { font-weight: 700; }
+.bilan-pied .barre-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.bilan-pied .bouton:disabled { opacity: .5; cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .piste-infos { grid-template-columns: minmax(0, 1fr); }
+  .choix-grille { grid-template-columns: minmax(0, 1fr); }
+  .bilan-corps { padding: 8px 16px calc(130px + env(safe-area-inset-bottom)); }
+  .bilan-pied { padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+}

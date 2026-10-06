@@ -83,8 +83,10 @@ Tous les scripts s'attachent à l'espace de noms global `CarteTalent`. Le modèl
 ## Tests
 
 ```bash
-node carte-du-talent/tests/placement.test.js --carte
+node carte-du-talent/tests/placement.test.js && node carte-du-talent/tests/orientation.test.js
 ```
+
+Ajouter `--carte` à la première commande affiche aussi la carte en texte.
 
 Une quarantaine de tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée, arrivée depuis la Boussole, traductions complètes.
 

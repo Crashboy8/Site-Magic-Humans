@@ -270,5 +270,5 @@
     return (c.pistes || []).map(trouver).filter(Boolean);
   }
 
-  CT.pistes = { TYPES, PISTES, MIN_PISTES, MAX_PISTES, trouver, proposer, evaluer: evaluerId, viser, abandonner, pistesDe };
+  CT.pistes = { TYPES, PISTES, MIN_PISTES, MAX_PISTES, trouver, proposer, evaluer: evaluerId, viser, abandonner, pistesDe, memeEntree, niveauSur, themesDe };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

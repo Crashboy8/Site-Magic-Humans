@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="css/progres.css">
   <link rel="stylesheet" href="css/creation.css">
   <link rel="stylesheet" href="css/pistes.css">
+  <link rel="stylesheet" href="css/orientation.css">
   <link rel="stylesheet" href="css/toutes.css">
 </head>
 <body>
@@ -83,6 +84,8 @@
   <div class="flow reglages" id="reglages" hidden></div>
   <div class="progres" id="progres" hidden></div>
   <div class="progres pistes" id="pistes" hidden></div>
+  <div class="progres bilan" id="bilan" hidden></div>
+  <div class="progres synthese" id="synthese" hidden></div>
   <div class="progres toutes" id="toutes" hidden></div>
   <div class="creation" id="creation" hidden></div>
 
@@ -90,6 +93,7 @@
 
   <script src="https://unpkg.com/lucide@1.52.0/dist/umd/lucide.min.js"></script>
   <script src="js/langues/en.js"></script>
+  <script src="js/langues/en-orientation.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/geo/hex.js"></script>
   <script src="js/modele/schema.js"></script>
@@ -99,11 +103,15 @@
   <script src="js/modele/regles.js"></script>
   <script src="js/modele/stats.js"></script>
   <script src="js/modele/bibliotheque.js"></script>
+  <script src="js/modele/bibliotheque-plus.js"></script>
   <script src="js/modele/idees.js"></script>
   <script src="js/modele/suggestions.js"></script>
   <script src="js/modele/pistes.js"></script>
   <script src="js/modele/creation.js"></script>
   <script src="js/modele/boussole.js"></script>
+  <script src="js/modele/orientation-donnees.js"></script>
+  <script src="js/modele/orientation.js"></script>
+  <script src="js/geo/horizon.js"></script>
   <script src="js/vues/outils.js"></script>
   <script src="js/vues/carte.js"></script>
   <script src="js/vues/legende.js"></script>
@@ -114,6 +122,7 @@
   <script src="js/vues/reglages.js"></script>
   <script src="js/vues/progres.js"></script>
   <script src="js/vues/pistes.js"></script>
+  <script src="js/vues/bilan.js"></script>
   <script src="js/vues/toutes.js"></script>
   <script src="js/vues/creation.js"></script>
   <script src="js/app.js"></script>
