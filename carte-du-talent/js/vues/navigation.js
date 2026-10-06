@@ -87,7 +87,8 @@
       let a = boite(el, decal);
       const d = decal.get(el);
       obstacles.forEach((z) => {
-        if (Math.hypot(d.x, d.y) > 220) return;
+        if (z === el) return;
+        if (Math.hypot(d.x, d.y) > 480) return;
         let b;
         try { b = decal.has(z) ? boite(z, decal) : z.getBBox(); } catch (err) { return; }
         if (!seChevauchent(a, b, pad)) return;
@@ -125,9 +126,9 @@
       });
       if (!svg.classList.contains('vue-ensemble') || !regions.length) return;
       const pad = 8 / echelle();
-      for (let passe = 0; passe < 4; passe++) {
+      for (let passe = 0; passe < 6; passe++) {
         provinces.forEach((el) => ecarter(el, regions, decal, pad));
-        horizon.forEach((el) => ecarter(el, regions.concat(provinces), decal, pad));
+        horizon.forEach((el) => ecarter(el, regions.concat(provinces, horizon), decal, pad));
       }
     }
 
@@ -142,7 +143,7 @@
       const couronne = svg.querySelector('.etiquettes-horizon');
       if (zones) zones.style.fontSize = Math.min(60, Math.max(16, 12 / e)).toFixed(1) + 'px';
       if (mer) mer.style.fontSize = Math.min(48, Math.max(15, 12 / e)).toFixed(1) + 'px';
-      if (couronne) couronne.style.fontSize = Math.min(28, Math.max(14, 11 / e)).toFixed(1) + 'px';
+      if (couronne) couronne.style.fontSize = Math.min(140, Math.max(18, 14 / e)).toFixed(1) + 'px';
       degagerEtiquettes();
     }
 

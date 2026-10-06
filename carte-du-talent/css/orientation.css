@@ -103,7 +103,7 @@
 .tuile-horizon { opacity: .78; cursor: pointer; }
 .tuile-horizon:hover, .tuile-horizon:focus { opacity: 1; }
 .nom-horizon { font-size: 11px; }
-.carte .etiquettes-horizon { font-size: 14px; }
+.carte .etiquettes-horizon { font-size: 18px; }
 .carte .etiquette-horizon {
   font-size: inherit;
   font-weight: 800;
@@ -111,7 +111,7 @@
   text-transform: uppercase;
   opacity: 1;
   stroke: #F7FBFC;
-  stroke-width: .45em;
+  stroke-width: .22em;
   stroke-linejoin: round;
   paint-order: stroke;
 }
