@@ -1,5 +1,5 @@
 /*
- * Panneau latéral (bas de l'écran sur téléphone) : détail d'un hexagone et actions.
+ * Panneau latéral (bas de l'écran sur téléphone) : détail d'un hexagone et actions.
  * Les actions remontent à l'application via surAction(action, valeur).
  */
 (function (CT) {
@@ -21,7 +21,7 @@
       ['a_deleguer', 'À déléguer', 'send', false]
     ],
     a_conquerir: [
-      ['frontiere', 'J\'y vais : c\'est une frontière', 'mountain', true],
+      ['frontiere', 'J\'y vais : c\'est une frontière', 'mountain', true],
       ['conquise', 'Je l\'ai déjà conquis', 'trophy', false],
       ['a_deleguer', 'À déléguer', 'send', false]
     ],
@@ -74,7 +74,7 @@
     } else {
       const e = CT.regles.eclat(carte, c.id);
       html += '<p class="chiffres"><strong>' + recents.length + '</strong> sur les 30 derniers jours · ' + tous.length + ' au total</p>' +
-        (e.niveau ? '<p class="eclat-texte"><i data-lucide="sparkles"></i>Éclat : ' + NIVEAUX_ECLAT[e.niveau] + '</p>' : '') +
+        (e.niveau ? '<p class="eclat-texte"><i data-lucide="sparkles"></i>Éclat : ' + NIVEAUX_ECLAT[e.niveau] + '</p>' : '') +
         '<ul class="liste-moments">' +
         tous.slice(0, 5).map((m) => '<li><span class="date">' + dateCourte.format(new Date(m.date)) + '</span>' +
           '<span class="intensite" title="Intensité ' + m.intensite + ' sur 5">' + '●'.repeat(m.intensite) + '<span class="pale">' + '●'.repeat(5 - m.intensite) + '</span></span>' +
@@ -89,7 +89,7 @@
   function sectionProposition(c, carte) {
     const f = CT.stats.propositionsConquete(carte).find((x) => x.c.id === c.id);
     if (!f) return '';
-    return '<section class="panneau-section proposition-panneau"><p><strong>' + f.nombre + ' moments de flow ici.</strong> Ce territoire te semble-t-il conquis ?</p>' +
+    return '<section class="panneau-section proposition-panneau"><p><strong>' + f.nombre + ' moments de flow ici.</strong> Ce territoire te semble-t-il conquis ?</p>' +
       '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="conquerir"><i data-lucide="trophy"></i>Oui, je l\'ai conquis</button>' +
       '<button type="button" class="bouton bouton-secondaire" data-action="pas-encore">Pas encore</button></div></section>';
   }
@@ -149,7 +149,7 @@
       html += '<p><i data-lucide="hand"></i> Tu as placé cet hexagone à la main.</p>' +
         '<button type="button" class="bouton bouton-lien" data-action="remettre"><i data-lucide="undo-2"></i>Le remettre à sa place automatique</button>';
     } else {
-      html += '<p><i data-lucide="move"></i> Astuce : maintiens appuyé un hexagone pour le déplacer.</p>';
+      html += '<p><i data-lucide="move"></i> Astuce : maintiens appuyé un hexagone pour le déplacer.</p>';
     }
     return html + '</section>';
   }
@@ -190,7 +190,7 @@
     return '<header class="panneau-tete" style="--teinte:#FFF1C9">' + pastilleTuile(null, carte) +
       '<div class="panneau-titre"><span class="badge badge-capitale">Capitale · ton talent</span>' +
       '<h2 id="panneau-titre">' + O.echapper(carte.talent.nom || 'Mon talent') + '</h2>' +
-      (carte.talent.filRouge ? '<p class="lieu">Fil rouge : ' + O.echapper(carte.talent.filRouge) + '</p>' : '') + '</div>' +
+      (carte.talent.filRouge ? '<p class="lieu">Fil rouge : ' + O.echapper(carte.talent.filRouge) + '</p>' : '') + '</div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
       '<div class="panneau-corps"><section class="panneau-section"><h3><i data-lucide="map"></i> Ton territoire</h3>' +
       '<ul class="bilan">' + S.STATUTS.filter((s) => compte[s]).map((s) => '<li>' + S.LIBELLES_STATUT[s] + '<strong>' + compte[s] + '</strong></li>').join('') + '</ul></section>' +
@@ -227,7 +227,7 @@
     html += '</section>' +
       '<section class="panneau-section"><h3><i data-lucide="pencil"></i> Ton idée à toi</h3>' +
       '<form class="idee" data-form="idee"><label class="visuellement-cache" for="idee-nom">Nom de la compétence</label>' +
-      '<input type="text" id="idee-nom" name="nom" maxlength="60" placeholder="Ex. : Animer un podcast en direct" autocomplete="off">' +
+      '<input type="text" id="idee-nom" name="nom" maxlength="60" placeholder="Ex. : Animer un podcast en direct" autocomplete="off">' +
       '<button type="submit" class="bouton bouton-secondaire bouton-compact"><i data-lucide="plus"></i>Ajouter</button></form>' +
       '<p class="discret">Elle rejoint tes territoires à conquérir. Tu pourras ajuster sa région dans son panneau.</p></section>' +
       sectionBibliotheque(carte, suggestions) + '</div>';
@@ -253,11 +253,11 @@
   function contenuSuggestion(p) {
     return teteSuggestions(p.entree.nom, O.echapper(p.raison), 'Suggestion', p.entree.icone) +
       '<div class="panneau-corps"><section class="panneau-section">' +
-      '<p>Si ce territoire t\'attire, ajoute-le à ta carte. Sinon, laisse-le : il ne te sera plus proposé.</p>' +
+      '<p>Si ce territoire t\'attire, ajoute-le à ta carte. Sinon, laisse-le : il ne te sera plus proposé.</p>' +
       '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="accepter" data-valeur="' + O.echapper(p.entree.id) + '">' +
       '<i data-lucide="plus"></i>Ajouter à mes territoires à conquérir</button>' +
       '<button type="button" class="bouton bouton-secondaire" data-action="accepter-frontiere" data-valeur="' + O.echapper(p.entree.id) + '">' +
-      '<i data-lucide="mountain"></i>Je le travaille déjà : frontière</button>' +
+      '<i data-lucide="mountain"></i>Je le travaille déjà : frontière</button>' +
       '<button type="button" class="bouton bouton-secondaire" data-action="refuser" data-valeur="' + O.echapper(p.entree.id) + '">Pas pour moi</button></div>' +
       '<button type="button" class="bouton-lien" data-action="retour-suggestions"><i data-lucide="arrow-left"></i>Toutes les suggestions</button>' +
       '</section></div>';

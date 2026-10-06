@@ -15,26 +15,32 @@
         '<h2 id="reglages-titre">Ta carte, à ta façon</h2></div>' +
         '<button type="button" class="fermer" data-action="fermer" aria-label="Fermer"><i data-lucide="x"></i></button></header>' +
         '<div class="flow-corps">' +
-          '<section class="flow-bloc">' +
+          '<section class="flow-bloc" aria-labelledby="reglages-affichage">' +
+            '<h3 class="sous-titre" id="reglages-affichage">Affichage de la carte</h3>' +
             '<label class="interrupteur"><span class="interrupteur-texte"><strong>Brouillard de guerre</strong>' +
             '<span class="aide">Cache les territoires à conquérir tant que tu ne les as pas explorés. Touche un nuage pour l\'explorer.</span></span>' +
             '<input type="checkbox" role="switch" id="reglage-brouillard"><span class="glissiere" aria-hidden="true"></span></label>' +
           '</section>' +
-          '<section class="flow-bloc">' +
+          '<section class="flow-bloc" aria-labelledby="reglages-progres">' +
+            '<h3 class="sous-titre" id="reglages-progres">Progrès</h3>' +
             '<label class="interrupteur" for="reglage-seuil"><span class="interrupteur-texte"><strong>Seuil de conquête</strong>' +
-            '<span class="aide">Nombre de moments de flow sur une frontière avant que l\'appli te propose de la passer en territoire conquis.</span></span>' +
+            '<span class="aide">Nombre de moments de flow sur une frontière avant que l\'appli te propose de la passer en territoire conquis. C\'est toujours toi qui confirmes.</span></span>' +
             '<input type="number" class="champ-nombre" id="reglage-seuil" min="1" max="100" inputmode="numeric"></label>' +
           '</section>' +
-          '<section class="flow-bloc">' +
-            '<p class="sous-titre">Suggestions</p>' +
+          '<section class="flow-bloc" aria-labelledby="reglages-suggestions">' +
+            '<h3 class="sous-titre" id="reglages-suggestions">Suggestions</h3>' +
             '<p class="aide" id="reglage-refusees"></p>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="retablir"><i data-lucide="undo-2"></i>Proposer à nouveau les suggestions écartées</button>' +
           '</section>' +
-          '<section class="flow-bloc">' +
-            '<p class="sous-titre">Données</p>' +
-            '<p class="aide">Ta carte est enregistrée dans ce navigateur. Exporte-la de temps en temps pour ne jamais la perdre.</p>' +
+          '<section class="flow-bloc" aria-labelledby="reglages-sauvegarde">' +
+            '<h3 class="sous-titre" id="reglages-sauvegarde">Sauvegarde</h3>' +
+            '<p class="aide">Ta carte est enregistrée dans ce navigateur. Exporte-la de temps en temps pour ne jamais la perdre, ou pour la retrouver sur un autre appareil.</p>' +
             '<div class="reglages-donnees"><button type="button" class="bouton bouton-secondaire" data-action="exporter"><i data-lucide="download"></i>Exporter ma carte</button>' +
             '<button type="button" class="bouton bouton-secondaire" data-action="importer"><i data-lucide="upload"></i>Importer une carte</button></div>' +
+          '</section>' +
+          '<section class="flow-bloc" aria-labelledby="reglages-nouvelle">' +
+            '<h3 class="sous-titre" id="reglages-nouvelle">Repartir d\'une autre carte</h3>' +
+            '<p class="aide">Ces deux choix remplacent ta carte actuelle, après confirmation. Pense à l\'exporter avant.</p>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="creer"><i data-lucide="sparkles"></i>Créer ma carte (parcours guidé)</button>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="demo"><i data-lucide="rotate-ccw"></i>Revenir à la carte de démonstration</button>' +
           '</section>' +

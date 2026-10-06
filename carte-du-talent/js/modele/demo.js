@@ -90,7 +90,7 @@
       ],
       momentsDeFlow: [],
       objectifs: [
-        { id: 'obj-vente', competenceId: 'vente', description: 'Vente : 2 sessions par semaine', frequence: { fois: 2, periode: 'semaine' }, progression: [] }
+        { id: 'obj-vente', competenceId: 'vente', description: 'Vente : 2 sessions par semaine', frequence: { fois: 2, periode: 'semaine' }, progression: [] }
       ],
       preferences: { brouillardDeGuerre: false, seuilConquete: 10 }
     };

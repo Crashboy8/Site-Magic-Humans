@@ -14,35 +14,35 @@
       liste: 'regions',
       titre: 'Quels sont tes sous-talents ?',
       aide: 'Les grandes facettes de ton talent. Elles deviendront les régions de ta carte. Trois à six, c\'est souvent bien.',
-      placeholder: 'Ex. : Transmettre',
+      placeholder: 'Ex. : Transmettre',
       exemples: ['Accueillir', 'Fédérer', 'Transmettre', 'Révéler les gens', 'Mettre en scène', 'Dynamiser']
     },
     3: {
       liste: 'moments',
       titre: 'Quels sont tes moments de flow récents ?',
-      aide: 'Ces moments où tu oublies l\'heure. Note-les en vrac : tu les rangeras dans tes régions à la fin. Ceux qui sont hors de ton talent deviendront des îles.',
-      placeholder: 'Ex. : Animer un atelier',
+      aide: 'Ces moments où tu oublies l\'heure. Note-les en vrac : tu les rangeras dans tes régions à la fin. Ceux qui sont hors de ton talent deviendront des îles.',
+      placeholder: 'Ex. : Animer un atelier',
       exemples: ['Animer un atelier', 'Coacher quelqu\'un', 'Improviser sur scène', 'Danser', 'Jongler']
     },
     4: {
       liste: 'conquises',
       titre: 'Qu\'as-tu appris et maîtrises-tu aujourd\'hui ?',
       aide: 'Pour chacun, indique si c\'est proche de ton talent ou plus éloigné (comme Excel ou une langue).',
-      placeholder: 'Ex. : Anglais',
+      placeholder: 'Ex. : Anglais',
       exemples: ['Anglais', 'Excel', 'Préparer une formation', 'Chanter', 'Gérer un budget']
     },
     5: {
       liste: 'frontieres',
       titre: 'Qu\'est-ce qui te donne envie, juste à côté ?',
       aide: 'Ce que tu apprends en ce moment, ou que tu aimerais apprendre. Ce seront tes frontières.',
-      placeholder: 'Ex. : Vente',
+      placeholder: 'Ex. : Vente',
       exemples: ['Vente', 'Réseaux sociaux', 'Podcast', 'Arts martiaux']
     },
     6: {
       liste: 'deleguer',
       titre: 'Qu\'est-ce qui te vide et que tu repousses ?',
-      aide: 'Aucune honte à ça : ce sont des tâches que tu peux confier à d\'autres. Elles iront dans une zone à part.',
-      placeholder: 'Ex. : Comptabilité',
+      aide: 'Aucune honte à ça : ce sont des tâches que tu peux confier à d\'autres. Elles iront dans une zone à part.',
+      placeholder: 'Ex. : Comptabilité',
       exemples: ['Comptabilité', 'Administratif', 'Montage vidéo', 'Rédaction']
     }
   };
@@ -63,11 +63,11 @@
 
     function tete(etape) {
       const question = etape <= 6;
-      const libelle = question ? 'Question ' + etape + ' sur 6' : etape === 7 ? 'Presque fini : le filtre' : 'Dernière étape : le regroupement';
+      const libelle = question ? 'Question ' + etape + ' sur 6' : etape === 7 ? 'Presque fini : le filtre' : 'Dernière étape : le regroupement';
       const avance = Math.round(Math.min(etape, 8) / 8 * 100);
       return '<header class="creation-tete"><div class="creation-progression"><span class="surtitre"><i data-lucide="map"></i> Créer ma carte · ' + libelle + '</span>' +
         '<div class="barre-progression" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + avance + '" aria-label="Avancement"><span style="width:' + avance + '%"></span></div></div>' +
-        '<button type="button" class="fermer" data-action="quitter" aria-label="Quitter (ta saisie est gardée)" title="Quitter : ta saisie est gardée"><i data-lucide="x"></i></button></header>';
+        '<button type="button" class="fermer" data-action="quitter" aria-label="Quitter (ta saisie est gardée)" title="Quitter : ta saisie est gardée"><i data-lucide="x"></i></button></header>';
     }
 
     function pied(etape, peutContinuer, libelleSuite) {
@@ -82,7 +82,7 @@
       const reprendre = enCours && (enCours.talent.nom || enCours.regions.length);
       return '<div class="creation-accueil"><div class="accueil-hex" aria-hidden="true">' + hexDecor() + '</div>' +
         '<h1>Bienvenue sur ta Carte du Talent</h1>' +
-        '<p>Ta carte montre ton talent comme un territoire : un cœur, des régions, des frontières que tu repousses, des îles où tu te ressources. ' +
+        '<p>Ta carte montre ton talent comme un territoire : un cœur, des régions, des frontières que tu repousses, des îles où tu te ressources. ' +
         'Six questions suffisent pour la dessiner. Compte une dizaine de minutes.</p>' +
         '<div class="accueil-actions">' +
         (reprendre
@@ -106,9 +106,9 @@
       return '<div class="creation-question"><h2 id="creation-titre">Quel est ton talent ?</h2>' +
         '<p class="aide-question">Une phrase qui dit ce que tu fais naturellement, mieux que la plupart des gens, et qui te donne de l\'énergie.</p>' +
         '<label class="champ champ-grand"><span>Ton talent</span><input type="text" id="creation-talent" maxlength="120" value="' + O.echapper(brouillon.talent.nom) +
-        '" placeholder="Ex. : Créer des dynamiques humaines positives" autocomplete="off"></label>' +
+        '" placeholder="Ex. : Créer des dynamiques humaines positives" autocomplete="off"></label>' +
         '<label class="champ champ-grand"><span>Le fil rouge qui relie tout (facultatif)</span><input type="text" id="creation-fil" maxlength="160" value="' +
-        O.echapper(brouillon.talent.filRouge) + '" placeholder="Ex. : la mise en scène des échanges humains" autocomplete="off"></label>' +
+        O.echapper(brouillon.talent.filRouge) + '" placeholder="Ex. : la mise en scène des échanges humains" autocomplete="off"></label>' +
         '<p class="discret">Pas besoin que ce soit parfait. Tu pourras y revenir plus tard.</p></div>';
     }
 
@@ -119,7 +119,16 @@
       const deja = new Set(elements.map((x) => CT.regles.normaliserTexte(nomDe(x))));
       const exemples = q.exemples.filter((e) => !deja.has(CT.regles.normaliserTexte(e)));
       let liste;
-      if (q.liste === 'conquises') {
+      if (q.liste === 'regions') {
+        // Liste ordonnée : l'ordre décide des voisinages sur la carte.
+        liste = (elements.length > 1 ? '<p class="aide-ordre"><i data-lucide="arrow-down-up"></i>L\'ordre compte : deux régions qui se suivent seront voisines sur ta carte, et la dernière touchera la première. Utilise les flèches pour rapprocher celles qui se ressemblent.</p>' : '') +
+          '<ol class="lignes lignes-regions">' + elements.map((x, i) => '<li style="--couleur:' + x.couleur + '">' +
+          '<span class="pastille-couleur" style="background:' + x.couleur + '"></span><span class="ligne-nom">' + O.echapper(x.nom) + '</span>' +
+          '<span class="fleches">' +
+          '<button type="button" class="fleche" data-action="monter" data-id="' + x.id + '"' + (i === 0 ? ' disabled' : '') + ' aria-label="Monter ' + O.echapper(x.nom) + '"><i data-lucide="arrow-up"></i></button>' +
+          '<button type="button" class="fleche" data-action="descendre" data-id="' + x.id + '"' + (i === elements.length - 1 ? ' disabled' : '') + ' aria-label="Descendre ' + O.echapper(x.nom) + '"><i data-lucide="arrow-down"></i></button></span>' +
+          '<button type="button" class="retirer-element" data-action="retirer" data-id="' + x.id + '" aria-label="Retirer ' + O.echapper(x.nom) + '"><i data-lucide="x"></i></button></li>').join('') + '</ol>';
+      } else if (q.liste === 'conquises') {
         liste = '<ul class="lignes">' + elements.map((x) => '<li><span class="ligne-nom">' + O.echapper(x.texte) + '</span>' +
           '<span class="segments segments-compacts" role="group" aria-label="Distance au talent de ' + O.echapper(x.texte) + '">' +
           [['proche', 'Proche'], ['eloignee', 'Éloigné']].map(([v, l]) => '<button type="button" data-action="distance" data-id="' + x.id + '" data-valeur="' + v +
@@ -137,7 +146,7 @@
         '<button type="submit" class="bouton bouton-secondaire"' + (plein ? ' disabled' : '') + '><i data-lucide="plus"></i>Ajouter</button></form>' +
         '<p class="discret">Tu peux en écrire plusieurs d\'un coup, séparés par des virgules.' + (plein ? ' Huit régions au maximum.' : '') + '</p>' +
         liste +
-        (exemples.length && !plein ? '<div class="exemples"><span class="discret">Exemples :</span>' + exemples.map((e) =>
+        (exemples.length && !plein ? '<div class="exemples"><span class="discret">Exemples :</span>' + exemples.map((e) =>
           '<button type="button" class="puce-exemple" data-action="exemple" data-valeur="' + O.echapper(e) + '"><i data-lucide="plus"></i>' + O.echapper(e) + '</button>').join('') + '</div>' : '') +
         '</div>';
     }
@@ -146,7 +155,7 @@
       return '<div class="creation-question"><h2 id="creation-titre">Est-ce que ça élargit ton domaine d\'action ?</h2>' +
         '<p class="aide-question">Conduire ou faire du vélo, c\'est utile, mais ça n\'élargit pas vraiment ton terrain de jeu. Garde ce qui ouvre de nouvelles possibilités.</p>' +
         '<ul class="lignes">' + brouillon.conquises.map((x) => '<li class="' + (x.elargit === false ? 'ecarte' : '') + '"><span class="ligne-nom">' + O.echapper(x.texte) + '</span>' +
-          '<span class="segments segments-compacts" role="group" aria-label="' + O.echapper(x.texte) + ' élargit-il ton domaine d\'action ?">' +
+          '<span class="segments segments-compacts" role="group" aria-label="' + O.echapper(x.texte) + ' élargit-il ton domaine d\'action ?">' +
           [[true, 'Oui'], [false, 'Non']].map(([v, l]) => '<button type="button" data-action="elargit" data-id="' + x.id + '" data-valeur="' + v +
             '" aria-pressed="' + ((x.elargit !== false) === v) + '">' + l + '</button>').join('') + '</span></li>').join('') + '</ul>' +
         '<p class="discret">Ce que tu marques « Non » ne sera pas mis sur ta carte.</p></div>';
@@ -172,9 +181,9 @@
       return '<div class="creation-question creation-large"><h2 id="creation-titre">Range chaque élément dans sa région</h2>' +
         '<p class="aide-question">Glisse-le dans la région qu\'il nourrit. Sur téléphone, touche un élément puis « Poser ici ». ' +
         'Ce qui est hors de ton talent va sur une île.</p>' +
-        zone(null, 'À ranger', null, 'inbox', items.some((x) => !x.el.zone) ? 'Ce qui reste ici rejoindra ta première région ; tu pourras l\'ajuster sur la carte.' : '') +
+        zone(null, 'À ranger', null, 'inbox', items.some((x) => !x.el.zone) ? 'Ce qui reste ici rejoindra ta première région ; tu pourras l\'ajuster sur la carte.' : '') +
         '<div class="zones">' + brouillon.regions.map((r) => zone(r.id, r.nom, r.couleur, r.icone)).join('') +
-        zone('ile', 'Hors de mon talent : île de flow', '#7DCDAE', 'palmtree') + '</div></div>';
+        zone('ile', 'Hors de mon talent : île de flow', '#7DCDAE', 'palmtree') + '</div></div>';
     }
 
     function rendre() {
@@ -270,20 +279,30 @@
       const valeur = b.getAttribute('data-valeur');
       const q = QUESTIONS[brouillon && brouillon.etape];
       if (action === 'commencer' || action === 'recommencer') {
-        if (action === 'recommencer' && !rappels.confirmer('Recommencer de zéro ? Tes réponses en cours seront effacées.')) return;
+        if (action === 'recommencer' && !rappels.confirmer('Recommencer de zéro ? Tes réponses en cours seront effacées.')) return;
         brouillon = C.nouveauBrouillon(); accueil = false; aller(1); return;
       }
       if (action === 'reprendre') { brouillon = CT.stockage.chargerBrouillon() || C.nouveauBrouillon(); accueil = false; aller(Math.min(brouillon.etape, 8)); return; }
       if (action === 'demo') { fermer(); rappels.demo(); return; }
       if (action === 'quitter') {
         if (rappels.doitAccueillir()) { accueil = true; rendre(); } else fermer();
-        rappels.toast('Ta saisie est gardée : tu pourras reprendre depuis les Réglages.');
+        rappels.toast('Ta saisie est gardée : tu pourras reprendre depuis les Réglages.');
         return;
       }
       if (action === 'suite') { aller(prochaine(brouillon.etape)); return; }
       if (action === 'retour') { aller(precedente(brouillon.etape)); return; }
       if (action === 'exemple' && q) { C.ajouter(brouillon, q.liste, valeur); enregistrer(); rendre(); return; }
       if (action === 'retirer' && q) { C.retirer(brouillon, q.liste, id); enregistrer(); rendre(); return; }
+      if (action === 'monter' || action === 'descendre') {
+        C.deplacerRegion(brouillon, id, action === 'monter' ? -1 : 1);
+        enregistrer();
+        rendre();
+        // Le focus suit la région déplacée, pour enchaîner au clavier.
+        const suivant = racine.querySelector('[data-action="' + action + '"][data-id="' + id + '"]:not([disabled])') ||
+          racine.querySelector('[data-id="' + id + '"].fleche:not([disabled])');
+        if (suivant) suivant.focus();
+        return;
+      }
       if (action === 'distance') { const x = brouillon.conquises.find((c) => c.id === id); if (x) x.distance = valeur; enregistrer(); rendre(); return; }
       if (action === 'elargit') { const x = brouillon.conquises.find((c) => c.id === id); if (x) x.elargit = valeur === 'true'; enregistrer(); rendre(); return; }
       if (action === 'poser' && selection) { poser(selection, b.getAttribute('data-zone')); }

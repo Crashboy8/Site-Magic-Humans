@@ -35,7 +35,7 @@
 }
 
 .creation-progression { flex: 1; min-width: 0; display: grid; gap: 8px; }
-.creation-progression .surtitre { color: var(--accent); }
+.creation-progression .surtitre { color: var(--accent-fort); }
 
 .barre-progression { height: 6px; border-radius: 3px; background: #F0E6D3; overflow: hidden; }
 .barre-progression span { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #F29A5A, var(--accent)); transition: width .3s; }
@@ -151,6 +151,52 @@
 .puce-exemple:hover { background: #FFF4D6; }
 .puce-exemple svg { width: 14px; height: 14px; }
 
+/* Régions : liste ordonnée avec flèches */
+
+.aide-ordre {
+  display: flex;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #E3F4F7;
+  color: var(--mer-profonde);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.aide-ordre svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.lignes-regions { counter-reset: region; }
+.lignes-regions li { border-left: 5px solid var(--couleur); }
+.lignes-regions li::before {
+  counter-increment: region;
+  content: counter(region);
+  min-width: 1.4em;
+  font-weight: 800;
+  color: var(--encre-douce);
+  font-variant-numeric: tabular-nums;
+}
+
+.fleches { display: inline-flex; gap: 4px; flex-shrink: 0; }
+
+.fleche {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid #E6DCC6;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--encre);
+  cursor: pointer;
+}
+
+.fleche svg { width: 18px; height: 18px; }
+.fleche:disabled { opacity: .3; cursor: default; }
+@media (hover: hover) { .fleche:not(:disabled):hover { background: #FFF3DA; } }
+
 /* Pied : retour et suite, au pouce */
 
 .creation-pied {
@@ -224,7 +270,7 @@
   padding: 4px 10px;
   border: 0;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-bouton);
   color: #fff;
   font: 800 13px var(--police);
   cursor: pointer;

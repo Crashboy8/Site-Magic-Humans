@@ -38,7 +38,7 @@
 }
 
 .progres-tete > div { flex: 1; min-width: 0; }
-.progres-tete .surtitre { color: var(--accent); }
+.progres-tete .surtitre { color: var(--accent-fort); }
 .progres-tete h2 { margin: 4px 0 2px; font-size: 26px; font-weight: 800; line-height: 1.2; text-wrap: balance; }
 .progres-tete .discret { margin: 0; font-size: 15px; }
 

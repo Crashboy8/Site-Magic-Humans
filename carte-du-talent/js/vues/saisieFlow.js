@@ -1,5 +1,5 @@
 /*
- * Saisie express d'un moment de flow (objectif : moins de 30 secondes, d'abord au pouce).
+ * Saisie express d'un moment de flow (objectif : moins de 30 secondes, d'abord au pouce).
  * Choix des compétences (recherche + récentes), trois curseurs, découpage flow / à déléguer,
  * note facultative. Le formulaire renvoie une saisie brute ; l'application l'enregistre.
  */
@@ -63,7 +63,7 @@
           return libres.length ? '<p class="sous-titre">' + titre + '</p><div class="puces">' +
             libres.map((id) => puce(CT.regles.trouver(carte, id), carte, 'choisir', false)).join('') + '</div>' : '';
         };
-        zoneRecentes.innerHTML = texte ? '' : bloc('Récemment', recentes) + bloc(recentes.length ? 'Tes frontières' : 'Pour commencer : tes frontières', suggestions);
+        zoneRecentes.innerHTML = texte ? '' : bloc('Récemment', recentes) + bloc(recentes.length ? 'Tes frontières' : 'Pour commencer : tes frontières', suggestions);
       }
       O.rafraichirIcones(racine);
       if (options.surChangement) options.surChangement(choisis.slice());
@@ -131,7 +131,7 @@
             '<button type="button" class="depliant" data-action="deplier" data-cible="flow-deleguer" aria-expanded="false">' +
             '<i data-lucide="scissors"></i><span>Une partie de cette activité est à déléguer ?</span><i data-lucide="chevron-down" class="chevron"></i></button>' +
             '<div id="flow-deleguer" class="deplie" hidden>' +
-              '<p class="aide">Par exemple : concevoir le message t\'a mis dans le flow, le rédiger beaucoup moins.</p>' +
+              '<p class="aide">Par exemple : concevoir le message t\'a mis dans le flow, le rédiger beaucoup moins.</p>' +
               '<div id="flow-parties"></div>' +
               '<label class="case"><input type="checkbox" id="flow-ranger"> <span>Les ranger aussi dans ma zone à déléguer</span></label>' +
             '</div>' +
@@ -176,9 +176,9 @@
         $('#flow-' + cle).style.setProperty('--remplissage', ((v[cle] - 1) / 4 * 100) + '%');
       });
       let obs = '';
-      if (v.defi >= 4 && v.maitrise >= 4) obs = 'Défi et maîtrise élevés : la zone de flow par excellence.';
-      else if (v.defi >= 4 && v.maitrise <= 2) obs = 'Beaucoup de défi pour ta maîtrise actuelle : un terrain où tu grandis.';
-      else if (v.defi <= 2 && v.maitrise >= 4) obs = 'Peu de défi pour ta maîtrise : un moment fluide et ressourçant.';
+      if (v.defi >= 4 && v.maitrise >= 4) obs = 'Défi et maîtrise élevés : la zone de flow par excellence.';
+      else if (v.defi >= 4 && v.maitrise <= 2) obs = 'Beaucoup de défi pour ta maîtrise actuelle : un terrain où tu grandis.';
+      else if (v.defi <= 2 && v.maitrise >= 4) obs = 'Peu de défi pour ta maîtrise : un moment fluide et ressourçant.';
       $('#flow-observation').textContent = obs;
     }
 

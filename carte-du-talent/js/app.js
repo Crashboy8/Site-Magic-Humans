@@ -1,5 +1,5 @@
 /*
- * Point d'entrée : charge la carte, calcule la géographie, branche l'interface.
+ * Point d'entrée : charge la carte, calcule la géographie, branche l'interface.
  */
 (function (CT) {
   'use strict';
@@ -42,7 +42,7 @@
       if (p) c.position = { q: p.q, r: p.r };
     });
     const problemes = CT.placement.verifier(etat.placement);
-    if (problemes.length && globalThis.console) console.info('Placement :', problemes);
+    if (problemes.length && globalThis.console) console.info('Placement :', problemes);
     calculerFantomes();
   }
 
@@ -99,7 +99,7 @@
 
   function rendre(options) {
     $('talent-nom').textContent = etat.carte.talent.nom || 'Mon talent';
-    $('talent-fil').textContent = etat.carte.talent.filRouge ? 'Fil rouge : ' + etat.carte.talent.filRouge : '';
+    $('talent-fil').textContent = etat.carte.talent.filRouge ? 'Fil rouge : ' + etat.carte.talent.filRouge : '';
     const { cadre } = CT.vueCarte.rendre($('carte'), etat.affichage.carte, etat.affichage.placement);
     navigation.majCadre(cadre, { ajuster: options && options.ajuster, marges: marges() });
     CT.vueLegende.rendre($('legende-contenu'), etat.carte);
@@ -144,8 +144,8 @@
   }
 
   const MESSAGES_STATUT = {
-    conquise: (n) => 'Bravo ! ' + n + ' rejoint tes territoires conquis.',
-    frontiere: (n) => n + ' devient une frontière : c\'est là que tu grandis.',
+    conquise: (n) => 'Bravo ! ' + n + ' rejoint tes territoires conquis.',
+    frontiere: (n) => n + ' devient une frontière : c\'est là que tu grandis.',
     a_conquerir: (n) => n + ' attendra son heure. Il reste visible sur ta carte.',
     a_deleguer: (n) => n + ' rejoint la zone à déléguer. Tu peux le confier à d\'autres.',
     ile: (n) => n + ' devient une île de flow, hors de ton talent principal.',
@@ -162,7 +162,7 @@
     if (action === 'nouvel-objectif') { progres.ouvrir({ nouvelObjectif: id }); return; }
     if (['conquerir', 'pas-encore', 'session'].includes(action)) { actionProgres(action, action === 'session' ? valeur : id); return; }
     if (action === 'supprimer-moment') {
-      if (!confirm('Supprimer ce moment de flow ?')) return;
+      if (!confirm('Supprimer ce moment de flow ?')) return;
       CT.regles.supprimerMoment(etat.carte, valeur);
       appliquer();
       toast('Moment supprimé.');
@@ -228,7 +228,7 @@
       appliquer();
       navigation.selectionner(null);
       panneau.afficher('suggestions', carte);
-      toast('D\'accord, « ' + entree.nom + ' » ne te sera plus proposée.');
+      toast('D\'accord, « ' + entree.nom + ' » : cette suggestion ne te sera plus proposée.');
       return true;
     }
     if (action === 'ajouter-idee') {
@@ -278,7 +278,7 @@
       return;
     }
     if (action === 'supprimer-objectif') {
-      if (!confirm('Supprimer cet objectif ? Les moments de flow restent sur ta carte.')) return;
+      if (!confirm('Supprimer cet objectif ? Les moments de flow restent sur ta carte.')) return;
       if (CT.regles.supprimerObjectif(carte, valeur)) { appliquer(); toast('Objectif supprimé.'); }
     }
   }
@@ -300,11 +300,11 @@
       CT.vueEffets.flow($('carte'), moment.competenceIds.map(caseDe).filter(Boolean));
       const nouvelle = CT.stats.propositionsConquete(etat.carte).find((f) => !avant.has(f.c.id));
       if (nouvelle) {
-        toast(nomDe(nouvelle.c.id) + ' atteint ' + nouvelle.nombre + ' moments de flow : une proposition t\'attend dans Progrès.');
+        toast(nomDe(nouvelle.c.id) + ' atteint ' + nouvelle.nombre + ' moments de flow : une proposition t\'attend dans Progrès.');
         return;
       }
       const noms = moment.competenceIds.map(nomDe).join(', ');
-      toast('Moment de flow enregistré : ' + noms + '.');
+      toast('Moment de flow enregistré : ' + noms + '.');
     }
   };
 
@@ -353,7 +353,7 @@
       if (!fichier) return;
       CT.stockage.importer(fichier)
         .then((carte) => {
-          if (!confirm('Remplacer ta carte actuelle par celle du fichier « ' + fichier.name + ' » ?')) return;
+          if (!confirm('Remplacer ta carte actuelle par celle du fichier « ' + fichier.name + ' » ?')) return;
           changerCarte(carte);
           toast('Carte importée.');
         })
@@ -377,7 +377,7 @@
     $('btn-zoom-moins').addEventListener('click', () => navigation.zoomer(1 / 1.4));
     $('btn-recentrer').addEventListener('click', () => navigation.ajuster(marges()));
     $('btn-reorganiser').addEventListener('click', () => {
-      if (!confirm('Réorganiser automatiquement la carte ? Les hexagones que tu as déplacés à la main restent où ils sont.')) return;
+      if (!confirm('Réorganiser automatiquement la carte ? Les hexagones que tu as déplacés à la main restent où ils sont.')) return;
       CT.regles.preparerReorganisation(etat.carte);
       appliquer({ reorganiser: true });
       toast('Carte réorganisée.');
@@ -398,10 +398,10 @@
         toast('Voici la carte de démonstration. Tu pourras créer la tienne depuis les Réglages.');
       },
       terminer(carte) {
-        if (!etat.premierLancement && !confirm('Remplacer ta carte actuelle par cette nouvelle carte ? Exporte-la d\'abord si tu veux la garder.')) return false;
+        if (!etat.premierLancement && !confirm('Remplacer ta carte actuelle par cette nouvelle carte ? Exporte-la d\'abord si tu veux la garder.')) return false;
         etat.premierLancement = false;
         changerCarte(carte);
-        toast('Voici ta carte ! Touche un hexagone pour l\'ajuster ou le déplacer.');
+        toast('Voici ta carte ! Touche un hexagone pour l\'ajuster ou le déplacer.');
         return true;
       }
     });
@@ -411,8 +411,8 @@
       changerPreference(cle, valeur) {
         CT.regles.changerPreference(etat.carte, cle, valeur);
         appliquer();
-        if (cle === 'seuilConquete') toast('Seuil de conquête : ' + etat.carte.preferences.seuilConquete + ' moments de flow.');
-        if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
+        if (cle === 'seuilConquete') toast('Seuil de conquête : ' + etat.carte.preferences.seuilConquete + ' moments de flow.');
+        if (cle === 'brouillardDeGuerre') toast(valeur ? 'Brouillard activé : les territoires inexplorés sont sous les nuages.' : 'Brouillard désactivé : toute ta carte est visible.');
       },
       exporter() {
         CT.stockage.exporter(etat.carte);
@@ -426,7 +426,7 @@
         toast(n ? 'Les suggestions écartées pourront à nouveau t\'être proposées.' : 'Aucune suggestion écartée.');
       },
       reinitialiser() {
-        if (!confirm('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).')) return;
+        if (!confirm('Revenir à la carte de démonstration ? Ta carte actuelle sera remplacée (exporte-la d\'abord si tu veux la garder).')) return;
         changerCarte(CT.demo.creer());
         toast('Carte de démonstration restaurée.');
       }

@@ -22,7 +22,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .12em;
-  color: var(--accent);
+  color: var(--accent-fort);
 }
 
 .marque svg { width: 15px; height: 15px; }
@@ -68,8 +68,14 @@
 .bouton-icone:active { transform: scale(.97); }
 .bouton-icone svg { width: 18px; height: 18px; }
 
-button:focus-visible {
-  outline: 3px solid var(--or);
+/* Focus clavier : toujours visible, même couleur partout. */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -168,7 +174,7 @@ button:focus-visible {
 .bouton-rond svg { width: 20px; height: 20px; }
 #btn-suggestions { margin-top: 6px; }
 
-.carte:focus-visible { outline: 3px solid var(--or); outline-offset: -3px; }
+.carte:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
 .carte.glisse { cursor: grabbing; }
 
 /* Panneau latéral */
@@ -278,7 +284,7 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
 .panneau-section p { margin: 0 0 8px; font-size: 15px; line-height: 1.45; }
 .vide { color: var(--encre-douce); font-style: italic; }
 .discret { color: var(--encre-douce); font-size: 13px; }
-.chiffres strong { font-size: 22px; color: var(--accent); }
+.chiffres strong { font-size: 22px; color: var(--accent-fort); }
 
 .liste-moments, .bilan { margin: 0; padding: 0; list-style: none; }
 
@@ -291,7 +297,7 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
 }
 
 .liste-moments .date { font-weight: 700; min-width: 54px; }
-.liste-moments .intensite { color: var(--accent); letter-spacing: 1px; }
+.liste-moments .intensite { color: var(--accent-fort); letter-spacing: 1px; }
 .liste-moments .pale { opacity: .25; }
 .liste-moments .note { flex-basis: 100%; color: var(--encre-douce); }
 
@@ -326,12 +332,12 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
 
 .bouton-principal {
   border: 0;
-  background: var(--accent);
+  background: var(--accent-bouton);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(229, 115, 142, .35);
+  box-shadow: 0 4px 12px rgba(178, 60, 93, .3);
 }
 
-.bouton-principal:hover { background: #D85F7C; }
+.bouton-principal:hover { background: var(--accent-bouton-survol); }
 
 .bouton-secondaire {
   border: 1px solid #E6DCC6;

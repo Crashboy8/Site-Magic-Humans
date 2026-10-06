@@ -527,7 +527,7 @@
           if (o && o.groupe === g && !vus.has(k)) { vus.add(k); file.push(o); }
         });
       }
-      if (vus.size !== cells.length) problemes.push('Groupe coupé en morceaux : ' + g);
+      if (vus.size !== cells.length) problemes.push('Groupe coupé en morceaux : ' + g);
     });
 
     // Trous : cases vides du continent entourées de terre.

@@ -216,7 +216,7 @@
   // ---------- Éclat et brouillard ----------
 
   /*
-   * Éclat d'une compétence : flow des 30 derniers jours, pondéré par l'intensité,
+   * Éclat d'une compétence : flow des 30 derniers jours, pondéré par l'intensité,
    * les moments récents comptant un peu plus. Niveau de 0 (aucun) à 4 (rayonnant).
    */
   function eclat(carte, id, maintenant) {

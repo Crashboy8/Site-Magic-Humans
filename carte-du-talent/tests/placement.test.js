@@ -473,6 +473,20 @@ test('la carte générée se place sans trou ni région coupée', () => {
   c.competences.forEach((x) => assert.ok(r.positions[x.id], x.nom + ' sans place'));
 });
 
+test('réordonner les régions change leurs voisines sur la carte générée', () => {
+  const b = CT.creation.nouveauBrouillon();
+  b.talent.nom = 'T';
+  CT.creation.ajouter(b, 'regions', 'A, B, C, D');
+  const id = (nom) => b.regions.find((r) => r.nom === nom).id;
+  assert.ok(CT.creation.deplacerRegion(b, id('D'), -1));
+  assert.deepStrictEqual(b.regions.map((r) => r.nom), ['A', 'B', 'D', 'C']);
+  assert.ok(!CT.creation.deplacerRegion(b, id('A'), -1), 'déjà en tête');
+  const c = CT.creation.genererCarte(b);
+  const voisines = (nom) => c.regions.find((r) => r.nom === nom).voisines.map((v) => c.regions.find((r) => r.id === v).nom).sort();
+  assert.deepStrictEqual(voisines('D'), ['B', 'C']);
+  assert.deepStrictEqual(voisines('A'), ['B', 'C']);
+});
+
 test('un brouillon abîmé se relit sans planter', () => {
   const b = CT.creation.normaliserBrouillon({ etape: 42, regions: [{ id: 'a', nom: 'A' }], moments: [{ id: 'm', texte: 'x', zone: 'inconnue' }], conquises: 'n/a' });
   assert.strictEqual(b.etape, 9);

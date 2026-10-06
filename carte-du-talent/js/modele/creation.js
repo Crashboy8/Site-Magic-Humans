@@ -84,6 +84,16 @@
     return ajoutes;
   }
 
+  // Déplace une région d'un cran : deux régions qui se suivent seront voisines sur la carte.
+  function deplacerRegion(brouillon, id, sens) {
+    const i = brouillon.regions.findIndex((r) => r.id === id);
+    const j = i + (sens < 0 ? -1 : 1);
+    if (i < 0 || j < 0 || j >= brouillon.regions.length) return false;
+    const [r] = brouillon.regions.splice(i, 1);
+    brouillon.regions.splice(j, 0, r);
+    return true;
+  }
+
   function retirer(brouillon, liste, id) {
     brouillon[liste] = brouillon[liste].filter((x) => x.id !== id);
     if (liste === 'regions') {
@@ -196,5 +206,5 @@
     return b;
   }
 
-  CT.creation = { MAX_REGIONS, nouveauBrouillon, decouper, ajouter, retirer, aRanger, ranger, deviner, genererCarte, normaliserBrouillon };
+  CT.creation = { MAX_REGIONS, nouveauBrouillon, decouper, ajouter, deplacerRegion, retirer, aRanger, ranger, deviner, genererCarte, normaliserBrouillon };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

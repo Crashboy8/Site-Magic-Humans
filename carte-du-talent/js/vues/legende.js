@@ -18,7 +18,7 @@
     const regions = carte.regions.map((r) =>
       '<li>' + pastille(r.couleur, O.nuance(r.couleur, -0.2)) + O.echapper(r.nom) + '</li>').join('');
     const statuts = [
-      [pastille('#F4C95D', '#B9862A'), 'Capitale : ton talent'],
+      [pastille('#F4C95D', '#B9862A'), 'Capitale : ton talent'],
       [pastille(base, O.nuance(base, -0.2)), 'Territoire natal'],
       [pastille(O.nuance(base, 0.16), O.nuance(base, -0.18)), 'Territoire conquis'],
       [pastille(O.nuance(base, 0.6), O.nuance(base, -0.3), '3 2'), 'Frontière (en cours)'],
@@ -28,8 +28,8 @@
       [pastille('#B4BAC2', '#8D949C'), 'À déléguer']
     ].map(([p, t]) => '<li>' + p + t + '</li>').join('');
     const reperes = '<li><svg class="pastille" viewBox="-12 -12 24 24" aria-hidden="true"><circle r="11" fill="#FFD866" opacity=".55"/>' +
-      '<circle r="6" fill="#FFE9A8"/></svg>Éclat : flow des 30 derniers jours</li>' +
-      (carte.preferences.brouillardDeGuerre ? '<li>' + pastille('#E9EFF1', '#C9D5DA', '1.5 2') + 'Brouillard : territoire inexploré</li>' : '');
+      '<circle r="6" fill="#FFE9A8"/></svg>Éclat : flow des 30 derniers jours</li>' +
+      (carte.preferences.brouillardDeGuerre ? '<li>' + pastille('#E9EFF1', '#C9D5DA', '1.5 2') + 'Brouillard : territoire inexploré</li>' : '');
     conteneur.innerHTML =
       '<h2>Régions</h2><ul>' + regions + '</ul>' +
       '<h2>Statuts</h2><ul>' + statuts + '</ul>' +

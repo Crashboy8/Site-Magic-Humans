@@ -137,7 +137,7 @@
       if (cs.id === 'capitale') {
         tuiles.push(
           '<g class="tuile tuile-capitale" data-id="capitale" tabindex="0" role="button" aria-label="' +
-            O.echapper('Capitale : ' + (carte.talent.nom || 'Mon talent')) + '">' +
+            O.echapper('Capitale : ' + (carte.talent.nom || 'Mon talent')) + '">' +
           '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="#C48A1F"/>' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="url(#ct-or)" stroke="#B9862A" stroke-width="2"/>' +
           '<polygon points="' + polygone(x, y, T * 0.8) + '" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>' +
@@ -154,7 +154,7 @@
       // Suggestion : hexagone fantôme, à l'endroit exact où il se poserait.
       if (c.fantome) {
         tuiles.push('<g class="tuile tuile-suggestion" data-id="' + O.echapper(c.id) + '" tabindex="0" role="button" aria-label="' +
-          O.echapper('Suggestion : ' + c.nom) + '">' +
+          O.echapper('Suggestion : ' + c.nom) + '">' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#FFFDF5" fill-opacity=".72" stroke="#E9A400" stroke-width="2.5" stroke-dasharray="6 5"/>' +
           '<g class="plus-suggestion"><circle cx="' + (x + 25).toFixed(1) + '" cy="' + (y - 29).toFixed(1) + '" r="10" fill="#E9A400"/>' +
           O.iconeSvg('plus', x + 25, y - 29, 13, '#fff', 3) + '</g>' +
@@ -169,7 +169,7 @@
           '" tabindex="0" role="button" aria-label="Territoire inexploré">' +
           '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#E9EFF1" stroke="#C9D5DA" stroke-width="2" stroke-dasharray="3 6"/>' +
           O.iconeSvg('cloud', x, y - 4, 26, '#9FB2BA', 2) +
-          '<text class="nom nom-brouillard" x="' + x.toFixed(1) + '" y="' + (y + 26).toFixed(1) + '" fill="#8FA3AB">?</text></g>');
+          '<text class="nom nom-brouillard" x="' + x.toFixed(1) + '" y="' + (y + 26).toFixed(1) + '" fill="#6B828B">?</text></g>');
         brumes.push('<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (T * 0.95).toFixed(1) + '"/>');
         return;
       }

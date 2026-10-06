@@ -7,6 +7,10 @@
   --encre: #2E3A3F;
   --encre-douce: #5F6B70;
   --accent: #E5738E;
+  --accent-fort: #B23C5D; /* texte rose : 5,4:1 sur le papier */
+  --accent-bouton: #C2456A; /* fond des boutons principaux : texte blanc à 4,8:1 */
+  --accent-bouton-survol: #A9364F;
+  --focus: #1F5F70; /* contour du focus clavier : 6,9:1 sur le papier */
   --or: #E9B23E;
   --ombre: 0 8px 28px rgba(31, 72, 84, .18);
   --rayon: 16px;
@@ -53,6 +57,11 @@ body {
   font-weight: 700;
   text-anchor: middle;
   letter-spacing: .01em;
+  /* Léger halo clair : nom lisible sur toutes les couleurs de région. */
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, .5);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
 }
 
 .carte .nom-capitale {
@@ -87,7 +96,7 @@ body {
 .carte .etiquette-province { font-style: italic; font-weight: 700; }
 
 .carte .etiquette-mer {
-  fill: var(--mer-profonde);
+  fill: #24535E;
   stroke: rgba(191, 230, 238, .9);
   font-style: italic;
   text-transform: none;
@@ -117,7 +126,8 @@ body {
   filter: drop-shadow(0 0 6px rgba(255, 196, 61, .9));
 }
 
-.carte .tuile:focus-visible .dessus { stroke: #E9A400; stroke-width: 5; stroke-dasharray: none; }
+.carte .tuile:focus-visible { outline: none; } /* le contour hexagonal suffit */
+.carte .tuile:focus-visible .dessus { stroke: var(--focus); stroke-width: 5; stroke-dasharray: none; }
 
 /* Glisser-déposer */
 .carte.deplacement-en-cours { cursor: grabbing; }

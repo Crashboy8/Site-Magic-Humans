@@ -104,7 +104,7 @@
     return props.map((f) => '<section class="carte-progres proposition" aria-live="polite">' +
       '<div class="proposition-icone"><i data-lucide="trophy"></i></div><div class="proposition-texte">' +
       '<h3>« ' + O.echapper(f.c.nom) + ' » compte ' + pluriel(f.nombre, 'moment', 'moments') + ' de flow</h3>' +
-      '<p>Ce territoire te semble-t-il conquis ? C\'est toi qui décides.</p>' +
+      '<p>Ce territoire te semble-t-il conquis ? C\'est toi qui décides.</p>' +
       '<div class="proposition-actions"><button type="button" class="bouton bouton-principal" data-action="conquerir" data-valeur="' + O.echapper(f.c.id) + '">' +
       '<i data-lucide="trophy"></i>Oui, je l\'ai conquis</button>' +
       '<button type="button" class="bouton bouton-secondaire" data-action="pas-encore" data-valeur="' + O.echapper(f.c.id) + '">Pas encore</button></div>' +
@@ -114,7 +114,7 @@
   function resume(carte, jours) {
     const moments = S.momentsPeriode(carte, jours);
     if (!moments.length) {
-      return '<p class="resume">' + (jours ? 'Pas de moment de flow noté ces 30 derniers jours. Le prochain viendra quand il viendra.' : '') + '</p>';
+      return '<p class="resume">' + (jours ? 'Pas de moment de flow noté ces 30 derniers jours. Le prochain sera le bienvenu.' : '') + '</p>';
     }
     const comps = new Set();
     moments.forEach((m) => m.competenceIds.forEach((id) => comps.add(id)));
@@ -172,7 +172,7 @@
       '<div class="objectif-rythme"><label class="champ"><span>Combien de fois</span><input type="number" name="fois" id="objectif-fois" min="1" max="99" value="' + fois + '" inputmode="numeric"></label>' +
       '<label class="champ"><span>Par</span><select name="periode" id="objectif-periode"><option value="semaine"' + (periode === 'semaine' ? ' selected' : '') + '>semaine</option>' +
       '<option value="mois"' + (periode === 'mois' ? ' selected' : '') + '>mois</option></select></label></div>' +
-      '<label class="champ"><span>En quelques mots (facultatif)</span><input type="text" name="description" id="objectif-description" maxlength="120" value="' + (o ? O.echapper(o.description) : '') + '" placeholder="Ex. : 2 sessions de prospection"></label>' +
+      '<label class="champ"><span>En quelques mots (facultatif)</span><input type="text" name="description" id="objectif-description" maxlength="120" value="' + (o ? O.echapper(o.description) : '') + '" placeholder="Ex. : 2 sessions de prospection"></label>' +
       '<div class="objectif-actions"><button type="submit" class="bouton bouton-principal bouton-compact">Enregistrer</button>' +
       '<button type="button" class="bouton-lien" data-action="annuler-objectif">Annuler</button>' +
       (o ? '<button type="button" class="bouton-lien bouton-lien-discret" data-action="supprimer-objectif" data-valeur="' + O.echapper(o.id) + '">Supprimer l\'objectif</button>' : '') +
@@ -192,7 +192,7 @@
         (f.pret ? '<span class="puce-etat puce-prete"><i data-lucide="trophy"></i>prête</span>' : '') + '</div>' +
         '<div class="progression" role="progressbar" aria-valuemin="0" aria-valuemax="' + f.seuil + '" aria-valuenow="' + Math.min(f.nombre, f.seuil) + '" aria-label="' + O.echapper(f.c.nom) + '">' +
         '<span style="width:' + (f.ratio * 100).toFixed(1) + '%"></span></div>' +
-        '<p class="discret">' + f.nombre + ' / ' + f.seuil + ' moments' + (o ? ' · objectif : ' + O.echapper(o.description) : '') + '</p></li>';
+        '<p class="discret">' + f.nombre + ' / ' + f.seuil + ' moments' + (o ? ' · objectif : ' + O.echapper(o.description) : '') + '</p></li>';
     }).join('') + '</ul>';
     return html + '</section>';
   }
@@ -205,7 +205,7 @@
 
     if (!carte.momentsDeFlow.length) {
       return tete + '<div class="progres-corps"><section class="carte-progres vide-grand"><i data-lucide="waves"></i>' +
-        '<h3>Ta carte attend ses premiers moments de flow</h3><p>Note un moment quand tu te sens pleinement engagé : les graphiques se rempliront au fil des semaines.</p>' +
+        '<h3>Ta carte attend ses premiers moments de flow</h3><p>Note un moment quand tu te sens pleinement engagé : les graphiques se rempliront au fil des semaines.</p>' +
         '<button type="button" class="bouton bouton-principal" data-action="flow"><i data-lucide="waves"></i>J\'étais dans le flow</button></section>' +
         sectionObjectifs(carte, etat) + sectionFrontieres(carte) + '</div>';
     }
@@ -230,7 +230,7 @@
       '<section class="carte-progres"><h3><i data-lucide="map"></i> Régions qui mènent au flow</h3>' + listeBarres(zones, false) +
       '<p class="discret">Un moment compte une fois par région, même s\'il touche plusieurs compétences.</p></section>' +
       '<section class="carte-progres"><h3><i data-lucide="grid-3x3"></i> Défi et maîtrise</h3>' + graphiqueDefiMaitrise(S.grilleDefiMaitrise(carte, { jours })) +
-      '<p class="discret">En haut à droite, défi et maîtrise élevés : la zone de flow. En haut à gauche, un terrain où tu grandis. En bas à droite, des moments fluides et reposants.</p></section>' +
+      '<p class="discret">En haut à droite, défi et maîtrise élevés : la zone de flow. En haut à gauche, un terrain où tu grandis. En bas à droite, des moments fluides et reposants.</p></section>' +
       sectionFrontieres(carte) +
       '</div>';
   }
