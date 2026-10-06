@@ -101,6 +101,22 @@ function randomAnswers(r) {
   return a;
 }
 
+test("résultat : bloc Et maintenant, une phrase par stress fort", () => {
+  const n = D.ui.results;
+  assert.equal(n.nowH, "Et maintenant ?");
+  assert.equal(n.nowStep, "Ta prochaine étape");
+  assert.equal(n.nowStepEmpty, "Choisis un petit pas pour ta relation cette semaine.");
+  assert.equal(n.nowTest, "Teste ta relation");
+  assert.match(n.nowTestP, /critère par critère/);
+  assert.equal(n.nowBoussole, "Ouvrir ma Boussole Relation");
+  assert.equal(n.nowPierre, "Fais le point avec Pierre");
+  assert.equal(n.nowCall, "Réserver mon Appel Découverte offert");
+  assert.equal(n.nowPdf, "Télécharger mon profil (PDF)");
+  assert.match(n.nowStress.freeze, /te figer sous stress fort/);
+  assert.equal(Object.keys(n.nowStress).sort().join(","), "fawn,fight,flight,freeze");
+  assert.match(n.nowGeneric, /1 h/);
+});
+
 test("question 1 en deux sous-écrans, même numéro", () => {
   const s = screen("nourrit");
   assert.equal(s.splitGroups, true);

@@ -127,7 +127,23 @@ const AMOUR_DATA = {
       "restart": "Refaire le quiz",
       "ethicsH": "Une note importante",
       "ethicsP": "Ce quiz n'est pas un outil de diagnostic. Si tu vis de la peur, des humiliations, du contrôle ou de la violence dans ta relation, ce n'est pas un problème de compatibilité : parles-en à un professionnel. En France : 3919 (violences conjugales, gratuit et anonyme, 24h/24), 17 ou 112 en cas de danger immédiat, 114 par SMS. Hors de France, contacte les services d'urgence de ton pays.",
-      "pastH": "Une relation passée"
+      "pastH": "Une relation passée",
+      "nowH": "Et maintenant ?",
+      "nowStep": "Ta prochaine étape",
+      "nowStepEmpty": "Choisis un petit pas pour ta relation cette semaine.",
+      "nowTest": "Teste ta relation",
+      "nowTestP": "Vérifie si ton ou ta partenaire (actuel·le ou futur·e) te correspond vraiment, critère par critère.",
+      "nowBoussole": "Ouvrir ma Boussole Relation",
+      "nowPierre": "Fais le point avec Pierre",
+      "nowCall": "Réserver mon Appel Découverte offert",
+      "nowPdf": "Télécharger mon profil (PDF)",
+      "nowGeneric": "En 1 h, on regarde comment ça joue dans tes choix amoureux.",
+      "nowStress": {
+        "fight": "Tu as tendance à contre-attaquer sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
+        "flight": "Tu as tendance à fuir sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
+        "freeze": "Tu as tendance à te figer sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
+        "fawn": "Tu as tendance à céder pour apaiser sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux."
+      }
     }
   },
   "screens": [
