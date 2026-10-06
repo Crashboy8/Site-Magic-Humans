@@ -42,7 +42,7 @@ export function encodeBase64Url(data: unknown): string {
 }
 
 /** Lien vers la carte : le Talent Unique dans l'ancre (s'il est rempli) et la langue de la Boussole. */
-export function carteDuTalentHref(baseUrl: string, talent: TalentUnique, lang: "fr" | "en" = "fr", retour?: string): string {
+export function carteDuTalentHref(baseUrl: string, talent: TalentUnique, lang: "fr" | "en" | "es" = "fr", retour?: string): string {
   const data = carteLinkData(talent);
   const params = [data ? `b=${encodeBase64Url(data)}` : "", `lang=${lang}`, retour ? `retour=${encodeURIComponent(retour)}` : ""].filter(Boolean);
   return `${baseUrl}#${params.join("&")}`;
