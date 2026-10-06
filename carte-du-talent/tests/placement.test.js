@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['langues/en.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
+['langues/en.js', 'langues/en-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/bibliotheque-plus.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js', 'modele/creation.js', 'modele/boussole.js', 'modele/orientation-donnees.js', 'modele/orientation.js', 'geo/horizon.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -342,9 +342,9 @@ test('on peut créer, modifier et supprimer un objectif', () => {
 
 console.log('\nBibliothèque et suggestions');
 
-test('la bibliothèque compte environ 180 compétences valides', () => {
+test('la bibliothèque compte environ 300 compétences valides', () => {
   const E = CT.bibliotheque.ENTREES;
-  assert.ok(E.length >= 170 && E.length <= 200, E.length + ' entrées');
+  assert.ok(E.length >= 280 && E.length <= 330, E.length + ' entrées');
   assert.strictEqual(new Set(E.map((x) => x.id)).size, E.length);
   E.forEach((x) => assert.ok(CT.schema.DOMAINES[x.domaine], x.id + ' : domaine inconnu'));
 });

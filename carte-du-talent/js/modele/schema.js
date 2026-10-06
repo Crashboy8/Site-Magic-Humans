@@ -39,7 +39,7 @@
     technique: { nom: T('Technique'), couleur: '#B59A8A' }
   };
 
-  const PREFERENCES_DEFAUT = { brouillardDeGuerre: false, seuilConquete: 10 };
+  const PREFERENCES_DEFAUT = { brouillardDeGuerre: false, seuilConquete: 10, horizon: true };
 
   function nouvelId(prefixe) {
     return (prefixe || 'id') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -56,6 +56,8 @@
       objectifs: [],
       suggestionsRefusees: [],
       pistesVisees: [],
+      bilan: null,
+      plan: null,
       preferences: Object.assign({}, PREFERENCES_DEFAUT)
     };
   }
@@ -71,6 +73,11 @@
 
   function liste(v) {
     return Array.isArray(v) ? v : [];
+  }
+
+  // Date ISO valide, ou null.
+  function date(v) {
+    return typeof v === 'string' && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : null;
   }
 
   function position(p) {
@@ -175,8 +182,26 @@
 
     carte.preferences = {
       brouillardDeGuerre: Boolean(prefs.brouillardDeGuerre),
-      seuilConquete: entre(prefs.seuilConquete, 1, 100, PREFERENCES_DEFAUT.seuilConquete)
+      seuilConquete: entre(prefs.seuilConquete, 1, 100, PREFERENCES_DEFAUT.seuilConquete),
+      horizon: prefs.horizon !== false
     };
+
+    // Bilan d'acquis : fait (date) ou reporté (date) ; null tant qu'il n'a jamais été proposé.
+    const b = src.bilan;
+    carte.bilan = b && typeof b === 'object' && (date(b.fait) || date(b.reporte))
+      ? { fait: date(b.fait), reporte: date(b.reporte), n: entre(b.n, 0, 999, 0) } : null;
+
+    // Plan sur 30 jours : 12 actions (date ou null), sur une compétence encore présente.
+    const p = src.plan;
+    carte.plan = p && typeof p === 'object' && idsComp.has(p.competenceId) && p.bibliothequeId && date(p.debut)
+      ? {
+        id: String(p.id || nouvelId('plan')),
+        bibliothequeId: String(p.bibliothequeId),
+        competenceId: String(p.competenceId),
+        debut: date(p.debut),
+        faites: Array.from({ length: 12 }, (x, i) => date(liste(p.faites)[i])),
+        fini: date(p.fini)
+      } : null;
 
     return carte;
   }

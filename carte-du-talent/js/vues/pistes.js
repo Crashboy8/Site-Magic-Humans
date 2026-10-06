@@ -10,10 +10,48 @@
 
   const O = CT.outils;
   const P = CT.pistes;
+  const OR = CT.orientation;
 
   function lienHexagone(c) {
     return '<button type="button" class="lien-carte puce-hex" data-action="voir" data-valeur="' + O.echapper(c.id) + '">' +
       '<i data-lucide="' + O.echapper(c.icone) + '"></i>' + O.echapper(c.nom) + '</button>';
+  }
+
+  function manquante(carte, m) {
+    const f = OR.fiche(carte, m.id);
+    const sur = OR.surLaCarte(carte, m);
+    const niveau = O.echapper(f.facilite.libelle);
+    const deleguee = sur && (sur.statut === 'a_deleguer' || sur.statut === 'ressource');
+    return '<li class="manquante" data-entree="' + O.echapper(m.id) + '"><div class="manquante-ligne">' +
+      '<i data-lucide="' + O.echapper(m.icone) + '"></i><span class="manquante-nom">' + O.echapper(m.nom) + '</span>' +
+      '<span class="manquante-meta">' + O.echapper(T('≈ {h} h · {niveau}', { h: f.duree.heures, niveau: f.facilite.libelle })) + '</span>' +
+      (deleguee ? '<span class="discret">' + T('Dans ta zone à déléguer') + '</span>'
+        : '<button type="button" class="bouton-deja" data-action="deja" data-valeur="' + O.echapper(m.id) + '"><i data-lucide="check"></i>' + T('Je l\'ai déjà') + '</button>') +
+      '</div><details class="fiche"><summary>' + T('Comment m\'y mettre ?') + '</summary>' +
+      '<p><i data-lucide="clock"></i>' + O.echapper(T('Temps estimé : {duree}', { duree: T(f.duree.libelle) })) + '</p>' +
+      '<p><i data-lucide="gauge"></i>' + O.echapper(T('Pour toi : {niveau}', { niveau: f.facilite.libelle })) + ' <span class="discret">' + O.echapper(f.facilite.raison) + '</span></p>' +
+      '<h5>' + T('Pour commencer') + '</h5><ol class="premieres-actions">' + f.actions.map((a) => '<li>' + O.echapper(a) + '</li>').join('') + '</ol>' +
+      '</details></li>';
+  }
+
+  function infos(e) {
+    const i = OR.infosPiste(e.piste);
+    if (!i) return '';
+    return '<dl class="piste-infos">' +
+      '<div><dt><i data-lucide="briefcase"></i>' + T('Statut possible') + '</dt><dd>' + O.echapper(i.statutLibelle) + '</dd></div>' +
+      '<div><dt><i data-lucide="wallet"></i>' + T('Revenu indicatif') + '</dt><dd title="' + O.echapper(i.note) + '">' + O.echapper(i.revenu) + '<sup>*</sup>' +
+      '<span class="discret note-revenu">' + O.echapper(i.note) + '</span></dd></div>' +
+      '<div><dt><i data-lucide="sparkles"></i>' + T('Exemple') + '</dt><dd>' + O.echapper(i.exemple) + '</dd></div></dl>';
+  }
+
+  function talentIci(carte, e) {
+    const l = OR.lienTalent(carte, e);
+    return '<div class="piste-bloc piste-talent niveau-' + l.niveau + '"><h4>' + T('Ton talent ici') + '</h4>' +
+      '<p class="puce-etat puce-alignement"><i data-lucide="target"></i>' + O.echapper(l.libelle) + '</p>' +
+      (l.talent ? '<p>' + O.echapper(T('Talent mobilisé : {talent}', { talent: l.talent })) + '</p>' : '') +
+      (l.sousTalents.length ? '<p>' + O.echapper(T('Sous-talents utilisés : {liste}', { liste: l.sousTalents.join(T(', ')) })) + '</p>' : '') +
+      (l.moment ? '<p>' + O.echapper(T('Moment de flow qui s\'y retrouve : « {moment} »', { moment: l.moment })) + '</p>' : '') +
+      (l.conseil ? '<p class="discret">' + O.echapper(l.conseil) + '</p>' : '') + '</div>';
   }
 
   function carteDePiste(carte, e) {
@@ -26,11 +64,12 @@
       '<h3>' + nom + '</h3></div>' +
       '<div class="piste-score" role="img" aria-label="' + O.echapper(T('Correspondance : {n} %', { n: e.pourcentage })) + '"><strong>' + e.pourcentage + '</strong><span>%</span></div></header>' +
       '<div class="progression" aria-hidden="true"><span style="width:' + e.pourcentage + '%"></span></div>' +
+      infos(e) + talentIci(carte, e) +
       '<div class="piste-bloc"><h4>' + T('Ce qui la justifie') + '</h4>' +
       (justifient.length ? '<p class="puces-hex">' + justifient.map(lienHexagone).join('') + '</p>'
         : '<p class="vide">' + T('Pas encore d\'hexagone sur ta carte : c\'est une piste à explorer.') + '</p>') + '</div>' +
       '<div class="piste-bloc"><h4>' + T('Compétences manquantes') + '</h4>' +
-      (manquantes.length ? '<ul class="puces-manquantes">' + manquantes.map((m) => '<li><i data-lucide="' + O.echapper(m.icone) + '"></i>' + O.echapper(m.nom) + '</li>').join('') + '</ul>'
+      (manquantes.length ? '<ul class="liste-manquantes">' + manquantes.map((m) => manquante(carte, m)).join('') + '</ul>'
         : '<p class="discret">' + T('Rien ne manque : tu as déjà tout ce qu\'il faut pour cette piste.') + '</p>') + '</div>' +
       (e.visee
         ? '<div class="piste-actions"><span class="puce-etat puce-prete"><i data-lucide="flag"></i>' + T('Piste visée') + '</span>' +
@@ -63,10 +102,12 @@
   function contenu(carte) {
     const entetes = '<header class="progres-tete"><div><p class="surtitre"><i data-lucide="compass"></i> ' + T('Mes pistes') + '</p>' +
       '<h2 id="pistes-titre">' + T('Des pistes qui collent à ton talent') + '</h2>' +
-      '<p class="discret">' + T('Calculé sur ta carte : tes territoires, tes régions et tes moments de flow. Une piste est une idée à explorer, pas un verdict.') + '</p></div>' +
+      '<p class="discret">' + T('Calculé sur ta carte : tes territoires, tes régions et tes moments de flow. Une piste est une idée à explorer, pas un verdict.') + '</p>' +
+      '<div class="pistes-outils"><button type="button" class="bouton bouton-secondaire bouton-compact" data-action="bilan"><i data-lucide="list-checks"></i>' + T('Mon bilan d\'acquis') + '</button></div></div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>';
     const pistes = P.proposer(carte);
-    return entetes + '<div class="progres-corps">' + sectionPriorites(carte) + pistes.map((e) => carteDePiste(carte, e)).join('') + '</div>';
+    return entetes + '<div class="progres-corps">' + sectionPriorites(carte) + pistes.map((e) => carteDePiste(carte, e)).join('') +
+      '<p class="note-source">* ' + O.echapper(T(CT.orientationDonnees.SOURCE_REVENU)) + '</p></div>';
   }
 
   function creer(racine, rappels) {
@@ -77,8 +118,12 @@
       if (!ouvert) return;
       const page = racine.querySelector('.progres-page');
       const defilement = page ? page.scrollTop : 0;
+      const ouverts = [...racine.querySelectorAll('li[data-entree] details[open]')].map((d) => d.closest('li').getAttribute('data-entree'));
       racine.innerHTML = '<div class="progres-page" role="dialog" aria-modal="true" aria-labelledby="pistes-titre">' + contenu(rappels.carte()) + '</div>';
       racine.querySelector('.progres-page').scrollTop = defilement;
+      racine.querySelectorAll('li[data-entree]').forEach((li) => {
+        if (ouverts.includes(li.getAttribute('data-entree'))) li.querySelector('details').open = true;
+      });
       O.rafraichirIcones(racine);
     }
 
