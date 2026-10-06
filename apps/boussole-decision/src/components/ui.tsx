@@ -17,6 +17,11 @@ const buttonVariants: Record<Variant, string> = {
   dangerGhost: "text-danger hover:bg-danger-soft",
 };
 
+/** Classes d'un bouton, pour un lien externe (<a>) qui doit ressembler à un bouton. */
+export function buttonClass(variant: Variant = "primary", className?: string) {
+  return cx(buttonBase, buttonVariants[variant], className);
+}
+
 export function Button({ variant = "primary", className, ...props }: ComponentProps<"button"> & { variant?: Variant }) {
   return <button className={cx(buttonBase, buttonVariants[variant], className)} {...props} />;
 }

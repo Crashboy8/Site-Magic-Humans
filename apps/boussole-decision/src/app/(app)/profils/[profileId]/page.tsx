@@ -5,6 +5,7 @@ import { ReadOnlyBanner } from "@/components/ReadOnlyBanner";
 import { ButtonLink, Card, Notice } from "@/components/ui";
 import { getAppUser, getProfile, listVersions } from "@/data/repository";
 import { ProfileHeader } from "@/features/profiles/ProfileHeader";
+import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
 import { ShareWithCoach } from "@/features/profiles/ShareWithCoach";
 import { TalentUniqueEditor } from "@/features/profiles/TalentUniqueEditor";
 import { VersionList } from "@/features/versions/VersionList";
@@ -53,6 +54,7 @@ export default async function ProfilePage({ params, searchParams }: PageProps<"/
       <div className="mb-12 space-y-6">
         {!readOnly && !user.isGuest && <ShareWithCoach profileId={profile.id} initialShared={profile.sharedWithCoach} />}
         <TalentUniqueEditor profileId={profile.id} talent={profile.talent} readOnly={readOnly} />
+        {!readOnly && <CarteDuTalentLink />}
         {tableLink && !readOnly && (
           <Card className="space-y-3 border-accent/30 bg-blush/50">
             <h2 className="font-serif text-2xl italic">{p.nextStepTitle}</h2>

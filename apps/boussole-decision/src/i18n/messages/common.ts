@@ -32,6 +32,10 @@ const fr = {
   readOnlyTitle: (name: string) => `Consultation des boussoles de ${name}`,
   readOnlyText: "Lecture seule : tu peux laisser des commentaires, mais rien modifier.",
   noneYet: "—",
+  // Lien vers la Carte du Talent (profil et résultats)
+  carteDuTalent: "🗺️ Explorer ma carte du talent",
+  carteDuTalentHint: "Visualise ton talent comme un territoire et repère ce qui te met dans le flow.",
+  newTab: "(s'ouvre dans un nouvel onglet)",
 };
 
 const en: typeof fr = {
@@ -67,6 +71,19 @@ const en: typeof fr = {
   readOnlyTitle: (name: string) => `Viewing ${name}'s compasses`,
   readOnlyText: "Read-only: you can leave comments, but not change anything.",
   noneYet: "—",
+  carteDuTalent: "🗺️ Explore my talent map",
+  carteDuTalentHint: "See your talent as a territory and spot what puts you in flow (in French).",
+  newTab: "(opens in a new tab)",
+};
+
+/**
+ * Espagnol, comme pour le bouton du quiz. La Boussole n'a pas encore de version espagnole :
+ * ces libellés sont prêts pour le jour où « es » rejoindra LOCALES (src/i18n/config.ts).
+ */
+export const carteDuTalentEs = {
+  carteDuTalent: "🗺️ Explorar mi mapa del talento",
+  carteDuTalentHint: "Visualiza tu talento como un territorio y descubre qué te lleva al flow (en francés).",
+  newTab: "(se abre en una nueva pestaña)",
 };
 
 export const common = { fr, en };
