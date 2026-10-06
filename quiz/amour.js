@@ -20,8 +20,9 @@
     "#screen-amour .am-count{font-weight:700;font-size:1rem;border-radius:999px;padding:6px 12px;background:var(--surface);border:1px solid var(--line)}",
     "#screen-amour .am-count.is-ok{background:var(--good-soft);color:var(--good)}",
     "#screen-amour .am-group{margin:14px 0}",
-    "#screen-amour .am-gh{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin:0 0 8px}",
+    "#screen-amour .am-gh{margin:0 0 8px}",
     "#screen-amour .am-gh h3{font-size:1.1rem;font-weight:700;margin:0}",
+    "#screen-amour .am-body{padding-bottom:var(--am-nav-h,76px)}",
     "#screen-amour .am-picks{display:grid;grid-template-columns:1fr;gap:10px}",
     "@media(min-width:720px){#screen-amour .am-picks{grid-template-columns:1fr 1fr}}",
     "#screen-amour .am-pick{min-height:64px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:flex;gap:12px;align-items:flex-start;cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}",
@@ -50,7 +51,9 @@
     "#screen-amour .am-add{margin-top:8px}",
     "#screen-amour .am-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}",
     "#screen-amour .am-more{color:var(--muted);font-size:.95rem}",
-    "#screen-amour .qnav{position:sticky;bottom:var(--mh-cookie-banner-h,0px);z-index:4;background:var(--bg);padding-top:8px}",
+    "#screen-amour .qnav{position:sticky;bottom:var(--mh-cookie-banner-h,0px);z-index:4;background:var(--bg);display:flex;flex-direction:column;flex-wrap:nowrap;gap:6px;padding:8px 0 4px}",
+    "#screen-amour .am-nav-row{display:flex;flex-wrap:nowrap;align-items:center;gap:8px}",
+    "#screen-amour .am-nav-row .btn{flex:1 1 0;justify-content:center;white-space:nowrap;min-width:0;padding:12px 8px;font-size:clamp(.82rem,3.4vw,1rem)}",
     "#screen-amour details .am-split{display:grid !important;grid-template-columns:1fr;gap:10px}",
     "@media(min-width:720px){#screen-amour details .am-split.cols-2{grid-template-columns:1fr 1fr}#screen-amour details .am-split.cols-3{grid-template-columns:1fr 1fr 1fr}}",
     "@media(prefers-reduced-motion:reduce){#screen-amour .am-rank-item{transition:none !important}}"
@@ -231,10 +234,7 @@
       const bag = ensure(s);
       const picked = bag.picked[g.id] || [];
       let html = '<section class="am-group">';
-      if (g.title) {
-        const x = chosenIds(s, g).length;
-        html += '<div class="am-gh"><h3>' + esc(g.title) + "</h3><span class=\"am-count" + (x >= g.min ? " is-ok" : "") + "\">" + esc(counterText(g.counter, x, g.min, x >= g.min)) + "</span></div>";
-      }
+      if (g.title) html += '<div class="am-gh"><h3>' + esc(g.title) + "</h3></div>";
       if (g.help) html += '<p class="am-help">' + esc(g.help) + "</p>";
       html += '<div class="am-picks">';
       g.items.forEach(function (it) {
@@ -368,12 +368,16 @@
       (help ? '<p class="am-help">' + esc(help) + "</p>" : "") +
       "</div>" +
       countersHtml(s) +
-      body +
+      '<div class="am-body">' + body +
       '<p id="am-rank-help" class="am-sr">' + esc(Q.rankHelp) + "</p>" +
-      '<p id="am-live" class="am-sr" aria-live="polite"></p>' +
-      '<div class="qnav"><button type="button" class="btn ghost" data-act="prev">' + esc(Q.prev) + "</button>" +
-      '<span class="am-more">' + (ok ? "" : esc(fill(Q.more, { k: k }))) + "</span>" +
-      '<button type="button" class="btn" data-act="next"' + (ok ? "" : " disabled") + ' aria-disabled="' + (ok ? "false" : "true") + '">' + esc(buttonLabel) + "</button></div>";
+      '<p id="am-live" class="am-sr" aria-live="polite"></p></div>' +
+      '<div class="qnav">' +
+      (ok ? "" : '<p class="am-more">' + esc(fill(Q.more, { k: k })) + "</p>") +
+      '<div class="am-nav-row"><button type="button" class="btn ghost" data-act="prev">' + esc(Q.prev) + "</button>" +
+      '<button type="button" class="btn" data-act="next"' + (ok ? "" : " disabled") + ' aria-disabled="' + (ok ? "false" : "true") + '">' + esc(buttonLabel) + "</button></div></div>";
+    const nav = root.querySelector(".qnav");
+    const block = root.querySelector(".am-body");
+    if (nav && block) block.style.paddingBottom = nav.offsetHeight + "px";
     if (focusSel) {
       const el = document.getElementById(focusSel);
       if (el) el.focus();
