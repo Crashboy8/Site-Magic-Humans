@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, Card, Notice } from "@/components/ui";
 import { LOVE_TEXTS } from "@/content/amour";
+import { decodeLoveHash, parseLovePrefill } from "@/domain/lovePrefill";
 import { setLocaleAction } from "@/i18n/actions";
 import { useI18n } from "@/i18n/client";
 import { startLoveCompassAction } from "./actions";
@@ -24,16 +25,21 @@ export function LoveStart() {
   const { locale } = useI18n();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
   const [pending, startTransition] = useTransition();
   const langApplied = useRef(false);
+  const rawRef = useRef<unknown>(undefined);
 
   useEffect(() => {
+    const decoded = decodeLoveHash(window.location.hash);
+    rawRef.current = decoded;
+    const show = decoded !== null && parseLovePrefill(decoded) !== null;
     const url = new URL(window.location.href);
-    if (url.searchParams.get("theme") !== "amour") {
-      url.searchParams.set("theme", "amour");
-      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-    }
+    if (url.searchParams.get("theme") !== "amour") url.searchParams.set("theme", "amour");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
     clearThemeHint();
+    const id = window.setTimeout(() => setPrefilled(show), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -50,6 +56,7 @@ export function LoveStart() {
         <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{S.intro}</p>
       </header>
       <Card className="max-w-3xl space-y-3">
+        {prefilled && <Notice>{S.prefilled}</Notice>}
         {error && <Notice tone="error">{error}</Notice>}
         <Button
           type="button"
@@ -58,7 +65,7 @@ export function LoveStart() {
           onClick={() =>
             startTransition(async () => {
               setError(null);
-              const r = await startLoveCompassAction();
+              const r = await startLoveCompassAction(rawRef.current ?? undefined);
               if (r?.error) setError(r.error);
             })
           }
@@ -67,6 +74,11 @@ export function LoveStart() {
           {S.button}
         </Button>
         <p className="text-sm text-ink-soft">{S.note}</p>
+        <p className="text-sm">
+          <a href="/quiz-amour/" className="font-medium text-link underline underline-offset-4">
+            {S.backToQuiz}
+          </a>
+        </p>
       </Card>
     </div>
   );

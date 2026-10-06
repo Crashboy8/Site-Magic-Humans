@@ -11,6 +11,7 @@ import {
   listVersions,
 } from "@/data/repository";
 import { LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
+import { applyLovePrefill, parseLovePrefill } from "@/domain/lovePrefill";
 import { getI18n } from "@/i18n/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -18,7 +19,7 @@ import { supabaseServer } from "@/lib/supabase/server";
  * Crée une Boussole Relation : un profil marqué « mode amour », ses 4 catégories, ses 10 critères
  * et une première colonne « Ma relation ». Sans session, ouvre d'abord un essai sans compte (comme importQuizAction).
  */
-export async function startLoveCompassAction(): Promise<{ error?: string }> {
+export async function startLoveCompassAction(rawPrefill?: unknown): Promise<{ error?: string }> {
   const { locale, t } = await getI18n();
   const supabase = await supabaseServer();
   const { data: claims } = await supabase.auth.getClaims();
@@ -38,11 +39,12 @@ export async function startLoveCompassAction(): Promise<{ error?: string }> {
     for (const [i, c] of LOVE_TEMPLATE.categories.entries()) {
       categoryIds[c.key] = (await createCategory(supabase, versionId, c.label, i)).id;
     }
-    for (const [i, c] of LOVE_TEMPLATE.criteria.entries()) {
+    const criteria = applyLovePrefill(parseLovePrefill(rawPrefill));
+    for (const [i, c] of criteria.entries()) {
       await createCriterion(supabase, versionId, {
         categoryId: categoryIds[c.category],
         label: c.label,
-        description: c.guide,
+        description: c.description,
         importance: c.importance,
         nonNegotiable: c.nonNegotiable,
         direction: c.direction,

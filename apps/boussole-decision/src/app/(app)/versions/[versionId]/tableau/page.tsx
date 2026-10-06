@@ -45,7 +45,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
         {love ? (
           <>
             <Notice>{LOVE_TEXTS.tableNotice}</Notice>
-            <LoveGuide />
+            <LoveGuide criteria={criteria} />
           </>
         ) : (
           <>
