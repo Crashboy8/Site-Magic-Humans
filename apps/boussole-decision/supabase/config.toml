@@ -246,19 +246,19 @@ otp_expiry = 3600
 
 # Uncomment to customize email template
 [auth.email.template.confirmation]
-subject = "Confirme ton adresse · Boussole de décision"
+subject = "{{ $l := or .Data.lang \"fr\" }}{{ if eq $l \"en\" }}Confirm your address · Decision Compass{{ else if eq $l \"es\" }}Confirma tu dirección · Brújula de decisión{{ else }}Confirme ton adresse · Boussole de décision{{ end }}"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.magic_link]
-subject = "Ton lien de connexion · Boussole de décision"
+subject = "{{ $l := or .Data.lang \"fr\" }}{{ if eq $l \"en\" }}Your sign-in link · Decision Compass{{ else if eq $l \"es\" }}Tu enlace de acceso · Brújula de decisión{{ else }}Ton lien de connexion · Boussole de décision{{ end }}"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.email_change]
-subject = "Sauvegarde ton travail · Boussole de décision"
+subject = "{{ $l := or .Data.lang \"fr\" }}{{ if eq $l \"en\" }}Save your work · Decision Compass{{ else if eq $l \"es\" }}Guarda tu trabajo · Brújula de decisión{{ else }}Sauvegarde ton travail · Boussole de décision{{ end }}"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.recovery]
-subject = "Nouveau mot de passe · Boussole de décision"
+subject = "{{ $l := or .Data.lang \"fr\" }}{{ if eq $l \"en\" }}New password · Decision Compass{{ else if eq $l \"es\" }}Nueva contraseña · Brújula de decisión{{ else }}Nouveau mot de passe · Boussole de décision{{ end }}"
 content_path = "./supabase/templates/recovery.html"
 
 # [auth.email.template.invite]

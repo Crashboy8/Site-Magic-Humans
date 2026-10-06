@@ -19,7 +19,7 @@ src/
 supabase/
 ├── migrations/  Schéma, sécurité (RLS), fonctions
 ├── seed.sql     Code d'invitation de test : BOUSSOLE-TEST-2026
-├── templates/   Emails d'authentification en français
+├── templates/   Emails d'authentification (FR · EN · ES)
 └── tests/       Tests SQL de sécurité (Postgres nu)
 ```
 
@@ -60,8 +60,9 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
   `src/i18n/messages/` (un fichier par zone, l'anglais et l'espagnol typés sur le français : une traduction manquante ne compile pas),
   terminologie MO2I dans les trois langues dans `src/domain/methodology.ts` (`getMethodology(locale)`). Côté serveur :
   `getI18n()` ; côté client : `useI18n()`. Les contenus saisis (critères, opportunités, notes) ne sont pas traduits ;
-  les catégories par défaut s'affichent dans la langue choisie. Les emails envoyés par Supabase restent ceux configurés
-  dans le tableau de bord Supabase (en français). Le lien du quiz ouvre la Boussole dans la langue où le quiz a été passé.
+  les catégories par défaut s'affichent dans la langue choisie. Les emails d'authentification suivent la langue du
+  compte (`user_metadata.lang`, enregistrée à l'inscription, à l'essai, à la connexion et au changement de langue) ;
+  les comptes plus anciens, sans langue enregistrée, les reçoivent en français. Le lien du quiz ouvre la Boussole dans la langue où le quiz a été passé.
 
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
@@ -131,8 +132,9 @@ npm run test:db   # tests de sécurité SQL, sur un Postgres local (psql/created
 3. **Authentication → URL Configuration**
    - Site URL : `https://www.magichumans.com/boussole-decision/`
    - Redirect URLs : `https://www.magichumans.com/boussole-decision/**`
-4. **Authentication → Emails → Templates** : coller les modèles de `supabase/templates/` (sujets dans `supabase/config.toml`),
-   dont « Change email address » (`email_change.html`) utilisé quand un invité sauvegarde son travail.
+4. **Authentication → Emails → Templates** : coller les modèles de `supabase/templates/` (sujets dans `supabase/config.toml`,
+   sans les barres obliques inverses devant les guillemets), dont « Change email address » (`email_change.html`) utilisé
+   quand un invité sauvegarde son travail. Chaque modèle et chaque sujet contient les trois langues.
 5. **Authentication → Sign In / Providers** : activer **Allow anonymous sign-ins** (« Essayer tout de suite »).
 6. **Authentication → Emails → SMTP** : brancher un service d'envoi (Brevo, Resend…). Sans cela, Supabase n'envoie
    que quelques emails par heure, ce qui bloque vite les inscriptions et les liens magiques.
