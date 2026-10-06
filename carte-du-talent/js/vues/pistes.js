@@ -31,6 +31,7 @@
       '<p><i data-lucide="clock"></i>' + O.echapper(T('Temps estimé : {duree}', { duree: T(f.duree.libelle) })) + '</p>' +
       '<p><i data-lucide="gauge"></i>' + O.echapper(T('Pour toi : {niveau}', { niveau: f.facilite.libelle })) + ' <span class="discret">' + O.echapper(f.facilite.raison) + '</span></p>' +
       '<h5>' + T('Pour commencer') + '</h5><ol class="premieres-actions">' + f.actions.map((a) => '<li>' + O.echapper(a) + '</li>').join('') + '</ol>' +
+      '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="plan" data-valeur="' + O.echapper(m.id) + '"><i data-lucide="rocket"></i>' + T('Me lancer sur 30 jours') + '</button>' +
       '</details></li>';
   }
 
@@ -81,6 +82,54 @@
       '</article>';
   }
 
+  function meta(f) {
+    return O.echapper(T('≈ {h} h · {niveau}', { h: f.duree.heures, niveau: f.facilite.libelle }));
+  }
+
+  // F. La compétence qui fait avancer le plus de pistes pour le moins d'effort.
+  function sectionProchaine(carte, ecartees) {
+    const p = OR.prochaine(carte, ecartees);
+    let html = '<section class="carte-progres carte-large prochaine"><h3><i data-lucide="compass"></i> ' + T('Ma prochaine compétence') + '</h3>' +
+      '<p class="discret">' + T('La compétence qui fait avancer le plus de pistes, avec le moins d\'effort.') + '</p>';
+    if (!p) return html + '<p class="vide">' + T('Pas d\'autre idée pour l\'instant : tu as déjà de quoi avancer !') + '</p></section>';
+    const id = O.echapper(p.entree.id);
+    const vues = p.pistes.slice(0, 4);
+    html += '<p class="prochaine-nom"><i data-lucide="' + O.echapper(p.entree.icone) + '"></i><strong>' + O.echapper(p.entree.nom) + '</strong> ' +
+      '<span class="manquante-meta">' + meta(p.fiche) + '</span></p>' +
+      '<p>' + O.echapper(CT.i18n.Tn(p.pistes.length, 'Elle fait avancer {n} piste :', 'Elle fait avancer {n} pistes :')) + '</p>' +
+      '<ul class="prochaine-pistes">' + vues.map((x) => '<li>' + O.echapper(T('{piste} (+{gain} %)', { piste: x.piste.nom, gain: x.gain })) + '</li>').join('') + '</ul>' +
+      '<div class="piste-actions">' +
+      '<button type="button" class="bouton bouton-principal bouton-compact" data-action="plan" data-valeur="' + id + '"><i data-lucide="rocket"></i>' + T('Me lancer sur 30 jours') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="deja" data-valeur="' + id + '"><i data-lucide="check"></i>' + T('Je l\'ai déjà') + '</button>' +
+      '<button type="button" class="bouton-lien" data-action="autre-idee" data-valeur="' + id + '"><i data-lucide="shuffle"></i>' + T('Une autre idée') + '</button></div></section>';
+    return html;
+  }
+
+  // G. Plan sur 30 jours : 4 semaines de 3 actions à cocher.
+  function sectionPlan(carte, s) {
+    const semaines = s.semaines.map((sem, i) => '<div class="plan-semaine' + (i + 1 === s.semaine && !s.fini ? ' semaine-en-cours' : '') + '"><h4>' + O.echapper(sem.titre) + '</h4>' +
+      sem.actions.map((texte, k) => '<label class="action-plan"><input type="checkbox" data-action="cocher" data-valeur="' + (i * 3 + k) + '"' + (sem.faites[k] ? ' checked' : '') + '> <span>' + O.echapper(texte) + '</span></label>').join('') + '</div>').join('');
+    const conquise = s.competence.statut === 'conquise' || s.competence.statut === 'natale';
+    return '<section class="carte-progres carte-large plan-30"><h3><i data-lucide="flag"></i> ' + T('Mon plan sur 30 jours') + '</h3>' +
+      '<p class="plan-nom">' + O.echapper(T('Plan : {nom}', { nom: s.competence.nom })) + '</p>' +
+      '<p class="discret">' + O.echapper(T('Jour {j} sur 30 · {n} actions sur 12', { j: Math.min(30, s.jours + 1), n: s.faites })) + '</p>' +
+      '<div class="progression" aria-hidden="true"><span style="width:' + Math.round(100 * s.progression) + '%"></span></div>' +
+      (s.depasse ? '<p class="discret">' + T('Les 30 jours sont passés, ton plan reste ouvert : avance à ton rythme.') + '</p>' : '') +
+      semaines +
+      (s.fini ? '<p class="plan-fini"><i data-lucide="sparkles"></i>' + T('Plan terminé, bravo !') + '</p><div class="piste-actions">' +
+        (conquise ? '' : '<button type="button" class="bouton bouton-principal bouton-compact" data-action="deja" data-valeur="' + O.echapper(s.entree.id) + '">' + T('Je l\'ai déjà') + '</button>') +
+        '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="nouveau-plan"><i data-lucide="rocket"></i>' + T('Lancer ma prochaine compétence') + '</button></div>'
+        : '<button type="button" class="bouton-lien bouton-lien-discret" data-action="arreter-plan">' + T('Arrêter ce plan') + '</button>') +
+      '</section>';
+  }
+
+  function appel() {
+    return '<section class="carte-progres carte-large cta-appel"><h3><i data-lucide="calendar-check"></i> ' + T('Envie d\'en parler ?') + '</h3>' +
+      '<p><strong>' + T('Appel découverte · 1 heure · offert') + '</strong></p>' +
+      '<p>' + T('Tu arrives avec ta carte et tes pistes. On regarde ensemble celle qui te met vraiment dans le flow, et par où commencer.') + '</p>' +
+      '<a class="bouton bouton-principal" href="' + O.echapper(OR.urlAppel('pistes')) + '" target="_blank" rel="noopener">' + T('En parler avec Pierre') + '</a></section>';
+  }
+
   // Territoires en conquête, dans l'ordre de priorité, avec les flèches pour changer l'ordre.
   function sectionPriorites(carte) {
     const liste = CT.regles.frontieres(carte);
@@ -99,27 +148,31 @@
       }).join('') + '</ol></section>';
   }
 
-  function contenu(carte) {
+  function contenu(carte, ecartees) {
     const entetes = '<header class="progres-tete"><div><p class="surtitre"><i data-lucide="compass"></i> ' + T('Mes pistes') + '</p>' +
       '<h2 id="pistes-titre">' + T('Des pistes qui collent à ton talent') + '</h2>' +
       '<p class="discret">' + T('Calculé sur ta carte : tes territoires, tes régions et tes moments de flow. Une piste est une idée à explorer, pas un verdict.') + '</p>' +
-      '<div class="pistes-outils"><button type="button" class="bouton bouton-secondaire bouton-compact" data-action="bilan"><i data-lucide="list-checks"></i>' + T('Mon bilan d\'acquis') + '</button></div></div>' +
+      '<div class="pistes-outils"><button type="button" class="bouton bouton-secondaire bouton-compact" data-action="bilan"><i data-lucide="list-checks"></i>' + T('Mon bilan d\'acquis') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire bouton-compact" data-action="synthese"><i data-lucide="file-text"></i>' + T('Ma synthèse (1 page)') + '</button></div></div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>';
     const pistes = P.proposer(carte);
-    return entetes + '<div class="progres-corps">' + sectionPriorites(carte) + pistes.map((e) => carteDePiste(carte, e)).join('') +
+    const plan = OR.etatPlan(carte, Date.now());
+    return entetes + '<div class="progres-corps">' + (plan ? sectionPlan(carte, plan) : sectionProchaine(carte, ecartees)) +
+      sectionPriorites(carte) + pistes.map((e) => carteDePiste(carte, e)).join('') + appel() +
       '<p class="note-source">* ' + O.echapper(T(CT.orientationDonnees.SOURCE_REVENU)) + '</p></div>';
   }
 
   function creer(racine, rappels) {
     let ouvert = false;
     let dernierFocus = null;
+    let ecartees = [];
 
     function rendre() {
       if (!ouvert) return;
       const page = racine.querySelector('.progres-page');
       const defilement = page ? page.scrollTop : 0;
       const ouverts = [...racine.querySelectorAll('li[data-entree] details[open]')].map((d) => d.closest('li').getAttribute('data-entree'));
-      racine.innerHTML = '<div class="progres-page" role="dialog" aria-modal="true" aria-labelledby="pistes-titre">' + contenu(rappels.carte()) + '</div>';
+      racine.innerHTML = '<div class="progres-page" role="dialog" aria-modal="true" aria-labelledby="pistes-titre">' + contenu(rappels.carte(), ecartees) + '</div>';
       racine.querySelector('.progres-page').scrollTop = defilement;
       racine.querySelectorAll('li[data-entree]').forEach((li) => {
         if (ouverts.includes(li.getAttribute('data-entree'))) li.querySelector('details').open = true;
@@ -134,6 +187,7 @@
       const valeur = b.getAttribute('data-valeur');
       if (action === 'fermer') { fermer(); return; }
       if (action === 'voir') fermer();
+      if (action === 'autre-idee') { ecartees.push(valeur); rendre(); return; }
       rappels.action(action, valeur);
     });
 
@@ -142,6 +196,7 @@
     function ouvrir() {
       dernierFocus = document.activeElement;
       ouvert = true;
+      ecartees = [];
       racine.hidden = false;
       rendre();
       requestAnimationFrame(() => racine.classList.add('visible'));

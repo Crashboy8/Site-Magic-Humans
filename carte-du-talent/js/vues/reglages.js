@@ -31,6 +31,9 @@
             '<label class="interrupteur"><span class="interrupteur-texte"><strong>' + T('Brouillard de guerre') + '</strong>' +
             '<span class="aide">' + T('Cache les territoires à conquérir tant que tu ne les as pas explorés. Touche un nuage pour l\'explorer.') + '</span></span>' +
             '<input type="checkbox" role="switch" id="reglage-brouillard"><span class="glissiere" aria-hidden="true"></span></label>' +
+            '<label class="interrupteur"><span class="interrupteur-texte"><strong>' + T('Terres à découvrir') + '</strong>' +
+            '<span class="aide">' + T('Afficher autour de ta carte les compétences que tu n\'as pas encore explorées.') + '</span></span>' +
+            '<input type="checkbox" role="switch" id="reglage-horizon"><span class="glissiere" aria-hidden="true"></span></label>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="toutes"><i data-lucide="layout-grid"></i>' + T('Voir toutes les compétences') + '</button>' +
           '</section>' +
           '<section class="flow-bloc" aria-labelledby="reglages-langue">' +
@@ -80,6 +83,8 @@
       if (b.getAttribute('data-action') === 'retablir') { rappels.retablirSuggestions(); majRefusees(); }
     });
     brouillard.addEventListener('change', () => rappels.changerPreference('brouillardDeGuerre', brouillard.checked));
+    const horizon = racine.querySelector('#reglage-horizon');
+    horizon.addEventListener('change', () => rappels.changerPreference('horizon', horizon.checked));
     const seuil = racine.querySelector('#reglage-seuil');
     seuil.addEventListener('change', () => {
       rappels.changerPreference('seuilConquete', seuil.value);
@@ -98,6 +103,7 @@
     function ouvrir() {
       majRefusees();
       brouillard.checked = Boolean(rappels.carte().preferences.brouillardDeGuerre);
+      horizon.checked = rappels.carte().preferences.horizon !== false;
       seuil.value = rappels.carte().preferences.seuilConquete;
       dernierFocus = document.activeElement;
       racine.hidden = false;

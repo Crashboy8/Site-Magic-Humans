@@ -14,7 +14,8 @@
   const RAYON_ENSEMBLE = 30; // en dessous (px à l'écran), vue d'ensemble : noms des régions
 
   function creer(svg, rappels) {
-    let cadre = null; // étendue des terres (unités SVG)
+    let cadre = null; // étendue de la carte, horizon compris (unités SVG)
+    let cadreAjuster = null; // étendue des terres seules : c'est elle qu'on cadre à l'ouverture
     let vue = null; // viewBox courante { x, y, l, h }
     let selection = null;
     const pointeurs = new Map();
@@ -84,13 +85,14 @@
     }
 
     function ajuster(marges) {
-      const largeur = largeurPourCadre(cadre, marges);
+      const cible = cadreAjuster || cadre;
+      const largeur = largeurPourCadre(cible, marges);
       const t = taille();
       const ech = t.l / largeur;
       // Décale le centre pour compenser des marges asymétriques (panneau ouvert, etc.).
       const dx = marges ? (marges.droite - marges.gauche) / 2 / ech : 0;
       const dy = marges ? (marges.bas - marges.haut) / 2 / ech : 0;
-      proportionner(cadre.x + cadre.l / 2 + dx, cadre.y + cadre.h / 2 + dy, largeur);
+      proportionner(cible.x + cible.l / 2 + dx, cible.y + cible.h / 2 + dy, largeur);
       appliquer();
     }
 
@@ -351,6 +353,7 @@
       // Appelé après chaque rendu : garde la vue courante, ou cadre toute la carte au premier rendu.
       majCadre(nouveauCadre, opts) {
         cadre = nouveauCadre;
+        cadreAjuster = (opts && opts.cadreAjuster) || nouveauCadre;
         if (!vue || (opts && opts.ajuster)) ajuster(opts && opts.marges);
         else appliquer();
         dessinerSelection();

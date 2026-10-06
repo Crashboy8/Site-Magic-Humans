@@ -88,7 +88,7 @@
       '<tspan x="' + x.toFixed(1) + '" y="' + (y0 + i * hauteur).toFixed(1) + '">' + O.echapper(l) + '</tspan>').join('') + '</text>';
   }
 
-  function rendre(svg, carte, placement) {
+  function rendre(svg, carte, placement, horizon) {
     const parId = {};
     carte.competences.forEach((c) => { parId[c.id] = c; });
     const cases = placement.cases.map((cs) => Object.assign({ p: H.versPixel(cs.q, cs.r, T) }, cs));
@@ -101,6 +101,37 @@
       x: Math.min(...xs) - marge, y: Math.min(...ys) - marge,
       l: Math.max(...xs) - Math.min(...xs) + 2 * marge, h: Math.max(...ys) - Math.min(...ys) + 2 * marge + T
     };
+
+    // Cadre élargi aux terres à découvrir (la rose des vents et le cadrage d'ouverture restent sur les terres).
+    const cadreTerres = cadre;
+    const tuilesHorizon = [];
+    const etiquettesHorizon = [];
+    let cadreTotal = cadre;
+    if (horizon && horizon.tuiles.length) {
+      const pts = horizon.tuiles.map((t) => H.versPixel(t.q, t.r, T)).concat(horizon.etiquettes.map((t) => H.versPixel(t.q, t.r, T)));
+      const x0 = Math.min(cadre.x, Math.min(...pts.map((p) => p.x)) - marge);
+      const y0 = Math.min(cadre.y, Math.min(...pts.map((p) => p.y)) - marge);
+      const x1 = Math.max(cadre.x + cadre.l, Math.max(...pts.map((p) => p.x)) + marge);
+      const y1 = Math.max(cadre.y + cadre.h, Math.max(...pts.map((p) => p.y)) + marge + T);
+      cadreTotal = { x: x0, y: y0, l: x1 - x0, h: y1 - y0 };
+      horizon.tuiles.forEach((t) => {
+        const e = CT.bibliotheque.trouver(t.entreeId);
+        if (!e) return;
+        const coul = CT.schema.DOMAINES[t.domaine].couleur;
+        const { x, y } = H.versPixel(t.q, t.r, T);
+        tuilesHorizon.push('<g class="tuile tuile-horizon" data-id="' + O.echapper(t.id) + '" tabindex="0" role="button" aria-label="' +
+          O.echapper(CT.i18n.T('À découvrir : {nom}', { nom: e.nom })) + '">' +
+          '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="#FFFDF5" fill-opacity=".5" stroke="' + coul + '" stroke-width="1.5" stroke-dasharray="2 5"/>' +
+          O.iconeSvg(e.icone, x, y - 20, 20, O.nuance(coul, -0.35), 2) +
+          texteTuile(e.nom, x, y - 6, '#5F6B70', 'nom nom-horizon') + '</g>');
+      });
+      horizon.etiquettes.forEach((t) => {
+        const { x, y } = H.versPixel(t.q, t.r, T);
+        const coul = CT.schema.DOMAINES[t.domaine].couleur;
+        etiquettesHorizon.push('<text class="etiquette etiquette-horizon" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" fill="' +
+          O.nuance(coul, -0.45) + '">' + O.echapper(t.nom) + '</text>');
+      });
+    }
 
     const defs = [];
     const hautsFonds = [];
@@ -199,8 +230,9 @@
         fond = 'url(#' + gid + ')';
       }
 
+      const plan = c.statut === 'frontiere' ? CT.orientation.drapeauPlan(carte, c.id) : null;
       let g = '<g class="tuile tuile-' + c.statut + (e.niveau ? ' brille-' + e.niveau : '') + '" data-id="' + O.echapper(c.id) + '" opacity="' + a.opacite +
-        '" tabindex="0" role="button" aria-label="' + O.echapper(c.nom + ' — ' + CT.schema.LIBELLES_STATUT[c.statut]) + '">';
+        '" tabindex="0" role="button" aria-label="' + O.echapper(plan ? CT.i18n.T('{nom}, plan sur 30 jours : {n} actions sur 12', { nom: c.nom, n: plan.faites }) : c.nom + ' — ' + CT.schema.LIBELLES_STATUT[c.statut]) + '">';
       if (a.relief) g += '<polygon points="' + polygone(x, y + RELIEF, T * 0.94) + '" fill="' + a.tranche + '"/>';
       g += '<polygon class="dessus" points="' + polygone(x, y, T * 0.94) + '" fill="' + fond + '" stroke="' + a.contour +
         '" stroke-width="' + (a.pointilles ? 2.5 : 1.5) + '"' + (a.pointilles ? ' stroke-dasharray="' + a.pointilles + '"' : '') + '/>';
@@ -216,7 +248,13 @@
         g += '<polygon class="liseret-eclat liseret-' + e.niveau + '" points="' + polygone(x, y, T * 0.86) + '" fill="none" stroke="#FFD24D" stroke-width="' +
           (1 + e.niveau) + '" pointer-events="none"/>';
       }
-      if (c.statut === 'frontiere') {
+      if (plan) {
+        const hy = (y - 18) - 28 * plan.faites / plan.total;
+        g += '<g class="drapeau drapeau-plan" aria-hidden="true">' +
+          '<line x1="' + (x + 18).toFixed(1) + '" y1="' + (y - 8).toFixed(1) + '" x2="' + (x + 18).toFixed(1) + '" y2="' + (y - 50).toFixed(1) + '" stroke="#7A4A2A" stroke-width="2.2" stroke-linecap="round"/>' +
+          '<path d="M' + (x + 19).toFixed(1) + ' ' + hy.toFixed(1) + ' l16 5 l-16 5 Z" fill="#C2412D"/>' +
+          '<text x="' + (x + 38).toFixed(1) + '" y="' + (y - 8).toFixed(1) + '" font-size="10" font-weight="800" fill="#C2412D">' + plan.faites + '/' + plan.total + '</text></g>';
+      } else if (c.statut === 'frontiere') {
         g += '<g class="drapeau"><circle cx="' + (x + 24).toFixed(1) + '" cy="' + (y - 30).toFixed(1) + '" r="11" fill="#FFFDF5" stroke="#C2412D" stroke-width="1.5"/>' +
           O.iconeSvg('flag', x + 24, y - 30, 14, '#C2412D', 2.2) +
           (c.priorite ? '<text class="rang-priorite" x="' + (x + 24).toFixed(1) + '" y="' + (y - 14).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#C2412D">' + c.priorite + '</text>' : '') + '</g>';
@@ -246,8 +284,8 @@
     });
 
     // Rose des vents, en haut à gauche du cadre.
-    const rx = cadre.x + T * 1.1;
-    const ry = cadre.y + T * 1.3;
+    const rx = cadreTerres.x + T * 1.1;
+    const ry = cadreTerres.y + T * 1.3;
     const rose = '<g class="rose" transform="translate(' + rx.toFixed(1) + ' ' + ry.toFixed(1) + ')" opacity=".55">' +
       '<circle r="30" fill="none" stroke="#2F6A78" stroke-width="1.2"/>' +
       '<path d="M0 -38 L7 0 L0 38 L-7 0 Z" fill="#2F6A78"/><path d="M-38 0 L0 -6 L38 0 L0 6 Z" fill="#2F6A78" opacity=".6"/>' +
@@ -259,14 +297,15 @@
       '<rect x="' + (cadre.x - 4000) + '" y="' + (cadre.y - 4000) + '" width="' + (cadre.l + 8000) + '" height="' + (cadre.h + 8000) + '" fill="url(#ct-vagues)"/>' +
       '<g class="hauts-fonds" fill="' + COULEURS.hautFond + '" opacity=".75">' + hautsFonds.join('') + '</g>' +
       '<g class="plages" fill="' + COULEURS.sable + '">' + plages.join('') + '</g>' +
+      '<g class="horizon" aria-label="' + O.echapper(CT.i18n.T('Terres à découvrir autour de ta carte')) + '">' + tuilesHorizon.join('') + '</g>' +
       '<g class="eclats">' + eclats.join('') + '</g>' +
       '<g class="tuiles" filter="url(#ct-ombre)">' + tuiles.join('') + '</g>' +
       '<g class="brumes" fill="#F4F8FA" filter="url(#ct-brume)" pointer-events="none">' + brumes.join('') + '</g>' +
       '<g class="etiquettes etiquettes-zones">' + etiquettes.join('') + '</g>' +
-      '<g class="etiquettes etiquettes-mer">' + etiquettesMer.join('') + '</g>' + rose +
+      '<g class="etiquettes etiquettes-mer">' + etiquettesMer.join('') + '</g>' + etiquettesHorizon.join('') + rose +
       '<g class="calque-interaction"></g>';
 
-    return { cadre };
+    return { cadre: cadreTotal, cadreTerres };
   }
 
   CT.vueCarte = { rendre, T, couleurDe, polygone };
