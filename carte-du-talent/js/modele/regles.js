@@ -34,7 +34,34 @@
     if (statut !== 'ile') c.ileId = null;
     // Un hexagone qui change de zone (province, île, zone à déléguer…) est reposé ailleurs.
     if (CT.placement.groupeDe(c) !== avant) liberer(c);
+    // Un territoire en conquête prend la dernière place du classement ; en sortant, il la libère.
+    if (statut === 'frontiere') c.priorite = 99;
+    else c.priorite = null;
+    classerFrontieres(carte);
     return { ancien, nouveau: statut };
+  }
+
+  // Territoires en conquête, du plus prioritaire au moins prioritaire (priorité 1, 2, 3…).
+  function frontieres(carte) {
+    return carte.competences.map((c, i) => ({ c, i })).filter((x) => x.c.statut === 'frontiere')
+      .sort((a, b) => (a.c.priorite || 99) - (b.c.priorite || 99) || a.i - b.i).map((x) => x.c);
+  }
+
+  // Renumérote sans trou : 1, 2, 3… (les territoires sans rang passent après les autres).
+  function classerFrontieres(carte) {
+    frontieres(carte).forEach((c, i) => { c.priorite = i + 1; });
+  }
+
+  // Monte (-1) ou descend (+1) un territoire en conquête dans le classement.
+  function deplacerPriorite(carte, id, sens) {
+    classerFrontieres(carte);
+    const liste = frontieres(carte);
+    const i = liste.findIndex((c) => c.id === id);
+    const j = i + (sens < 0 ? -1 : 1);
+    if (i < 0 || j < 0 || j >= liste.length) return false;
+    liste[i].priorite = j + 1;
+    liste[j].priorite = i + 1;
+    return true;
   }
 
   function changerDistance(carte, id, distance) {
@@ -306,7 +333,7 @@
     trouver, changerStatut, changerDistance, changerRegion, changerIle, deplacer, remettreAuto,
     preparerReorganisation, momentsDe, momentsRecents, objectifDe, regionDe,
     ajouterMoment, supprimerMoment, competencesRecentes, ajouterCompetence, normaliserTexte, rechercher,
-    eclat, estCache, explorer, changerPreference,
+    frontieres, classerFrontieres, deplacerPriorite, eclat, estCache, explorer, changerPreference,
     reporterConquete, definirObjectif, supprimerObjectif, noterSession, retirerSession
   };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

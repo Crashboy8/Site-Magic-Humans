@@ -210,8 +210,10 @@
         g += '<polygon class="liseret-eclat liseret-' + e.niveau + '" points="' + polygone(x, y, T * 0.86) + '" fill="none" stroke="#FFD24D" stroke-width="' +
           (1 + e.niveau) + '" pointer-events="none"/>';
       }
-      if (c.priorite === 1) {
-        g += '<g class="drapeau">' + O.iconeSvg('flag', x + 24, y - 30, 15, '#C2412D', 2.2) + '</g>';
+      if (c.statut === 'frontiere') {
+        g += '<g class="drapeau"><circle cx="' + (x + 24).toFixed(1) + '" cy="' + (y - 30).toFixed(1) + '" r="11" fill="#FFFDF5" stroke="#C2412D" stroke-width="1.5"/>' +
+          O.iconeSvg('flag', x + 24, y - 30, 14, '#C2412D', 2.2) +
+          (c.priorite ? '<text class="rang-priorite" x="' + (x + 24).toFixed(1) + '" y="' + (y - 14).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#C2412D">' + c.priorite + '</text>' : '') + '</g>';
       }
       g += O.iconeSvg(c.icone, x, y - 20, 22, a.encre, 2);
       g += texteTuile(c.nom, x, y - 6, a.texte, 'nom');

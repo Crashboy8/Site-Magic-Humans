@@ -266,8 +266,11 @@
     // Territoires à conquérir autour de la carte (brouillard de guerre) : trois par région, proches de ses sous-talents.
     if (CT.suggestions && regions.length) {
       CT.suggestions.pourRegions(carte, TERRITOIRES_PAR_REGION).forEach((c) => carte.competences.push(c));
-      return CT.schema.normaliser(carte);
+      const finale = CT.schema.normaliser(carte);
+      CT.regles.classerFrontieres(finale);
+      return finale;
     }
+    CT.regles.classerFrontieres(carte);
     return carte;
   }
 

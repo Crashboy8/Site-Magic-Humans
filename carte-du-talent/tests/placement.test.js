@@ -639,6 +639,26 @@ test('l\'import du quiz (#q=) pré-remplit le talent et les sous-talents, même 
   assert.strictEqual(CT.boussole.lire('#q=!!!'), null);
 });
 
+test('les territoires en conquête se classent par priorité, et le classement est enregistré', () => {
+  const { carte: c } = cartePlacee();
+  ['slam', 'mentorat', 'photographie'].forEach((id) => CT.suggestions.accepter(c, id, { statut: 'frontiere' }));
+  const f = CT.regles.frontieres(c);
+  assert.deepStrictEqual(f.map((x) => x.priorite), f.map((_, i) => i + 1));
+  const dernier = f[f.length - 1];
+  assert.ok(CT.regles.deplacerPriorite(c, dernier.id, -1));
+  assert.strictEqual(dernier.priorite, f.length - 1);
+  assert.ok(!CT.regles.deplacerPriorite(c, CT.regles.frontieres(c)[0].id, -1), 'déjà en tête');
+  const relue = CT.schema.normaliser(JSON.parse(JSON.stringify(c)));
+  assert.deepStrictEqual(CT.regles.frontieres(relue).map((x) => x.id), CT.regles.frontieres(c).map((x) => x.id));
+  // Un territoire du brouillard qu'on choisit devient une frontière en dernière position ; en sortir libère son rang.
+  const neuf = CT.suggestions.accepter(c, 'yoga', { statut: 'a_conquerir' });
+  CT.regles.changerStatut(c, neuf.id, 'frontiere');
+  assert.strictEqual(neuf.statut, 'frontiere');
+  assert.strictEqual(neuf.priorite, CT.regles.frontieres(c).length);
+  CT.regles.changerStatut(c, CT.regles.frontieres(c)[0].id, 'conquise');
+  assert.deepStrictEqual(CT.regles.frontieres(c).map((x) => x.priorite), CT.regles.frontieres(c).map((_, i) => i + 1));
+});
+
 // ---------- Traductions ----------
 
 test('chaque texte passé à T() a sa traduction anglaise', () => {

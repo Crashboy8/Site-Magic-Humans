@@ -177,6 +177,7 @@
       c.position = { q: o.position.q, r: o.position.r };
     }
     carte.competences.push(c);
+    if (c.statut === 'frontiere') { c.priorite = 99; CT.regles.classerFrontieres(carte); }
     return c;
   }
 

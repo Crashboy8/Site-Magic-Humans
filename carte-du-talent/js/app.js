@@ -181,6 +181,9 @@
       change = Boolean(r);
       if (change) toast(MESSAGES_STATUT[valeur](nomDe(id)));
       if (r && valeur === 'conquise' && (r.ancien === 'frontiere' || r.ancien === 'a_conquerir')) effet = 'conquete';
+    } else if (action === 'priorite') {
+      change = CT.regles.deplacerPriorite(etat.carte, id, Number(valeur));
+      if (change) toast(T('{nom} : priorité n°{rang}.', { nom: nomDe(id), rang: CT.regles.trouver(etat.carte, id).priorite }));
     } else if (action === 'region') {
       change = CT.regles.changerRegion(etat.carte, id, valeur);
     } else if (action === 'distance') {
