@@ -10,6 +10,7 @@
   const COULEURS = ['#F2A65A', '#5DB88A', '#9A8CDB', '#E5738E', '#F2C53D', '#6FB7D6', '#C99AD0', '#B5C97F'];
   const ICONES_REGION = ['heart-handshake', 'sprout', 'graduation-cap', 'drama', 'zap', 'compass', 'star', 'sun'];
   const MAX_REGIONS = 8;
+  const MAX_RESSOURCES = 8;
   const TERRITOIRES_PAR_REGION = 3;
 
   // Indices pour deviner le domaine d'une compétence saisie librement.
@@ -59,6 +60,7 @@
 
   const LONGUEUR_ELEMENT = 60;
   const LONGUEUR_REGION = 40;
+  const LONGUEUR_RESSOURCE = 80; // les idées de recharge du quiz sont des phrases courtes
 
   function nouvelElement(texte) {
     return { id: CT.schema.nouvelId('el'), texte: String(texte).trim().slice(0, LONGUEUR_ELEMENT) };
@@ -66,7 +68,7 @@
 
   // Longueur maximale d'un élément saisi (un nom de région est plus court).
   function longueurMax(liste) {
-    return liste === 'regions' ? LONGUEUR_REGION : LONGUEUR_ELEMENT;
+    return liste === 'regions' ? LONGUEUR_REGION : liste === 'ressources' ? LONGUEUR_RESSOURCE : LONGUEUR_ELEMENT;
   }
 
   // Éléments d'une saisie en vrac qui dépassent la longueur permise (à raccourcir avant l'ajout).
@@ -84,6 +86,7 @@
       conquises: [], // { id, texte, distance, elargit, zone }
       frontieres: [], // { id, texte, zone }
       deleguer: [], // { id, texte }
+      ressources: [], // { id, texte } : ce qui recharge, pour la zone de ressourcement
       boussole: null // textes reçus de la Boussole, affichés en rappel (voir boussole.js)
     };
   }
@@ -101,6 +104,7 @@
 
   // Ajoute des éléments à une liste du brouillon, sans doublon.
   function ajouter(brouillon, liste, texte, extra) {
+    if (liste === 'ressources' && !brouillon.ressources) brouillon.ressources = [];
     const existants = new Set(brouillon[liste].map((x) => N(x.texte || x.nom)));
     const ajoutes = [];
     decouper(texte).forEach((t) => {
@@ -109,6 +113,8 @@
         if (brouillon.regions.length >= MAX_REGIONS) return;
         const i = brouillon.regions.length;
         brouillon.regions.push({ id: CT.schema.nouvelId('reg'), nom: t.slice(0, 40), couleur: COULEURS[i % COULEURS.length], icone: ICONES_REGION[i % ICONES_REGION.length] });
+      } else if (liste === 'ressources' && brouillon.ressources.length >= MAX_RESSOURCES) {
+        return;
       } else {
         brouillon[liste].push(Object.assign(nouvelElement(t), { zone: null }, extra || {}));
       }
@@ -253,6 +259,7 @@
       comp(x.texte, 'frontiere', { regionId: regionDe(x.zone) });
     });
     brouillon.deleguer.forEach((x) => comp(x.texte, 'a_deleguer', {}));
+    (brouillon.ressources || []).forEach((x) => comp(x.texte, 'ressource', {}));
 
     const carte = CT.schema.normaliser({
       talent: { nom: brouillon.talent.nom, filRouge: brouillon.talent.filRouge },
@@ -289,6 +296,7 @@
       distance: x.distance === 'eloignee' ? 'eloignee' : 'proche', elargit: x.elargit === false ? false : x.elargit === true ? true : null }, suggestion(x)));
     b.frontieres = liste(brut.frontieres).map((x) => Object.assign({ id: String(x.id), texte: String(x.texte || ''), zone: zone(x.zone) }, suggestion(x)));
     b.deleguer = liste(brut.deleguer).map((x) => ({ id: String(x.id), texte: String(x.texte || '') }));
+    b.ressources = liste(brut.ressources).slice(0, MAX_RESSOURCES).map((x) => ({ id: String(x.id), texte: String(x.texte || '').slice(0, LONGUEUR_RESSOURCE) }));
     const bo = brut.boussole;
     if (bo && typeof bo === 'object') {
       const t = (v) => (typeof v === 'string' ? v.slice(0, 1000) : '');
@@ -299,5 +307,5 @@
     return b;
   }
 
-  CT.creation = { MAX_REGIONS, longueurMax, tropLongs, nouveauBrouillon, decouper, ajouter, deplacerRegion, retirer, aRanger, ranger, preRanger, deviner, genererCarte, normaliserBrouillon };
+  CT.creation = { MAX_REGIONS, MAX_RESSOURCES, longueurMax, tropLongs, nouveauBrouillon, decouper, ajouter, deplacerRegion, retirer, aRanger, ranger, preRanger, deviner, genererCarte, normaliserBrouillon };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

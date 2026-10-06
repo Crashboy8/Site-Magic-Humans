@@ -24,6 +24,8 @@
       antiContexte: texte(brut.antiContexte, 1000),
       success: typeof brut.success === 'string' ? brut.success.slice(0, 2000) : '',
       failure: typeof brut.failure === 'string' ? brut.failure.slice(0, 2000) : '',
+      ressources: Array.isArray(brut.ressources) ? brut.ressources.map((t) => texte(t, 80).replace(/[,;]/g, ' ')).filter(Boolean).slice(0, 8) : [],
+      rechargeTitre: texte(brut.rechargeTitre, 120),
       soustalents: Array.isArray(brut.soustalents) ? brut.soustalents.map((t) => texte(t, 40).replace(/[,;]/g, ' ')).filter(Boolean).slice(0, 6) : []
     };
     return d.mecanisme || d.contexte || d.benefice || d.antiContexte || d.success || d.failure ? d : null;
@@ -47,6 +49,55 @@
     } catch (e) {
       return null;
     }
+  }
+
+  /*
+   * Résultat du quiz dans un PDF : le PDF du quiz est une image, ses données sont dans ses métadonnées
+   * (mot-clé « CTQ1:… », même encodage que #q=). On cherche la marque dans le fichier brut (chaînes
+   * ASCII ou UTF-16 des métadonnées), puis dans les flux compressés d'un PDF qui aurait du texte.
+   * Rien n'est envoyé : le fichier est lu dans le navigateur.
+   */
+  const MARQUE_PDF = /CTQ1:([A-Za-z0-9_-]{8,})/;
+  const MAX_PDF = 25 * 1024 * 1024;
+
+  function versTexte(octets) {
+    let t = '';
+    for (let i = 0; i < octets.length; i += 8192) t += String.fromCharCode.apply(null, octets.subarray(i, i + 8192));
+    return t;
+  }
+
+  function jetonDans(octets) {
+    const brut = versTexte(octets);
+    // Une chaîne UTF-16 de PDF intercale des zéros : on les retire avant de chercher.
+    const m = MARQUE_PDF.exec(brut) || MARQUE_PDF.exec(brut.replace(/\u0000/g, ''));
+    return m ? m[1] : null;
+  }
+
+  async function inflater(octets) {
+    const flux = new Blob([octets]).stream().pipeThrough(new DecompressionStream('deflate'));
+    return new Uint8Array(await new Response(flux).arrayBuffer());
+  }
+
+  // Lit le résultat du quiz dans un PDF (ArrayBuffer ou Uint8Array) ; null si le PDF n'en contient pas.
+  async function lirePdf(contenu) {
+    const octets = contenu instanceof Uint8Array ? contenu : new Uint8Array(contenu);
+    if (!octets.length || octets.length > MAX_PDF || versTexte(octets.subarray(0, 8)).indexOf('%PDF') !== 0) return null;
+    let jeton = jetonDans(octets);
+    if (!jeton && typeof DecompressionStream !== 'undefined') {
+      const brut = versTexte(octets);
+      const flux = /stream\r?\n/g;
+      let m;
+      let essais = 0;
+      while (!jeton && (m = flux.exec(brut)) && essais < 300) {
+        const fin = brut.indexOf('endstream', flux.lastIndex);
+        if (fin < 0) break;
+        essais++;
+        let fond = fin;
+        while (fond > flux.lastIndex && (octets[fond - 1] === 10 || octets[fond - 1] === 13)) fond--; // retour à la ligne avant « endstream »
+        try { jeton = jetonDans(await inflater(octets.subarray(flux.lastIndex, fond))); } catch (e) { /* flux non compressé ou illisible */ }
+      }
+    }
+    return jeton ? lire('#q=' + jeton) : null;
   }
 
   // Découpe un texte libre en phrases (lignes, puis fins de phrase), sans doublon.
@@ -84,6 +135,7 @@
     b.talent.nom = talent.length <= LONGUEUR_TALENT ? talent : '';
     b.talent.filRouge = fil.length <= LONGUEUR_FIL ? fil : '';
     if (d.soustalents && d.soustalents.length) CT.creation.ajouter(b, 'regions', d.soustalents.join(';'));
+    if (d.ressources && d.ressources.length) CT.creation.ajouter(b, 'ressources', d.ressources.join(';'));
     b.boussole = {
       mecanisme: d.mecanisme,
       contexte: d.contexte,
@@ -117,5 +169,5 @@
     try { return retourValide(decodeURIComponent(m[1])); } catch (e) { return null; }
   }
 
-  CT.boussole = { lire, analyser, phrases, filRouge, versBrouillon, retourValide, lireRetour };
+  CT.boussole = { lire, lirePdf, analyser, phrases, filRouge, versBrouillon, retourValide, lireRetour };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

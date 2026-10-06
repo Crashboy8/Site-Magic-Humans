@@ -35,6 +35,14 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 
 10. **Retour vers la Boussole** : le lien de la Boussole porte aussi l'adresse de la page d'où l'on vient (`&retour=…`). La carte affiche alors, dans l'en-tête, un lien discret « Revenir à ma Boussole » (gardé dans ce navigateur). Seules les adresses de la Boussole sont acceptées (site Magic Humans ou preview Vercel du projet, chemin `/boussole-decision/`).
 
+11. **Mes pistes** (orientation pro) : le bouton « Mes pistes » propose 5 à 10 métiers, activités ou offres indépendantes (base locale de 83 pistes, `js/modele/pistes.js`, sans IA ni serveur). Chaque piste affiche un % de correspondance (compétences de la bibliothèque conquises, en conquête ou en île, voisines, thème du talent et des régions, bonus de flow récent), les hexagones qui la justifient et les compétences manquantes. « Viser cette piste » passe les compétences manquantes en territoires en conquête (drapeau, rang de priorité) ; l'ordre se modifie dans « Mes priorités » (flèches) et est enregistré. « Ne plus viser » garde les territoires.
+
+12. **Toutes les compétences** : bouton rond de la carte (aussi dans le panneau du brouillard et dans les Réglages) : toute la bibliothèque, groupée par domaine en nids d'hexagones. N'importe quel hexagone peut être conquis (en conquête, à conquérir, déjà conquis), pas seulement les 3 proposés. Le continent qui grandit laisse désormais leurs deux cases d'eau aux îles et zones déjà posées.
+
+13. **Zone de ressourcement** : nouveau statut `ressource`, posé à l'écart (autre coin que la zone à déléguer). La création (question 6) a un bloc « Ce qui te recharge », pré-rempli avec les idées de recharge du quiz (`ressources` dans l'ancre `#q=`).
+
+14. **Importer mon résultat QCM (PDF)** : accueil de la création et Réglages. Le PDF du quiz est une image (html2pdf) : son texte n'est pas lisible. Le quiz y écrit donc les mêmes données que `#q=` dans le mot-clé du PDF (`CTQ1:…`, métadonnées) ; la carte les relit dans le navigateur (`CT.boussole.lirePdf`, aussi dans un flux compressé) et ouvre la création pré-remplie. Les PDF générés avant ce changement n'ont pas ces données : il faut les télécharger à nouveau.
+
 **Réglages** : affichage (brouillard de guerre), progrès (seuil de conquête), suggestions écartées, sauvegarde (exporter / importer en JSON), repartir d'une autre carte (création guidée ou carte de démonstration, toujours après confirmation).
 
 **Accessibilité** : contrastes du texte au-dessus de 4,5:1 (boutons principaux, petits titres, liens), focus clavier visible partout (contour bleu canard), hexagones accessibles au clavier (Tab, Entrée, Échap, flèches), mouvements réduits si le système le demande.
@@ -78,7 +86,7 @@ Tous les scripts s'attachent à l'espace de noms global `CarteTalent`. Le modèl
 node carte-du-talent/tests/placement.test.js --carte
 ```
 
-51 tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée, arrivée depuis la Boussole, traductions complètes.
+Une quarantaine de tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée, arrivée depuis la Boussole, traductions complètes.
 
 ## Mise en ligne
 

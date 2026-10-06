@@ -18,6 +18,7 @@
     ['nature', 'Nature'],
     ['technique', 'Technique et numérique'],
     ['communication', 'Communication'],
+    ['vente', 'Vente et business'],
     ['transmission', 'Transmission']
   ];
 
@@ -58,12 +59,28 @@
       organisation: ['Gestion de projet', 'Gestion du temps', 'Planification', 'Comptabilité', 'Gérer un budget', 'Administratif', 'Logistique'],
       nature: ['Jardinage', 'Permaculture', 'Observation de la nature', 'Apiculture', 'Cueillette et plantes'],
       technique: ['Excel', 'Programmation', 'Python', 'Créer un site web', 'IA générative', 'Bricolage', 'Électronique', 'Mécanique'],
-      communication: ['Anglais', 'Espagnol', 'Prise de parole en public', 'Storytelling', 'Réseaux sociaux', 'Rédaction', 'Podcast', 'Négociation'],
+      communication: ['Anglais', 'Espagnol', 'Prise de parole en public', 'Storytelling', 'Réseaux sociaux', 'Rédaction', 'Podcast'],
+      vente: ['Vente', 'Négociation', 'Prospection', 'Vente conseil', 'Découverte des besoins du client', 'Argumentaire de vente', 'Traiter les objections',
+        'Conclure une vente', 'Rédiger un devis', 'Mener un rendez-vous commercial', 'Vente par téléphone', 'Vendre en visioconférence', 'Prospection par e-mail',
+        'Social selling', 'Suivi commercial (CRM)', 'Fidélisation client', 'Vente additionnelle', 'Démonstration de produit', 'Vente aux entreprises (B2B)',
+        'Relance commerciale', 'Obtenir des recommandations'],
       transmission: ['Préparer une formation', 'Facilitation d\'ateliers', 'Mentorat', 'Coaching', 'Animer en visio', 'Concevoir un cours', 'Ludopédagogie']
     }
   };
   // Ce que tu aimerais apprendre : mêmes idées que ce que tu as appris.
   IDEES.frontieres = IDEES.conquises;
+  // Ce qui vide et que tu repousses : des tâches à confier à d'autres (60 caractères au plus).
+  IDEES.deleguer = {
+    organisation: ['Comptabilité', 'Administratif', 'Facturation', 'Relances de paiement', 'Agenda et prises de rendez-vous', 'Classement des documents',
+      'Notes de frais', 'Déclarations et paperasse', 'Réservations de voyages et de salles', 'Logistique et envois de colis'],
+    technique: ['Mise à jour du site web', 'Support informatique', 'Sauvegardes et mises à jour', 'Paramétrage des outils', 'Réparations et petits travaux'],
+    communication: ['Rédaction', 'Relecture et correction', 'Gestion des réseaux sociaux', 'Envoi de la newsletter', 'Traduction', 'Transcription d\'enregistrements'],
+    creation: ['Montage vidéo', 'Mise en page', 'Retouche photo', 'Création de visuels', 'Ménage et rangement'],
+    relationnel: ['Répondre aux e-mails', 'Service après-vente', 'Gestion des réclamations', 'Prise de contact à froid'],
+    vente: ['Prospection à froid', 'Relances commerciales', 'Rédaction des devis'],
+    analyse: ['Saisie de données', 'Tableaux de bord et reporting', 'Recherche documentaire'],
+    transmission: ['Préparation du matériel de formation', 'Inscriptions et convocations']
+  };
 
   const COMPTE_PAR_DOMAINE = 3; // idées visibles par domaine avant « Voir plus »
 
@@ -88,7 +105,7 @@
   // Domaine de la bibliothèque → grand domaine des idées.
   const DOMAINE_BIBLIOTHEQUE = {
     corps: 'sport', scene: 'art', animation: 'art', relation: 'relationnel', creation: 'creation', analyse: 'analyse', organisation: 'organisation',
-    nature: 'nature', technique: 'technique', numerique: 'technique', communication: 'communication', langues: 'communication', business: 'communication',
+    nature: 'nature', technique: 'technique', numerique: 'technique', communication: 'communication', langues: 'communication', business: 'vente',
     pedagogie: 'transmission'
   };
 

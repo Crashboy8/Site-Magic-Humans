@@ -33,8 +33,14 @@
     ],
     ile: [
       ['conquise', T('Rattacher au continent'), 'link', false]
+    ],
+    ressource: [
+      ['conquise', T('Rattacher au continent'), 'link', false],
+      ['a_deleguer', T('À déléguer'), 'send', false]
     ]
   };
+
+  const HORS_CONTINENT = ['ile', 'a_deleguer', 'ressource'];
 
   const NIVEAUX_ECLAT = ['', T('une lueur'), T('ça brille'), T('lumineux'), T('rayonnant')];
 
@@ -56,6 +62,7 @@
       return T('Île « {nom} », hors du talent principal', { nom: ile ? ile.nom : T('de flow') });
     }
     if (c.statut === 'a_deleguer') return T('Zone à déléguer');
+    if (c.statut === 'ressource') return T('Zone de ressourcement');
     if (c.distance === 'eloignee' && c.statut !== 'natale') {
       const d = S.DOMAINES[c.domaine];
       const province = d ? T('Province {domaine}', { domaine: d.nom.toLowerCase() }) : T('Province éloignée');
@@ -125,6 +132,7 @@
       (desactive ? ' disabled' : '') + '><i data-lucide="' + icone + '"></i>' + libelle + '</button>';
     return '<section class="panneau-section"><h3><i data-lucide="flag"></i> ' + T('Priorité') + '</h3>' +
       '<p><strong>' + T('En conquête : n°{rang} sur {total}', { rang, total: liste.length }) + '</strong></p>' +
+      (CT.pistes && CT.pistes.pistesDe(c).length ? '<p class="discret">' + O.echapper(T('Pour la piste : {pistes}', { pistes: CT.pistes.pistesDe(c).map((p) => p.nom).join(T(', ')) })) + '</p>' : '') +
       (liste.length > 1 ? '<div class="actions-ligne">' + bouton('-1', 'arrow-up', T('Plus prioritaire'), rang === 1) + bouton('1', 'arrow-down', T('Moins prioritaire'), rang === liste.length) + '</div>' : '') +
       '</section>';
   }
@@ -141,7 +149,7 @@
       S.STATUTS.map((s) => '<option value="' + s + '"' + (s === c.statut ? ' selected' : '') + '>' + S.LIBELLES_STATUT[s] + '</option>').join('') +
       '</select></label>';
 
-    if (c.statut !== 'ile' && c.statut !== 'a_deleguer') {
+    if (!HORS_CONTINENT.includes(c.statut)) {
       html += '<label class="champ"><span>' + T('Région la plus proche') + '</span><select data-action="region">' +
         carte.regions.map((r) => '<option value="' + O.echapper(r.id) + '"' + (r.id === c.regionId ? ' selected' : '') + '>' + O.echapper(r.nom) + '</option>').join('') +
         '</select></label>';
@@ -151,7 +159,7 @@
         carte.iles.map((i) => '<option value="' + O.echapper(i.id) + '"' + (i.id === c.ileId ? ' selected' : '') + '>' + O.echapper(i.nom) + '</option>').join('') +
         '</select></label>';
     }
-    if (c.statut !== 'natale' && c.statut !== 'ile' && c.statut !== 'a_deleguer') {
+    if (c.statut !== 'natale' && !HORS_CONTINENT.includes(c.statut)) {
       html += '<div class="champ"><span>' + T('Distance au talent') + '</span><div class="segments" role="group" aria-label="' + O.echapper(T('Distance au talent')) + '">' +
         [['proche', T('Proche')], ['eloignee', T('Éloignée')]].map(([v, l]) => '<button type="button" data-action="distance" data-valeur="' + v +
           '" aria-pressed="' + (c.distance === v) + '">' + l + '</button>').join('') + '</div></div>';
@@ -193,7 +201,8 @@
       '<div class="panneau-corps"><section class="panneau-section">' +
       '<p>' + T('Quelque chose t\'attend ici. Explore ce territoire pour découvrir de quoi il s\'agit.') + '</p>' +
       '<div class="actions"><button type="button" class="bouton bouton-principal" data-action="explorer"><i data-lucide="compass"></i>' + T('Explorer ce territoire') + '</button>' +
-      '<button type="button" class="bouton bouton-secondaire" data-action="statut" data-valeur="frontiere"><i data-lucide="flag"></i>' + T('J\'y vais : le conquérir') + '</button></div>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="statut" data-valeur="frontiere"><i data-lucide="flag"></i>' + T('J\'y vais : le conquérir') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="toutes"><i data-lucide="layout-grid"></i>' + T('Voir toutes les compétences') + '</button></div>' +
       '</section></div>';
   }
 

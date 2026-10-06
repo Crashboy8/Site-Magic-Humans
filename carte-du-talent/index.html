@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="css/flow.css">
   <link rel="stylesheet" href="css/progres.css">
   <link rel="stylesheet" href="css/creation.css">
+  <link rel="stylesheet" href="css/pistes.css">
+  <link rel="stylesheet" href="css/toutes.css">
 </head>
 <body>
   <header class="entete">
@@ -33,6 +35,9 @@
       <button type="button" class="bouton-icone" id="btn-importer" title="Importer une carte (JSON)">
         <i data-lucide="upload"></i><span>Importer</span>
       </button>
+      <button type="button" class="bouton-icone" id="btn-pistes" title="Mes pistes : métiers et activités qui collent à mon talent">
+        <i data-lucide="compass"></i><span>Mes pistes</span>
+      </button>
       <button type="button" class="bouton-icone" id="btn-progres" title="Progrès et objectifs">
         <i data-lucide="chart-column"></i><span>Progrès</span><span class="pastille-alerte" id="alerte-progres" hidden></span>
       </button>
@@ -44,6 +49,7 @@
         <button type="button" data-langue="en" lang="en" title="English" aria-pressed="false">EN</button>
       </div>
       <input type="file" id="fichier-import" accept="application/json,.json" hidden>
+      <input type="file" id="fichier-pdf" accept="application/pdf,.pdf" hidden aria-label="Importer mon résultat QCM (PDF)">
     </div>
   </header>
 
@@ -55,6 +61,7 @@
       <button type="button" class="bouton-rond" id="btn-zoom-moins" title="Dézoomer" aria-label="Dézoomer"><i data-lucide="minus"></i></button>
       <button type="button" class="bouton-rond" id="btn-recentrer" title="Voir toute la carte" aria-label="Voir toute la carte"><i data-lucide="maximize"></i></button>
       <button type="button" class="bouton-rond" id="btn-suggestions" title="Suggestions de territoires à conquérir" aria-label="Suggestions de territoires à conquérir" aria-pressed="false"><i data-lucide="lightbulb"></i></button>
+      <button type="button" class="bouton-rond" id="btn-toutes" title="Voir toutes les compétences" aria-label="Voir toutes les compétences"><i data-lucide="layout-grid"></i></button>
       <button type="button" class="bouton-rond" id="btn-reorganiser" title="Réorganiser automatiquement (garde les hexagones déplacés à la main)" aria-label="Réorganiser la carte"><i data-lucide="wand-sparkles"></i></button>
     </div>
 
@@ -75,6 +82,8 @@
   <div class="flow" id="saisie-flow" hidden></div>
   <div class="flow reglages" id="reglages" hidden></div>
   <div class="progres" id="progres" hidden></div>
+  <div class="progres pistes" id="pistes" hidden></div>
+  <div class="progres toutes" id="toutes" hidden></div>
   <div class="creation" id="creation" hidden></div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -92,6 +101,7 @@
   <script src="js/modele/bibliotheque.js"></script>
   <script src="js/modele/idees.js"></script>
   <script src="js/modele/suggestions.js"></script>
+  <script src="js/modele/pistes.js"></script>
   <script src="js/modele/creation.js"></script>
   <script src="js/modele/boussole.js"></script>
   <script src="js/vues/outils.js"></script>
@@ -103,6 +113,8 @@
   <script src="js/vues/effets.js"></script>
   <script src="js/vues/reglages.js"></script>
   <script src="js/vues/progres.js"></script>
+  <script src="js/vues/pistes.js"></script>
+  <script src="js/vues/toutes.js"></script>
   <script src="js/vues/creation.js"></script>
   <script src="js/app.js"></script>
 </body>

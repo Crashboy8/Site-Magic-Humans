@@ -1,0 +1,42 @@
+/* Carte du Talent — écran Toutes les compétences */
+
+.toutes-corps {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 24px calc(120px + env(safe-area-inset-bottom));
+}
+
+.province h3 { gap: 10px; }
+.province .puce { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+.compte-province { margin: 0 0 0 auto !important; font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 600; }
+
+.nid { display: block; width: 100%; height: auto; margin: 0 auto; }
+.tuile-toutes { cursor: pointer; outline: none; }
+.tuile-toutes polygon { transition: filter .15s; }
+.tuile-toutes:hover polygon { filter: brightness(.96); }
+.tuile-toutes:focus-visible polygon { stroke: var(--focus); stroke-width: 4; stroke-dasharray: none; }
+.tuile-toutes.choisie polygon { stroke: var(--accent-fort); stroke-dasharray: none; }
+.nom-toutes { font-size: 9.5px; font-weight: 700; text-anchor: middle; pointer-events: none; }
+
+.toutes-pied {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  padding: 12px 24px calc(12px + env(safe-area-inset-bottom));
+  background: var(--papier);
+  box-shadow: 0 -10px 16px -12px rgba(31, 72, 84, .35);
+}
+
+.barre-choix { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; max-width: 760px; margin: 0 auto; }
+.barre-texte { display: grid; min-width: 0; }
+.barre-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.barre-aide { margin: 0; text-align: center; font-size: 14px; }
+
+@media (max-width: 640px) {
+  .toutes-corps { padding: 8px 12px calc(160px + env(safe-area-inset-bottom)); }
+  .toutes-pied { padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); }
+}

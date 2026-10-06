@@ -31,6 +31,7 @@
             '<label class="interrupteur"><span class="interrupteur-texte"><strong>' + T('Brouillard de guerre') + '</strong>' +
             '<span class="aide">' + T('Cache les territoires à conquérir tant que tu ne les as pas explorés. Touche un nuage pour l\'explorer.') + '</span></span>' +
             '<input type="checkbox" role="switch" id="reglage-brouillard"><span class="glissiere" aria-hidden="true"></span></label>' +
+            '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="toutes"><i data-lucide="layout-grid"></i>' + T('Voir toutes les compétences') + '</button>' +
           '</section>' +
           '<section class="flow-bloc" aria-labelledby="reglages-langue">' +
             '<h3 class="sous-titre" id="reglages-langue">' + T('Langue') + '</h3>' + choixLangue() +
@@ -56,6 +57,7 @@
             '<h3 class="sous-titre" id="reglages-nouvelle">' + T('Repartir d\'une autre carte') + '</h3>' +
             '<p class="aide">' + T('Ces deux choix remplacent ta carte actuelle, après confirmation. Pense à l\'exporter avant.') + '</p>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="creer"><i data-lucide="sparkles"></i>' + T('Créer ma carte (parcours guidé)') + '</button>' +
+            '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="importer-pdf"><i data-lucide="file-up"></i>' + T('Importer mon résultat QCM (PDF)') + '</button>' +
             '<button type="button" class="bouton bouton-secondaire bouton-large" data-action="demo"><i data-lucide="rotate-ccw"></i>' + T('Revenir à la carte de démonstration') + '</button>' +
           '</section>' +
         '</div>' +
@@ -69,6 +71,8 @@
       if (l) { rappels.changerLangue(l.getAttribute('data-langue')); return; }
       if (!b) return;
       if (b.getAttribute('data-action') === 'fermer') fermer();
+      if (b.getAttribute('data-action') === 'importer-pdf') { fermer(); rappels.importerPdf(); }
+      if (b.getAttribute('data-action') === 'toutes') { fermer(); rappels.toutes(); }
       if (b.getAttribute('data-action') === 'demo') { fermer(); rappels.reinitialiser(); }
       if (b.getAttribute('data-action') === 'exporter') rappels.exporter();
       if (b.getAttribute('data-action') === 'creer') { fermer(); rappels.creer(); }

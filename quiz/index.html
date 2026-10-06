@@ -2385,7 +2385,7 @@ function boussoleUrl(p, quizLang){
 }
 
 /* Lien vers la Carte du Talent : même résultat, même encodage (#q=, base64url), plus les sous-talents proposés. */
-function carteUrl(p, quizLang){
+function carteData(p, quizLang){
   const lg = quizLang === "en" ? "en" : "fr"; // la carte existe en français et en anglais
   const A = {fr:A_FR, en:A_EN}[lg], d = A[p.D], s = A[p.S];
   const W = {fr:{sais:"sais ", ctx:"il y a ", and:", et ", help:w=>"aider " + w + " à ", sep:" ; ", colon:" : ", name:"Mon Talent Unique : "},
@@ -2396,7 +2396,21 @@ function carteUrl(p, quizLang){
   const data = quizData(p, lg, d, s, W, moi, d.fertile.map(moi), d.toxic.map(moi));
   const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
   data.soustalents = [...d.keywords.slice(0,3), ...s.keywords.slice(0,2)].filter((k,i,a) => k && a.indexOf(k) === i).map(cap);
+  // Zone de ressourcement de la carte : les 3 idées de recharge du profil (ou, à défaut, celles des deux archétypes).
+  const rc = rechargeOf(p, lg);
+  data.ressources = (rc ? rc.acts : [...d.ressource, s.ressource[0]]).slice(0, 4);
+  if (rc) data.rechargeTitre = rc.title;
+  return {data, lg};
+}
+function carteUrl(p, quizLang){
+  const {data, lg} = carteData(p, quizLang);
   return "/carte-du-talent/#q=" + encodeQuiz(data) + "&lang=" + lg;
+}
+/* Le PDF du rapport est une image : son texte n'est pas lisible par programme. Les données de la carte sont donc
+   glissées dans les métadonnées du PDF (mot-clé « CTQ1:… », même encodage que #q=), que la Carte du Talent relit. */
+const PDF_CARTE_MARQUE = "CTQ1:";
+function carteJeton(p, quizLang){
+  return PDF_CARTE_MARQUE + encodeQuiz(carteData(p, quizLang).data);
 }
 
 function encodeQuiz(data){
@@ -2638,7 +2652,10 @@ function renderReport(p, ctx){
         margin:[14,14,16,14], filename:`${R2.pdfName}-${(prenom||"rapport").replace(/[^\p{L}\p{N}-]+/gu,"-")}.pdf`,
         image:{type:"jpeg",quality:0.95}, html2canvas:{scale:2, backgroundColor:"#FFFFFF"},
         jsPDF:{unit:"mm", format:"a4", orientation:"portrait"}, pagebreak:{mode:["css","legacy"], avoid:".avoid"}
-      }).from(reportDocHTML(p, prenom, link, lang)).save();
+      }).from(reportDocHTML(p, prenom, link, lang)).toPdf().get("pdf").then(pdf => {
+        // Données lisibles par la Carte du Talent (bouton « Importer mon résultat QCM (PDF) »).
+        try{ pdf.setProperties({subject: "Talent Unique", keywords: carteJeton(p, lang)}); }catch(_){}
+      }).save();
     }catch(e){ flash("toast-act", R2.pdfFail); }
     btn.disabled = false; btn.textContent = R2.pdf;
   });
