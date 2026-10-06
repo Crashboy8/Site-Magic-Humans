@@ -183,7 +183,7 @@
     return '<header class="panneau-tete" style="--teinte:' + O.nuance(couleur, 0.75) + '">' + pastilleTuile(c, carte) +
       '<div class="panneau-titre"><span class="badge badge-' + c.statut + '">' + S.LIBELLES_STATUT[c.statut] +
       (c.statut === 'frontiere' && c.priorite ? ' · ' + T('priorité n°{rang}', { rang: c.priorite }) : '') + '</span>' +
-      '<h2 id="panneau-titre">' + O.echapper(c.nom) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
+      '<h2 id="panneau-titre">' + O.echapper(CT.bibliotheque.nomAffiche(c)) + '</h2><p class="lieu">' + O.echapper(lieuDe(c, carte)) + '</p></div>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +
       '<div class="panneau-corps">' + sectionProposition(c, carte) + sectionFlow(c, carte) + sectionObjectif(c, carte) + sectionPriorite(c, carte) + sectionStatut(c, carte) + sectionPosition(c) + '</div>';
   }
@@ -289,6 +289,27 @@
       '</section></div>';
   }
 
+  // Terre à découvrir : fiche de la compétence, pistes qu'elle fait avancer, et les choix.
+  function contenuHorizon(carte, e) {
+    const f = CT.orientation.fiche(carte, e.id);
+    const pistes = CT.orientation.pistesPour(carte, e.id, 3);
+    const id = O.echapper(e.id);
+    return teteSuggestions(e.nom, O.echapper(S.DOMAINES[e.domaine].nom), T('Terre à découvrir'), e.icone) +
+      '<div class="panneau-corps"><section class="panneau-section">' +
+      '<p><i data-lucide="clock"></i>' + O.echapper(T('Temps estimé : {duree}', { duree: T(f.duree.libelle) })) + '</p>' +
+      '<p><i data-lucide="gauge"></i>' + O.echapper(T('Pour toi : {niveau}', { niveau: f.facilite.libelle })) + ' <span class="discret">' + O.echapper(f.facilite.raison) + '</span></p>' +
+      '<h3 class="sous-titre">' + T('Pour commencer') + '</h3><ol class="premieres-actions">' + f.actions.map((a) => '<li>' + O.echapper(a) + '</li>').join('') + '</ol>' +
+      '<h3 class="sous-titre">' + T('Pistes que ça fait avancer') + '</h3>' +
+      (pistes.length ? '<ul>' + pistes.map((x) => '<li>' + O.echapper(T('{piste} : {pct} % (+{gain} %)', { piste: x.piste.nom, pct: x.pourcentage, gain: x.gain })) + '</li>').join('') + '</ul>'
+        : '<p class="discret">' + T('Aucune piste ne la demande pour l\'instant : c\'est une envie, et c\'est une très bonne raison.') + '</p>') +
+      '<div class="actions">' +
+      '<button type="button" class="bouton bouton-principal" data-action="horizon-plan" data-valeur="' + id + '"><i data-lucide="rocket"></i>' + T('Me lancer sur 30 jours') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="horizon-deja" data-valeur="' + id + '"><i data-lucide="check"></i>' + T('Je l\'ai déjà') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="horizon-plus-tard" data-valeur="' + id + '">' + T('Plus tard (à conquérir)') + '</button>' +
+      '<button type="button" class="bouton bouton-secondaire" data-action="refuser" data-valeur="' + id + '">' + T('Pas pour moi') + '</button></div>' +
+      '</section></div>';
+  }
+
   function creer(racine, surAction, contexte) {
     let ouvert = null;
 
@@ -317,6 +338,11 @@
           const p = suggestions.find((x) => 'sugg:' + x.entree.id === id);
           if (!p) { this.afficher('suggestions', carte); return; }
           html = contenuSuggestion(p);
+        } else if (id.startsWith('hor:')) {
+          const tuile = (contexte && contexte.horizon ? contexte.horizon() : []).find((t) => t.id === id);
+          const e = tuile && CT.bibliotheque.trouver(tuile.entreeId);
+          if (!e) { this.fermer(); return; }
+          html = contenuHorizon(carte, e);
         } else {
           const c = id === 'capitale' ? null : CT.regles.trouver(carte, id);
           if (id !== 'capitale' && !c) { this.fermer(); return; }

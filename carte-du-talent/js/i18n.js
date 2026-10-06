@@ -43,6 +43,8 @@
   function T(fr, vars) {
     let t = fr;
     if (langue === 'en' && CT.EN && Object.prototype.hasOwnProperty.call(CT.EN, cle(fr))) t = CT.EN[cle(fr)];
+    // Anglais : pas d'espace avant : ? ! (l'espace français du modèle est retiré, pas le texte inséré).
+    if (langue === 'en') t = t.replace(/[\u00a0\u202f ]+([?!:])/g, '$1');
     if (vars) t = t.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
     return t;
   }

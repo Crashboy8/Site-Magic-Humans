@@ -12,6 +12,7 @@
     parCase: new Map(), // id -> case placée (fantômes compris)
     suggestionsVisibles: false,
     suggestions: [], // suggestions affichées en fantômes
+    horizon: null, // terres à découvrir autour de la carte (jamais dans le placement)
     affichage: null // { carte, placement } réellement dessinés
   };
 
@@ -22,6 +23,7 @@
   let progres = null;
   let pistes = null;
   let bilan = null;
+  let synthese = null;
   let toutes = null;
   let creation = null;
 
@@ -64,7 +66,9 @@
       const carte = Object.assign({}, etat.carte, { competences: etat.carte.competences.concat(fantomes) });
       etat.affichage = { carte, placement: CT.placement.placer(carte, { figerExistants: true }) };
     }
+    etat.horizon = etat.carte.preferences.horizon ? CT.horizon.disposer(etat.carte, etat.affichage.placement) : null;
     etat.parCase = new Map(etat.affichage.placement.cases.map((c) => [c.id, c]));
+    if (etat.horizon) etat.horizon.tuiles.forEach((t) => etat.parCase.set(t.id, t));
     if ($('btn-suggestions')) $('btn-suggestions').setAttribute('aria-pressed', String(etat.suggestionsVisibles));
   }
 
@@ -105,13 +109,14 @@
   function rendre(options) {
     $('talent-nom').textContent = etat.carte.talent.nom || T('Mon talent');
     $('talent-fil').textContent = etat.carte.talent.filRouge ? T('Fil rouge : {texte}', { texte: etat.carte.talent.filRouge }) : '';
-    const { cadre } = CT.vueCarte.rendre($('carte'), etat.affichage.carte, etat.affichage.placement);
-    navigation.majCadre(cadre, { ajuster: options && options.ajuster, marges: marges() });
+    const { cadre, cadreTerres } = CT.vueCarte.rendre($('carte'), etat.affichage.carte, etat.affichage.placement, etat.horizon);
+    navigation.majCadre(cadre, { ajuster: options && options.ajuster, marges: marges(), cadreAjuster: cadreTerres });
     CT.vueLegende.rendre($('legende-contenu'), etat.carte);
     if (panneau.ouvert) panneau.afficher(panneau.ouvert, etat.carte);
     if (progres && progres.ouvert) progres.rendre();
     if (pistes && pistes.ouvert) pistes.rendre();
     if (bilan && bilan.ouvert) bilan.rendre();
+    if (synthese && synthese.ouvert) synthese.rendre();
     if (toutes && toutes.ouvert) toutes.rendre();
     const propositions = CT.stats.propositionsConquete(etat.carte).length;
     $('alerte-progres').hidden = propositions === 0;
@@ -148,7 +153,7 @@
 
   function nomDe(id) {
     const c = CT.regles.trouver(etat.carte, id);
-    return c ? T('« {nom} »', { nom: c.nom }) : '';
+    return c ? T('« {nom} »', { nom: CT.bibliotheque.nomAffiche(c) }) : '';
   }
 
   const MESSAGES_STATUT = {
@@ -165,6 +170,7 @@
     if (action === 'fermer') { fermerPanneau(); return; }
     if (action === 'toutes') { toutes.ouvrir(); return; }
     if (actionSuggestion(action, valeur)) return;
+    if (actionHorizon(action, valeur)) return;
     if (!id || id === 'capitale') return;
     if (action === 'flow') { saisieFlow.ouvrir([id]); return; }
     if (action === 'progres') { progres.ouvrir(); return; }
@@ -236,10 +242,11 @@
     }
     if (action === 'refuser') {
       const entree = CT.bibliotheque.trouver(valeur);
+      const depuisHorizon = panneau.ouvert && panneau.ouvert.startsWith('hor:');
       if (!CT.suggestions.refuser(carte, valeur)) return true;
       appliquer();
-      navigation.selectionner(null);
-      panneau.afficher('suggestions', carte);
+      if (depuisHorizon) fermerPanneau();
+      else { navigation.selectionner(null); panneau.afficher('suggestions', carte); }
       toast(T('D\'accord, « {nom} » : cette suggestion ne te sera plus proposée.', { nom: entree.nom }));
       return true;
     }
@@ -250,6 +257,59 @@
       panneau.afficher('suggestions', carte);
       if (caseDe(c.id)) CT.vueEffets.exploration($('carte'), caseDe(c.id));
       toast(T('{nom} rejoint tes territoires à conquérir.', { nom: nomDe(c.id) }));
+      return true;
+    }
+    return false;
+  }
+
+  // ---------- Terres à découvrir (horizon) ----------
+
+  // « Je l'ai déjà » : une compétence entre en territoire conquis, un seul appliquer().
+  function marquerDeja(entreeId) {
+    const r = CT.orientation.marquerAcquise(etat.carte, entreeId);
+    if (!r || r.deja) return null;
+    appliquer();
+    if (caseDe(r.c.id)) CT.vueEffets.conquete($('carte'), caseDe(r.c.id));
+    toast(T('Bien vu ! « {nom} » rejoint tes territoires conquis. Tes pistes sont recalculées.', { nom: CT.bibliotheque.nomAffiche(r.c) }));
+    return r.c;
+  }
+
+  // Démarre un plan sur 30 jours ; propose de remplacer un plan en cours. Renvoie la compétence ou null.
+  function lancerPlan(entreeId) {
+    const carte = etat.carte;
+    let plan = CT.orientation.demarrerPlan(carte, entreeId);
+    const entree = CT.bibliotheque.trouver(entreeId);
+    if (!plan && carte.plan && !carte.plan.fini && entree) {
+      const courant = CT.bibliotheque.trouver(carte.plan.bibliothequeId);
+      const nom = courant ? courant.nom : entree.nom;
+      if (!confirm(T('Tu as déjà un plan en cours sur « {nom} ». Le remplacer ? Les actions cochées seront perdues.', { nom }))) return null;
+      CT.orientation.arreterPlan(carte);
+      plan = CT.orientation.demarrerPlan(carte, entreeId);
+    }
+    if (!plan) return null;
+    appliquer();
+    toast(T('C\'est parti pour 30 jours sur « {nom} » ! Ton drapeau monte à chaque action cochée.', { nom: entree.nom }));
+    return CT.regles.trouver(carte, plan.competenceId);
+  }
+
+  // Après une action sur une terre à découvrir : le panneau se ferme, la carte suit la nouvelle tuile.
+  function suivreHorizon(c, effet) {
+    fermerPanneau();
+    if (!c) return;
+    requestAnimationFrame(() => navigation.rendreVisible(c.id, zoneLibre()));
+    if (caseDe(c.id) && effet) CT.vueEffets[effet]($('carte'), caseDe(c.id));
+  }
+
+  // Renvoie true si l'action concernait une terre à découvrir.
+  function actionHorizon(action, valeur) {
+    if (action === 'horizon-deja') { suivreHorizon(marquerDeja(valeur), null); return true; }
+    if (action === 'horizon-plan') { suivreHorizon(lancerPlan(valeur), 'exploration'); return true; }
+    if (action === 'horizon-plus-tard') {
+      const c = CT.suggestions.accepter(etat.carte, valeur, { statut: 'a_conquerir' });
+      if (!c) return true;
+      appliquer();
+      toast(T('{nom} rejoint tes territoires à conquérir.', { nom: nomDe(c.id) }));
+      suivreHorizon(c, 'exploration');
       return true;
     }
     return false;
@@ -310,14 +370,23 @@
         : T('« {piste} » est visée : tu as déjà tout ce qu\'il faut.', { piste: piste.nom }));
       return;
     }
-    if (action === 'deja') {
-      const r = CT.orientation.marquerAcquise(carte, valeur);
-      if (!r || r.deja) return;
+    if (action === 'deja') { marquerDeja(valeur); return; }
+    if (action === 'plan') { lancerPlan(valeur); return; }
+    if (action === 'cocher') {
+      const r = CT.orientation.cocherAction(carte, Number(valeur));
+      if (!r) return;
       appliquer();
-      if (caseDe(r.c.id)) CT.vueEffets.conquete($('carte'), caseDe(r.c.id));
-      toast(T('Bien vu ! « {nom} » rejoint tes territoires conquis. Tes pistes sont recalculées.', { nom: r.c.nom }));
+      if (r.vientDeFinir) toast(T('Plan terminé, bravo ! « {nom} » peut passer en territoire conquis quand tu le sens.', { nom: CT.bibliotheque.nomAffiche(CT.regles.trouver(carte, carte.plan.competenceId)) }));
+      else if (carte.plan.faites[Number(valeur)]) toast(T('Action cochée : {n} sur 12.', { n: r.faites }));
       return;
     }
+    if (action === 'arreter-plan') {
+      if (!confirm(T('Arrêter ce plan ? Le territoire reste en conquête sur ta carte.'))) return;
+      if (CT.orientation.arreterPlan(carte)) appliquer();
+      return;
+    }
+    if (action === 'nouveau-plan') { if (CT.orientation.arreterPlan(carte)) appliquer(); return; }
+    if (action === 'synthese') { synthese.ouvrir(); return; }
     if (action === 'bilan') { bilan.ouvrir(); return; }
     if (action === 'abandonner') {
       if (CT.pistes.abandonner(carte, valeur)) { appliquer(); toast(T('Piste retirée. Tes territoires en conquête restent sur la carte.')); }
@@ -385,7 +454,7 @@
 
   const rappelsNavigation = {
     caseDe: (id) => etat.parCase.get(id) || null,
-    estDeplacable: (id) => id !== 'capitale' && !id.startsWith('sugg:'),
+    estDeplacable: (id) => id !== 'capitale' && !id.startsWith('sugg:') && !id.startsWith('hor:'),
     clic(id) {
       if (id) ouvrir(id);
       else fermerPanneau();
@@ -519,7 +588,7 @@
     CT.i18n.traduirePage();
     brancherLangue();
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
-    panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau, { suggestions: () => etat.suggestions });
+    panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau, { suggestions: () => etat.suggestions, horizon: () => (etat.horizon ? etat.horizon.tuiles : []) });
     saisieFlow = CT.vueSaisieFlow.creer($('saisie-flow'), rappelsFlow);
     creation = CT.vueCreation.creer($('creation'), {
       toast,
@@ -554,6 +623,7 @@
         toast(T('C\'est noté. Tu pourras faire ton bilan à tout moment depuis Mes pistes.'));
       }
     });
+    synthese = CT.vueSynthese.creer($('synthese'), { carte: () => etat.carte, placement: () => etat.placement });
     toutes = CT.vueToutes.creer($('toutes'), { carte: () => etat.carte, action: actionToutes });
     reglages = CT.vueReglages.creer($('reglages'), {
       carte: () => etat.carte,
@@ -561,6 +631,7 @@
         CT.regles.changerPreference(etat.carte, cle, valeur);
         appliquer();
         if (cle === 'seuilConquete') toast(T('Seuil de conquête : {n} moments de flow.', { n: etat.carte.preferences.seuilConquete }));
+        if (cle === 'horizon') toast(valeur ? T('Terres à découvrir affichées autour de ta carte.') : T('Terres à découvrir masquées.'));
         if (cle === 'brouillardDeGuerre') toast(valeur ? T('Brouillard activé : les territoires inexplorés sont sous les nuages.') : T('Brouillard désactivé : toute ta carte est visible.'));
       },
       exporter() {

@@ -27,7 +27,8 @@
     const l = liens || [];
     const a = alias || [];
     const affiche = T(nom);
-    return { id, nom: affiche, icone, domaine, liens: l.concat(traduits(l)), alias: a.concat(traduits(a), affiche !== nom ? [N(nom)] : []) };
+    // nomFr : le libellé d'origine, pour réafficher la compétence dans la langue courante.
+    return { id, nom: affiche, nomFr: nom, icone, domaine, liens: l.concat(traduits(l)), alias: a.concat(traduits(a), affiche !== nom ? [N(nom)] : []) };
   }
 
   const ENTREES = [
@@ -270,5 +271,50 @@
 
   ];
 
-  CT.bibliotheque = { ENTREES, entree: e, trouver: (id) => ENTREES.find((x) => x.id === id) || null };
+  function trouver(id) {
+    return ENTREES.find((x) => x.id === id) || null;
+  }
+
+  // Index des libellés officiels (français et anglais), construit au premier affichage
+  // (la suite de la bibliothèque est ajoutée après ce fichier).
+  let indexLibelles = null;
+  function parLibelle() {
+    if (indexLibelles) return indexLibelles;
+    indexLibelles = new Map();
+    const poser = (cle, entree) => { if (cle && !indexLibelles.has(cle)) indexLibelles.set(cle, entree); };
+    ENTREES.forEach((entree) => {
+      if (!entree.nomFr) return;
+      poser(N(entree.nomFr), entree);
+      poser(N(entree.nom), entree);
+      const en = CT.EN && CT.EN[CT.i18n.cle(entree.nomFr)];
+      if (en) poser(N(en), entree);
+    });
+    return indexLibelles;
+  }
+
+  function estLibelle(n, entree) {
+    if (!entree || !entree.nomFr) return false;
+    if (n === N(entree.nomFr) || n === N(entree.nom)) return true;
+    const en = CT.EN && CT.EN[CT.i18n.cle(entree.nomFr)];
+    return Boolean(en && n === N(en));
+  }
+
+  /*
+   * Nom à montrer pour une compétence de la carte.
+   * Une entrée de la bibliothèque (cochée au bilan, suggérée, posée depuis l'horizon)
+   * s'affiche dans la langue courante, même si elle a été enregistrée dans l'autre.
+   * Un nom tapé librement reste tel quel, y compris s'il a seulement été rapproché d'une entrée.
+   */
+  function nomAffiche(c) {
+    if (!c) return '';
+    const stocke = typeof c === 'string' ? c : (c.nom || '');
+    if (!stocke) return '';
+    const n = N(stocke);
+    const parId = c.bibliothequeId ? trouver(c.bibliothequeId) : null;
+    if (parId) return estLibelle(n, parId) ? parId.nom : stocke;
+    const connu = parLibelle().get(n);
+    return connu && estLibelle(n, connu) ? connu.nom : stocke;
+  }
+
+  CT.bibliotheque = { ENTREES, entree: e, trouver, nomAffiche };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

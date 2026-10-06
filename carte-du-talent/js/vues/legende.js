@@ -32,6 +32,9 @@
     ].map(([p, t]) => '<li>' + p + t + '</li>').join('');
     const reperes = '<li><svg class="pastille" viewBox="-12 -12 24 24" aria-hidden="true"><circle r="11" fill="#FFD866" opacity=".55"/>' +
       '<circle r="6" fill="#FFE9A8"/></svg>' + T('Éclat : flow des 30 derniers jours') + '</li>' +
+      (carte.preferences.horizon ? '<li>' + pastille('#FFFDF5', '#B59A8A', '1.5 2') + T('Terre à découvrir') + '</li>' : '') +
+      (carte.plan ? '<li><svg class="pastille" viewBox="-12 -12 24 24" aria-hidden="true"><line x1="-3" y1="9" x2="-3" y2="-9" stroke="#7A4A2A" stroke-width="2" stroke-linecap="round"/>' +
+        '<path d="M-2 -9 l11 4 l-11 4 Z" fill="#C2412D"/></svg>' + T('Drapeau qui monte : ton plan sur 30 jours') + '</li>' : '') +
       (carte.preferences.brouillardDeGuerre ? '<li>' + pastille('#E9EFF1', '#C9D5DA', '1.5 2') + T('Brouillard : territoire inexploré') + '</li>' : '');
     conteneur.innerHTML =
       '<h2>' + T('Régions') + '</h2><ul>' + regions + '</ul>' +

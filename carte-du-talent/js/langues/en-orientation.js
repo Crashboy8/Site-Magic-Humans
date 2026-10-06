@@ -456,6 +456,7 @@
     "Mes 3 pistes": "My 3 paths",
     "Fait le {date}": "Made on {date}",
     "Plan en cours : {nom}, {n} actions sur 12": "Plan in progress: {nom}, {n} of 12 actions",
+    "Compétences manquantes : {liste}": "Missing skills: {liste}",
     "Réserve ton appel découverte : {url}": "Book your discovery call: {url}",
     "Carte du Talent · Magic Humans · magichumans.com": "Talent Map · Magic Humans · magichumans.com"
   };

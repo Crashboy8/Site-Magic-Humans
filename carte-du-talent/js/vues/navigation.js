@@ -14,7 +14,8 @@
   const RAYON_ENSEMBLE = 30; // en dessous (px à l'écran), vue d'ensemble : noms des régions
 
   function creer(svg, rappels) {
-    let cadre = null; // étendue des terres (unités SVG)
+    let cadre = null; // étendue de la carte, horizon compris (unités SVG)
+    let cadreAjuster = null; // étendue des terres seules : c'est elle qu'on cadre à l'ouverture
     let vue = null; // viewBox courante { x, y, l, h }
     let selection = null;
     const pointeurs = new Map();
@@ -71,6 +72,66 @@
       vue.y = cy - vue.h / 2;
     }
 
+    function boite(el, decal) {
+      const b = el.getBBox();
+      const d = decal.get(el) || { x: 0, y: 0 };
+      return { x: b.x + d.x, y: b.y + d.y, width: b.width, height: b.height };
+    }
+
+    function seChevauchent(a, b, pad) {
+      return a.x < b.x + b.width + pad && b.x < a.x + a.width + pad && a.y < b.y + b.height + pad && b.y < a.y + a.height + pad;
+    }
+
+    // Écarte une étiquette de celles qu'elle recouvre, en la poussant à l'opposé.
+    function ecarter(el, obstacles, decal, pad) {
+      let a = boite(el, decal);
+      const d = decal.get(el);
+      obstacles.forEach((z) => {
+        if (z === el) return;
+        if (Math.hypot(d.x, d.y) > 480) return;
+        let b;
+        try { b = decal.has(z) ? boite(z, decal) : z.getBBox(); } catch (err) { return; }
+        if (!seChevauchent(a, b, pad)) return;
+        const cx = a.x + a.width / 2;
+        const cy = a.y + a.height / 2;
+        const zx = b.x + b.width / 2;
+        const zy = b.y + b.height / 2;
+        let dx = cx - zx;
+        let dy = cy - zy;
+        if (Math.hypot(dx, dy) < 1) { dx = cx || 1; dy = cy; }
+        const len = Math.hypot(dx, dy) || 1;
+        const recouvreX = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
+        const recouvreY = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
+        const pas = Math.max(recouvreX, recouvreY, 0) + pad;
+        d.x += dx / len * pas;
+        d.y += dy / len * pas;
+        a = { x: a.x + dx / len * pas, y: a.y + dy / len * pas, width: a.width, height: a.height };
+      });
+      el.setAttribute('transform', 'translate(' + d.x.toFixed(1) + ' ' + d.y.toFixed(1) + ')');
+    }
+
+    // Vue d'ensemble : les noms de domaine (couronne et provinces) ne recouvrent pas les régions.
+    function degagerEtiquettes() {
+      try { degagerEtiquettesDans(); } catch (err) { /* la carte n'est pas encore affichée */ }
+    }
+
+    function degagerEtiquettesDans() {
+      const horizon = [...svg.querySelectorAll('.etiquette-horizon')];
+      const provinces = [...svg.querySelectorAll('.etiquette-province')];
+      const regions = [...svg.querySelectorAll('.etiquette-region')];
+      const decal = new Map();
+      horizon.concat(provinces).forEach((el) => {
+        el.removeAttribute('transform');
+        decal.set(el, { x: 0, y: 0 });
+      });
+      if (!svg.classList.contains('vue-ensemble') || !regions.length) return;
+      const pad = 8 / echelle();
+      for (let passe = 0; passe < 6; passe++) {
+        provinces.forEach((el) => ecarter(el, regions, decal, pad));
+        horizon.forEach((el) => ecarter(el, regions.concat(provinces, horizon), decal, pad));
+      }
+    }
+
     function appliquer() {
       contraindre();
       svg.setAttribute('viewBox', [vue.x, vue.y, vue.l, vue.h].map((v) => v.toFixed(2)).join(' '));
@@ -79,18 +140,22 @@
       // Les noms de zones gardent une taille lisible à l'écran, quel que soit le zoom.
       const zones = svg.querySelector('.etiquettes-zones');
       const mer = svg.querySelector('.etiquettes-mer');
+      const couronne = svg.querySelector('.etiquettes-horizon');
       if (zones) zones.style.fontSize = Math.min(60, Math.max(16, 12 / e)).toFixed(1) + 'px';
       if (mer) mer.style.fontSize = Math.min(48, Math.max(15, 12 / e)).toFixed(1) + 'px';
+      if (couronne) couronne.style.fontSize = Math.min(140, Math.max(18, 14 / e)).toFixed(1) + 'px';
+      degagerEtiquettes();
     }
 
     function ajuster(marges) {
-      const largeur = largeurPourCadre(cadre, marges);
+      const cible = cadreAjuster || cadre;
+      const largeur = largeurPourCadre(cible, marges);
       const t = taille();
       const ech = t.l / largeur;
       // Décale le centre pour compenser des marges asymétriques (panneau ouvert, etc.).
       const dx = marges ? (marges.droite - marges.gauche) / 2 / ech : 0;
       const dy = marges ? (marges.bas - marges.haut) / 2 / ech : 0;
-      proportionner(cadre.x + cadre.l / 2 + dx, cadre.y + cadre.h / 2 + dy, largeur);
+      proportionner(cible.x + cible.l / 2 + dx, cible.y + cible.h / 2 + dy, largeur);
       appliquer();
     }
 
@@ -351,6 +416,7 @@
       // Appelé après chaque rendu : garde la vue courante, ou cadre toute la carte au premier rendu.
       majCadre(nouveauCadre, opts) {
         cadre = nouveauCadre;
+        cadreAjuster = (opts && opts.cadreAjuster) || nouveauCadre;
         if (!vue || (opts && opts.ajuster)) ajuster(opts && opts.marges);
         else appliquer();
         dessinerSelection();

@@ -159,7 +159,7 @@
           return '<li><span>' + O.echapper(t) + '</span>' + (ajoute
             ? '<span class="phrase-ajoutee"><i data-lucide="check"></i>' + T('Ajouté') + '</span>'
             : '<button type="button" class="bouton-lien" data-action="boussole-ajouter" data-source="' + source + '" data-index="' + i + '">' +
-              '<i data-lucide="' + (long ? 'pencil' : 'plus') + '"></i>' + (long ? T('Raccourcir') : T('Ajouter')) + '<span class="visuellement-cache"> : ' + O.echapper(t) + '</span></button>') + '</li>';
+              '<i data-lucide="' + (long ? 'pencil' : 'plus') + '"></i>' + (long ? T('Raccourcir') : T('Ajouter')) + '<span class="visuellement-cache">' + T(' : ') + O.echapper(t) + '</span></button>') + '</li>';
         }).join('') + '</ul>' : '') + anti + '</aside>';
     }
 
