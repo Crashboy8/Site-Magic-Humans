@@ -6,9 +6,14 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 
 ## Note de reprise (à jour au 6 octobre 2026)
 
-- **Branche** : `claude/zealous-mayer-oibrrc` (dépôt `Crashboy8/Site-Magic-Humans`). Pas de PR ouverte pour l'instant.
-- **Prévisualisation Vercel** : https://wwwmagichumanscom-git-claude-zealous-mayer-oibrrc-magic-humans.vercel.app/carte-du-talent/
-- **Toutes les étapes du cahier des charges sont faites et validées** (1 à 7, détail ci-dessous).
+- **En ligne** : https://www.magichumans.com/carte-du-talent/ (noindex), fusionné via la PR #101. La Boussole y renvoie par le bouton « Explorer ma carte du talent » (PR #103).
+- **Chantiers de la nuit** (une PR par chantier, empilées dans cet ordre, aucune fusionnée) :
+  1. **Carte créée depuis la Boussole** (branche `claude/zealous-mayer-oibrrc`) : fait, PR ouverte.
+  2. Version anglaise de la carte, avec sélecteur de langue : à faire.
+  3. Lien « Revenir à ma Boussole » : à faire.
+  4. Accessibilité et performance de la Boussole : à faire.
+  5. Relecture des textes français de la Boussole : à faire.
+- **Prévisualisation Vercel** : `https://<projet>-git-<branche>-magic-humans.vercel.app` (projets `wwwmagichumanscom` pour la carte, `boussole-decision` pour la Boussole, sous `/boussole-decision/`).
 - **Pistes pour la suite** (non commencées) : renommer une compétence ou une région depuis la carte ; choisir les régions voisines après la création ; transformer les moments de flow saisis pendant la création en moments datés ; tests sur un vrai téléphone (glisser-déposer au doigt, fluidité des animations).
 - **Méthode suivie** : à chaque étape, tests automatiques, vérification dans un navigateur automatisé (ordinateur et téléphone), captures, puis push. Ton bienveillant partout, jamais culpabilisant. Les positions et la logique de placement ne bougent pas sans raison.
 
@@ -21,6 +26,8 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 5. **Progrès et objectifs** : flow par semaine, compétences et régions qui mènent au flow, grille défi / maîtrise, frontières en cours. Au seuil (10 moments par défaut), l'appli propose de passer une frontière en conquise ; la personne confirme (« Pas encore » reporte de 5 moments). Objectifs liés aux frontières (ex. : Vente, 2 sessions par semaine) ; les moments de flow comptent comme sessions.
 6. **Bibliothèque et suggestions** : 59 compétences par domaine. Six suggestions en hexagones fantômes, à l'endroit exact où elles se poseraient ; accepter ne bouge rien, refuser est définitif (rétablissable dans les Réglages). Idée libre ou choix dans toute la bibliothèque.
 7. **Création guidée** : au premier lancement, accueil puis 6 questions (talent et fil rouge, sous-talents à réordonner avec des flèches, moments de flow, compétences apprises proches ou éloignées, envies, ce qui vide), filtre « Est-ce que ça élargit ton domaine d'action ? », regroupement par glisser-déposer ou « toucher puis Poser ici ». Brouillon enregistré à chaque saisie.
+
+8. **Arrivée depuis la Boussole de décision** : le bouton « Explorer ma carte du talent » porte le Talent Unique du profil dans l'ancre du lien (`#b=…`, JSON en base64url, jamais envoyé au serveur ; les critères ne sont pas transmis). Un écran de choix s'ouvre : « Commencer avec ma Boussole », « Reprendre ma création en cours » s'il y en a une, « Garder ma carte » si une carte existe. Rien n'est remplacé avant la confirmation finale. La création s'ouvre pré-remplie (talent = mécanisme, fil rouge = contexte déclencheur et super bénéfice s'ils tiennent en 160 caractères) ; un encart « Depuis ta Boussole » propose les contextes de réussite (question 3) et d'échec (question 6, avec l'Anti-Contexte en rappel), à ajouter un par un. Rien n'est coupé automatiquement : une phrase trop longue va dans le champ pour être raccourcie.
 
 **Réglages** : affichage (brouillard de guerre), progrès (seuil de conquête), suggestions écartées, sauvegarde (exporter / importer en JSON), repartir d'une autre carte (création guidée ou carte de démonstration, toujours après confirmation).
 
@@ -48,6 +55,7 @@ carte-du-talent/
 │   ├── modele/bibliotheque.js  59 compétences (domaine, icône, liens vers les voisines)
 │   ├── modele/suggestions.js   suggestions de territoires à conquérir
 │   ├── modele/creation.js      brouillon de la création guidée et génération de la carte
+│   ├── modele/boussole.js      lecture du lien de la Boussole (#b=…) et brouillon pré-rempli
 │   ├── vues/                   rendu SVG, navigation, panneau, saisie, progrès, réglages, création, effets
 │   └── app.js                  point d'entrée
 └── tests/placement.test.js
@@ -61,7 +69,7 @@ Tous les scripts s'attachent à l'espace de noms global `CarteTalent`. Le modèl
 node carte-du-talent/tests/placement.test.js --carte
 ```
 
-43 tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée.
+48 tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée, arrivée depuis la Boussole.
 
 ## Mise en ligne
 

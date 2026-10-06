@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js', 'modele/creation.js'].forEach((f) => {
+['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -492,6 +492,75 @@ test('un brouillon abîmé se relit sans planter', () => {
   assert.strictEqual(b.etape, 9);
   assert.strictEqual(b.moments[0].zone, null);
   assert.deepStrictEqual(b.conquises, []);
+});
+
+// ---------- Arrivée depuis la Boussole ----------
+
+function lienBoussole(data) {
+  return '#b=' + Buffer.from(JSON.stringify(data), 'utf8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+const PROFIL = {
+  v: 1,
+  mecanisme: 'raconte des histoires qui donnent envie d\'agir',
+  contexte: 'un projet porteur de sens doit embarquer des personnes très différentes',
+  benefice: 'transformer l\'adhésion en passage à l\'action',
+  antiContexte: 'Une communication descendante et aseptisée.',
+  success: 'Quand j\'anime un atelier avec des bénévoles et que je vois les gens repartir motivés. Quand je recueille des témoignages.\nÉcrire',
+  failure: 'Quand je reformule des communiqués validés par cinq personnes.'
+};
+
+test('le lien de la Boussole se décode (UTF-8, base64url) et refuse le reste', () => {
+  const d = CT.boussole.lire(lienBoussole(PROFIL));
+  assert.strictEqual(d.mecanisme, PROFIL.mecanisme);
+  assert.strictEqual(d.contexte, PROFIL.contexte);
+  assert.strictEqual(CT.boussole.lire('#b=@@@'), null);
+  assert.strictEqual(CT.boussole.lire(''), null);
+  assert.strictEqual(CT.boussole.lire(lienBoussole({ v: 2, mecanisme: 'x' })), null, 'version inconnue');
+  assert.strictEqual(CT.boussole.lire(lienBoussole({ v: 1 })), null, 'rien de rempli');
+  assert.strictEqual(CT.boussole.lire(lienBoussole({ v: 1, mecanisme: 'x'.repeat(5000) })).mecanisme.length, 400, 'textes bornés');
+});
+
+test('les contextes vécus se découpent en phrases, sans doublon', () => {
+  assert.deepStrictEqual(CT.boussole.phrases('Un. Deux ! Trois…\n- Quatre\nun'), ['Un', 'Deux !', 'Trois…', 'Quatre']);
+  assert.deepStrictEqual(CT.boussole.phrases(''), []);
+});
+
+test('le brouillon pré-rempli garde les textes entiers, sans coupe automatique', () => {
+  const b = CT.boussole.versBrouillon(CT.boussole.lire(lienBoussole(PROFIL)));
+  assert.strictEqual(b.talent.nom, 'Raconte des histoires qui donnent envie d\'agir');
+  assert.strictEqual(b.talent.filRouge, 'Dans un environnement où ' + PROFIL.contexte + ', afin de ' + PROFIL.benefice);
+  const long = CT.boussole.versBrouillon(Object.assign({}, PROFIL, { contexte: PROFIL.contexte + ' et '.repeat(10) + 'encore' }));
+  assert.strictEqual(long.talent.filRouge, '', 'fil rouge trop long : laissé vide, montré dans l\'encart');
+  assert.strictEqual(b.boussole.reussites.length, 3);
+  assert.strictEqual(b.boussole.reussites[0], 'Quand j\'anime un atelier avec des bénévoles et que je vois les gens repartir motivés');
+  assert.deepStrictEqual(b.moments, [], 'rien n\'est ajouté sans la personne');
+  assert.deepStrictEqual(b.deleguer, []);
+  const court = CT.boussole.versBrouillon({ mecanisme: 'fédère', contexte: 'ça bouge', benefice: 'avancer', antiContexte: '', success: '', failure: '' });
+  assert.strictEqual(court.talent.filRouge, 'Dans un environnement où ça bouge, afin de avancer');
+  // Le brouillon (avec ses rappels) survit à l'enregistrement.
+  const relu = CT.creation.normaliserBrouillon(JSON.parse(JSON.stringify(b)));
+  assert.deepStrictEqual(relu.boussole, b.boussole);
+  assert.strictEqual(CT.creation.normaliserBrouillon({}).boussole, null);
+});
+
+test('une saisie trop longue est signalée au lieu d\'être coupée', () => {
+  assert.deepStrictEqual(CT.creation.tropLongs('moments', 'Court, ' + 'x'.repeat(61)), ['x'.repeat(61)]);
+  assert.deepStrictEqual(CT.creation.tropLongs('regions', 'y'.repeat(41)), ['y'.repeat(41)]);
+  assert.deepStrictEqual(CT.creation.tropLongs('deleguer', 'Compta'), []);
+});
+
+test('la carte générée depuis un brouillon de la Boussole se place sans trou', () => {
+  const b = CT.boussole.versBrouillon(CT.boussole.lire(lienBoussole(PROFIL)));
+  CT.creation.ajouter(b, 'regions', 'Raconter, Fédérer, Animer');
+  CT.creation.ajouter(b, 'moments', 'Animer un atelier, Recueillir des témoignages');
+  CT.creation.ajouter(b, 'deleguer', 'Reformuler des communiqués');
+  const c = CT.creation.genererCarte(b);
+  assert.strictEqual(c.talent.nom, b.talent.nom);
+  assert.ok(c.competences.some((x) => x.statut === 'a_deleguer'));
+  const res = CT.placement.placer(c);
+  assert.strictEqual(res.cases.length, new Set(res.cases.map((x) => x.q + ',' + x.r)).size, 'aucune case en double');
+  assert.deepStrictEqual(CT.placement.verifier(res), []);
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');

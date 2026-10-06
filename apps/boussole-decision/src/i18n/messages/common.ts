@@ -34,7 +34,7 @@ const fr = {
   noneYet: "—",
   // Lien vers la Carte du Talent (profil et résultats)
   carteDuTalent: "🗺️ Explorer ma carte du talent",
-  carteDuTalentHint: "Visualise ton talent comme un territoire et repère ce qui te met dans le flow.",
+  carteDuTalentHint: "Ta carte se dessine à partir de ton Talent Unique : tu pourras tout ajuster avant de la créer.",
   newTab: "(s'ouvre dans un nouvel onglet)",
 };
 
@@ -72,7 +72,7 @@ const en: typeof fr = {
   readOnlyText: "Read-only: you can leave comments, but not change anything.",
   noneYet: "—",
   carteDuTalent: "🗺️ Explore my talent map",
-  carteDuTalentHint: "See your talent as a territory and spot what puts you in flow (in French).",
+  carteDuTalentHint: "Your map starts from your Unique Talent: you can adjust everything before creating it (in French).",
   newTab: "(opens in a new tab)",
 };
 
@@ -82,7 +82,7 @@ const en: typeof fr = {
  */
 export const carteDuTalentEs = {
   carteDuTalent: "🗺️ Explorar mi mapa del talento",
-  carteDuTalentHint: "Visualiza tu talento como un territorio y descubre qué te lleva al flow (en francés).",
+  carteDuTalentHint: "Tu mapa parte de tu Talento Único: podrás ajustarlo todo antes de crearlo (en francés).",
   newTab: "(se abre en una nueva pestaña)",
 };
 

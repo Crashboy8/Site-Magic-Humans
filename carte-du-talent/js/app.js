@@ -384,6 +384,17 @@
     });
   }
 
+  // Arrivée depuis la Boussole (#b=…) : la création s'ouvre sur un écran de choix, rien n'est remplacé.
+  // L'ancre est retirée pour qu'un rechargement ne relance pas l'import.
+  function accueillirBoussole() {
+    if (!/(?:^#|&)b=/.test(location.hash)) return false;
+    const donnees = CT.boussole.lire(location.hash);
+    history.replaceState(null, '', location.pathname + location.search);
+    if (!donnees) return false;
+    creation.ouvrir({ boussole: donnees, carteExistante: !etat.premierLancement });
+    return true;
+  }
+
   function demarrer() {
     navigation = CT.navigation.creer($('carte'), rappelsNavigation);
     panneau = CT.vuePanneau.creer($('panneau'), surActionPanneau, { suggestions: () => etat.suggestions });
@@ -437,7 +448,9 @@
     etat.premierLancement = !enregistree;
     etat.carte = enregistree || CT.demo.creer();
     appliquer({ ajuster: true });
-    if (etat.premierLancement) creation.ouvrir({ accueil: true });
+    if (!accueillirBoussole() && etat.premierLancement) creation.ouvrir({ accueil: true });
+    // Le même onglet peut recevoir un nouveau lien de la Boussole sans être rechargé.
+    window.addEventListener('hashchange', accueillirBoussole);
     brancher();
     CT.outils.rafraichirIcones();
   }
