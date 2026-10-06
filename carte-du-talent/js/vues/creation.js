@@ -69,6 +69,7 @@
     let selection = null; // { liste, id } en mode « toucher puis poser »
     let arrivee = null; // { donnees, carteExistante } : arrivée depuis la Boussole, avant de commencer
     let alerte = ''; // message sous le champ de saisie (élément trop long)
+    const voirPlus = {}; // étape → toutes les idées sont affichées
 
     function enregistrer() {
       CT.stockage.sauvegarderBrouillon(brouillon);
@@ -112,14 +113,16 @@
     function ecranBoussole() {
       const enCours = CT.stockage.chargerBrouillon();
       const reprendre = enCours && (enCours.talent.nom || enCours.regions.length);
+      const quiz = arrivee.donnees.source === 'quiz';
       return '<div class="creation-accueil"><div class="accueil-hex" aria-hidden="true">' + hexDecor() + '</div>' +
-        '<h1 id="creation-titre">' + T('Ta carte à partir de ta Boussole') + '</h1>' +
-        '<p>' + T('Ton talent et tes contextes vécus sont prêts : la création guidée s\'ouvre pré-remplie. Tu ajustes chaque étape, puis tu crées ta carte.') + '</p>' +
+        '<h1 id="creation-titre">' + (quiz ? T('Ta carte à partir de ton résultat du quiz') : T('Ta carte à partir de ta Boussole')) + '</h1>' +
+        '<p>' + (quiz ? T('Ton talent et tes sous-talents sont déjà proposés : la création guidée s\'ouvre pré-remplie. Tu modifies tout ce que tu veux, puis tu crées ta carte.')
+          : T('Ton talent et tes contextes vécus sont prêts : la création guidée s\'ouvre pré-remplie. Tu ajustes chaque étape, puis tu crées ta carte.')) + '</p>' +
         (arrivee.carteExistante ? '<p class="note-boussole"><i data-lucide="shield-check"></i>' + T('Ta carte actuelle reste en place tant que tu n\'as pas créé la nouvelle.') + ' ' +
           T('Pense à l\'exporter depuis les Réglages si tu veux la garder.') + '</p>' : '') +
         (reprendre ? '<p class="note-boussole"><i data-lucide="info"></i>' + T('Tu avais commencé une création ({etape}) : commencer avec ta Boussole la remplacera.', { etape: enCours.etape > 6 ? T('dernière étape') : T('question {n}', { n: enCours.etape }) }) + '</p>' : '') +
         '<div class="accueil-actions">' +
-        '<button type="button" class="bouton bouton-principal" data-action="boussole-commencer"><i data-lucide="sparkles"></i>' + T('Commencer avec ma Boussole') + '</button>' +
+        '<button type="button" class="bouton bouton-principal" data-action="boussole-commencer"><i data-lucide="sparkles"></i>' + (quiz ? T('Commencer avec mon résultat') : T('Commencer avec ma Boussole')) + '</button>' +
         (reprendre ? '<button type="button" class="bouton bouton-secondaire" data-action="reprendre"><i data-lucide="play"></i>' + T('Reprendre ma création en cours') + '</button>' : '') +
         (arrivee.carteExistante
           ? '<button type="button" class="bouton bouton-secondaire" data-action="garder"><i data-lucide="map"></i>' + T('Garder ma carte') + '</button>'
@@ -131,7 +134,7 @@
     function encartBoussole(etape) {
       const bo = brouillon.boussole;
       if (!bo) return '';
-      const tete = '<aside class="encart-boussole" aria-labelledby="encart-boussole-titre"><h3 id="encart-boussole-titre"><i data-lucide="compass"></i>' + T('Depuis ta Boussole') + '</h3>';
+      const tete = '<aside class="encart-boussole" aria-labelledby="encart-boussole-titre"><h3 id="encart-boussole-titre"><i data-lucide="compass"></i>' + (bo.source === 'quiz' ? T('Depuis ton résultat du quiz') : T('Depuis ta Boussole')) + '</h3>';
       if (etape === 1) {
         const lignes = [[T('Je…'), bo.mecanisme], [T('…dans un environnement où…'), bo.contexte], [T('…afin de…'), bo.benefice]].filter(([, t]) => t);
         if (!lignes.length) return '';
@@ -178,12 +181,26 @@
         '<p class="discret">' + T('Pas besoin que ce soit parfait. Tu pourras y revenir plus tard.') + '</p>' + encartBoussole(1) + '</div>';
     }
 
+    // Idées regroupées par grands domaines : trois par domaine, le reste derrière « Voir plus ».
+    function blocIdees(etape, groupes) {
+      const plus = Boolean(voirPlus[etape]);
+      const caches = groupes.reduce((n, g) => n + g.idees.filter((i) => i.plus).length, 0);
+      const total = groupes.reduce((n, g) => n + g.idees.length, 0);
+      return '<div class="idees"><p class="discret">' + T('{n} idées pour t\'inspirer, par domaine. Touche pour ajouter.', { n: total }) + '</p>' +
+        groupes.map((g) => '<section class="idees-groupe" aria-label="' + O.echapper(g.nom) + '"><h3>' + O.echapper(g.nom) + '</h3><div class="idees-puces">' +
+          g.idees.filter((i) => plus || !i.plus).map((i) => '<button type="button" class="puce-exemple" data-action="exemple" data-valeur="' + O.echapper(i.texte) + '"><i data-lucide="plus"></i>' +
+            O.echapper(i.texte) + '</button>').join('') + '</div></section>').join('') +
+        (caches ? '<button type="button" class="bouton bouton-secondaire idees-plus" data-action="voir-plus" aria-expanded="' + plus + '"><i data-lucide="' + (plus ? 'chevron-up' : 'chevron-down') + '"></i>' +
+          (plus ? T('Voir moins') : T('Voir plus ({n} idées de plus)', { n: caches })) + '</button>' : '') + '</div>';
+    }
+
     function ecranListe(etape) {
       const q = QUESTIONS[etape];
       const elements = brouillon[q.liste];
       const nomDe = (x) => x.texte || x.nom;
       const deja = new Set(elements.map((x) => CT.regles.normaliserTexte(nomDe(x))));
       const exemples = q.exemples.filter((e) => !deja.has(CT.regles.normaliserTexte(e)));
+      const groupes = CT.idees.proposer(q.liste, elements.map(nomDe));
       let liste;
       if (q.liste === 'regions') {
         // Liste ordonnée : l'ordre décide des voisinages sur la carte.
@@ -213,7 +230,8 @@
         (alerte ? '<p class="alerte-saisie" role="alert">' + O.echapper(alerte) + '</p>' : '') +
         '<p class="discret">' + T('Tu peux en écrire plusieurs d\'un coup, séparés par des virgules.') + (plein ? ' ' + T('Huit régions au maximum.') : '') + '</p>' +
         liste + encartBoussole(etape) +
-        (exemples.length && !plein ? '<div class="exemples"><span class="discret">' + T('Exemples :') + '</span>' + exemples.map((e) =>
+        (groupes.length && !plein ? blocIdees(etape, groupes) : '') +
+        (!groupes.length && exemples.length && !plein ? '<div class="exemples"><span class="discret">' + T('Exemples :') + '</span>' + exemples.map((e) =>
           '<button type="button" class="puce-exemple" data-action="exemple" data-valeur="' + O.echapper(e) + '"><i data-lucide="plus"></i>' + O.echapper(e) + '</button>').join('') + '</div>' : '') +
         '</div>';
     }
@@ -231,7 +249,8 @@
     function carteElement(liste, el) {
       const choisi = selection && selection.id === el.id;
       return '<button type="button" class="element' + (choisi ? ' choisi' : '') + '" data-liste="' + liste + '" data-id="' + el.id + '" aria-pressed="' + choisi + '">' +
-        '<span class="element-type type-' + liste + '">' + LIBELLE_TYPE[liste] + '</span>' + O.echapper(el.texte) + '</button>';
+        '<span class="element-type type-' + liste + '">' + LIBELLE_TYPE[liste] + '</span>' + O.echapper(el.texte) +
+        (el.raison ? '<span class="element-raison"><i data-lucide="sparkles"></i>' + O.echapper(el.raison) + '</span>' : '') + '</button>';
     }
 
     function ecranRegroupement() {
@@ -246,8 +265,9 @@
           '<div class="zone-elements">' + (dedans.length ? dedans.map((x) => carteElement(x.liste, x.el)).join('') : '<span class="zone-vide">' + (id === null ? T('Tout est rangé.') : T('Glisse un élément ici')) + '</span>') + '</div></section>';
       };
       return '<div class="creation-question creation-large"><h2 id="creation-titre">' + T('Range chaque élément dans sa région') + '</h2>' +
-        '<p class="aide-question">' + T('Glisse-le dans la région qu\'il nourrit. Sur téléphone, touche un élément puis « Poser ici ».') + ' ' +
-        T('Ce qui est hors de ton talent va sur une île.') + '</p>' +
+        '<p class="aide-question">' + T('On a déjà rangé chaque élément dans la région la plus proche, avec la raison en petit. Garde ce qui te parle, déplace le reste.') + ' ' +
+        T('Glisse-le dans la région qu\'il nourrit. Sur téléphone, touche un élément puis « Poser ici ».') + ' ' +
+        T('Ce qui ne colle à aucune région devient une île.') + '</p>' +
         zone(null, T('À ranger'), null, 'inbox', items.some((x) => !x.el.zone) ? T('Ce qui reste ici rejoindra ta première région ; tu pourras l\'ajuster sur la carte.') : '') +
         '<div class="zones">' + brouillon.regions.map((r) => zone(r.id, r.nom, r.couleur, r.icone)).join('') +
         zone('ile', T('Hors de mon talent : île de flow'), '#7DCDAE', 'palmtree') + '</div></div>';
@@ -273,8 +293,12 @@
         html = tete(e) + '<div class="creation-corps">' + corps + '</div>' + pied(e, peut, suite);
       }
       const focusId = document.activeElement && racine.contains(document.activeElement) ? document.activeElement.id : null;
+      const defile = racine.querySelector('.creation-corps');
+      const haut = defile ? defile.scrollTop : 0;
       racine.innerHTML = '<div class="creation-page" role="dialog" aria-modal="true" aria-labelledby="creation-titre">' + html + '</div>';
       O.rafraichirIcones(racine);
+      const corpsNeuf = racine.querySelector('.creation-corps');
+      if (corpsNeuf && haut) corpsNeuf.scrollTop = haut;
       if (focusId && racine.querySelector('#' + focusId)) racine.querySelector('#' + focusId).focus();
     }
 
@@ -294,6 +318,7 @@
     function aller(e) {
       if (e >= 9) { terminer(); return; }
       brouillon.etape = Math.max(1, e);
+      if (brouillon.etape === 8) C.preRanger(brouillon);
       selection = null;
       alerte = '';
       enregistrer();
@@ -388,6 +413,7 @@
       }
       if (action === 'suite') { aller(prochaine(brouillon.etape)); return; }
       if (action === 'retour') { aller(precedente(brouillon.etape)); return; }
+      if (action === 'voir-plus') { voirPlus[brouillon.etape] = !voirPlus[brouillon.etape]; rendre(); const bt = racine.querySelector('.idees-plus'); if (bt) bt.focus(); return; }
       if (action === 'exemple' && q) { C.ajouter(brouillon, q.liste, valeur); enregistrer(); rendre(); return; }
       if (action === 'retirer' && q) { C.retirer(brouillon, q.liste, id); enregistrer(); rendre(); return; }
       if (action === 'monter' || action === 'descendre') {

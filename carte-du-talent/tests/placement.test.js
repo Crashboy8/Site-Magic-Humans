@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['langues/en.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
+['langues/en.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -342,9 +342,9 @@ test('on peut créer, modifier et supprimer un objectif', () => {
 
 console.log('\nBibliothèque et suggestions');
 
-test('la bibliothèque compte une cinquantaine de compétences valides', () => {
+test('la bibliothèque compte environ 150 compétences valides', () => {
   const E = CT.bibliotheque.ENTREES;
-  assert.ok(E.length >= 45 && E.length <= 65, E.length + ' entrées');
+  assert.ok(E.length >= 140 && E.length <= 170, E.length + ' entrées');
   assert.strictEqual(new Set(E.map((x) => x.id)).size, E.length);
   E.forEach((x) => assert.ok(CT.schema.DOMAINES[x.domaine], x.id + ' : domaine inconnu'));
 });
@@ -561,6 +561,82 @@ test('la carte générée depuis un brouillon de la Boussole se place sans trou'
   const res = CT.placement.placer(c);
   assert.strictEqual(res.cases.length, new Set(res.cases.map((x) => x.q + ',' + x.r)).size, 'aucune case en double');
   assert.deepStrictEqual(CT.placement.verifier(res), []);
+});
+
+// ---------- Retours de test : idées, brouillard, pré-rangement, import du quiz ----------
+
+console.log('\nIdées, territoires à conquérir, pré-rangement, quiz');
+
+test('chaque question propose au moins 30 idées par domaine, à la bonne longueur', () => {
+  ['regions', 'moments', 'conquises', 'frontieres'].forEach((l) => {
+    const groupes = CT.idees.proposer(l, []);
+    const tout = [].concat(...groupes.map((g) => g.idees.map((i) => i.texte)));
+    assert.ok(tout.length >= 30, l + ' : ' + tout.length + ' idées');
+    assert.ok(groupes.length >= 8, l + ' : ' + groupes.length + ' domaines');
+    assert.strictEqual(new Set(tout.map((t) => CT.regles.normaliserTexte(t))).size, tout.length, l + ' : doublons');
+    tout.forEach((t) => assert.ok(t.length <= CT.creation.longueurMax(l), t));
+    assert.ok(groupes.every((g) => g.idees.filter((i) => !i.plus).length <= 3), 'trois idées visibles par domaine');
+  });
+  assert.ok(!CT.idees.proposer('regions', ['accueillir']).some((g) => g.idees.some((i) => i.texte === 'Accueillir')), 'une idée saisie disparaît');
+});
+
+test('une carte créée propose au moins 2 territoires à conquérir par région, tirés de la bibliothèque', () => {
+  const { b } = brouillonExemple();
+  const c = CT.creation.genererCarte(b);
+  c.regions.forEach((r) => {
+    const n = c.competences.filter((x) => x.statut === 'a_conquerir' && x.regionId === r.id && !x.exploree && x.bibliothequeId).length;
+    assert.ok(n >= 2, r.nom + ' : ' + n);
+  });
+  assert.deepStrictEqual(CT.placement.verifier(CT.placement.placer(c)), []);
+});
+
+test('les territoires à conquérir se rapprochent des sous-talents saisis', () => {
+  const b = CT.creation.nouveauBrouillon();
+  b.talent.nom = 'Test';
+  CT.creation.ajouter(b, 'regions', 'Transmettre, Bricoler');
+  const [transmettre, bricoler] = b.regions.map((r) => r.id);
+  CT.creation.ajouter(b, 'moments', 'Préparer un cours, Réparer un objet');
+  CT.creation.ranger(b, 'moments', b.moments[0].id, transmettre);
+  CT.creation.ranger(b, 'moments', b.moments[1].id, bricoler);
+  const c = CT.creation.genererCarte(b);
+  const dom = (rid) => c.competences.filter((x) => x.statut === 'a_conquerir' && x.regionId === rid).map((x) => x.domaine);
+  assert.ok(dom(transmettre).includes('pedagogie'), dom(transmettre).join());
+  assert.ok(dom(bricoler).includes('technique'), dom(bricoler).join());
+});
+
+test('le regroupement pré-range chaque moment avec une raison, et crée une île pour ce qui ne colle pas', () => {
+  const b = CT.creation.nouveauBrouillon();
+  CT.creation.ajouter(b, 'regions', 'Écouter, Transmettre, Mettre en scène');
+  const [ecouter, transmettre, scene] = b.regions.map((r) => r.id);
+  CT.creation.ajouter(b, 'moments', 'Écouter quelqu\'un, Former un groupe, Jouer la comédie, Grimper');
+  CT.creation.preRanger(b);
+  const zone = (t) => b.moments.find((m) => m.texte === t);
+  assert.strictEqual(zone('Écouter quelqu\'un').zone, ecouter);
+  assert.strictEqual(zone('Former un groupe').zone, transmettre);
+  assert.strictEqual(zone('Jouer la comédie').zone, scene);
+  assert.strictEqual(zone('Grimper').zone, 'ile');
+  b.moments.forEach((m) => assert.ok(m.raison, m.texte + ' sans raison'));
+  // Déplacer efface la raison ; un second passage ne défait rien.
+  CT.creation.ranger(b, 'moments', zone('Grimper').id, transmettre);
+  CT.creation.preRanger(b);
+  assert.strictEqual(zone('Grimper').zone, transmettre);
+  assert.strictEqual(zone('Grimper').raison, '');
+  const relu = CT.creation.normaliserBrouillon(JSON.parse(JSON.stringify(b)));
+  assert.strictEqual(relu.moments.find((m) => m.texte === 'Former un groupe').raison, zone('Former un groupe').raison);
+});
+
+test('l\'import du quiz (#q=) pré-remplit le talent et les sous-talents, même encodage que pour la Boussole', () => {
+  const data = { v: 1, lang: 'fr', archetypes: ['analyste', 'catalyseur'], name: 'Mon Talent Unique : Analyste Fédérateur', mecanisme: 'sais aller au fond des choses avec méthode',
+    contexte: 'il y a des problèmes complexes', benefice: 'aider les équipes à décider', success: 'Auditer un problème. Construire un outil.', failure: 'Sur-cogitation : trop de données.',
+    fertile: ['a'], toxic: ['b'], soustalents: ['Fiabiliser', 'Diagnostiquer', 'Fédérer'] };
+  const b64 = Buffer.from(JSON.stringify(data), 'utf8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const d = CT.boussole.lire('#q=' + b64 + '&lang=fr');
+  assert.ok(d && d.source === 'quiz');
+  const b = CT.boussole.versBrouillon(d);
+  assert.strictEqual(b.talent.nom, 'Aller au fond des choses avec méthode');
+  assert.deepStrictEqual(b.regions.map((r) => r.nom), ['Fiabiliser', 'Diagnostiquer', 'Fédérer']);
+  assert.strictEqual(CT.creation.normaliserBrouillon(JSON.parse(JSON.stringify(b))).boussole.source, 'quiz');
+  assert.strictEqual(CT.boussole.lire('#q=!!!'), null);
 });
 
 // ---------- Traductions ----------

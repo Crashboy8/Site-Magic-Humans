@@ -32,7 +32,10 @@
     business: { nom: T('Business'), couleur: '#A9C27A' },
     corps: { nom: T('Corps'), couleur: '#E6A86B' },
     creation: { nom: T('Création'), couleur: '#C99AD0' },
-    organisation: { nom: T('Organisation'), couleur: '#A8B0B8' }
+    organisation: { nom: T('Organisation'), couleur: '#A8B0B8' },
+    analyse: { nom: T('Analyse'), couleur: '#7FB7B0' },
+    nature: { nom: T('Nature'), couleur: '#8DBE7E' },
+    technique: { nom: T('Technique'), couleur: '#B59A8A' }
   };
 
   const PREFERENCES_DEFAUT = { brouillardDeGuerre: false, seuilConquete: 10 };

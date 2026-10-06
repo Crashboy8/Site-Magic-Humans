@@ -397,7 +397,7 @@
   }
 
   function accueillirBoussole() {
-    if (!/(?:^#|&)(?:b|lang|retour)=/.test(location.hash)) return false;
+    if (!/(?:^#|&)(?:b|q|lang|retour)=/.test(location.hash)) return false;
     const retour = CT.boussole.lireRetour(location.hash);
     if (retour) { CT.stockage.sauvegarderRetour(retour); majLienBoussole(); }
     // Un nouveau lien dans une autre langue (onglet déjà ouvert) : on recharge dans cette langue, ancre comprise.

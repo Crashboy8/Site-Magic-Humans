@@ -1,5 +1,5 @@
 /*
- * Bibliothèque de compétences : une cinquantaine d'idées classées par domaine.
+ * Bibliothèque de compétences : environ 150 idées classées par domaine.
  * « liens » : noms (sans accents, en minuscules) de compétences voisines, qui servent
  * à rapprocher une suggestion de ce qui existe déjà sur la carte.
  * « alias » : autres noms sous lesquels la compétence peut déjà figurer sur la carte.
@@ -110,7 +110,132 @@
     // Organisation
     e('gestion-projet', 'Gestion de projet', 'kanban', 'organisation', ['preparer une formation', 'creer une troupe', 'administratif']),
     e('gestion-temps', 'Gestion du temps', 'clock', 'organisation', ['administratif', 'preparer une formation']),
-    e('evenements', 'Organiser des événements', 'calendar-check', 'organisation', ['creer une communaute', 'mettre en scene un evenement', 'accueillir'])
+    e('evenements', 'Organiser des événements', 'calendar-check', 'organisation', ['creer une communaute', 'mettre en scene un evenement', 'accueillir']),
+    // Corps et sport (suite)
+    e('natation', 'Natation', 'waves', 'corps', ['course', 'calisthenie']),
+    e('velo', 'Vélo', 'bike', 'corps', ['course', 'etre dynamique']),
+    e('danse', 'Danse', 'footprints', 'corps', ['acrobatie', 'yoga', 'musical improvise']),
+    e('arts-martiaux', 'Arts martiaux', 'swords', 'corps', ['escalade', 'respiration']),
+    e('musculation', 'Musculation', 'dumbbell', 'corps', ['calisthenie', 'course']),
+    e('randonnee', 'Randonnée', 'mountain-snow', 'corps', ['course', 'escalade', 'jardinage']),
+    e('sports-equipe', 'Sport d\'équipe', 'trophy', 'corps', ['course', 'creer une troupe', 'leadership']),
+    e('coaching-sportif', 'Coaching sportif', 'medal', 'corps', ['coacher', 'musculation', 'course']),
+
+    // Scène et musique (suite)
+    e('theatre', 'Théâtre', 'drama', 'scene', ['theatre d\'improvisation', 'mise en scene', 'voix']),
+    e('magie', 'Magie', 'wand-sparkles', 'scene', ['jonglage (bolas)', 'faire rire', 'prise de parole en public']),
+    e('guitare', 'Guitare', 'music', 'scene', ['chanter', 'composition']),
+    e('piano', 'Piano', 'piano', 'scene', ['chanter', 'composition']),
+    e('percussions', 'Percussions', 'drum', 'scene', ['chanter', 'danse']),
+    e('dj-mix', 'DJ et mix', 'disc-3', 'scene', ['composition', 'animation de soiree']),
+    e('cirque', 'Arts du cirque', 'tent', 'scene', ['jonglage (bolas)', 'acrobatie', 'clown']),
+
+    // Création et arts (suite)
+    e('dessin', 'Dessin', 'pencil', 'creation', ['facilitation graphique', 'photographie']),
+    e('peinture', 'Peinture', 'paintbrush', 'creation', ['dessin', 'photographie']),
+    e('illustration', 'Illustration', 'brush', 'creation', ['dessin', 'design graphique (canva…)']),
+    e('sculpture', 'Sculpture', 'shapes', 'creation', ['dessin', 'ceramique']),
+    e('ceramique', 'Céramique', 'shapes', 'creation', ['sculpture', 'dessin']),
+    e('couture', 'Couture', 'scissors', 'creation', ['dessin', 'bricolage']),
+    e('cuisine', 'Cuisine', 'chef-hat', 'creation', ['accueillir', 'animer']),
+    e('patisserie', 'Pâtisserie', 'cake', 'creation', ['cuisine', 'accueillir']),
+    e('montage-video', 'Montage vidéo', 'clapperboard', 'creation', ['edition video', 'face camera', 'podcast']),
+    e('scenario', 'Écriture de scénarios', 'scroll-text', 'creation', ['storytelling', 'ecriture creative', 'sketchs']),
+    e('poesie', 'Poésie', 'feather', 'creation', ['rimer', 'slam', 'ecriture creative']),
+
+    // Relation (suite)
+    e('ecoute-active', 'Écoute active', 'ear', 'relation', ['ecouter pour aider', 'cnv']),
+    e('empathie', 'Empathie', 'heart-pulse', 'relation', ['ecouter pour aider', 'intelligence emotionnelle']),
+    e('accompagnement-individuel', 'Accompagnement individuel', 'hand-heart', 'relation', ['coacher', 'mentorat', 'ecouter pour aider']),
+    e('hospitalite', 'Hospitalité', 'house-heart', 'relation', ['accueillir', 'cuisine']),
+    e('benevolat', 'Bénévolat', 'heart-handshake', 'relation', ['creer une communaute', 'accueillir']),
+    e('travail-equipe', 'Travail en équipe', 'users', 'relation', ['federer', 'creer une troupe']),
+    e('feedback', 'Donner du feedback', 'message-circle', 'relation', ['coacher', 'cnv']),
+    e('relation-client', 'Relation client', 'smile', 'relation', ['accueillir', 'vente', 'ecouter pour aider']),
+
+    // Pédagogie (suite)
+    e('tutorat', 'Tutorat', 'book-open-check', 'pedagogie', ['pedagogie', 'mentorat']),
+    e('vulgarisation', 'Vulgarisation', 'lightbulb', 'pedagogie', ['pedagogie', 'storytelling', 'prise de parole en public']),
+    e('enseigner-enfants', 'Enseigner aux enfants', 'graduation-cap', 'pedagogie', ['pedagogie', 'ludopedagogie']),
+    e('conception-cours', 'Concevoir un cours', 'notebook-pen', 'pedagogie', ['preparer une formation', 'design pedagogique']),
+
+    // Analyse et réflexion (nouveau domaine)
+    e('recherche', 'Recherche et documentation', 'search', 'analyse', ['redaction', 'veille']),
+    e('synthese', 'Synthèse', 'list-checks', 'analyse', ['redaction', 'preparer une formation']),
+    e('veille', 'Veille', 'radar', 'analyse', ['recherche et documentation', 'reseaux sociaux / communaute en ligne']),
+    e('resolution-problemes', 'Résolution de problèmes', 'puzzle', 'analyse', ['gestion de projet', 'analyse de donnees']),
+    e('esprit-critique', 'Esprit critique', 'scan-search', 'analyse', ['discussions passionnantes', 'recherche et documentation']),
+    e('statistiques', 'Statistiques', 'chart-bar', 'analyse', ['analyse de donnees', 'excel']),
+    e('audit', 'Audit et diagnostic', 'clipboard-check', 'analyse', ['analyse de donnees', 'gestion de projet']),
+    e('strategie', 'Stratégie', 'chess-knight', 'analyse', ['gestion de projet', 'leadership', 'vente']),
+    e('modelisation', 'Modélisation', 'workflow', 'analyse', ['modeliser le talent de quelqu\'un', 'analyse de donnees']),
+    e('prise-decision', 'Prise de décision', 'git-fork', 'analyse', ['strategie', 'coacher']),
+    e('analyse-financiere', 'Analyse financière', 'trending-up', 'analyse', ['comptabilite', 'excel', 'budget']),
+
+    // Organisation (suite)
+    e('planification', 'Planification', 'calendar-days', 'organisation', ['gestion de projet', 'gestion du temps']),
+    e('logistique', 'Logistique', 'truck', 'organisation', ['organiser des evenements', 'gestion de projet']),
+    e('budget', 'Gérer un budget', 'wallet', 'organisation', ['comptabilite', 'administratif']),
+    e('comptabilite', 'Comptabilité', 'calculator', 'organisation', ['administratif', 'budget'], ['compta']),
+    e('priorisation', 'Priorisation', 'list-ordered', 'organisation', ['gestion du temps', 'gestion de projet']),
+    e('processus', 'Optimiser des processus', 'workflow', 'organisation', ['gestion de projet', 'automatisation no-code']),
+    e('recrutement', 'Recrutement', 'user-search', 'organisation', ['ecouter pour aider', 'networking']),
+    e('delegation', 'Déléguer', 'share', 'organisation', ['leadership', 'gestion de projet']),
+    e('coordination-equipe', 'Coordination d\'équipe', 'users', 'organisation', ['leadership', 'gestion de projet', 'creer une troupe']),
+
+    // Nature (nouveau domaine)
+    e('jardinage', 'Jardinage', 'sprout', 'nature', ['randonnee', 'cuisine']),
+    e('permaculture', 'Permaculture', 'leaf', 'nature', ['jardinage', 'ecologie']),
+    e('ecologie', 'Écologie et transition', 'recycle', 'nature', ['permaculture', 'creer une communaute']),
+    e('ornithologie', 'Observation de la nature', 'bird', 'nature', ['randonnee', 'photographie']),
+    e('apiculture', 'Apiculture', 'flower', 'nature', ['jardinage', 'permaculture']),
+    e('cueillette', 'Cueillette et plantes', 'leaf', 'nature', ['jardinage', 'cuisine', 'randonnee']),
+    e('education-nature', 'Éducation à la nature', 'trees', 'nature', ['pedagogie', 'randonnee', 'animer']),
+
+    // Technique (nouveau domaine)
+    e('bricolage', 'Bricolage', 'hammer', 'technique', ['couture', 'jardinage']),
+    e('menuiserie', 'Menuiserie', 'ruler', 'technique', ['bricolage', 'sculpture']),
+    e('mecanique', 'Mécanique', 'wrench', 'technique', ['bricolage', 'electronique']),
+    e('electronique', 'Électronique', 'cpu', 'technique', ['code', 'bricolage']),
+    e('reparation', 'Réparation', 'wrench', 'technique', ['bricolage', 'mecanique']),
+
+    // Numérique (suite)
+    e('programmation', 'Programmation', 'code', 'numerique', ['code', 'nocode', 'automatisation no-code']),
+    e('python', 'Python', 'terminal', 'numerique', ['programmation', 'analyse de donnees']),
+    e('excel-avance', 'Excel avancé', 'sheet', 'numerique', ['excel', 'analyse de donnees']),
+    e('seo', 'Référencement (SEO)', 'search', 'numerique', ['creer un site web', 'ecrire pour le web']),
+    e('dataviz', 'Visualisation de données', 'chart-pie', 'numerique', ['analyse de donnees', 'design graphique (canva…)']),
+    e('bases-donnees', 'Bases de données', 'database', 'numerique', ['excel', 'analyse de donnees']),
+    e('ia-generative', 'IA générative', 'bot', 'numerique', ['ia (llm)', 'ecrire des prompts']),
+    e('ux-design', 'Design d\'interface (UX)', 'layout-template', 'numerique', ['creer un site web', 'design graphique (canva…)']),
+
+    // Langues (suite)
+    e('anglais', 'Anglais', 'languages', 'langues', ['espagnol', 'allemand']),
+    e('espagnol', 'Espagnol', 'languages', 'langues', ['anglais', 'italien']),
+    e('chinois', 'Chinois', 'languages', 'langues', ['anglais']),
+    e('arabe', 'Arabe', 'languages', 'langues', ['anglais', 'espagnol']),
+    e('traduction', 'Traduction', 'book-a', 'langues', ['anglais', 'espagnol', 'redaction']),
+
+    // Business (suite)
+    e('marketing', 'Marketing', 'megaphone', 'business', ['vente', 'reseaux sociaux / communaute en ligne', 'storytelling']),
+    e('copywriting', 'Copywriting', 'pen-line', 'business', ['redaction', 'vente', 'newsletter']),
+    e('publicite', 'Publicité en ligne', 'target', 'business', ['marketing', 'reseaux sociaux / communaute en ligne']),
+    e('partenariats', 'Partenariats', 'handshake', 'business', ['networking', 'negociation']),
+    e('ecommerce', 'E-commerce', 'shopping-cart', 'business', ['vente', 'creer un site web']),
+    e('pitch', 'Pitch et levée de fonds', 'presentation', 'business', ['prise de parole en public', 'entrepreneuriat']),
+
+    // Communication (suite)
+    e('journalisme', 'Journalisme', 'newspaper', 'communication', ['redaction', 'recherche et documentation']),
+    e('interview', 'Interviewer', 'mic', 'communication', ['podcast', 'ecouter pour aider', 'discussions passionnantes']),
+    e('discours', 'Rédiger des discours', 'scroll-text', 'communication', ['prise de parole en public', 'storytelling']),
+    e('debat', 'Débat et argumentation', 'messages-square', 'communication', ['discussions passionnantes', 'esprit critique']),
+
+    // Animation (suite)
+    e('escape-game', 'Escape game', 'key-round', 'animation', ['creation de jeux', 'animer']),
+    e('jeux-societe', 'Jeux de société', 'dices', 'animation', ['creation de jeux', 'animer']),
+    e('quiz-animation', 'Animer un quiz', 'circle-help', 'animation', ['animer', 'maitre de ceremonie']),
+    e('animation-enfants', 'Animation pour enfants', 'baby', 'animation', ['animer', 'faire rire', 'ludopedagogie']),
+
   ];
 
   CT.bibliotheque = { ENTREES, trouver: (id) => ENTREES.find((x) => x.id === id) || null };
