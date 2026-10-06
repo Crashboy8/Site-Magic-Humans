@@ -41,7 +41,7 @@ export default async function CoachPage() {
         {dashboard.length === 0 ? (
           <p className="text-ink-soft">{k.nobodyYet}</p>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-line bg-paper">
+          <div className="overflow-x-auto rounded-2xl border border-line bg-paper" tabIndex={0} role="region" aria-labelledby="coaches">
             <table className="w-full min-w-[560px] text-left text-[15px]">
               <thead className="border-b border-line text-xs uppercase tracking-wider text-ink-soft">
                 <tr>

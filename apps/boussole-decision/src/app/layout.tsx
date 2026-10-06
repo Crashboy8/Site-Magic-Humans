@@ -12,7 +12,8 @@ const cormorant = localFont({
   ],
   variable: "--font-cormorant",
 });
-const caveat = localFont({ src: "./fonts/caveat-latin.woff2", variable: "--font-caveat", weight: "500 600" });
+// Écriture manuscrite : seulement pour quelques surtitres, donc pas préchargée sur chaque page (75 Ko).
+const caveat = localFont({ src: "./fonts/caveat-latin.woff2", variable: "--font-caveat", weight: "500 600", preload: false });
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getI18n();
