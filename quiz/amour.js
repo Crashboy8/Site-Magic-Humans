@@ -133,15 +133,19 @@
     "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item{animation:none!important;transition:none!important}#screen-amour .am-pop{display:none}}",
     "@media print{",
     "@page{size:A4;margin:9mm}",
-    "body{background:#fff!important;color:#1B1816!important;font-size:8.6pt;line-height:1.3}",
+    "html,body{background:#fff!important;color:#1B1816!important;font-size:8.6pt!important;line-height:1.3!important}",
     ".topbar,footer,.wrap>div:last-child,.mh-cookie-banner,.am-screen-only,#screen-amour .qnav,#screen-amour .btn,#screen-amour .row-actions{display:none!important}",
     ".wrap{max-width:none!important;padding:0!important}",
-    "#screen-amour .alloy{font-size:26pt!important;margin:2px 0 4px}",
-    "#screen-amour .rs{padding-top:6px;gap:6px;break-inside:auto}",
-    "#screen-amour .rs p{margin:4px 0}",
-    "#screen-amour ul.clean li{margin:2px 0}",
-    "#screen-amour .panel{break-inside:avoid;padding:8px 10px;margin:6px 0}",
-    "#screen-amour .rule{break-inside:avoid;padding:8px 10px;margin:3px 0}",
+    "#screen-amour{zoom:.86}",
+    "#screen-amour .alloy{font-size:26pt!important;line-height:1.02!important;margin:0 0 2px}",
+    "#screen-amour .rhead{padding:8px 10px!important;gap:4px!important;margin:0!important}",
+    "#screen-amour .rs{padding-top:4px;gap:4px;break-inside:auto}",
+    "#screen-amour .rs p,#screen-amour .rs h3{margin:2px 0}",
+    "#screen-amour .rs h3{font-size:10.5pt}",
+    "#screen-amour ul.clean{gap:2px}",
+    "#screen-amour ul.clean li{margin:1px 0}",
+    "#screen-amour .panel{break-inside:auto;padding:6px 8px;margin:4px 0;gap:3px}",
+    "#screen-amour .rule{break-inside:avoid;padding:4px 8px;margin:2px 0;gap:2px 8px}",
     "#screen-amour #sec-now .rule p{display:none!important}",
     "#screen-amour .quote{font-size:11.5pt}",
     "#screen-amour .pr-hide,#screen-amour .toc,#screen-amour .pr-bars,#screen-amour details{display:none!important}",
@@ -758,6 +762,7 @@
     const sections = pr.sections.map(function (secItem, i) {
       const style = needStyle(pr.dom);
       let body = "";
+      if (secItem.trap) body += "<h3>" + esc(secItem.trap) + "</h3>";
       if (secItem.lead) body += "<p>" + esc(secItem.lead) + "</p>";
       if (secItem.list) {
         body += '<div class="panel ' + (i === 0 ? "ctx-good" : "ctx-bad") + '"><span class="lab">' + esc(i === 0 ? "Tes contextes fertiles" : "Tes contextes toxiques") + "</span><ul class=\"clean\">" +
@@ -789,7 +794,6 @@
         body += '<div class="panel"><span class="lab">' + esc(U.s5date) + '</span><ul class="clean pr-say">' +
           secItem.date.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div></div>";
       }
-      if (secItem.trap) body += "<h3>" + esc(secItem.trap) + "</h3>";
       if (secItem.exits) {
         body += '<div class="panel"><span class="lab">' + esc(U.s6exitLab) + "</span>" + secItem.exits.map(function (item, n) {
           return '<div class="pr-exit"><span class="k">' + (n + 1) + "</span><p>" + esc(item) + "</p></div>";
