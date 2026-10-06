@@ -19,6 +19,7 @@ import type {
   TalentUnique,
   Version,
 } from "@/domain/types";
+import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
 import { IkigaiChart } from "./IkigaiChart";
 import { Radar } from "./Radar";
 
@@ -239,6 +240,9 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
 
       {/* 8. Prochains pas --------------------------------------------------------------------- */}
       <NextSteps version={version} ranking={ranking} readOnly={readOnly} />
+
+      {/* 9. Pour aller plus loin : la Carte du Talent -------------------------------------- */}
+      {!readOnly && <CarteDuTalentLink />}
     </div>
   );
 }

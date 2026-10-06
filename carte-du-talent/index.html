@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Carte du Talent</title>
+  <meta name="description" content="Visualise ton talent comme un territoire, repère ce qui te met dans le flow et regarde tes compétences s'étendre.">
+  <meta name="theme-color" content="#8FCAD9">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/carte.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <link rel="stylesheet" href="css/flow.css">
+  <link rel="stylesheet" href="css/progres.css">
+  <link rel="stylesheet" href="css/creation.css">
+</head>
+<body>
+  <header class="entete">
+    <div class="entete-talent">
+      <span class="marque"><i data-lucide="map"></i> Carte du Talent</span>
+      <h1 id="talent-nom">Mon talent</h1>
+      <p id="talent-fil" class="fil-rouge"></p>
+    </div>
+    <div class="entete-actions">
+      <button type="button" class="bouton-icone" id="btn-exporter" title="Exporter ma carte (JSON)">
+        <i data-lucide="download"></i><span>Exporter</span>
+      </button>
+      <button type="button" class="bouton-icone" id="btn-importer" title="Importer une carte (JSON)">
+        <i data-lucide="upload"></i><span>Importer</span>
+      </button>
+      <button type="button" class="bouton-icone" id="btn-progres" title="Progrès et objectifs">
+        <i data-lucide="chart-column"></i><span>Progrès</span><span class="pastille-alerte" id="alerte-progres" hidden></span>
+      </button>
+      <button type="button" class="bouton-icone" id="btn-reglages" title="Réglages">
+        <i data-lucide="settings"></i><span>Réglages</span>
+      </button>
+      <input type="file" id="fichier-import" accept="application/json,.json" hidden>
+    </div>
+  </header>
+
+  <main class="scene-carte">
+    <svg id="carte" class="carte" role="application" aria-label="Carte du talent : glisse pour te déplacer, molette ou pincement pour zoomer" tabindex="0" xmlns="http://www.w3.org/2000/svg"></svg>
+
+    <div class="controles-carte" role="group" aria-label="Navigation dans la carte">
+      <button type="button" class="bouton-rond" id="btn-zoom-plus" title="Zoomer" aria-label="Zoomer"><i data-lucide="plus"></i></button>
+      <button type="button" class="bouton-rond" id="btn-zoom-moins" title="Dézoomer" aria-label="Dézoomer"><i data-lucide="minus"></i></button>
+      <button type="button" class="bouton-rond" id="btn-recentrer" title="Voir toute la carte" aria-label="Voir toute la carte"><i data-lucide="maximize"></i></button>
+      <button type="button" class="bouton-rond" id="btn-suggestions" title="Suggestions de territoires à conquérir" aria-label="Suggestions de territoires à conquérir" aria-pressed="false"><i data-lucide="lightbulb"></i></button>
+      <button type="button" class="bouton-rond" id="btn-reorganiser" title="Réorganiser automatiquement (garde les hexagones déplacés à la main)" aria-label="Réorganiser la carte"><i data-lucide="wand-sparkles"></i></button>
+    </div>
+
+    <aside class="legende" id="legende" aria-label="Légende">
+      <button type="button" class="legende-titre" id="legende-bascule" aria-expanded="true">
+        <i data-lucide="info"></i> Légende <i data-lucide="chevron-down" class="chevron"></i>
+      </button>
+      <div class="legende-contenu" id="legende-contenu"></div>
+    </aside>
+  </main>
+
+  <button type="button" class="bouton-flow" id="btn-flow">
+    <i data-lucide="waves"></i><span>J'étais dans le flow</span>
+  </button>
+
+  <aside class="panneau" id="panneau" role="dialog" aria-labelledby="panneau-titre" hidden></aside>
+
+  <div class="flow" id="saisie-flow" hidden></div>
+  <div class="flow reglages" id="reglages" hidden></div>
+  <div class="progres" id="progres" hidden></div>
+  <div class="creation" id="creation" hidden></div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/lucide@1.52.0/dist/umd/lucide.min.js"></script>
+  <script src="js/geo/hex.js"></script>
+  <script src="js/modele/schema.js"></script>
+  <script src="js/modele/demo.js"></script>
+  <script src="js/modele/stockage.js"></script>
+  <script src="js/geo/placement.js"></script>
+  <script src="js/modele/regles.js"></script>
+  <script src="js/modele/stats.js"></script>
+  <script src="js/modele/bibliotheque.js"></script>
+  <script src="js/modele/suggestions.js"></script>
+  <script src="js/modele/creation.js"></script>
+  <script src="js/vues/outils.js"></script>
+  <script src="js/vues/carte.js"></script>
+  <script src="js/vues/legende.js"></script>
+  <script src="js/vues/navigation.js"></script>
+  <script src="js/vues/panneau.js"></script>
+  <script src="js/vues/saisieFlow.js"></script>
+  <script src="js/vues/effets.js"></script>
+  <script src="js/vues/reglages.js"></script>
+  <script src="js/vues/progres.js"></script>
+  <script src="js/vues/creation.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
