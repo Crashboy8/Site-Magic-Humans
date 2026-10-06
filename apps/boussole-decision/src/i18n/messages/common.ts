@@ -76,16 +76,6 @@ const en: typeof fr = {
   newTab: "(opens in a new tab)",
 };
 
-/**
- * Espagnol, comme pour le bouton du quiz. La Boussole n'a pas encore de version espagnole :
- * ces libellés sont prêts pour le jour où « es » rejoindra LOCALES (src/i18n/config.ts).
- */
-export const carteDuTalentEs = {
-  carteDuTalent: "🗺️ Explorar mi mapa del talento",
-  carteDuTalentHint: "Visualiza tu talento como un territorio y descubre qué te lleva al flow (en francés).",
-  newTab: "(se abre en una nueva pestaña)",
-};
-
 const es: typeof fr = {
   appName: "Brújula de decisión",
   appDescription: "Elige entre varias oportunidades profesionales con tus propios criterios ponderados. Magic Humans.",
@@ -119,6 +109,9 @@ const es: typeof fr = {
   readOnlyTitle: (name: string) => `Viendo las brújulas de ${name}`,
   readOnlyText: "Solo lectura: puedes dejar comentarios, pero no modificar nada.",
   noneYet: "—",
+  carteDuTalent: "🗺️ Explorar mi mapa del talento",
+  carteDuTalentHint: "Visualiza tu talento como un territorio y descubre qué te lleva al flow (en francés).",
+  newTab: "(se abre en una nueva pestaña)",
 };
 
 export const common = { fr, en, es };
