@@ -4,12 +4,12 @@ const fr = {
   eyebrow: "Exemple fictif",
   heading: "Le tableau de Camille",
   intro:
-    "Camille, 34 ans, chargée de communication, hésite entre trois opportunités. Voici le tableau qu'elle a rempli : ses critères en lignes, hiérarchisés de Critique à Bonus, ses opportunités en colonnes, et le score qui en découle.",
+    "Camille, 34 ans, chargée de communication, hésite entre trois opportunités. Voici le tableau qu'elle a rempli : ses critères en lignes, hiérarchisés de Critique à Bonus, ses opportunités en colonnes, et le score qui en découle.",
   herTalent: "Son Talent Unique",
-  antiLabel: "Anti-Contexte :",
+  antiLabel: "Anti-Contexte :",
   herFeeling: "Son ressenti",
   feelingText:
-    "La mieux payée (la banque) arrive dernière : l'Anti-Contexte y est très présent. Le freelance est proche de la tête, mais deux points restent à vérifier, dont son revenu minimum, qui est non négociable pour elle.",
+    "La mieux payée (la banque) arrive dernière : l'Anti-Contexte y est très présent. Le freelance est proche de la tête, mais deux points restent à vérifier, dont son revenu minimum, qui est non négociable pour elle.",
   yourTurn: "À toi de jouer",
   yourTurnText: "Construis ton propre tableau avec tes critères et tes opportunités.",
   goToCompasses: "Retrouver mes boussoles",

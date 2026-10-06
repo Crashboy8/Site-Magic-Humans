@@ -18,8 +18,8 @@ const fr = {
   myAccount: "Mon compte",
   signOut: "Déconnexion",
   quitTrial: "Quitter l'essai",
-  quitTrialConfirm: "Ton essai n'est pas sauvegardé : en quittant, tu ne pourras plus le retrouver. Quitter quand même ?",
-  trialBanner: "Mode essai : ton travail est gardé sur cet appareil pendant 30 jours.",
+  quitTrialConfirm: "Ton essai n'est pas sauvegardé : en quittant, tu ne pourras plus le retrouver. Quitter quand même ?",
+  trialBanner: "Mode essai : ton travail est gardé sur cet appareil pendant 30 jours.",
   trialBannerLink: "Le sauvegarder avec mon email",
   notFoundTitle: "Cette page est introuvable",
   notFoundText: "Elle n'existe pas, ou tu n'as pas accès à son contenu.",
@@ -30,11 +30,11 @@ const fr = {
   readOnlyIntro: "Tu consultes la boussole de",
   readOnlyEnd: ", en lecture seule.",
   readOnlyTitle: (name: string) => `Consultation des boussoles de ${name}`,
-  readOnlyText: "Lecture seule : tu peux laisser des commentaires, mais rien modifier.",
+  readOnlyText: "Lecture seule : tu peux laisser des commentaires, mais rien modifier.",
   noneYet: "—",
   // Lien vers la Carte du Talent (profil et résultats)
   carteDuTalent: "🗺️ Explorer ma carte du talent",
-  carteDuTalentHint: "Ta carte se dessine à partir de ton Talent Unique : tu pourras tout ajuster avant de la créer.",
+  carteDuTalentHint: "Ta carte se dessine à partir de ton Talent Unique : tu pourras tout ajuster avant de la créer.",
   newTab: "(s'ouvre dans un nouvel onglet)",
 };
 
@@ -72,7 +72,7 @@ const en: typeof fr = {
   readOnlyText: "Read-only: you can leave comments, but not change anything.",
   noneYet: "—",
   carteDuTalent: "🗺️ Explore my talent map",
-  carteDuTalentHint: "Your map starts from your Unique Talent: you can adjust everything before creating it (in French).",
+  carteDuTalentHint: "Your map starts from your Unique Talent: you can adjust everything before creating it.",
   newTab: "(opens in a new tab)",
 };
 
@@ -110,7 +110,7 @@ const es: typeof fr = {
   readOnlyText: "Solo lectura: puedes dejar comentarios, pero no modificar nada.",
   noneYet: "—",
   carteDuTalent: "🗺️ Explorar mi mapa del talento",
-  carteDuTalentHint: "Tu mapa parte de tu Talento Único: podrás ajustarlo todo antes de crearlo (en francés).",
+  carteDuTalentHint: "Tu mapa parte de tu Talento Único: podrás ajustarlo todo antes de crearlo (en francés o inglés).",
   newTab: "(se abre en una nueva pestaña)",
 };
 

@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
+['langues/en.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/suggestions.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -561,6 +561,65 @@ test('la carte générée depuis un brouillon de la Boussole se place sans trou'
   const res = CT.placement.placer(c);
   assert.strictEqual(res.cases.length, new Set(res.cases.map((x) => x.q + ',' + x.r)).size, 'aucune case en double');
   assert.deepStrictEqual(CT.placement.verifier(res), []);
+});
+
+// ---------- Traductions ----------
+
+test('chaque texte passé à T() a sa traduction anglaise', () => {
+  const fs = require('fs');
+  const racine = path.join(__dirname, '..');
+  const fichiers = ['index.html'].concat(...['js', 'js/geo', 'js/modele', 'js/vues'].map((d) =>
+    fs.readdirSync(path.join(racine, d)).filter((f) => f.endsWith('.js')).map((f) => d + '/' + f)));
+  const lit = "'((?:[^'\\\\]|\\\\.)*)'";
+  const deLitteral = (s) => s.replace(/\\'/g, "'").replace(/\\u00a0/g, ' ');
+  const manquants = new Set();
+  const verifier = (fr) => { const k = CT.i18n.cle(deLitteral(fr)); if (k && !(k in CT.EN)) manquants.add(k); };
+  fichiers.forEach((f) => {
+    const src = fs.readFileSync(path.join(racine, f), 'utf8');
+    for (const m of src.matchAll(new RegExp('\\bT\\(' + lit, 'g'))) verifier(m[1]);
+    for (const m of src.matchAll(new RegExp('\\bTn\\([^,]+, ' + lit + ', ' + lit, 'g'))) { verifier(m[1]); verifier(m[2]); }
+    // Textes traduits après coup (questions de la création, curseurs du flow, pluriels du Progrès).
+    const blocs = [/const QUESTIONS = \{[\s\S]*?\n  \};/, /const CURSEURS = \[[\s\S]*?\n  \]/];
+    blocs.forEach((b) => {
+      const bloc = (src.match(b) || [''])[0];
+      for (const m of bloc.matchAll(new RegExp(lit, 'g'))) {
+        if (/[a-zà-ÿ]{2,}/i.test(m[1]) && !/^(regions|moments|conquises|frontieres|deleguer|intensite|defi|maitrise)$/.test(m[1])) verifier(m[1]);
+      }
+    });
+    for (const m of src.matchAll(new RegExp('pluriel\\([^,]+, ' + lit + ', ' + lit, 'g'))) { verifier(m[1]); verifier(m[2]); }
+  });
+  // Textes visibles de la page HTML statique, traduits au chargement (CT.i18n.traduirePage).
+  const html = fs.readFileSync(path.join(racine, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '');
+  for (const m of html.matchAll(/>([^<>]*[A-Za-zÀ-ÿ]{2,}[^<>]*)</g)) {
+    const t = m[1].trim();
+    if (t && !/^(FR|EN)$/.test(t)) verifier(t);
+  }
+  for (const m of html.matchAll(/\b(?:title|aria-label|content)="([^"]*[a-zà-ÿ]{3,} [^"]*)"/g)) verifier(m[1]);
+  assert.deepStrictEqual([...manquants], []);
+});
+
+test('T() garde le français par défaut et remplace les variables', () => {
+  assert.strictEqual(CT.i18n.langue, 'fr');
+  assert.strictEqual(CT.i18n.T('Entre {a} et {b}', { a: 'X', b: 'Y' }), 'Entre X et Y');
+  assert.strictEqual(CT.i18n.cle('Capitale : x'), 'Capitale : x');
+  assert.ok(CT.EN['Capitale : {nom}'], 'clé sans espace insécable');
+});
+
+test('le lien de retour vers la Boussole n\'accepte que les adresses de la Boussole', () => {
+  const ok = (u) => CT.boussole.retourValide(u);
+  assert.strictEqual(ok('https://www.magichumans.com/boussole-decision/profils/abc/'), 'https://www.magichumans.com/boussole-decision/profils/abc/');
+  assert.strictEqual(ok('https://boussole-decision-git-claude-zm-retour-magic-humans.vercel.app/boussole-decision/'), 'https://boussole-decision-git-claude-zm-retour-magic-humans.vercel.app/boussole-decision/');
+  assert.strictEqual(ok('https://www.magichumans.com/boussole-decision/x/#ancre'), 'https://www.magichumans.com/boussole-decision/x/', 'ancre retirée');
+  assert.strictEqual(ok('https://evil.example/boussole-decision/'), null, 'autre site');
+  assert.strictEqual(ok('https://www.magichumans.com.evil.example/boussole-decision/'), null, 'faux sous-domaine');
+  assert.strictEqual(ok('https://www.magichumans.com/quiz/'), null, 'autre page du site');
+  assert.strictEqual(ok('http://www.magichumans.com/boussole-decision/'), null, 'http');
+  assert.strictEqual(ok('javascript:alert(1)'), null);
+  assert.strictEqual(ok('https://user:pw@www.magichumans.com/boussole-decision/'), null);
+  const lien = '#b=xyz&lang=fr&retour=' + encodeURIComponent('https://www.magichumans.com/boussole-decision/profils/abc/');
+  assert.strictEqual(CT.boussole.lireRetour(lien), 'https://www.magichumans.com/boussole-decision/profils/abc/');
+  assert.strictEqual(CT.boussole.lire(lien), null, 'b invalide, sans effet sur le retour');
+  assert.strictEqual(CT.boussole.lireRetour('#lang=fr'), null);
 });
 
 console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');

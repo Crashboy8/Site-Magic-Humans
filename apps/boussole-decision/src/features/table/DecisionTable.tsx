@@ -292,8 +292,10 @@ function Table({
               {categories.map((category) => {
                 const definition = category.key ? m.categoryByKey[category.key] : null;
                 const list = byCategory.get(category.id) ?? [];
-                const existing = new Set(list.map((c) => c.label.trim().toLowerCase()));
-                const ideas = definition?.examples.filter((e) => !existing.has(e.label.toLowerCase())).slice(0, 6) ?? [];
+                // Espaces insécables ignorés : un critère déjà ajouté avant la relecture typographique reste reconnu.
+                const cle = (s: string) => s.replace(/[\u00a0\u202f]/g, " ").trim().toLowerCase();
+                const existing = new Set(list.map((c) => cle(c.label)));
+                const ideas = definition?.examples.filter((e) => !existing.has(cle(e.label))).slice(0, 6) ?? [];
                 if (readOnly && list.length === 0) return null;
                 return (
                   <tbody key={category.id}>

@@ -4,10 +4,10 @@ const fr = {
   eyebrow: "Quiz Talent Unique",
   heading: "Ton résultat devient ta Boussole",
   intro:
-    "Voici ce que la Boussole va créer à partir de ton résultat du quiz : un nouveau profil, avec ton Talent Unique, ton Anti-Contexte et tes premiers critères. Tu pourras tout modifier ensuite.",
+    "Voici ce que la Boussole va créer à partir de ton résultat du quiz : un nouveau profil, avec ton Talent Unique, ton Anti-Contexte et tes premiers critères. Tu pourras tout modifier ensuite.",
   loading: "Lecture de ton résultat…",
   invalid:
-    "Ce lien ne contient pas de résultat de quiz lisible. Refais le quiz, puis clique à nouveau sur « Utiliser ce résultat dans ma Boussole de décision ».",
+    "Ce lien ne contient pas de résultat de quiz lisible. Refais le quiz, puis clique à nouveau sur « Utiliser ce résultat dans ma Boussole de décision ».",
   retakeQuiz: "Refaire le quiz",
   profileName: "Nom du profil",
   talent: "Ton Talent Unique",
@@ -20,16 +20,16 @@ const fr = {
   create: "Créer mon profil avec ce résultat",
   creating: "Création de ton profil…",
   tryWithout: "Commencer sans compte avec ce résultat",
-  haveAccount: "J'ai déjà un compte : me connecter",
+  haveAccount: "J'ai déjà un compte : me connecter",
   afterSignIn: "Après la connexion, ton résultat t'attendra sur ta page d'accueil.",
   signInFirst: "Connecte-toi ou commence sans compte pour créer ton profil.",
   failed: "Le profil n'a pas pu être créé. Réessaie dans un instant.",
   pendingTitle: "Ton résultat du quiz t'attend",
   pendingText: (name: string) =>
-    `Ajoute « ${name} » à ta Boussole : ton Talent Unique, ton Anti-Contexte et tes premiers critères seront préremplis.`,
+    `Ajoute « ${name} » à ta Boussole : ton Talent Unique, ton Anti-Contexte et tes premiers critères seront préremplis.`,
   pendingAdd: "Ajouter à ma Boussole",
   pendingDismiss: "Plus tard",
-  added: "Ton résultat du quiz a été ajouté : vérifie ton Talent Unique ci-dessous, puis ouvre ton tableau pour ajouter tes opportunités.",
+  added: "Ton résultat du quiz a été ajouté : vérifie ton Talent Unique ci-dessous, puis ouvre ton tableau pour ajouter tes opportunités.",
 };
 
 const en: typeof fr = {

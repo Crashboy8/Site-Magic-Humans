@@ -8,11 +8,11 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 
 - **En ligne** : https://www.magichumans.com/carte-du-talent/ (noindex), fusionné via la PR #101. La Boussole y renvoie par le bouton « Explorer ma carte du talent » (PR #103).
 - **Chantiers de la nuit** (une PR par chantier, empilées dans cet ordre, aucune fusionnée) :
-  1. **Carte créée depuis la Boussole** (branche `claude/zealous-mayer-oibrrc`) : fait, PR ouverte.
-  2. Version anglaise de la carte, avec sélecteur de langue : à faire.
-  3. Lien « Revenir à ma Boussole » : à faire.
-  4. Accessibilité et performance de la Boussole : à faire.
-  5. Relecture des textes français de la Boussole : à faire.
+  1. **Carte créée depuis la Boussole** (branche `claude/zealous-mayer-oibrrc`, PR #104) : fait.
+  2. **Version anglaise de la carte, avec sélecteur de langue** (branche `claude/zm-carte-en`, base : chantier 1, PR #105) : fait.
+  3. **Lien « Revenir à ma Boussole »** (branche `claude/zm-retour`, base : chantier 2, PR #107) : fait.
+  4. **Accessibilité et performance de la Boussole** (branche `claude/zm-a11y`, base : chantier 3, PR #108) : fait. Audit axe-core + focus clavier + poids des pages ; piste restante : le client Supabase (70 Ko compressés) est chargé sur la page d'exemple publique.
+  5. **Relecture des textes français de la Boussole** (branche `claude/zm-relecture`, base : chantier 4) : fait, PR ouverte.
 - **Prévisualisation Vercel** : `https://<projet>-git-<branche>-magic-humans.vercel.app` (projets `wwwmagichumanscom` pour la carte, `boussole-decision` pour la Boussole, sous `/boussole-decision/`).
 - **Pistes pour la suite** (non commencées) : renommer une compétence ou une région depuis la carte ; choisir les régions voisines après la création ; transformer les moments de flow saisis pendant la création en moments datés ; tests sur un vrai téléphone (glisser-déposer au doigt, fluidité des animations).
 - **Méthode suivie** : à chaque étape, tests automatiques, vérification dans un navigateur automatisé (ordinateur et téléphone), captures, puis push. Ton bienveillant partout, jamais culpabilisant. Les positions et la logique de placement ne bougent pas sans raison.
@@ -29,6 +29,10 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 
 8. **Arrivée depuis la Boussole de décision** : le bouton « Explorer ma carte du talent » porte le Talent Unique du profil dans l'ancre du lien (`#b=…`, JSON en base64url, jamais envoyé au serveur ; les critères ne sont pas transmis). Un écran de choix s'ouvre : « Commencer avec ma Boussole », « Reprendre ma création en cours » s'il y en a une, « Garder ma carte » si une carte existe. Rien n'est remplacé avant la confirmation finale. La création s'ouvre pré-remplie (talent = mécanisme, fil rouge = contexte déclencheur et super bénéfice s'ils tiennent en 160 caractères) ; un encart « Depuis ta Boussole » propose les contextes de réussite (question 3) et d'échec (question 6, avec l'Anti-Contexte en rappel), à ajouter un par un. Rien n'est coupé automatiquement : une phrase trop longue va dans le champ pour être raccourcie.
 
+9. **Français et anglais** : sélecteur FR / EN dans l'en-tête et dans les Réglages. Les textes sont écrits en français dans le code et passent par `T('…')` (`js/i18n.js`) ; les traductions sont dans `js/langues/en.js`, indexées par le texte français. La langue est choisie au chargement : lien de la Boussole (`#lang=en`), sinon choix enregistré, sinon langue du navigateur. En changer recharge la page (la carte et le brouillon sont gardés). La démo et la bibliothèque sont traduites ; le contenu saisi par la personne ne l'est jamais.
+
+10. **Retour vers la Boussole** : le lien de la Boussole porte aussi l'adresse de la page d'où l'on vient (`&retour=…`). La carte affiche alors, dans l'en-tête, un lien discret « Revenir à ma Boussole » (gardé dans ce navigateur). Seules les adresses de la Boussole sont acceptées (site Magic Humans ou preview Vercel du projet, chemin `/boussole-decision/`).
+
 **Réglages** : affichage (brouillard de guerre), progrès (seuil de conquête), suggestions écartées, sauvegarde (exporter / importer en JSON), repartir d'une autre carte (création guidée ou carte de démonstration, toujours après confirmation).
 
 **Accessibilité** : contrastes du texte au-dessus de 4,5:1 (boutons principaux, petits titres, liens), focus clavier visible partout (contour bleu canard), hexagones accessibles au clavier (Tab, Entrée, Échap, flèches), mouvements réduits si le système le demande.
@@ -38,6 +42,8 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 ```
 carte-du-talent/
 ├── index.html
+├── js/i18n.js          langue (fr / en) et fonction T()
+├── js/langues/en.js    traductions anglaises
 ├── css/
 │   ├── carte.css       jetons de couleur, rendu de la carte, effets
 │   ├── ui.css          en-tête, légende, panneau, boutons, mobile
@@ -69,7 +75,7 @@ Tous les scripts s'attachent à l'espace de noms global `CarteTalent`. Le modèl
 node carte-du-talent/tests/placement.test.js --carte
 ```
 
-48 tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée, arrivée depuis la Boussole.
+51 tests : placement (régions d'un seul tenant, pas de trou, jonctions, provinces, îles), stabilité des positions, moments de flow, éclat et brouillard, progrès et objectifs, suggestions, création guidée, arrivée depuis la Boussole, traductions complètes.
 
 ## Mise en ligne
 

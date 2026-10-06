@@ -166,7 +166,8 @@ export function Radar({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-line">
+      {/* Zone défilante sur petit écran : atteignable au clavier pour pouvoir la faire défiler. */}
+      <div className="overflow-x-auto rounded-xl border border-line" tabIndex={0} role="region" aria-label={R.radarCaption}>
         <table className="w-full text-sm">
           <caption className="sr-only">{R.radarCaption}</caption>
           <thead>

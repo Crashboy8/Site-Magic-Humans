@@ -7,8 +7,27 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
+  const N = (t) => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+  // En anglais, les liens et alias (écrits en français, sans accents) reçoivent aussi leur traduction,
+  // pour rapprocher les suggestions d'une carte en anglais. Le nom français reste un alias.
+  let versAnglais = null;
+  function traduits(liste) {
+    if (CT.i18n.langue !== 'en' || !CT.EN) return [];
+    if (!versAnglais) {
+      versAnglais = new Map();
+      Object.keys(CT.EN).forEach((fr) => versAnglais.set(N(fr), N(CT.EN[fr])));
+    }
+    return liste.map((l) => versAnglais.get(l)).filter(Boolean);
+  }
+
   function e(id, nom, icone, domaine, liens, alias) {
-    return { id, nom, icone, domaine, liens: liens || [], alias: alias || [] };
+    const l = liens || [];
+    const a = alias || [];
+    const affiche = T(nom);
+    return { id, nom: affiche, icone, domaine, liens: l.concat(traduits(l)), alias: a.concat(traduits(a), affiche !== nom ? [N(nom)] : []) };
   }
 
   const ENTREES = [

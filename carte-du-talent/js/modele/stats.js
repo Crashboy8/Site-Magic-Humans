@@ -5,6 +5,8 @@
 (function (CT) {
   'use strict';
 
+  const T = CT.i18n.T;
+
   const JOUR = 24 * 3600 * 1000;
 
   // Lundi 00:00 (heure locale) de la semaine contenant la date.
@@ -79,15 +81,15 @@
   function zoneDe(carte, c) {
     if (c.statut === 'ile') {
       const ile = carte.iles.find((i) => i.id === c.ileId);
-      return { cle: 'i:' + c.ileId, nom: 'Île ' + (ile ? ile.nom : 'de flow'), couleur: '#7DCDAE' };
+      return { cle: 'i:' + c.ileId, nom: ile ? T('Île {nom}', { nom: ile.nom }) : T('Île de flow'), couleur: '#7DCDAE' };
     }
-    if (c.statut === 'a_deleguer') return { cle: 'deleguer', nom: 'Zone à déléguer', couleur: '#B4BAC2' };
+    if (c.statut === 'a_deleguer') return { cle: 'deleguer', nom: T('Zone à déléguer'), couleur: '#B4BAC2' };
     if (c.distance === 'eloignee' && c.statut !== 'natale') {
-      const d = CT.schema.DOMAINES[c.domaine] || { nom: 'Province', couleur: '#B9A88F' };
-      return { cle: 'p:' + (c.domaine || 'divers'), nom: 'Province ' + d.nom.toLowerCase(), couleur: d.couleur };
+      const d = CT.schema.DOMAINES[c.domaine] || { nom: T('Province'), couleur: '#B9A88F' };
+      return { cle: 'p:' + (c.domaine || 'divers'), nom: T('Province {domaine}', { domaine: d.nom.toLowerCase() }), couleur: d.couleur };
     }
     const r = CT.regles.regionDe(carte, c.regionId);
-    return r ? { cle: 'r:' + r.id, nom: r.nom, couleur: r.couleur } : { cle: 'autre', nom: 'Hors région', couleur: '#B9A88F' };
+    return r ? { cle: 'r:' + r.id, nom: r.nom, couleur: r.couleur } : { cle: 'autre', nom: T('Hors région'), couleur: '#B9A88F' };
   }
 
   // Un moment compte une seule fois par zone, même s'il touche plusieurs compétences de cette zone.

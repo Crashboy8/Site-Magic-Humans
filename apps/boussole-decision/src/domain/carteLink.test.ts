@@ -21,7 +21,7 @@ const empty: TalentUnique = {
 };
 
 function decode(href: string) {
-  const b64 = href.split("#b=")[1].replace(/-/g, "+").replace(/_/g, "/");
+  const b64 = href.split("#b=")[1].split("&")[0].replace(/-/g, "+").replace(/_/g, "/");
   const binary = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
   return JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (c) => c.charCodeAt(0))));
 }
@@ -30,7 +30,8 @@ describe("carteDuTalentHref", () => {
   it("transmet le Talent Unique dans l'ancre, en base64url", () => {
     const href = carteDuTalentHref("https://www.magichumans.com/carte-du-talent/", talent);
     expect(href.startsWith("https://www.magichumans.com/carte-du-talent/#b=")).toBe(true);
-    expect(href.split("#b=")[1]).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(href.endsWith("&lang=fr")).toBe(true);
+    expect(href.split("#b=")[1].split("&")[0]).toMatch(/^[A-Za-z0-9_-]+$/);
     expect(decode(href)).toEqual({
       v: 1,
       mecanisme: "raconte des histoires qui donnent envie d'agir",
@@ -42,10 +43,19 @@ describe("carteDuTalentHref", () => {
     });
   });
 
-  it("garde le lien simple quand rien n'est rempli", () => {
+  it("sans Talent Unique, ne transmet que la langue", () => {
     expect(carteLinkData(empty)).toBeNull();
-    expect(carteDuTalentHref("https://x/carte/", empty)).toBe("https://x/carte/");
-    expect(carteDuTalentHref("https://x/carte/", { ...empty, failureSituations: "  " })).toBe("https://x/carte/");
+    expect(carteDuTalentHref("https://x/carte/", empty)).toBe("https://x/carte/#lang=fr");
+    expect(carteDuTalentHref("https://x/carte/", { ...empty, failureSituations: "  " }, "en")).toBe("https://x/carte/#lang=en");
+  });
+
+  it("la carte suit la langue de la Boussole", () => {
+    expect(carteDuTalentHref("https://x/", talent, "en")).toMatch(/^https:\/\/x\/#b=[A-Za-z0-9_-]+&lang=en$/);
+  });
+
+  it("transmet l'adresse de retour vers la Boussole, encodée", () => {
+    const href = carteDuTalentHref("https://x/", empty, "fr", "https://www.magichumans.com/boussole-decision/profils/a b/");
+    expect(href).toBe("https://x/#lang=fr&retour=https%3A%2F%2Fwww.magichumans.com%2Fboussole-decision%2Fprofils%2Fa%20b%2F");
   });
 
   it("transmet aussi un profil partiellement rempli", () => {

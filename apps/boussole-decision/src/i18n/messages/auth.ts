@@ -13,10 +13,10 @@ const fr = {
   // Accueil
   welcomeHeading: "Choisir avec le cœur et la tête",
   welcomeText:
-    "Compare tes opportunités professionnelles à partir de ce qui compte vraiment pour toi : ton Talent Unique, tes valeurs, tes conditions de vie.",
+    "Compare tes opportunités professionnelles à partir de ce qui compte vraiment pour toi : ton Talent Unique, tes valeurs, tes conditions de vie.",
   tryNowTitle: "Essayer tout de suite",
   tryNowText:
-    "Sans email, sans mot de passe : tu entres directement dans ton tableau de décision. Ton travail est gardé sur cet appareil, et tu pourras le sauvegarder ensuite avec ton email.",
+    "Sans email, sans mot de passe : tu entres directement dans ton tableau de décision. Ton travail est gardé sur cet appareil, et tu pourras le sauvegarder ensuite avec ton email.",
   tryNowButton: "Essayer tout de suite",
   tryNowPending: "Préparation de ton espace…",
   seeExample: "👀 Voir d'abord un exemple",
@@ -36,28 +36,28 @@ const fr = {
   email: "Email",
   password: "Mot de passe",
   signingIn: "Connexion…",
-  forgotPassword: "Mot de passe oublié ?",
+  forgotPassword: "Mot de passe oublié ?",
   magicHint: "Tu recevras un lien qui te connecte en un clic, sans mot de passe.",
   sending: "Envoi…",
   sendMagicLink: "Recevoir mon lien de connexion",
-  noAccountYet: "Pas encore de compte ?",
+  noAccountYet: "Pas encore de compte ?",
 
   // Inscription
-  signUpDone: "Bienvenue !",
+  signUpDone: "Bienvenue !",
   checkSpam: "Pense à regarder dans tes courriers indésirables si tu ne le vois pas.",
   signUpTitle: "Créer mon espace",
   signUpIntro:
-    "Ton compte garde tout ton travail, sur tous tes appareils. Si Pierre t'a donné un code d'invitation, indique-le : il sera ton coach dans l'outil.",
+    "Ton compte garde tout ton travail, sur tous tes appareils. Si Pierre t'a donné un code d'invitation, indique-le : il sera ton coach dans l'outil.",
   inviteCode: "Code d'invitation (facultatif)",
   firstName: "Prénom",
   passwordHint: "8 caractères minimum.",
   privacyNote:
     "🔒 Tes boussoles sont privées. Rien n'est visible par ton coach tant que tu ne choisis pas, profil par profil, de les partager avec lui. Tu peux retirer ce partage à tout moment.",
   creating: "Création…",
-  alreadyRegistered: "Déjà inscrit·e ?",
+  alreadyRegistered: "Déjà inscrit·e ?",
 
   // Mot de passe oublié / nouveau
-  forgotIntro: "Indique ton email : tu recevras un lien pour en choisir un nouveau.",
+  forgotIntro: "Indique ton email : tu recevras un lien pour en choisir un nouveau.",
   sendLink: "Envoyer le lien",
   backToSignIn: "Retour à la connexion",
   newPassword: "Nouveau mot de passe",
@@ -68,19 +68,19 @@ const fr = {
   // Sauvegarde d'un essai
   trialEyebrow: "Mode essai",
   saveIntro:
-    "Ajoute ton email : tout ce que tu as rempli est conservé et rattaché à ton compte. Tu pourras le retrouver depuis n'importe quel appareil et, si tu le souhaites, le partager avec ton coach.",
-  saveEmailHint: "Tu recevras un lien pour confirmer : ouvre-le sur cet appareil.",
+    "Ajoute ton email : tout ce que tu as rempli est conservé et rattaché à ton compte. Tu pourras le retrouver depuis n'importe quel appareil et, si tu le souhaites, le partager avec ton coach.",
+  saveEmailHint: "Tu recevras un lien pour confirmer : ouvre-le sur cet appareil.",
   saveButton: "Sauvegarder mon travail",
-  haveAccountQuestion: "Tu as déjà un compte ? Connecte-toi : ton essai y sera ajouté.",
+  haveAccountQuestion: "Tu as déjà un compte ? Connecte-toi : ton essai y sera ajouté.",
   signInToAccount: "Me connecter à mon compte",
   existingAccount: "Tu as déjà un compte avec",
-  existingAccountEnd: ". Connecte-toi : ton essai y sera ajouté, tu ne perds rien.",
-  signInToAdd: "Connecte-toi à ton compte : ton essai y sera ajouté, tu ne perds rien.",
-  noPasswordHint: "Pas de mot de passe, ou tu l'as oublié ? Reçois un lien qui te connecte en un clic.",
+  existingAccountEnd: ". Connecte-toi : ton essai y sera ajouté, tu ne perds rien.",
+  signInToAdd: "Connecte-toi à ton compte : ton essai y sera ajouté, tu ne perds rien.",
+  noPasswordHint: "Pas de mot de passe, ou tu l'as oublié ? Reçois un lien qui te connecte en un clic.",
   openOnThisDevice: "Ouvre-le sur cet appareil pour que ton essai soit ajouté.",
   receiveLoginLink: "Recevoir un lien de connexion",
   noAccountYetLink: "Je n'ai pas encore de compte",
-  trialAdded: "Te voilà connecté·e : ton essai a bien été ajouté à ton compte, il apparaît dans tes profils.",
+  trialAdded: "Te voilà connecté·e : ton essai a bien été ajouté à ton compte, il apparaît dans tes profils.",
 
   // Compte
   myInfo: "Mes informations",
@@ -89,11 +89,11 @@ const fr = {
     "Tes boussoles sont privées. Ton coach ne voit que les profils que tu choisis de partager avec lui, en lecture seule, et tu peux retirer ce partage à tout moment.",
   changePassword: "Changer de mot de passe",
   backToProfiles: "← Retour à mes profils",
-  thanks: (name: string) => (name ? `Merci ${name} !` : "Merci !"),
+  thanks: (name: string) => (name ? `Merci, ${name} !` : "Merci !"),
   workSaved: "Ton travail est sauvegardé",
   accountCreatedWith: (email: string) =>
     `Ton compte est créé avec l'adresse ${email || "indiquée"}. Tout ce que tu avais rempli pendant l'essai est conservé.`,
-  confirmationPending: "La confirmation est en cours : recharge la page dans quelques secondes.",
+  confirmationPending: "La confirmation est en cours : recharge la page dans quelques secondes.",
   choosePasswordOptional: "Choisir un mot de passe (facultatif)",
   orMagicLink: "Sinon, tu pourras toujours te connecter avec un lien reçu par email.",
   findMyCompasses: "Retrouver mes boussoles →",
@@ -101,8 +101,8 @@ const fr = {
   // Messages des actions serveur
   errors: {
     invalidCredentials: "Email ou mot de passe incorrect.",
-    emailNotConfirmed: "Ton adresse email n'est pas encore confirmée : clique sur le lien reçu par email.",
-    alreadyRegistered: "Un compte existe déjà avec cet email. Connecte-toi ou utilise « Mot de passe oublié ».",
+    emailNotConfirmed: "Ton adresse email n'est pas encore confirmée : clique sur le lien reçu par email.",
+    alreadyRegistered: "Un compte existe déjà avec cet email. Connecte-toi ou utilise « Mot de passe oublié ».",
     passwordTooShort: "Le mot de passe doit contenir au moins 8 caractères.",
     rateLimit: "Trop de tentatives en peu de temps. Patiente une minute puis réessaie.",
     noAccount: "Aucun compte n'est associé à cet email. Crée ton compte, ou essaie l'outil directement.",
@@ -119,12 +119,12 @@ const fr = {
   },
   messages: {
     accountCreated: (email: string) =>
-      `Ton compte est créé. Un email de confirmation vient de partir vers ${email} : clique sur le lien qu'il contient pour commencer.`,
-    magicLinkSent: (email: string) => `C'est parti ! Un lien de connexion vient d'être envoyé à ${email}. Il est valable une heure.`,
+      `Ton compte est créé. Un email de confirmation vient de partir vers ${email} : clique sur le lien qu'il contient pour commencer.`,
+    magicLinkSent: (email: string) => `C'est parti ! Un lien de connexion vient d'être envoyé à ${email}. Il est valable une heure.`,
     resetSent: "Si un compte existe pour cette adresse, un email pour choisir un nouveau mot de passe vient de partir.",
     passwordSaved: "Ton mot de passe est enregistré.",
     almostDone: (email: string) =>
-      `Presque fini ! Un email vient de partir vers ${email}. Ouvre-le sur cet appareil et clique sur le lien : ton travail sera alors sauvegardé sur ton compte.`,
+      `Presque fini ! Un email vient de partir vers ${email}. Ouvre-le sur cet appareil et clique sur le lien : ton travail sera alors sauvegardé sur ton compte.`,
   },
 };
 
