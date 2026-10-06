@@ -10,8 +10,8 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 - **Chantiers de la nuit** (une PR par chantier, empilées dans cet ordre, aucune fusionnée) :
   1. **Carte créée depuis la Boussole** (branche `claude/zealous-mayer-oibrrc`, PR #104) : fait.
   2. **Version anglaise de la carte, avec sélecteur de langue** (branche `claude/zm-carte-en`, base : chantier 1, PR #105) : fait.
-  3. **Lien « Revenir à ma Boussole »** (branche `claude/zm-retour`, base : chantier 2) : fait, PR ouverte.
-  4. Accessibilité et performance de la Boussole : à faire.
+  3. **Lien « Revenir à ma Boussole »** (branche `claude/zm-retour`, base : chantier 2, PR #107) : fait.
+  4. **Accessibilité et performance de la Boussole** (branche `claude/zm-a11y`, base : chantier 3) : fait, PR ouverte. Audit axe-core + focus clavier + poids des pages ; piste restante : le client Supabase (70 Ko compressés) est chargé sur la page d'exemple publique.
   5. Relecture des textes français de la Boussole : à faire.
 - **Prévisualisation Vercel** : `https://<projet>-git-<branche>-magic-humans.vercel.app` (projets `wwwmagichumanscom` pour la carte, `boussole-decision` pour la Boussole, sous `/boussole-decision/`).
 - **Pistes pour la suite** (non commencées) : renommer une compétence ou une région depuis la carte ; choisir les régions voisines après la création ; transformer les moments de flow saisis pendant la création en moments datés ; tests sur un vrai téléphone (glisser-déposer au doigt, fluidité des animations).

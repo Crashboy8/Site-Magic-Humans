@@ -6,7 +6,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   const { t } = await getI18n();
   return (
     <div className="relative flex min-h-dvh flex-col items-center px-4 py-10 sm:py-16">
-      <LanguageSwitch className="absolute right-4 top-4" />
+      <nav aria-label={t.common.language} className="absolute right-4 top-4">
+        <LanguageSwitch />
+      </nav>
       <header className="mb-8 flex flex-col items-center gap-3 text-center">
         <CompassMark className="h-12 w-12 text-ink" />
         <p className="font-serif text-3xl italic">{t.common.appName}</p>
