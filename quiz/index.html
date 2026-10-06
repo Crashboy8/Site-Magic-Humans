@@ -17,6 +17,15 @@
 </script>
 <script src="/js/consent.js" defer></script>
 <script src="/js/tracking.js" defer></script>
+<script>
+  /* Mode amour : ?theme=amour remplace le quiz Talent Unique par le Quiz Amour (fichiers quiz/amour-*.js). */
+  window.MH_THEME = new URLSearchParams(location.search).get("theme") === "amour" ? "amour" : "";
+  if (window.MH_THEME === "amour") {
+    var st = document.createElement("style");
+    st.textContent = "main[id^=screen-]:not(#screen-amour){display:none!important}.qlang{display:none!important}";
+    document.head.appendChild(st);
+  }
+</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Découvre ton Talent Unique en 9 questions : ta combinaison parmi 56, tes contextes fertiles et ton positionnement.">
@@ -347,6 +356,7 @@ footer{padding-top:40px;font-size:.82rem;color:var(--muted);text-align:center}
   </main>
 
   <main id="screen-report" hidden></main>
+  <main id="screen-amour" hidden></main>
 
   <footer data-t="footer"></footer>
   <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.78rem;">
@@ -2626,6 +2636,7 @@ function renderReport(p, ctx){
 
 /* ---------- Démarrage ---------- */
 (function boot(){
+  if (window.MH_THEME === "amour") return; // le Quiz Amour prend la main (quiz/amour.js)
   const m = location.hash.match(/^#r=(.+)$/);
   const st = m ? decodeState(m[1]) : null;
   if (st && !new URLSearchParams(location.search).get("lang")) lang = st.lang;
@@ -2639,6 +2650,13 @@ function renderReport(p, ctx){
   }
 })();
 
+</script>
+<script>
+  if (window.MH_THEME === "amour") {
+    ["/quiz/amour-data.js", "/quiz/amour-engine.js", "/quiz/amour.js"].forEach(function (src) {
+      var s = document.createElement("script"); s.src = src; s.async = false; document.body.appendChild(s);
+    });
+  }
 </script>
 
 </body>

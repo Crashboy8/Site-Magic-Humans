@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isLoveProfile } from "@/content/amour";
 import { getI18n } from "@/i18n/server";
 import { Notice } from "@/components/ui";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
@@ -45,6 +46,7 @@ export default async function ResultsPage({ params }: PageProps<"/versions/[vers
         evaluations={evaluations}
         readOnly={ctx.readOnly}
         isOwner={ctx.isOwner}
+        theme={isLoveProfile(ctx.profile) ? "amour" : undefined}
       />
     </>
   );

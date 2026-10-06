@@ -19,6 +19,7 @@ import type {
   TalentUnique,
   Version,
 } from "@/domain/types";
+import { LoveReading } from "@/features/amour/LoveReading";
 import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
 import { IkigaiChart } from "./IkigaiChart";
 import { Radar } from "./Radar";
@@ -34,6 +35,8 @@ interface Props {
   /** Lecture seule : coach, ou version finalisée. */
   readOnly: boolean;
   isOwner: boolean;
+  /** Boussole Relation : masque les sections carrière et affiche la lecture amour. */
+  theme?: "amour";
 }
 
 export function ResultsView(props: Props) {
@@ -44,7 +47,8 @@ export function ResultsView(props: Props) {
   );
 }
 
-function Results({ version, profileId, talent, categories, criteria, opportunities, evaluations, readOnly, isOwner }: Props) {
+function Results({ version, profileId, talent, categories, criteria, opportunities, evaluations, readOnly, isOwner, theme }: Props) {
+  const love = theme === "amour";
   const weights = version.importanceWeights;
   const ranking = useMemo(
     () => rankOpportunities(opportunities, criteria, evaluations, weights),
@@ -67,6 +71,13 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
   };
 
   if (verdict.kind === "vide") {
+    if (love) {
+      return (
+        <div className="space-y-12">
+          <LoveReading ranking={ranking} />
+        </div>
+      );
+    }
     return (
       <Card className="max-w-2xl space-y-3">
         <h2 className="font-serif text-2xl italic">{R.emptyTitle}</h2>
@@ -144,8 +155,10 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
         </ol>
       </section>
 
+      {love && <LoveReading ranking={ranking} />}
+
       {/* 2. Contexte de réussite / contexte d'échec ----------------------------------------- */}
-      <section aria-labelledby="contextes" className="space-y-4">
+      {!love && <section aria-labelledby="contextes" className="space-y-4">
         <SectionTitle id="contextes" title={R.contextsTitle}>
           {R.contextsIntroStart} <b className="font-medium text-ink">{R.contextsSuccess}</b> {R.contextsMiddle}{" "}
           <b className="font-medium text-ink">{R.contextsFailure}</b> {R.contextsEnd}
@@ -157,20 +170,22 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
               <InsightCard key={ins.result.opportunity.id} insight={ins} />
             ))}
         </div>
-      </section>
+      </section>}
 
       {/* 3. Garde-fous ------------------------------------------------------------------------ */}
-      <Guardrails
-        insights={insights}
-        leader={leader}
-        chosenId={version.chosenOpportunityId}
-        talent={talent}
-        profileId={profileId}
-        isOwner={isOwner}
-      />
+      {!love && (
+        <Guardrails
+          insights={insights}
+          leader={leader}
+          chosenId={version.chosenOpportunityId}
+          talent={talent}
+          profileId={profileId}
+          isOwner={isOwner}
+        />
+      )}
 
       {/* Ikigai ------------------------------------------------------------------------------- */}
-      <section aria-labelledby="ikigai" className="space-y-4">
+      {!love && <section aria-labelledby="ikigai" className="space-y-4">
         <SectionTitle id="ikigai" title={R.ikigaiTitle}>
           {R.ikigaiIntro}
         </SectionTitle>
@@ -184,7 +199,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
               </Card>
             ))}
         </div>
-      </section>
+      </section>}
 
       {/* 4. Radar ------------------------------------------------------------------------------ */}
       <section aria-labelledby="radar" className="space-y-4">
@@ -200,7 +215,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       <Questions ranking={ranking} />
 
       {/* 6. Solidité du classement ------------------------------------------------------------ */}
-      {stability && (
+      {!love && stability && (
         <section aria-labelledby="solidite" className="space-y-4">
           <SectionTitle id="solidite" title={R.stabilityTitle}>
             {R.stabilityIntro}
@@ -242,7 +257,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       <NextSteps version={version} ranking={ranking} readOnly={readOnly} />
 
       {/* 9. Pour aller plus loin : la Carte du Talent -------------------------------------- */}
-      {!readOnly && <CarteDuTalentLink talent={talent} />}
+      {!love && !readOnly && <CarteDuTalentLink talent={talent} />}
     </div>
   );
 }
