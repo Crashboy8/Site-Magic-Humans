@@ -401,3 +401,10 @@
 .element { flex-wrap: wrap; }
 .element-raison { flex-basis: 100%; display: flex; align-items: center; gap: 4px; padding: 0 0 2px 6px; font-size: 12px; font-weight: 600; color: #5A6C74; text-align: left; }
 .element-raison svg { width: 12px; height: 12px; flex: none; color: #B07A00; }
+
+/* Q6 : ce qui recharge (zone de ressourcement) */
+.bloc-ressources { margin-top: 20px; padding: 14px 16px; border: 1.5px dashed #D9B98A; border-radius: 16px; background: #FFF6E6; }
+.bloc-ressources h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+.bloc-ressources h3 svg { width: 18px; height: 18px; color: #8A6A44; }
+.bloc-ressources .discret { margin: 0 0 10px; }
+.bloc-ressources .puces-saisie { margin-bottom: 10px; }

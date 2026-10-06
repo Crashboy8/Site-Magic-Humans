@@ -9,7 +9,7 @@
 
   const VERSION = 1;
 
-  const STATUTS = ['natale', 'conquise', 'frontiere', 'a_conquerir', 'a_deleguer', 'ile'];
+  const STATUTS = ['natale', 'conquise', 'frontiere', 'a_conquerir', 'a_deleguer', 'ile', 'ressource'];
 
   const LIBELLES_STATUT = {
     natale: T('Territoire natal'),
@@ -17,7 +17,8 @@
     frontiere: T('Frontière'),
     a_conquerir: T('À conquérir'),
     a_deleguer: T('À déléguer'),
-    ile: T('Île de flow')
+    ile: T('Île de flow'),
+    ressource: T('Ressourcement')
   };
 
   // Domaines de compétences : servent à regrouper les provinces éloignées et la bibliothèque.
@@ -54,6 +55,7 @@
       momentsDeFlow: [],
       objectifs: [],
       suggestionsRefusees: [],
+      pistesVisees: [],
       preferences: Object.assign({}, PREFERENCES_DEFAUT)
     };
   }
@@ -126,7 +128,8 @@
           priorite: c.priorite ? entre(c.priorite, 1, 99, null) : null,
           exploree: Boolean(c.exploree),
           reportConquete: Number.isFinite(Number(c.reportConquete)) && c.reportConquete !== null ? Math.max(0, Math.round(Number(c.reportConquete))) : null,
-          bibliothequeId: c.bibliothequeId ? String(c.bibliothequeId) : null
+          bibliothequeId: c.bibliothequeId ? String(c.bibliothequeId) : null,
+          pistes: [...new Set(liste(c.pistes).map(String).filter((id) => id.length <= 60))].slice(0, 20)
         };
       });
     const idsComp = new Set(carte.competences.map((c) => c.id));
@@ -168,6 +171,7 @@
 
     const prefs = src.preferences || {};
     carte.suggestionsRefusees = [...new Set(liste(src.suggestionsRefusees).map(String))];
+    carte.pistesVisees = [...new Set(liste(src.pistesVisees).map(String).filter((id) => id.length <= 60))].slice(0, 100);
 
     carte.preferences = {
       brouillardDeGuerre: Boolean(prefs.brouillardDeGuerre),

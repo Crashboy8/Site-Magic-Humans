@@ -294,6 +294,7 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
 .badge-frontiere { box-shadow: inset 0 0 0 1.5px var(--accent); }
 .badge-a_conquerir { font-style: italic; color: var(--encre-douce); }
 .badge-a_deleguer { background: #E7E9EC; }
+.badge-ressource { background: #F6E8D2; }
 .badge-ile { background: #D9F3EA; }
 .badge-capitale { background: #FFE7A3; }
 

@@ -105,6 +105,7 @@
           ? '<button type="button" class="bouton bouton-principal" data-action="reprendre"><i data-lucide="play"></i>' + T('Reprendre ma carte ({etape})', { etape: enCours.etape > 6 ? T('dernière étape') : T('question {n}', { n: enCours.etape }) }) + '</button>' +
             '<button type="button" class="bouton bouton-secondaire" data-action="recommencer"><i data-lucide="rotate-ccw"></i>' + T('Recommencer de zéro') + '</button>'
           : '<button type="button" class="bouton bouton-principal" data-action="commencer"><i data-lucide="sparkles"></i>' + T('Créer ma carte') + '</button>') +
+        '<button type="button" class="bouton bouton-secondaire" data-action="importer-pdf"><i data-lucide="file-up"></i>' + T('Importer mon résultat QCM (PDF)') + '</button>' +
         '<button type="button" class="bouton bouton-secondaire" data-action="demo"><i data-lucide="eye"></i>' + T('Explorer la carte de démonstration') + '</button>' +
         '</div><p class="discret">' + T('Tout reste dans ce navigateur. Tu pourras exporter ta carte à tout moment.') + '</p></div>';
     }
@@ -160,6 +161,20 @@
             : '<button type="button" class="bouton-lien" data-action="boussole-ajouter" data-source="' + source + '" data-index="' + i + '">' +
               '<i data-lucide="' + (long ? 'pencil' : 'plus') + '"></i>' + (long ? T('Raccourcir') : T('Ajouter')) + '<span class="visuellement-cache"> : ' + O.echapper(t) + '</span></button>') + '</li>';
         }).join('') + '</ul>' : '') + anti + '</aside>';
+    }
+
+    // Q6 : ce qui recharge (zone de ressourcement), pré-rempli avec les idées du quiz.
+    function blocRessources() {
+      const liste = brouillon.ressources || [];
+      const plein = liste.length >= C.MAX_RESSOURCES;
+      const titre = brouillon.boussole && brouillon.boussole.rechargeTitre;
+      return '<section class="bloc-ressources" aria-labelledby="ressources-titre"><h3 id="ressources-titre"><i data-lucide="sprout"></i>' + T('Ce qui te recharge') + '</h3>' +
+        '<p class="discret">' + (titre ? O.echapper(titre) + ' · ' : '') + T('Ces idées forment ta zone de ressourcement, à l\'écart de ta carte. C\'est facultatif.') + '</p>' +
+        (liste.length ? '<ul class="puces-saisie">' + liste.map((x) => '<li>' + O.echapper(x.texte) + '<button type="button" data-action="retirer-ressource" data-id="' + x.id +
+          '" aria-label="' + O.echapper(T('Retirer {nom}', { nom: x.texte })) + '"><i data-lucide="x"></i></button></li>').join('') + '</ul>' : '') +
+        '<form class="saisie-vrac" data-form="ressource"><label class="visuellement-cache" for="creation-ressource">' + T('Ce qui te recharge') + '</label>' +
+        '<input type="text" id="creation-ressource" autocomplete="off" enterkeyhint="enter" maxlength="' + C.longueurMax('ressources') + '" placeholder="' + O.echapper(T('Ex. : Marcher en forêt')) + '"' + (plein ? ' disabled' : '') + '>' +
+        '<button type="submit" class="bouton bouton-secondaire"' + (plein ? ' disabled' : '') + '><i data-lucide="plus"></i>' + T('Ajouter') + '</button></form></section>';
     }
 
     function hexDecor() {
@@ -229,7 +244,7 @@
         '<button type="submit" class="bouton bouton-secondaire"' + (plein ? ' disabled' : '') + '><i data-lucide="plus"></i>' + T('Ajouter') + '</button></form>' +
         (alerte ? '<p class="alerte-saisie" role="alert">' + O.echapper(alerte) + '</p>' : '') +
         '<p class="discret">' + T('Tu peux en écrire plusieurs d\'un coup, séparés par des virgules.') + (plein ? ' ' + T('Huit régions au maximum.') : '') + '</p>' +
-        liste + encartBoussole(etape) +
+        liste + encartBoussole(etape) + (etape === 6 ? blocRessources() : '') +
         (groupes.length && !plein ? blocIdees(etape, groupes) : '') +
         (!groupes.length && exemples.length && !plein ? '<div class="exemples"><span class="discret">' + T('Exemples :') + '</span>' + exemples.map((e) =>
           '<button type="button" class="puce-exemple" data-action="exemple" data-valeur="' + O.echapper(e) + '"><i data-lucide="plus"></i>' + O.echapper(e) + '</button>').join('') + '</div>' : '') +
@@ -350,6 +365,16 @@
 
     racine.addEventListener('submit', (e) => {
       e.preventDefault();
+      if (e.target.getAttribute('data-form') === 'ressource') {
+        const saisie = racine.querySelector('#creation-ressource');
+        if (!saisie || !saisie.value.trim()) return;
+        C.ajouter(brouillon, 'ressources', saisie.value.slice(0, C.longueurMax('ressources')));
+        enregistrer();
+        rendre();
+        const nouveau = racine.querySelector('#creation-ressource');
+        if (nouveau) nouveau.focus();
+        return;
+      }
       const champ = racine.querySelector('#creation-saisie');
       const q = QUESTIONS[brouillon.etape];
       if (!champ || !q || !champ.value.trim()) return;
@@ -389,6 +414,7 @@
         brouillon = C.nouveauBrouillon(); accueil = false; aller(1); return;
       }
       if (action === 'reprendre') { arrivee = null; brouillon = CT.stockage.chargerBrouillon() || C.nouveauBrouillon(); accueil = false; aller(Math.min(brouillon.etape, 8)); return; }
+      if (action === 'importer-pdf') { rappels.importerPdf(); return; }
       if (action === 'demo') { arrivee = null; fermer(); rappels.demo(); return; }
       if (action === 'garder') { arrivee = null; fermer(); rappels.toast(T('Ta carte est inchangée.')); return; }
       if (action === 'boussole-commencer') {
@@ -415,6 +441,7 @@
       if (action === 'retour') { aller(precedente(brouillon.etape)); return; }
       if (action === 'voir-plus') { voirPlus[brouillon.etape] = !voirPlus[brouillon.etape]; rendre(); const bt = racine.querySelector('.idees-plus'); if (bt) bt.focus(); return; }
       if (action === 'exemple' && q) { C.ajouter(brouillon, q.liste, valeur); enregistrer(); rendre(); return; }
+      if (action === 'retirer-ressource') { C.retirer(brouillon, 'ressources', id); enregistrer(); rendre(); return; }
       if (action === 'retirer' && q) { C.retirer(brouillon, q.liste, id); enregistrer(); rendre(); return; }
       if (action === 'monter' || action === 'descendre') {
         C.deplacerRegion(brouillon, id, action === 'monter' ? -1 : 1);

@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['langues/en.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
+['langues/en.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js', 'modele/creation.js', 'modele/boussole.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -342,9 +342,9 @@ test('on peut créer, modifier et supprimer un objectif', () => {
 
 console.log('\nBibliothèque et suggestions');
 
-test('la bibliothèque compte environ 150 compétences valides', () => {
+test('la bibliothèque compte environ 180 compétences valides', () => {
   const E = CT.bibliotheque.ENTREES;
-  assert.ok(E.length >= 140 && E.length <= 170, E.length + ' entrées');
+  assert.ok(E.length >= 170 && E.length <= 200, E.length + ' entrées');
   assert.strictEqual(new Set(E.map((x) => x.id)).size, E.length);
   E.forEach((x) => assert.ok(CT.schema.DOMAINES[x.domaine], x.id + ' : domaine inconnu'));
 });
@@ -694,6 +694,22 @@ test('chaque texte passé à T() a sa traduction anglaise', () => {
   assert.deepStrictEqual([...manquants], []);
 });
 
+test('la bibliothèque, les idées et les pistes ont leur traduction anglaise', () => {
+  const fs = require('fs');
+  const lire = (f) => fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8');
+  const lit = "'((?:[^'\\\\]|\\\\.)*)'";
+  const dec = (t) => t.replace(/\\'/g, "'");
+  const manquants = new Set();
+  const verifier = (t) => { const k = CT.i18n.cle(dec(t)); if (!(k in CT.EN)) manquants.add(k); };
+  for (const m of lire('modele/bibliotheque.js').matchAll(new RegExp("\\be\\('[a-z0-9-]+', " + lit, 'g'))) verifier(m[1]);
+  const idees = lire('modele/idees.js');
+  const bloc = idees.slice(idees.indexOf('const IDEES = {'), idees.indexOf('const COMPTE_PAR_DOMAINE')).replace(/\/\/.*$/gm, '');
+  for (const m of bloc.matchAll(new RegExp(lit, 'g'))) if (/[a-zà-ÿ]{3,}/i.test(m[1]) && !/^[a-z_]+$/.test(m[1])) verifier(m[1]);
+  for (const m of idees.matchAll(new RegExp("\\['[a-z]+', " + lit + "\\]", 'g'))) verifier(m[1]);
+  for (const m of lire('modele/pistes.js').matchAll(new RegExp("\\['[a-z0-9-]+', " + lit + ", '(?:metier|activite|offre)'", 'g'))) verifier(m[1]);
+  assert.deepStrictEqual([...manquants], []);
+});
+
 test('T() garde le français par défaut et remplace les variables', () => {
   assert.strictEqual(CT.i18n.langue, 'fr');
   assert.strictEqual(CT.i18n.T('Entre {a} et {b}', { a: 'X', b: 'Y' }), 'Entre X et Y');
@@ -718,5 +734,251 @@ test('le lien de retour vers la Boussole n\'accepte que les adresses de la Bouss
   assert.strictEqual(CT.boussole.lireRetour('#lang=fr'), null);
 });
 
-console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');
-process.exitCode = echecs ? 1 : 0;
+// ---------- Mes pistes, toutes les compétences, ressourcement, import du PDF ----------
+
+console.log('\nMes pistes, bibliothèque entière, ressourcement, PDF du quiz');
+
+const attentes = [];
+function testAsync(nom, fn) {
+  attentes.push(fn().then(() => console.log('  ok  ' + nom), (e) => { echecs++; console.log('  ÉCHEC  ' + nom + '\n        ' + e.message); }));
+}
+
+test('la base de pistes compte environ 80 pistes valides, de trois types', () => {
+  const P = CT.pistes.PISTES;
+  assert.ok(P.length >= 75 && P.length <= 90, P.length + ' pistes');
+  assert.strictEqual(new Set(P.map((x) => x.id)).size, P.length, 'identifiants uniques');
+  const ids = new Set(CT.bibliotheque.ENTREES.map((e) => e.id));
+  P.forEach((x) => {
+    assert.ok(CT.pistes.TYPES[x.type], x.id + ' : type');
+    assert.ok(x.requis.length >= 4 && x.requis.length <= 6, x.id + ' : ' + x.requis.length + ' compétences');
+    assert.strictEqual(new Set(x.requis).size, x.requis.length, x.id + ' : doublon');
+    x.requis.forEach((r) => assert.ok(ids.has(r), x.id + ' : compétence inconnue ' + r));
+  });
+  ['metier', 'activite', 'offre'].forEach((t) => assert.ok(P.filter((x) => x.type === t).length >= 10, t));
+});
+
+test('Mes pistes propose 5 à 10 pistes avec pourcentage, hexagones justificatifs et compétences manquantes', () => {
+  const { carte: c } = cartePlacee();
+  const liste = CT.pistes.proposer(c);
+  assert.ok(liste.length >= 5 && liste.length <= 10, liste.length + ' pistes');
+  liste.forEach((e, i) => {
+    assert.ok(e.pourcentage >= 0 && e.pourcentage <= 98, e.piste.id + ' : ' + e.pourcentage);
+    if (i) assert.ok(liste[i - 1].pourcentage >= e.pourcentage, 'tri par correspondance');
+    e.hexagones.forEach((id) => assert.ok(CT.regles.trouver(c, id), 'hexagone existant'));
+    e.manquantes.forEach((m) => assert.ok(CT.bibliotheque.trouver(m.id)));
+  });
+  assert.ok(liste[0].pourcentage >= 40, 'la meilleure piste colle vraiment : ' + liste[0].pourcentage);
+  assert.ok(liste[0].hexagones.length > 0, 'la meilleure piste est justifiée par des hexagones');
+  assert.ok(liste.some((e) => e.manquantes.length), 'au moins une piste a des compétences manquantes');
+  // Au plus 5 par type, pour garder de la variété.
+  ['metier', 'activite', 'offre'].forEach((t) => assert.ok(liste.filter((e) => e.piste.type === t).length <= 5, t));
+});
+
+test('une carte vide reçoit tout de même des pistes à explorer, sans planter', () => {
+  const liste = CT.pistes.proposer(CT.schema.creerCarteVide());
+  assert.ok(liste.length >= 5);
+  liste.forEach((e) => assert.ok(e.pourcentage <= 20, 'rien d\'acquis, correspondance faible'));
+});
+
+test('le pourcentage monte quand un territoire est conquis ou travaillé, et les moments de flow le renforcent', () => {
+  const { carte: c } = cartePlacee();
+  const avant = CT.pistes.evaluer(c, 'conferencier', Date.now());
+  CT.regles.changerStatut(c, CT.regles.rechercher(c, 'Prise de parole', [])[0] ? CT.regles.rechercher(c, 'Prise de parole', [])[0].id : 'prise-parole', 'conquise');
+  const ajoute = CT.suggestions.accepter(c, 'prise-parole', { statut: 'conquise' }) || CT.regles.rechercher(c, 'Prise de parole en public', [])[0];
+  assert.ok(ajoute);
+  const apres = CT.pistes.evaluer(c, 'conferencier', Date.now());
+  assert.ok(apres.pourcentage > avant.pourcentage, avant.pourcentage + ' → ' + apres.pourcentage);
+  assert.ok(apres.hexagones.includes(ajoute.id));
+  assert.ok(!apres.manquantes.some((m) => m.id === 'prise-parole'));
+  CT.regles.ajouterMoment(c, { competenceIds: [ajoute.id], intensite: 4, defi: 3, maitrise: 3 });
+  assert.ok(CT.pistes.evaluer(c, 'conferencier', Date.now()).pourcentage > apres.pourcentage, 'le flow renforce la piste');
+});
+
+test('Viser une piste : les compétences manquantes deviennent des territoires en conquête classés par priorité', () => {
+  const { carte: c } = cartePlacee();
+  const avant = CT.pistes.evaluer(c, 'conferencier', Date.now());
+  assert.ok(avant.manquantes.length >= 2);
+  const nbFrontieres = CT.regles.frontieres(c).length;
+  const r = CT.pistes.viser(c, 'conferencier', Date.now());
+  assert.strictEqual(r.ajoutes.length + r.convertis.length, avant.manquantes.length);
+  const apres = CT.pistes.evaluer(c, 'conferencier', Date.now());
+  assert.deepStrictEqual(apres.manquantes, [], 'plus rien ne manque : tout est en conquête');
+  assert.ok(apres.visee && c.pistesVisees.includes('conferencier'));
+  const f = CT.regles.frontieres(c);
+  assert.strictEqual(f.length, nbFrontieres + r.ajoutes.length + r.convertis.length);
+  assert.deepStrictEqual(f.map((x) => x.priorite), f.map((_, i) => i + 1), 'priorités 1, 2, 3…');
+  r.lies.forEach((id) => assert.ok(CT.regles.trouver(c, id).pistes.includes('conferencier')));
+  // Idempotent : viser deux fois n'ajoute rien.
+  const n = c.competences.length;
+  const r2 = CT.pistes.viser(c, 'conferencier', Date.now());
+  assert.strictEqual(c.competences.length, n);
+  assert.strictEqual(r2.ajoutes.length + r2.convertis.length, 0);
+  assert.deepStrictEqual(CT.placement.verifier(CT.placement.placer(c)), []);
+});
+
+test('l\'ordre de priorité des territoires visés est modifiable et enregistré', () => {
+  const { carte: c } = cartePlacee();
+  CT.pistes.viser(c, 'offre-formation-ligne', Date.now());
+  const f = CT.regles.frontieres(c);
+  const dernier = f[f.length - 1];
+  assert.ok(CT.regles.deplacerPriorite(c, dernier.id, -1));
+  assert.strictEqual(CT.regles.trouver(c, dernier.id).priorite, f.length - 1);
+  // Aller-retour par l'enregistrement (JSON) : priorités, drapeaux et lien avec la piste sont gardés.
+  const relue = CT.schema.normaliser(JSON.parse(JSON.stringify(c)));
+  assert.deepStrictEqual(CT.regles.frontieres(relue).map((x) => x.id), CT.regles.frontieres(c).map((x) => x.id));
+  assert.deepStrictEqual(CT.regles.frontieres(relue).map((x) => x.priorite), CT.regles.frontieres(c).map((x) => x.priorite));
+  assert.deepStrictEqual(relue.pistesVisees, ['offre-formation-ligne']);
+  assert.ok(relue.competences.some((x) => x.pistes.includes('offre-formation-ligne')));
+});
+
+test('Ne plus viser retire le lien avec la piste mais garde les territoires en conquête', () => {
+  const { carte: c } = cartePlacee();
+  CT.pistes.viser(c, 'podcasteur', Date.now());
+  const n = CT.regles.frontieres(c).length;
+  assert.ok(CT.pistes.abandonner(c, 'podcasteur'));
+  assert.strictEqual(CT.regles.frontieres(c).length, n);
+  assert.deepStrictEqual(c.pistesVisees, []);
+  assert.ok(c.competences.every((x) => !x.pistes.length));
+  assert.strictEqual(CT.pistes.abandonner(c, 'podcasteur'), false);
+});
+
+test('les cartes enregistrées avant « Mes pistes » restent lisibles', () => {
+  const c = CT.schema.normaliser({ talent: { nom: 'X' }, competences: [{ id: 'a', nom: 'A', statut: 'conquise' }] });
+  assert.deepStrictEqual(c.pistesVisees, []);
+  assert.deepStrictEqual(c.competences[0].pistes, []);
+  assert.ok(CT.pistes.proposer(c).length >= 5);
+});
+
+test('on peut conquérir n\'importe quelle compétence de la bibliothèque, brouillard ou non', () => {
+  const { carte: c } = cartePlacee();
+  c.preferences.brouillardDeGuerre = true;
+  const libres = CT.bibliotheque.ENTREES.filter((e) => !CT.suggestions.dejaSurLaCarte(c, e));
+  assert.ok(libres.length > 100);
+  const statuts = ['frontiere', 'a_conquerir', 'conquise'];
+  libres.forEach((e, i) => {
+    const x = CT.suggestions.accepter(c, e.id, { statut: statuts[i % 3] });
+    assert.ok(x && x.statut === statuts[i % 3], e.id);
+    assert.ok(!CT.regles.estCache(c, x), e.id + ' : un hexagone choisi n\'est pas sous le brouillard');
+  });
+  assert.strictEqual(CT.bibliotheque.ENTREES.filter((e) => !CT.suggestions.dejaSurLaCarte(c, e)).length, 0);
+  assert.doesNotThrow(() => CT.placement.placer(c), 'même toute la bibliothèque ne fait pas planter le placement');
+  // Une poignée de conquêtes (une quarantaine) laisse une carte géographiquement propre.
+  const { carte: d } = cartePlacee();
+  libres.slice(0, 40).forEach((e, i) => CT.suggestions.accepter(d, e.id, { statut: statuts[i % 3] }));
+  assert.deepStrictEqual(CT.placement.verifier(CT.placement.placer(d)), []);
+});
+
+test('un territoire sous le brouillard se conquiert sans passer par l\'exploration', () => {
+  const b = brouillonExemple().b;
+  const c = CT.creation.genererCarte(b);
+  c.preferences.brouillardDeGuerre = true;
+  const cache = c.competences.find((x) => CT.regles.estCache(c, x));
+  assert.ok(cache, 'il y a des territoires sous le brouillard');
+  assert.ok(CT.regles.changerStatut(c, cache.id, 'conquise'));
+  assert.ok(!CT.regles.estCache(c, cache) && cache.exploree);
+});
+
+test('au moins 15 tâches à déléguer et 15 compétences de vente sont proposées en exemples', () => {
+  const deleguer = [].concat(...CT.idees.proposer('deleguer', []).map((g) => g.idees.map((i) => i.texte)));
+  assert.ok(deleguer.length >= 15, deleguer.length + ' tâches');
+  assert.strictEqual(new Set(deleguer.map((t) => CT.regles.normaliserTexte(t))).size, deleguer.length, 'doublons');
+  deleguer.forEach((t) => assert.ok(t.length <= CT.creation.longueurMax('deleguer'), t));
+  const vente = CT.idees.proposer('conquises', []).find((g) => g.cle === 'vente');
+  assert.ok(vente && vente.idees.length >= 15, 'compétences de vente : ' + (vente ? vente.idees.length : 0));
+  const biblio = CT.bibliotheque.ENTREES.filter((e) => e.domaine === 'business');
+  vente.idees.forEach((i) => assert.ok(biblio.some((e) => CT.regles.normaliserTexte(e.nom) === CT.regles.normaliserTexte(i.texte)), i.texte + ' : absent de la bibliothèque'));
+  assert.ok(CT.idees.proposer('frontieres', []).find((g) => g.cle === 'vente').idees.length >= 15);
+  assert.ok(CT.idees.proposer('deleguer', []).every((g) => g.idees.filter((i) => !i.plus).length <= 3), 'trois idées visibles par domaine');
+});
+
+test('la zone de ressourcement se pose à l\'écart, sans trou ni île collée', () => {
+  const { carte: c } = cartePlacee();
+  ['Marcher en forêt', 'Lire un roman', 'Cuisiner en musique'].forEach((nom) => {
+    c.competences.push({ id: 'r-' + nom, nom, icone: 'sprout', statut: 'ressource', exploree: true });
+  });
+  const norm = CT.schema.normaliser(c);
+  assert.strictEqual(norm.competences.filter((x) => x.statut === 'ressource').length, 3);
+  const res = CT.placement.placer(norm);
+  assert.deepStrictEqual(CT.placement.verifier(res), []);
+  const cases = res.cases.filter((x) => norm.competences.find((y) => y.id === x.id && y.statut === 'ressource'));
+  assert.strictEqual(cases.length, 3);
+  cases.forEach((x) => assert.strictEqual(x.zone, 'ressource'));
+  assert.ok(res.etiquettes.some((e) => e.type === 'ressource' && /ressourcement/i.test(e.nom)), 'étiquette de la zone');
+  const clefs = new Set(res.cases.map((x) => x.q + ',' + x.r));
+  assert.strictEqual(clefs.size, res.cases.length, 'positions uniques');
+  // Elle ne prend pas la place de la zone à déléguer.
+  const deleg = res.cases.filter((x) => x.zone === 'deleguer');
+  assert.ok(deleg.length);
+  cases.forEach((a) => deleg.forEach((b2) => assert.ok(CT.hex.distance(a, b2) >= 3)));
+});
+
+test('le quiz transmet ses ressourcements : la création les range dans la zone de ressourcement', () => {
+  const data = { v: 1, mecanisme: 'sais aller au fond des choses', ressources: ['Marcher en forêt, sans téléphone', 'Une soirée entre proches ; sans parler boulot', ''], rechargeTitre: 'Recharge Solitaire' };
+  const d = CT.boussole.lire('#q=' + Buffer.from(JSON.stringify(data)).toString('base64url'));
+  assert.deepStrictEqual(d.ressources, ['Marcher en forêt  sans téléphone', 'Une soirée entre proches   sans parler boulot']);
+  assert.strictEqual(d.rechargeTitre, 'Recharge Solitaire');
+  const b = CT.boussole.versBrouillon(d);
+  assert.strictEqual(b.ressources.length, 2);
+  b.talent.nom = 'Aller au fond des choses';
+  CT.creation.ajouter(b, 'regions', 'Analyser, Comprendre');
+  const carte = CT.creation.genererCarte(b);
+  const zone = carte.competences.filter((x) => x.statut === 'ressource');
+  assert.deepStrictEqual(zone.map((x) => x.nom), ['Marcher en forêt  sans téléphone', 'Une soirée entre proches   sans parler boulot'].map((t) => t.trim()));
+  assert.deepStrictEqual(CT.placement.verifier(CT.placement.placer(carte)), []);
+  // Le brouillon enregistré garde la zone, un ancien brouillon (sans zone) reste lisible.
+  assert.strictEqual(CT.creation.normaliserBrouillon(JSON.parse(JSON.stringify(b))).ressources.length, 2);
+  assert.deepStrictEqual(CT.creation.normaliserBrouillon({ etape: 2 }).ressources, []);
+  // Idées trop nombreuses ou en double : bornées, sans doublon.
+  const c2 = CT.creation.nouveauBrouillon();
+  CT.creation.ajouter(c2, 'ressources', Array.from({ length: 20 }, (_, i) => 'Idée ' + i).join(';') + ';idée 1');
+  assert.strictEqual(c2.ressources.length, CT.creation.MAX_RESSOURCES);
+});
+
+// PDF du quiz : une image, donc les données sont dans ses métadonnées (mot-clé « CTQ1:… », même encodage que #q=).
+const donneesQuiz = { v: 1, mecanisme: 'sais relier les gens', contexte: 'il y a du lien', benefice: 'aider les équipes à avancer', ressources: ['Jardiner'], soustalents: ['Relier'] };
+const jetonQuiz = Buffer.from(JSON.stringify(donneesQuiz)).toString('base64url');
+const pdfAvecMeta = Buffer.from('%PDF-1.3\n1 0 obj\n<</Producer (jsPDF 2.5.1) /Subject (Talent Unique) /Keywords (CTQ1:' + jetonQuiz + ')>>\nendobj\ntrailer\n<<>>\n%%EOF', 'latin1');
+
+testAsync('« Importer mon résultat QCM (PDF) » lit le résultat dans les métadonnées du PDF du quiz', async () => {
+  const d = await CT.boussole.lirePdf(pdfAvecMeta);
+  assert.strictEqual(d.source, 'quiz');
+  assert.strictEqual(d.mecanisme, 'relier les gens');
+  assert.deepStrictEqual(d.ressources, ['Jardiner']);
+  assert.deepStrictEqual(d.soustalents, ['Relier']);
+  // Même résultat que via le lien #q=.
+  assert.deepStrictEqual(d, CT.boussole.lire('#q=' + jetonQuiz));
+  // Accepte aussi un ArrayBuffer (File.arrayBuffer()) et une chaîne UTF-16 de PDF.
+  const ab = pdfAvecMeta.buffer.slice(pdfAvecMeta.byteOffset, pdfAvecMeta.byteOffset + pdfAvecMeta.byteLength);
+  assert.strictEqual((await CT.boussole.lirePdf(ab)).mecanisme, 'relier les gens');
+  const utf16 = Buffer.concat([Buffer.from('%PDF-1.3\n/Keywords <FEFF'), Buffer.from(Array.from('CTQ1:' + jetonQuiz).map((ch) => '\0' + ch).join(''), 'latin1'), Buffer.from('>\n%%EOF')]);
+  assert.strictEqual((await CT.boussole.lirePdf(utf16)).mecanisme, 'relier les gens');
+});
+
+testAsync('le résultat du quiz est aussi retrouvé dans un flux compressé du PDF', async () => {
+  const zlib = require('zlib');
+  const pdf = Buffer.concat([Buffer.from('%PDF-1.4\n4 0 obj\n<</Filter /FlateDecode /Length 99>>\nstream\n'), zlib.deflateSync(Buffer.from('BT (CTQ1:' + jetonQuiz + ') Tj ET')),
+    Buffer.from('\nendstream\nendobj\n%%EOF')]);
+  assert.strictEqual((await CT.boussole.lirePdf(pdf)).mecanisme, 'relier les gens');
+});
+
+testAsync('un PDF sans résultat du quiz, un autre fichier ou un fichier vide donnent « rien », jamais une erreur', async () => {
+  assert.strictEqual(await CT.boussole.lirePdf(Buffer.from('%PDF-1.3\n/Title (Facture)\n%%EOF')), null);
+  assert.strictEqual(await CT.boussole.lirePdf(Buffer.from('pas un pdf CTQ1:' + jetonQuiz)), null, 'sans en-tête PDF');
+  assert.strictEqual(await CT.boussole.lirePdf(Buffer.alloc(0)), null);
+  assert.strictEqual(await CT.boussole.lirePdf(Buffer.from('%PDF-1.3\n/Keywords (CTQ1:@@@@@@@@@@@)')), null, 'jeton illisible');
+  assert.strictEqual(await CT.boussole.lirePdf(Buffer.from('%PDF-1.3\n/Keywords (CTQ1:' + Buffer.from('{"v":2}').toString('base64url') + ')')), null, 'version inconnue');
+});
+
+test('le quiz écrit le résultat de la carte dans les métadonnées de son PDF', () => {
+  const fs = require('fs');
+  const quiz = fs.readFileSync(path.join(__dirname, '..', '..', 'quiz', 'index.html'), 'utf8');
+  assert.ok(/function carteData\(/.test(quiz) && /function carteJeton\(/.test(quiz));
+  assert.ok(/const PDF_CARTE_MARQUE = "CTQ1:"/.test(quiz), 'marque lue par la carte');
+  assert.ok(/\.toPdf\(\)\.get\("pdf"\)\.then\(pdf => \{[\s\S]*?setProperties\(\{[^}]*keywords: carteJeton\(p, lang\)/.test(quiz), 'jeton dans le mot-clé du PDF');
+  assert.ok(/data\.ressources = /.test(quiz), 'ressourcements dans les données de la carte');
+});
+
+Promise.all(attentes).then(() => {
+  console.log(echecs ? '\n' + echecs + ' échec(s)' : '\nTout est vert.');
+  process.exitCode = echecs ? 1 : 0;
+});

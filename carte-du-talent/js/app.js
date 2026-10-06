@@ -20,6 +20,8 @@
   let saisieFlow = null;
   let reglages = null;
   let progres = null;
+  let pistes = null;
+  let toutes = null;
   let creation = null;
 
   function caseDe(id) {
@@ -107,6 +109,8 @@
     CT.vueLegende.rendre($('legende-contenu'), etat.carte);
     if (panneau.ouvert) panneau.afficher(panneau.ouvert, etat.carte);
     if (progres && progres.ouvert) progres.rendre();
+    if (pistes && pistes.ouvert) pistes.rendre();
+    if (toutes && toutes.ouvert) toutes.rendre();
     const propositions = CT.stats.propositionsConquete(etat.carte).length;
     $('alerte-progres').hidden = propositions === 0;
     $('btn-progres').setAttribute('aria-label', T('Progrès et objectifs') + (propositions ? ' (' + CT.i18n.Tn(propositions, '{n} proposition de conquête', '{n} propositions de conquête') + ')' : ''));
@@ -157,6 +161,7 @@
   function surActionPanneau(action, valeur) {
     const id = panneau.ouvert;
     if (action === 'fermer') { fermerPanneau(); return; }
+    if (action === 'toutes') { toutes.ouvrir(); return; }
     if (actionSuggestion(action, valeur)) return;
     if (!id || id === 'capitale') return;
     if (action === 'flow') { saisieFlow.ouvrir([id]); return; }
@@ -288,6 +293,54 @@
     }
   }
 
+  // ---------- Mes pistes ----------
+
+  function actionPistes(action, valeur) {
+    const carte = etat.carte;
+    if (action === 'voir') { ouvrir(valeur); return; }
+    if (action === 'viser') {
+      const r = CT.pistes.viser(carte, valeur);
+      if (!r) return;
+      appliquer();
+      const n = r.ajoutes.length + r.convertis.length;
+      const piste = CT.pistes.trouver(valeur);
+      toast(n ? CT.i18n.Tn(n, '{n} territoire en conquête pour « {piste} » : tu les classes par priorité.', '{n} territoires en conquête pour « {piste} » : tu les classes par priorité.', { piste: piste.nom })
+        : T('« {piste} » est visée : tu as déjà tout ce qu\'il faut.', { piste: piste.nom }));
+      return;
+    }
+    if (action === 'abandonner') {
+      if (CT.pistes.abandonner(carte, valeur)) { appliquer(); toast(T('Piste retirée. Tes territoires en conquête restent sur la carte.')); }
+      return;
+    }
+    if (action === 'priorite') {
+      const [id, sens] = String(valeur).split('|');
+      if (CT.regles.deplacerPriorite(carte, id, Number(sens))) { appliquer(); }
+    }
+  }
+
+  // ---------- Toutes les compétences ----------
+
+  function actionToutes(action, valeur) {
+    const carte = etat.carte;
+    if (action === 'voir') { ouvrir(valeur); return; }
+    const [id, statut] = String(valeur).split('|');
+    if (action === 'ajouter') {
+      const c = CT.suggestions.accepter(carte, id, { statut });
+      if (!c) return;
+      appliquer();
+      toast(MESSAGES_STATUT[statut](nomDe(c.id)));
+      if (caseDe(c.id)) CT.vueEffets[statut === 'conquise' ? 'conquete' : 'exploration']($('carte'), caseDe(c.id));
+      return;
+    }
+    if (action === 'statut') {
+      const r = CT.regles.changerStatut(carte, id, statut);
+      if (!r) return;
+      appliquer();
+      toast(MESSAGES_STATUT[statut](nomDe(id)));
+      if (caseDe(id)) CT.vueEffets[statut === 'conquise' ? 'conquete' : 'exploration']($('carte'), caseDe(id));
+    }
+  }
+
   // ---------- Saisie d'un moment de flow ----------
 
   const rappelsFlow = {
@@ -364,8 +417,15 @@
         })
         .catch((err) => toast(err instanceof SyntaxError ? T('Fichier illisible.') : err.message || T('Fichier illisible.')));
     });
+    $('fichier-pdf').addEventListener('change', (e) => {
+      const fichier = e.target.files[0];
+      e.target.value = '';
+      if (fichier) importerPdf(fichier);
+    });
     $('btn-reglages').addEventListener('click', () => reglages.ouvrir());
     $('btn-progres').addEventListener('click', () => progres.ouvrir());
+    $('btn-pistes').addEventListener('click', () => pistes.ouvrir());
+    $('btn-toutes').addEventListener('click', () => toutes.ouvrir());
     $('legende-bascule').addEventListener('click', () => {
       const ouverte = $('legende').classList.toggle('fermee') === false;
       $('legende-bascule').setAttribute('aria-expanded', String(ouverte));
@@ -387,6 +447,18 @@
       appliquer({ reorganiser: true });
       toast(T('Carte réorganisée.'));
     });
+  }
+
+  // « Importer mon résultat QCM (PDF) » : le PDF du quiz porte le résultat dans ses métadonnées.
+  // Le fichier est lu ici, dans le navigateur ; la création s'ouvre pré-remplie, rien n'est remplacé avant la confirmation.
+  function importerPdf(fichier) {
+    fichier.arrayBuffer()
+      .then((contenu) => CT.boussole.lirePdf(contenu))
+      .then((donnees) => {
+        if (!donnees) { toast(T('Ce PDF ne contient pas de résultat du quiz. Télécharge-le à nouveau depuis le quiz Talent Unique.')); return; }
+        creation.ouvrir({ boussole: donnees, carteExistante: !etat.premierLancement });
+      })
+      .catch(() => toast(T('Fichier illisible.')));
   }
 
   // Arrivée depuis la Boussole (#b=…) : la création s'ouvre sur un écran de choix, rien n'est remplacé.
@@ -439,6 +511,7 @@
       toast,
       confirmer: (m) => confirm(m),
       doitAccueillir: () => etat.premierLancement,
+      importerPdf: () => $('fichier-pdf').click(),
       demo() {
         etat.premierLancement = false;
         enregistrer();
@@ -453,6 +526,8 @@
       }
     });
     progres = CT.vueProgres.creer($('progres'), { carte: () => etat.carte, action: actionProgres });
+    pistes = CT.vuePistes.creer($('pistes'), { carte: () => etat.carte, action: actionPistes });
+    toutes = CT.vueToutes.creer($('toutes'), { carte: () => etat.carte, action: actionToutes });
     reglages = CT.vueReglages.creer($('reglages'), {
       carte: () => etat.carte,
       changerPreference(cle, valeur) {
@@ -466,6 +541,8 @@
         toast(T('Carte exportée. Garde ce fichier précieusement.'));
       },
       importer() { $('fichier-import').click(); },
+      importerPdf() { $('fichier-pdf').click(); },
+      toutes() { toutes.ouvrir(); },
       creer() { creation.ouvrir(); },
       retablirSuggestions() {
         const n = CT.suggestions.retablirRefusees(etat.carte);
@@ -496,6 +573,6 @@
     CT.outils.rafraichirIcones();
   }
 
-  CT.app = { etat, ouvrir, ouvrirFlow: (ids) => saisieFlow.ouvrir(ids), ouvrirProgres: (o) => progres.ouvrir(o) };
+  CT.app = { etat, ouvrir, ouvrirFlow: (ids) => saisieFlow.ouvrir(ids), ouvrirProgres: (o) => progres.ouvrir(o), ouvrirPistes: () => pistes.ouvrir(), ouvrirToutes: () => toutes.ouvrir() };
   document.addEventListener('DOMContentLoaded', demarrer);
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

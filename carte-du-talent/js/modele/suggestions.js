@@ -8,7 +8,7 @@
 
   const T = CT.i18n.T;
 
-  const POIDS_STATUT = { natale: 1, conquise: 1, frontiere: 1.3, a_conquerir: 0.6, ile: 0.5, a_deleguer: 0 };
+  const POIDS_STATUT = { natale: 1, conquise: 1, frontiere: 1.3, a_conquerir: 0.6, ile: 0.5, a_deleguer: 0, ressource: 0 };
   const DOMAINES_ELOIGNES = ['numerique', 'langues', 'organisation'];
 
   const N = (s) => CT.regles.normaliserTexte(s);
@@ -159,7 +159,8 @@
       priorite: null,
       exploree: true,
       reportConquete: null,
-      bibliothequeId: p.entree.id
+      bibliothequeId: p.entree.id,
+      pistes: []
     };
   }
 

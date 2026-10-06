@@ -1,0 +1,52 @@
+/* Carte du Talent — écran Mes pistes (réutilise les styles de l'écran Progrès) */
+
+.piste { display: flex; flex-direction: column; gap: 12px; }
+.piste-visee { border-color: #F2D488; background: linear-gradient(135deg, #FFF8E1, #FFFDF6); }
+
+.piste-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.piste-tete > div:first-child { min-width: 0; }
+.piste .piste-tete h3 { margin: 8px 0 0; font-size: 19px; line-height: 1.25; text-transform: none; letter-spacing: 0; color: var(--encre); }
+
+.piste-score { display: flex; align-items: baseline; gap: 2px; flex-shrink: 0; color: var(--accent-fort); }
+.piste-score strong { font-size: 32px; font-weight: 800; line-height: 1; }
+.piste-score span { font-size: 15px; font-weight: 800; }
+
+.piste-bloc h4 { margin: 0 0 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--encre-douce); }
+.piste-bloc p { margin: 0; }
+
+.puces-hex { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.puce-hex { font-size: 15px; }
+
+.puces-manquantes { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.puces-manquantes li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1.5px dashed #D9C79B;
+  border-radius: 999px;
+  background: #FFFBF2;
+  font-size: 14px;
+  color: var(--encre);
+}
+.puces-manquantes svg { width: 15px; height: 15px; color: var(--encre-douce); }
+
+.piste-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: auto; }
+
+.priorites { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.priorites li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid #EFE4CC; border-radius: 12px; background: #FFFDF6; }
+.priorites .rang {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #FFF; 
+  border: 1.5px solid #C2412D;
+  color: #C2412D;
+  font-weight: 800;
+  font-size: 14px;
+}
+.priorites .pour-piste { flex: 1; min-width: 0; margin: 0; }
+.priorites .fleches { display: inline-flex; gap: 6px; margin-left: auto; }

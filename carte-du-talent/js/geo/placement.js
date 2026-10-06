@@ -22,8 +22,14 @@
   function groupeDe(c) {
     if (c.statut === 'ile') return 'i:' + c.ileId;
     if (c.statut === 'a_deleguer') return 'deleguer';
+    if (c.statut === 'ressource') return 'ressource';
     if (c.distance === 'eloignee' && c.statut !== 'natale') return 'p:' + (c.domaine || 'divers');
     return 'r:' + c.regionId;
+  }
+
+  // Îles, zone à déléguer et zone de ressourcement vivent à l'écart du continent.
+  function horsContinent(c) {
+    return c.statut === 'ile' || c.statut === 'a_deleguer' || c.statut === 'ressource';
   }
 
   // Région de rattachement d'une compétence sans région : celle qui partage le plus son domaine.
@@ -78,7 +84,7 @@
     const cellulesGroupe = new Map(); // groupe -> Set(clés)
     const positions = {};
     const comps = carte.competences.map((c) => Object.assign({}, c, {
-      regionId: c.regionId || (c.statut === 'ile' || c.statut === 'a_deleguer' ? null : regionParDefaut(c, carte))
+      regionId: c.regionId || (horsContinent(c) ? null : regionParDefaut(c, carte))
     }));
     const parId = {};
     comps.forEach((c) => { parId[c.id] = c; });
@@ -107,7 +113,7 @@
     const poids = {};
     ordre.forEach((id) => { poids[id] = 1; });
     comps.forEach((c) => {
-      if (c.statut === 'ile' || c.statut === 'a_deleguer' || c.distance === 'eloignee') return;
+      if (horsContinent(c) || c.distance === 'eloignee') return;
       if (poids[c.regionId] !== undefined) poids[c.regionId] += c.regionJonctionId ? 0.6 : 1;
       if (c.regionJonctionId && poids[c.regionJonctionId] !== undefined) poids[c.regionJonctionId] += 0.4;
     });
@@ -135,7 +141,7 @@
       if (!c.position || (options.reorganiser && !c.positionManuelle)) return;
       const k = H.cle(c.position.q, c.position.r);
       if (occ.has(k)) return;
-      const zone = c.statut === 'ile' ? 'ile' : c.statut === 'a_deleguer' ? 'deleguer' : 'continent';
+      const zone = c.statut === 'ile' ? 'ile' : c.statut === 'a_deleguer' ? 'deleguer' : c.statut === 'ressource' ? 'ressource' : 'continent';
       occuper(c.position, c.id, groupeDe(c), zone);
     });
     const aPlacer = (c) => !positions[c.id];
@@ -161,7 +167,8 @@
       };
     }
 
-    // Cases libres touchant le continent, dans un ordre stable.
+    // Cases libres touchant le continent, dans un ordre stable. Quand des îles ou des zones à l'écart
+    // sont déjà posées (positions mémorisées), le continent qui grandit les laisse à leurs deux cases d'eau.
     function bordContinent() {
       const vues = new Set();
       const res = [];
@@ -173,7 +180,14 @@
           if (!occ.has(kv) && !vues.has(kv)) { vues.add(kv); res.push(v); }
         });
       });
-      return res;
+      const eau = new Set();
+      occ.forEach((o, k) => {
+        if (o.zone === 'continent') return;
+        const p = H.depuisCle(k);
+        for (let r = 0; r < ECART_ILES; r++) H.anneau(p, r).forEach((v) => eau.add(H.cle(v.q, v.r)));
+      });
+      const loin = res.filter((v) => !eau.has(H.cle(v.q, v.r)));
+      return loin.length ? loin : res;
     }
 
     function poser(c, groupe, scoreFn, exigeMeme, autorises) {
@@ -236,7 +250,7 @@
       sansRegion.forEach((c) => { c._angle = 0; poser(c, groupeDe(c), scoreRegion(c, PROFILS.conquise), true); });
     }
 
-    const surContinent = (c) => c.statut !== 'ile' && c.statut !== 'a_deleguer';
+    const surContinent = (c) => !horsContinent(c);
     const estProvince = (c) => surContinent(c) && c.statut !== 'natale' && c.distance === 'eloignee';
     const libres = comps.filter(aPlacer);
 
@@ -315,7 +329,17 @@
       poserArchipel(deleguees, 'deleguer', 'deleguer', angleDeleguer);
     }
 
-    const anglesPris = angleDeleguer === null ? [] : [angleDeleguer];
+    // La zone de ressourcement prend un autre coin, le plus éloigné de la zone à déléguer.
+    const ressources = comps.filter((c) => c.statut === 'ressource' && aPlacer(c));
+    let angleRessource = null;
+    if (ressources.length || cellulesDe('ressource').size) {
+      const coins = [-3 * Math.PI / 4, 3 * Math.PI / 4, -Math.PI / 4, Math.PI / 4]; // haut-gauche d'abord
+      const libresCoins = coins.filter((a) => angleDeleguer === null || H.ecartAngle(a, angleDeleguer) > Math.PI / 3);
+      angleRessource = libresCoins.reduce((best, a) => (etendue(a) < etendue(best) - 0.5 ? a : best), libresCoins[0]);
+      poserArchipel(ressources, 'ressource', 'ressource', angleRessource);
+    }
+
+    const anglesPris = [angleDeleguer, angleRessource].filter((a) => a !== null);
     carte.iles.forEach((ile) => {
       const membres = comps.filter((c) => c.statut === 'ile' && c.ileId === ile.id && aPlacer(c));
       if (!membres.length) return;
@@ -502,7 +526,8 @@
       if (type === 'p') nom = CT.schema.DOMAINES[id] ? CT.schema.DOMAINES[id].nom : 'Province';
       if (type === 'i') { const i = carte.iles.find((x2) => x2.id === id); nom = i ? i.nom : 'Île'; }
       if (type === 'deleguer') nom = 'Zone à déléguer';
-      res.push({ type: { r: 'region', p: 'province', i: 'ile', deleguer: 'deleguer' }[type], id, nom, x, y, yMax, taille: cells.size });
+      if (type === 'ressource') nom = 'Zone de ressourcement';
+      res.push({ type: { r: 'region', p: 'province', i: 'ile', deleguer: 'deleguer', ressource: 'ressource' }[type], id, nom, x, y, yMax, taille: cells.size });
     });
     return res;
   }

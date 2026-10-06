@@ -14,6 +14,7 @@
     capitale: '#F4C95D',
     ile: '#7DCDAE',
     deleguer: '#B4BAC2',
+    ressource: '#E8C9A0',
     sable: '#F4E4BC',
     hautFond: '#BFE8EC'
   };
@@ -26,6 +27,7 @@
   function couleurDe(c, carte) {
     if (c.statut === 'ile') return COULEURS.ile;
     if (c.statut === 'a_deleguer') return COULEURS.deleguer;
+    if (c.statut === 'ressource') return COULEURS.ressource;
     if (c.distance === 'eloignee' && c.statut !== 'natale') {
       return (CT.schema.DOMAINES[c.domaine] || { couleur: '#B9A88F' }).couleur;
     }
@@ -67,6 +69,10 @@
       case 'a_deleguer':
         a.texte = '#4A4F55';
         a.encre = '#5D636B';
+        break;
+      case 'ressource':
+        a.texte = '#5A4630';
+        a.encre = '#8A6A44';
         break;
       default:
         break;
@@ -225,7 +231,7 @@
     const etiquettesMer = [];
     placement.etiquettes.forEach((e) => {
       const ex = e.x * T;
-      if (e.type === 'ile' || e.type === 'deleguer') {
+      if (e.type === 'ile' || e.type === 'deleguer' || e.type === 'ressource') {
         // Sous le groupe, sur l'eau.
         etiquettesMer.push('<text class="etiquette etiquette-mer" x="' + ex.toFixed(1) + '" y="' + (e.yMax * T + T * 1.3).toFixed(1) +
           '" dy="0.8em">' + O.echapper(CT.i18n.T(e.nom)) + '</text>');

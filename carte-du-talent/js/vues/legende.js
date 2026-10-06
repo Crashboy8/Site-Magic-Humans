@@ -27,7 +27,8 @@
       [pastille(O.nuance(base, 0.84), O.nuance(base, -0.05), '1.5 2', 0.85), T('À conquérir')],
       [pastille('#86A9C9', '#6C8BA8'), T('Province éloignée')],
       [pastille('#7DCDAE', '#5FA98C'), T('Île de flow')],
-      [pastille('#B4BAC2', '#8D949C'), T('À déléguer')]
+      [pastille('#B4BAC2', '#8D949C'), T('À déléguer')],
+      [pastille('#E8C9A0', '#C29C6A'), T('Ressourcement')]
     ].map(([p, t]) => '<li>' + p + t + '</li>').join('');
     const reperes = '<li><svg class="pastille" viewBox="-12 -12 24 24" aria-hidden="true"><circle r="11" fill="#FFD866" opacity=".55"/>' +
       '<circle r="6" fill="#FFE9A8"/></svg>' + T('Éclat : flow des 30 derniers jours') + '</li>' +

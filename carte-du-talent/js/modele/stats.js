@@ -83,6 +83,7 @@
       const ile = carte.iles.find((i) => i.id === c.ileId);
       return { cle: 'i:' + c.ileId, nom: ile ? T('Île {nom}', { nom: ile.nom }) : T('Île de flow'), couleur: '#7DCDAE' };
     }
+    if (c.statut === 'ressource') return { cle: 'ressource', nom: T('Zone de ressourcement'), couleur: '#E8C9A0' };
     if (c.statut === 'a_deleguer') return { cle: 'deleguer', nom: T('Zone à déléguer'), couleur: '#B4BAC2' };
     if (c.distance === 'eloignee' && c.statut !== 'natale') {
       const d = CT.schema.DOMAINES[c.domaine] || { nom: T('Province'), couleur: '#B9A88F' };

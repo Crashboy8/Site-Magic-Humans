@@ -224,6 +224,38 @@
     e('ecommerce', 'E-commerce', 'shopping-cart', 'business', ['vente', 'creer un site web']),
     e('pitch', 'Pitch et levée de fonds', 'presentation', 'business', ['prise de parole en public', 'entrepreneuriat']),
 
+    // Vente (suite) : le métier de vendre, de la découverte au suivi
+    e('vente-conseil', 'Vente conseil', 'lightbulb', 'business', ['vente', 'ecouter pour aider', 'relation client']),
+    e('decouverte-client', 'Découverte des besoins du client', 'search', 'business', ['vente', 'ecouter pour aider', 'relation client']),
+    e('argumentaire', 'Argumentaire de vente', 'message-square-text', 'business', ['vente', 'storytelling', 'copywriting']),
+    e('objections', 'Traiter les objections', 'shield-check', 'business', ['vente', 'negociation', 'cnv']),
+    e('closing', 'Conclure une vente', 'check-check', 'business', ['vente', 'negociation']),
+    e('devis', 'Rédiger un devis', 'file-text', 'business', ['vente', 'fixer ses prix', 'administratif']),
+    e('rdv-commercial', 'Mener un rendez-vous commercial', 'calendar-check', 'business', ['vente', 'ecouter pour aider', 'relation client']),
+    e('vente-telephone', 'Vente par téléphone', 'phone', 'business', ['vente', 'prospection', 'voix et diction']),
+    e('vente-visio', 'Vendre en visioconférence', 'video', 'business', ['vente', 'animer en visio', 'parler face camera']),
+    e('cold-emailing', 'Prospection par e-mail', 'mail', 'business', ['prospection', 'copywriting', 'newsletter']),
+    e('social-selling', 'Social selling', 'share-2', 'business', ['prospection', 'reseaux sociaux / communaute en ligne', 'personal branding']),
+    e('crm', 'Suivi commercial (CRM)', 'contact', 'business', ['vente', 'excel', 'gestion de projet']),
+    e('fidelisation', 'Fidélisation client', 'heart', 'business', ['relation client', 'vente', 'newsletter']),
+    e('vente-additionnelle', 'Vente additionnelle', 'circle-plus', 'business', ['vente', 'relation client']),
+    e('demonstration', 'Démonstration de produit', 'presentation', 'business', ['vente', 'prise de parole en public', 'pedagogie']),
+    e('vente-b2b', 'Vente aux entreprises (B2B)', 'building-2', 'business', ['vente', 'prospection', 'networking']),
+    e('appel-offres', 'Répondre à un appel d\'offres', 'file-check', 'business', ['redaction', 'vente', 'gestion de projet']),
+    e('relance-commerciale', 'Relance commerciale', 'bell-ring', 'business', ['vente', 'prospection', 'relation client']),
+    e('vente-salon', 'Vendre sur un salon', 'store', 'business', ['vente', 'networking', 'accueillir']),
+    e('recommandations', 'Obtenir des recommandations', 'thumbs-up', 'business', ['networking', 'relation client', 'vente']),
+    e('vente-conseil-independant', 'Vendre ses services d\'indépendant', 'briefcase', 'business', ['vente', 'creer une offre', 'personal branding']),
+
+    // Compétences de base souvent citées (pistes métiers)
+    e('coaching', 'Coaching', 'compass', 'relation', ['ecouter pour aider', 'coacher', 'accompagnement individuel'], ['coacher']),
+    e('redaction', 'Rédaction', 'pen-line', 'communication', ['ecrire pour le web', 'copywriting', 'recherche et documentation']),
+    e('administratif', 'Administratif', 'folder-open', 'organisation', ['comptabilite', 'gestion du temps', 'planification']),
+    e('preparer-formation', 'Préparer une formation', 'notebook-pen', 'pedagogie', ['conception cours', 'design pedagogique', 'facilitation d\'ateliers']),
+    e('animer-groupe', 'Animer un groupe', 'users-round', 'animation', ['animer', 'facilitation d\'ateliers', 'dynamiser']),
+    e('improvisation', 'Improvisation', 'sparkles', 'scene', ['improviser', 'theatre', 'faire rire']),
+    e('chant', 'Chant', 'mic-vocal', 'scene', ['chanter', 'voix et diction', 'direction chorale']),
+
     // Communication (suite)
     e('journalisme', 'Journalisme', 'newspaper', 'communication', ['redaction', 'recherche et documentation']),
     e('interview', 'Interviewer', 'mic', 'communication', ['podcast', 'ecouter pour aider', 'discussions passionnantes']),
