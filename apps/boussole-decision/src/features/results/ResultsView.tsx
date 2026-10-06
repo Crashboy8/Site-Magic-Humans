@@ -242,7 +242,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       <NextSteps version={version} ranking={ranking} readOnly={readOnly} />
 
       {/* 9. Pour aller plus loin : la Carte du Talent -------------------------------------- */}
-      {!readOnly && <CarteDuTalentLink />}
+      {!readOnly && <CarteDuTalentLink talent={talent} />}
     </div>
   );
 }

@@ -37,8 +37,21 @@
 
   const N = (s) => CT.regles.normaliserTexte(s);
 
+  const LONGUEUR_ELEMENT = 60;
+  const LONGUEUR_REGION = 40;
+
   function nouvelElement(texte) {
-    return { id: CT.schema.nouvelId('el'), texte: String(texte).trim().slice(0, 60) };
+    return { id: CT.schema.nouvelId('el'), texte: String(texte).trim().slice(0, LONGUEUR_ELEMENT) };
+  }
+
+  // Longueur maximale d'un élément saisi (un nom de région est plus court).
+  function longueurMax(liste) {
+    return liste === 'regions' ? LONGUEUR_REGION : LONGUEUR_ELEMENT;
+  }
+
+  // Éléments d'une saisie en vrac qui dépassent la longueur permise (à raccourcir avant l'ajout).
+  function tropLongs(liste, texte) {
+    return decouper(texte).filter((t) => t.length > longueurMax(liste));
   }
 
   function nouveauBrouillon() {
@@ -50,7 +63,8 @@
       moments: [], // { id, texte, zone } : zone = id de région, 'ile' ou null
       conquises: [], // { id, texte, distance, elargit, zone }
       frontieres: [], // { id, texte, zone }
-      deleguer: [] // { id, texte }
+      deleguer: [], // { id, texte }
+      boussole: null // textes reçus de la Boussole, affichés en rappel (voir boussole.js)
     };
   }
 
@@ -203,8 +217,15 @@
       distance: x.distance === 'eloignee' ? 'eloignee' : 'proche', elargit: x.elargit === false ? false : x.elargit === true ? true : null }));
     b.frontieres = liste(brut.frontieres).map((x) => ({ id: String(x.id), texte: String(x.texte || ''), zone: zone(x.zone) }));
     b.deleguer = liste(brut.deleguer).map((x) => ({ id: String(x.id), texte: String(x.texte || '') }));
+    const bo = brut.boussole;
+    if (bo && typeof bo === 'object') {
+      const t = (v) => (typeof v === 'string' ? v.slice(0, 1000) : '');
+      const phrases = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string' && x.trim()).map((x) => x.slice(0, 1000)).slice(0, 12) : []);
+      b.boussole = { mecanisme: t(bo.mecanisme), contexte: t(bo.contexte), benefice: t(bo.benefice), antiContexte: t(bo.antiContexte),
+        reussites: phrases(bo.reussites), echecs: phrases(bo.echecs) };
+    }
     return b;
   }
 
-  CT.creation = { MAX_REGIONS, nouveauBrouillon, decouper, ajouter, deplacerRegion, retirer, aRanger, ranger, deviner, genererCarte, normaliserBrouillon };
+  CT.creation = { MAX_REGIONS, longueurMax, tropLongs, nouveauBrouillon, decouper, ajouter, deplacerRegion, retirer, aRanger, ranger, deviner, genererCarte, normaliserBrouillon };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

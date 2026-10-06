@@ -47,6 +47,9 @@
     }
   };
 
+  // Une phrase de la Boussole ajoutée telle quelle : ses virgules ne doivent pas la découper.
+  const sansVirgule = (t) => t.replace(/\s*[,;]\s*/g, ' ');
+
   const LIBELLE_TYPE = { moments: 'flow', conquises: 'appris', frontieres: 'envie' };
 
   function creer(racine, rappels) {
@@ -54,6 +57,8 @@
     let accueil = false;
     let ouvert = false;
     let selection = null; // { liste, id } en mode « toucher puis poser »
+    let arrivee = null; // { donnees, carteExistante } : arrivée depuis la Boussole, avant de commencer
+    let alerte = ''; // message sous le champ de saisie (élément trop long)
 
     function enregistrer() {
       CT.stockage.sauvegarderBrouillon(brouillon);
@@ -93,6 +98,58 @@
         '</div><p class="discret">Tout reste dans ce navigateur. Tu pourras exporter ta carte à tout moment.</p></div>';
     }
 
+    // Arrivée depuis la Boussole : rien n'est remplacé tant que la personne n'a pas choisi.
+    function ecranBoussole() {
+      const enCours = CT.stockage.chargerBrouillon();
+      const reprendre = enCours && (enCours.talent.nom || enCours.regions.length);
+      return '<div class="creation-accueil"><div class="accueil-hex" aria-hidden="true">' + hexDecor() + '</div>' +
+        '<h1 id="creation-titre">Ta carte à partir de ta Boussole</h1>' +
+        '<p>Ton talent et tes contextes vécus sont prêts : la création guidée s\'ouvre pré-remplie. Tu ajustes chaque étape, puis tu crées ta carte.</p>' +
+        (arrivee.carteExistante ? '<p class="note-boussole"><i data-lucide="shield-check"></i>Ta carte actuelle reste en place tant que tu n\'as pas créé la nouvelle. ' +
+          'Pense à l\'exporter depuis les Réglages si tu veux la garder.</p>' : '') +
+        (reprendre ? '<p class="note-boussole"><i data-lucide="info"></i>Tu avais commencé une création (' + (enCours.etape > 6 ? 'dernière étape' : 'question ' + enCours.etape) +
+          ') : commencer avec ta Boussole la remplacera.</p>' : '') +
+        '<div class="accueil-actions">' +
+        '<button type="button" class="bouton bouton-principal" data-action="boussole-commencer"><i data-lucide="sparkles"></i>Commencer avec ma Boussole</button>' +
+        (reprendre ? '<button type="button" class="bouton bouton-secondaire" data-action="reprendre"><i data-lucide="play"></i>Reprendre ma création en cours</button>' : '') +
+        (arrivee.carteExistante
+          ? '<button type="button" class="bouton bouton-secondaire" data-action="garder"><i data-lucide="map"></i>Garder ma carte</button>'
+          : '<button type="button" class="bouton bouton-secondaire" data-action="demo"><i data-lucide="eye"></i>Explorer la carte de démonstration</button>') +
+        '</div><p class="discret">Tout reste dans ce navigateur : rien n\'est envoyé.</p></div>';
+    }
+
+    // Encart « Depuis ta Boussole » : les phrases du profil, à ajouter (et raccourcir si besoin).
+    function encartBoussole(etape) {
+      const bo = brouillon.boussole;
+      if (!bo) return '';
+      const tete = '<aside class="encart-boussole" aria-labelledby="encart-boussole-titre"><h3 id="encart-boussole-titre"><i data-lucide="compass"></i>Depuis ta Boussole</h3>';
+      if (etape === 1) {
+        const lignes = [['Je…', bo.mecanisme], ['…dans un environnement où…', bo.contexte], ['…afin de…', bo.benefice]].filter(([, t]) => t);
+        if (!lignes.length) return '';
+        return tete + '<p class="discret">Ton Talent Unique, pour t\'aider à le dire en une phrase courte.</p><dl class="rappel-boussole">' +
+          lignes.map(([l, t]) => '<dt>' + l + '</dt><dd>' + O.echapper(t) + '</dd>').join('') + '</dl></aside>';
+      }
+      const source = etape === 3 ? 'reussites' : etape === 6 ? 'echecs' : null;
+      if (!source) return '';
+      const q = QUESTIONS[etape];
+      const max = C.longueurMax(q.liste);
+      const deja = new Set(brouillon[q.liste].map((x) => CT.regles.normaliserTexte(x.texte)));
+      const liste = bo[source];
+      const intro = etape === 3 ? 'Tes contextes de réussite. Ajoute ceux qui sont de vrais moments de flow.' : 'Tes contextes d\'échec. Ajoute ce que tu pourrais confier à d\'autres.';
+      const anti = etape === 6 && bo.antiContexte
+        ? '<p class="rappel-anti"><strong>Ton Anti-Contexte :</strong> ' + O.echapper(bo.antiContexte) + '</p>' : '';
+      if (!liste.length && !anti) return '';
+      return tete + (liste.length ? '<p class="discret">' + intro + ' Une phrase trop longue pour un hexagone va dans le champ : raccourcis-la, puis ajoute-la.</p>' +
+        '<ul class="phrases-boussole">' + liste.map((t, i) => {
+          const ajoute = deja.has(CT.regles.normaliserTexte(sansVirgule(t)));
+          const long = t.length > max;
+          return '<li><span>' + O.echapper(t) + '</span>' + (ajoute
+            ? '<span class="phrase-ajoutee"><i data-lucide="check"></i>Ajouté</span>'
+            : '<button type="button" class="bouton-lien" data-action="boussole-ajouter" data-source="' + source + '" data-index="' + i + '">' +
+              '<i data-lucide="' + (long ? 'pencil' : 'plus') + '"></i>' + (long ? 'Raccourcir' : 'Ajouter') + '<span class="visuellement-cache"> : ' + O.echapper(t) + '</span></button>') + '</li>';
+        }).join('') + '</ul>' : '') + anti + '</aside>';
+    }
+
     function hexDecor() {
       const couleurs = ['#F2A65A', '#5DB88A', '#9A8CDB', '#E5738E', '#F2C53D', '#6FB7D6', '#F4C95D'];
       const centres = [[0, 0], [1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];
@@ -109,7 +166,7 @@
         '" placeholder="Ex. : Créer des dynamiques humaines positives" autocomplete="off"></label>' +
         '<label class="champ champ-grand"><span>Le fil rouge qui relie tout (facultatif)</span><input type="text" id="creation-fil" maxlength="160" value="' +
         O.echapper(brouillon.talent.filRouge) + '" placeholder="Ex. : la mise en scène des échanges humains" autocomplete="off"></label>' +
-        '<p class="discret">Pas besoin que ce soit parfait. Tu pourras y revenir plus tard.</p></div>';
+        '<p class="discret">Pas besoin que ce soit parfait. Tu pourras y revenir plus tard.</p>' + encartBoussole(1) + '</div>';
     }
 
     function ecranListe(etape) {
@@ -144,8 +201,9 @@
         '<form class="saisie-vrac" data-form="vrac"><label class="visuellement-cache" for="creation-saisie">' + O.echapper(q.titre) + '</label>' +
         '<input type="text" id="creation-saisie" autocomplete="off" enterkeyhint="enter" placeholder="' + O.echapper(q.placeholder) + '"' + (plein ? ' disabled' : '') + '>' +
         '<button type="submit" class="bouton bouton-secondaire"' + (plein ? ' disabled' : '') + '><i data-lucide="plus"></i>Ajouter</button></form>' +
+        (alerte ? '<p class="alerte-saisie" role="alert">' + O.echapper(alerte) + '</p>' : '') +
         '<p class="discret">Tu peux en écrire plusieurs d\'un coup, séparés par des virgules.' + (plein ? ' Huit régions au maximum.' : '') + '</p>' +
-        liste +
+        liste + encartBoussole(etape) +
         (exemples.length && !plein ? '<div class="exemples"><span class="discret">Exemples :</span>' + exemples.map((e) =>
           '<button type="button" class="puce-exemple" data-action="exemple" data-valeur="' + O.echapper(e) + '"><i data-lucide="plus"></i>' + O.echapper(e) + '</button>').join('') + '</div>' : '') +
         '</div>';
@@ -189,7 +247,8 @@
     function rendre() {
       if (!ouvert) return;
       let html;
-      if (accueil) html = ecranAccueil();
+      if (arrivee) html = ecranBoussole();
+      else if (accueil) html = ecranAccueil();
       else {
         const e = brouillon.etape;
         let corps;
@@ -227,6 +286,7 @@
       if (e >= 9) { terminer(); return; }
       brouillon.etape = Math.max(1, e);
       selection = null;
+      alerte = '';
       enregistrer();
       rendre();
       const corps = racine.querySelector('.creation-corps');
@@ -259,6 +319,18 @@
       const champ = racine.querySelector('#creation-saisie');
       const q = QUESTIONS[brouillon.etape];
       if (!champ || !q || !champ.value.trim()) return;
+      const longs = C.tropLongs(q.liste, champ.value);
+      if (longs.length) {
+        // Rien n'est coupé en silence : la personne raccourcit elle-même.
+        const valeur = champ.value;
+        alerte = 'Trop long pour un hexagone (' + C.longueurMax(q.liste) + ' caractères au plus) : raccourcis « ' +
+          (longs[0].length > 50 ? longs[0].slice(0, 50) + '…' : longs[0]) + ' ».';
+        rendre();
+        const garde = racine.querySelector('#creation-saisie');
+        if (garde) { garde.value = valeur; garde.focus(); }
+        return;
+      }
+      alerte = '';
       C.ajouter(brouillon, q.liste, champ.value);
       champ.value = '';
       enregistrer();
@@ -282,8 +354,24 @@
         if (action === 'recommencer' && !rappels.confirmer('Recommencer de zéro ? Tes réponses en cours seront effacées.')) return;
         brouillon = C.nouveauBrouillon(); accueil = false; aller(1); return;
       }
-      if (action === 'reprendre') { brouillon = CT.stockage.chargerBrouillon() || C.nouveauBrouillon(); accueil = false; aller(Math.min(brouillon.etape, 8)); return; }
-      if (action === 'demo') { fermer(); rappels.demo(); return; }
+      if (action === 'reprendre') { arrivee = null; brouillon = CT.stockage.chargerBrouillon() || C.nouveauBrouillon(); accueil = false; aller(Math.min(brouillon.etape, 8)); return; }
+      if (action === 'demo') { arrivee = null; fermer(); rappels.demo(); return; }
+      if (action === 'garder') { arrivee = null; fermer(); rappels.toast('Ta carte est inchangée.'); return; }
+      if (action === 'boussole-commencer') {
+        brouillon = CT.boussole.versBrouillon(arrivee.donnees);
+        arrivee = null; accueil = false; aller(1); return;
+      }
+      if (action === 'boussole-ajouter' && q) {
+        const t = ((brouillon.boussole || {})[b.getAttribute('data-source')] || [])[Number(b.getAttribute('data-index'))];
+        if (!t) return;
+        if (t.length <= C.longueurMax(q.liste)) { C.ajouter(brouillon, q.liste, sansVirgule(t)); alerte = ''; enregistrer(); rendre(); return; }
+        // Trop longue : elle va dans le champ, à raccourcir avant de l'ajouter.
+        alerte = 'Raccourcis cette phrase en quelques mots (' + C.longueurMax(q.liste) + ' caractères au plus), puis ajoute-la.';
+        rendre();
+        const champ = racine.querySelector('#creation-saisie');
+        if (champ) { champ.value = t; champ.focus(); champ.select(); }
+        return;
+      }
       if (action === 'quitter') {
         if (rappels.doitAccueillir()) { accueil = true; rendre(); } else fermer();
         rappels.toast('Ta saisie est gardée : tu pourras reprendre depuis les Réglages.');
@@ -390,12 +478,14 @@
 
     function ouvrir(options) {
       accueil = Boolean(options && options.accueil);
+      arrivee = options && options.boussole ? { donnees: options.boussole, carteExistante: Boolean(options.carteExistante) } : null;
+      alerte = '';
       brouillon = CT.stockage.chargerBrouillon() || C.nouveauBrouillon();
       selection = null;
       ouvert = true;
       racine.hidden = false;
       document.body.classList.add('creation-ouverte');
-      if (accueil) rendre(); else aller(Math.min(brouillon.etape, 8));
+      if (accueil || arrivee) rendre(); else aller(Math.min(brouillon.etape, 8));
       requestAnimationFrame(() => racine.classList.add('visible'));
     }
 

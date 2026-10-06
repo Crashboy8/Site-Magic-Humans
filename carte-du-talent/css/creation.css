@@ -338,3 +338,55 @@
 @media (prefers-reduced-motion: reduce) {
   .barre-progression span { transition: none; }
 }
+
+/* Arrivée depuis la Boussole */
+
+.creation-accueil > .note-boussole {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 46ch;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #EEF6F3;
+  font-size: 15px;
+  text-align: left;
+  color: var(--encre);
+}
+.note-boussole svg { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--focus); }
+
+.encart-boussole {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border: 1px solid #CFE3DC;
+  border-radius: 14px;
+  background: #F3F9F6;
+}
+.encart-boussole h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 800; color: var(--focus); }
+.encart-boussole h3 svg { width: 17px; height: 17px; }
+.encart-boussole .discret { margin-top: 4px; }
+
+.rappel-boussole { margin: 10px 0 0; display: grid; gap: 2px; }
+.rappel-boussole dt { font-size: 13px; font-weight: 700; color: var(--encre-douce); font-style: italic; }
+.rappel-boussole dd { margin: 0 0 6px; font-size: 15px; line-height: 1.45; }
+
+.phrases-boussole { display: grid; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.phrases-boussole li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.phrases-boussole .bouton-lien { flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 6px; font-weight: 700; color: var(--accent-fort); }
+.phrases-boussole .bouton-lien svg { width: 16px; height: 16px; }
+.phrase-ajoutee { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; color: #2F7A55; }
+.phrase-ajoutee svg { width: 16px; height: 16px; }
+
+.rappel-anti { margin: 10px 0 0; font-size: 15px; line-height: 1.45; }
+
+.alerte-saisie { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; background: #FDECEC; color: #9E2B2B; font-size: 15px; font-weight: 600; }
