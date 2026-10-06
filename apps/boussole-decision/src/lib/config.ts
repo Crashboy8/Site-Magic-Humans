@@ -1,7 +1,7 @@
 export const BASE_PATH = "/boussole-decision";
 
-/** La Carte du Talent (site Magic Humans), ouverte dans un nouvel onglet depuis le profil et les résultats. */
-export const CARTE_DU_TALENT_URL = "https://www.magichumans.com/carte-du-talent/";
+/** La Carte du Talent (site Magic Humans), ouverte dans un nouvel onglet depuis le profil et les résultats (voir next.config.ts). */
+export const CARTE_DU_TALENT_URL = process.env.NEXT_PUBLIC_CARTE_DU_TALENT_URL || "https://www.magichumans.com/carte-du-talent/";
 
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 export const SUPABASE_KEY =
