@@ -169,6 +169,23 @@
     "#screen-amour .am-divider{text-align:center;padding:4px 0}",
     "#screen-amour .am-tap{display:flex;align-items:center;gap:12px;text-align:left}",
     "#screen-amour .am-tap .snum{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--am);color:#fff;font-weight:700;flex:none;font-size:1rem}",
+    "#screen-amour .am-steps{display:flex;justify-content:center;gap:14px;margin:2px 0 14px}",
+    "#screen-amour .am-steps span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:1.05rem;border:2px solid var(--am);color:var(--am);background:var(--surface)}",
+    "#screen-amour .am-steps span.is-next{box-shadow:0 0 0 4px color-mix(in srgb,var(--am) 28%,transparent)}",
+    "#screen-amour .am-steps span.is-on{background:var(--am);border-color:var(--am);color:#fff;box-shadow:none}",
+    "#screen-amour .am-style{display:flex;align-items:flex-start;gap:12px;text-align:left}",
+    "#screen-amour .am-style .snum{width:36px;height:36px;margin-top:1px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:1rem;border:2px dashed var(--am);background:transparent;color:transparent}",
+    "#screen-amour .am-style.picked .snum{border-style:solid;background:var(--am);color:#fff}",
+    "#screen-amour .am-style[data-item-tone=sage] .snum{border-color:var(--sage)}",
+    "#screen-amour .am-style[data-item-tone=sky] .snum{border-color:var(--sky)}",
+    "#screen-amour .am-style[data-item-tone=pink] .snum{border-color:var(--pink)}",
+    "#screen-amour .am-style[data-item-tone=sage].picked .snum{background:var(--sage)}",
+    "#screen-amour .am-style[data-item-tone=sky].picked .snum{background:var(--sky)}",
+    "#screen-amour .am-style[data-item-tone=pink].picked .snum{background:var(--pink)}",
+    "#screen-amour .am-style-copy{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}",
+    "#screen-amour .rsrc-opt.am-style strong{display:flex;align-items:flex-start;gap:8px}",
+    "#screen-amour .am-style .muted{display:block}",
+    "#screen-amour .am-rank-reset{width:100%;margin-top:4px;justify-content:center}",
     "#screen-amour button.chip{font:inherit;cursor:pointer;color:var(--ink)}",
     "#screen-amour button.chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}",
     "#screen-amour .am-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}",
@@ -549,7 +566,10 @@
     } else if (s.type === "rank") {
       const x = ensure(s).order.length;
       const ok = x >= s.minRanked;
-      bits.push(counterSpan(fill(Q.rankCounter, { x: x, min: s.minRanked }) + (ok ? " " + Q.counterOk : ""), ""));
+      const text = s.cardRank
+        ? fill(Q.rankOrder, { x: x, n: s.items.length })
+        : fill(Q.rankCounter, { x: x, min: s.minRanked });
+      bits.push(counterSpan(text + (ok ? " " + Q.counterOk : ""), ""));
     } else if (s.type === "commit") {
       const bag = ensure(s);
       const wrote = String(bag.engagement || "").trim().length >= (s.engagement.minLength || 5);
@@ -677,7 +697,34 @@
     }).join("");
   }
 
+  function cardRankHtml(s) {
+    const order = ensure(s).order;
+    let steps = '<div class="am-steps" aria-hidden="true">';
+    for (let i = 0; i < s.items.length; i++) {
+      const on = i < order.length;
+      const next = i === order.length;
+      steps += '<span class="' + (on ? "is-on" : "") + (next ? " is-next" : "") + '">' + (i + 1) + "</span>";
+    }
+    steps += "</div>";
+    let html = steps + '<div class="items am-style-list">';
+    s.items.forEach(function (it) {
+      const pos = order.indexOf(it.id);
+      const on = pos !== -1;
+      const mark = cardIcon(s.id, it.id);
+      const tone = ITEM_TONE[it.id] || "";
+      html += '<button type="button" class="rsrc-opt am-style' + (on ? " picked" : "") + '" data-act="rank-card" data-id="' + esc(it.id) + '" aria-pressed="' + (on ? "true" : "false") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + ">" +
+        '<span class="snum">' + (on ? String(pos + 1) : "") + "</span>" +
+        '<span class="am-style-copy"><strong>' + (mark ? ico(mark, tone) : "") + esc(it.label) + "</strong>" +
+        (it.hint ? '<span class="muted">' + esc(it.hint) + "</span>" : "") +
+        "</span></button>";
+    });
+    html += "</div>";
+    html += '<button type="button" class="btn ghost am-rank-reset" data-act="rank-reset"' + (order.length ? "" : " disabled") + ">" + esc(Q.rankReset) + "</button>";
+    return html;
+  }
+
   function directRankHtml(s) {
+    if (s.cardRank) return cardRankHtml(s);
     const order = ensure(s).order;
     const left = s.items.filter(function (it) { return order.indexOf(it.id) === -1; });
     let html = "<h3>" + esc(Q.rankZone) + "</h3>";
@@ -1708,6 +1755,29 @@
         }).filter(Boolean);
       }
       if (s.rank && s.rank.mode === "inline") resync(s);
+      showQuestion(false);
+      return;
+    }
+    if (act === "rank-card") {
+      if (!s || !s.cardRank) return;
+      const bag = ensure(s);
+      const id = btn.getAttribute("data-id");
+      const item = (s.items || []).find(function (it) { return it.id === id; });
+      if (!item) return;
+      if (bag.order.indexOf(id) !== -1) {
+        bag.order = E.rankingState(bag.order, { type: "remove", id: id });
+        pendingLive = fill(Q.rankUndo, { label: item.label });
+      } else {
+        bag.order = E.rankingState(bag.order, { type: "add", id: id });
+        pendingLive = fill(Q.placed, { label: item.label, pos: bag.order.length, total: s.items.length });
+      }
+      showQuestion(false);
+      return;
+    }
+    if (act === "rank-reset") {
+      if (!s || !s.cardRank || btn.disabled) return;
+      ensure(s).order = [];
+      pendingLive = Q.rankCleared;
       showQuestion(false);
       return;
     }

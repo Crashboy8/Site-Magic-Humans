@@ -179,8 +179,14 @@ test("9 questions, ids uniques, types pick/rank/commit, n de 1 à 9", () => {
 
 test("questions : titres et aides en français naturel", () => {
   assert.equal(screen("instinct").title, "Quelle façon de vivre le couple te ressemble le plus ?");
-  assert.equal(screen("instinct").help, "Mets en premier celle qui te parle le plus.");
-  assert.equal(screen("instinct").items.find((it) => it.id === "so").label, "Social · je vois du monde");
+  assert.equal(screen("instinct").help, "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche encore pour retirer.");
+  assert.equal(screen("instinct").cardRank, true);
+  assert.equal(screen("instinct").autoCompleteLast, false);
+  assert.equal(screen("instinct").minRanked, 3);
+  assert.equal(D.ui.quiz.rankReset, "Recommencer");
+  const social = screen("instinct").items.find((it) => it.id === "so");
+  assert.equal(social.label, "Social · je vois du monde");
+  for (const it of screen("instinct").items) assert.ok(it.hint && it.hint.length > 20, it.id);
   assert.equal(screen("ennea").rank.title, "Mets en premier la phrase qui te ressemble le plus.");
   assert.equal(screen("nourrit").rank.title, "Mets en premier ce qui compte le plus pour toi.");
   assert.equal(screen("nourrit").rank.divider.text, "En premier : ce que tu ne veux plus vivre.");

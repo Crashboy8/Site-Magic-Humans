@@ -47,6 +47,10 @@ const AMOUR_DATA = {
       "rankCounter": "Classés : {x}/{min} minimum",
       "rankEmpty": "Touche une carte ci-dessous pour la placer.",
       "rankZone": "Ton classement",
+      "rankOrder": "Ton ordre : {x}/{n}",
+      "rankReset": "Recommencer",
+      "rankUndo": "« {label} » retirée de ton ordre.",
+      "rankCleared": "Ordre effacé.",
       "up": "Monter",
       "down": "Descendre",
       "remove": "Retirer du classement",
@@ -820,24 +824,25 @@ const AMOUR_DATA = {
       "n": 6,
       "eyebrow": "Ton sous-type en couple",
       "title": "Quelle façon de vivre le couple te ressemble le plus ?",
-      "help": "Mets en premier celle qui te parle le plus.",
-      "minRanked": 2,
-      "autoCompleteLast": true,
+      "help": "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche encore pour retirer.",
+      "minRanked": 3,
+      "autoCompleteLast": false,
+      "cardRank": true,
       "items": [
         {
           "id": "sp",
           "label": "Conservation · je sécurise",
-          "hint": "Un samedi libre en couple, ton idéal c'est un cocon à la maison, tranquille et confortable."
+          "hint": "Un cocon tranquille, à la maison."
         },
         {
           "id": "so",
           "label": "Social · je vois du monde",
-          "hint": "Un samedi libre en couple, ton idéal c'est un dîner avec des amis, voir du monde ensemble."
+          "hint": "Un dîner avec des amis."
         },
         {
           "id": "sx",
           "label": "Tête-à-tête · j'intensifie",
-          "hint": "Un samedi libre en couple, ton idéal c'est un tête-à-tête intense, une longue discussion rien que vous deux."
+          "hint": "Rien que vous deux, longtemps."
         }
       ]
     },
