@@ -58,8 +58,6 @@ function firstAnswers() {
     instinct: { order: screen("instinct").items.map((it) => it.id) },
     stress: pick("stress", { modere: ["D"], fort: ["fight"] }),
     freins: pick("freins", { freins: ["rejet"] }),
-    demain: pick("demain", { actions: ["a5"] }),
-    etape: { engagement: "Cette semaine, je dis ce dont j'ai besoin.", moment: "demain", safety: null },
   };
 }
 
@@ -69,7 +67,8 @@ function randomAnswers(r) {
     if (s.type === "pick") {
       const bag = { picked: {}, other: {}, order: {} };
       for (const g of s.groups) {
-        const n = g.min + Math.floor(r() * (g.items.length - g.min + 1));
+        const cap = g.max ? Math.min(g.max, g.items.length) : g.items.length;
+        const n = g.min + Math.floor(r() * (Math.max(0, cap - g.min) + 1));
         let ids = shuffle(r, g.items.map((it) => it.id)).slice(0, n);
         if (s.exclusive) {
           for (const pair of s.exclusive) {
@@ -79,7 +78,7 @@ function randomAnswers(r) {
         }
         bag.picked[g.id] = ids;
         const texts = [];
-        if (g.other && r() < 0.25) texts.push("déjà vu · aimé·e <b> vraiment");
+        if (g.other && r() < 0.25 && (!g.max || ids.length < g.max)) texts.push("déjà vu · aimé·e <b> vraiment");
         bag.other[g.id] = texts;
         const chosen = ids.slice();
         if (texts[0] && texts[0].trim()) chosen.push("autre:0");
@@ -91,12 +90,25 @@ function randomAnswers(r) {
       a[s.id] = { order: shuffle(r, s.items.map((it) => it.id)).slice(0, n) };
     } else {
       const safeties = ["non", "passe", "doute", "present", null];
-      a[s.id] = {
+      const bag = {
         engagement: "Cette semaine, je dis ce dont j'ai besoin.",
         moment: D.moments[Math.floor(r() * D.moments.length)].id,
         who: r() < 0.5 ? "Léa <b>" : "",
         safety: safeties[Math.floor(r() * safeties.length)],
+        time: null,
+        picked: {},
+        other: {},
+        order: {},
       };
+      for (const g of s.groups || []) {
+        const n = g.min + Math.floor(r() * (g.items.length - g.min + 1));
+        const ids = shuffle(r, g.items.map((it) => it.id)).slice(0, n);
+        bag.picked[g.id] = ids;
+        bag.other[g.id] = [];
+        bag.order[g.id] = ids.slice();
+        if (ids.includes("rappel")) bag.time = "18:00";
+      }
+      a[s.id] = bag;
     }
   }
   return a;
@@ -105,6 +117,10 @@ function randomAnswers(r) {
 test("résultat : bloc Et maintenant, une phrase par stress fort", () => {
   const n = D.ui.results;
   assert.equal(n.nowH, "Et maintenant ?");
+  assert.equal(n.petitPasLabel, "Et toi, quel petit pas tu fais cette semaine ?");
+  assert.equal(n.petitPasPh, "Exemple : dire ce soir ce dont j'ai besoin.");
+  assert.match(n.petitPasHint, /Facultatif/);
+  assert.match(n.petitPasHint, /appareil/);
   assert.equal(n.nowStep, "Ta prochaine étape");
   assert.equal(n.nowStepEmpty, "Choisis un petit pas pour ta relation cette semaine.");
   assert.equal(n.nowTest, "Teste ta relation");
@@ -140,14 +156,51 @@ test("question 1 en deux sous-écrans, même numéro", () => {
   assert.equal(screen("stress").splitGroups, undefined);
 });
 
-test("10 questions, ids uniques, types pick/rank/commit, n de 1 à 10", () => {
+test("8 questions, ids uniques, types pick ou rank, n de 1 à 8", () => {
   assert.equal(D.version, 4);
-  assert.equal(D.screens.length, 10);
-  assert.equal(new Set(D.screens.map((s) => s.id)).size, 10);
+  assert.equal(D.screens.length, 8);
+  assert.equal(new Set(D.screens.map((s) => s.id)).size, 8);
+  assert.equal(screen("demain"), undefined);
+  assert.equal(screen("etape"), undefined);
+  assert.equal(screen("freins").n, 8);
+  assert.equal(screen("ennea").optional, true);
+  assert.equal(group("ennea", "types").min, 0);
+  assert.equal(group("valeurs", "valeurs").items.length, 15);
   D.screens.forEach((s, i) => {
     assert.equal(s.n, i + 1);
-    assert.ok(["pick", "rank", "commit"].includes(s.type));
+    assert.ok(["pick", "rank"].includes(s.type));
   });
+});
+
+test("questions : titres et aides en français naturel", () => {
+  assert.equal(screen("instinct").title, "Quelle façon de vivre le couple te ressemble le plus ?");
+  assert.equal(screen("instinct").help, "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche-la à nouveau pour la retirer.");
+  assert.equal(screen("instinct").items.find((it) => it.id === "sp").label, "Le foyer · je protège le quotidien");
+  assert.equal(screen("instinct").items.find((it) => it.id === "sx").label, "Rien qu'à deux · je veux un lien fort");
+  assert.equal(screen("instinct").items.find((it) => it.id === "sx").hint, "Un long moment rien qu'à deux.");
+  assert.equal(screen("ennea").title, "Quelles phrases te ressemblent ? Coche celles qui te parlent, ou passe.");
+  assert.equal(screen("ennea").help, "C'est un point de départ, pas un verdict.");
+  assert.equal(screen("valeurs").rank.help, "Touche-les dans l'ordre, de la plus importante à la moins importante.");
+  assert.equal(group("valeurs", "valeurs").items.find((it) => it.id === "respect").hint, "Pas de mépris, et on ne tient pas les comptes.");
+  assert.equal(group("valeurs", "valeurs").items.find((it) => it.id === "famille").hint, "Tes proches et tes racines comptent beaucoup.");
+  assert.equal(screen("instinct").cardRank, true);
+  assert.equal(screen("instinct").autoCompleteLast, false);
+  assert.equal(screen("instinct").minRanked, 3);
+  assert.equal(D.ui.quiz.rankReset, "Recommencer");
+  const social = screen("instinct").items.find((it) => it.id === "so");
+  assert.equal(social.label, "Social · je vois du monde");
+  for (const it of screen("instinct").items) assert.ok(it.hint && it.hint.length > 20, it.id);
+  assert.equal(screen("ennea").rank.title, "Mets en premier la phrase qui te ressemble le plus.");
+  assert.equal(screen("nourrit").rank.title, "Mets en premier ce qui compte le plus pour toi.");
+  assert.equal(screen("nourrit").rank.divider.text, "En premier : ce que tu ne veux plus vivre.");
+  assert.equal(screen("langages").title, "Pour te sentir aimé·e, qu'est-ce qui compte le plus ?");
+  assert.equal(screen("langages").help, "Mets en premier ce qui te parle le plus. Deux suffisent. Tu peux toucher les cartes dans l'ordre, ou les faire glisser.");
+  assert.equal(screen("freins").title, "Qu'est-ce qui te freine ou te met mal à l'aise en amour ?");
+  assert.equal(screen("freins").help, "Ce qui te bloque, ce qui te gêne, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.");
+  assert.equal(group("freins", "freins").items.length, 12);
+  assert.equal(D.ui.quiz.topCounter, "Tes 3 premières : {x}/{n}");
+  const blob = allStrings(D).join("\n");
+  assert.equal(/plus toi|top 3|Top 3|je connecte|en haut/i.test(blob), false);
 });
 
 test("aucun tiret long ni demi-cadratin, aucun TODO, jamais le mot sexuel", () => {
@@ -174,10 +227,10 @@ test("références valides", () => {
   for (const it of group("valeurs", "valeurs").items) {
     assert.ok(D.values[it.id] && D.values[it.id].short && D.values[it.id].opposite, it.id);
   }
+  assert.deepEqual(Object.keys(D.values).sort(), group("valeurs", "valeurs").items.map((it) => it.id).sort());
   for (const it of group("stress", "modere").items) assert.ok(D.stress.modere[it.id], it.id);
   for (const it of group("stress", "fort").items) assert.ok(D.stress.fort[it.id], it.id);
   for (const it of group("freins", "freins").items) assert.ok(D.brakes[it.id], it.id);
-  for (const it of group("demain", "actions").items) assert.ok(D.actions[it.id], it.id);
   assert.equal(Object.keys(D.instinctPairs).length, 6);
   for (const pair of screen("valeurs").exclusive) {
     for (const id of pair) assert.ok(group("valeurs", "valeurs").items.some((it) => it.id === id));
@@ -204,17 +257,12 @@ test("minimums", () => {
   both.valeurs.picked.valeurs = ["enfants", "sans_enfants", "honnetete"];
   both.valeurs.order.valeurs = ["enfants", "sans_enfants", "honnetete"];
   assert.throws(() => E.computeLoveProfile(both, D, "Léa"));
-  const noMoment = firstAnswers();
-  delete noMoment.etape.moment;
-  assert.throws(() => E.computeLoveProfile(noMoment, D, "Léa"));
-  const shortText = firstAnswers();
-  shortText.etape.engagement = "oui";
-  assert.doesNotThrow(() => E.computeLoveProfile(shortText, D, "Léa"));
-  const emptyEng = firstAnswers();
-  emptyEng.etape.engagement = "   ";
-  const emptyProfile = E.computeLoveProfile(emptyEng, D, "Léa");
-  assert.equal(emptyProfile.etape.engagement, "");
-  assert.match(emptyProfile.exportText, /Choisis un petit pas/);
+  const done = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  assert.equal(done.safety, null);
+  assert.equal(done.pastAbuse, null);
+  assert.equal(done.etape, undefined);
+  assert.equal(done.demain, undefined);
+  assert.equal(/Choisis un petit pas|Ton engagement/.test(done.exportText), false);
   const emptyOther = firstAnswers();
   emptyOther.nourrit.picked.nourrit = ["ecoute", "rire"];
   emptyOther.nourrit.other.nourrit = ["   "];
@@ -229,7 +277,11 @@ test("minimums", () => {
   const ids = group("valeurs", "valeurs").items.map((it) => it.id).filter((id) => id !== "sans_enfants");
   allValues.valeurs.picked.valeurs = ids;
   allValues.valeurs.order.valeurs = ids;
-  assert.doesNotThrow(() => E.computeLoveProfile(allValues, D, "Léa"));
+  assert.throws(() => E.computeLoveProfile(allValues, D, "Léa"));
+  const five = firstAnswers();
+  five.valeurs.picked.valeurs = ["honnetete", "fidelite", "respect", "humour", "aventure"];
+  five.valeurs.order.valeurs = ["honnetete", "fidelite", "respect"];
+  assert.doesNotThrow(() => E.computeLoveProfile(five, D, "Léa"));
 });
 
 test("rankingState", () => {
@@ -296,7 +348,16 @@ test("phrases", () => {
   assert.equal(p.profil.name.text, p.profil.name.noun + " " + p.profil.name.adj);
 });
 
-test("valeurs", () => {
+test("valeurs : 3 à 5, top 3 à 3 points, la suite à 1", () => {
+  const g = group("valeurs", "valeurs");
+  assert.equal(g.items.length, 15);
+  assert.equal(g.min, 3);
+  assert.equal(g.max, 5);
+  assert.equal(screen("valeurs").rank.mode, "tap");
+  assert.equal(screen("valeurs").rank.top, 3);
+  assert.equal(screen("valeurs").title, "Choisis 3 à 5 valeurs qui comptent le plus pour toi.");
+  assert.equal(screen("valeurs").rank.title, "Quelles sont tes 3 valeurs les plus importantes ?");
+  assert.deepEqual(D.profil.points.valeurs, [3, 3, 3, 1, 1, 1, 1, 1, 0]);
   const a = firstAnswers();
   a.valeurs.picked.valeurs = ["enfants", "honnetete", "fidelite", "humour"];
   a.valeurs.order.valeurs = ["enfants", "honnetete", "fidelite", "humour"];
@@ -304,32 +365,51 @@ test("valeurs", () => {
   assert.deepEqual(p.values.nonNegotiables.map((v) => v.id), ["enfants", "honnetete", "fidelite"]);
   assert.deepEqual(p.values.toDiscuss.map((v) => v.id), ["humour"]);
   assert.ok(p.partner.critical.includes("Un partenaire qui ne veut pas d'enfants."));
+  const top = firstAnswers();
+  const ids = ["honnetete", "fidelite", "respect", "humour", "aventure"];
+  top.valeurs.picked.valeurs = ids.slice();
+  top.valeurs.order.valeurs = ids.slice();
+  const swappedTop = firstAnswers();
+  swappedTop.valeurs.picked.valeurs = ids.slice();
+  swappedTop.valeurs.order.valeurs = ["fidelite", "honnetete", "respect", "humour", "aventure"];
+  const ranked = E.computeLoveProfile(top, D, "Léa");
+  const swapped = E.computeLoveProfile(swappedTop, D, "Léa");
+  assert.deepEqual(swapped.profil.raw, ranked.profil.raw);
+  assert.deepEqual(swapped.values.nonNegotiables.map((v) => v.id), ["fidelite", "honnetete", "respect"]);
+  const tailUp = firstAnswers();
+  tailUp.valeurs.picked.valeurs = ids.slice();
+  tailUp.valeurs.order.valeurs = ["honnetete", "fidelite", "humour", "respect", "aventure"];
+  const moved = E.computeLoveProfile(tailUp, D, "Léa");
+  assert.equal(moved.profil.raw.complicite - ranked.profil.raw.complicite, 2);
+  assert.equal(moved.profil.raw.harmonie - ranked.profil.raw.harmonie, -2);
+  const onlyTop = firstAnswers();
+  onlyTop.valeurs.picked.valeurs = ids.slice();
+  onlyTop.valeurs.order.valeurs = ["aventure", "humour", "respect"];
+  const fromTaps = E.computeLoveProfile(onlyTop, D, "Léa");
+  assert.deepEqual(fromTaps.values.order.map((v) => v.id), ["aventure", "humour", "respect", "honnetete", "fidelite"]);
+  assert.equal(fromTaps.profil.raw.intensite - ranked.profil.raw.intensite, 2);
+  assert.equal(fromTaps.profil.raw.profondeur - ranked.profil.raw.profondeur, -2);
 });
 
-test("sécurité", () => {
-  for (const id of ["present", "doute"]) {
+test("sécurité : la question a disparu, aucun bandeau", () => {
+  assert.equal(screen("etape"), undefined);
+  for (const id of ["present", "doute", "passe", "non"]) {
     const a = firstAnswers();
-    a.etape.safety = id;
+    a.etape = { safety: id, engagement: "phrase secrète", moment: "demain" };
     const p = E.computeLoveProfile(a, D, "Léa");
-    assert.equal(p.safety, D.safety[id]);
+    assert.equal(p.safety, null);
     assert.equal(p.pastAbuse, null);
+    assert.equal(p.exportText.includes("phrase secrète"), false);
+    assert.equal(p.exportText.includes("3919"), false);
   }
-  const passe = firstAnswers();
-  passe.etape.safety = "passe";
-  const p = E.computeLoveProfile(passe, D, "Léa");
-  assert.equal(p.safety, null);
-  assert.equal(p.pastAbuse, D.pastAbuseNote);
+  assert.match(D.ui.results.ethicsP, /3919/);
 });
 
 test("rien de privé ne sort", () => {
   const a = firstAnswers();
   const b = firstAnswers();
-  a.etape.safety = "present";
-  b.etape.safety = "non";
-  a.etape.who = "WaldoUnique";
-  b.etape.who = "";
-  a.etape.engagement = "Cette semaine, je dis ce dont j'ai besoin.";
-  b.etape.engagement = "Cette semaine, je pose une limite claire.";
+  a.etape = { safety: "present", who: "WaldoUnique", engagement: "Cette semaine, je dis ce dont j'ai besoin." };
+  b.etape = { safety: "non", who: "", engagement: "Cette semaine, je pose une limite claire." };
   a.nourrit.other.nourrit = ["déjà <b> secret"];
   a.nourrit.order.nourrit = ["ecoute", "rire", "fiable", "autre:0"];
   a.valeurs.other = { valeurs: ["la fidélité aux amis"] };
@@ -344,8 +424,10 @@ test("rien de privé ne sort", () => {
   assert.ok(!raw.includes("secret"));
   assert.ok(!raw.includes("fidélité aux amis"));
   assert.ok(!pa.shareText.includes(a.etape.engagement));
+  assert.ok(!pa.exportText.includes(a.etape.engagement));
+  assert.ok(!pa.exportText.includes("Ton engagement"));
   assert.ok(!pa.shareText.includes("3919"));
-  assert.ok(pa.exportText.includes(a.etape.engagement));
+  assert.ok(!JSON.stringify(pa.boussole).includes(a.etape.engagement));
 });
 
 test("préréglage", () => {
@@ -396,8 +478,6 @@ function camilleAnswers() {
     instinct: { order: ["sx", "sp", "so"] },
     stress: pick({ modere: ["C"], fort: ["freeze", "fawn"] }),
     freins: pick({ freins: ["moment"] }),
-    demain: pick({ actions: ["a5"] }),
-    etape: { engagement: "Cette semaine, je propose une soirée rien qu'à deux.", moment: "weekend", safety: null },
   };
 }
 
@@ -410,7 +490,7 @@ test("v1.4 · 7 besoins complets, couleurs et icônes", () => {
   };
   const adjs = {
     securite: "Fidèle", profondeur: "Profond·e", admiration: "Brillant·e", liberte: "Libre",
-    harmonie: "Paisible", complicite: "Joueur·se", intensite: "Passionné·e",
+    harmonie: "Paisible", complicite: "Joueur·euse", intensite: "Passionné·e",
   };
   for (const id of P.order) {
     const b = P.besoins[id];
@@ -482,7 +562,8 @@ test("v1.4 · table de pondération : chaque option de Q1 à Q7 est connue", () 
   check(P.weights.ennea, ids("ennea", "types"));
   check(P.weights.valeurs, ids("valeurs", "valeurs"));
   check(P.weights.instinct, ids("instinct"));
-  check(P.weights.stress, ids("stress", "modere").concat(ids("stress", "fort")));
+  check(P.weights.stress, ids("stress", "modere"));
+  for (const id of ids("stress", "fort")) assert.equal(P.weights.stress[id], undefined, id);
 });
 
 test("v1.4 · aucun tiret long, jamais « sexuel », aucun TODO dans le profil", () => {
@@ -533,17 +614,17 @@ test("v1.4 · déterministe et complet sur 3000 réponses, sans l'ennéagramme d
 test("v1.4 · calcul de référence (firstAnswers), sans Q4", () => {
   const p = E.computeLoveProfile(firstAnswers(), D, "Léa").profil;
   assert.deepEqual(p.scores, {
-    securite: 16.7, profondeur: 27.9, admiration: 19.4, liberte: 16.2, harmonie: 21.6, complicite: 12.5, intensite: 3.2,
+    securite: 20, profondeur: 33.3, admiration: 19.4, liberte: 20, harmonie: 25, complicite: 13.2, intensite: 0,
   });
   assert.equal(p.name.text, "Miroir Paisible");
 });
 
 test("v1.4 · égalités : ratio, puis nourrit, puis vide, puis ordre fixe", () => {
   const r = E.rank(P, [
-    { need: "securite", pts: 54, src: "valeurs" },
-    { need: "complicite", pts: 56, src: "nourrit" },
-    { need: "liberte", pts: 37, src: "vide" },
-    { need: "intensite", pts: 31, src: "valeurs" },
+    { need: "securite", pts: 45, src: "valeurs" },
+    { need: "complicite", pts: 53, src: "nourrit" },
+    { need: "liberte", pts: 30, src: "vide" },
+    { need: "intensite", pts: 30, src: "valeurs" },
   ]);
   assert.deepEqual(r.ranking.slice(0, 4), ["complicite", "liberte", "securite", "intensite"]);
   assert.deepEqual(E.rank(P, []).ranking, P.order);
@@ -551,28 +632,30 @@ test("v1.4 · égalités : ratio, puis nourrit, puis vide, puis ordre fixe", () 
 
 test("v1.4 · exposition sans l'ennéagramme", () => {
   assert.deepEqual(E.exposure(P), {
-    securite: 54, profondeur: 43, admiration: 36, liberte: 37, harmonie: 51, complicite: 56, intensite: 31,
+    securite: 45, profondeur: 36, admiration: 36, liberte: 30, harmonie: 44, complicite: 53, intensite: 30,
   });
 });
 
-test("v1.4 · exemple Camille : Miroir Passionné·e, Q4 sans effet", () => {
+test("v1.4 · exemple Camille : Miroir Fidèle, Q4 sans effet, piège gelé", () => {
   const a = camilleAnswers();
   const love = E.computeLoveProfile(a, D, "Camille");
   const p = love.profil;
-  assert.equal(p.name.text, "Miroir Passionné·e");
+  assert.equal(p.name.text, "Miroir Fidèle");
   assert.equal(p.margin, "net");
   assert.equal(p.trapId, "freeze");
   assert.equal(p.boussoleDom, "profondeur");
   assert.equal(love.boussole.imp.langage, "tres_important");
   assert.deepEqual(p.scores, {
-    securite: 27.8, profondeur: 58.1, admiration: 2.8, liberte: 2.7, harmonie: 13.7, complicite: 7.1, intensite: 32.3,
+    securite: 33.3, profondeur: 66.7, admiration: 2.8, liberte: 3.3, harmonie: 13.6, complicite: 7.5, intensite: 33.3,
   });
-  assert.match(p.sentences[0], /^Camille, ton profil amoureux est Miroir Passionné·e : /);
+  assert.match(p.sentences[0], /^Camille, ton profil amoureux est Miroir Fidèle : /);
+  assert.equal(love.boussole.v, 2);
+  assert.deepEqual(Object.keys(love.boussole).sort(), ["imp", "notes", "v"]);
   const other = camilleAnswers();
   other.ennea = { picked: { types: ["t8"] }, other: { types: [] }, order: { types: ["t8"] } };
   const love2 = E.computeLoveProfile(other, D, "Camille");
   assert.equal(E.encodePayload(love.boussole), E.encodePayload(love2.boussole));
-  assert.equal(love2.profil.name.text, "Miroir Passionné·e");
+  assert.equal(love2.profil.name.text, "Miroir Fidèle");
 });
 
 function memoryStore() {
@@ -584,21 +667,54 @@ function memoryStore() {
   };
 }
 
-test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
-  assert.equal(E.progressKey(), "quiz_amour_v14_progress");
+test("petit pas : facultatif, dans l'export s'il est rempli, hors score et hors envoi", () => {
+  const p = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  const base = p.exportText.replace(/\s*$/, "");
+  assert.equal(E.exportWithPetitPas(p.exportText, D, "   "), base);
+  const line = E.exportWithPetitPas(p.exportText, D, "  Dire <b>ce soir  ");
+  assert.equal(line, base + "\n\nMon petit pas cette semaine : « Dire bce soir »");
+  assert.equal(p.shareText.includes("ce soir"), false);
+  assert.equal(JSON.stringify(p.boussole).includes("ce soir"), false);
+  const a = firstAnswers();
+  a.petitPas = "un pas secret";
+  const q = E.computeLoveProfile(a, D, "Léa");
+  assert.deepEqual(q.profil.scores, p.profil.scores);
+  assert.equal(q.profil.name.text, p.profil.name.text);
+  assert.equal(q.profil.dom, p.profil.dom);
+  assert.equal(JSON.stringify(q.boussole), JSON.stringify(p.boussole));
+  assert.equal(q.shareText, p.shareText);
+  assert.equal(E.petitPasStored("x".repeat(200)).length, 140);
+  const store = memoryStore();
+  assert.equal(E.writeProgress(store, {
+    view: "results", qi: 7, answers: firstAnswers(), profile: p, petitPas: "  Dire <b>ce soir  ",
+  }), true);
+  assert.equal(E.readProgress(store).petitPas, "  Dire bce soir  ");
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  const fn = src.slice(src.indexOf("function applyPetitPas"), src.indexOf("function paintAsk"));
+  assert.equal(/showResults|showQuestion|innerHTML/.test(fn), false);
+  assert.match(fn, /if \(!composing && el\.value !== clean\) el\.value = clean/);
+  assert.match(src, /el\.id === "am-petit-pas"/);
+  assert.match(src, /if \(composing\) return;\s*applyPetitPas\(el\)/);
+  assert.match(src, /JSON\.stringify\(\{ session: session, profil: profil \}\)/);
+});
+
+test("persistance : réponses, résultat, jamais la sécurité", () => {
+  assert.equal(E.progressKey(), "quiz_amour_v17_progress");
   const store = memoryStore();
   const answers = firstAnswers();
-  answers.etape.safety = "passe";
+  answers.etape = { safety: "passe", engagement: "Cette semaine, je dis ce dont j'ai besoin.", moment: "demain" };
   const profile = E.computeLoveProfile(answers, D, "Léa");
-  assert.ok(profile.pastAbuse);
+  assert.equal(profile.pastAbuse, null);
+  profile.pastAbuse = "note privée";
+  profile.safety = { title: "alerte" };
   const stack = [
     { view: "intro", qi: 0, phase: "ask", groupStep: 0 },
-    { view: "question", qi: 9, phase: "ask", groupStep: 0 },
-    { view: "results", qi: 9, phase: "ask", groupStep: 0 },
+    { view: "question", qi: 7, phase: "ask", groupStep: 0 },
+    { view: "results", qi: 7, phase: "ask", groupStep: 0 },
   ];
   assert.equal(E.writeProgress(store, {
     prenom: "Léa",
-    qi: 9,
+    qi: 7,
     phase: "ask",
     groupStep: 0,
     view: "results",
@@ -608,9 +724,9 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
     stack,
   }), true);
   const back = E.readProgress(store);
-  assert.equal(back.v, 14);
+  assert.equal(back.v, 17);
   assert.equal(back.prenom, "Léa");
-  assert.equal(back.qi, 9);
+  assert.equal(back.qi, 7);
   assert.equal(back.view, "results");
   assert.equal(back.answers.etape.safety, null);
   assert.equal(back.answers.etape.engagement, answers.etape.engagement);
@@ -628,6 +744,77 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
   assert.equal(E.readProgress(store), null);
   assert.equal(E.parseProgress("{"), null);
   assert.equal(E.parseProgress({ v: 13, view: "intro", answers: {} }), null);
+  assert.equal(E.parseProgress({ v: 14, view: "intro", answers: {} }), null);
+  assert.equal(E.parseProgress({ v: 15, view: "intro", answers: {} }), null);
+  assert.equal(E.parseProgress({ v: 16, view: "intro", answers: {} }), null);
+});
+
+test("ce qui vide : jusqu'à 5 lignes perso, hors score, visibles, jamais autre:0", () => {
+  const other = group("nourrit", "vide").other;
+  assert.equal(other.multi, true);
+  assert.equal(other.max, 5);
+  assert.equal(other.addLabel, "+ Ajouter une autre ligne");
+  assert.equal(D.ui.quiz.removeLine, "Retirer");
+  assert.equal(group("nourrit", "nourrit").other.max, 1);
+  const plain = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  const mixed = firstAnswers();
+  mixed.nourrit.other.vide = ["Les mensonges répétés", "le mépris en public", "   ", "Les comptes séparés imposés"];
+  mixed.nourrit.order.vide = ["autre:0", "justifier", "autre:1", "critiques", "autre:3"];
+  const love = E.computeLoveProfile(mixed, D, "Léa");
+  assert.deepEqual(love.profil.scores, plain.profil.scores);
+  assert.equal(love.profil.dom, plain.profil.dom);
+  assert.deepEqual(love.boussole.imp, plain.boussole.imp);
+  assert.deepEqual(love.profil.sections[1].ownDrains, [
+    "Les mensonges répétés",
+    "Le mépris en public",
+    "Les comptes séparés imposés",
+  ]);
+  assert.equal(love.vide.some((c) => !String(c.short).trim() || /^autre:\d+$/.test(c.short)), false);
+  assert.match(love.exportText, /Les mensonges répétés/);
+  assert.match(love.exportText, /Le mépris en public/);
+  assert.match(love.exportText, /Les comptes séparés imposés/);
+  assert.equal(love.exportText.includes("autre:"), false);
+  assert.equal(JSON.stringify(love.boussole).includes("mensonges répétés"), false);
+  assert.ok(E.salleIds(D).includes(love.profil.dom));
+  const alone = firstAnswers();
+  alone.nourrit.picked.vide = [];
+  alone.nourrit.other.vide = ["Le silence punitif", "Les critiques devant les amis", "Les promesses vagues"];
+  alone.nourrit.order.vide = ["autre:0", "autre:1", "autre:2"];
+  const solo = E.computeLoveProfile(alone, D, "Léa");
+  assert.deepEqual(solo.profil.sections[1].ownDrains, [
+    "Le silence punitif",
+    "Les critiques devant les amis",
+    "Les promesses vagues",
+  ]);
+  assert.equal(solo.vide.length, 3);
+  assert.equal(solo.exportText.includes("autre:"), false);
+  assert.ok(E.salleIds(D).includes(solo.profil.dom));
+  const tooFew = firstAnswers();
+  tooFew.nourrit.picked.vide = [];
+  tooFew.nourrit.other.vide = ["Une seule ligne"];
+  tooFew.nourrit.order.vide = ["autre:0"];
+  assert.throws(() => E.computeLoveProfile(tooFew, D, "Léa"));
+  const store = {
+    data: new Map(),
+    getItem(key) { return this.data.has(key) ? this.data.get(key) : null; },
+    setItem(key, value) { this.data.set(key, String(value)); },
+    removeItem(key) { this.data.delete(key); },
+  };
+  assert.equal(E.writeProgress(store, {
+    prenom: "Léa",
+    qi: 0,
+    phase: "ask",
+    groupStep: 1,
+    view: "question",
+    answers: mixed,
+    stack: [{ view: "question", qi: 0, phase: "ask", groupStep: 1 }],
+  }), true);
+  const back = E.readProgress(store);
+  assert.deepEqual(back.answers.nourrit.other.vide, mixed.nourrit.other.vide);
+  assert.equal(back.groupStep, 1);
+  const restored = E.computeLoveProfile(back.answers, D, "Léa");
+  assert.deepEqual(restored.profil.sections[1].ownDrains, love.profil.sections[1].ownDrains);
+  assert.deepEqual(restored.profil.scores, love.profil.scores);
 });
 
 test("frein personnalisé : le texte saisi est le titre, pas autre:0", () => {
@@ -665,12 +852,30 @@ test("Calendly : utm d'arrivée dans utm_content, UTM du lien inchangés", () =>
   assert.equal(messy.searchParams.get("utm_content"), "resultat-sticky|script|ab");
 });
 
+test("accueil : une icône ligne par carré, dans sa couleur, décorative", () => {
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  assert.match(src, /const introIcons = \["heart", "sun", "hearts", "spark"\]/);
+  assert.match(src, /ico\(introIcons\[i\] \|\| "heart", tone\)/);
+  assert.match(src, /class="rule am-benefit"/);
+  assert.match(src, /width:40px;height:40px/);
+  assert.match(src, /width:64px;height:64px/);
+  assert.match(src, /border-radius:22px/);
+  assert.match(src, /border-radius:50%/);
+  assert.match(src, /aria-hidden="true"/);
+  const hearts = src.slice(src.indexOf("\n    hearts:"), src.indexOf("\n    anchor:"));
+  assert.match(hearts, /vector-effect="non-scaling-stroke"/);
+  assert.equal(/[\u2014\u2013]/.test(hearts), false);
+});
+
 test("textes du webinaire et page de partage", () => {
   assert.match(D.ui.intro.eyebrow, /Sommet de l'Amour/);
-  assert.match(D.ui.intro.eyebrow, /environ 10 minutes/);
+  assert.match(D.ui.intro.eyebrow, /8 questions/);
+  assert.match(D.ui.intro.eyebrow, /environ 8 minutes/);
+  assert.match(D.ui.intro.lead, /En 8 minutes/);
   assert.equal(D.ui.intro.eyebrow.includes("Love & Connexion"), false);
   assert.equal(D.ui.intro.lead.includes("6 minutes"), false);
-  assert.equal(D.ui.quiz.engagementCounter, "Écris ton engagement et choisis un moment");
+  assert.match(D.ui.intro.bullets[3], /ce qui te freine/);
+  assert.equal(/prochaine étape/.test(D.ui.intro.bullets.join(" ")), false);
   assert.equal(D.ui.quiz.resumeNotice, "On reprend où tu en étais");
   assert.equal(D.ui.results.shareBtn, "Partager");
   assert.equal(D.ui.results.stickyCta, "Parler avec Pierre");
@@ -679,7 +884,7 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(D.ui.intro.h1.includes("malheureux"), false);
   assert.match(D.ui.intro.h1, /Découvre ton <em>profil amoureux<\/em>/);
   assert.match(html, /property="og:title" content="Découvre ton profil amoureux"/);
-  assert.match(html, /property="og:description" content="10 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
+  assert.match(html, /property="og:description" content="8 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
   assert.equal(html.includes("Amoureux, mais malheureux"), false);
   assert.match(html, /Sommet de l'Amour/);
   assert.match(html, /og:image" content="https:\/\/www\.magichumans\.com\/assets\/img\/og-image\.png"/);
@@ -691,6 +896,47 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(/[\u2014\u2013]/.test(html), false);
   const vercel = fs.readFileSync(new URL("../vercel.json", import.meta.url), "utf8");
   assert.equal(vercel.includes("/quiz-amour"), false);
+});
+
+test("stress fort hors du score, toujours dans le piège", () => {
+  const fight = firstAnswers();
+  const freeze = firstAnswers();
+  freeze.stress.picked.fort = ["freeze"];
+  freeze.stress.order.fort = ["freeze"];
+  const a = E.computeLoveProfile(fight, D, "Léa");
+  const b = E.computeLoveProfile(freeze, D, "Léa");
+  assert.deepEqual(a.profil.scores, b.profil.scores);
+  assert.equal(a.profil.name.text, b.profil.name.text);
+  assert.equal(a.profil.trapId, "fight");
+  assert.equal(b.profil.trapId, "freeze");
+  assert.match(a.profil.sentences[2], /l'escalade/);
+  assert.match(b.profil.sentences[2], /le blanc/);
+});
+
+test("Q4 vide : profil calculé, sans piste ennéagramme", () => {
+  const a = firstAnswers();
+  a.ennea = { picked: { types: [] }, other: { types: [] }, order: { types: [] } };
+  const love = E.computeLoveProfile(a, D, "Léa");
+  assert.equal(love.ennea.type, undefined);
+  assert.equal(love.ennea.confidenceText, "");
+  assert.equal(love.profil.name.text, "Miroir Paisible");
+});
+
+test("Talent Unique : un texte par besoin, 40 à 60 mots, piste et pas diagnostic", () => {
+  const talent = D.ui.results.talent;
+  assert.equal(D.ui.results.talentH, "Ce que ton profil dit de ton Talent Unique");
+  assert.deepEqual(Object.keys(talent).sort(), D.profil.order.slice().sort());
+  for (const id of D.profil.order) {
+    const text = talent[id];
+    const words = text.trim().split(/\s+/).length;
+    assert.ok(words >= 40 && words <= 60, id + " " + words);
+    assert.match(text, /Talent Unique/);
+    assert.match(text, /Contexte Déclencheur/);
+    assert.match(text, /Anti-Contexte/);
+    assert.match(text, /réussir dans le plaisir/);
+    assert.equal(/[\u2013\u2014]/.test(text), false, id);
+    assert.equal(/[•✅➔]/.test(text), false, id);
+  }
 });
 
 test("photo de la salle : session, profil anonyme, compatibilité déjà dans le moteur", () => {
@@ -736,6 +982,94 @@ test("photo de la salle : session, profil anonyme, compatibilité déjà dans le
   assert.match(html, /noindex/);
   assert.match(html, /setInterval\(charger, 10000\)/);
   assert.match(html, /Photo de la salle/);
+});
+
+test("encyclopédie des familles : 7 cartes, 28 paires, sans changer le score", () => {
+  const enc = D.profil.encyclo;
+  const order = D.profil.order;
+  assert.equal(order.length, 7);
+  assert.deepEqual(Object.keys(enc.cards), order);
+  assert.equal(enc.openAll, "Découvrir tous les profils");
+  assert.equal(enc.couleLab, "Avec qui ça coule de source");
+  assert.equal(enc.attentionLab, "Ce qui demande de l'attention");
+  assert.match(enc.regle, /profil\.couples/);
+  assert.match(enc.regle, /frotte/);
+  assert.match(enc.regle, /On ne condamne jamais une rencontre/);
+  const sentences = (s) => s.split(/(?<=[.!?])\s+/).filter(Boolean);
+  for (const id of order) {
+    const card = enc.cards[id];
+    const n = sentences(card.portrait).length;
+    assert.ok(n >= 2 && n <= 3, id + " portrait " + n);
+    assert.ok(card.nourrit && card.vide);
+    const nuanceIds = Object.keys(card.nuances);
+    assert.deepEqual(nuanceIds.sort(), order.filter((x) => x !== id).sort());
+    for (const other of nuanceIds) {
+      assert.match(card.nuances[other], new RegExp("^" + D.profil.besoins[other].adj.replace("·", "·")));
+    }
+    const guide = E.familyGuide(D, id);
+    assert.equal(guide.noun, D.profil.besoins[id].noun);
+    assert.equal(guide.icon, D.profil.besoins[id].icon);
+    assert.equal(guide.nuances.length, 6);
+    assert.equal(guide.coule.length + guide.attention.length, 7);
+    for (const pair of guide.coule.concat(guide.attention)) {
+      assert.equal(pair.bucket, E.familyBucket(D.profil.couples[pair.key].type));
+      assert.ok(pair.text && pair.tip);
+    }
+  }
+  const coupleKeys = Object.keys(D.profil.couples).sort();
+  const pairKeys = Object.keys(enc.paires).sort();
+  assert.equal(coupleKeys.length, 28);
+  assert.deepEqual(pairKeys, coupleKeys);
+  const counts = { nourrit: 0, proche: 0, frotte: 0, miroir: 0 };
+  for (const key of coupleKeys) {
+    const type = D.profil.couples[key].type;
+    counts[type] += 1;
+    const bucket = E.familyBucket(type);
+    if (type === "frotte") assert.equal(bucket, "attention", key);
+    else assert.equal(bucket, "coule", key);
+    const [a, b] = key.split("+");
+    const left = E.familyGuide(D, a);
+    const bag = bucket === "coule" ? left.coule : left.attention;
+    assert.ok(bag.some((p) => p.key === key && p.text === enc.paires[key].text && p.tip === enc.paires[key].tip));
+  }
+  assert.deepEqual(counts, { nourrit: 7, proche: 7, frotte: 7, miroir: 7 });
+  const before = E.computeLoveProfile(firstAnswers(), D, "Léa").profil.scores;
+  const after = E.computeLoveProfile(firstAnswers(), D, "Léa").profil.scores;
+  assert.deepEqual(before, after);
+  const strings = allStrings(enc);
+  for (const s of strings) {
+    assert.equal(/[\u2013\u2014]/.test(s), false, s);
+    assert.equal(/\bvous\b/i.test(s.replace(/rendez-vous/gi, "")), false, s);
+    assert.equal(/sexuel/i.test(s), false, s);
+    assert.equal(/incompatible/i.test(s), false, s);
+  }
+  const md = fs.readFileSync(new URL("./profils-familles.md", import.meta.url), "utf8");
+  for (const id of order) {
+    const card = enc.cards[id];
+    assert.ok(md.includes(card.portrait), id);
+    assert.ok(md.includes(card.nourrit), id);
+    assert.ok(md.includes(card.vide), id);
+    for (const line of Object.values(card.nuances)) assert.ok(md.includes(line), line);
+  }
+  for (const key of coupleKeys) {
+    assert.ok(md.includes(enc.paires[key].text), key);
+    assert.ok(md.includes(enc.paires[key].tip), key);
+  }
+  assert.ok(md.includes(enc.regle));
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  assert.match(src, /id="am-fam-dialog"/);
+  assert.match(src, /id="sec-familles"/);
+  const foldSrc = src.slice(src.indexOf("function familyFold"), src.indexOf("function familyDialog"));
+  assert.match(foldSrc, /familyCardInner\(domId, true\)/);
+  assert.equal(foldSrc.includes(".map("), false);
+  assert.match(src, /familyFold\(pr\.dom\)/);
+  assert.match(src, /data-act="family-all"/);
+  assert.match(src, /data-act="family-close"/);
+  assert.match(src, /dialog\.am-fam\{display:none!important\}/);
+  assert.match(src, /JSON\.stringify\(\{ session: session, profil: profil \}\)/);
+  assert.equal(src.includes("showResults"), true);
+  const openBody = src.slice(src.indexOf("function openFamily"), src.indexOf("function profilReport"));
+  assert.equal(openBody.includes("showResults"), false);
 });
 
 test("encodage", () => {

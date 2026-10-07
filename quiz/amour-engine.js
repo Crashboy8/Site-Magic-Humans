@@ -9,9 +9,27 @@
     return String(tpl == null ? "" : tpl).replace(/\{(\w+)\}/g, (_, k) => (vars == null || vars[k] == null ? "" : String(vars[k])));
   }
   const lc1 = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
+  const uc1 = (t) => {
+    const s = String(t || "");
+    const i = s.search(/\S/u);
+    if (i < 0) return s;
+    return s.slice(0, i) + s.charAt(i).toLocaleUpperCase("fr") + s.slice(i + 1);
+  };
 
   function cleanFree(text, max) {
     return String(text || "").replace(/[<>]/g, "").trim().slice(0, max || 140);
+  }
+
+  function petitPasStored(raw) {
+    return String(raw || "").replace(/[<>]/g, "").slice(0, 140);
+  }
+
+  function exportWithPetitPas(exportText, D, raw) {
+    const texte = cleanFree(raw, 140);
+    const base = String(exportText || "").replace(/\s*$/, "");
+    if (!texte) return base;
+    const line = fill(D.ui.results.petitPasExport, { texte });
+    return base + "\n\n" + line;
   }
 
   function screenOf(D, id) {
@@ -56,6 +74,18 @@
     const ch = chosen(answers, screen, group);
     const bag = bagOf(answers, screen.id);
     const order = bag.order && Array.isArray(bag.order[group.id]) ? bag.order[group.id] : null;
+    if (screen.rank && screen.rank.mode === "tap" && order) {
+      const topN = screen.rank.top || 3;
+      const head = [];
+      order.forEach((id) => {
+        if (ch.indexOf(id) !== -1 && head.indexOf(id) === -1 && head.length < topN) head.push(id);
+      });
+      if (head.length >= Math.min(topN, ch.length)) {
+        const tail = order.slice(head.length).filter((id) => ch.indexOf(id) !== -1 && head.indexOf(id) === -1);
+        const missing = ch.filter((id) => head.indexOf(id) === -1 && tail.indexOf(id) === -1);
+        return head.concat(tail, missing);
+      }
+    }
     if (order && sameSet(order, ch)) return order.slice();
     return ch.slice();
   }
@@ -75,7 +105,7 @@
     if (!group) return "";
     if (String(id).indexOf("autre:") === 0) {
       const text = otherTextAt(D._answers, screen, group, Number(id.split(":")[1]));
-      return lc1(text);
+      return groupId === "vide" ? uc1(text) : lc1(text);
     }
     if (screen.id === "valeurs") {
       const row = D.values[id];
@@ -154,10 +184,22 @@
           const unknown = raw.some((id) => !group.items.some((it) => it.id === id));
           const dup = new Set(raw).size !== raw.length;
           const ch = chosen(src, screen, group);
-          if (!picked || unknown || dup || ch.length < group.min || !knownIds(group, ch)) bad.push(screen.id + "." + group.id);
-          if (screen.rank && screen.rank.mode === "step" && screen.rank.groups.indexOf(group.id) !== -1) {
+          if (!picked || unknown || dup || ch.length < group.min || (group.max && ch.length > group.max) || !knownIds(group, ch)) bad.push(screen.id + "." + group.id);
+          if (screen.rank && screen.rank.groups.indexOf(group.id) !== -1) {
             const order = bag.order && Array.isArray(bag.order[group.id]) ? bag.order[group.id] : null;
-            if (!order || !sameSet(order, ch)) bad.push(screen.id + "." + group.id);
+            if (screen.rank.mode === "tap") {
+              const topN = screen.rank.top || 3;
+              const ids = Array.isArray(order) ? order : [];
+              const known = ids.every((id) => ch.indexOf(id) !== -1);
+              const uniq = new Set(ids).size === ids.length;
+              const head = [];
+              ids.forEach((id) => {
+                if (ch.indexOf(id) !== -1 && head.indexOf(id) === -1 && head.length < topN) head.push(id);
+              });
+              if (!known || !uniq || head.length < Math.min(topN, ch.length)) bad.push(screen.id + "." + group.id);
+            } else if (screen.rank.mode === "step") {
+              if (!order || !sameSet(order, ch)) bad.push(screen.id + "." + group.id);
+            }
           }
         }
         if (screen.exclusive) {
@@ -179,6 +221,14 @@
         const row = bagOf(src, screen.id);
         const moments = new Set((screen.share.moments || D.moments.map((m) => m.id)));
         if (!moments.has(row.moment)) bad.push(screen.id);
+        for (const group of screen.groups || []) {
+          const picked = row.picked && Array.isArray(row.picked[group.id]) ? row.picked[group.id] : null;
+          const raw = picked || [];
+          const unknown = raw.some((id) => !group.items.some((it) => it.id === id));
+          const dup = new Set(raw).size !== raw.length;
+          const ch = chosen(src, screen, group);
+          if (!picked || unknown || dup || ch.length < group.min || !knownIds(group, ch)) bad.push(screen.id + "." + group.id);
+        }
       }
     }
     return [...new Set(bad)];
@@ -247,7 +297,6 @@
     const instinctScreen = screenOf(D, "instinct");
     const stressScreen = screenOf(D, "stress");
     const freinsScreen = screenOf(D, "freins");
-    const demainScreen = screenOf(D, "demain");
 
     const gNourrit = groupOf(nourritScreen, "nourrit");
     const gVide = groupOf(nourritScreen, "vide");
@@ -317,9 +366,11 @@
     const typeOrder = ordered(answers, enneaScreen, gTypes);
     const enneaType = typeOrder[0];
     const enneaAlt = typeOrder[1] || null;
-    const confidenceText = enneaAlt
-      ? fill(D.ennea.confidenceMany, { typeLabel: typeLabel(D, enneaType), altLabel: typeLabel(D, enneaAlt) })
-      : D.ennea.confidenceOne;
+    const confidenceText = !enneaType
+      ? ""
+      : enneaAlt
+        ? fill(D.ennea.confidenceMany, { typeLabel: typeLabel(D, enneaType), altLabel: typeLabel(D, enneaAlt) })
+        : D.ennea.confidenceOne;
 
     const gMod = groupOf(stressScreen, "modere");
     const gFort = groupOf(stressScreen, "fort");
@@ -360,25 +411,15 @@
       ? D.brakes.energie.antidote
       : D.brakes[brakeFirst].antidote;
 
-    const gAct = groupOf(demainScreen, "actions");
-    const actionIds = dataOrder(gAct, chosen(answers, demainScreen, gAct));
-    const timeRaw = bagOf(answers, "demain").time;
-    const time = actionIds.indexOf("rappel") !== -1 ? (timeRaw || "18:00") : null;
-
-    const etapeBag = bagOf(answers, "etape");
-    const etape = {
-      engagement: cleanFree(etapeBag.engagement, 140),
-      who: cleanFree(etapeBag.who, 40),
-      moment: etapeBag.moment,
-    };
-
-    const safetyId = etapeBag.safety || null;
-    const safety = safetyId === "present" || safetyId === "doute" ? D.safety[safetyId] : null;
-    const pastAbuse = safetyId === "passe" ? D.pastAbuseNote : null;
+    const safety = null;
+    const pastAbuse = null;
 
     const card = (screen, groupId, id) => ({ id, short: shortOf(D, screen, groupId, id) || labelOf(D, screen, groupId, id) });
     const nourritCards = nourritOrder.map((id) => card(nourritScreen, "nourrit", id));
-    const videCards = videOrder.map((id) => card(nourritScreen, "vide", id));
+    const videCards = videOrder.map((id) => card(nourritScreen, "vide", id)).filter((c) => {
+      const short = String(c.short || "").trim();
+      return short && !/^autre:\d+$/.test(short);
+    });
 
     const complete = [
       D.needs[need1].partner,
@@ -411,7 +452,7 @@
     const s2 = sentences[1];
     const s3 = sentences[2];
 
-    const topVide = videOrder.slice(0, 2);
+    const topVide = videOrder.filter((id) => String(id).indexOf("autre:") !== 0).slice(0, 2);
     const energyHit = topVide.some((id) => {
       const item = itemById(gVide, id);
       return item && item.energy;
@@ -467,9 +508,6 @@
 
     const boussole = { v: 2, imp, notes };
 
-    const timeLabel = (D.times.find((t) => t.id === time) || {}).label || "";
-    const demainLines = actionIds.map((id) => id === "rappel" ? fill(D.actions.rappel, { heure: timeLabel }) : D.actions[id]);
-    const momentLabel = (D.moments.find((m) => m.id === etape.moment) || {}).label || "";
     const glanceLines = [];
     const ol = (title, rows) => {
       glanceLines.push(title);
@@ -490,15 +528,6 @@
     glanceLines.push("modéré → " + modere.map((id) => (gMod.items.find((it) => it.id === id) || {}).label).join(", ") + " · fort → " + fort.map((id) => (gFort.items.find((it) => it.id === id) || {}).label).join(", "));
     glanceLines.push(D.ui.results.brakeLab);
     glanceLines.push((String(brakeFirst).indexOf("autre:") === 0 ? shortOf(D, freinsScreen, "freins", brakeFirst) : (gFrein.items.find((it) => it.id === brakeFirst) || {}).label) + " " + brakeAntidote);
-    glanceLines.push(D.ui.results.demainLab);
-    glanceLines.push(demainLines.join(" "));
-    glanceLines.push(D.ui.results.stepLab);
-    const stepParts = [];
-    if (etape.engagement) stepParts.push("« " + etape.engagement + " »");
-    else stepParts.push(D.ui.results.nowStepEmpty);
-    if (etape.who) stepParts.push(fill(D.ui.results.shareWith, { who: etape.who }));
-    if (momentLabel) stepParts.push(momentLabel);
-    glanceLines.push(stepParts.join(" · "));
 
     const shareText = D.shareTemplate.map((line) => fill(line, { s1, s2, s3, quizUrl: D.config.quizUrl })).join("\n");
     const exportBody = D.exportTemplate.map((line) => fill(line, {
@@ -525,8 +554,6 @@
       values: { order: valueEntries, nonNegotiables, toDiscuss, directionValues },
       stress: { modere, fort },
       brakes: { all: brakeAll, first: brakeFirst, antidote: brakeAntidote },
-      demain: { actions: actionIds, time },
-      etape,
       partner: { complete, friction, critical },
       keyMessages: D.keyMessages,
       boussole,
@@ -557,6 +584,54 @@
     const ib = P.order.indexOf(b);
     return ia <= ib ? a + "+" + b : b + "+" + a;
   }
+  function familyBucket(type) {
+    if (type === "nourrit" || type === "proche" || type === "miroir") return "coule";
+    if (type === "frotte") return "attention";
+    return "";
+  }
+  function familyGuide(D, familyId) {
+    const P = D && D.profil;
+    const enc = P && P.encyclo;
+    const B = P && P.besoins;
+    const card = enc && enc.cards && enc.cards[familyId];
+    if (!P || !B || !B[familyId] || !card || !Array.isArray(P.order)) return null;
+    const nuances = P.order.filter((id) => id !== familyId).map((id) => ({
+      id: id,
+      adj: B[id].adj,
+      noun: B[id].noun,
+      line: card.nuances ? card.nuances[id] : "",
+    }));
+    const pairs = P.order.filter((id) => B[id]).map((id) => {
+      const key = profilPairKey(P, familyId, id);
+      const row = P.couples && P.couples[key];
+      const copy = enc.paires && enc.paires[key];
+      const type = row && row.type;
+      return {
+        id: id,
+        key: key,
+        bucket: familyBucket(type),
+        type: type || "",
+        noun: B[id].noun,
+        name: B[id].name,
+        same: id === familyId,
+        text: copy && copy.text ? copy.text : "",
+        tip: copy && copy.tip ? copy.tip : "",
+      };
+    });
+    const byOrder = (a, b) => (b.same - a.same) || P.order.indexOf(a.id) - P.order.indexOf(b.id);
+    return {
+      id: familyId,
+      noun: B[familyId].noun,
+      name: B[familyId].name,
+      icon: B[familyId].icon,
+      portrait: card.portrait,
+      nourrit: card.nourrit,
+      vide: card.vide,
+      nuances: nuances,
+      coule: pairs.filter((p) => p.bucket === "coule").sort(byOrder),
+      attention: pairs.filter((p) => p.bucket === "attention").sort(byOrder),
+    };
+  }
   function profilAdd(out, need, pts, src, rank, ref) {
     if (need && pts > 0) out.push({ need, pts, src, rank, ref });
   }
@@ -575,7 +650,12 @@
     const PT = P.points;
     const out = [];
     base.nourrit.forEach((c, i) => profilPoints(out, W.nourrit[c.id], PT.nourrit, i, "nourrit", c));
-    base.vide.forEach((c, i) => profilPoints(out, W.vide[c.id], PT.vide, i, "vide", c));
+    let videRank = 0;
+    base.vide.forEach((c) => {
+      if (String(c.id).indexOf("autre:") === 0) return;
+      profilPoints(out, W.vide[c.id], PT.vide, videRank, "vide", c);
+      videRank += 1;
+    });
     ["soir", "weekend"].forEach((g) => (base.recharge.picks[g] || []).forEach((id) => profilPoints(out, W.ressource[id], PT.ressource, 0, "ressource", { id, g })));
     base.languages.order.forEach((id, i) => profilPoints(out, W.langages[id], PT.langages, i, "langages", { id }));
     base.values.order.forEach((v, i) => { if (!v.own) profilPoints(out, W.valeurs[v.id], PT.valeurs, i, "valeurs", v); });
@@ -697,6 +777,7 @@
         noMore ? (noMoreNeed ? fill(U.s2noMore, { short: noMore.short, de: B[noMoreNeed].de }) : fill(U.s2noMoreOwn, { short: noMore.short })) : "",
         U.s2test,
       ].filter(Boolean),
+      ownDrains: base.vide.filter((c) => String(c.id).indexOf("autre:") === 0 && String(c.short || "").trim()).map((c) => c.short),
     };
     const s3 = {
       title: U.s3h, icon: "house",
@@ -752,7 +833,7 @@
   function boussoleBoost(profil, D) { return D.profil.boussoleBoost[profil.boussoleDom]; }
 
   function progressKey() {
-    return "quiz_amour_v14_progress";
+    return "quiz_amour_v17_progress";
   }
 
   function cloneJson(value, fallback) {
@@ -788,7 +869,7 @@
       };
     }).filter(Boolean);
     return {
-      v: 14,
+      v: 17,
       prenom: String(src.prenom || "").replace(/[<>]/g, "").trim().slice(0, 40),
       qi: Number.isInteger(qiNum) && qiNum >= 0 ? qiNum : 0,
       phase: src.phase === "rank" ? "rank" : "ask",
@@ -796,6 +877,7 @@
       view,
       answers,
       lastPrefix: String(src.lastPrefix || "").slice(0, 140),
+      petitPas: petitPasStored(src.petitPas),
       profile,
       stack,
     };
@@ -806,7 +888,7 @@
     if (typeof raw === "string") {
       try { data = JSON.parse(raw); } catch (e) { return null; }
     }
-    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 14) return null;
+    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 17) return null;
     if (!data.answers || typeof data.answers !== "object" || Array.isArray(data.answers)) return null;
     if (data.view !== "intro" && data.view !== "question" && data.view !== "results") return null;
     return packProgress(data);
@@ -941,8 +1023,9 @@
   const api = {
     computeLoveProfile, missingAnswers, boussolePayload, encodePayload, fill, rankingState,
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
+    familyBucket, familyGuide,
     progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
-    calendlyLink, answerLabel,
+    exportWithPetitPas, petitPasStored, calendlyLink, answerLabel,
     salleSession, salleSessionOk, salleIds, salleNourrit, sallePhoto,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
