@@ -50,6 +50,7 @@ const AMOUR_DATA = {
       "placed": "« {label} » placé en position {pos} sur {total}.",
       "unchecked": "« {label} » a été décochée.",
       "addOther": "+ Ajouter une autre valeur",
+      "removeLine": "Retirer",
       "next": "Suivant →",
       "prev": "← Précédent",
       "skip": "Passer",
@@ -403,10 +404,11 @@ const AMOUR_DATA = {
           ],
           "other": {
             "id": "autre",
-            "label": "Autre",
             "placeholder": "Écris ce qui te vide",
             "maxLength": 60,
-            "max": 1
+            "max": 5,
+            "multi": true,
+            "addLabel": "+ Ajouter une autre ligne"
           }
         }
       ],
@@ -2668,6 +2670,7 @@ AMOUR_DATA.profil = {
       "s1top": "Ce que tu as classé en tête, « {short} », parle de ton besoin {de}.",
       "s1recharge": "Côté énergie, {title} : {couple}",
       "s2h": "Là où tu t'éteins",
+      "s2ownH": "Ce que tu ne veux plus vivre",
       "s2alarmLab": "Signal d'alerte",
       "s2noMore": "Ta bête noire, « {short} », touche directement ton besoin {de}.",
       "s2noMoreOwn": "Ta bête noire, « {short} », c'est ce que tu ne veux plus vivre. Note-la : c'est une information en or.",

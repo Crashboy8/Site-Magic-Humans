@@ -388,7 +388,10 @@
 
     const card = (screen, groupId, id) => ({ id, short: shortOf(D, screen, groupId, id) || labelOf(D, screen, groupId, id) });
     const nourritCards = nourritOrder.map((id) => card(nourritScreen, "nourrit", id));
-    const videCards = videOrder.map((id) => card(nourritScreen, "vide", id));
+    const videCards = videOrder.map((id) => card(nourritScreen, "vide", id)).filter((c) => {
+      const short = String(c.short || "").trim();
+      return short && !/^autre:\d+$/.test(short);
+    });
 
     const complete = [
       D.needs[need1].partner,
@@ -421,7 +424,7 @@
     const s2 = sentences[1];
     const s3 = sentences[2];
 
-    const topVide = videOrder.slice(0, 2);
+    const topVide = videOrder.filter((id) => String(id).indexOf("autre:") !== 0).slice(0, 2);
     const energyHit = topVide.some((id) => {
       const item = itemById(gVide, id);
       return item && item.energy;
@@ -585,7 +588,12 @@
     const PT = P.points;
     const out = [];
     base.nourrit.forEach((c, i) => profilPoints(out, W.nourrit[c.id], PT.nourrit, i, "nourrit", c));
-    base.vide.forEach((c, i) => profilPoints(out, W.vide[c.id], PT.vide, i, "vide", c));
+    let videRank = 0;
+    base.vide.forEach((c) => {
+      if (String(c.id).indexOf("autre:") === 0) return;
+      profilPoints(out, W.vide[c.id], PT.vide, videRank, "vide", c);
+      videRank += 1;
+    });
     ["soir", "weekend"].forEach((g) => (base.recharge.picks[g] || []).forEach((id) => profilPoints(out, W.ressource[id], PT.ressource, 0, "ressource", { id, g })));
     base.languages.order.forEach((id, i) => profilPoints(out, W.langages[id], PT.langages, i, "langages", { id }));
     base.values.order.forEach((v, i) => { if (!v.own) profilPoints(out, W.valeurs[v.id], PT.valeurs, i, "valeurs", v); });
@@ -707,6 +715,7 @@
         noMore ? (noMoreNeed ? fill(U.s2noMore, { short: noMore.short, de: B[noMoreNeed].de }) : fill(U.s2noMoreOwn, { short: noMore.short })) : "",
         U.s2test,
       ].filter(Boolean),
+      ownDrains: base.vide.filter((c) => String(c.id).indexOf("autre:") === 0 && String(c.short || "").trim()).map((c) => c.short),
     };
     const s3 = {
       title: U.s3h, icon: "house",

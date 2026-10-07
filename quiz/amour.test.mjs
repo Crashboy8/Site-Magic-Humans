@@ -667,6 +667,74 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
   assert.equal(E.parseProgress({ v: 14, view: "intro", answers: {} }), null);
 });
 
+test("ce qui vide : jusqu'à 5 lignes perso, hors score, visibles, jamais autre:0", () => {
+  const other = group("nourrit", "vide").other;
+  assert.equal(other.multi, true);
+  assert.equal(other.max, 5);
+  assert.equal(other.addLabel, "+ Ajouter une autre ligne");
+  assert.equal(D.ui.quiz.removeLine, "Retirer");
+  assert.equal(group("nourrit", "nourrit").other.max, 1);
+  const plain = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  const mixed = firstAnswers();
+  mixed.nourrit.other.vide = ["Les mensonges répétés", "Le mépris en public", "   ", "Les comptes séparés imposés"];
+  mixed.nourrit.order.vide = ["autre:0", "justifier", "autre:1", "critiques", "autre:3"];
+  const love = E.computeLoveProfile(mixed, D, "Léa");
+  assert.deepEqual(love.profil.scores, plain.profil.scores);
+  assert.equal(love.profil.dom, plain.profil.dom);
+  assert.deepEqual(love.boussole.imp, plain.boussole.imp);
+  assert.deepEqual(love.profil.sections[1].ownDrains, [
+    "les mensonges répétés",
+    "le mépris en public",
+    "les comptes séparés imposés",
+  ]);
+  assert.equal(love.vide.some((c) => !String(c.short).trim() || /^autre:\d+$/.test(c.short)), false);
+  assert.match(love.exportText, /les mensonges répétés/);
+  assert.match(love.exportText, /le mépris en public/);
+  assert.match(love.exportText, /les comptes séparés imposés/);
+  assert.equal(love.exportText.includes("autre:"), false);
+  assert.equal(JSON.stringify(love.boussole).includes("mensonges répétés"), false);
+  assert.ok(E.salleIds(D).includes(love.profil.dom));
+  const alone = firstAnswers();
+  alone.nourrit.picked.vide = [];
+  alone.nourrit.other.vide = ["Le silence punitif", "Les critiques devant les amis", "Les promesses vagues"];
+  alone.nourrit.order.vide = ["autre:0", "autre:1", "autre:2"];
+  const solo = E.computeLoveProfile(alone, D, "Léa");
+  assert.deepEqual(solo.profil.sections[1].ownDrains, [
+    "le silence punitif",
+    "les critiques devant les amis",
+    "les promesses vagues",
+  ]);
+  assert.equal(solo.vide.length, 3);
+  assert.equal(solo.exportText.includes("autre:"), false);
+  assert.ok(E.salleIds(D).includes(solo.profil.dom));
+  const tooFew = firstAnswers();
+  tooFew.nourrit.picked.vide = [];
+  tooFew.nourrit.other.vide = ["Une seule ligne"];
+  tooFew.nourrit.order.vide = ["autre:0"];
+  assert.throws(() => E.computeLoveProfile(tooFew, D, "Léa"));
+  const store = {
+    data: new Map(),
+    getItem(key) { return this.data.has(key) ? this.data.get(key) : null; },
+    setItem(key, value) { this.data.set(key, String(value)); },
+    removeItem(key) { this.data.delete(key); },
+  };
+  assert.equal(E.writeProgress(store, {
+    prenom: "Léa",
+    qi: 0,
+    phase: "ask",
+    groupStep: 1,
+    view: "question",
+    answers: mixed,
+    stack: [{ view: "question", qi: 0, phase: "ask", groupStep: 1 }],
+  }), true);
+  const back = E.readProgress(store);
+  assert.deepEqual(back.answers.nourrit.other.vide, mixed.nourrit.other.vide);
+  assert.equal(back.groupStep, 1);
+  const restored = E.computeLoveProfile(back.answers, D, "Léa");
+  assert.deepEqual(restored.profil.sections[1].ownDrains, love.profil.sections[1].ownDrains);
+  assert.deepEqual(restored.profil.scores, love.profil.scores);
+});
+
 test("frein personnalisé : le texte saisi est le titre, pas autre:0", () => {
   const answers = firstAnswers();
   answers.freins.picked.freins = [];

@@ -132,6 +132,9 @@
     "#screen-amour details.am-fold > summary h2{display:inline}",
     "#screen-amour details.am-fold > summary .rs{margin-bottom:0}",
     "#screen-amour details.am-fold:not([open]) > .am-fold-body{display:none}",
+    "#screen-amour .am-custom{display:flex;gap:8px;align-items:center}",
+    "#screen-amour .am-custom .field{flex:1;min-width:0}",
+    "#screen-amour .am-custom .btn{flex:0 0 auto;padding:10px 12px}",
     "#screen-amour .pr-rows{display:grid;gap:8px}",
     "#screen-amour .pr-rows div{display:grid;grid-template-columns:108px 1fr;gap:8px}",
     "#screen-amour .pr-rows b{color:var(--bc)}",
@@ -379,7 +382,7 @@
         const bag = { picked: {}, other: {}, order: {} };
         s.groups.forEach(function (g) {
           bag.picked[g.id] = [];
-          bag.other[g.id] = g.other ? [""] : [];
+          bag.other[g.id] = g.other && !g.other.multi ? [""] : [];
           bag.order[g.id] = [];
         });
         answers[s.id] = bag;
@@ -388,7 +391,7 @@
         const bag = { engagement: "", who: "", moment: null, safety: null, time: null, picked: {}, other: {}, order: {} };
         (s.groups || []).forEach(function (g) {
           bag.picked[g.id] = [];
-          bag.other[g.id] = g.other ? [""] : [];
+          bag.other[g.id] = g.other && !g.other.multi ? [""] : [];
           bag.order[g.id] = [];
         });
         answers[s.id] = bag;
@@ -582,7 +585,13 @@
         html += '<label class="rsrc-opt' + (on ? " picked" : "") + (mark ? " has-ico" : "") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + '><input class="am-sr" type="checkbox" data-act="check" data-group="' + esc(g.id) + '" data-id="' + esc(it.id) + '"' + (on ? " checked" : "") + ">" + (mark ? ico(mark, tone) : "") + "<strong>" + esc(it.label) + "</strong>" +
           (it.hint ? '<span class="muted">' + esc(it.hint) + "</span>" : "") + "</label>";
       });
-      if (g.other) {
+      if (g.other && g.other.multi) {
+        (bag.other[g.id] || []).slice(0, g.other.max || 5).forEach(function (val, i) {
+          const on = String(val || "").trim().length > 0;
+          html += '<div class="rsrc-opt am-custom' + (on ? " picked" : "") + '"><div class="field"><input id="am-other-' + esc(g.id) + "-" + i + '" data-act="other" data-group="' + esc(g.id) + '" data-index="' + i + '" maxlength="' + g.other.maxLength + '" placeholder="' + esc(g.other.placeholder || "") + '" value="' + esc(val || "") + '"></div>' +
+            '<button type="button" class="btn ghost small" data-act="remove-other" data-group="' + esc(g.id) + '" data-index="' + i + '" aria-label="' + esc(Q.removeLine) + '">' + esc(Q.removeLine) + "</button></div>";
+        });
+      } else if (g.other) {
         const shown = Math.max(1, (bag.other[g.id] || []).length);
         const max = g.other.max || 1;
         for (let i = 0; i < Math.min(shown, max); i++) {
@@ -592,8 +601,8 @@
         }
       }
       html += "</div>";
-      if (g.other && (g.other.max || 1) > 1 && (bag.other[g.id] || []).length < g.other.max) {
-        html += '<button type="button" class="btn ghost am-add" data-act="add-other" data-group="' + esc(g.id) + '">' + esc(Q.addOther) + "</button>";
+      if (g.other && (g.other.max || 1) > 1 && (bag.other[g.id] || []).length < (g.other.max || 1)) {
+        html += '<button type="button" class="btn ghost am-add" data-act="add-other" data-group="' + esc(g.id) + '">' + esc(g.other.addLabel || Q.addOther) + "</button>";
       }
       return html + "</section>";
     }).join("");
@@ -939,6 +948,10 @@
           secItem.list.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul>" +
           (secItem.alarm ? "<p><strong>" + esc(U.s2alarmLab) + " :</strong> " + esc(secItem.alarm) + "</p>" : "") +
           "</div>";
+      }
+      if (secItem.ownDrains && secItem.ownDrains.length) {
+        body += '<div class="panel ctx-bad" id="am-own-drains"><span class="lab">' + esc(U.s2ownH) + '</span><ul class="clean">' +
+          secItem.ownDrains.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div>";
       }
       if (secItem.rows) {
         body += '<div class="pr-rows">' + secItem.rows.map(function (row) {
@@ -1380,29 +1393,69 @@
     }
   });
 
+  function isTypedField(el) {
+    return !!(el && (el.id === "am-engagement" || (el.getAttribute && el.getAttribute("data-act") === "other")));
+  }
+
+  function paintAsk(s) {
+    const k = deficit(s);
+    const next = root.querySelector("[data-act=next]");
+    if (next) {
+      next.disabled = k > 0;
+      next.setAttribute("aria-disabled", k > 0 ? "true" : "false");
+    }
+    const cue = moreCue(s);
+    let more = root.querySelector(".am-more");
+    const nav = root.querySelector(".am-nav-inner");
+    if (cue && !more && nav) {
+      more = document.createElement(cue.down ? "button" : "p");
+      more.className = cue.down ? "link hint am-more" : "hint am-more";
+      if (cue.down) {
+        more.type = "button";
+        more.setAttribute("data-act", "scroll-group");
+        more.setAttribute("data-group", cue.id);
+      }
+      nav.insertBefore(more, nav.firstChild);
+    }
+    if (more) {
+      if (!cue) more.remove();
+      else more.textContent = cue.down ? fill(Q.moreDown, { k: cue.k, label: cue.label }) : fill(Q.more, { k: cue.k });
+    }
+    if (s.type === "pick" || (s.type === "commit" && s.groups && groupStep === 0)) {
+      const legend = root.querySelector(".legend b");
+      const g = activeGroups(s)[0];
+      if (legend && g && g.min) {
+        const x = chosenIds(s, g).length;
+        legend.textContent = counterText(g.counter, x, g.min, x >= g.min);
+      }
+    }
+    saveProgress();
+  }
+
+  function applyOther(el) {
+    const s = screenAt(qi);
+    if (!s || !el) return;
+    const g = (s.groups || []).find(function (x) { return x.id === el.getAttribute("data-group"); });
+    if (!g || !g.other) return;
+    const i = Number(el.getAttribute("data-index"));
+    const bag = ensure(s);
+    const arr = (bag.other[g.id] || []).slice();
+    while (arr.length <= i) arr.push("");
+    const clean = String(el.value || "").replace(/[<>]/g, "").slice(0, g.other.maxLength);
+    if (!composing && el.value !== clean) el.value = clean;
+    arr[i] = composing ? el.value : clean;
+    bag.other[g.id] = arr;
+    const card = el.closest(".rsrc-opt");
+    if (card) card.classList.toggle("picked", String(arr[i] || "").trim().length > 0);
+    if (s.rank && s.rank.mode === "inline") resync(s);
+    if (!composing) paintAsk(s);
+  }
+
   root.addEventListener("input", function (ev) {
     const el = ev.target;
     if (el.getAttribute("data-act") === "other") {
-      const s = screenAt(qi);
-      const g = s.groups.find(function (x) { return x.id === el.getAttribute("data-group"); });
-      const i = Number(el.getAttribute("data-index"));
-      const bag = ensure(s);
-      const arr = (bag.other[g.id] || []).slice();
-      while (arr.length <= i) arr.push("");
-      arr[i] = el.value.replace(/[<>]/g, "").slice(0, g.other.maxLength);
-      bag.other[g.id] = arr;
-      if (el.value.length > arr[i].length) el.value = arr[i];
-      const card = el.closest(".rsrc-opt");
-      const on = arr[i].trim().length > 0;
-      if (card) card.classList.toggle("picked", on);
-      if (s.rank && s.rank.mode === "inline") resync(s);
-      const k = deficit(s);
-      const next = root.querySelector("[data-act=next]");
-      if (next) { next.disabled = k > 0; next.setAttribute("aria-disabled", k > 0 ? "true" : "false"); }
-      const more = root.querySelector(".am-more");
-      const cue = moreCue(s);
-      if (more) more.textContent = cue ? (cue.down ? fill(Q.moreDown, { k: cue.k, label: cue.label }) : fill(Q.more, { k: cue.k })) : "";
-      saveProgress();
+      if (composing) return;
+      applyOther(el);
       return;
     }
     if (el.id === "am-prenom") {
@@ -1448,12 +1501,13 @@
   }
 
   root.addEventListener("compositionstart", function (ev) {
-    if (ev.target && ev.target.id === "am-engagement") composing = true;
+    if (isTypedField(ev.target)) composing = true;
   });
   root.addEventListener("compositionend", function (ev) {
-    if (!ev.target || ev.target.id !== "am-engagement") return;
+    if (!isTypedField(ev.target)) return;
     composing = false;
-    applyEngagement(ev.target);
+    if (ev.target.id === "am-engagement") applyEngagement(ev.target);
+    else applyOther(ev.target);
   });
 
   root.addEventListener("change", function (ev) {
@@ -1532,8 +1586,33 @@
     if (act === "add-other") {
       const bag = ensure(s);
       const gid = btn.getAttribute("data-group");
-      bag.other[gid] = (bag.other[gid] || [""]).concat("");
+      const g = (s.groups || []).find(function (x) { return x.id === gid; });
+      const max = g && g.other ? g.other.max || 1 : 1;
+      const list = (bag.other[gid] || []).slice();
+      if (list.length >= max) return;
+      bag.other[gid] = list.concat("");
       focusSel = "am-other-" + gid + "-" + (bag.other[gid].length - 1);
+      showQuestion(false);
+      return;
+    }
+    if (act === "remove-other") {
+      const bag = ensure(s);
+      const gid = btn.getAttribute("data-group");
+      const i = Number(btn.getAttribute("data-index"));
+      const list = (bag.other[gid] || []).slice();
+      if (!Number.isInteger(i) || i < 0 || i >= list.length) return;
+      list.splice(i, 1);
+      bag.other[gid] = list;
+      if (bag.order && Array.isArray(bag.order[gid])) {
+        bag.order[gid] = bag.order[gid].map(function (id) {
+          if (String(id).indexOf("autre:") !== 0) return id;
+          const n = Number(String(id).split(":")[1]);
+          if (n === i) return null;
+          if (n > i) return "autre:" + (n - 1);
+          return id;
+        }).filter(Boolean);
+      }
+      if (s.rank && s.rank.mode === "inline") resync(s);
       showQuestion(false);
       return;
     }
