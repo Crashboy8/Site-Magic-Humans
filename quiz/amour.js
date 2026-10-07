@@ -1,7 +1,7 @@
-/* Quiz Amour v1.3 · 10 questions, classement, résultats.
+/* Quiz Amour v1.4 · 10 questions, classement, résultats.
    Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
-   Aucune réponse n'est envoyée ni gardée. La sécurité, les textes libres,
-   le prénom et l'ennéagramme ne partent pas vers un serveur. */
+   Aucune réponse n'est envoyée. La progression reste dans ce navigateur
+   pour pouvoir reprendre. La réponse de sécurité n'est pas stockée. */
 (function () {
   const D = window.AMOUR_DATA;
   const E = window.AmourEngine;
@@ -73,6 +73,26 @@
     "#screen-amour .progress span.done[data-tone=sky],#screen-amour .progress span.is-now[data-tone=sky]{background:var(--sky)}",
     "#screen-amour .progress span.done[data-tone=split],#screen-amour .progress span.is-now[data-tone=split]{background:linear-gradient(90deg,var(--sage),var(--coral))}",
     "#screen-amour .progress span.is-now{height:9px}",
+    "#screen-amour .progress span.is-partial{position:relative;overflow:hidden}",
+    "#screen-amour .progress span.is-partial i{display:block;height:100%;border-radius:8px}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=sage]{background:var(--sage-track)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=sage] i{background:var(--sage)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=coral]{background:var(--coral-track)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=coral] i{background:var(--coral)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=pink]{background:var(--pink-track)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=pink] i{background:var(--pink)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=gold]{background:var(--gold-track)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=gold] i{background:var(--gold)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=sky]{background:var(--sky-track)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=sky] i{background:var(--sky)}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=split]{background:linear-gradient(90deg,var(--sage-track),var(--coral-track))}",
+    "#screen-amour .progress span.is-now.is-partial[data-tone=split] i{background:linear-gradient(90deg,var(--sage),var(--coral))}",
+    "#screen-amour .am-resume{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}",
+    "#screen-amour .am-resume p{margin:0;font-weight:700}",
+    "#screen-amour .am-cta{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px}",
+    "#screen-amour .am-cta .btn{align-self:flex-start}",
+    "#screen-amour .am-sticky{display:none}",
+    "@media(max-width:720px){#screen-amour.has-sticky{padding-bottom:88px}#screen-amour .am-sticky{display:flex;position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:35;align-items:center;gap:8px;padding:8px 8px 8px 14px;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:0 8px 28px rgba(0,0,0,.16)}#screen-amour .am-sticky .btn{flex:1;justify-content:center}#screen-amour .am-sticky .btn.ghost{flex:0 0 auto}}",
     "#screen-amour .snum{color:var(--am)}",
     "#screen-amour .legend{position:relative}",
     "#screen-amour .am-pop{position:absolute;right:4px;top:-4px;color:var(--am);pointer-events:none;animation:am-heart .9s ease forwards}",
@@ -134,7 +154,7 @@
     "@media print{",
     "@page{size:A4;margin:9mm}",
     "html,body{background:#fff!important;color:#1B1816!important;font-size:8.6pt!important;line-height:1.3!important}",
-    ".topbar,footer,.wrap>div:last-child,.mh-cookie-banner,.am-screen-only,#screen-amour .qnav,#screen-amour .btn,#screen-amour .row-actions{display:none!important}",
+    ".topbar,footer,.wrap>div:last-child,.mh-cookie-banner,.am-screen-only,#screen-amour .qnav,#screen-amour .btn,#screen-amour .row-actions,#screen-amour .am-sticky,#screen-amour .am-resume{display:none!important}",
     ".wrap{max-width:none!important;padding:0!important}",
     "#screen-amour{zoom:.86}",
     "#screen-amour .alloy{font-size:26pt!important;line-height:1.02!important;margin:0 0 2px}",
@@ -183,6 +203,48 @@
   let focusSel = "";
   let pendingLive = "";
   let armed = true;
+  let view = "intro";
+  let resultProfile = null;
+  let resumeNote = false;
+  let stickyOff = false;
+  let composing = false;
+  let runId = 1;
+  let stack = [{ view: "intro", qi: 0, phase: "ask", groupStep: 0 }];
+  let historyReady = false;
+
+  function track(name, params) {
+    try {
+      if (typeof window.mhTrack === "function") window.mhTrack(name, params || {});
+    } catch (e) { /* mesure indisponible */ }
+  }
+  function browserStore() {
+    try { return window.localStorage; } catch (e) { return null; }
+  }
+  function currentSnap() {
+    return { view: view, qi: qi, phase: phase, groupStep: groupStep };
+  }
+  function saveProgress() {
+    E.writeProgress(browserStore(), {
+      prenom: prenom,
+      qi: qi,
+      phase: phase,
+      groupStep: groupStep,
+      view: view,
+      answers: answers,
+      lastPrefix: lastPrefix,
+      profile: resultProfile,
+      stack: stack,
+    });
+  }
+  function pushHist() {
+    stack.push(currentSnap());
+    try { history.pushState({ amour: 1, runId: runId, i: stack.length - 1 }, ""); } catch (e) { /* historique indisponible */ }
+    saveProgress();
+  }
+  function resumeHtml() {
+    if (!resumeNote) return "";
+    return '<div class="am-resume" role="status"><p>' + esc(Q.resumeNotice) + '</p><button type="button" class="btn ghost small" data-act="restart">' + esc(Q.resumeRestart) + "</button></div>";
+  }
 
   const PATHS = {
     leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>',
@@ -261,6 +323,16 @@
   function barTone(sc) {
     if (sc.id === "nourrit") return "split";
     return SCREEN_TONE[sc.id] || "pink";
+  }
+  function subProgress(s) {
+    const split = !!(s.splitGroups && s.groups && s.groups.length > 1);
+    const rankStep = !!(s.rank && s.rank.mode === "step");
+    const base = split ? s.groups.length : 1;
+    const parts = base + (rankStep ? 1 : 0);
+    let index = 0;
+    if (rankStep && phase === "rank") index = parts - 1;
+    else if (split) index = Math.max(0, Math.min(groupStep, base - 1));
+    return { parts: parts, index: index };
   }
   function questionIcon(s) {
     if (s.id === "nourrit" && phase !== "rank") {
@@ -343,11 +415,7 @@
       if (s.type === "rank") return Math.max(0, s.minRanked - ensure(s).order.length);
       return 0;
     }
-    if (s.type === "commit") {
-      const bag = ensure(s);
-      const textOk = String(bag.engagement || "").trim().length >= s.engagement.minLength;
-      return (textOk ? 0 : 1) + (bag.moment ? 0 : 1);
-    }
+    if (s.type === "commit") return ensure(s).moment ? 0 : 1;
     return 0;
   }
 
@@ -405,9 +473,9 @@
       bits.push(counterSpan(fill(Q.rankCounter, { x: x, min: s.minRanked }) + (ok ? " " + Q.counterOk : ""), ""));
     } else if (s.type === "commit") {
       const bag = ensure(s);
-      const x = (String(bag.engagement || "").trim().length >= 5 ? 1 : 0) + (bag.moment ? 1 : 0);
-      const ok = x >= 2;
-      bits.push(counterSpan(fill(Q.engagementCounter, { x: x, min: 2 }) + (ok ? " " + Q.counterOk : ""), ""));
+      const wrote = String(bag.engagement || "").trim().length >= (s.engagement.minLength || 5);
+      const both = wrote && !!bag.moment;
+      bits.push(counterSpan(Q.engagementCounter + (both ? " " + Q.counterOk : ""), ""));
     } else if (s.rank && phase === "rank") {
       s.rank.groups.forEach(function (gid) {
         const g = s.groups.find(function (x) { return x.id === gid; });
@@ -544,7 +612,7 @@
     html += "</div>";
     html += '<p class="lab" style="margin-top:14px">' + esc(Q.engagementLabel) + "</p>";
     html += '<textarea id="am-engagement" rows="2" maxlength="140" placeholder="' + esc(s.engagement.placeholder) + '">' + esc(bag.engagement || "") + "</textarea>";
-    html += '<p class="muted">' + esc(fill(Q.chars, { n: String(bag.engagement || "").length, max: 140 })) + "</p>";
+    html += '<p class="muted" data-am-chars>' + esc(fill(Q.chars, { n: String(bag.engagement || "").length, max: 140 })) + "</p>";
     html += "<h3>" + esc(Q.shareBlock) + "</h3>";
     html += '<div class="field"><label for="am-who">' + esc(Q.whoLabel) + '</label><input id="am-who" maxlength="40" placeholder="' + esc(s.share.whoPlaceholder) + '" value="' + esc(bag.who || "") + '"></div>';
     html += "<h3>" + esc(Q.whenLabel) + '</h3><div class="items">';
@@ -593,7 +661,20 @@
     return "<section class=\"stack\"><h3>" + esc(s.rank.title) + "</h3><p class=\"muted\">" + esc(Q.rankHelp) + "</p>" + listHtml(s, gid, ids, false, null) + "</section>";
   }
 
+  function pinSticky() {
+    const bar = document.getElementById("am-sticky");
+    if (!bar) return;
+    let cookie = 0;
+    if (document.body.classList.contains("mh-cookie-open")) {
+      cookie = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mh-cookie-banner-h")) || 0;
+    }
+    const vv = window.visualViewport;
+    const lift = vv ? Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)) : 0;
+    bar.style.bottom = (10 + cookie + lift) + "px";
+  }
+
   function pinNav() {
+    pinSticky();
     const nav = root.querySelector(".qnav");
     const block = root.querySelector(".am-body");
     if (!nav) return;
@@ -612,14 +693,19 @@
     const k = deficit(s);
     const ok = k === 0;
     const segs = D.screens.map(function (sc, i) {
-      const cls = [(i < qi || (i === qi && ok)) ? "done" : "", i === qi ? "is-now" : ""].filter(Boolean).join(" ");
-      return '<span class="' + cls + '" data-tone="' + barTone(sc) + '"></span>';
+      const sub = i === qi ? subProgress(sc) : null;
+      const pct = sub ? Math.round(((sub.index + 1) / sub.parts) * 100) : 100;
+      const partial = !!(sub && sub.parts > 1 && pct < 100);
+      const cls = [(i < qi || (i === qi && ok && !partial)) ? "done" : "", i === qi ? "is-now" : "", partial ? "is-partial" : ""].filter(Boolean).join(" ");
+      return '<span class="' + cls + '" data-tone="' + barTone(sc) + '">' + (partial ? '<i style="width:' + pct + '%"></i>' : "") + "</span>";
     }).join("");
     const suffix = s.rank && s.rank.mode === "step" && phase === "rank" ? Q.rankSuffix : "";
     const pop = !scroll && ok && armed;
     armed = !ok;
     root.dataset.tone = currentTone(s);
+    root.classList.remove("has-sticky");
     root.innerHTML =
+      resumeHtml() +
       '<div class="am-stage' + (scroll ? " am-in" : "") + '">' +
       '<div class="progress" aria-hidden="true">' + segs + "</div>" +
       '<div class="qhead"><span class="eyebrow">' + ico(questionIcon(s)) + esc(fill(Q.progress, { i: s.n, n: n }) + " · " + s.eyebrow + suffix) + "</span>" +
@@ -646,14 +732,18 @@
       pendingLive = "";
     }
     if (scroll) scrollTop();
+    saveProgress();
   }
 
   function showIntro() {
     const I = U.intro;
     const introTones = ["sage", "gold", "pink", "coral"];
+    view = "intro";
     armed = true;
     delete root.dataset.tone;
+    root.classList.remove("has-sticky");
     root.innerHTML =
+      resumeHtml() +
       '<div class="hero"><span class="eyebrow">' + ico("heart") + esc(I.eyebrow) + "</span><h1>" + I.h1 + '</h1><p class="lead">' + esc(I.lead) + "</p></div>" +
       '<div class="stack-lg" style="padding-top:18px"><div class="howto"><div class="rules">' +
       I.bullets.map(function (b, i) {
@@ -669,9 +759,11 @@
     const input = document.getElementById("am-prenom");
     if (input) input.focus();
     scrollTop();
+    saveProgress();
   }
 
   function showQuestion(scroll) {
+    view = "question";
     const s = screenAt(qi);
     ensure(s);
     if (s.type === "pick" && s.rank && s.rank.mode === "step" && phase === "rank") {
@@ -723,7 +815,37 @@
     if (!inner) return "";
     return '<span class="am-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + "</svg></span>";
   }
-  function profilReport(profile) {
+  function calendlyHref(place) {
+    try { return E.calendlyLink(D.config.calendly, place, location.search || ""); }
+    catch (err) { return D.config.calendly; }
+  }
+  function discoveryBlock(place, pierreLine) {
+    return '<section class="rs am-cta"><span class="eyebrow">' + esc(R.ctaEyebrow) + "</span><h2>" + esc(R.ctaH) + "</h2><p>" + esc(pierreLine) + "</p><p>" + esc(R.ctaP) + '</p><a class="btn" data-cta-place="quiz_amour_' + place + '" href="' + esc(calendlyHref(place)) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + '</a><p class="muted">' + esc(R.ctaSign) + "</p></section>";
+  }
+  function stickyBar() {
+    if (stickyOff) return "";
+    return '<div class="am-sticky" id="am-sticky"><a class="btn small" data-cta-place="quiz_amour_resultat-sticky" href="' + esc(calendlyHref("resultat-sticky")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.stickyCta) + '</a><button type="button" class="btn ghost small" data-act="dismiss-sticky" aria-label="' + esc(R.stickyClose) + '">×</button></div>';
+  }
+  function stepGlance(profile) {
+    const stepText = String(profile.etape.engagement || "").trim();
+    const who = profile.etape.who ? fill(R.shareWith, { who: profile.etape.who }) : "";
+    const momentLabel = (D.moments.find(function (m) { return m.id === profile.etape.moment; }) || {}).label || "";
+    const parts = [];
+    if (stepText) parts.push("« " + stepText + " »");
+    else parts.push(R.nowStepEmpty);
+    if (who) parts.push(who);
+    if (momentLabel) parts.push(momentLabel);
+    return parts.join(" · ");
+  }
+  function brakeTitle(id, asShort) {
+    if (String(id).indexOf("autre:") === 0) return E.answerLabel(answers, D, "freins", "freins", id);
+    if (asShort) return D.brakes[id] ? D.brakes[id].short : "";
+    const g = D.screens.find(function (s) { return s.id === "freins"; }).groups[0];
+    const it = g.items.find(function (item) { return item.id === id; });
+    return it ? it.label : "";
+  }
+
+  function profilReport(profile, pierreLine) {
     const pr = profile.profil;
     const U = D.profil.ui;
     const B = D.profil.besoins;
@@ -754,7 +876,7 @@
       '<div class="panel">' + profile.sentences.map(function (sentence, i) {
         return '<p class="am-sentence' + (i === 0 ? " quote" : "") + '" style="' + needStyle(tones[i]) + '">' + profilSvg(marks[i]) + "<span>" + esc(sentence) + "</span></p>";
       }).join("") + "</div>" +
-      '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>';
+      '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><button type="button" class="btn ghost small" data-act="share">' + esc(R.shareBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>';
     const hrefs = ["#am-s1", "#am-s2", "#am-s3", "#am-s4", "#am-s5", "#am-s6", "#sec-now"];
     const toc = '<nav class="toc" aria-label="Sommaire">' + U.toc.map(function (label, i) {
       return '<a href="' + hrefs[i] + '">' + esc(label) + "</a>";
@@ -808,12 +930,14 @@
       if (secItem.also) body += "<p>" + esc(secItem.also) + "</p>";
       return '<section class="rs pr-sec" id="am-s' + (i + 1) + '" style="' + style + '"><p class="snum">' + profilSvg(secItem.icon) + " " + (i + 1) + "</p><h2>" + esc(secItem.title) + "</h2>" + body + "</section>";
     });
-    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + toc +
+    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + discoveryBlock("resultat-apres-profil", pierreLine) + toc +
       '<div class="pr-cols">' + sections[0] + sections[1] + "</div>" +
       sections.slice(2).join("") + "</div>";
   }
 
   function showResults(profile) {
+    view = "results";
+    resultProfile = profile;
     const boussoleHref = D.config.boussoleUrl + "#amour=" + E.encodePayload(profile.boussole);
     const fortId = (profile.stress.fort || [])[0];
     const pierreLine = (R.nowStress && R.nowStress[fortId]) || R.nowGeneric;
@@ -847,17 +971,13 @@
         return shorts.length ? " : " + shorts.slice(0, 2).join(", ") : "";
       })()) + "</p></div>" +
       '<div class="panel"><span class="lab">' + esc(R.stressLab) + "</span><p>" + esc("modéré → " + profile.stress.modere.map(function (id) { return D.stress.modere[id].short; }).join(", ") + " · fort → " + profile.stress.fort.map(function (id) { return D.stress.fort[id].short; }).join(", ")) + "</p></div>" +
-      '<div class="panel"><span class="lab">' + esc(R.brakeLab) + "</span><p>" + esc((function () {
-        const g = D.screens.find(function (s) { return s.id === "freins"; }).groups[0];
-        const it = g.items.find(function (item) { return item.id === profile.brakes.first; });
-        return (it ? it.label : "") + " " + profile.brakes.antidote;
-      })()) + "</p></div>" +
+      '<div class="panel"><span class="lab">' + esc(R.brakeLab) + "</span><p>" + esc(brakeTitle(profile.brakes.first, false) + " " + profile.brakes.antidote) + "</p></div>" +
       '<div class="panel"><span class="lab">' + esc(R.demainLab) + "</span><p>" + esc(profile.demain.actions.map(function (id) {
         return id === "rappel" ? fill(D.actions.rappel, { heure: (D.times.find(function (t) { return t.id === profile.demain.time; }) || {}).label || "" }) : D.actions[id];
       }).join(" ")) + "</p>" +
       (profile.demain.actions.indexOf("rappel") !== -1 ? '<p><button type="button" class="btn ghost small" data-act="ics">' + esc(R.icsBtn) + "</button></p>" : "") +
       "</div>" +
-      '<div class="panel"><span class="lab">' + esc(R.stepLab) + "</span><p>" + esc("« " + profile.etape.engagement + " »" + (profile.etape.who ? " · " + fill(R.shareWith, { who: profile.etape.who }) : "") + " · " + (D.moments.find(function (m) { return m.id === profile.etape.moment; }) || {}).label) + "</p></div>";
+      '<div class="panel"><span class="lab">' + esc(R.stepLab) + "</span><p>" + esc(stepGlance(profile)) + "</p></div>";
 
     const type = D.ennea.types[profile.ennea.type];
     const detail =
@@ -878,9 +998,9 @@
       "</section>" +
       '<section class="rs"><h2>' + esc(R.brakesH) + "</h2>" + profile.brakes.all.map(function (id) {
         const own = String(id).indexOf("autre:") === 0;
-        const short = own ? id : D.brakes[id].short;
-        const antidote = own ? D.brakes.energie.antidote : D.brakes[id].antidote;
-        return "<p><strong>" + esc(short) + "</strong> " + esc(antidote) + "</p>";
+        const title = brakeTitle(id, true);
+        const antidote = own ? D.brakes.energie.antidote : (D.brakes[id] ? D.brakes[id].antidote : "");
+        return "<p><strong>" + esc(title) + "</strong> " + esc(antidote) + "</p>";
       }).join("") + "</section>" +
       '<section class="rs"><h2>' + esc(R.partnerH) + "</h2><p>" + esc(R.partnerIntro) + '</p><div class="grid3">' +
       '<div class="panel ctx-good"><p class="lab">' + esc(R.completeLab) + "</p>" + ul(profile.partner.complete) + "</div>" +
@@ -894,15 +1014,17 @@
 
     const matching = esc(fill(R.matchingP, { email: D.config.matchingEmail })).replace(esc(D.config.matchingEmail), '<a href="mailto:' + esc(D.config.matchingEmail) + '">' + esc(D.config.matchingEmail) + "</a>");
 
+    root.classList.toggle("has-sticky", !stickyOff);
     root.innerHTML =
+      resumeHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
-      profilReport(profile) +
+      profilReport(profile, pierreLine) +
       '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + '</h2><div class="stack">' +
       '<article class="rule" data-tone="sage"><span class="k">1</span><strong>' + ico("flag", "sage") + esc(R.nowStep) + "</strong>" + stepBody + "</article>" +
       '<article class="rule" data-tone="sky"><span class="k">2</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
       '<article class="rule" data-tone="pink"><span class="k">3</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(pierreLine) + "</p>" +
-      '<a class="btn" data-cta-place="quiz_amour_resultat" href="' + esc(D.config.calendly) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
+      '<a class="btn" data-cta-place="quiz_amour_resultat-fin" href="' + esc(calendlyHref("resultat-fin")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
       '<div class="row-actions"><button type="button" class="btn ghost" data-act="print">' + esc(R.nowPdf) + "</button></div></section>" +
       '<div class="am-screen-only stack-lg">' +
@@ -911,14 +1033,16 @@
       '<section class="rs"><h2>' + esc(R.exportH) + '</h2><div class="panel"><p>' + esc(R.exportP) + '</p><textarea id="am-export" readonly>' + esc(profile.exportText) + "</textarea>" +
       '<textarea id="am-share" readonly hidden>' + esc(profile.shareText) + '</textarea><div class="row-actions"><button type="button" class="btn" data-act="copy">' + esc(R.copyBtn) + '</button><span class="toast" id="am-toast" aria-live="polite"></span></div></div></section>' +
       '<section class="rs"><h2>' + esc(R.matchingH) + '</h2><div class="panel"><p class="muted">' + matching + "</p></div></section>" +
-      '<section class="rs"><h2>' + esc(R.ethicsH) + '</h2><div class="prose"><p>' + esc(R.ethicsP) + '</p><p><a class="link" href="/quiz-amour/">' + esc(R.restart) + "</a></p></div></section>" +
-      "</div>";
+      '<section class="rs"><h2>' + esc(R.ethicsH) + '</h2><div class="prose"><p>' + esc(R.ethicsP) + '</p><p><button type="button" class="link" data-act="restart">' + esc(R.restart) + "</button></p></div></section>" +
+      "</div>" +
+      stickyBar();
 
     delete root.dataset.tone;
     root.dataset.share = profile.shareText;
     root.dataset.ics = JSON.stringify({ engagement: profile.etape.engagement, time: profile.demain.time });
-    answers = {};
+    pinSticky();
     scrollTop();
+    saveProgress();
   }
 
   function rememberTheme() {
@@ -1063,11 +1187,7 @@
   root.addEventListener("keydown", function (ev) {
     if (ev.key === "Enter" && ev.target && ev.target.id === "am-prenom") {
       ev.preventDefault();
-      prenom = cleanName(ev.target.value);
-      qi = 0;
-      phase = "ask";
-      groupStep = 0;
-      showQuestion(true);
+      beginQuiz();
       return;
     }
     const handle = ev.target.closest && ev.target.closest(".am-handle");
@@ -1131,17 +1251,58 @@
       const more = root.querySelector(".am-more");
       const cue = moreCue(s);
       if (more) more.textContent = cue ? (cue.down ? fill(Q.moreDown, { k: cue.k, label: cue.label }) : fill(Q.more, { k: cue.k })) : "";
+      saveProgress();
+      return;
+    }
+    if (el.id === "am-prenom") {
+      prenom = cleanName(el.value);
+      saveProgress();
       return;
     }
     if (el.id === "am-engagement") {
-      const bag = ensure(screenAt(qi));
-      bag.engagement = el.value.replace(/[<>]/g, "").slice(0, 140);
-      if (bag.engagement !== lastPrefix) lastPrefix = "";
-      showQuestion(false);
-      const area = document.getElementById("am-engagement");
-      if (area) { area.focus(); area.setSelectionRange(area.value.length, area.value.length); }
+      if (composing) {
+        const chars = root.querySelector("[data-am-chars]");
+        if (chars) chars.textContent = fill(Q.chars, { n: String(el.value || "").length, max: 140 });
+        return;
+      }
+      applyEngagement(el);
+      return;
     }
-    if (el.id === "am-who") ensure(screenAt(qi)).who = el.value.replace(/[<>]/g, "").slice(0, 40);
+    if (el.id === "am-who") {
+      ensure(screenAt(qi)).who = el.value.replace(/[<>]/g, "").slice(0, 40);
+      saveProgress();
+    }
+  });
+
+  function applyEngagement(el) {
+    const s = screenAt(qi);
+    if (!s || s.type !== "commit" || !el) return;
+    const bag = ensure(s);
+    const clean = String(el.value || "").replace(/[<>]/g, "").slice(0, 140);
+    if (el.value !== clean) el.value = clean;
+    bag.engagement = clean;
+    if (bag.engagement !== lastPrefix) lastPrefix = "";
+    const chars = root.querySelector("[data-am-chars]");
+    if (chars) chars.textContent = fill(Q.chars, { n: String(bag.engagement).length, max: 140 });
+    const wrote = clean.trim().length >= (s.engagement.minLength || 5);
+    const legend = root.querySelector(".legend b");
+    if (legend) legend.textContent = Q.engagementCounter + (wrote && bag.moment ? " " + Q.counterOk : "");
+    const next = root.querySelector("[data-act=next]");
+    const blocked = deficit(s) > 0;
+    if (next) {
+      next.disabled = blocked;
+      next.setAttribute("aria-disabled", blocked ? "true" : "false");
+    }
+    saveProgress();
+  }
+
+  root.addEventListener("compositionstart", function (ev) {
+    if (ev.target && ev.target.id === "am-engagement") composing = true;
+  });
+  root.addEventListener("compositionend", function (ev) {
+    if (!ev.target || ev.target.id !== "am-engagement") return;
+    composing = false;
+    applyEngagement(ev.target);
   });
 
   root.addEventListener("change", function (ev) {
@@ -1166,12 +1327,30 @@
     const s = screenAt(qi);
 
     if (act === "start") {
-      const input = document.getElementById("am-prenom");
-      prenom = cleanName(input ? input.value : "");
-      qi = 0;
-      phase = "ask";
-      groupStep = 0;
-      showQuestion(true);
+      beginQuiz();
+      return;
+    }
+    if (act === "restart") {
+      restartQuiz();
+      return;
+    }
+    if (act === "dismiss-sticky") {
+      stickyOff = true;
+      root.classList.remove("has-sticky");
+      const bar = document.getElementById("am-sticky");
+      if (bar) bar.remove();
+      return;
+    }
+    if (act === "share") {
+      const text = root.dataset.share || "";
+      const toast = document.getElementById("am-toast-short");
+      const payload = { title: "Amoureux, mais malheureux ?", text: text, url: D.config.quizUrl };
+      if (navigator.share) {
+        navigator.share(payload).catch(function (err) {
+          if (err && err.name === "AbortError") return;
+          copyText(text, toast, document.getElementById("am-share"));
+        });
+      } else copyText(text, toast, document.getElementById("am-share"));
       return;
     }
     if (act === "check" || act === "safety") return;
@@ -1244,6 +1423,10 @@
       return;
     }
     if (act === "prev") {
+      resumeNote = false;
+      if (stack.length > 1) {
+        try { history.back(); return; } catch (e2) { /* repli manuel */ }
+      }
       if (s && s.splitGroups && phase !== "rank" && groupStep > 0) {
         groupStep -= 1;
         showQuestion(true);
@@ -1265,27 +1448,40 @@
     }
     if (act === "next") {
       if (!s || deficit(s) > 0) return;
+      resumeNote = false;
       if (s.splitGroups && phase !== "rank" && groupStep < s.groups.length - 1) {
         groupStep += 1;
+        view = "question";
+        pushHist();
         showQuestion(true);
         return;
       }
       if (s.rank && s.rank.mode === "step" && phase !== "rank") {
         resync(s);
         phase = "rank";
+        view = "question";
+        pushHist();
         showQuestion(true);
         return;
       }
       if (qi < D.screens.length - 1) {
+        track("question_validee", { index: s.n });
         qi += 1;
         phase = "ask";
         groupStep = 0;
+        view = "question";
+        pushHist();
         showQuestion(true);
         return;
       }
       let profile;
       try { profile = E.computeLoveProfile(answers, D, prenom); }
       catch (e) { return; }
+      track("question_validee", { index: s.n });
+      resultProfile = profile;
+      view = "results";
+      track("resultat_affiche", { index: s.n });
+      pushHist();
       showResults(profile);
       return;
     }
@@ -1314,5 +1510,117 @@
     watchNav.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
   }
 
-  showIntro();
+  function beginQuiz() {
+    const input = document.getElementById("am-prenom");
+    prenom = cleanName(input ? input.value : prenom);
+    qi = 0;
+    phase = "ask";
+    groupStep = 0;
+    view = "question";
+    resumeNote = false;
+    track("quiz_start", { index: 1 });
+    pushHist();
+    showQuestion(true);
+  }
+
+  function restartQuiz() {
+    E.clearProgress(browserStore());
+    answers = {};
+    prenom = "";
+    qi = 0;
+    phase = "ask";
+    groupStep = 0;
+    view = "intro";
+    resultProfile = null;
+    lastPrefix = "";
+    resumeNote = false;
+    stickyOff = false;
+    runId += 1;
+    stack = [{ view: "intro", qi: 0, phase: "ask", groupStep: 0 }];
+    try { history.pushState({ amour: 1, runId: runId, i: 0 }, ""); } catch (e) { /* historique indisponible */ }
+    showIntro();
+  }
+
+  function applySnap(snap) {
+    view = snap && snap.view ? snap.view : "intro";
+    qi = snap && Number.isInteger(snap.qi) ? snap.qi : 0;
+    phase = snap && snap.phase === "rank" ? "rank" : "ask";
+    groupStep = snap && Number.isInteger(snap.groupStep) ? snap.groupStep : 0;
+    if (view === "results") {
+      if (!resultProfile) {
+        try { resultProfile = E.computeLoveProfile(answers, D, prenom); }
+        catch (err) { view = "question"; }
+      }
+      if (view === "results" && resultProfile) {
+        showResults(resultProfile);
+        return;
+      }
+    }
+    if (view === "question" && screenAt(qi)) {
+      showQuestion(true);
+      return;
+    }
+    view = "intro";
+    showIntro();
+  }
+
+  let popSkips = 0;
+  function onPop(ev) {
+    if (!historyReady) return;
+    const st = ev.state;
+    if (st && st.amour === 1 && st.runId !== runId) {
+      if (popSkips > 40) return;
+      popSkips += 1;
+      try { history.back(); } catch (e) { /* fin d'historique */ }
+      return;
+    }
+    popSkips = 0;
+    if (!st || st.amour !== 1 || st.runId !== runId) return;
+    if (!stack[st.i]) return;
+    stack = stack.slice(0, st.i + 1);
+    resumeNote = false;
+    applySnap(stack[st.i]);
+  }
+
+  function boot() {
+    const saved = E.readProgress(browserStore());
+    if (saved && (saved.view === "question" || saved.view === "results")) {
+      const q = saved.qi;
+      if (Number.isInteger(q) && q >= 0 && q < D.screens.length) {
+        prenom = saved.prenom || "";
+        qi = q;
+        phase = saved.phase === "rank" ? "rank" : "ask";
+        groupStep = saved.groupStep || 0;
+        answers = saved.answers || {};
+        lastPrefix = saved.lastPrefix || "";
+        view = saved.view === "results" && saved.profile ? "results" : "question";
+        if (view === "results") resultProfile = saved.profile;
+        if (Array.isArray(saved.stack) && saved.stack.length) {
+          stack = saved.stack.map(function (step) {
+            return {
+              view: step.view === "question" || step.view === "results" ? step.view : "intro",
+              qi: step.qi || 0,
+              phase: step.phase === "rank" ? "rank" : "ask",
+              groupStep: step.groupStep || 0,
+            };
+          });
+        } else stack = [{ view: "intro", qi: 0, phase: "ask", groupStep: 0 }];
+        const last = stack[stack.length - 1];
+        const now = currentSnap();
+        if (!last || last.view !== now.view || last.qi !== now.qi || last.phase !== now.phase || last.groupStep !== now.groupStep) {
+          stack.push(now);
+        }
+        resumeNote = true;
+      }
+    } else if (saved && saved.prenom) prenom = saved.prenom;
+    try {
+      history.replaceState({ amour: 1, runId: runId, i: 0 }, "");
+      for (let i = 1; i < stack.length; i++) history.pushState({ amour: 1, runId: runId, i: i }, "");
+    } catch (e) { /* historique indisponible */ }
+    historyReady = true;
+    window.addEventListener("popstate", onPop);
+    applySnap(stack[stack.length - 1]);
+  }
+
+  boot();
 })();

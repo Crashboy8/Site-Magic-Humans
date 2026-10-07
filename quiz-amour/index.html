@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Amoureux, mais malheureux ? | Magic Humans</title>
+<meta name="description" content="Quiz gratuit du Sommet de l'Amour : 10 questions pour voir ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.">
+<link rel="icon" href="/favicon.ico">
+<link rel="canonical" href="https://www.magichumans.com/quiz-amour/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Magic Humans">
+<meta property="og:url" content="https://www.magichumans.com/quiz-amour/">
+<meta property="og:title" content="Amoureux, mais malheureux ?">
+<meta property="og:description" content="Quiz gratuit du Sommet de l'Amour : 10 questions pour voir ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.">
+<meta property="og:image" content="https://www.magichumans.com/assets/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Amoureux, mais malheureux ? Quiz du Sommet de l'Amour">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Amoureux, mais malheureux ?">
+<meta name="twitter:description" content="Quiz gratuit du Sommet de l'Amour : 10 questions pour voir ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.">
+<meta name="twitter:image" content="https://www.magichumans.com/assets/img/og-image.png">
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    if (!params.get("theme")) params.set("theme", "amour");
+    location.replace("/quiz/?" + params.toString() + location.hash);
+  })();
+</script>
+<noscript><meta http-equiv="refresh" content="0;url=/quiz/?theme=amour"></noscript>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap">
+<style>
+:root{--bg:#F5F3F0;--surface:#fff;--ink:#2B2522;--muted:#6E645D;--line:#E4DED7;--accent:#D9661C;--accent-ink:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,sans-serif;font-size:1.0625rem;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto;padding:32px 20px 64px}
+.brand{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;text-decoration:none}
+.eyebrow{display:block;margin-top:28px;font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(2.2rem,7vw,3.2rem);line-height:1.05;margin:10px 0 12px}
+h1 em{font-style:italic;color:var(--accent)}
+p{margin:0 0 18px}
+.muted{color:var(--muted)}
+.btn{display:inline-flex;font-weight:700;text-decoration:none;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:13px 26px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a class="brand" href="/">Magic Humans</a>
+  <span class="eyebrow">Sommet de l'Amour</span>
+  <h1>Amoureux, mais <em>malheureux</em> ?</h1>
+  <p>Quiz gratuit : 10 questions pour voir ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.</p>
+  <p><a class="btn" id="go" href="/quiz/?theme=amour">Commencer le quiz</a></p>
+  <p class="muted">Si la page ne s'ouvre pas toute seule, utilise le bouton.</p>
+</main>
+<script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    if (!params.get("theme")) params.set("theme", "amour");
+    var dest = "/quiz/?" + params.toString() + location.hash;
+    var link = document.getElementById("go");
+    if (link) link.href = dest;
+    location.replace(dest);
+  })();
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 // node --test quiz/amour.test.mjs
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import fs from "node:fs";
 import test from "node:test";
 
 const require = createRequire(import.meta.url);
@@ -201,7 +202,12 @@ test("minimums", () => {
   assert.throws(() => E.computeLoveProfile(noMoment, D, "Léa"));
   const shortText = firstAnswers();
   shortText.etape.engagement = "oui";
-  assert.throws(() => E.computeLoveProfile(shortText, D, "Léa"));
+  assert.doesNotThrow(() => E.computeLoveProfile(shortText, D, "Léa"));
+  const emptyEng = firstAnswers();
+  emptyEng.etape.engagement = "   ";
+  const emptyProfile = E.computeLoveProfile(emptyEng, D, "Léa");
+  assert.equal(emptyProfile.etape.engagement, "");
+  assert.match(emptyProfile.exportText, /Choisis un petit pas/);
   const emptyOther = firstAnswers();
   emptyOther.nourrit.picked.nourrit = ["ecoute", "rire"];
   emptyOther.nourrit.other.nourrit = ["   "];
@@ -560,6 +566,118 @@ test("v1.4 · exemple Camille : Miroir Passionné·e, Q4 sans effet", () => {
   const love2 = E.computeLoveProfile(other, D, "Camille");
   assert.equal(E.encodePayload(love.boussole), E.encodePayload(love2.boussole));
   assert.equal(love2.profil.name.text, "Miroir Passionné·e");
+});
+
+function memoryStore() {
+  const data = new Map();
+  return {
+    getItem: (key) => (data.has(key) ? data.get(key) : null),
+    setItem: (key, value) => data.set(key, String(value)),
+    removeItem: (key) => data.delete(key),
+  };
+}
+
+test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
+  assert.equal(E.progressKey(), "quiz_amour_v14_progress");
+  const store = memoryStore();
+  const answers = firstAnswers();
+  answers.etape.safety = "passe";
+  const profile = E.computeLoveProfile(answers, D, "Léa");
+  assert.ok(profile.pastAbuse);
+  const stack = [
+    { view: "intro", qi: 0, phase: "ask", groupStep: 0 },
+    { view: "question", qi: 9, phase: "ask", groupStep: 0 },
+    { view: "results", qi: 9, phase: "ask", groupStep: 0 },
+  ];
+  assert.equal(E.writeProgress(store, {
+    prenom: "Léa",
+    qi: 9,
+    phase: "ask",
+    groupStep: 0,
+    view: "results",
+    answers,
+    lastPrefix: "Cette semaine",
+    profile,
+    stack,
+  }), true);
+  const back = E.readProgress(store);
+  assert.equal(back.v, 14);
+  assert.equal(back.prenom, "Léa");
+  assert.equal(back.qi, 9);
+  assert.equal(back.view, "results");
+  assert.equal(back.answers.etape.safety, null);
+  assert.equal(back.answers.etape.engagement, answers.etape.engagement);
+  assert.equal(back.answers.nourrit.picked.nourrit[0], "ecoute");
+  assert.equal(back.profile.safety, null);
+  assert.equal(back.profile.pastAbuse, null);
+  assert.equal(back.profile.sentences.length, 3);
+  assert.equal(back.profile.profil.name.text, profile.profil.name.text);
+  assert.equal(back.stack.length, 3);
+  assert.equal(back.lastPrefix, "Cette semaine");
+  assert.equal(E.readProgress({ getItem() { throw new Error("privé"); } }), null);
+  assert.equal(E.writeProgress({ setItem() { throw new Error("plein"); } }, { view: "intro", answers: {} }), false);
+  assert.equal(E.clearProgress({ removeItem() { throw new Error("bloqué"); } }), false);
+  assert.equal(E.clearProgress(store), true);
+  assert.equal(E.readProgress(store), null);
+  assert.equal(E.parseProgress("{"), null);
+  assert.equal(E.parseProgress({ v: 13, view: "intro", answers: {} }), null);
+});
+
+test("frein personnalisé : le texte saisi est le titre, pas autre:0", () => {
+  const answers = firstAnswers();
+  answers.freins.picked.freins = [];
+  answers.freins.other.freins = ["La peur de trop m'attacher"];
+  answers.freins.order.freins = ["autre:0"];
+  const profile = E.computeLoveProfile(answers, D, "Léa");
+  assert.equal(profile.brakes.first, "autre:0");
+  const title = E.answerLabel(answers, D, "freins", "freins", profile.brakes.first);
+  assert.equal(title, "La peur de trop m'attacher");
+  assert.equal(title.includes("autre:"), false);
+  assert.equal(profile.exportText.includes("autre:0"), false);
+  assert.match(profile.exportText, /peur de trop m'attacher/);
+  assert.equal(E.answerLabel(answers, D, "freins", "freins", "rejet"), "La peur d'être rejeté·e");
+});
+
+test("Calendly : utm d'arrivée dans utm_content, UTM du lien inchangés", () => {
+  const base = D.config.calendly;
+  assert.match(base, /utm_source=sommet-love-connexion/);
+  assert.match(base, /utm_campaign=amoureux-mais-malheureux/);
+  const incoming = "?utm_source=webinaire-8oct&utm_campaign=sommet-live&theme=amour";
+  for (const place of ["resultat-apres-profil", "resultat-sticky", "resultat-fin"]) {
+    const url = new URL(E.calendlyLink(base, place, incoming));
+    assert.equal(url.searchParams.get("utm_source"), "sommet-love-connexion");
+    assert.equal(url.searchParams.get("utm_medium"), "quiz-amour");
+    assert.equal(url.searchParams.get("utm_campaign"), "amoureux-mais-malheureux");
+    assert.equal(url.searchParams.get("utm_content"), place + "|webinaire-8oct|sommet-live");
+  }
+  const plain = new URL(E.calendlyLink(base, "resultat-fin", ""));
+  assert.equal(plain.searchParams.get("utm_content"), "resultat-fin");
+  assert.equal(plain.searchParams.get("utm_source"), "sommet-love-connexion");
+  const messy = new URL(E.calendlyLink(base, "resultat-sticky", "?utm_source=<script>&utm_campaign=a b"));
+  assert.equal(messy.searchParams.get("utm_content"), "resultat-sticky|script|ab");
+});
+
+test("textes du webinaire et page de partage", () => {
+  assert.match(D.ui.intro.eyebrow, /Sommet de l'Amour/);
+  assert.match(D.ui.intro.eyebrow, /environ 10 minutes/);
+  assert.equal(D.ui.intro.eyebrow.includes("Love & Connexion"), false);
+  assert.equal(D.ui.intro.lead.includes("6 minutes"), false);
+  assert.equal(D.ui.quiz.engagementCounter, "Écris ton engagement et choisis un moment");
+  assert.equal(D.ui.quiz.resumeNotice, "On reprend où tu en étais");
+  assert.equal(D.ui.results.shareBtn, "Partager");
+  assert.equal(D.ui.results.stickyCta, "Parler avec Pierre");
+  const html = fs.readFileSync(new URL("../quiz-amour/index.html", import.meta.url), "utf8");
+  assert.match(html, /property="og:title" content="Amoureux, mais malheureux \?"/);
+  assert.match(html, /Sommet de l'Amour/);
+  assert.match(html, /og:image" content="https:\/\/www\.magichumans\.com\/assets\/img\/og-image\.png"/);
+  assert.match(html, /rel="canonical" href="https:\/\/www\.magichumans\.com\/quiz-amour\/"/);
+  assert.match(html, /location\.replace/);
+  assert.match(html, /http-equiv="refresh"/);
+  assert.equal(html.includes("Love & Connexion"), false);
+  assert.equal(html.includes("Talent Unique"), false);
+  assert.equal(/[\u2014\u2013]/.test(html), false);
+  const vercel = fs.readFileSync(new URL("../vercel.json", import.meta.url), "utf8");
+  assert.equal(vercel.includes("/quiz-amour"), false);
 });
 
 test("encodage", () => {
