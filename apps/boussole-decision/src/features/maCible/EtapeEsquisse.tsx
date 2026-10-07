@@ -6,8 +6,10 @@ import { validerCorrections } from "@/domain/maCible/entree";
 import { LIMITES } from "@/domain/maCible/limites";
 import type { Corrections, Esquisse, IdCible, Verdict } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
-import { BarreBoutons, ChampTexte, GroupeRadio } from "./Champs";
+import { AlerteSoumission, BarreBoutons, ChampTexte, Compteur, GroupeRadio } from "./Champs";
 import { RappelConfidentialite } from "./Confidentialite";
+import { defilerVersChamp } from "./defilement";
+import { ecartEsquisse } from "./ecarts";
 import { peutNouvelleEsquisse } from "./etat";
 
 interface Avis {
@@ -67,6 +69,7 @@ export function EtapeEsquisse({
     const c = construire();
     if (!c) {
       setEssaye(true);
+      if (ecart) defilerVersChamp(ecart.id);
       return;
     }
     apres(c);
@@ -74,6 +77,11 @@ export function EtapeEsquisse({
 
   const offreTropCourte = offre.trim().length < LIMITES.correctionOffre.min;
   const commentaireManque = (a: Avis) => (a.verdict === "en_partie" || a.verdict === "non") && a.commentaire.trim().length < LIMITES.commentaire.min;
+  const ecart = ecartEsquisse(esquisse.cibles, offre, de, {
+    manqueOffre: E.manqueOffre,
+    manqueAvis: E.manqueAvis,
+    manqueCommentaire: E.manqueCommentaire,
+  });
 
   return (
     <form
@@ -86,12 +94,17 @@ export function EtapeEsquisse({
     >
       <Card className="space-y-3 rounded-2xl p-6 sm:p-8">
         <h2 className="text-[22px] italic">{E.offreTitre}</h2>
-        <ChampTexte champ="esquisse.offre" label={E.offreTitre} aide={E.offreAide} value={offre} onChange={setOffre} rows={3} maxLength={LIMITES.correctionOffre.max} M={M} />
-        {essaye && offreTropCourte && (
-          <p role="alert" className="text-sm text-danger">
-            {M.validation.tropCourt(LIMITES.correctionOffre.min)}
-          </p>
-        )}
+        <ChampTexte
+          champ="esquisse.offre"
+          label={E.offreTitre}
+          aide={E.offreAide}
+          value={offre}
+          onChange={setOffre}
+          rows={3}
+          maxLength={LIMITES.correctionOffre.max}
+          erreur={essaye && offreTropCourte ? { champ: "esquisse.offre", code: "trop_court", min: LIMITES.correctionOffre.min } : undefined}
+          M={M}
+        />
       </Card>
 
       <h2 className="text-[22px] italic">{E.ciblesTitre}</h2>
@@ -108,6 +121,7 @@ export function EtapeEsquisse({
             <p className="text-[15px] text-ink-soft">{c.pourquoi}</p>
             <GroupeRadio<Verdict>
               nom={`verdict-${c.id}`}
+              id={`verdict-${c.id}`}
               legende={E.verdictLegende(c.nom)}
               options={verdicts}
               valeur={a.verdict}
@@ -123,7 +137,7 @@ export function EtapeEsquisse({
                 </label>
                 <Textarea
                   id={idCom}
-                  rows={2}
+                  rows={4}
                   maxLength={LIMITES.commentaire.max}
                   placeholder={E.commentairePlaceholder}
                   value={a.commentaire}
@@ -131,6 +145,7 @@ export function EtapeEsquisse({
                   aria-describedby={essaye && commentaireManque(a) ? `${idCom}-erreur` : undefined}
                   onChange={(e) => setAvis((s) => ({ ...s, [c.id]: { ...de(c.id), commentaire: e.target.value } }))}
                 />
+                <Compteur id={`${idCom}-compteur`} longueur={a.commentaire.length} max={LIMITES.commentaire.max} M={M} />
                 {essaye && commentaireManque(a) && (
                   <p id={`${idCom}-erreur`} role="alert" className="text-sm text-danger">
                     {E.commentaireRequis}
@@ -158,7 +173,8 @@ export function EtapeEsquisse({
             <label htmlFor="commentaire-anti" className="block text-[15px] font-medium text-ink">
               {E.commentaire} <span className="font-normal text-ink-soft">{M.commun.facultatif}</span>
             </label>
-            <Textarea id="commentaire-anti" rows={2} maxLength={LIMITES.commentaire.max} value={anti.commentaire} onChange={(e) => setAnti((s) => ({ ...s, commentaire: e.target.value }))} />
+            <Textarea id="commentaire-anti" rows={3} maxLength={LIMITES.commentaire.max} value={anti.commentaire} onChange={(e) => setAnti((s) => ({ ...s, commentaire: e.target.value }))} />
+            <Compteur id="commentaire-anti-compteur" longueur={anti.commentaire.length} max={LIMITES.commentaire.max} M={M} />
           </div>
         )}
       </Card>
@@ -175,7 +191,7 @@ export function EtapeEsquisse({
       )}
 
       <Card className="rounded-2xl p-6 sm:p-8">
-        <ChampTexte champ="esquisse.idee" label={E.ideeLabel} exemple={E.ideeExemple} value={idee} onChange={setIdee} facultatif multiligne={false} maxLength={LIMITES.idee.max} M={M} />
+        <ChampTexte champ="esquisse.idee" label={E.ideeLabel} exemple={E.ideeExemple} value={idee} onChange={setIdee} facultatif rows={3} maxLength={LIMITES.idee.max} M={M} />
       </Card>
 
       <RappelConfidentialite M={M} fournisseur={fournisseur} />
@@ -190,7 +206,12 @@ export function EtapeEsquisse({
             </Button>
           )}
         </div>
-        <Button type="submit">{E.continuer}</Button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+          <AlerteSoumission message={essaye ? (ecart?.message ?? null) : null} />
+          <Button type="submit" className="max-sm:w-full">
+            {E.continuer}
+          </Button>
+        </div>
       </BarreBoutons>
     </form>
   );

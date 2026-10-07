@@ -20,6 +20,7 @@ export interface Dependances {
   env: Record<string, string | undefined>;
 }
 
+/** Jetons de sortie du modèle. L'entrée est bornée par `TAILLE_MAX_CORPS`, pas par ce plafond. */
 const MAX_TOKENS = { cadrage: 1_500, resultat: 9_000 } as const;
 export const DELAI_MS = { cadrage: 90_000, resultat: 240_000 } as const;
 /** En dessous de ce délai restant, une relance n'a plus aucune chance d'aboutir. */

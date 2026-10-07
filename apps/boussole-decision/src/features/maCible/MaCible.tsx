@@ -15,6 +15,7 @@ import { EtapeTalent } from "./EtapeTalent";
 import { EtapeTerrain } from "./EtapeTerrain";
 import { Resultat } from "./Resultat";
 import { etatInitial, langueEntree, reducteur, travailExiste, type Etape } from "./etat";
+import { IndicateurEtapes } from "./IndicateurEtapes";
 import { URL_OUTILS, URL_QCM } from "./liens";
 import { effacer, ecrire, lire } from "./stockage";
 
@@ -162,6 +163,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
         <Resultat
           resultat={etat.resultat}
           fait={etat.resultatLe ?? etat.maj}
+          tour={etat.tour}
           prenom={etat.prenom}
           coches={etat.coches}
           locale={locale}
@@ -258,12 +260,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   return (
     <div className={`mx-auto ${largeur} space-y-6`}>
       <header className="space-y-3">
-        <p className="text-sm text-ink-soft">{M.commun.etape(n)}</p>
-        <div role="img" aria-label={M.commun.etape(n)} className="grid grid-cols-5 gap-1.5">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <span key={i} className={`h-1.5 rounded-full ${i <= n ? "bg-accent-strong" : "bg-sand"}`} />
-          ))}
-        </div>
+        <IndicateurEtapes n={n} tour={etat.tour} M={M} boucle={n >= 4} />
         <h1 tabIndex={-1} data-titre-etape className="text-4xl italic focus:outline-none sm:text-5xl">
           {titre}
         </h1>

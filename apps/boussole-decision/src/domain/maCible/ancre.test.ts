@@ -39,9 +39,9 @@ describe("#cible=", () => {
   });
 
   it("applique les bornes de longueur", () => {
-    const lu = lireAncre(`#cible=${encoderCible({ v: 1, src: "carte", nom: "n".repeat(300), mecanisme: "m".repeat(900), sousTalents: Array.from({ length: 10 }, (_, i) => `t${i}`) })}`);
+    const lu = lireAncre(`#cible=${encoderCible({ v: 1, src: "carte", nom: "n".repeat(300), mecanisme: "m".repeat(2500), sousTalents: Array.from({ length: 10 }, (_, i) => `t${i}`) })}`);
     expect(lu?.talent.nom).toHaveLength(120);
-    expect(lu?.talent.mecanisme).toHaveLength(400);
+    expect(lu?.talent.mecanisme).toHaveLength(2000);
     expect(lu?.talent.sousTalents).toHaveLength(6);
   });
 });

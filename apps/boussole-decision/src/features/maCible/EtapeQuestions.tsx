@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { Button, Card, Input, Textarea } from "@/components/ui";
+import { LIMITES } from "@/domain/maCible/limites";
 import type { Question } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
+import { AlerteSoumission, BarreBoutons, Compteur } from "./Champs";
 import { RappelConfidentialite } from "./Confidentialite";
-import { BarreBoutons } from "./Champs";
+import { defilerVersChamp } from "./defilement";
+import { ecartQuestions } from "./ecarts";
 
 const AUTRE = "__autre__";
 interface Saisie {
@@ -44,10 +47,15 @@ export function EtapeQuestions({
   const de = (id: string) => saisies[id] ?? VIDE;
   const maj = (id: string, patch: Partial<Saisie>) => setSaisies((s) => ({ ...s, [id]: { ...(s[id] ?? VIDE), ...patch } }));
 
+  const manquantes = questions.map((q) => reponseDe(q, de(q.id), Q.reponsePassee) === null);
+  const ecart = essaye ? ecartQuestions(questions, manquantes, Q.manqueReponse) : null;
+
   function envoyer() {
     const reponses = questions.map((q) => ({ id: q.id, question: q.question, reponse: reponseDe(q, de(q.id), Q.reponsePassee) }));
-    if (reponses.some((r) => r.reponse === null)) {
+    const trou = ecartQuestions(questions, reponses.map((r) => r.reponse === null), Q.manqueReponse);
+    if (trou) {
       setEssaye(true);
+      defilerVersChamp(trou.id);
       return;
     }
     onContinuer(reponses as { id: string; question: string; reponse: string }[]);
@@ -74,7 +82,7 @@ export function EtapeQuestions({
               {Q.pourquoi}
               {q.pourquoi}
             </p>
-            <fieldset disabled={s.passee} className="space-y-2" aria-describedby={manque ? idErr : undefined}>
+            <fieldset id={`question-${q.id}`} disabled={s.passee} className="space-y-2 scroll-mt-6" aria-describedby={manque ? idErr : undefined}>
               <legend className="sr-only">{q.question}</legend>
               {q.type === "choix" ? (
                 <>
@@ -88,12 +96,16 @@ export function EtapeQuestions({
                     </label>
                   ))}
                   {s.choix === AUTRE && (
-                    <Input type="text" aria-label={Q.autre} placeholder={Q.autrePlaceholder} maxLength={300} value={s.texte} onChange={(e) => maj(q.id, { texte: e.target.value })} />
+                    <>
+                      <Input type="text" aria-label={Q.autre} placeholder={Q.autrePlaceholder} maxLength={LIMITES.reponses.reponse} value={s.texte} onChange={(e) => maj(q.id, { texte: e.target.value })} />
+                      <Compteur id={`question-${q.id}-compteur`} longueur={s.texte.length} max={LIMITES.reponses.reponse} M={M} />
+                    </>
                   )}
                 </>
               ) : (
                 <>
-                  <Textarea rows={2} aria-label={q.question} maxLength={300} value={s.texte} onChange={(e) => maj(q.id, { texte: e.target.value })} />
+                  <Textarea rows={4} aria-label={q.question} maxLength={LIMITES.reponses.reponse} value={s.texte} onChange={(e) => maj(q.id, { texte: e.target.value })} />
+                  <Compteur id={`question-${q.id}-compteur`} longueur={s.texte.length} max={LIMITES.reponses.reponse} M={M} />
                   {q.exemple && (
                     <p className="text-[15px] italic text-ink-soft">
                       {M.commun.exemplePrefix}
@@ -124,7 +136,12 @@ export function EtapeQuestions({
         <Button type="button" variant="secondary" onClick={onRetour}>
           {M.commun.retour}
         </Button>
-        <Button type="submit">{M.commun.continuer}</Button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+          <AlerteSoumission message={ecart?.message ?? null} />
+          <Button type="submit" className="max-sm:w-full">
+            {M.commun.continuer}
+          </Button>
+        </div>
       </BarreBoutons>
     </form>
   );

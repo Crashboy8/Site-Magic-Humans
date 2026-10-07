@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Input, Textarea, Notice, cx } from "@/components/ui";
 import { detecterFlou, type ErreurChamp } from "@/domain/maCible/entree";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
+import { compteurVisible } from "./compteur";
 import { idChamp, messageChamp } from "./erreurs";
 
 /** Pied d'étape : bouton principal à droite, « Retour » à gauche. Collant en bas de l'écran sous 640 px. */
@@ -15,16 +16,11 @@ export function BarreBoutons({ children }: { children: ReactNode }) {
   );
 }
 
-/** Résumé des erreurs en haut de l'étape : `role="alert"`, focus dessus, liens vers les champs. */
+/** Résumé des erreurs en haut de l'étape. Le focus et le défilement vont au premier champ, pas ici. */
 export function ResumeErreurs({ erreurs, M, libelles }: { erreurs: ErreurChamp[]; M: MaCibleMessages; libelles: Record<string, string> }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // À chaque validation en échec, le focus va sur le résumé.
-  useEffect(() => {
-    if (erreurs.length > 0) ref.current?.focus();
-  }, [erreurs]);
   if (erreurs.length === 0) return null;
   return (
-    <div ref={ref} role="alert" tabIndex={-1} className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-[15px] text-danger focus:outline-none">
+    <div role="alert" className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-[15px] text-danger">
       <p className="font-medium">{M.commun.erreursResume(erreurs.length)}</p>
       <ul className="mt-1 list-disc space-y-0.5 pl-5">
         {erreurs.map((e) => (
@@ -64,11 +60,29 @@ interface ChampTexteProps {
   maxLength?: number;
 }
 
-/** Libellé, aide, exemple en gris, champ, indice de flou (au blur, jamais bloquant) et message d'erreur. */
+/** Compteur vivant, visible seulement près du plafond. */
+export function Compteur({ id, longueur, max, M }: { id: string; longueur: number; max: number; M: MaCibleMessages }) {
+  if (!compteurVisible(longueur, max)) return null;
+  const atteint = longueur >= max;
+  return (
+    <p id={id} className={cx("text-right text-sm tabular-nums", atteint ? "font-medium text-danger" : "text-ink-soft")}>
+      {M.commun.compteur(longueur, max)}
+    </p>
+  );
+}
+
+/** Phrase d'erreur collée au bouton de validation. */
+export function AlerteSoumission({ message }: { message: string | null }) {
+  if (!message) return null;
+  return <p role="alert" className="text-sm font-medium text-danger sm:text-right">{message}</p>;
+}
+
+/** Libellé, aide, exemple en gris, champ, compteur près de la limite, indice de flou et message d'erreur. */
 export function ChampTexte({ champ, label, aide, exemple, placeholder, value, onChange, erreur, M, flou, facultatif, multiligne = true, rows = 3, maxLength }: ChampTexteProps) {
   const id = idChamp(champ);
   const [flouVisible, setFlouVisible] = useState(false);
-  const decrit = [aide && `${id}-aide`, exemple && `${id}-exemple`, flouVisible && `${id}-flou`, erreur && `${id}-erreur`].filter(Boolean).join(" ") || undefined;
+  const compteur = maxLength !== undefined && compteurVisible(value.length, maxLength);
+  const decrit = [aide && `${id}-aide`, exemple && `${id}-exemple`, compteur && `${id}-compteur`, flouVisible && `${id}-flou`, erreur && `${id}-erreur`].filter(Boolean).join(" ") || undefined;
   const commun = {
     id,
     value,
@@ -93,6 +107,7 @@ export function ChampTexte({ champ, label, aide, exemple, placeholder, value, on
       ) : (
         <Input type="text" {...commun} onChange={(e) => onChange(e.target.value)} />
       )}
+      {maxLength !== undefined && <Compteur id={`${id}-compteur`} longueur={value.length} max={maxLength} M={M} />}
       {exemple && (
         <p id={`${id}-exemple`} className="text-[15px] italic text-ink-soft">
           {M.commun.exemplePrefix}
@@ -125,13 +140,15 @@ interface GroupeProps<T extends string> {
   onChange: (v: T) => void;
   erreur?: string;
   idErreur?: string;
+  /** Cible du défilement quand ce groupe est le premier invalide. */
+  id?: string;
   colonnes?: boolean;
 }
 
 /** Boutons radio en cartes cliquables, dans un `fieldset`. Le vrai `input` reste visible. */
-export function GroupeRadio<T extends string>({ nom, legende, aide, options, valeur, onChange, erreur, idErreur, colonnes = true }: GroupeProps<T>) {
+export function GroupeRadio<T extends string>({ nom, legende, aide, options, valeur, onChange, erreur, idErreur, id, colonnes = true }: GroupeProps<T>) {
   return (
-    <fieldset className="space-y-2" aria-describedby={idErreur && erreur ? idErreur : undefined}>
+    <fieldset id={id} className="space-y-2 scroll-mt-6" aria-describedby={idErreur && erreur ? idErreur : undefined}>
       <legend className="text-[15px] font-medium text-ink">{legende}</legend>
       {aide && <p className="text-sm text-ink-soft">{aide}</p>}
       <div className={cx("grid gap-2", colonnes && "sm:grid-cols-2")}>

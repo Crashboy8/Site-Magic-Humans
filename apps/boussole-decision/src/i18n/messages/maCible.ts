@@ -10,6 +10,10 @@ const fr = {
   commun: {
     nomOutil: "Ma Cible",
     etape: (n: number) => `Étape ${n} sur 5`,
+    tour: (n: number, total: number) => `Tour ${n} sur ${total}`,
+    boucle: (tour: number, total: number) =>
+      `Tu affines ta cible en boucle : l'IA propose, tu corriges, elle ajuste. Tour ${tour} sur ${total}.`,
+    compteur: (n: number, max: number) => `${n} caractères sur ${max}`,
     continuer: "Continuer",
     retour: "Retour",
     facultatif: "(facultatif)",
@@ -168,6 +172,7 @@ const fr = {
     tropLong: (max: number) => `C'est un peu long : ${max} caractères au plus.`,
     marche: "Choisis une réponse, même « Je ne sais pas encore ».",
     offreOuClients: "Remplis au moins l'un des deux : ce que tu proposes, ou qui t'a déjà dit merci.",
+    presBouton: (label: string) => `Il manque « ${label} ».`,
   },
   questions: {
     titre: "Quelques précisions",
@@ -179,6 +184,7 @@ const fr = {
     passer: "Je ne sais pas, on passe",
     reponsePassee: "je ne sais pas",
     reponseRequise: "Choisis une réponse, ou passe la question.",
+    manqueReponse: (n: number) => `Il manque une réponse à la question ${n}.`,
   },
   esquisse: {
     titre: "Ça te ressemble ?",
@@ -192,6 +198,9 @@ const fr = {
     commentairePlaceholder: "Par exemple : plutôt des PME que des grands groupes.",
     commentaireRequis: "Dis en quelques mots ce qui cloche, l'IA en a besoin.",
     verdictRequis: "Donne ton avis sur chaque cible.",
+    manqueAvis: (nom: string) => `Il manque un avis sur « ${nom} ».`,
+    manqueCommentaire: (nom: string) => `Il manque un commentaire sur « ${nom} ».`,
+    manqueOffre: "Il manque quelques mots sur ton offre.",
     antiTitre: "Qui éviter",
     hypothesesTitre: "Ce que l'IA a supposé",
     ideeLabel: "Une cible à laquelle tu penses et qui manque ?",

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
+import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { quotaMemoire, type Quota } from "./quota";
 import { cleCompteur, extraireJson, traiterDemande, type Dependances } from "./traitement";
@@ -85,14 +86,14 @@ describe("origine, taille et corps", () => {
   it("403 avec une origine inconnue", async () => {
     expect((await traiterDemande(deps, requete(demandeCadrage(), { origin: "https://evil.example" }))).status).toBe(403);
   });
-  it("413 quand content-length dépasse 16 000 octets", async () => {
-    const r = await traiterDemande(deps, requete(demandeCadrage(), { "content-length": "16001" }));
+  it("413 quand content-length dépasse la taille maximum", async () => {
+    const r = await traiterDemande(deps, requete(demandeCadrage(), { "content-length": String(TAILLE_MAX_CORPS + 1) }));
     expect(r.status).toBe(413);
     expect((await corpsDe(r)).code).toBe("trop_long");
   });
-  it("413 quand le corps réel dépasse 16 000 octets", async () => {
+  it("413 quand le corps réel dépasse la taille maximum", async () => {
     const e = structuredClone(ENTREE_EXEMPLE);
-    e.talent.reussite = "é".repeat(9000); // 18 000 octets en UTF-8, 9 000 caractères
+    e.talent.reussite = "é".repeat(70_000);
     expect((await traiterDemande(deps, requete({ ...demandeCadrage(), entree: e }))).status).toBe(413);
   });
   it("400 quand le JSON du corps est illisible", async () => {
