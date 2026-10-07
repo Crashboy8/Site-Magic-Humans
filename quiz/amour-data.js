@@ -4,8 +4,8 @@
 const AMOUR_DATA = {
   "version": 4,
   "config": {
-    // TODO(pierre): remplacer cette URL par le lien direct de l'événement « Appel Découverte amour » dès qu'il existe. Garder utm_source, utm_medium et utm_campaign.
-    "calendly": "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=quiz-amour&utm_campaign=amoureux-mais-malheureux",
+    // Appel Découverte habituel (Talent Unique), pas un coaching amour à part. utm_content est ajouté par bouton.
+    "calendly": "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=quiz-amour&utm_campaign=sommet-amour",
     "site": "https://www.magichumans.com/",
     "quizUrl": "https://www.magichumans.com/quiz-amour/",
     "boussoleUrl": "/boussole-decision/importer-quiz/?theme=amour",
@@ -119,7 +119,7 @@ const AMOUR_DATA = {
       "boussoleBtn": "Évaluer ma relation avec la Boussole →",
       "ctaEyebrow": "Appel Découverte · offert",
       "ctaH": "Et si on en parlait ensemble ?",
-      "ctaP": "Tu viens d'écrire ta prochaine étape. Pendant un Appel Découverte offert, on regarde ensemble ta situation réelle : ce qui te nourrit, ce qui se répète, et comment tenir ton engagement. Tu repars avec des idées claires, que tu décides ou non d'aller plus loin avec moi.",
+      "ctaP": "Ton profil amoureux dit beaucoup de ton Talent Unique. On en parle 1 h, offert, pour que tu choisisses mieux, en amour comme dans ta vie pro.",
       "ctaSign": "Pierre Sarazin, coach Profileur de talent, Magic Humans",
       "ctaBtn": "Réserver mon Appel Découverte offert →",
       "siteBtn": "Découvrir Magic Humans",
@@ -143,12 +143,12 @@ const AMOUR_DATA = {
       "nowPierre": "Fais le point avec Pierre",
       "nowCall": "Réserver mon Appel Découverte offert",
       "nowPdf": "Télécharger mon profil (PDF)",
-      "nowGeneric": "En 1 h, on regarde comment ça joue dans tes choix amoureux.",
+      "nowGeneric": "En 1 h, offert, on relie ton profil amoureux à ton Talent Unique.",
       "nowStress": {
-        "fight": "Tu as tendance à contre-attaquer sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
-        "flight": "Tu as tendance à fuir sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
-        "freeze": "Tu as tendance à te figer sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux.",
-        "fawn": "Tu as tendance à céder pour apaiser sous stress fort : en 1 h, on regarde comment ça joue dans tes choix amoureux."
+        "fight": "Tu as tendance à contre-attaquer sous stress fort.",
+        "flight": "Tu as tendance à fuir sous stress fort.",
+        "freeze": "Tu as tendance à te figer sous stress fort.",
+        "fawn": "Tu as tendance à céder pour apaiser sous stress fort."
       }
     }
   },

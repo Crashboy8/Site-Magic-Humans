@@ -820,7 +820,8 @@
     catch (err) { return D.config.calendly; }
   }
   function discoveryBlock(place, pierreLine) {
-    return '<section class="rs am-cta"><span class="eyebrow">' + esc(R.ctaEyebrow) + "</span><h2>" + esc(R.ctaH) + "</h2><p>" + esc(pierreLine) + "</p><p>" + esc(R.ctaP) + '</p><a class="btn" data-cta-place="quiz_amour_' + place + '" href="' + esc(calendlyHref(place)) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + '</a><p class="muted">' + esc(R.ctaSign) + "</p></section>";
+    const lead = pierreLine ? "<p>" + esc(pierreLine) + "</p>" : "";
+    return '<section class="rs am-cta"><span class="eyebrow">' + esc(R.ctaEyebrow) + "</span><h2>" + esc(R.ctaH) + "</h2>" + lead + "<p>" + esc(R.ctaP) + '</p><a class="btn" data-cta-place="quiz_amour_' + place + '" href="' + esc(calendlyHref(place)) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + '</a><p class="muted">' + esc(R.ctaSign) + "</p></section>";
   }
   function stickyBar() {
     if (stickyOff) return "";
@@ -940,7 +941,8 @@
     resultProfile = profile;
     const boussoleHref = D.config.boussoleUrl + "#amour=" + E.encodePayload(profile.boussole);
     const fortId = (profile.stress.fort || [])[0];
-    const pierreLine = (R.nowStress && R.nowStress[fortId]) || R.nowGeneric;
+    const stressLine = (R.nowStress && R.nowStress[fortId]) || "";
+    const endLine = stressLine ? stressLine + " " + R.nowGeneric : R.nowGeneric;
     const stepText = String(profile.etape.engagement || "").trim();
     const stepMoment = (D.moments.find(function (m) { return m.id === profile.etape.moment; }) || {}).label || "";
     const stepBody = stepText
@@ -1018,12 +1020,12 @@
     root.innerHTML =
       resumeHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
-      profilReport(profile, pierreLine) +
+      profilReport(profile, stressLine) +
       '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + '</h2><div class="stack">' +
       '<article class="rule" data-tone="sage"><span class="k">1</span><strong>' + ico("flag", "sage") + esc(R.nowStep) + "</strong>" + stepBody + "</article>" +
       '<article class="rule" data-tone="sky"><span class="k">2</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
-      '<article class="rule" data-tone="pink"><span class="k">3</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(pierreLine) + "</p>" +
+      '<article class="rule" data-tone="pink"><span class="k">3</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(endLine) + "</p>" +
       '<a class="btn" data-cta-place="quiz_amour_resultat-fin" href="' + esc(calendlyHref("resultat-fin")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
       '<div class="row-actions"><button type="button" class="btn ghost" data-act="print">' + esc(R.nowPdf) + "</button></div></section>" +

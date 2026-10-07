@@ -115,7 +115,14 @@ test("résultat : bloc Et maintenant, une phrase par stress fort", () => {
   assert.equal(n.nowPdf, "Télécharger mon profil (PDF)");
   assert.match(n.nowStress.freeze, /te figer sous stress fort/);
   assert.equal(Object.keys(n.nowStress).sort().join(","), "fawn,fight,flight,freeze");
-  assert.match(n.nowGeneric, /1 h/);
+  assert.equal(n.ctaP, "Ton profil amoureux dit beaucoup de ton Talent Unique. On en parle 1 h, offert, pour que tu choisisses mieux, en amour comme dans ta vie pro.");
+  assert.equal(n.nowGeneric, "En 1 h, offert, on relie ton profil amoureux à ton Talent Unique.");
+  assert.equal(n.stickyCta, "Parler avec Pierre");
+  const ctaCopy = [n.ctaP, n.nowGeneric, n.ctaH, n.ctaBtn, n.nowCall, n.nowPierre].concat(Object.values(n.nowStress)).join("\n");
+  assert.equal(/30|45/.test(ctaCopy), false);
+  assert.equal(/[\u2014\u2013]/.test(ctaCopy), false);
+  assert.match(ctaCopy, /Talent Unique/);
+  assert.match(ctaCopy, /1 h/);
 });
 
 test("question 1 en deux sous-écrans, même numéro", () => {
@@ -641,13 +648,14 @@ test("frein personnalisé : le texte saisi est le titre, pas autre:0", () => {
 test("Calendly : utm d'arrivée dans utm_content, UTM du lien inchangés", () => {
   const base = D.config.calendly;
   assert.match(base, /utm_source=sommet-love-connexion/);
-  assert.match(base, /utm_campaign=amoureux-mais-malheureux/);
+  assert.match(base, /utm_campaign=sommet-amour/);
+  assert.equal(base.includes("amoureux-mais-malheureux"), false);
   const incoming = "?utm_source=webinaire-8oct&utm_campaign=sommet-live&theme=amour";
   for (const place of ["resultat-apres-profil", "resultat-sticky", "resultat-fin"]) {
     const url = new URL(E.calendlyLink(base, place, incoming));
     assert.equal(url.searchParams.get("utm_source"), "sommet-love-connexion");
     assert.equal(url.searchParams.get("utm_medium"), "quiz-amour");
-    assert.equal(url.searchParams.get("utm_campaign"), "amoureux-mais-malheureux");
+    assert.equal(url.searchParams.get("utm_campaign"), "sommet-amour");
     assert.equal(url.searchParams.get("utm_content"), place + "|webinaire-8oct|sommet-live");
   }
   const plain = new URL(E.calendlyLink(base, "resultat-fin", ""));

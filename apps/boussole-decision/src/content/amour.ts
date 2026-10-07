@@ -154,7 +154,7 @@ export const LOVE_TEXTS = {
     title: "En parler avec Pierre",
     text: "Un regard extérieur aide souvent à séparer l'émotion de ce qui compte vraiment. Pendant un Appel Découverte offert, nous relisons ensemble ta Boussole et ce que tu veux construire. Sans engagement.",
     button: "Réserver mon Appel Découverte offert",
-    url: "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=boussole-relation&utm_campaign=amoureux-mais-malheureux",
+    url: "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=boussole-relation&utm_campaign=sommet-amour",
   },
   start: {
     eyebrow: "Sommet Love & Connexion",
