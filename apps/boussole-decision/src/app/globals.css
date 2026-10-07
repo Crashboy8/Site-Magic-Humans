@@ -17,6 +17,8 @@
   --color-sage-soft: #e6eee1;
   --color-danger: #a33a2a;
   --color-danger-soft: #f8e3dd;
+  --color-sky-soft: #e8f5fc; /* bleu ciel, fonds uniquement */
+  --color-sky-line: #bfe3f5; /* bleu ciel, bordures uniquement */
 
   --font-sans: var(--font-jost), system-ui, sans-serif;
   --font-serif: var(--font-cormorant), Georgia, serif;
@@ -69,4 +71,36 @@ html[data-seance] main {
 }
 html[data-seance] .sticky {
   top: 0;
+}
+
+/* Ma Cible : impression de l'écran de résultat (§14.3). */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  [data-chrome],
+  [data-ecran-seul] {
+    display: none !important;
+  }
+  [data-impression-seule] {
+    display: block !important;
+  }
+  body,
+  html {
+    background: #fff;
+  }
+  .ma-cible-resultat section {
+    break-inside: avoid-page;
+  }
+  .ma-cible-resultat .carte-cible {
+    break-before: page;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+[data-impression-seule] {
+  display: none;
 }
