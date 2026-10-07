@@ -578,6 +578,54 @@
     const ib = P.order.indexOf(b);
     return ia <= ib ? a + "+" + b : b + "+" + a;
   }
+  function familyBucket(type) {
+    if (type === "nourrit" || type === "proche" || type === "miroir") return "coule";
+    if (type === "frotte") return "attention";
+    return "";
+  }
+  function familyGuide(D, familyId) {
+    const P = D && D.profil;
+    const enc = P && P.encyclo;
+    const B = P && P.besoins;
+    const card = enc && enc.cards && enc.cards[familyId];
+    if (!P || !B || !B[familyId] || !card || !Array.isArray(P.order)) return null;
+    const nuances = P.order.filter((id) => id !== familyId).map((id) => ({
+      id: id,
+      adj: B[id].adj,
+      noun: B[id].noun,
+      line: card.nuances ? card.nuances[id] : "",
+    }));
+    const pairs = P.order.filter((id) => B[id]).map((id) => {
+      const key = profilPairKey(P, familyId, id);
+      const row = P.couples && P.couples[key];
+      const copy = enc.paires && enc.paires[key];
+      const type = row && row.type;
+      return {
+        id: id,
+        key: key,
+        bucket: familyBucket(type),
+        type: type || "",
+        noun: B[id].noun,
+        name: B[id].name,
+        same: id === familyId,
+        text: copy && copy.text ? copy.text : "",
+        tip: copy && copy.tip ? copy.tip : "",
+      };
+    });
+    const byOrder = (a, b) => (b.same - a.same) || P.order.indexOf(a.id) - P.order.indexOf(b.id);
+    return {
+      id: familyId,
+      noun: B[familyId].noun,
+      name: B[familyId].name,
+      icon: B[familyId].icon,
+      portrait: card.portrait,
+      nourrit: card.nourrit,
+      vide: card.vide,
+      nuances: nuances,
+      coule: pairs.filter((p) => p.bucket === "coule").sort(byOrder),
+      attention: pairs.filter((p) => p.bucket === "attention").sort(byOrder),
+    };
+  }
   function profilAdd(out, need, pts, src, rank, ref) {
     if (need && pts > 0) out.push({ need, pts, src, rank, ref });
   }
@@ -969,6 +1017,7 @@
   const api = {
     computeLoveProfile, missingAnswers, boussolePayload, encodePayload, fill, rankingState,
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
+    familyBucket, familyGuide,
     progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
     exportWithPetitPas, petitPasStored, calendlyLink, answerLabel,
     salleSession, salleSessionOk, salleIds, salleNourrit, sallePhoto,
