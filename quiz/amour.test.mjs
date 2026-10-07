@@ -774,6 +774,11 @@ test("accueil : une icône ligne par carré, dans sa couleur, décorative", () =
   const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
   assert.match(src, /const introIcons = \["heart", "sun", "hearts", "spark"\]/);
   assert.match(src, /ico\(introIcons\[i\] \|\| "heart", tone\)/);
+  assert.match(src, /class="rule am-benefit"/);
+  assert.match(src, /width:40px;height:40px/);
+  assert.match(src, /width:64px;height:64px/);
+  assert.match(src, /border-radius:22px/);
+  assert.match(src, /border-radius:50%/);
   assert.match(src, /aria-hidden="true"/);
   const hearts = src.slice(src.indexOf("\n    hearts:"), src.indexOf("\n    anchor:"));
   assert.match(hearts, /vector-effect="non-scaling-stroke"/);

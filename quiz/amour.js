@@ -105,8 +105,19 @@
     "#screen-amour .rule[data-tone=pink]{background:var(--pink-soft);border-color:var(--pink)}",
     "#screen-amour .rule[data-tone=gold]{background:var(--gold-soft);border-color:var(--gold)}",
     "#screen-amour .rule[data-tone=sky]{background:var(--sky-soft);border-color:var(--sky)}",
-    "#screen-amour .howto .rule .k{display:flex;align-items:center;height:1.6rem;line-height:0}",
-    "#screen-amour .howto .rule .k .am-ico svg{width:1.6rem;height:1.6rem}",
+    "#screen-amour .howto .rules{gap:16px}",
+    "#screen-amour .am-benefit{flex-direction:row;align-items:center;gap:18px;padding:18px 16px;border-radius:22px;box-shadow:0 10px 24px rgba(43,37,34,.09)}",
+    "#screen-amour .am-benefit strong{align-items:center;line-height:1.35}",
+    "#screen-amour .am-benefit .k{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;flex:none;line-height:0;background:var(--surface)}",
+    "#screen-amour .am-benefit .k .am-ico svg{width:40px;height:40px;stroke-width:2.15}",
+    "#screen-amour .am-benefit[data-tone=sage]{background:linear-gradient(125deg,color-mix(in srgb,var(--sage) 22%,var(--surface)),var(--surface) 72%);border-color:color-mix(in srgb,var(--sage) 34%,var(--surface))}",
+    "#screen-amour .am-benefit[data-tone=gold]{background:linear-gradient(125deg,color-mix(in srgb,var(--gold) 24%,var(--surface)),var(--surface) 72%);border-color:color-mix(in srgb,var(--gold) 36%,var(--surface))}",
+    "#screen-amour .am-benefit[data-tone=pink]{background:linear-gradient(125deg,color-mix(in srgb,var(--pink) 20%,var(--surface)),var(--surface) 72%);border-color:color-mix(in srgb,var(--pink) 32%,var(--surface))}",
+    "#screen-amour .am-benefit[data-tone=coral]{background:linear-gradient(125deg,color-mix(in srgb,var(--coral) 20%,var(--surface)),var(--surface) 72%);border-color:color-mix(in srgb,var(--coral) 32%,var(--surface))}",
+    "#screen-amour .am-benefit[data-tone=sage] .k{box-shadow:0 0 0 7px color-mix(in srgb,var(--sage) 16%,var(--surface)),0 8px 16px rgba(43,37,34,.08)}",
+    "#screen-amour .am-benefit[data-tone=gold] .k{box-shadow:0 0 0 7px color-mix(in srgb,var(--gold) 20%,var(--surface)),0 8px 16px rgba(43,37,34,.08)}",
+    "#screen-amour .am-benefit[data-tone=pink] .k{box-shadow:0 0 0 7px color-mix(in srgb,var(--pink) 16%,var(--surface)),0 8px 16px rgba(43,37,34,.08)}",
+    "#screen-amour .am-benefit[data-tone=coral] .k{box-shadow:0 0 0 7px color-mix(in srgb,var(--coral) 16%,var(--surface)),0 8px 16px rgba(43,37,34,.08)}",
     "#screen-amour .rhead{background:linear-gradient(120deg,var(--dom-tint,var(--pink-soft)),var(--sec-tint,var(--sage-soft)));border-radius:var(--radius);padding:26px 20px 22px;margin-top:10px}",
     "#screen-amour .alloy{font-size:clamp(2.4rem,8vw,3.8rem);line-height:1.02}",
     "#screen-amour .alloy em{font-style:normal;color:var(--sc,var(--accent));font-weight:500}",
@@ -801,7 +812,7 @@
       '<div class="stack-lg" style="padding-top:18px"><div class="howto"><div class="rules">' +
       I.bullets.map(function (b, i) {
         const tone = introTones[i] || "pink";
-        return '<div class="rule" data-tone="' + tone + '"><span class="k">' + ico(introIcons[i] || "heart", tone) + "</span><strong>" + esc(b) + "</strong></div>";
+        return '<div class="rule am-benefit" data-tone="' + tone + '"><span class="k">' + ico(introIcons[i] || "heart", tone) + "</span><strong>" + esc(b) + "</strong></div>";
       }).join("") +
       "</div>" +
       '<p class="howto-tip">' + esc(I.howto) + "</p></div>" +
