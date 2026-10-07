@@ -356,10 +356,14 @@ reset role;
 set role anon;
 select pg_temp.expect_error(
   $$select * from public.ma_cible_consommer(repeat('a', 64), 'resultat', 3, 10)$$, 'permission denied');
+select pg_temp.expect_error(
+  $$select * from public.ma_cible_autoriser(repeat('a', 64), 'resultat', 3, 10)$$, 'permission denied');
 reset role;
 set role authenticated;
 select pg_temp.expect_error(
   $$select * from public.ma_cible_consommer(repeat('a', 64), 'resultat', 3, 10)$$, 'permission denied');
+select pg_temp.expect_error(
+  $$select * from public.ma_cible_autoriser(repeat('a', 64), 'resultat', 3, 10)$$, 'permission denied');
 reset role;
 
 set role service_role;
@@ -386,5 +390,20 @@ set role authenticated;
 select pg_temp.check((select count(*) from ma_cible_quota) = 0, 'ma cible : authenticated ne voit aucune ligne du compteur');
 reset role;
 select pg_temp.check((select count(*) from ma_cible_quota) > 0, 'ma cible : le compteur est bien alimenté');
+
+set role service_role;
+select ok as a_ok, n_ip as a_n from public.ma_cible_autoriser(repeat('e', 64), 'resultat', 3, 10) \gset
+select pg_temp.check(:'a_ok' = 't' and :'a_n' = '0', 'ma cible : autoriser accepte sans avoir compté');
+select pg_temp.check((select count(*) from ma_cible_quota where cle = repeat('e', 64)) = 0, 'ma cible : autoriser n''écrit rien');
+reset role;
+
+insert into ma_cible_reprise (cle, corps, expire) values (repeat('d', 64), '{"ok":true}'::jsonb, now() + interval '10 minutes');
+set role anon;
+select pg_temp.check((select count(*) from ma_cible_reprise) = 0, 'ma cible : anon ne voit pas les reprises');
+reset role;
+set role authenticated;
+select pg_temp.check((select count(*) from ma_cible_reprise) = 0, 'ma cible : authenticated ne voit pas les reprises');
+reset role;
+select pg_temp.check((select count(*) from ma_cible_reprise) = 1, 'ma cible : la reprise est bien enregistrée');
 
 \echo 'Tous les tests de base de données sont passés.'

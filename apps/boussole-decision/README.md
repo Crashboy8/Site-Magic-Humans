@@ -157,8 +157,10 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
 | `MA_CIBLE_MAX_IP_CADRAGE` / `MA_CIBLE_MAX_IP_RESULTAT` | appels par IP et par jour | 8 / 3 |
 | `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 600 / 200 |
+| `MA_CIBLE_EMAILS_ILLIMITES` | emails des comptes connectés qui ne consomment pas de quota, séparés par des virgules | |
+| `MA_CIBLE_CLE_TEST` | secret (`openssl rand -hex 24`). Ouvrir `/ma-cible/?cle=` suivi de ce secret saute le quota pour l'onglet | |
 
-En production, la route répond `503 config_manquante` si la clé du fournisseur choisi (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` ou `MISTRAL_API_KEY`) ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris.
+En production, la route répond `503 config_manquante` si la clé du fournisseur choisi (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` ou `MISTRAL_API_KEY`) ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris. Seule une génération réussie incrémente le compteur. Un échec, un délai ou une connexion coupée avant la réponse ne comptent pas. Si le serveur a fini après que le navigateur a lâché, le résultat est gardé 20 minutes (mémoire de l'instance, et table `ma_cible_reprise` si la migration est appliquée) et « Réessayer » le rend sans nouvel appel.
 
 ### Clé Gemini (offre gratuite)
 
@@ -177,11 +179,11 @@ Avec l'offre gratuite, Google peut utiliser les textes envoyés (talent, terrain
 
 ### Ce qui est stocké
 
-Rien, à part un compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une date, l'étape et un nombre, effacés au bout de 2 jours. Ni les réponses de la personne, ni le résultat, ni l'adresse IP ne sont stockés ou journalisés. `console.error` n'écrit que des codes, des longueurs, le nom du modèle et le message d'erreur du fournisseur.
+Le compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une date, l'étape et un nombre, effacés au bout de 2 jours. Les réponses ne sont pas stockées. Un résultat réussi dont le navigateur n'a pas reçu la réponse peut rester 20 minutes dans `ma_cible_reprise` (empreinte de session, pas l'IP en clair), puis il est effacé. L'adresse IP n'est ni stockée ni journalisée. `console.error` n'écrit que des codes, des longueurs, le nom du modèle et le message d'erreur du fournisseur.
 
 ### Mise en place
 
-1. Dans le SQL Editor de Supabase, exécuter `supabase/migrations/20261010000000_ma_cible_quota.sql`.
+1. Dans le SQL Editor de Supabase, exécuter `supabase/migrations/20261010000000_ma_cible_quota.sql`, puis `supabase/migrations/20261010120000_ma_cible_reprise.sql`.
 2. Créer la clé API chez le fournisseur et **fixer un plafond de dépense mensuel dans sa console** (les plafonds par jour bornent déjà la dépense, mais le plafond mensuel protège contre une erreur de réglage).
 3. Renseigner les variables ci-dessus dans Vercel, puis redéployer.
 4. Avant la première mise en ligne, vérifier dans la documentation du fournisseur le nom exact du modèle et la forme du schéma de sortie (`output_config` chez Anthropic, `responseMimeType` et `responseJsonSchema` chez Gemini, `response_format.json_schema` chez Mistral : l'API évolue), puis suivre la recette PR 1 du cahier des charges (§17).

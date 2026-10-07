@@ -72,12 +72,12 @@ const fr = {
     points: (fournisseur: string) => [
       `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à ${fournisseur} pour préparer ton résultat.`,
       "Avec l'offre gratuite, le fournisseur peut utiliser ces réponses pour améliorer ses modèles : n'écris rien de sensible.",
-      "Rien n'est enregistré sur nos serveurs : ni tes réponses, ni ton résultat. On garde seulement un compteur anonyme pour éviter les abus (une empreinte de ton adresse IP, effacée au bout de 2 jours).",
+      "Tes réponses ne sont pas enregistrées. Si une génération réussit au moment où la connexion coupe, le résultat reste quelques minutes pour que « Réessayer » le retrouve, puis il est effacé. On garde aussi un compteur anonyme (une empreinte de ton adresse IP, effacée au bout de 2 jours). Un échec ne compte pas dans la limite du jour.",
       "Ton travail reste dans ce navigateur pour que tu puisses y revenir. Le bouton « Tout effacer » le supprime.",
       "N'écris pas de données sensibles : santé, noms de clients, informations confidentielles.",
     ],
     lienPolitique: "Lire la politique de confidentialité",
-    rappel: "En continuant, tes réponses sont envoyées à l'IA. Rien n'est gardé sur nos serveurs.",
+    rappel: "En continuant, tes réponses sont envoyées à l'IA. Un résultat réussi peut rester quelques minutes sur le serveur si la connexion coupe, puis il est effacé.",
     lienDetail: "En savoir plus",
     avertissementIA:
       "L'IA propose, tu décides. Elle peut se tromper : les prix sont des ordres de grandeur, et chaque cible reste une hypothèse à tester sur le terrain.",
@@ -369,7 +369,7 @@ const fr = {
     autre: "Autre",
   },
   erreurs: {
-    reseau: "Connexion perdue. Vérifie ta connexion, puis réessaie.",
+    reseau: "Connexion perdue. Vérifie ta connexion, puis réessaie. Un échec ne compte pas, et un résultat déjà prêt revient tout de suite.",
     entree_invalide: "Certaines réponses ne passent pas. Vérifie les champs signalés.",
     trop_long: "Tes réponses sont trop longues pour être envoyées. Raccourcis les plus longues.",
     origine_refusee: "Cette page ne peut pas joindre l'IA depuis cette adresse. Ouvre Ma Cible depuis magichumans.com.",
@@ -377,7 +377,7 @@ const fr = {
       `Tu as atteint la limite du jour (${max} par jour). Ton travail est gardé : reviens demain, ou parles-en avec Pierre en attendant.`,
     quota_global: "Ma Cible a beaucoup servi aujourd'hui et fait une pause jusqu'à demain. Ton travail est gardé dans ce navigateur.",
     ia_invalide: "L'IA s'est emmêlée dans sa réponse. Réessaie, ça passe en général du premier coup.",
-    ia_indisponible: "L'IA ne répond pas pour l'instant. Réessaie dans une minute.",
+    ia_indisponible: "L'IA ne répond pas pour l'instant. Réessaie dans une minute. Un échec ne compte pas dans la limite du jour.",
     config_manquante: "Ma Cible n'est pas encore branchée à son IA. Reviens très bientôt !",
     horsSujet: "Ma Cible sert à trouver des clients pour une activité professionnelle. Reformule ton talent ou ton offre, puis réessaie.",
     inconnue: "Quelque chose s'est mal passé. Réessaie dans un instant.",

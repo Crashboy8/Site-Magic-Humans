@@ -1,9 +1,15 @@
 // Appel de la route API (§3.6, §10.1). Aucune clé ici : la clé du fournisseur reste sur le serveur.
-import { BASE_PATH } from "@/lib/config";
+import { CLE_SESSION_NAVIGATEUR, CLE_TEST_NAVIGATEUR, ENTETE_SESSION, ENTETE_TEST, PARAM_TEST, sessionValide } from "@/domain/maCible/acces";
 import type { Cadrage, Demande, ResultatClasse } from "@/domain/maCible/types";
+import { BASE_PATH } from "@/lib/config";
 
 export const URL_API = `${BASE_PATH}/api/ma-cible/`;
-/** Délai côté client : au-dessus du résultat (240 s), en dessous de `maxDuration` (300 s). */
+/**
+ * Délai côté client : au-dessus du résultat (240 s), en dessous de `maxDuration` (300 s).
+ * S'il se déclenche, le code est `ia_indisponible` (« L'IA ne répond pas »).
+ * `reseau` (« Connexion perdue ») veut dire que le fetch a été rejeté avant ce délai :
+ * la connexion a été coupée par le réseau, un proxy ou l'hôte, sans réponse JSON.
+ */
 export const DELAI_CLIENT_MS = 270_000;
 
 export type CodeErreur =
@@ -25,6 +31,47 @@ export type ReponseApi =
 
 const CODES: readonly CodeErreur[] = ["entree_invalide", "trop_long", "origine_refusee", "quota_ip", "quota_global", "ia_invalide", "ia_indisponible", "config_manquante"];
 
+/** Lit `?cle=` une fois, le retire de l'adresse et le garde pour les appels de cet onglet. */
+export function preparerAccesTest(): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  const cle = url.searchParams.get(PARAM_TEST);
+  if (!cle) return;
+  window.sessionStorage.setItem(CLE_TEST_NAVIGATEUR, cle);
+  url.searchParams.delete(PARAM_TEST);
+  window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+}
+
+function entetesAppel(): Record<string, string> {
+  const entetes: Record<string, string> = { "content-type": "application/json" };
+  if (typeof window === "undefined") return entetes;
+  let session = sessionValide(window.sessionStorage.getItem(CLE_SESSION_NAVIGATEUR));
+  if (!session) {
+    session = crypto.randomUUID();
+    window.sessionStorage.setItem(CLE_SESSION_NAVIGATEUR, session);
+  }
+  entetes[ENTETE_SESSION] = session;
+  const cle = window.sessionStorage.getItem(CLE_TEST_NAVIGATEUR);
+  if (cle) entetes[ENTETE_TEST] = cle;
+  return entetes;
+}
+
+/** Dernier objet JSON du corps. Les lignes vides sont les battements qui gardent la connexion ouverte. */
+export function lireJsonReponse(texte: string): unknown {
+  const lignes = texte
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  for (let i = lignes.length - 1; i >= 0; i--) {
+    try {
+      return JSON.parse(lignes[i]);
+    } catch {
+      // Ligne de battement ou fragment : on remonte.
+    }
+  }
+  throw new SyntaxError("json");
+}
+
 export async function appelerApi(demande: Demande, signal?: AbortSignal, fetchImpl: typeof fetch = fetch): Promise<ReponseApi> {
   const controleur = new AbortController();
   const delai = setTimeout(() => controleur.abort(), DELAI_CLIENT_MS);
@@ -33,13 +80,13 @@ export async function appelerApi(demande: Demande, signal?: AbortSignal, fetchIm
   try {
     const r = await fetchImpl(URL_API, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: entetesAppel(),
       body: JSON.stringify(demande),
       signal: controleur.signal,
     });
     let json: unknown;
     try {
-      json = await r.json();
+      json = lireJsonReponse(await r.text());
     } catch {
       return { ok: false, code: r.status >= 500 ? "ia_indisponible" : "inconnue" };
     }

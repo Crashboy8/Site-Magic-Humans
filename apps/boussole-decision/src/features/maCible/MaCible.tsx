@@ -6,7 +6,7 @@ import { lireAncre, type AncreLue } from "@/domain/maCible/ancre";
 import { validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
 import type { Corrections, Demande } from "@/domain/maCible/types";
 import { useI18n } from "@/i18n/client";
-import { appelerApi } from "./api";
+import { appelerApi, preparerAccesTest } from "./api";
 import { Attente, type ErreurAppel } from "./Attente";
 import { AvertissementIA, EncartConfidentialite } from "./Confidentialite";
 import { EtapeEsquisse } from "./EtapeEsquisse";
@@ -43,6 +43,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
 
   // Au chargement : reprise du travail enregistré et lecture de l'ancre (jamais envoyée au serveur), puis ancre effacée de l'adresse.
   useEffect(() => {
+    preparerAccesTest();
     const stocke = lire();
     const lue = lireAncre(window.location.hash);
     if (lue) window.history.replaceState(null, "", window.location.pathname + window.location.search);

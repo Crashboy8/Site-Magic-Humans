@@ -28,6 +28,17 @@ describe("quotaMemoire", () => {
     expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
   });
 
+  it("autoriser lit le compteur sans l'incrémenter", async () => {
+    const q = quotaMemoire({ ...limites, globalResultat: 50 }, () => new Date("2026-10-10T10:00:00Z"));
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 3 });
+    await q.consommer(cle("a"), "resultat");
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 2 });
+    await q.consommer(cle("a"), "resultat");
+    await q.consommer(cle("a"), "resultat");
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: false, motif: "ip", restant: 0 });
+    expect(await q.autoriser(cle("a"), "cadrage")).toEqual({ ok: true, restant: 2 });
+  });
+
   it("repart de zéro à minuit, heure de Paris", async () => {
     let maintenant = new Date("2026-10-10T21:30:00Z"); // 23 h 30 à Paris (UTC+2)
     const q = quotaMemoire(limites, () => maintenant);
@@ -56,7 +67,10 @@ describe("jours et limites", () => {
 });
 
 describe("quotaSupabase", () => {
-  const secours = () => ({ consommer: vi.fn(async () => ({ ok: true, restant: 99 })) });
+  const secours = () => ({
+    autoriser: vi.fn(async () => ({ ok: true, restant: 99 })),
+    consommer: vi.fn(async () => ({ ok: true, restant: 99 })),
+  });
 
   it("réponse OK : appelle la fonction SQL avec les plafonds", async () => {
     const rpc = vi.fn(async () => ({ data: [{ ok: true, motif: null, n_ip: 1, n_global: 7 }], error: null }));
@@ -67,12 +81,34 @@ describe("quotaSupabase", () => {
     expect(s.consommer).not.toHaveBeenCalled();
   });
 
+  it("autoriser interroge la fonction de lecture, pas celle qui incrémente", async () => {
+    const rpc = vi.fn(async () => ({ data: [{ ok: true, motif: null, n_ip: 1, n_global: 2 }], error: null }));
+    const q = quotaSupabase({ rpc } as never, limites, secours());
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 2 });
+    expect(rpc).toHaveBeenCalledWith("ma_cible_autoriser", { p_cle: cle("a"), p_etape: "resultat", p_max_ip: 3, p_max_global: 4 });
+  });
+
   it("refus par IP puis global", async () => {
     const reponses = [{ ok: false, motif: "ip", n_ip: 4, n_global: 9 }, { ok: false, motif: "global", n_ip: 0, n_global: 5 }];
     const rpc = vi.fn(async () => ({ data: [reponses.shift()], error: null }));
     const q = quotaSupabase({ rpc } as never, limites, secours());
     expect(await q.consommer(cle("a"), "cadrage")).toEqual({ ok: false, motif: "ip", restant: 0 });
     expect(await q.consommer(cle("a"), "cadrage")).toEqual({ ok: false, motif: "global", restant: 0 });
+  });
+
+  it("si la fonction de lecture manque, lit la table existante", async () => {
+    const rpc = vi.fn(async () => { throw new Error("function ma_cible_autoriser does not exist"); });
+    const from = vi.fn(() => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            in: async () => ({ data: [{ cle: "global", n: 1 }, { cle: cle("a"), n: 3 }], error: null }),
+          }),
+        }),
+      }),
+    }));
+    const q = quotaSupabase({ rpc, from } as never, limites, secours());
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: false, motif: "ip", restant: 0 });
   });
 
   it("erreur de la base ou exception : bascule sur le secours et le journalise sans contenu", async () => {

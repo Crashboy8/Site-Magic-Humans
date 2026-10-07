@@ -3,8 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
-import { quotaMemoire, type Quota } from "./quota";
-import { cleCompteur, extraireJson, traiterDemande, type Dependances } from "./traitement";
+import { quotaMemoire } from "./quota";
+import { repriseMemoire } from "./reprise";
+import { cleCompteur, extraireJson, reinitialiserGenerations, traiterDemande, type Dependances } from "./traitement";
 
 const ORIGINE = "https://www.magichumans.com";
 const ESQUISSE = {
@@ -70,7 +71,17 @@ function preparer(reponses: (string | Error)[], surcharge: Partial<Dependances> 
 const corpsDe = async (r: Response) => (await r.json()) as any;
 
 let erreurConsole: ReturnType<typeof vi.spyOn>;
+const SESSION = "11111111-1111-4111-8111-111111111111";
+
+function quotaEspion(restant = 1) {
+  return {
+    autoriser: vi.fn(async () => ({ ok: true, restant })),
+    consommer: vi.fn(async () => ({ ok: true, restant })),
+  };
+}
+
 beforeEach(() => {
+  reinitialiserGenerations();
   erreurConsole = vi.spyOn(console, "error").mockImplementation(() => {});
   preparer([]);
 });
@@ -162,10 +173,10 @@ describe("configuration et quota", () => {
     expect(await corpsDe(r)).toMatchObject({ code: "quota_global", max: 1 });
   });
   it("la clé du compteur est une empreinte sha256, jamais l'IP", async () => {
-    const consommer = vi.fn(async () => ({ ok: true, restant: 1 }));
-    preparer([JSON.stringify(CADRAGE_ESQUISSE)], { quota: { consommer } satisfies Quota });
+    const quota = quotaEspion();
+    preparer([JSON.stringify(CADRAGE_ESQUISSE)], { quota });
     await traiterDemande(deps, requete(demandeCadrage()));
-    const [cle, etape] = consommer.mock.calls[0] as unknown as [string, string];
+    const [cle, etape] = quota.consommer.mock.calls[0] as unknown as [string, string];
     expect(cle).toMatch(/^[0-9a-f]{64}$/);
     expect(cle).toBe(cleCompteur(ENV.MA_CIBLE_SEL, "2026-10-10", "203.0.113.7"));
     expect(cle).not.toContain("203");
@@ -173,10 +184,10 @@ describe("configuration et quota", () => {
   });
   it("IP inconnue sans en-tête", async () => {
     expect(cleCompteur("s", "2026-10-10", "inconnue")).toMatch(/^[0-9a-f]{64}$/);
-    const consommer = vi.fn(async () => ({ ok: true, restant: 1 }));
-    preparer([JSON.stringify(CADRAGE_ESQUISSE)], { quota: { consommer } });
+    const quota = quotaEspion();
+    preparer([JSON.stringify(CADRAGE_ESQUISSE)], { quota });
     await traiterDemande(deps, requete(demandeCadrage(), { "x-forwarded-for": null }));
-    expect((consommer.mock.calls[0] as unknown as [string])[0]).toBe(cleCompteur(ENV.MA_CIBLE_SEL, "2026-10-10", "inconnue"));
+    expect((quota.consommer.mock.calls[0] as unknown as [string])[0]).toBe(cleCompteur(ENV.MA_CIBLE_SEL, "2026-10-10", "inconnue"));
   });
 });
 
@@ -244,10 +255,10 @@ describe("relance et erreurs du modèle", () => {
   it("validation en échec puis valide : 200, et le quota n'est consommé qu'une fois", async () => {
     const mauvais = structuredClone(RESULTAT_EXEMPLE) as any;
     mauvais.cibles[0].messages.linkedin = "trop court";
-    const consommer = vi.fn(async () => ({ ok: true, restant: 2 }));
-    preparer([JSON.stringify(mauvais), JSON.stringify(RESULTAT_EXEMPLE)], { quota: { consommer } });
+    const quota = quotaEspion(2);
+    preparer([JSON.stringify(mauvais), JSON.stringify(RESULTAT_EXEMPLE)], { quota });
     expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
-    expect(consommer).toHaveBeenCalledTimes(1);
+    expect(quota.consommer).toHaveBeenCalledTimes(1);
     expect((fournisseur.appeler.mock.calls[1][0] as any).utilisateur).toContain("cibles[0].messages.linkedin");
   });
   it("des questions au tour 2 déclenchent la relance", async () => {
@@ -279,6 +290,74 @@ describe("relance et erreurs du modèle", () => {
     expect(r.status).toBe(503);
     expect((await corpsDe(r)).code).toBe("ia_indisponible");
     expect(fournisseur.appeler).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("quota seulement en cas de succès, et reprise", () => {
+  it("une erreur du fournisseur ou un délai ne consomme pas le quota", async () => {
+    const quota = quotaEspion();
+    preparer([new ErreurFournisseur("delai")], { quota });
+    expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(503);
+    expect(quota.autoriser).toHaveBeenCalledTimes(1);
+    expect(quota.consommer).not.toHaveBeenCalled();
+  });
+  it("une réponse invalide deux fois ne consomme pas le quota", async () => {
+    const quota = quotaEspion();
+    preparer(["non", "toujours non"], { quota });
+    expect((await traiterDemande(deps, requete(demandeCadrage()))).status).toBe(502);
+    expect(quota.consommer).not.toHaveBeenCalled();
+  });
+  it("un second essai avec la même session rend le résultat déjà prêt, sans nouvel appel ni quota", async () => {
+    const quota = quotaEspion(2);
+    const reprise = repriseMemoire(() => MAINTENANT);
+    preparer([JSON.stringify(CADRAGE_ESQUISSE)], { quota, reprise });
+    const entetes = { "x-ma-cible-session": SESSION };
+    expect((await traiterDemande(deps, requete(demandeCadrage(), entetes))).status).toBe(200);
+    const r = await traiterDemande(deps, requete(demandeCadrage(), entetes));
+    expect(r.status).toBe(200);
+    expect((await corpsDe(r)).cadrage.statut).toBe("esquisse");
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(1);
+    expect(quota.consommer).toHaveBeenCalledTimes(1);
+  });
+  it("un Réessayer pendant la génération rejoint le même appel", async () => {
+    let resoudre: (v: string) => void = () => {};
+    const pendant = new Promise<string>((r) => {
+      resoudre = r;
+    });
+    preparer([]);
+    fournisseur.appeler.mockImplementation(() => pendant);
+    const entetes = { "x-ma-cible-session": "22222222-2222-4222-8222-222222222222" };
+    const p1 = traiterDemande(deps, requete(demandeCadrage(), entetes));
+    const p2 = traiterDemande(deps, requete(demandeCadrage(), entetes));
+    await vi.waitFor(() => expect(fournisseur.appeler).toHaveBeenCalledTimes(1));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(1);
+    resoudre(JSON.stringify(CADRAGE_ESQUISSE));
+    const [a, b] = await Promise.all([p1, p2]);
+    expect(a.status).toBe(200);
+    expect(b.status).toBe(200);
+    expect((await corpsDe(a)).ok).toBe(true);
+    expect((await corpsDe(b)).ok).toBe(true);
+  });
+  it("MA_CIBLE_CLE_TEST et l'email illimité passent outre le plafond", async () => {
+    preparer(Array(5).fill(JSON.stringify(RESULTAT_EXEMPLE)), { env: { ...ENV, MA_CIBLE_CLE_TEST: "secret-de-test-assez-long" } });
+    for (let i = 0; i < 3; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    expect((await traiterDemande(deps, requete(demandeResultat(), { "x-ma-cible-test": "mauvais" }))).status).toBe(429);
+    expect((await traiterDemande(deps, requete(demandeResultat(), { "x-ma-cible-test": "secret-de-test-assez-long" }))).status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(4);
+
+    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
+      env: { ...ENV, MA_CIBLE_EMAILS_ILLIMITES: "Pierre@Example.com, autre@exemple.fr" },
+      emailConnecte: "pierre@example.com",
+    });
+    for (let i = 0; i < 4; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    preparer([JSON.stringify(RESULTAT_EXEMPLE)], {
+      env: { ...ENV, MA_CIBLE_EMAILS_ILLIMITES: "pierre@example.com" },
+      emailConnecte: "quelquun@exemple.fr",
+      quota: quotaMemoire({ ipCadrage: 8, ipResultat: 0, globalCadrage: 600, globalResultat: 200 }, () => MAINTENANT),
+    });
+    expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(429);
+    expect(fournisseur.appeler).not.toHaveBeenCalled();
   });
 });
 

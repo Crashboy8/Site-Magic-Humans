@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE } from "@/domain/maCible/exemple";
-import { URL_API, appelerApi } from "./api";
+import { URL_API, appelerApi, lireJsonReponse } from "./api";
 
 const demande = { etape: "cadrage", tour: 1, entree: ENTREE_EXEMPLE } as const;
 const reponse = (corps: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(corps), { status, headers: { "content-type": "application/json" } }));
@@ -20,6 +20,9 @@ describe("appelerApi", () => {
     expect(await appelerApi(demande, undefined, f as unknown as typeof fetch)).toEqual({ ok: false, code: "quota_ip", max: 3 });
     const g = () => reponse({ ok: false, code: "n_importe_quoi" }, 400);
     expect(await appelerApi(demande, undefined, g as unknown as typeof fetch)).toEqual({ ok: false, code: "inconnue", max: undefined });
+  });
+  it("ignore les battements et lit le dernier JSON", () => {
+    expect(lireJsonReponse('\n\n{"ok":false,"code":"quota_ip","max":3}\n')).toEqual({ ok: false, code: "quota_ip", max: 3 });
   });
   it("renvoie « reseau » si le réseau est coupé", async () => {
     const f = () => Promise.reject(new TypeError("Failed to fetch"));
