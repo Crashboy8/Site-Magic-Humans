@@ -150,7 +150,7 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | Variable | Rôle | Défaut |
 |---|---|---|
 | `MA_CIBLE_FOURNISSEUR` | `anthropic`, `openai` ou `gemini` | `anthropic` |
-| `MA_CIBLE_MODELE` | nom exact du modèle chez le fournisseur (obligatoire avec `openai` ; vide avec `gemini` : `gemini-3.8-flash`) | `claude-sonnet-5` |
+| `MA_CIBLE_MODELE` | nom exact du modèle chez le fournisseur (obligatoire avec `openai` ; vide avec `gemini` : `gemini-2.5-flash`) | `claude-sonnet-5` |
 | `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` | clé du fournisseur choisi | |
 | `MA_CIBLE_SEL` | sel de l'empreinte du compteur, 32 caractères au moins (`openssl rand -hex 32`) | |
 | `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
@@ -163,7 +163,7 @@ En production, la route répond `503 config_manquante` si la clé du fournisseur
 
 1. Ouvrir [Google AI Studio](https://aistudio.google.com/apikey) et créer une clé API (« Create API key »).
 2. La coller dans `GEMINI_API_KEY`, avec `MA_CIBLE_FOURNISSEUR=gemini`.
-3. Laisser `MA_CIBLE_MODELE` vide pour `gemini-3.8-flash` (modèle gratuit stable recommandé pour un nouveau projet : entrée et sortie offertes). `gemini-2.5-flash` est aussi gratuit, mais Google en limite l'accès aux projets qui l'utilisaient déjà.
+3. Laisser `MA_CIBLE_MODELE` vide pour `gemini-2.5-flash` (modèle Flash stable de l'offre gratuite).
 
 Avec l'offre gratuite, Google peut utiliser les textes envoyés (talent, terrain, réponses) pour améliorer ses produits. Ne pas y mettre de données sensibles. L'offre payante ne sert pas à cet entraînement : fixer alors un plafond de dépense dans la console Google.
 
@@ -176,7 +176,7 @@ Rien, à part un compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une
 1. Dans le SQL Editor de Supabase, exécuter `supabase/migrations/20261010000000_ma_cible_quota.sql`.
 2. Créer la clé API chez le fournisseur et **fixer un plafond de dépense mensuel dans sa console** (les plafonds par jour bornent déjà la dépense, mais le plafond mensuel protège contre une erreur de réglage).
 3. Renseigner les variables ci-dessus dans Vercel, puis redéployer.
-4. Avant la première mise en ligne, vérifier dans la documentation du fournisseur le nom exact du modèle et la forme du schéma de sortie (`output_config` chez Anthropic, `responseFormat` chez Gemini : l'API évolue), puis suivre la recette PR 1 du cahier des charges (§17).
+4. Avant la première mise en ligne, vérifier dans la documentation du fournisseur le nom exact du modèle et la forme du schéma de sortie (`output_config` chez Anthropic, `responseMimeType` et `responseJsonSchema` chez Gemini : l'API évolue), puis suivre la recette PR 1 du cahier des charges (§17).
 
 ### Tester
 

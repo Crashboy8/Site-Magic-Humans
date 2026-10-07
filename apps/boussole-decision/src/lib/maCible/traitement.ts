@@ -188,7 +188,12 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
         brut = "";
       } else {
         const f = e instanceof ErreurFournisseur ? e : null;
-        echec("ia_indisponible", demande, { motif: f?.code ?? "inconnu", statutFournisseur: f?.statut });
+        const messageFournisseur = f?.messageFournisseur?.slice(0, 300);
+        echec("ia_indisponible", demande, {
+          motif: f?.code ?? "inconnu",
+          statutFournisseur: f?.statut,
+          ...(messageFournisseur ? { messageFournisseur } : {}),
+        });
         return repondre({ ok: false, code: "ia_indisponible" }, 503);
       }
     }
