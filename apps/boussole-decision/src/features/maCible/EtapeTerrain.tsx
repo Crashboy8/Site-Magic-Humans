@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button, Card, Input } from "@/components/ui";
 import type { ErreurChamp } from "@/domain/maCible/entree";
+import { LIMITES } from "@/domain/maCible/limites";
 import type { Adresse, Format, Marche, Style, Terrain } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
-import { BarreBoutons, ChampTexte, GroupePastilles, GroupeRadio, ResumeErreurs } from "./Champs";
-import { idChamp, messageChamp } from "./erreurs";
+import { AlerteSoumission, BarreBoutons, ChampTexte, GroupePastilles, GroupeRadio, ResumeErreurs } from "./Champs";
+import { defilerVersChamp } from "./defilement";
+import { idChamp, messageChamp, messagePresBouton } from "./erreurs";
 import { RappelConfidentialite } from "./Confidentialite";
 
 const entrees = <T extends string>(o: Record<T, string>) => (Object.keys(o) as T[]).map((valeur) => ({ valeur, label: o[valeur] }));
@@ -45,6 +48,13 @@ export function EtapeTerrain({
     "terrain.prixActuel": T.prix.label,
   };
   const erreurMarche = erreurDe("marche");
+  const premiere = erreurs[0];
+  const messageBouton = premiere ? messagePresBouton(premiere, libelles[premiere.champ] ?? premiere.champ, M) : null;
+  const idMarche = idChamp("terrain.marche");
+  useEffect(() => {
+    if (erreurs.length === 0) return;
+    defilerVersChamp(idChamp(erreurs[0].champ));
+  }, [erreurs]);
 
   return (
     <form
@@ -73,6 +83,7 @@ export function EtapeTerrain({
           onChange={(v) => onChange({ offre: v })}
           erreur={erreurDe("offre")}
           flou="offre"
+          maxLength={LIMITES.offre.max}
           M={M}
         />
         <GroupeRadio<Marche>
@@ -82,7 +93,8 @@ export function EtapeTerrain({
           valeur={terrain.marche}
           onChange={(v) => onChange({ marche: v })}
           erreur={erreurMarche ? messageChamp(erreurMarche, M) : undefined}
-          idErreur={idChamp("terrain.marche")}
+          id={idMarche}
+          idErreur={`${idMarche}-erreur`}
         />
         <ChampTexte
           champ="terrain.experience"
@@ -93,6 +105,7 @@ export function EtapeTerrain({
           value={terrain.experience}
           onChange={(v) => onChange({ experience: v })}
           erreur={erreurDe("experience")}
+          maxLength={LIMITES.experience.max}
           M={M}
         />
         <ChampTexte
@@ -105,6 +118,7 @@ export function EtapeTerrain({
           onChange={(v) => onChange({ clientsPasses: v })}
           erreur={erreurDe("clientsPasses")}
           flou="clientsPasses"
+          maxLength={LIMITES.clientsPasses.max}
           M={M}
         />
         <GroupePastilles<Format> legende={T.formats.label} aide={T.formats.aide} options={entrees(T.formats.options)} valeurs={terrain.formats} onChange={(v) => onChange({ formats: v })} />
@@ -118,6 +132,7 @@ export function EtapeTerrain({
           onChange={(v) => onChange({ zone: v })}
           erreur={erreurDe("zone")}
           multiligne={false}
+          maxLength={LIMITES.zone.max}
           M={M}
         />
         <ChampTexte
@@ -131,6 +146,7 @@ export function EtapeTerrain({
           erreur={erreurDe("prixActuel")}
           facultatif
           multiligne={false}
+          maxLength={LIMITES.prixActuel.max}
           M={M}
         />
       </Card>
@@ -155,7 +171,12 @@ export function EtapeTerrain({
         <Button type="button" variant="secondary" onClick={onRetour}>
           {M.commun.retour}
         </Button>
-        <Button type="submit">{T.continuer}</Button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+          <AlerteSoumission message={messageBouton} />
+          <Button type="submit" className="max-sm:w-full">
+            {T.continuer}
+          </Button>
+        </div>
       </BarreBoutons>
     </form>
   );

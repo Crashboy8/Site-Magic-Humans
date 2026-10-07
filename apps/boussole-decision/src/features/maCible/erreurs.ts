@@ -14,6 +14,12 @@ export function messageChamp(e: ErreurChamp, M: MaCibleMessages): string {
   return M.validation.requis;
 }
 
+/** Phrase courte affichée à côté du bouton quand la validation échoue. */
+export function messagePresBouton(e: ErreurChamp, label: string, M: MaCibleMessages): string {
+  if (e.champ === "terrain.marche" || e.code === "trop_court" || e.code === "trop_long") return messageChamp(e, M);
+  return M.validation.presBouton(label);
+}
+
 /** Texte d'erreur d'un appel API. Les quotas par IP citent le plafond du jour. */
 export function messageApi(code: CodeErreur, M: MaCibleMessages, max?: number): string {
   const E = M.erreurs;

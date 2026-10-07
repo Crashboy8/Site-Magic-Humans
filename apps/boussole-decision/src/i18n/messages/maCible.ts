@@ -2,14 +2,38 @@
 
 /** Nom affiché dans l'encart : neutre, le fournisseur réel dépend de la configuration. */
 export const LIBELLE_FOURNISSEUR_IA = "un modèle d'IA (Mistral, Google Gemini ou Anthropic Claude selon la configuration)";
+
+/**
+ * Nom public de l'outil, et sa phrase d'accroche.
+ * Seule source du bandeau, du titre de page et de l'introduction. L'adresse reste /ma-cible.
+ */
+export const NOM_OUTIL = {
+  fr: "Le Cibleur",
+  en: "The Targeter",
+  es: "El Buscador de Clientes",
+} as const;
+
+export const SOUS_TITRE_OUTIL = {
+  fr: "Trouve les clients avec qui tu réussis dans le plaisir",
+  en: "Find the clients you thrive with in Flow State Mastery",
+  es: "Encuentra los clientes con los que triunfas disfrutando",
+} as const;
+
+/** Titre d'onglet : le nom, puis la phrase d'accroche. */
+export const titreOutil = (nom: string, sousTitre: string) => `${nom} : ${sousTitre}`;
+
 const fr = {
   meta: {
-    titre: "Ma Cible : trouve les clients faits pour ton talent",
     description: "Outil gratuit Magic Humans : à partir de ton Talent Unique, une IA experte en marketing t'aide à affiner ton offre et à choisir tes trois cibles.",
   },
   commun: {
-    nomOutil: "Ma Cible",
+    nomOutil: NOM_OUTIL.fr as string,
+    sousTitre: SOUS_TITRE_OUTIL.fr as string,
     etape: (n: number) => `Étape ${n} sur 5`,
+    tour: (n: number, total: number) => `Tour ${n} sur ${total}`,
+    boucle: (tour: number, total: number) =>
+      `Tu affines ta cible en boucle : l'IA propose, tu corriges, elle ajuste. Tour ${tour} sur ${total}.`,
+    compteur: (n: number, max: number) => `${n} caractères sur ${max}`,
     continuer: "Continuer",
     retour: "Retour",
     facultatif: "(facultatif)",
@@ -20,7 +44,6 @@ const fr = {
   },
   accueil: {
     surtitre: "Gratuit · moins de 10 minutes",
-    titre: "Trouve les clients faits pour ton talent",
     intro:
       "Tu pars de ton Talent Unique. Une IA experte en marketing t'aide à affiner ton offre et à choisir tes trois cibles, en B2B ou en B2C. Pour chacune, tu repars avec une promesse, un prix indicatif, les endroits où la rencontrer et ton premier message prêt à envoyer.",
     etapesTitre: "Comment ça se passe",
@@ -49,12 +72,12 @@ const fr = {
     points: (fournisseur: string) => [
       `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à ${fournisseur} pour préparer ton résultat.`,
       "Avec l'offre gratuite, le fournisseur peut utiliser ces réponses pour améliorer ses modèles : n'écris rien de sensible.",
-      "Rien n'est enregistré sur nos serveurs : ni tes réponses, ni ton résultat. On garde seulement un compteur anonyme pour éviter les abus (une empreinte de ton adresse IP, effacée au bout de 2 jours).",
+      "Tes réponses ne sont pas enregistrées. Si une génération réussit au moment où la connexion coupe, le résultat reste quelques minutes pour que « Réessayer » le retrouve, puis il est effacé. On garde aussi un compteur anonyme (une empreinte de ton adresse IP, effacée au bout de 2 jours). Un échec ne compte pas dans la limite du jour.",
       "Ton travail reste dans ce navigateur pour que tu puisses y revenir. Le bouton « Tout effacer » le supprime.",
       "N'écris pas de données sensibles : santé, noms de clients, informations confidentielles.",
     ],
     lienPolitique: "Lire la politique de confidentialité",
-    rappel: "En continuant, tes réponses sont envoyées à l'IA. Rien n'est gardé sur nos serveurs.",
+    rappel: "En continuant, tes réponses sont envoyées à l'IA. Un résultat réussi peut rester quelques minutes sur le serveur si la connexion coupe, puis il est effacé.",
     lienDetail: "En savoir plus",
     avertissementIA:
       "L'IA propose, tu décides. Elle peut se tromper : les prix sont des ordres de grandeur, et chaque cible reste une hypothèse à tester sur le terrain.",
@@ -168,6 +191,7 @@ const fr = {
     tropLong: (max: number) => `C'est un peu long : ${max} caractères au plus.`,
     marche: "Choisis une réponse, même « Je ne sais pas encore ».",
     offreOuClients: "Remplis au moins l'un des deux : ce que tu proposes, ou qui t'a déjà dit merci.",
+    presBouton: (label: string) => `Il manque « ${label} ».`,
   },
   questions: {
     titre: "Quelques précisions",
@@ -179,6 +203,7 @@ const fr = {
     passer: "Je ne sais pas, on passe",
     reponsePassee: "je ne sais pas",
     reponseRequise: "Choisis une réponse, ou passe la question.",
+    manqueReponse: (n: number) => `Il manque une réponse à la question ${n}.`,
   },
   esquisse: {
     titre: "Ça te ressemble ?",
@@ -192,6 +217,9 @@ const fr = {
     commentairePlaceholder: "Par exemple : plutôt des PME que des grands groupes.",
     commentaireRequis: "Dis en quelques mots ce qui cloche, l'IA en a besoin.",
     verdictRequis: "Donne ton avis sur chaque cible.",
+    manqueAvis: (nom: string) => `Il manque un avis sur « ${nom} ».`,
+    manqueCommentaire: (nom: string) => `Il manque un commentaire sur « ${nom} ».`,
+    manqueOffre: "Il manque quelques mots sur ton offre.",
     antiTitre: "Qui éviter",
     hypothesesTitre: "Ce que l'IA a supposé",
     ideeLabel: "Une cible à laquelle tu penses et qui manque ?",
@@ -341,7 +369,7 @@ const fr = {
     autre: "Autre",
   },
   erreurs: {
-    reseau: "Connexion perdue. Vérifie ta connexion, puis réessaie.",
+    reseau: "Connexion perdue. Vérifie ta connexion, puis réessaie. Un échec ne compte pas, et un résultat déjà prêt revient tout de suite.",
     entree_invalide: "Certaines réponses ne passent pas. Vérifie les champs signalés.",
     trop_long: "Tes réponses sont trop longues pour être envoyées. Raccourcis les plus longues.",
     origine_refusee: "Cette page ne peut pas joindre l'IA depuis cette adresse. Ouvre Ma Cible depuis magichumans.com.",
@@ -349,7 +377,7 @@ const fr = {
       `Tu as atteint la limite du jour (${max} par jour). Ton travail est gardé : reviens demain, ou parles-en avec Pierre en attendant.`,
     quota_global: "Ma Cible a beaucoup servi aujourd'hui et fait une pause jusqu'à demain. Ton travail est gardé dans ce navigateur.",
     ia_invalide: "L'IA s'est emmêlée dans sa réponse. Réessaie, ça passe en général du premier coup.",
-    ia_indisponible: "L'IA ne répond pas pour l'instant. Réessaie dans une minute.",
+    ia_indisponible: "L'IA ne répond pas pour l'instant. Réessaie dans une minute. Un échec ne compte pas dans la limite du jour.",
     config_manquante: "Ma Cible n'est pas encore branchée à son IA. Reviens très bientôt !",
     horsSujet: "Ma Cible sert à trouver des clients pour une activité professionnelle. Reformule ton talent ou ton offre, puis réessaie.",
     inconnue: "Quelque chose s'est mal passé. Réessaie dans un instant.",
@@ -358,7 +386,8 @@ const fr = {
 };
 
 export type MaCibleMessages = typeof fr;
-const en: MaCibleMessages = fr; // À traduire (Flow State Mastery pour « Réussir dans le Plaisir »).
-const es: MaCibleMessages = fr; // À traduire.
+// Le reste de l'interface reste en français. Seul le nom du bandeau est déjà traduit.
+const en: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.en, sousTitre: SOUS_TITRE_OUTIL.en } };
+const es: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.es, sousTitre: SOUS_TITRE_OUTIL.es } };
 
 export const maCible = { fr, en, es };

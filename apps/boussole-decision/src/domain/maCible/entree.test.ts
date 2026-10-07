@@ -32,11 +32,11 @@ describe("validerEntree", () => {
   it("trop court et trop long avec min et max", () => {
     const e = clone();
     e.talent.mecanisme = "court";
-    e.talent.contexte = "x".repeat(601);
+    e.talent.contexte = "x".repeat(2001);
     e.talent.antiContexte = "bref";
     const erreurs = erreursDe(e);
     expect(erreurs).toContainEqual({ champ: "talent.mecanisme", code: "trop_court", min: 12 });
-    expect(erreurs).toContainEqual({ champ: "talent.contexte", code: "trop_long", max: 600 });
+    expect(erreurs).toContainEqual({ champ: "talent.contexte", code: "trop_long", max: 2000 });
     expect(erreurs).toContainEqual({ champ: "talent.antiContexte", code: "trop_court", min: 8 });
   });
 
@@ -109,14 +109,32 @@ describe("validerEntree", () => {
     }
   });
 
+  it("accepte 2 000 caractères sur les textes libres et refuse 2 001", () => {
+    const e = clone();
+    e.talent.mecanisme = "m".repeat(2000);
+    e.talent.contexte = "c".repeat(2000);
+    e.talent.benefice = "b".repeat(2000);
+    e.talent.antiContexte = "a".repeat(2000);
+    e.talent.reussite = "r".repeat(2000);
+    e.terrain.offre = "o".repeat(2000);
+    e.terrain.experience = "e".repeat(2000);
+    e.terrain.clientsPasses = "p".repeat(2000);
+    e.terrain.zone = "z".repeat(2000);
+    e.terrain.prixActuel = "€".repeat(2000);
+    e.reponses = [{ id: "t1-q1", question: "Quelle zone ?", reponse: "x".repeat(2000) }];
+    expect(validerEntree(e).ok).toBe(true);
+    e.terrain.experience = "e".repeat(2001);
+    expect(erreursDe(e)).toContainEqual({ champ: "terrain.experience", code: "trop_long", max: 2000 });
+  });
+
   it("contrôle les réponses aux questions", () => {
     const e = clone();
     e.reponses = [{ id: "t1-q1", question: "Quelle zone ?", reponse: "Rennes" }];
     expect(validerEntree(e).ok).toBe(true);
-    e.reponses = [{ id: "n'importe quoi", question: "Q", reponse: "x".repeat(301) }];
+    e.reponses = [{ id: "n'importe quoi", question: "Q", reponse: "x".repeat(2001) }];
     const erreurs = erreursDe(e);
     expect(erreurs).toContainEqual({ champ: "reponses[0].id", code: "invalide" });
-    expect(erreurs).toContainEqual({ champ: "reponses[0].reponse", code: "trop_long", max: 300 });
+    expect(erreurs).toContainEqual({ champ: "reponses[0].reponse", code: "trop_long", max: 2000 });
   });
 
   it("refuse ce qui n'est pas un objet", () => {
@@ -142,6 +160,16 @@ describe("validerCorrections", () => {
     c.cibles[1].commentaire = "";
     const r = validerCorrections(c);
     expect(!r.ok && r.erreurs).toContainEqual({ champ: "corrections.cibles[1].commentaire", code: "requis" });
+  });
+  it("accepte un commentaire et une idée de 2 000 caractères", () => {
+    const c = base();
+    c.cibles[1].commentaire = "n".repeat(2000);
+    c.idee = "i".repeat(2000);
+    c.offre = "o".repeat(2000);
+    expect(validerCorrections(c).ok).toBe(true);
+    c.idee = "i".repeat(2001);
+    const r = validerCorrections(c);
+    expect(!r.ok && r.erreurs).toContainEqual({ champ: "corrections.idee", code: "trop_long", max: 2000 });
   });
   it("refuse une offre trop courte et des identifiants en double", () => {
     const c = base();

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card } from "@/components/ui";
 import type { ErreurChamp } from "@/domain/maCible/entree";
+import { LIMITES } from "@/domain/maCible/limites";
 import type { Talent } from "@/domain/maCible/types";
 import type { Methodology } from "@/domain/methodology";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
-import { BarreBoutons, ChampTexte, ResumeErreurs } from "./Champs";
+import { AlerteSoumission, BarreBoutons, ChampTexte, ResumeErreurs } from "./Champs";
+import { defilerVersChamp } from "./defilement";
+import { idChamp, messagePresBouton } from "./erreurs";
 
 type Cle = "mecanisme" | "contexte" | "benefice" | "antiContexte";
 
@@ -47,10 +50,20 @@ export function EtapeTalent({
       onChange={(v) => onChange({ [c]: v })}
       erreur={erreurDe(c)}
       flou={flou}
+      maxLength={LIMITES[c].max}
       M={M}
     />
   );
-  const libellesErreurs = Object.fromEntries((Object.keys(libelles) as Cle[]).map((c) => [`talent.${c}`, libelles[c]]));
+  const libellesErreurs: Record<string, string> = {
+    ...Object.fromEntries((Object.keys(libelles) as Cle[]).map((c) => [`talent.${c}`, libelles[c]])),
+    "talent.reussite": M.talent.reussite.label,
+  };
+  const premiere = erreurs[0];
+  const messageBouton = premiere ? messagePresBouton(premiere, libellesErreurs[premiere.champ] ?? premiere.champ, M) : null;
+  useEffect(() => {
+    if (erreurs.length === 0) return;
+    defilerVersChamp(idChamp(erreurs[0].champ));
+  }, [erreurs]);
 
   return (
     <form
@@ -88,6 +101,7 @@ export function EtapeTalent({
               onChange={(v) => onChange({ reussite: v })}
               erreur={erreurs.find((e) => e.champ === "talent.reussite")}
               rows={4}
+              maxLength={LIMITES.reussite.max}
               M={M}
             />
           </div>
@@ -95,7 +109,12 @@ export function EtapeTalent({
       </Card>
       <BarreBoutons>
         <span className="hidden text-sm text-ink-soft sm:block">{M.commun.enregistre}</span>
-        <Button type="submit">{M.commun.continuer}</Button>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+          <AlerteSoumission message={messageBouton} />
+          <Button type="submit" className="max-sm:w-full">
+            {M.commun.continuer}
+          </Button>
+        </div>
       </BarreBoutons>
     </form>
   );

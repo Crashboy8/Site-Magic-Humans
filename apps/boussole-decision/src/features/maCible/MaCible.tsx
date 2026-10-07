@@ -6,7 +6,7 @@ import { lireAncre, type AncreLue } from "@/domain/maCible/ancre";
 import { validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
 import type { Corrections, Demande } from "@/domain/maCible/types";
 import { useI18n } from "@/i18n/client";
-import { appelerApi } from "./api";
+import { appelerApi, preparerAccesTest } from "./api";
 import { Attente, type ErreurAppel } from "./Attente";
 import { AvertissementIA, EncartConfidentialite } from "./Confidentialite";
 import { EtapeEsquisse } from "./EtapeEsquisse";
@@ -15,6 +15,8 @@ import { EtapeTalent } from "./EtapeTalent";
 import { EtapeTerrain } from "./EtapeTerrain";
 import { Resultat } from "./Resultat";
 import { etatInitial, langueEntree, reducteur, travailExiste, type Etape } from "./etat";
+import { IndicateurEtapes } from "./IndicateurEtapes";
+import { methodeAlignee } from "./methode";
 import { URL_OUTILS, URL_QCM } from "./liens";
 import { effacer, ecrire, lire } from "./stockage";
 
@@ -29,6 +31,7 @@ interface Attendre {
 export function MaCible({ fournisseur }: { fournisseur: string }) {
   const { locale, t, m } = useI18n();
   const M = t.maCible;
+  const methode = methodeAlignee(M, m);
   const [etat, dispatch] = useReducer(reducteur, undefined, () => etatInitial(locale));
   const [pret, setPret] = useState(false);
   const [ancre, setAncre] = useState<AncreLue | null>(null);
@@ -40,6 +43,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
 
   // Au chargement : reprise du travail enregistré et lecture de l'ancre (jamais envoyée au serveur), puis ancre effacée de l'adresse.
   useEffect(() => {
+    preparerAccesTest();
     const stocke = lire();
     const lue = lireAncre(window.location.hash);
     if (lue) window.history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -162,6 +166,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
         <Resultat
           resultat={etat.resultat}
           fait={etat.resultatLe ?? etat.maj}
+          tour={etat.tour}
           prenom={etat.prenom}
           coches={etat.coches}
           locale={locale}
@@ -187,8 +192,9 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
             </a>
           </p>
           <p className="font-script text-2xl text-accent-strong">{M.accueil.surtitre}</p>
+          <p className="font-serif text-3xl italic text-ink sm:text-4xl">{M.commun.nomOutil}</p>
           <h1 tabIndex={-1} data-titre-etape className="text-4xl italic focus:outline-none sm:text-5xl">
-            {M.accueil.titre}
+            {M.commun.sousTitre}
           </h1>
           <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{M.accueil.intro}</p>
         </header>
@@ -258,12 +264,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   return (
     <div className={`mx-auto ${largeur} space-y-6`}>
       <header className="space-y-3">
-        <p className="text-sm text-ink-soft">{M.commun.etape(n)}</p>
-        <div role="img" aria-label={M.commun.etape(n)} className="grid grid-cols-5 gap-1.5">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <span key={i} className={`h-1.5 rounded-full ${i <= n ? "bg-accent-strong" : "bg-sand"}`} />
-          ))}
-        </div>
+        <IndicateurEtapes n={n} tour={etat.tour} M={M} boucle={n >= 4} />
         <h1 tabIndex={-1} data-titre-etape className="text-4xl italic focus:outline-none sm:text-5xl">
           {titre}
         </h1>
@@ -288,7 +289,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
               talent={etat.entree.talent}
               erreurs={erreurs}
               M={M}
-              m={m}
+              m={methode}
               onChange={(patch) => dispatch({ type: "talent", patch })}
               onContinuer={continuerTalent}
             />

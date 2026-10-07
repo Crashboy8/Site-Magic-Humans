@@ -149,7 +149,7 @@ export function detecterFlou(champ: string, texte: string): boolean {
 const VERDICTS: readonly Verdict[] = ["oui", "en_partie", "non"];
 const IDS: readonly IdCible[] = ["c1", "c2", "c3"];
 
-/** Validation des corrections (§5.3) : offre 10 à 300, un verdict par cible, commentaire obligatoire pour « en partie » et « non ». */
+/** Validation des corrections (§5.3) : offre 10 à 2 000, un verdict par cible, commentaire obligatoire pour « en partie » et « non ». */
 export function validerCorrections(brut: unknown): { ok: true; corrections: Corrections } | { ok: false; erreurs: ErreurChamp[] } {
   const erreurs: ErreurChamp[] = [];
   const o = objet(brut);

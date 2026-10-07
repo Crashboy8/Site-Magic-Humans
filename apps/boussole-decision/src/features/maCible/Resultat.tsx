@@ -5,6 +5,7 @@ import { Button, Card, buttonClass } from "@/components/ui";
 import type { ResultatClasse } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { CarteCible } from "./CarteCible";
+import { IndicateurEtapes } from "./IndicateurEtapes";
 import { AvertissementIA } from "./Confidentialite";
 import { Plan30 } from "./Plan30";
 import { URL_OUTILS, urlAppel, urlBoussole } from "./liens";
@@ -33,6 +34,7 @@ function useImpressionOuverte() {
 export function Resultat({
   resultat,
   fait,
+  tour,
   prenom,
   coches,
   locale,
@@ -43,6 +45,7 @@ export function Resultat({
 }: {
   resultat: ResultatClasse;
   fait: string;
+  tour: number;
   prenom: string;
   coches: boolean[];
   locale: string;
@@ -63,6 +66,9 @@ export function Resultat({
   return (
     <div data-resultat lang={resultat.langue} className="ma-cible-resultat space-y-6">
       <header className="space-y-3">
+        <div data-ecran-seul>
+          <IndicateurEtapes n={5} tour={tour} M={M} boucle />
+        </div>
         <p data-ecran-seul className="text-sm">
           <a className="text-link underline" href={URL_OUTILS}>
             {M.commun.tousLesOutils}

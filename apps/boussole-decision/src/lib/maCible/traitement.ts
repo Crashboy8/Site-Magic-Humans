@@ -1,6 +1,7 @@
 // Toute la logique de la route POST /api/ma-cible/ (§10.2), sans dépendance au réseau ni à Next : testable avec des doublures.
 // Rien n'est stocké ni journalisé : seuls des codes et des longueurs sont écrits en cas d'échec.
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
+import { ENTETE_SESSION, ENTETE_TEST, emailAutorise, sessionValide } from "@/domain/maCible/acces";
 import { validerCorrections, validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { nettoyerTextes } from "@/domain/maCible/nettoyage";
@@ -12,14 +13,50 @@ import { validerCadrage, validerResultat } from "@/domain/maCible/validation";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { jourParis, limitesDepuisEnv, maxGlobal, maxIp, minuitSuivantParis, type Quota } from "./quota";
 import { origineAcceptee } from "./origine";
+import type { Reprise } from "./reprise";
 
 export interface Dependances {
   fournisseur: Fournisseur | null;
   quota: Quota;
   maintenant: () => Date;
   env: Record<string, string | undefined>;
+  /** Email de la session Supabase, résolu par la route. Jamais lu depuis le corps de la requête. */
+  emailConnecte?: string | null;
+  /** Résultat réussi gardé quelques minutes pour un nouvel essai après une connexion coupée. */
+  reprise?: Reprise;
 }
 
+interface Issue {
+  status: number;
+  corps: Record<string, unknown>;
+  compte: boolean;
+}
+
+/** Génération en cours, partagée par un « Réessayer » qui arrive avant la fin du premier appel. */
+const generations = new Map<string, Promise<Issue>>();
+
+export function reinitialiserGenerations(): void {
+  generations.clear();
+}
+
+function secretEgal(attendu: string, recu: string): boolean {
+  if (!attendu || !recu) return false;
+  const a = createHash("sha256").update(attendu).digest();
+  const b = createHash("sha256").update(recu).digest();
+  return timingSafeEqual(a, b);
+}
+
+function cleRepriseDe(sel: string, session: string, demande: Demande): string {
+  return createHash("sha256").update(`${sel}:${session}:${JSON.stringify(demande)}`).digest("hex");
+}
+
+function reponseReussie(corps: unknown, etape: Demande["etape"]): corps is Record<string, unknown> {
+  if (typeof corps !== "object" || corps === null) return false;
+  const o = corps as Record<string, unknown>;
+  return o.ok === true && o.etape === etape && (etape === "cadrage" ? o.cadrage != null : o.resultat != null);
+}
+
+/** Jetons de sortie du modèle. L'entrée est bornée par `TAILLE_MAX_CORPS`, pas par ce plafond. */
 const MAX_TOKENS = { cadrage: 1_500, resultat: 9_000 } as const;
 export const DELAI_MS = { cadrage: 90_000, resultat: 240_000 } as const;
 /** En dessous de ce délai restant, une relance n'a plus aucune chance d'aboutir. */
@@ -144,28 +181,77 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
     return repondre({ ok: false, code: "config_manquante" }, 503);
   }
 
-  // 4. Quota, consommé avant l'appel au modèle.
+  // 4. Reprise, puis droit d'appel. Le quota n'est compté qu'après une génération réussie.
   const maintenant = deps.maintenant();
   const limites = limitesDepuisEnv(env);
-  const quota = await deps.quota.consommer(cleCompteur(sel, jourParis(maintenant), adresseIp(request.headers)), etape);
-  if (!quota.ok) {
-    const apres = minuitSuivantParis(maintenant);
-    const secondes = Math.max(1, Math.ceil((apres.getTime() - maintenant.getTime()) / 1000));
-    const motif = quota.motif ?? "ip";
-    return repondre(
-      {
-        ok: false,
-        code: motif === "global" ? "quota_global" : "quota_ip",
-        etape,
-        max: motif === "global" ? maxGlobal(limites, etape) : maxIp(limites, etape),
-        reessayerApres: apres.toISOString(),
-      },
-      429,
-      { "Retry-After": String(secondes) },
-    );
+  const empreinte = cleCompteur(sel, jourParis(maintenant), adresseIp(request.headers));
+  const session = sessionValide(request.headers.get(ENTETE_SESSION));
+  const cleGardee = session ? cleRepriseDe(sel, session, demande) : null;
+  const illimite =
+    secretEgal(env.MA_CIBLE_CLE_TEST?.trim() ?? "", request.headers.get(ENTETE_TEST)?.trim() ?? "") ||
+    emailAutorise(env.MA_CIBLE_EMAILS_ILLIMITES, deps.emailConnecte);
+
+  const deja = cleGardee && deps.reprise ? await deps.reprise.lire(cleGardee) : null;
+  if (reponseReussie(deja, etape)) return repondre(deja);
+  const enCours = cleGardee ? generations.get(cleGardee) : undefined;
+  if (enCours) return repondreIssue(await enCours);
+
+  if (!illimite) {
+    const autorisation = await deps.quota.autoriser(empreinte, etape);
+    if (!autorisation.ok) return refuserQuota(autorisation.motif ?? "ip", etape, limites, maintenant);
   }
 
-  // 5 et 6. Appel au modèle, avec une seule relance (même quota).
+  const repriseApresAttente = cleGardee && deps.reprise ? await deps.reprise.lire(cleGardee) : null;
+  if (reponseReussie(repriseApresAttente, etape)) return repondre(repriseApresAttente);
+  const demarree = cleGardee ? generations.get(cleGardee) : undefined;
+  if (demarree) return repondreIssue(await demarree);
+
+  const travail = generer(deps, demande);
+  if (cleGardee) generations.set(cleGardee, travail);
+  try {
+    const issue = await travail;
+    if (issue.compte && !illimite) {
+      const compte = await deps.quota.consommer(empreinte, etape);
+      issue.corps.restant = compte.ok ? compte.restant : 0;
+    } else if (issue.compte) {
+      issue.corps.restant = maxIp(limites, etape);
+    }
+    if (issue.compte && cleGardee && deps.reprise) {
+      try {
+        await deps.reprise.garder(cleGardee, issue.corps);
+      } catch {
+        console.error("[ma-cible]", { code: "reprise_secours" });
+      }
+    }
+    return repondreIssue(issue);
+  } finally {
+    if (cleGardee) generations.delete(cleGardee);
+  }
+}
+
+function refuserQuota(motif: "ip" | "global", etape: Demande["etape"], limites: ReturnType<typeof limitesDepuisEnv>, maintenant: Date): Response {
+  const apres = minuitSuivantParis(maintenant);
+  const secondes = Math.max(1, Math.ceil((apres.getTime() - maintenant.getTime()) / 1000));
+  return repondre(
+    {
+      ok: false,
+      code: motif === "global" ? "quota_global" : "quota_ip",
+      etape,
+      max: motif === "global" ? maxGlobal(limites, etape) : maxIp(limites, etape),
+      reessayerApres: apres.toISOString(),
+    },
+    429,
+    { "Retry-After": String(secondes) },
+  );
+}
+
+function repondreIssue(issue: Issue): Response {
+  return repondre(issue.corps, issue.status);
+}
+
+/** Appel au modèle, avec une seule relance. N'incrémente pas le quota. */
+async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
+  const etape = demande.etape;
   const debut = Date.now();
   const delaiTotal = DELAI_MS[etape];
   let erreurs: string[] | undefined;
@@ -175,7 +261,7 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
     if (essai === 2 && reste < DELAI_MIN_RELANCE_MS) break;
     let brut: string;
     try {
-      brut = await deps.fournisseur.appeler({
+      brut = await deps.fournisseur!.appeler({
         systeme: promptSysteme(etape, demande.etape === "cadrage" ? demande.tour : undefined),
         utilisateur: messageUtilisateur(demande, erreurs),
         schema: etape === "cadrage" ? SCHEMA_CADRAGE : SCHEMA_RESULTAT,
@@ -194,18 +280,20 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
           statutFournisseur: f?.statut,
           ...(messageFournisseur ? { messageFournisseur } : {}),
         });
-        return repondre({ ok: false, code: "ia_indisponible" }, 503);
+        return { status: 503, corps: { ok: false, code: "ia_indisponible" }, compte: false };
       }
     }
     derniereLongueur = brut.length;
     const traite = traiterTexte(brut, demande);
     if (traite.ok) {
-      return "cadrage" in traite
-        ? repondre({ ok: true, etape: "cadrage", cadrage: traite.cadrage, restant: quota.restant })
-        : repondre({ ok: true, etape: "resultat", resultat: traite.resultat, restant: quota.restant });
+      const corps =
+        "cadrage" in traite
+          ? { ok: true, etape: "cadrage", cadrage: traite.cadrage, restant: 0 }
+          : { ok: true, etape: "resultat", resultat: traite.resultat, restant: 0 };
+      return { status: 200, corps, compte: true };
     }
     erreurs = traite.erreurs;
   }
   echec("ia_invalide", demande, { longueurReponse: derniereLongueur, nbErreurs: erreurs?.length ?? 0 });
-  return repondre({ ok: false, code: "ia_invalide" }, 502);
+  return { status: 502, corps: { ok: false, code: "ia_invalide" }, compte: false };
 }
