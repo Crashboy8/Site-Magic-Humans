@@ -279,13 +279,14 @@
     "#screen-amour .rsrc-opt[data-item-tone=sky].picked::after{border-color:var(--sky)}",
     "#screen-amour .rsrc-opt.am-just.picked::after{animation:am-draw .28s ease}",
     "@keyframes am-draw{from{opacity:0;transform:rotate(45deg) scale(.4)}to{opacity:1;transform:rotate(45deg) scale(1)}}",
-    "#screen-amour .am-hero-row{display:flex;flex-direction:row;align-items:center;gap:12px}",
-    "#screen-amour .am-hero-copy{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}",
-    "#screen-amour .am-hero-copy .alloy{margin:0}",
-    "#screen-amour .am-reveal{display:flex;justify-content:flex-start;margin:0;flex:none}",
+    "#screen-amour .am-hero-row{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:4px;align-items:center}",
+    "#screen-amour .am-reveal{display:flex;justify-content:flex-start;margin:0;grid-column:1;grid-row:1 / span 2}",
+    "#screen-amour .am-hero-row>.eyebrow{display:block;grid-column:2;grid-row:1;min-width:0}",
+    "#screen-amour .am-hero-row>.alloy{grid-column:2;grid-row:2;margin:0;min-width:0}",
     "#screen-amour .am-badge{position:relative;width:116px;height:116px;border-radius:36px;display:grid;place-items:center;background:var(--bt);color:var(--bc);box-shadow:0 0 0 8px color-mix(in srgb, var(--bf) 22%, #fff), 0 16px 32px color-mix(in srgb, var(--bf) 28%, transparent);animation:am-badge .7s ease both}",
     "@keyframes am-badge{0%{transform:scale(.9);opacity:0}70%{transform:scale(1.03)}100%{transform:none;opacity:1}}",
     "#screen-amour .am-badge .am-ico svg{width:58px;height:58px}",
+    "@media(max-width:479px){#screen-amour .am-badge{width:64px;height:64px;border-radius:20px;box-shadow:0 0 0 5px color-mix(in srgb, var(--bf) 22%, #fff), 0 10px 20px color-mix(in srgb, var(--bf) 28%, transparent)}#screen-amour .am-badge .am-ico svg{width:32px;height:32px}#screen-amour .am-reveal{grid-row:2}#screen-amour .am-hero-row>.eyebrow{grid-column:1 / -1;grid-row:1;letter-spacing:.02em}#screen-amour .am-hero-row>.alloy{font-size:clamp(1.95rem,8.8vw,2.15rem)}}",
     "#screen-amour .am-burst{position:absolute;inset:0;pointer-events:none}",
     "#screen-amour .am-bit{position:absolute;left:50%;top:50%;color:var(--bf);opacity:0;animation:am-bit 1.05s ease forwards}",
     "#screen-amour .am-bit .am-ico svg{width:14px;height:14px}",
@@ -1280,8 +1281,8 @@
       "</ul><p class=\"muted\">" + esc(U.whyNote) + "</p></details>";
     const burst = '<span class="am-burst" aria-hidden="true">' + [0, 1, 2, 3, 4, 5, 6].map(function () { return '<i class="am-bit">' + ico("heart") + "</i>"; }).join("") + "</span>";
     const header =
-      '<div class="rhead" style="' + headStyle + '"><div class="am-hero-row"><div class="am-reveal"><div class="am-badge" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + burst + '</div></div><div class="am-hero-copy"><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
-      '<div class="alloy">' + familyNameBtn(pr.dom, pr.name.noun) + " <em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em></div></div></div>" +
+      '<div class="rhead" style="' + headStyle + '"><div class="am-hero-row"><div class="am-reveal"><div class="am-badge" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + burst + '</div></div><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
+      '<div class="alloy">' + familyNameBtn(pr.dom, pr.name.noun) + " <em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em></div></div>" +
       '<p class="pr-domsec">' + esc(pr.header.domSec) + "</p>" + pills +
       '<button type="button" class="btn ghost small am-fam-open" data-act="family-all">' + esc(enc.openAll) + "</button>" +
       '<div class="panel"><span class="lab">' + esc(U.alliageLab) + '</span><p class="quote">' + esc(pr.header.alliage) + "</p></div>" +

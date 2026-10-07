@@ -1070,6 +1070,9 @@ test("encyclopédie des familles : 7 cartes, 28 paires, sans changer le score", 
   assert.match(src, /\.am-talent-mark \.am-ico\{color:#fff\}/);
   assert.match(src, /\.am-fam-mark \.am-ico\{color:#fff\}/);
   assert.match(src, /class="am-hero-row"/);
+  assert.match(src, /@media\(max-width:479px\)\{#screen-amour \.am-badge\{width:64px;height:64px/);
+  assert.match(src, /am-hero-row>\.eyebrow\{grid-column:1 \/ -1/);
+  assert.match(src, /animation:am-badge/);
   assert.match(src, /class="am-talent-head"/);
   assert.match(src, /class="am-sec-head"/);
   assert.match(src, /\.am-pair-top\{display:grid;grid-template-columns:auto minmax\(0,1fr\)/);
