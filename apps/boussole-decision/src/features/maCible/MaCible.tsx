@@ -16,6 +16,7 @@ import { EtapeTerrain } from "./EtapeTerrain";
 import { Resultat } from "./Resultat";
 import { etatInitial, langueEntree, reducteur, travailExiste, type Etape } from "./etat";
 import { IndicateurEtapes } from "./IndicateurEtapes";
+import { methodeAlignee } from "./methode";
 import { URL_OUTILS, URL_QCM } from "./liens";
 import { effacer, ecrire, lire } from "./stockage";
 
@@ -30,6 +31,7 @@ interface Attendre {
 export function MaCible({ fournisseur }: { fournisseur: string }) {
   const { locale, t, m } = useI18n();
   const M = t.maCible;
+  const methode = methodeAlignee(M, m);
   const [etat, dispatch] = useReducer(reducteur, undefined, () => etatInitial(locale));
   const [pret, setPret] = useState(false);
   const [ancre, setAncre] = useState<AncreLue | null>(null);
@@ -285,7 +287,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
               talent={etat.entree.talent}
               erreurs={erreurs}
               M={M}
-              m={m}
+              m={methode}
               onChange={(patch) => dispatch({ type: "talent", patch })}
               onContinuer={continuerTalent}
             />

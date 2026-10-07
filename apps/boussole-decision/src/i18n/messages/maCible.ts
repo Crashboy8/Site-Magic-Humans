@@ -367,7 +367,8 @@ const fr = {
 };
 
 export type MaCibleMessages = typeof fr;
-const en: MaCibleMessages = fr; // À traduire (Flow State Mastery pour « Réussir dans le Plaisir »).
-const es: MaCibleMessages = fr; // À traduire.
+// Le reste de l'interface reste en français. Seul le nom du bandeau est déjà traduit.
+const en: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: "My Target" } };
+const es: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: "Mi Objetivo" } };
 
 export const maCible = { fr, en, es };

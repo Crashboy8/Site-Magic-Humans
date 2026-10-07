@@ -97,6 +97,18 @@ export function Badge({ tone = "neutral", children }: { tone?: "neutral" | "sage
   return <span className={cx("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium", tones[tone])}>{children}</span>;
 }
 
+/** Cible, emblème de Ma Cible. */
+export function TargetMark({ className = "h-8 w-8" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} aria-hidden="true">
+      <circle cx="20" cy="20" r="15.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="20" cy="20" r="9.5" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.8" />
+      <circle cx="20" cy="20" r="4" fill="#e2683a" />
+      <path d="M20 1.5V6.5M20 33.5V38.5M1.5 20H6.5M33.5 20H38.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /** Petite boussole, emblème de l'outil. */
 export function CompassMark({ className = "h-8 w-8" }: { className?: string }) {
   return (

@@ -38,6 +38,11 @@ describe("textes de Ma Cible", () => {
       }
     }
   });
+  it("nomme l'outil dans le bandeau selon la langue", () => {
+    expect(maCible.fr.commun.nomOutil).toBe("Ma Cible");
+    expect(maCible.en.commun.nomOutil).toBe("My Target");
+    expect(maCible.es.commun.nomOutil).toBe("Mi Objetivo");
+  });
   it("sont écrits au tutoiement", () => {
     const tout = chaines(maCible.fr).map((c) => c.texte).join(" ");
     expect(tout).not.toMatch(/\b(vous avez|votre|vos)\b/i);
