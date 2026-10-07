@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LOVE_TEMPLATE } from "@/content/amour";
+import { LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
 import { DEFAULT_WEIGHTS, scoreOpportunity, type ScoringCriterion } from "./scoring";
 import { bandOf, loveReadingOf } from "./loveReading";
 import type { EvaluationValue } from "./types";
@@ -38,9 +38,13 @@ describe("loveReading", () => {
     expect(r.band).toBe("solide");
     expect(r.alerts.map((a) => a.kind)).toEqual(["securite", "critique"]);
   });
-  it("incompatibilité un peu présente : ligne rouge", () => {
-    const r = read({ ...all("oui"), incompatibilite: "p25" });
-    expect(r.alerts[0].kind).toBe("ligne_rouge");
+  it("incompatibilité : ligne rouge douce jusqu'à 50 %, plus ferme au-delà", () => {
+    const low = read({ ...all("oui"), incompatibilite: "p25" });
+    expect(low.alerts[0]).toMatchObject({ kind: "ligne_rouge", text: LOVE_TEXTS.ligneRougeLow });
+    const mid = read({ ...all("oui"), incompatibilite: "p50" });
+    expect(mid.alerts.find((a) => a.kind === "ligne_rouge")?.text).toBe(LOVE_TEXTS.ligneRougeLow);
+    const high = read({ ...all("oui"), incompatibilite: "p75" });
+    expect(high.alerts.find((a) => a.kind === "ligne_rouge")?.text).toBe(LOVE_TEXTS.ligneRougeHigh);
   });
   it("lecture provisoire sous 7 critères évalués", () => {
     expect(read({ besoins: "oui", respect: "oui" }).provisional).toBe(true);

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
+import { LOVE_TABLE } from "@/content/amour";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import {
   createCategory,
@@ -47,14 +48,28 @@ interface Props {
   readOnly: boolean;
   comments: CoachComment[];
   commentViewer: CommentViewer | null;
+  /** Boussole Relation : « relation » à la place d'« opportunité », warnings adoucis. */
+  theme?: "amour";
 }
+
+const LoveTableContext = createContext(false);
 
 export function DecisionTable(props: Props) {
   return (
     <SaveStatusProvider>
-      <Table {...props} />
+      <LoveTableContext.Provider value={props.theme === "amour"}>
+        <Table {...props} />
+      </LoveTableContext.Provider>
     </SaveStatusProvider>
   );
+}
+
+/** Textes du tableau : en mode amour, surcharge française sans toucher à l'i18n pro. */
+function useTableTexts() {
+  const base = useI18n().t.table;
+  const love = useContext(LoveTableContext);
+  if (!love) return base;
+  return { ...base, ...LOVE_TABLE };
 }
 
 const EVAL_ORDER: EvaluationValue[] = ["oui", "p75", "p50", "p25", "non", "inconnu"];
@@ -71,8 +86,8 @@ function Table({
 }: Props) {
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
-  const { t, m } = useI18n();
-  const T = t.table;
+  const { m } = useI18n();
+  const T = useTableTexts();
   const [categories, setCategories] = useState(initial.categories);
   const [criteria, setCriteria] = useState(initial.criteria);
   const [opportunities, setOpportunities] = useState(initial.opportunities);
@@ -458,7 +473,7 @@ function OpportunityHeader({
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
-  const T = useI18n().t.table;
+  const T = useTableTexts();
   if (readOnly)
     return (
       <span data-opp-name className="block text-center text-[16px] font-semibold leading-snug">
@@ -683,8 +698,8 @@ function EvaluationSelect({
 
 function ScoreCell({ result, rank }: { result: OpportunityResult; rank: number }) {
   const first = rank === 1 && result.status !== "non_conforme" && result.score !== null;
-  const { t, locale } = useI18n();
-  const T = t.table;
+  const { locale } = useI18n();
+  const T = useTableTexts();
   return (
     <div className="space-y-1">
       <p className="font-serif text-[34px] italic leading-none">{formatScore(result.score, locale)}</p>
@@ -1033,7 +1048,7 @@ function WeightsPanel({
 }
 
 function Legend() {
-  const T = useI18n().t.table;
+  const T = useTableTexts();
   return (
     <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-ink-soft">
       <span>
