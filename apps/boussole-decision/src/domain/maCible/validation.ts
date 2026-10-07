@@ -1,0 +1,278 @@
+// Validation des réponses du modèle (§8.4). Retourne toutes les erreurs, dans l'ordre du document.
+// Chaque erreur est une chaîne « chemin : problème ». Module pur.
+import { CANAUX } from "./schemas";
+import type { Cadrage, Resultat } from "./types";
+
+export type Validation<T> = { ok: true; valeur: T } | { ok: false; erreurs: string[] };
+
+type Obj = Record<string, unknown>;
+const estObjet = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
+
+class Verif {
+  erreurs: string[] = [];
+  err(chemin: string, probleme: string) {
+    this.erreurs.push(`${chemin} : ${probleme}`);
+  }
+  objet(v: unknown, chemin: string): Obj | null {
+    if (estObjet(v)) return v;
+    this.err(chemin, "objet attendu");
+    return null;
+  }
+  texte(v: unknown, chemin: string, min: number, max: number): string | null {
+    if (typeof v !== "string") {
+      this.err(chemin, "texte attendu");
+      return null;
+    }
+    const n = v.trim().length;
+    if (n < min) this.err(chemin, `trop court (${min} au moins)`);
+    else if (n > max) this.err(chemin, `trop long (${max} au plus)`);
+    return v;
+  }
+  enum<T extends string>(v: unknown, chemin: string, valeurs: readonly T[]): T | null {
+    if (typeof v === "string" && (valeurs as readonly string[]).includes(v)) return v as T;
+    this.err(chemin, `valeur attendue parmi ${valeurs.join(", ")}`);
+    return null;
+  }
+  entier(v: unknown, chemin: string, min: number, max: number): number | null {
+    if (typeof v !== "number" || !Number.isInteger(v)) {
+      this.err(chemin, "entier attendu");
+      return null;
+    }
+    if (v < min || v > max) this.err(chemin, `entre ${min} et ${max} attendu`);
+    return v;
+  }
+  tableau(v: unknown, chemin: string, min: number, max: number): unknown[] | null {
+    if (!Array.isArray(v)) {
+      this.err(chemin, "tableau attendu");
+      return null;
+    }
+    if (v.length < min || v.length > max) this.err(chemin, min === max ? `exactement ${min} éléments attendus` : `${min} à ${max} éléments attendus`);
+    return v;
+  }
+  /** Liste de textes : nombre d'éléments, puis longueur de chaque élément. */
+  textes(v: unknown, chemin: string, minItems: number, maxItems: number, min: number, max: number): string[] | null {
+    const t = this.tableau(v, chemin, minItems, maxItems);
+    if (!t) return null;
+    return t.map((x, i) => this.texte(x, `${chemin}[${i}]`, min, max) ?? "");
+  }
+}
+
+const IDS_CIBLE = ["c1", "c2", "c3"] as const;
+const MARCHES_CIBLE = ["b2b", "b2c"] as const;
+
+function verifierEsquisse(x: Verif, v: unknown, chemin: string) {
+  const e = x.objet(v, chemin);
+  if (!e) return;
+  x.texte(e.offre, `${chemin}.offre`, 20, 240);
+  const cibles = x.tableau(e.cibles, `${chemin}.cibles`, 3, 3);
+  if (cibles) {
+    const ids: string[] = [];
+    cibles.forEach((c, i) => {
+      const p = `${chemin}.cibles[${i}]`;
+      const o = x.objet(c, p);
+      if (!o) return;
+      const id = x.enum(o.id, `${p}.id`, IDS_CIBLE);
+      if (id) ids.push(id);
+      x.texte(o.nom, `${p}.nom`, 5, 80);
+      x.enum(o.marche, `${p}.marche`, MARCHES_CIBLE);
+      x.texte(o.enUneLigne, `${p}.enUneLigne`, 20, 200);
+      x.texte(o.pourquoi, `${p}.pourquoi`, 20, 240);
+    });
+    if (cibles.length === 3 && new Set(ids).size !== 3) x.err(`${chemin}.cibles`, "les identifiants doivent être c1, c2 et c3, chacun une fois");
+  }
+  x.texte(e.antiCible, `${chemin}.antiCible`, 20, 240);
+  x.textes(e.hypotheses, `${chemin}.hypotheses`, 0, 4, 1, 200);
+}
+
+function verifierQuestions(x: Verif, v: unknown) {
+  const qs = x.tableau(v, "questions", 1, 3);
+  if (!qs) return;
+  const ids: string[] = [];
+  qs.forEach((q, i) => {
+    const p = `questions[${i}]`;
+    const o = x.objet(q, p);
+    if (!o) return;
+    const id = x.enum(o.id, `${p}.id`, ["q1", "q2", "q3"] as const);
+    if (id) {
+      if (ids.includes(id)) x.err(`${p}.id`, "identifiant en double");
+      ids.push(id);
+    }
+    x.texte(o.question, `${p}.question`, 10, 200);
+    x.texte(o.pourquoi, `${p}.pourquoi`, 10, 200);
+    const type = x.enum(o.type, `${p}.type`, ["choix", "texte"] as const);
+    if (type === "choix") x.textes(o.options, `${p}.options`, 2, 5, 1, 80);
+    else if (type === "texte") x.tableau(o.options, `${p}.options`, 0, 0);
+    x.texte(o.exemple, `${p}.exemple`, 0, 120);
+  });
+}
+
+export function validerCadrage(v: unknown, tour: 1 | 2 | 3): Validation<Cadrage> {
+  const x = new Verif();
+  const o = x.objet(v, "cadrage");
+  if (!o) return { ok: false, erreurs: x.erreurs };
+  const statut = x.enum(o.statut, "statut", ["questions", "esquisse", "hors_sujet"] as const);
+  if (statut === "hors_sujet") x.texte(o.message, "message", 10, 300);
+  else x.texte(o.message, "message", 0, 300);
+  if (statut === "questions") {
+    if (tour >= 2) x.err("statut", `questions interdites au tour ${tour}`);
+    else verifierQuestions(x, o.questions);
+  } else if (!Array.isArray(o.questions)) x.err("questions", "tableau attendu");
+  if (statut === "esquisse") verifierEsquisse(x, o.esquisse, "esquisse");
+  else if (!estObjet(o.esquisse)) x.err("esquisse", "objet attendu");
+  return x.erreurs.length ? { ok: false, erreurs: x.erreurs } : { ok: true, valeur: o as unknown as Cadrage };
+}
+
+function verifierNote(x: Verif, v: unknown, chemin: string) {
+  const o = x.objet(v, chemin);
+  if (!o) return;
+  x.entier(o.note, `${chemin}.note`, 1, 5);
+  x.texte(o.raison, `${chemin}.raison`, 10, 200);
+}
+
+function verifierCible(x: Verif, v: unknown, p: string, ids: string[]) {
+  const c = x.objet(v, p);
+  if (!c) return;
+  const id = x.enum(c.id, `${p}.id`, IDS_CIBLE);
+  if (id) ids.push(id);
+  x.texte(c.nom, `${p}.nom`, 5, 80);
+  const marche = x.enum(c.marche, `${p}.marche`, MARCHES_CIBLE);
+  x.texte(c.portrait, `${p}.portrait`, 60, 500);
+  x.texte(c.douleur, `${p}.douleur`, 30, 300);
+  x.texte(c.ancrage, `${p}.ancrage`, 30, 300);
+  x.texte(c.promesse, `${p}.promesse`, 20, 180);
+
+  const offre = x.objet(c.offre, `${p}.offre`);
+  if (offre) {
+    x.texte(offre.nom, `${p}.offre.nom`, 3, 80);
+    x.texte(offre.format, `${p}.offre.format`, 3, 120);
+    x.texte(offre.duree, `${p}.offre.duree`, 2, 80);
+    x.textes(offre.contenu, `${p}.offre.contenu`, 3, 5, 5, 140);
+  }
+
+  const prix = x.objet(c.prix, `${p}.prix`);
+  if (prix) {
+    const min = x.entier(prix.min, `${p}.prix.min`, 1, 100000);
+    const max = x.entier(prix.max, `${p}.prix.max`, 1, 100000);
+    if (min !== null && max !== null && max < min) x.err(`${p}.prix.max`, "doit être supérieur ou égal au minimum");
+    x.texte(prix.unite, `${p}.prix.unite`, 3, 40);
+    const base = x.enum(prix.base, `${p}.prix.base`, ["HT", "TTC"] as const);
+    if (base && marche && base !== (marche === "b2b" ? "HT" : "TTC")) x.err(`${p}.prix.base`, `${marche === "b2b" ? "HT" : "TTC"} attendu pour le marché ${marche}`);
+    x.texte(prix.justification, `${p}.prix.justification`, 20, 300);
+  }
+
+  x.texte(c.pitch, `${p}.pitch`, 120, 600);
+  x.texte(c.pourquoi, `${p}.pourquoi`, 40, 400);
+  x.texte(c.exemple, `${p}.exemple`, 60, 500);
+
+  const scores = x.objet(c.scores, `${p}.scores`);
+  if (scores) for (const k of ["urgence", "paiement", "acces", "plaisir"]) verifierNote(x, scores[k], `${p}.scores.${k}`);
+
+  const lieux = x.tableau(c.lieux, `${p}.lieux`, 2, 4);
+  lieux?.forEach((l, i) => {
+    const q = `${p}.lieux[${i}]`;
+    const o = x.objet(l, q);
+    if (!o) return;
+    x.texte(o.type, `${q}.type`, 5, 120);
+    x.texte(o.pourquoi, `${q}.pourquoi`, 10, 200);
+    x.texte(o.recherche, `${q}.recherche`, 3, 80);
+  });
+
+  const canaux = x.tableau(c.canaux, `${p}.canaux`, 2, 4);
+  if (canaux) {
+    let prioriteUn = false;
+    canaux.forEach((cn, i) => {
+      const q = `${p}.canaux[${i}]`;
+      const o = x.objet(cn, q);
+      if (!o) return;
+      x.enum(o.canal, `${q}.canal`, CANAUX);
+      if (x.entier(o.priorite, `${q}.priorite`, 1, 3) === 1) prioriteUn = true;
+      x.texte(o.action, `${q}.action`, 10, 200);
+      x.texte(o.pourquoi, `${q}.pourquoi`, 10, 200);
+    });
+    if (!prioriteUn) x.err(`${p}.canaux`, "au moins un canal de priorité 1 attendu");
+  }
+
+  const li = x.objet(c.linkedin, `${p}.linkedin`);
+  if (li) {
+    x.enum(li.pertinence, `${p}.linkedin.pertinence`, ["forte", "moyenne", "faible"] as const);
+    x.texte(li.motsCles, `${p}.linkedin.motsCles`, 3, 200);
+    x.textes(li.intitules, `${p}.linkedin.intitules`, 0, 6, 1, 60);
+    x.textes(li.secteurs, `${p}.linkedin.secteurs`, 0, 6, 1, 80);
+    x.textes(li.tailles, `${p}.linkedin.tailles`, 0, 4, 1, 60);
+    x.texte(li.zone, `${p}.linkedin.zone`, 0, 80);
+    x.textes(li.autres, `${p}.linkedin.autres`, 0, 5, 1, 200);
+    x.texte(li.astuce, `${p}.linkedin.astuce`, 10, 240);
+  }
+
+  const m = x.objet(c.messages, `${p}.messages`);
+  if (m) {
+    const lk = x.texte(m.linkedin, `${p}.messages.linkedin`, 40, 280);
+    if (lk !== null && lk.includes("http")) x.err(`${p}.messages.linkedin`, "aucun lien attendu");
+    x.texte(m.emailObjet, `${p}.messages.emailObjet`, 6, 60);
+    const corps = x.texte(m.emailCorps, `${p}.messages.emailCorps`, 200, 1100);
+    if (corps !== null && !corps.includes("{{prenom}}")) x.err(`${p}.messages.emailCorps`, "doit contenir {{prenom}}");
+  }
+
+  const t = x.objet(c.testTerrain, `${p}.testTerrain`);
+  if (t) {
+    x.texte(t.profils, `${p}.testTerrain.profils`, 20, 300);
+    const qs = x.textes(t.questions, `${p}.testTerrain.questions`, 5, 5, 10, 200);
+    qs?.forEach((q, i) => {
+      if (q && !q.trim().endsWith("?")) x.err(`${p}.testTerrain.questions[${i}]`, "doit se terminer par ?");
+    });
+    x.textes(t.signauxPositifs, `${p}.testTerrain.signauxPositifs`, 2, 3, 1, 200);
+    x.textes(t.signauxNegatifs, `${p}.testTerrain.signauxNegatifs`, 2, 3, 1, 200);
+  }
+}
+
+export function validerResultat(v: unknown): Validation<Resultat> {
+  const x = new Verif();
+  const o = x.objet(v, "resultat");
+  if (!o) return { ok: false, erreurs: x.erreurs };
+  x.enum(o.langue, "langue", ["fr", "en", "es"] as const);
+
+  const offre = x.objet(o.offre, "offre");
+  if (offre) {
+    x.texte(offre.phrase, "offre.phrase", 20, 240);
+    x.texte(offre.avant, "offre.avant", 20, 300);
+    x.texte(offre.apres, "offre.apres", 20, 300);
+  }
+
+  const cibles = x.tableau(o.cibles, "cibles", 3, 3);
+  if (cibles) {
+    const ids: string[] = [];
+    cibles.forEach((c, i) => verifierCible(x, c, `cibles[${i}]`, ids));
+    if (cibles.length === 3 && new Set(ids).size !== 3) x.err("cibles", "les identifiants doivent être c1, c2 et c3, chacun une fois");
+  }
+
+  const anti = x.objet(o.antiCible, "antiCible");
+  if (anti) {
+    x.texte(anti.portrait, "antiCible.portrait", 30, 400);
+    x.textes(anti.signaux, "antiCible.signaux", 3, 4, 1, 160);
+    x.texte(anti.lienAntiContexte, "antiCible.lienAntiContexte", 20, 300);
+    x.texte(anti.commentDire, "antiCible.commentDire", 20, 400);
+  }
+
+  const plan = x.tableau(o.plan30, "plan30", 4, 4);
+  plan?.forEach((s, i) => {
+    const p = `plan30[${i}]`;
+    const so = x.objet(s, p);
+    if (!so) return;
+    if (so.semaine !== i + 1) x.err(`${p}.semaine`, `semaine ${i + 1} attendue, dans l'ordre`);
+    x.texte(so.titre, `${p}.titre`, 3, 80);
+    const actions = x.tableau(so.actions, `${p}.actions`, 3, 3);
+    actions?.forEach((a, j) => {
+      const q = `${p}.actions[${j}]`;
+      const ao = x.objet(a, q);
+      if (!ao) return;
+      x.texte(ao.texte, `${q}.texte`, 10, 200);
+      x.enum(ao.cible, `${q}.cible`, ["c1", "c2", "c3", "toutes"] as const);
+      x.enum(ao.canal, `${q}.canal`, CANAUX);
+      x.entier(ao.minutes, `${q}.minutes`, 10, 180);
+    });
+  });
+
+  x.textes(o.hypotheses, "hypotheses", 0, 4, 1, 200);
+  x.texte(o.motPourToi, "motPourToi", 20, 300);
+  return x.erreurs.length ? { ok: false, erreurs: x.erreurs } : { ok: true, valeur: o as unknown as Resultat };
+}
