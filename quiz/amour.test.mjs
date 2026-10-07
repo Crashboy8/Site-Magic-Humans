@@ -770,6 +770,16 @@ test("Calendly : utm d'arrivée dans utm_content, UTM du lien inchangés", () =>
   assert.equal(messy.searchParams.get("utm_content"), "resultat-sticky|script|ab");
 });
 
+test("accueil : une icône ligne par carré, dans sa couleur, décorative", () => {
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  assert.match(src, /const introIcons = \["heart", "sun", "hearts", "spark"\]/);
+  assert.match(src, /ico\(introIcons\[i\] \|\| "heart", tone\)/);
+  assert.match(src, /aria-hidden="true"/);
+  const hearts = src.slice(src.indexOf("\n    hearts:"), src.indexOf("\n    anchor:"));
+  assert.match(hearts, /vector-effect="non-scaling-stroke"/);
+  assert.equal(/[\u2014\u2013]/.test(hearts), false);
+});
+
 test("textes du webinaire et page de partage", () => {
   assert.match(D.ui.intro.eyebrow, /Sommet de l'Amour/);
   assert.match(D.ui.intro.eyebrow, /9 questions/);

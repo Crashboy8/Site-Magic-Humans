@@ -105,6 +105,8 @@
     "#screen-amour .rule[data-tone=pink]{background:var(--pink-soft);border-color:var(--pink)}",
     "#screen-amour .rule[data-tone=gold]{background:var(--gold-soft);border-color:var(--gold)}",
     "#screen-amour .rule[data-tone=sky]{background:var(--sky-soft);border-color:var(--sky)}",
+    "#screen-amour .howto .rule .k{display:flex;align-items:center;height:1.6rem;line-height:0}",
+    "#screen-amour .howto .rule .k .am-ico svg{width:1.6rem;height:1.6rem}",
     "#screen-amour .rhead{background:linear-gradient(120deg,var(--dom-tint,var(--pink-soft)),var(--sec-tint,var(--sage-soft)));border-radius:var(--radius);padding:26px 20px 22px;margin-top:10px}",
     "#screen-amour .alloy{font-size:clamp(2.4rem,8vw,3.8rem);line-height:1.02}",
     "#screen-amour .alloy em{font-style:normal;color:var(--sc,var(--accent));font-weight:500}",
@@ -286,6 +288,7 @@
     phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
     battery: '<rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/>',
     heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    hearts: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" transform="translate(-0.4 -1.2) scale(0.58)" vector-effect="non-scaling-stroke"/><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" transform="translate(9.2 6.6) scale(0.58)" vector-effect="non-scaling-stroke"/>',
     anchor: '<circle cx="12" cy="5" r="3"/><line x1="12" x2="12" y1="22" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/>',
     eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
     userx: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/>',
@@ -787,6 +790,7 @@
     stopSalle();
     const I = U.intro;
     const introTones = ["sage", "gold", "pink", "coral"];
+    const introIcons = ["heart", "sun", "hearts", "spark"];
     view = "intro";
     armed = true;
     delete root.dataset.tone;
@@ -797,7 +801,7 @@
       '<div class="stack-lg" style="padding-top:18px"><div class="howto"><div class="rules">' +
       I.bullets.map(function (b, i) {
         const tone = introTones[i] || "pink";
-        return '<div class="rule" data-tone="' + tone + '"><span class="k">' + (i + 1) + "</span><strong>" + esc(b) + "</strong></div>";
+        return '<div class="rule" data-tone="' + tone + '"><span class="k">' + ico(introIcons[i] || "heart", tone) + "</span><strong>" + esc(b) + "</strong></div>";
       }).join("") +
       "</div>" +
       '<p class="howto-tip">' + esc(I.howto) + "</p></div>" +
