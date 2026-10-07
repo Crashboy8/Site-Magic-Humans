@@ -2,7 +2,7 @@
 
 Textes exacts du quiz, pour relecture. Le tutoiement est sur les cartes. Les conseils de paire sont à la voix « on », parce qu'une paire concerne deux personnes.
 
-Le qualificatif de la complicité affiché dans les noms de profil est « Joueur·se ». Il n'y a pas de mot « Joyeux ».
+Le qualificatif de la complicité affiché dans les noms de profil est « Joueur·euse ».
 
 ## Règle
 
@@ -26,7 +26,7 @@ Les 7 familles sont les 7 besoins du profil : Sécurité, Profondeur, Admiration
 
 **Portrait**
 
-Tu aimes quand le lien a un sol. Savoir sur quoi compter te détend, et c'est là que ta tendresse sort. La régularité n'est pas une cage pour toi, c'est la preuve que l'autre est là.
+Tu aimes quand le lien a des repères. Savoir sur quoi compter te détend, et c'est là que ta tendresse sort. La régularité n'est pas une cage pour toi, c'est la preuve que l'autre est là.
 
 **Ce qui te nourrit**
 
@@ -38,18 +38,18 @@ Le flou qui dure, les promesses en l'air, une humeur qui change sans explication
 
 **Les 6 couleurs de ce profil**
 
-- Profond·e : tu veux du solide et du vrai. Tu t'engages quand tu peux connaître l'autre et compter sur lui.
+- Profond·e : tu veux du solide et du vrai. Tu t'engages quand tu peux connaître l'autre et compter sur l'autre.
 - Brillant·e : tu construis un lien fiable, et tu as besoin que ce que tu donnes soit vu.
 - Libre : tu veux un port d'attache et de l'air. La stabilité te va si chacun garde sa vie.
 - Paisible : tu rêves d'un foyer doux et sûr. La paix te pose, à condition de ne pas confondre silence et accord.
-- Joueur·se : tu veux une équipe qui tient et qui rit. Les projets avancent mieux quand la légèreté reste là.
-- Passionné·e : tu veux la flamme et le port. Ça peut vibrer, sans que le sol bouge.
+- Joueur·euse : tu veux une équipe qui tient et qui rit. Les projets avancent mieux quand la légèreté reste là.
+- Passionné·e : tu veux la flamme et du solide. Ça peut vibrer, sans que les repères bougent.
 
 ### Miroir · Profondeur
 
 **Portrait**
 
-Tu aimes quand on peut tout dire. Une vraie conversation te nourrit plus qu'un décor. Quand tu te sens compris·e, ta loyauté et ton écoute deviennent rares.
+Tu aimes quand on peut tout dire. Une vraie conversation te nourrit plus qu'un décor. Quand tu te sens compris·e, ta loyauté et ton écoute sont précieuses.
 
 **Ce qui te nourrit**
 
@@ -65,14 +65,14 @@ La surface, les sujets qu'on change, la solitude à deux.
 - Brillant·e : tu veux être vu·e pour de bon, pas seulement complimenté·e. L'admiration compte si elle touche qui tu es.
 - Libre : tu as un monde intérieur, et tu as besoin d'espace pour l'habiter. Tu reviens quand tu as pu te retirer sans te justifier.
 - Paisible : tu aimes dire les choses vraies sans éclats. La douceur te permet de rester ouvert·e.
-- Joueur·se : tu passes du fond au fou rire avec la même personne. L'humour te va, tant qu'il n'esquive pas ce qui fait mal.
+- Joueur·euse : tu passes du fond au fou rire avec la même personne. L'humour te va, tant qu'il n'esquive pas ce qui fait mal.
 - Passionné·e : tu aimes fort et en vrai. Tu cherches une connexion qui marque, avec aussi une place pour le calme.
 
 ### Étoile · Admiration
 
 **Portrait**
 
-Tu t'épanouis quand on te choisit, pas seulement au début. Un merci sincère, un mot de fierté, et tu as des ailes. Ce n'est pas de la vanité, c'est la preuve que l'autre te voit.
+Tu t'épanouis quand on te choisit, pas seulement au début. Un merci sincère, un mot de fierté, et ça te donne des ailes. Ce n'est pas de la vanité, c'est la preuve que l'autre te voit.
 
 **Ce qui te nourrit**
 
@@ -88,7 +88,7 @@ L'indifférence, les critiques qui reviennent, le sentiment d'être pris·e pour
 - Profond·e : les compliments de surface ne te suffisent pas. Tu veux être admiré·e pour qui tu es, y compris dans ce que tu caches.
 - Libre : tu veux briller sans être retenu·e. Un regard fier te porte, à condition qu'on te laisse ta route.
 - Paisible : tu offres de la gentillesse, et tu as besoin qu'elle te revienne en mots doux.
-- Joueur·se : tu veux quelqu'un qui t'encourage et qui rit avec toi. Tu mets de la chaleur partout où tu passes.
+- Joueur·euse : tu veux quelqu'un qui t'encourage et qui rit avec toi. Tu mets de la chaleur partout où tu passes.
 - Passionné·e : tu aimes avec panache. Te sentir désiré·e et choisi·e, ça se voit, et ça te fait vibrer.
 
 ### Oiseau · Liberté
@@ -103,7 +103,7 @@ La confiance, l'air, un ou une partenaire qui a aussi sa propre vie.
 
 **Ce qui te vide**
 
-Les comptes à rendre, la jalousie, un agenda rempli à deux sans qu'on te demande.
+Les comptes à rendre, la jalousie, un agenda rempli à deux sans qu'on te demande ton avis.
 
 **Les 6 couleurs de ce profil**
 
@@ -111,14 +111,14 @@ Les comptes à rendre, la jalousie, un agenda rempli à deux sans qu'on te deman
 - Profond·e : tu te retires pour habiter ton monde, puis tu reviens avec des choses vraies à dire.
 - Brillant·e : tu veux qu'on soit fier·e de ta route, sans te garder près de soi.
 - Paisible : tu aimes une relation légère, sans pression et sans cris. La paix, pour toi, c'est aussi le droit de partir et de revenir.
-- Joueur·se : tu veux un complice de route. Rire, partir, se retrouver, c'est ta façon d'aimer.
+- Joueur·euse : tu veux un complice de route. Rire, partir, se retrouver, c'est ta façon d'aimer.
 - Passionné·e : tu aimes l'aventure et l'élan. La relation est un voyage, pas une salle d'attente.
 
 ### Oasis · Harmonie
 
 **Portrait**
 
-Tu t'épanouis dans la douceur. Un geste tendre, une soirée calme, et tu te remplis. Dans ce climat, tu offres une gentillesse qui fait du bien, et ton chemin, c'est de garder ta voix quand quelque chose te gêne.
+Tu t'épanouis dans la douceur. Un geste tendre, une soirée calme, et tu te remplis. Dans ce climat, tu offres une gentillesse qui fait du bien, et ton chemin, c'est d'oser dire quand quelque chose te gêne.
 
 **Ce qui te nourrit**
 
@@ -134,7 +134,7 @@ Les cris, les piques, les tensions qui durent, devoir toujours céder pour que �
 - Profond·e : tu dis les choses vraies avec douceur. Tu écoutes, et tu as besoin qu'on entende aussi ce qui te blesse.
 - Brillant·e : les mots doux te portent. Tu donnes de la gentillesse, et tu as besoin qu'on la remarque.
 - Libre : tu veux la paix sans la cage. Chacun respire, et les retrouvailles restent douces.
-- Joueur·se : tu aimes un quotidien joyeux et tranquille. Le rire te va, tant que l'ambiance ne devient pas une pression.
+- Joueur·euse : tu aimes un quotidien joyeux et tranquille. Le rire te va, tant que l'ambiance ne devient pas une pression.
 - Passionné·e : tu veux la tendresse et quelques éclats de vie. L'intensité te nourrit quand elle passe par le désir, pas par la dispute.
 
 ### Équipe · Complicité
@@ -154,10 +154,10 @@ La lourdeur, porter seul·e le quotidien, une bonne humeur qui disparaît.
 **Les 6 couleurs de ce profil**
 
 - Fidèle : tu veux une équipe qui tient dans la durée. Les rituels et les fous rires vont ensemble.
-- Profond·e : tu peux tout rire et tout dire avec la même personne. L'humour reste, et les sujets qui comptent aussi.
+- Profond·e : tu peux rire de tout et tout dire avec la même personne. L'humour reste, et les sujets qui comptent aussi.
 - Brillant·e : tu veux un coéquipier ou une coéquipière qui te voit et t'encourage. La chaleur que tu donnes a besoin d'un écho.
 - Libre : tu veux un complice, pas quelqu'un qui te retient. On rit, on part, on se retrouve.
-- Paisible : tu aimes la joie sans les cris. Une équipe douce, où l'on règle vite et où l'on se retrouve bien.
+- Paisible : tu aimes la joie sans les cris. Une équipe douce, où l'on règle vite les tensions et où l'on se retrouve bien.
 - Passionné·e : tu veux une histoire vivante. Rire, oser, surprendre, sans oublier les moments simples.
 
 ### Volcan · Intensité
@@ -176,12 +176,12 @@ Les mêmes soirées sans fin, un désir qui s'endort, plus aucune surprise.
 
 **Les 6 couleurs de ce profil**
 
-- Fidèle : tu veux la flamme et un sol. L'aventure peut se prévoir un peu, et la stabilité peut encore surprendre.
+- Fidèle : tu veux la flamme et du solide. L'aventure peut se prévoir un peu, et la stabilité peut encore surprendre.
 - Profond·e : tu cherches une connexion rare. Les échanges qui marquent te portent, avec une place pour le calme.
 - Brillant·e : tu veux te sentir choisi·e et désiré·e, et que ça se voie. Le panache te va, la constance aussi.
 - Libre : tu aimes l'aventure à deux, chacun libre de ses élans. Personne ne retient l'autre.
 - Paisible : tu veux du vivant sans la guerre. La flamme passe par le désir et la nouveauté, pas par les éclats de voix.
-- Joueur·se : tu veux rire et oser. L'ennui n'a pas sa place, et les conversations sérieuses ont la leur.
+- Joueur·euse : tu veux rire et oser. L'ennui n'a pas sa place, et les conversations sérieuses ont la leur.
 
 ## Les 28 paires
 
@@ -199,7 +199,7 @@ Deux Ancres construisent vite un foyer solide. On sait à quoi s'en tenir, et c'
 
 Avec qui ça coule de source.
 
-L'Ancre pose le sol, le Miroir met du vrai. Ensemble, la confiance a de la profondeur.
+L'Ancre pose des repères, le Miroir met du vrai. Ensemble, la confiance a de la profondeur.
 
 **Le geste qui aide.** On laisse la relation respirer avant d'avoir toutes les réponses. Le vrai n'a pas besoin d'être immédiat.
 
@@ -207,7 +207,7 @@ L'Ancre pose le sol, le Miroir met du vrai. Ensemble, la confiance a de la profo
 
 Avec qui ça coule de source.
 
-L'Ancre apporte la constance, l'Étoile les mots qui réchauffent. Chacun peut se sentir tenu et vu.
+L'Ancre apporte la constance, l'Étoile les mots qui réchauffent. Chacun peut se sentir soutenu et reconnu.
 
 **Le geste qui aide.** On dit merci souvent, à voix haute. La fiabilité se voit mieux quand elle est nommée.
 
@@ -215,7 +215,7 @@ L'Ancre apporte la constance, l'Étoile les mots qui réchauffent. Chacun peut s
 
 Ce qui demande de l'attention.
 
-L'Ancre cherche des repères, l'Oiseau cherche de l'air. Au début ça s'équilibre. Ensuite l'un peut se sentir lâché, l'autre serré.
+L'Ancre cherche des repères, l'Oiseau cherche de l'air. Au début ça s'équilibre. Ensuite l'un peut se sentir lâché, l'autre à l'étroit.
 
 **Le geste qui aide.** On pose tôt le rythme des nouvelles et des rendez-vous. L'air reste, et le lien aussi.
 
@@ -247,7 +247,7 @@ Le Volcan veut que ça vibre, l'Ancre veut que ça tienne. L'un peut trouver l'a
 
 Avec qui ça coule de source.
 
-Deux Miroirs peuvent tout se dire. L'intimité devient rare et précieuse.
+Deux Miroirs peuvent tout se dire. Leur intimité est rare et précieuse.
 
 **Le geste qui aide.** On garde aussi des moments légers. Tout n'a pas besoin d'être profond pour être vrai.
 
@@ -279,7 +279,7 @@ L'Oasis met de la douceur, le Miroir de l'écoute. On peut tout se dire sans cra
 
 Ce qui demande de l'attention.
 
-Le Miroir veut aller au fond, l'Équipe préfère alléger. Au début c'est charmant. Puis l'un peut se sentir fui, l'autre accablé.
+Le Miroir veut aller au fond, l'Équipe préfère alléger. Au début c'est charmant. Puis l'un peut avoir l'impression que l'autre se dérobe, et l'autre se sentir accablé.
 
 **Le geste qui aide.** On sépare les temps. Un moment pour rire, un moment pour parler, sans les mélanger de force.
 
@@ -287,7 +287,7 @@ Le Miroir veut aller au fond, l'Équipe préfère alléger. Au début c'est char
 
 Avec qui ça coule de source.
 
-Le Miroir et le Volcan cherchent une connexion forte. Les échanges marquent, presque magnétiques.
+Le Miroir et le Volcan cherchent une connexion forte. Les échanges marquent, il y a quelque chose de magnétique.
 
 **Le geste qui aide.** On garde quelques repères stables. L'intensité n'a pas besoin de montagnes russes pour rester vraie.
 
@@ -361,7 +361,7 @@ Avec qui ça coule de source.
 
 L'Oiseau et le Volcan partagent l'aventure et le respect de l'espace. Personne ne retient l'autre.
 
-**Le geste qui aide.** On reste aussi quand l'élan des débuts retombe. C'est souvent là que le voyage devient à deux.
+**Le geste qui aide.** On reste aussi quand l'élan des débuts retombe. C'est souvent là que le voyage se fait vraiment à deux.
 
 ### Oasis et Oasis
 
@@ -401,7 +401,7 @@ Avec qui ça coule de source.
 
 L'Équipe et le Volcan veulent une histoire vivante. Des idées, des fous rires, l'envie d'oser.
 
-**Le geste qui aide.** On laisse aussi de la place au repos et aux conversations sérieuses. Le vivant n'est pas seulement le bruit.
+**Le geste qui aide.** On laisse aussi de la place au repos et aux conversations sérieuses. Être vivant, ce n'est pas seulement faire du bruit.
 
 ### Volcan et Volcan
 
@@ -409,4 +409,4 @@ Avec qui ça coule de source.
 
 Deux Volcans se cherchent et se réveillent. La passion est là, forte, vivante.
 
-**Le geste qui aide.** On pose des repères quand la vague monte. L'intensité tient mieux avec un sol.
+**Le geste qui aide.** On pose des repères quand la vague monte. L'intensité tient mieux avec des repères.

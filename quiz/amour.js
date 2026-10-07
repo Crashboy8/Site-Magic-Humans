@@ -1067,10 +1067,11 @@
       "</div>";
   }
 
-  function familyFold() {
+  function familyFold(domId) {
     const enc = D.profil.encyclo;
-    const cards = D.profil.order.map(function (id) { return familyCardInner(id, true); }).join("");
-    return '<details class="am-fold" id="sec-familles"><summary><h2>' + esc(enc.openAll) + "</h2></summary><div class=\"am-fold-body\">" + cards + "</div></details>";
+    const guide = E.familyGuide(D, domId);
+    const title = guide ? guide.noun + " · " + guide.name : enc.openAll;
+    return '<details class="am-fold" id="sec-familles"><summary><h2>' + esc(title) + "</h2></summary><div class=\"am-fold-body\">" + familyCardInner(domId, true) + "</div></details>";
   }
 
   function familyDialog() {
@@ -1218,7 +1219,7 @@
     });
     return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + talentBlock + discoveryBlock("resultat-apres-profil", pierreLine) + salleSlot() + toc +
       '<div class="pr-cols">' + sections[0] + sections[1] + "</div>" +
-      sections.slice(2).join("") + familyFold() + "</div>";
+      sections.slice(2).join("") + familyFold(pr.dom) + "</div>";
   }
 
   function showResults(profile) {

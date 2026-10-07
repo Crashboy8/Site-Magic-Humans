@@ -490,7 +490,7 @@ test("v1.4 · 7 besoins complets, couleurs et icônes", () => {
   };
   const adjs = {
     securite: "Fidèle", profondeur: "Profond·e", admiration: "Brillant·e", liberte: "Libre",
-    harmonie: "Paisible", complicite: "Joueur·se", intensite: "Passionné·e",
+    harmonie: "Paisible", complicite: "Joueur·euse", intensite: "Passionné·e",
   };
   for (const id of P.order) {
     const b = P.besoins[id];
@@ -1059,6 +1059,10 @@ test("encyclopédie des familles : 7 cartes, 28 paires, sans changer le score", 
   const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
   assert.match(src, /id="am-fam-dialog"/);
   assert.match(src, /id="sec-familles"/);
+  const foldSrc = src.slice(src.indexOf("function familyFold"), src.indexOf("function familyDialog"));
+  assert.match(foldSrc, /familyCardInner\(domId, true\)/);
+  assert.equal(foldSrc.includes(".map("), false);
+  assert.match(src, /familyFold\(pr\.dom\)/);
   assert.match(src, /data-act="family-all"/);
   assert.match(src, /data-act="family-close"/);
   assert.match(src, /dialog\.am-fam\{display:none!important\}/);

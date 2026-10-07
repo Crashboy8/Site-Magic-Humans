@@ -1902,7 +1902,7 @@ AMOUR_DATA.profil = {
         "name": "Complicité",
         "key": "J'ai besoin de rire et de faire équipe avec toi.",
         "noun": "Équipe",
-        "adj": "Joueur·se",
+        "adj": "Joueur·euse",
         "lower": "la complicité",
         "de": "de complicité",
         "color": "#B87500",
@@ -2153,20 +2153,20 @@ AMOUR_DATA.profil = {
       "sameLab": "Même famille",
       "cards": {
         "securite": {
-          "portrait": "Tu aimes quand le lien a un sol. Savoir sur quoi compter te détend, et c'est là que ta tendresse sort. La régularité n'est pas une cage pour toi, c'est la preuve que l'autre est là.",
+          "portrait": "Tu aimes quand le lien a des repères. Savoir sur quoi compter te détend, et c'est là que ta tendresse sort. La régularité n'est pas une cage pour toi, c'est la preuve que l'autre est là.",
           "nourrit": "La parole tenue, les rendez-vous qui reviennent, un avenir qu'on dessine à deux.",
           "vide": "Le flou qui dure, les promesses en l'air, une humeur qui change sans explication.",
           "nuances": {
-            "profondeur": "Profond·e : tu veux du solide et du vrai. Tu t'engages quand tu peux connaître l'autre et compter sur lui.",
+            "profondeur": "Profond·e : tu veux du solide et du vrai. Tu t'engages quand tu peux connaître l'autre et compter sur l'autre.",
             "admiration": "Brillant·e : tu construis un lien fiable, et tu as besoin que ce que tu donnes soit vu.",
             "liberte": "Libre : tu veux un port d'attache et de l'air. La stabilité te va si chacun garde sa vie.",
             "harmonie": "Paisible : tu rêves d'un foyer doux et sûr. La paix te pose, à condition de ne pas confondre silence et accord.",
-            "complicite": "Joueur·se : tu veux une équipe qui tient et qui rit. Les projets avancent mieux quand la légèreté reste là.",
-            "intensite": "Passionné·e : tu veux la flamme et le port. Ça peut vibrer, sans que le sol bouge."
+            "complicite": "Joueur·euse : tu veux une équipe qui tient et qui rit. Les projets avancent mieux quand la légèreté reste là.",
+            "intensite": "Passionné·e : tu veux la flamme et du solide. Ça peut vibrer, sans que les repères bougent."
           }
         },
         "profondeur": {
-          "portrait": "Tu aimes quand on peut tout dire. Une vraie conversation te nourrit plus qu'un décor. Quand tu te sens compris·e, ta loyauté et ton écoute deviennent rares.",
+          "portrait": "Tu aimes quand on peut tout dire. Une vraie conversation te nourrit plus qu'un décor. Quand tu te sens compris·e, ta loyauté et ton écoute sont précieuses.",
           "nourrit": "Être écouté·e jusqu'au bout, parler de ce qui est fragile, sentir que l'autre cherche à te comprendre.",
           "vide": "La surface, les sujets qu'on change, la solitude à deux.",
           "nuances": {
@@ -2174,12 +2174,12 @@ AMOUR_DATA.profil = {
             "admiration": "Brillant·e : tu veux être vu·e pour de bon, pas seulement complimenté·e. L'admiration compte si elle touche qui tu es.",
             "liberte": "Libre : tu as un monde intérieur, et tu as besoin d'espace pour l'habiter. Tu reviens quand tu as pu te retirer sans te justifier.",
             "harmonie": "Paisible : tu aimes dire les choses vraies sans éclats. La douceur te permet de rester ouvert·e.",
-            "complicite": "Joueur·se : tu passes du fond au fou rire avec la même personne. L'humour te va, tant qu'il n'esquive pas ce qui fait mal.",
+            "complicite": "Joueur·euse : tu passes du fond au fou rire avec la même personne. L'humour te va, tant qu'il n'esquive pas ce qui fait mal.",
             "intensite": "Passionné·e : tu aimes fort et en vrai. Tu cherches une connexion qui marque, avec aussi une place pour le calme."
           }
         },
         "admiration": {
-          "portrait": "Tu t'épanouis quand on te choisit, pas seulement au début. Un merci sincère, un mot de fierté, et tu as des ailes. Ce n'est pas de la vanité, c'est la preuve que l'autre te voit.",
+          "portrait": "Tu t'épanouis quand on te choisit, pas seulement au début. Un merci sincère, un mot de fierté, et ça te donne des ailes. Ce n'est pas de la vanité, c'est la preuve que l'autre te voit.",
           "nourrit": "Qu'on remarque tes efforts, qu'on te dise bravo, qu'on soit fier·e de toi, y compris devant les autres.",
           "vide": "L'indifférence, les critiques qui reviennent, le sentiment d'être pris·e pour acquis·e.",
           "nuances": {
@@ -2187,25 +2187,25 @@ AMOUR_DATA.profil = {
             "profondeur": "Profond·e : les compliments de surface ne te suffisent pas. Tu veux être admiré·e pour qui tu es, y compris dans ce que tu caches.",
             "liberte": "Libre : tu veux briller sans être retenu·e. Un regard fier te porte, à condition qu'on te laisse ta route.",
             "harmonie": "Paisible : tu offres de la gentillesse, et tu as besoin qu'elle te revienne en mots doux.",
-            "complicite": "Joueur·se : tu veux quelqu'un qui t'encourage et qui rit avec toi. Tu mets de la chaleur partout où tu passes.",
+            "complicite": "Joueur·euse : tu veux quelqu'un qui t'encourage et qui rit avec toi. Tu mets de la chaleur partout où tu passes.",
             "intensite": "Passionné·e : tu aimes avec panache. Te sentir désiré·e et choisi·e, ça se voit, et ça te fait vibrer."
           }
         },
         "liberte": {
           "portrait": "Tu aimes en gardant ta vie. Tes amis, tes projets, tes moments seul·e ne sont pas un manque d'amour. Plus tu te sens libre, plus tu reviens avec envie.",
           "nourrit": "La confiance, l'air, un ou une partenaire qui a aussi sa propre vie.",
-          "vide": "Les comptes à rendre, la jalousie, un agenda rempli à deux sans qu'on te demande.",
+          "vide": "Les comptes à rendre, la jalousie, un agenda rempli à deux sans qu'on te demande ton avis.",
           "nuances": {
             "securite": "Fidèle : tu veux de l'air et un port. La liberté te va mieux quand les rendez-vous qui comptent sont tenus.",
             "profondeur": "Profond·e : tu te retires pour habiter ton monde, puis tu reviens avec des choses vraies à dire.",
             "admiration": "Brillant·e : tu veux qu'on soit fier·e de ta route, sans te garder près de soi.",
             "harmonie": "Paisible : tu aimes une relation légère, sans pression et sans cris. La paix, pour toi, c'est aussi le droit de partir et de revenir.",
-            "complicite": "Joueur·se : tu veux un complice de route. Rire, partir, se retrouver, c'est ta façon d'aimer.",
+            "complicite": "Joueur·euse : tu veux un complice de route. Rire, partir, se retrouver, c'est ta façon d'aimer.",
             "intensite": "Passionné·e : tu aimes l'aventure et l'élan. La relation est un voyage, pas une salle d'attente."
           }
         },
         "harmonie": {
-          "portrait": "Tu t'épanouis dans la douceur. Un geste tendre, une soirée calme, et tu te remplis. Dans ce climat, tu offres une gentillesse qui fait du bien, et ton chemin, c'est de garder ta voix quand quelque chose te gêne.",
+          "portrait": "Tu t'épanouis dans la douceur. Un geste tendre, une soirée calme, et tu te remplis. Dans ce climat, tu offres une gentillesse qui fait du bien, et ton chemin, c'est d'oser dire quand quelque chose te gêne.",
           "nourrit": "Le calme, la tendresse du quotidien, les désaccords qui se disent sans blesser.",
           "vide": "Les cris, les piques, les tensions qui durent, devoir toujours céder pour que ça s'arrête.",
           "nuances": {
@@ -2213,7 +2213,7 @@ AMOUR_DATA.profil = {
             "profondeur": "Profond·e : tu dis les choses vraies avec douceur. Tu écoutes, et tu as besoin qu'on entende aussi ce qui te blesse.",
             "admiration": "Brillant·e : les mots doux te portent. Tu donnes de la gentillesse, et tu as besoin qu'on la remarque.",
             "liberte": "Libre : tu veux la paix sans la cage. Chacun respire, et les retrouvailles restent douces.",
-            "complicite": "Joueur·se : tu aimes un quotidien joyeux et tranquille. Le rire te va, tant que l'ambiance ne devient pas une pression.",
+            "complicite": "Joueur·euse : tu aimes un quotidien joyeux et tranquille. Le rire te va, tant que l'ambiance ne devient pas une pression.",
             "intensite": "Passionné·e : tu veux la tendresse et quelques éclats de vie. L'intensité te nourrit quand elle passe par le désir, pas par la dispute."
           }
         },
@@ -2223,10 +2223,10 @@ AMOUR_DATA.profil = {
           "vide": "La lourdeur, porter seul·e le quotidien, une bonne humeur qui disparaît.",
           "nuances": {
             "securite": "Fidèle : tu veux une équipe qui tient dans la durée. Les rituels et les fous rires vont ensemble.",
-            "profondeur": "Profond·e : tu peux tout rire et tout dire avec la même personne. L'humour reste, et les sujets qui comptent aussi.",
+            "profondeur": "Profond·e : tu peux rire de tout et tout dire avec la même personne. L'humour reste, et les sujets qui comptent aussi.",
             "admiration": "Brillant·e : tu veux un coéquipier ou une coéquipière qui te voit et t'encourage. La chaleur que tu donnes a besoin d'un écho.",
             "liberte": "Libre : tu veux un complice, pas quelqu'un qui te retient. On rit, on part, on se retrouve.",
-            "harmonie": "Paisible : tu aimes la joie sans les cris. Une équipe douce, où l'on règle vite et où l'on se retrouve bien.",
+            "harmonie": "Paisible : tu aimes la joie sans les cris. Une équipe douce, où l'on règle vite les tensions et où l'on se retrouve bien.",
             "intensite": "Passionné·e : tu veux une histoire vivante. Rire, oser, surprendre, sans oublier les moments simples."
           }
         },
@@ -2235,12 +2235,12 @@ AMOUR_DATA.profil = {
           "nourrit": "Te sentir désiré·e, la nouveauté, quelqu'un qui ose et qui propose.",
           "vide": "Les mêmes soirées sans fin, un désir qui s'endort, plus aucune surprise.",
           "nuances": {
-            "securite": "Fidèle : tu veux la flamme et un sol. L'aventure peut se prévoir un peu, et la stabilité peut encore surprendre.",
+            "securite": "Fidèle : tu veux la flamme et du solide. L'aventure peut se prévoir un peu, et la stabilité peut encore surprendre.",
             "profondeur": "Profond·e : tu cherches une connexion rare. Les échanges qui marquent te portent, avec une place pour le calme.",
             "admiration": "Brillant·e : tu veux te sentir choisi·e et désiré·e, et que ça se voie. Le panache te va, la constance aussi.",
             "liberte": "Libre : tu aimes l'aventure à deux, chacun libre de ses élans. Personne ne retient l'autre.",
             "harmonie": "Paisible : tu veux du vivant sans la guerre. La flamme passe par le désir et la nouveauté, pas par les éclats de voix.",
-            "complicite": "Joueur·se : tu veux rire et oser. L'ennui n'a pas sa place, et les conversations sérieuses ont la leur."
+            "complicite": "Joueur·euse : tu veux rire et oser. L'ennui n'a pas sa place, et les conversations sérieuses ont la leur."
           }
         }
       },
@@ -2250,7 +2250,7 @@ AMOUR_DATA.profil = {
           "tip": "On glisse un peu de nouveau dans le calendrier, pour que le confort ne remplace pas l'envie."
         },
         "profondeur+profondeur": {
-          "text": "Deux Miroirs peuvent tout se dire. L'intimité devient rare et précieuse.",
+          "text": "Deux Miroirs peuvent tout se dire. Leur intimité est rare et précieuse.",
           "tip": "On garde aussi des moments légers. Tout n'a pas besoin d'être profond pour être vrai."
         },
         "admiration+admiration": {
@@ -2271,18 +2271,18 @@ AMOUR_DATA.profil = {
         },
         "intensite+intensite": {
           "text": "Deux Volcans se cherchent et se réveillent. La passion est là, forte, vivante.",
-          "tip": "On pose des repères quand la vague monte. L'intensité tient mieux avec un sol."
+          "tip": "On pose des repères quand la vague monte. L'intensité tient mieux avec des repères."
         },
         "securite+profondeur": {
-          "text": "L'Ancre pose le sol, le Miroir met du vrai. Ensemble, la confiance a de la profondeur.",
+          "text": "L'Ancre pose des repères, le Miroir met du vrai. Ensemble, la confiance a de la profondeur.",
           "tip": "On laisse la relation respirer avant d'avoir toutes les réponses. Le vrai n'a pas besoin d'être immédiat."
         },
         "securite+admiration": {
-          "text": "L'Ancre apporte la constance, l'Étoile les mots qui réchauffent. Chacun peut se sentir tenu et vu.",
+          "text": "L'Ancre apporte la constance, l'Étoile les mots qui réchauffent. Chacun peut se sentir soutenu et reconnu.",
           "tip": "On dit merci souvent, à voix haute. La fiabilité se voit mieux quand elle est nommée."
         },
         "securite+liberte": {
-          "text": "L'Ancre cherche des repères, l'Oiseau cherche de l'air. Au début ça s'équilibre. Ensuite l'un peut se sentir lâché, l'autre serré.",
+          "text": "L'Ancre cherche des repères, l'Oiseau cherche de l'air. Au début ça s'équilibre. Ensuite l'un peut se sentir lâché, l'autre à l'étroit.",
           "tip": "On pose tôt le rythme des nouvelles et des rendez-vous. L'air reste, et le lien aussi."
         },
         "securite+harmonie": {
@@ -2310,11 +2310,11 @@ AMOUR_DATA.profil = {
           "tip": "On ose aussi ce qui blesse, avec la même douceur. Deviner ne suffit pas."
         },
         "profondeur+complicite": {
-          "text": "Le Miroir veut aller au fond, l'Équipe préfère alléger. Au début c'est charmant. Puis l'un peut se sentir fui, l'autre accablé.",
+          "text": "Le Miroir veut aller au fond, l'Équipe préfère alléger. Au début c'est charmant. Puis l'un peut avoir l'impression que l'autre se dérobe, et l'autre se sentir accablé.",
           "tip": "On sépare les temps. Un moment pour rire, un moment pour parler, sans les mélanger de force."
         },
         "profondeur+intensite": {
-          "text": "Le Miroir et le Volcan cherchent une connexion forte. Les échanges marquent, presque magnétiques.",
+          "text": "Le Miroir et le Volcan cherchent une connexion forte. Les échanges marquent, il y a quelque chose de magnétique.",
           "tip": "On garde quelques repères stables. L'intensité n'a pas besoin de montagnes russes pour rester vraie."
         },
         "admiration+liberte": {
@@ -2343,7 +2343,7 @@ AMOUR_DATA.profil = {
         },
         "liberte+intensite": {
           "text": "L'Oiseau et le Volcan partagent l'aventure et le respect de l'espace. Personne ne retient l'autre.",
-          "tip": "On reste aussi quand l'élan des débuts retombe. C'est souvent là que le voyage devient à deux."
+          "tip": "On reste aussi quand l'élan des débuts retombe. C'est souvent là que le voyage se fait vraiment à deux."
         },
         "harmonie+complicite": {
           "text": "L'Équipe veut de l'animation, l'Oasis de la tranquillité. Les soirées et les invitations peuvent devenir un sujet.",
@@ -2355,7 +2355,7 @@ AMOUR_DATA.profil = {
         },
         "complicite+intensite": {
           "text": "L'Équipe et le Volcan veulent une histoire vivante. Des idées, des fous rires, l'envie d'oser.",
-          "tip": "On laisse aussi de la place au repos et aux conversations sérieuses. Le vivant n'est pas seulement le bruit."
+          "tip": "On laisse aussi de la place au repos et aux conversations sérieuses. Être vivant, ce n'est pas seulement faire du bruit."
         }
       }
     },
