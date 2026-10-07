@@ -1064,6 +1064,11 @@ test("encyclopédie des familles : 7 cartes, 28 paires, sans changer le score", 
   assert.match(src, /data-act="family-all"/);
   assert.match(src, /data-act="family-close"/);
   assert.match(src, /dialog\.am-fam\{display:none!important\}/);
+  assert.match(src, /addEventListener\("beforeprint", openDetailsForPrint\)/);
+  assert.match(src, /addEventListener\("afterprint", closeDetailsAfterPrint\)/);
+  assert.match(src, /details\.am-fold > summary \.rs::after\{content:none!important\}/);
+  assert.match(src, /\.am-talent-mark \.am-ico\{color:#fff\}/);
+  assert.match(src, /\.am-fam-mark \.am-ico\{color:#fff\}/);
   assert.match(src, /JSON\.stringify\(\{ session: session, profil: profil \}\)/);
   assert.equal(src.includes("showResults"), true);
   const openBody = src.slice(src.indexOf("function openFamily"), src.indexOf("function profilReport"));

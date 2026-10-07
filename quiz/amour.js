@@ -289,6 +289,7 @@
     "#screen-amour .pr-sec > .snum{display:inline-flex;align-items:center;gap:6px;width:fit-content;margin:0;padding:4px 10px 4px 6px;border-radius:999px;background:var(--bt);color:var(--bc)}",
     "#screen-amour .am-talent{position:relative;border:1px solid color-mix(in srgb, var(--bf) 48%, var(--line));border-radius:22px;background:radial-gradient(280px 120px at 100% 0%, color-mix(in srgb, var(--bf) 20%, transparent), transparent 70%), linear-gradient(180deg, var(--bt), var(--surface) 62%);box-shadow:0 14px 30px color-mix(in srgb, var(--bf) 16%, transparent);padding:18px 16px 20px}",
     "#screen-amour .am-talent-mark{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--bf);color:#fff;margin-bottom:2px}",
+    "#screen-amour .am-talent-mark .am-ico{color:#fff}",
     "#screen-amour .am-talent-mark .am-ico svg{width:30px;height:30px}",
     "#screen-amour .am-cta{background:radial-gradient(420px 180px at 100% 0%, color-mix(in srgb, var(--pink) 18%, transparent), transparent 70%), linear-gradient(165deg, #fffaf6, var(--surface));border:1px solid color-mix(in srgb, #C4501F 32%, var(--line));box-shadow:0 16px 36px rgba(196,80,31,.12)}",
     "#screen-amour .am-cta .eyebrow{color:#C4501F}",
@@ -296,6 +297,7 @@
     "#screen-amour .am-fam-band{display:flex;align-items:center;gap:14px;padding:16px;background:linear-gradient(135deg, var(--bt), color-mix(in srgb, var(--bf) 18%, var(--bt)));border-bottom:4px solid var(--bf);color:var(--bc)}",
     "#screen-amour .am-fam-band h3{margin:0}",
     "#screen-amour .am-fam-mark{width:72px;height:72px;border-radius:22px;flex:none;display:grid;place-items:center;background:var(--bf);color:#fff;box-shadow:0 8px 16px color-mix(in srgb, var(--bf) 28%, transparent)}",
+    "#screen-amour .am-fam-mark .am-ico{color:#fff}",
     "#screen-amour .am-fam-mark .am-ico svg{width:40px;height:40px}",
     "#screen-amour .am-fam-pad{display:flex;flex-direction:column;gap:10px;padding:14px 14px 16px}",
     "#screen-amour .am-fact{display:flex;gap:10px;align-items:flex-start;margin:0}",
@@ -345,6 +347,7 @@
     "#screen-amour details.am-fold{display:block!important}",
     "#screen-amour details.am-fold > summary{display:block!important}",
     "#screen-amour details.am-fold > .am-fold-body{display:block!important}",
+    "#screen-amour details.am-fold > summary .rs::after{content:none!important}",
     "#screen-amour dialog.am-fam{display:none!important}",
     "#screen-amour .pr-cols,#screen-amour .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}",
     "#screen-amour .fond li:nth-child(n+3){display:none}",
@@ -2149,6 +2152,36 @@
     }
     if (act === "print") { window.print(); return; }
   });
+
+  let printRestore = null;
+  function openDetailsForPrint() {
+    if (printRestore) return;
+    const closed = [];
+    root.querySelectorAll("details").forEach(function (el) {
+      if (!el.open) {
+        closed.push(el);
+        el.open = true;
+      }
+    });
+    printRestore = closed;
+  }
+  function closeDetailsAfterPrint() {
+    if (!printRestore) return;
+    const closed = printRestore;
+    printRestore = null;
+    closed.forEach(function (el) { el.open = false; });
+  }
+  window.addEventListener("beforeprint", openDetailsForPrint);
+  window.addEventListener("afterprint", closeDetailsAfterPrint);
+  if (window.matchMedia) {
+    const printMq = window.matchMedia("print");
+    const onPrintMq = function (ev) {
+      if (ev.matches) openDetailsForPrint();
+      else closeDetailsAfterPrint();
+    };
+    if (printMq.addEventListener) printMq.addEventListener("change", onPrintMq);
+    else if (printMq.addListener) printMq.addListener(onPrintMq);
+  }
 
   window.addEventListener("resize", pinNav);
   if (window.visualViewport) {
