@@ -38,12 +38,12 @@ const AMOUR_DATA = {
       "counterBare": "{x}/{min} minimum",
       "counterMax": "{label} : {x}/{max}, minimum {min}",
       "maxValues": "5 valeurs maximum. Retire-en une pour en changer.",
-      "topCounter": "Top 3 : {x}/{n}",
-      "topSuffix": " · Top 3",
-      "untap": "« {label} » retirée du top 3.",
+      "topCounter": "Tes 3 premières : {x}/{n}",
+      "topSuffix": " · Tes 3 premières",
+      "untap": "« {label} » retirée de tes 3 premières.",
       "counterOk": "✓",
       "rankHelp": "Fais glisser les cartes, ou utilise les flèches ↑ ↓.",
-      "rankTapHelp": "Touche les cartes dans l'ordre : la 1re touchée devient ton n° 1. Tu peux aussi les faire glisser.",
+      "rankTapHelp": "Mets en premier celle qui te parle le plus. Touche les cartes dans l'ordre, ou fais-les glisser.",
       "rankCounter": "Classés : {x}/{min} minimum",
       "rankEmpty": "Touche une carte ci-dessous pour la placer.",
       "rankZone": "Ton classement",
@@ -423,12 +423,12 @@ const AMOUR_DATA = {
           "nourrit",
           "vide"
         ],
-        "title": "Classe tes choix : le plus important en haut.",
+        "title": "Mets en premier ce qui compte le plus pour toi.",
         "cta": "Classer mes choix →",
         "divider": {
           "group": "vide",
           "after": 1,
-          "text": "En haut : ce que tu ne veux plus vivre."
+          "text": "En premier : ce que tu ne veux plus vivre."
         }
       }
     },
@@ -596,8 +596,8 @@ const AMOUR_DATA = {
       "type": "rank",
       "n": 3,
       "eyebrow": "Tes langages de l'amour",
-      "title": "Pour te sentir aimé·e, qu'est-ce qui compte le plus ? Classe au moins tes 2 premiers.",
-      "help": "Touche les cartes dans l'ordre : la 1re touchée devient ton n° 1. Tu peux aussi les faire glisser.",
+      "title": "Pour te sentir aimé·e, qu'est-ce qui compte le plus ?",
+      "help": "Mets en premier ce qui te parle le plus. Deux suffisent. Tu peux toucher les cartes dans l'ordre, ou les faire glisser.",
       "footnote": "D'après les 5 langages de l'amour de Gary Chapman.",
       "minRanked": 2,
       "autoCompleteLast": true,
@@ -696,7 +696,7 @@ const AMOUR_DATA = {
         "groups": [
           "types"
         ],
-        "title": "Classe-les : la plus toi en haut."
+        "title": "Mets en premier la phrase qui te ressemble le plus."
       }
     },
     {
@@ -809,9 +809,9 @@ const AMOUR_DATA = {
         "groups": [
           "valeurs"
         ],
-        "title": "Touche ton top 3, dans l'ordre.",
-        "help": "La première touchée devient ta n° 1. Touche une valeur numérotée pour la retirer.",
-        "cta": "Choisir mon top 3 →"
+        "title": "Quelles sont tes 3 valeurs les plus importantes ?",
+        "help": "Mets en premier celle qui compte le plus. Touche une valeur numérotée pour la retirer.",
+        "cta": "Choisir mes 3 plus importantes →"
       }
     },
     {
@@ -819,8 +819,8 @@ const AMOUR_DATA = {
       "type": "rank",
       "n": 6,
       "eyebrow": "Ton sous-type en couple",
-      "title": "Classe ces 3 façons de vivre le couple : la plus toi en haut.",
-      "help": "Pour t'aider, imagine un samedi libre en couple.",
+      "title": "Quelle façon de vivre le couple te ressemble le plus ?",
+      "help": "Mets en premier celle qui te parle le plus.",
       "minRanked": 2,
       "autoCompleteLast": true,
       "items": [
@@ -831,7 +831,7 @@ const AMOUR_DATA = {
         },
         {
           "id": "so",
-          "label": "Social · je connecte",
+          "label": "Social · je vois du monde",
           "hint": "Un samedi libre en couple, ton idéal c'est un dîner avec des amis, voir du monde ensemble."
         },
         {
@@ -1001,7 +1001,7 @@ const AMOUR_DATA = {
         {
           "id": "actions",
           "title": "Passer à l'action",
-          "stepTitle": "Comment veux-tu passer à l'action dès demain ? Coche au moins 1 case.",
+          "stepTitle": "Comment veux-tu t'y prendre dès demain ? Coche au moins une chose.",
           "counter": "Actions",
           "min": 1,
           "items": [
@@ -1034,7 +1034,7 @@ const AMOUR_DATA = {
         ]
       },
       "title": "Quelle est ta prochaine étape dans ta relation ? Écris ton engagement en une phrase.",
-      "help": "Pour t'inspirer, touche un exemple : il se recopie dans ton engagement.",
+      "help": "Touche un exemple pour t'inspirer : il s'inscrit dans ta phrase.",
       "examples": [
         {
           "id": "besoin",

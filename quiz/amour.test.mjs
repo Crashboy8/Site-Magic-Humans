@@ -177,6 +177,22 @@ test("9 questions, ids uniques, types pick/rank/commit, n de 1 à 9", () => {
   });
 });
 
+test("questions : titres et aides en français naturel", () => {
+  assert.equal(screen("instinct").title, "Quelle façon de vivre le couple te ressemble le plus ?");
+  assert.equal(screen("instinct").help, "Mets en premier celle qui te parle le plus.");
+  assert.equal(screen("instinct").items.find((it) => it.id === "so").label, "Social · je vois du monde");
+  assert.equal(screen("ennea").rank.title, "Mets en premier la phrase qui te ressemble le plus.");
+  assert.equal(screen("nourrit").rank.title, "Mets en premier ce qui compte le plus pour toi.");
+  assert.equal(screen("nourrit").rank.divider.text, "En premier : ce que tu ne veux plus vivre.");
+  assert.equal(screen("langages").title, "Pour te sentir aimé·e, qu'est-ce qui compte le plus ?");
+  assert.equal(screen("langages").help, "Mets en premier ce qui te parle le plus. Deux suffisent. Tu peux toucher les cartes dans l'ordre, ou les faire glisser.");
+  assert.equal(screen("etape").groups[0].stepTitle, "Comment veux-tu t'y prendre dès demain ? Coche au moins une chose.");
+  assert.equal(screen("etape").help, "Touche un exemple pour t'inspirer : il s'inscrit dans ta phrase.");
+  assert.equal(D.ui.quiz.topCounter, "Tes 3 premières : {x}/{n}");
+  const blob = allStrings(D).join("\n");
+  assert.equal(/plus toi|top 3|Top 3|je connecte|en haut/i.test(blob), false);
+});
+
 test("aucun tiret long ni demi-cadratin, aucun TODO, jamais le mot sexuel", () => {
   for (const s of allStrings(D)) {
     assert.ok(!/[\u2014\u2013]/.test(s), "tiret interdit : " + s);
@@ -335,7 +351,7 @@ test("valeurs : 3 à 5, top 3 à 3 points, la suite à 1", () => {
   assert.equal(screen("valeurs").rank.mode, "tap");
   assert.equal(screen("valeurs").rank.top, 3);
   assert.equal(screen("valeurs").title, "Choisis 3 à 5 valeurs qui comptent le plus pour toi.");
-  assert.equal(screen("valeurs").rank.title, "Touche ton top 3, dans l'ordre.");
+  assert.equal(screen("valeurs").rank.title, "Quelles sont tes 3 valeurs les plus importantes ?");
   assert.deepEqual(D.profil.points.valeurs, [3, 3, 3, 1, 1, 1, 1, 1, 0]);
   const a = firstAnswers();
   a.valeurs.picked.valeurs = ["enfants", "honnetete", "fidelite", "humour"];
