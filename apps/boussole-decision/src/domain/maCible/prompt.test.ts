@@ -18,6 +18,33 @@ const corrections = {
 };
 
 describe("prompts", () => {
+  it("nomme le Cibleur et interdit les fausses citations de clients", () => {
+    expect(PROMPT_COMMUN).toContain("l'experte marketing du Cibleur");
+    expect(PROMPT_COMMUN).toContain("N'écris jamais une phrase entre guillemets comme si un vrai client l'avait dite.");
+    expect(PROMPT_COMMUN).not.toContain("Ma Cible");
+  });
+
+  it("demande des questions en cas de contradiction, pas seulement si le formulaire est vide", () => {
+    const p = promptCadrage(1);
+    expect(p).toContain("même si tous les champs sont remplis");
+    expect(p).toContain("format seulement en groupe");
+    expect(p).toContain("talent s'exerce en individuel");
+  });
+
+  it("fixe le plaisir, le prix, le plan, le Mom Test et l'idée de la personne", () => {
+    expect(PROMPT_COMMUN).toContain("note de plaisir de 2 au plus");
+    expect(PROMPT_COMMUN).toContain("processus RH lourds");
+    expect(PROMPT_COMMUN).toContain("Ne recopie jamais le prix actuel");
+    expect(PROMPT_COMMUN).toContain("réseau proche");
+    expect(PROMPT_COMMUN).toContain("si tu pouvais");
+    expect(PROMPT_COMMUN).toContain("que penses-tu de");
+    expect(PROMPT_RESULTAT).toContain("au moins 2 actions pour c1");
+    expect(PROMPT_RESULTAT).toContain("corrections.idee");
+    expect(PROMPT_RESULTAT).toContain("en une séance");
+    expect(PROMPT_RESULTAT).toContain("Vouvoiement pour un dirigeant B2B");
+    expect(PROMPT_RESULTAT).toContain("N'écris « {{prenom}} » nulle part ailleurs");
+  });
+
   it("ne contiennent aucun tiret cadratin ni demi-cadratin", () => {
     for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
   });

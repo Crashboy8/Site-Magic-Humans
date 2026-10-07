@@ -275,6 +275,26 @@ describe("relance et erreurs du modèle", () => {
     expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
     expect((fournisseur.appeler.mock.calls[1][0] as any).utilisateur).toContain("Ta réponse précédente n'a pas pu être utilisée");
   });
+  it("un champ manquant déclenche la relance, un texte trop long est réparé sans second appel", async () => {
+    const manque = structuredClone(RESULTAT_EXEMPLE) as any;
+    delete manque.cibles[0].nom;
+    preparer([JSON.stringify(manque), JSON.stringify(RESULTAT_EXEMPLE)]);
+    expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
+
+    const long = structuredClone(RESULTAT_EXEMPLE) as any;
+    long.offre.phrase = `${"Je précise l'offre. ".repeat(20)}`.slice(0, 260);
+    preparer([JSON.stringify(long)]);
+    const r = await traiterDemande(deps, requete(demandeResultat()));
+    expect(r.status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(1);
+    const corps = await corpsDe(r);
+    expect(corps.resultat.offre.phrase.length).toBeLessThanOrEqual(240);
+    expect(corps.resultat.offre.phrase.endsWith("…")).toBe(true);
+    const journal = JSON.stringify(erreurConsole.mock.calls);
+    expect(journal).toContain("reparations");
+    expect(journal).not.toContain(long.offre.phrase);
+  });
   it("validation en échec puis valide : 200, et le quota n'est consommé qu'une fois", async () => {
     const mauvais = structuredClone(RESULTAT_EXEMPLE) as any;
     mauvais.cibles[0].messages.linkedin = "trop court";

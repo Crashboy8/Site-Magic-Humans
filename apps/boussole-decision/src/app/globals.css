@@ -96,6 +96,13 @@ html[data-seance] .sticky {
   .ma-cible-resultat .carte-cible {
     break-before: page;
   }
+  .ma-cible-resultat details,
+  .ma-cible-resultat details > * {
+    display: block !important;
+  }
+  .ma-cible-resultat details > summary {
+    display: list-item !important;
+  }
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

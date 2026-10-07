@@ -9,6 +9,12 @@
     return String(tpl == null ? "" : tpl).replace(/\{(\w+)\}/g, (_, k) => (vars == null || vars[k] == null ? "" : String(vars[k])));
   }
   const lc1 = (t) => (t ? t.charAt(0).toLowerCase() + t.slice(1) : t);
+  const uc1 = (t) => {
+    const s = String(t || "");
+    const i = s.search(/\S/u);
+    if (i < 0) return s;
+    return s.slice(0, i) + s.charAt(i).toLocaleUpperCase("fr") + s.slice(i + 1);
+  };
 
   function cleanFree(text, max) {
     return String(text || "").replace(/[<>]/g, "").trim().slice(0, max || 140);
@@ -99,7 +105,7 @@
     if (!group) return "";
     if (String(id).indexOf("autre:") === 0) {
       const text = otherTextAt(D._answers, screen, group, Number(id.split(":")[1]));
-      return lc1(text);
+      return groupId === "vide" ? uc1(text) : lc1(text);
     }
     if (screen.id === "valeurs") {
       const row = D.values[id];

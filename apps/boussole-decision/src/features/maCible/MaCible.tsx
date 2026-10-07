@@ -14,13 +14,12 @@ import { EtapeQuestions } from "./EtapeQuestions";
 import { EtapeTalent } from "./EtapeTalent";
 import { EtapeTerrain } from "./EtapeTerrain";
 import { Resultat } from "./Resultat";
-import { etatInitial, langueEntree, reducteur, travailExiste, type Etape } from "./etat";
+import { etatInitial, langueEntree, reducteur, travailExiste, type Etape, type EtapeBarre } from "./etat";
 import { IndicateurEtapes } from "./IndicateurEtapes";
+import { archiverCourant, ecrireHistorique, effacerHistorique, identifiantHistorique, lireHistorique, reprendreDansHistorique, type EntreeHistorique } from "./historique";
 import { methodeAlignee } from "./methode";
 import { URL_OUTILS, URL_QCM } from "./liens";
 import { effacer, ecrire, lire } from "./stockage";
-
-const NUMERO: Record<Exclude<Etape, "accueil">, number> = { talent: 1, terrain: 2, questions: 3, esquisse: 4, resultat: 5 };
 
 interface Attendre {
   type: "cadrage" | "resultat";
@@ -38,6 +37,8 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   const [attente, setAttente] = useState<Attendre | null>(null);
   const [horsSujet, setHorsSujet] = useState<string | null>(null);
   const [erreurs, setErreurs] = useState<ErreurChamp[]>([]);
+  const [historique, setHistorique] = useState<EntreeHistorique[]>([]);
+  const [vue, setVue] = useState<null | { type: "liste" } | { type: "lecture"; entree: EntreeHistorique }>(null);
   const controleur = useRef<AbortController | null>(null);
   const premier = useRef(true);
 
@@ -48,6 +49,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
     const lue = lireAncre(window.location.hash);
     if (lue) window.history.replaceState(null, "", window.location.pathname + window.location.search);
     /* eslint-disable react-hooks/set-state-in-effect -- lecture du stockage local, possible seulement après l'hydratation */
+    setHistorique(lireHistorique());
     if (stocke && travailExiste(stocke)) {
       dispatch({ type: "charger", etat: stocke });
       if (lue) setAncre(lue);
@@ -98,6 +100,17 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
       if (r.cadrage.statut === "hors_sujet") setHorsSujet(r.cadrage.message);
       dispatch({ type: "cadrage", tour: demande.tour, cadrage: r.cadrage });
     } else if ("resultat" in r) {
+      if (etat.resultat) {
+        const liste = archiverCourant(lireHistorique(), {
+          id: identifiantHistorique(),
+          faitLe: etat.resultatLe ?? new Date().toISOString(),
+          entree: etat.entreeDuResultat ?? etat.entree,
+          resultat: etat.resultat,
+          coches: etat.coches,
+        });
+        ecrireHistorique(liste);
+        setHistorique(liste);
+      }
       dispatch({ type: "resultat", resultat: r.resultat, maintenant: new Date().toISOString() });
     }
     setAttente(null);
@@ -147,17 +160,109 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   function toutEffacer(confirmation: string) {
     if (!window.confirm(confirmation)) return;
     effacer();
+    effacerHistorique();
+    setHistorique([]);
+    setVue(null);
     setAncre(null);
     setAttente(null);
     setErreurs([]);
     dispatch({ type: "recommencer", locale });
   }
+  function reprendre(choisi: EntreeHistorique) {
+    const courant = etat.resultat
+      ? {
+          id: identifiantHistorique(),
+          faitLe: etat.resultatLe ?? new Date().toISOString(),
+          entree: etat.entreeDuResultat ?? etat.entree,
+          resultat: etat.resultat,
+          coches: etat.coches,
+        }
+      : null;
+    const liste = reprendreDansHistorique(lireHistorique(), choisi.id, courant);
+    ecrireHistorique(liste);
+    setHistorique(liste);
+    dispatch({ type: "reprendre", entree: choisi.entree, resultat: choisi.resultat, faitLe: choisi.faitLe, coches: choisi.coches });
+    setVue(null);
+  }
+  function supprimerHistorique(id: string) {
+    const liste = lireHistorique().filter((e) => e.id !== id);
+    ecrireHistorique(liste);
+    setHistorique(liste);
+    setVue({ type: "liste" });
+  }
+  const dateHistorique = (faitLe: string) =>
+    new Date(faitLe).toLocaleDateString(locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   if (!pret) return <div className="mx-auto max-w-3xl" aria-busy="true" />;
 
   const etape = etat.etape;
   const accueilVisible = etape === "accueil" || ancre !== null;
-  const largeur = etape === "resultat" && !accueilVisible ? "max-w-4xl" : "max-w-3xl";
+  const ecranResultat = (etape === "resultat" && etat.resultat && !accueilVisible && !attente) || vue?.type === "lecture";
+  const largeur = ecranResultat || vue?.type === "liste" ? "max-w-6xl" : "max-w-3xl";
+
+  if (vue?.type === "liste") {
+    return (
+      <div className={`mx-auto ${largeur} space-y-6`}>
+        <header className="space-y-3">
+          <h1 tabIndex={-1} data-titre-etape className="text-4xl italic focus:outline-none sm:text-5xl">
+            {M.resultat.historiqueTitre}
+          </h1>
+        </header>
+        {historique.length === 0 ? (
+          <p className="text-[17px] text-ink-soft">{M.resultat.historiqueVide}</p>
+        ) : (
+          <ul className="space-y-3">
+            {historique.map((entree) => {
+              const ligne = entree.resultat.classement.find((c) => c.rang === "prioritaire") ?? entree.resultat.classement[0];
+              const cible = entree.resultat.cibles.find((c) => c.id === ligne?.id);
+              return (
+                <li key={entree.id}>
+                  <button type="button" className="w-full rounded-2xl border border-line bg-paper p-4 text-left hover:bg-sand" onClick={() => setVue({ type: "lecture", entree })}>
+                    <span className="block text-sm text-ink-soft">{dateHistorique(entree.faitLe)}</span>
+                    <span className="mt-1 block text-[17px]">{entree.resultat.offre.phrase}</span>
+                    {cible && ligne && (
+                      <span className="mt-1 block text-[15px] text-ink-soft">
+                        {M.resultat.ciblePrioritaire} : {cible.nom} · {M.resultat.score(ligne.score)}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <Button type="button" variant="secondary" onClick={() => setVue(null)}>
+          {M.commun.retour}
+        </Button>
+      </div>
+    );
+  }
+
+  if (vue?.type === "lecture") {
+    return (
+      <div className={`mx-auto ${largeur}`}>
+        <Resultat
+          resultat={vue.entree.resultat}
+          fait={vue.entree.faitLe}
+          etat={etat}
+          prenom={etat.prenom}
+          coches={vue.entree.coches}
+          locale={locale}
+          M={M}
+          nbHistorique={historique.length}
+          lecture
+          bandeauLecture={M.resultat.bandeauDate(dateHistorique(vue.entree.faitLe))}
+          onCoche={() => {}}
+          onModifier={() => {}}
+          onEffacer={() => {}}
+          onAller={() => {}}
+          onHistorique={() => setVue({ type: "liste" })}
+          onReprendre={() => reprendre(vue.entree)}
+          onSupprimer={() => supprimerHistorique(vue.entree.id)}
+        />
+      </div>
+    );
+  }
 
   // Écran 5 : il porte son propre <h1>.
   if (etape === "resultat" && etat.resultat && !accueilVisible && !attente) {
@@ -166,14 +271,17 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
         <Resultat
           resultat={etat.resultat}
           fait={etat.resultatLe ?? etat.maj}
-          tour={etat.tour}
+          etat={etat}
           prenom={etat.prenom}
           coches={etat.coches}
           locale={locale}
           M={M}
+          nbHistorique={historique.length}
           onCoche={(index) => dispatch({ type: "coche", index })}
           onModifier={() => aller("terrain")}
           onEffacer={() => toutEffacer(M.resultat.confirmEffacer)}
+          onAller={(etapeSuivante) => aller(etapeSuivante)}
+          onHistorique={() => setVue({ type: "liste" })}
         />
       </div>
     );
@@ -211,6 +319,11 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
         <EncartConfidentialite M={M} fournisseur={fournisseur} />
         <AvertissementIA M={M} />
         <div className="space-y-3">
+          <p>
+            <button type="button" className="min-h-11 text-link underline" onClick={() => setVue({ type: "liste" })}>
+              {M.resultat.historiqueLien(historique.length)}
+            </button>
+          </p>
           {avecTravail ? (
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
@@ -257,14 +370,21 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
     );
   }
 
-  const n = NUMERO[etape as Exclude<Etape, "accueil">];
   const titre = { talent: M.talent.titre, terrain: M.terrain.titre, questions: M.questions.titre, esquisse: M.esquisse.titre, resultat: M.resultat.titre }[etape as Exclude<Etape, "accueil">];
   const consigne = { talent: M.talent.consigne, terrain: M.terrain.consigne, questions: M.questions.consigne, esquisse: M.esquisse.consigne, resultat: "" }[etape as Exclude<Etape, "accueil">];
 
   return (
     <div className={`mx-auto ${largeur} space-y-6`}>
+      {etat.resultat && (
+        <div role="status" className="flex flex-col gap-3 rounded-2xl border border-accent/30 bg-blush p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[16px]">{etat.resultatPerime ? M.commun.change : M.commun.relis}</p>
+          <Button type="button" variant="secondary" onClick={() => aller("resultat")}>
+            {M.commun.revenirResultat}
+          </Button>
+        </div>
+      )}
       <header className="space-y-3">
-        <IndicateurEtapes n={n} tour={etat.tour} M={M} boucle={n >= 4} />
+        <IndicateurEtapes etat={etat} M={M} onAller={(etapeSuivante: EtapeBarre) => aller(etapeSuivante)} />
         <h1 tabIndex={-1} data-titre-etape className="text-4xl italic focus:outline-none sm:text-5xl">
           {titre}
         </h1>
@@ -307,6 +427,16 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
               onRetour={() => aller("talent")}
               onContinuer={continuerTerrain}
             />
+          )}
+          {etape === "questions" && etat.cadrage?.statut !== "questions" && (
+            <ul className="space-y-3">
+              {etat.entree.reponses.map((r) => (
+                <li key={r.id} className="rounded-xl border border-line bg-paper p-4">
+                  <p className="font-medium">{r.question}</p>
+                  <p className="mt-1 text-ink-soft">{r.reponse}</p>
+                </li>
+              ))}
+            </ul>
           )}
           {etape === "questions" && etat.cadrage?.statut === "questions" && (
             <EtapeQuestions
