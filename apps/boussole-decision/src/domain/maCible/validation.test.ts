@@ -56,6 +56,30 @@ describe("validerResultat", () => {
     expect(e[2]).toContain("motPourToi");
   });
 
+  it("coupe un texte de 20 caractères de trop et tronque un tableau trop long", () => {
+    const r = copie();
+    r.offre.phrase = `${"Je précise l'offre. ".repeat(20)}`.slice(0, 260);
+    expect(r.offre.phrase).toHaveLength(260);
+    r.cibles[0].offre.contenu = [...r.cibles[0].offre.contenu, "Un sixième élément, concret."];
+    expect(r.cibles[0].offre.contenu).toHaveLength(6);
+    const v = validerResultat(r);
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(v.valeur.offre.phrase.length).toBeLessThanOrEqual(240);
+    expect(v.valeur.offre.phrase.endsWith("…")).toBe(true);
+    expect(v.valeur.cibles[0].offre.contenu).toHaveLength(5);
+    expect(v.reparations).toBeGreaterThanOrEqual(2);
+  });
+
+  it("un champ manquant reste une erreur", () => {
+    const r = copie();
+    delete r.cibles[0].nom;
+    const v = validerResultat(r);
+    expect(v.ok).toBe(false);
+    if (v.ok) return;
+    contient(v.erreurs, "cibles[0].nom : texte attendu");
+  });
+
   it("exige c1, c2 et c3 chacun une fois", () => {
     const r = copie();
     r.cibles[1].id = "c1";
@@ -134,9 +158,12 @@ describe("validerCadrage", () => {
     const e = !r.ok ? r.erreurs : [];
     contient(e, "questions[1].id : identifiant en double");
     contient(e, "questions[0].options : 2 à 5");
-    contient(e, "questions[1].options : exactement 0");
+    expect(e.some((x) => x.includes("questions[1].options"))).toBe(false);
+    expect(qs[1].options).toEqual([]);
     const quatre = Array.from({ length: 4 }, (_, i) => ({ ...questions()[0], id: `q${(i % 3) + 1}` }));
-    contient(!validerCadrage(cadrage("questions", { questions: quatre }), 1).ok ? (validerCadrage(cadrage("questions", { questions: quatre }), 1) as any).erreurs : [], "questions : 1 à 3");
+    const trop = validerCadrage(cadrage("questions", { questions: quatre }), 1);
+    expect(trop.ok).toBe(true);
+    if (trop.ok && trop.valeur.statut === "questions") expect(trop.valeur.questions).toHaveLength(3);
   });
 
   it("contrôle l'esquisse", () => {
@@ -148,7 +175,8 @@ describe("validerCadrage", () => {
     const erreursEsquisse = !r.ok ? r.erreurs : [];
     contient(erreursEsquisse, "esquisse.cibles : les identifiants");
     contient(erreursEsquisse, "esquisse.cibles[0].nom : trop court (5 au moins)");
-    contient(erreursEsquisse, "esquisse.hypotheses : 0 à 4");
+    expect(erreursEsquisse.some((x) => x.includes("hypotheses"))).toBe(false);
+    expect(e.hypotheses).toHaveLength(4);
   });
 
   it("hors_sujet exige un message de 10 à 300 caractères", () => {

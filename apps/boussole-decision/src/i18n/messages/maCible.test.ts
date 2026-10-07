@@ -19,7 +19,7 @@ function forme(v: unknown): unknown {
   return typeof v;
 }
 
-describe("textes de Ma Cible", () => {
+describe("textes du Cibleur", () => {
   it("ne contiennent ni tiret cadratin ni demi-cadratin", () => {
     for (const locale of ["fr", "en", "es"] as const) {
       for (const { chemin, texte } of chaines(maCible[locale])) {

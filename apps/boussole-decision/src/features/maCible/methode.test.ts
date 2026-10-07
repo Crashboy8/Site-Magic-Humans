@@ -3,7 +3,7 @@ import { getMethodology } from "@/domain/methodology";
 import { maCible } from "@/i18n/messages/maCible";
 import { methodeAlignee } from "./methode";
 
-describe("termes de la méthode sur Ma Cible", () => {
+describe("termes de la méthode sur le Cibleur", () => {
   it("reste en français tant que l'interface n'est pas traduite, y compris en anglais", () => {
     const en = getMethodology("en");
     expect(methodeAlignee(maCible.en, en).terms.mecanisme).toBe("Mécanisme");

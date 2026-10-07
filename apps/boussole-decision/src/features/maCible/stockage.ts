@@ -12,6 +12,48 @@ const objet = (v: unknown): Obj | null => (typeof v === "object" && v !== null &
 const chaine = (v: unknown) => (typeof v === "string" ? v : "");
 const liste = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
 
+function lireEntree(brut: Obj | null): Etat["entree"] | null {
+  const entree = brut;
+  const talent = objet(entree?.talent);
+  const terrain = objet(entree?.terrain);
+  if (!entree || !talent || !terrain) return null;
+  return {
+    v: 1,
+    langue: entree.langue === "en" || entree.langue === "es" ? entree.langue : "fr",
+    source: entree.source === "quiz" || entree.source === "carte" || entree.source === "boussole" ? entree.source : null,
+    talent: {
+      ...TALENT_VIDE,
+      nom: chaine(talent.nom),
+      mecanisme: chaine(talent.mecanisme),
+      contexte: chaine(talent.contexte),
+      benefice: chaine(talent.benefice),
+      antiContexte: chaine(talent.antiContexte),
+      reussite: chaine(talent.reussite),
+      sousTalents: liste(talent.sousTalents),
+      pistes: liste(talent.pistes),
+      aDeleguer: liste(talent.aDeleguer),
+    },
+    terrain: {
+      ...TERRAIN_VIDE,
+      offre: chaine(terrain.offre),
+      marche: ["b2b", "b2c", "les_deux", "je_ne_sais_pas"].includes(chaine(terrain.marche)) ? (terrain.marche as Etat["entree"]["terrain"]["marche"]) : "",
+      experience: chaine(terrain.experience),
+      clientsPasses: chaine(terrain.clientsPasses),
+      formats: liste(terrain.formats) as Etat["entree"]["terrain"]["formats"],
+      zone: chaine(terrain.zone),
+      prixActuel: chaine(terrain.prixActuel),
+      adresse: terrain.adresse === "tu" ? "tu" : "vous",
+      style: (["chaleureux", "direct", "expert", "enjoue"].includes(chaine(terrain.style)) ? terrain.style : "chaleureux") as Etat["entree"]["terrain"]["style"],
+    },
+    reponses: Array.isArray(entree.reponses)
+      ? entree.reponses.flatMap((r) => {
+          const x = objet(r);
+          return x ? [{ id: chaine(x.id), question: chaine(x.question), reponse: chaine(x.reponse) }] : [];
+        })
+      : [],
+  };
+}
+
 export function serialiser(etat: Etat): string {
   return JSON.stringify(etat);
 }
@@ -23,10 +65,8 @@ export function deserialiser(brut: string | null): Etat | null {
     const o = objet(JSON.parse(brut));
     if (!o || o.v !== 1) return null;
     const etape = ETAPES.find((x) => x === o.etape);
-    const entree = objet(o.entree);
-    const talent = objet(entree?.talent);
-    const terrain = objet(entree?.terrain);
-    if (!etape || !entree || !talent || !terrain) return null;
+    const entree = lireEntree(objet(o.entree));
+    if (!etape || !entree) return null;
     if (!Array.isArray(o.coches) || o.coches.length !== NB_ACTIONS || o.coches.some((c) => typeof c !== "boolean")) return null;
     const tour = o.tour === 1 || o.tour === 2 || o.tour === 3 ? o.tour : null;
     if (!tour) return null;
@@ -53,45 +93,13 @@ export function deserialiser(brut: string | null): Etat | null {
     if (etape === "resultat" && !resultat) return null;
 
     const corr = o.corrections ? validerCorrections(o.corrections) : null;
+    const plusLoinLu = ETAPES.find((x) => x === o.plusLoin) ?? etape;
+    const plusLoin = ETAPES.indexOf(plusLoinLu) >= ETAPES.indexOf(etape) ? plusLoinLu : etape;
     return {
       ...base,
       maj: chaine(o.maj) || base.maj,
       etape,
-      entree: {
-        v: 1,
-        langue: entree.langue === "en" || entree.langue === "es" ? entree.langue : "fr",
-        source: entree.source === "quiz" || entree.source === "carte" || entree.source === "boussole" ? entree.source : null,
-        talent: {
-          ...TALENT_VIDE,
-          nom: chaine(talent.nom),
-          mecanisme: chaine(talent.mecanisme),
-          contexte: chaine(talent.contexte),
-          benefice: chaine(talent.benefice),
-          antiContexte: chaine(talent.antiContexte),
-          reussite: chaine(talent.reussite),
-          sousTalents: liste(talent.sousTalents),
-          pistes: liste(talent.pistes),
-          aDeleguer: liste(talent.aDeleguer),
-        },
-        terrain: {
-          ...TERRAIN_VIDE,
-          offre: chaine(terrain.offre),
-          marche: ["b2b", "b2c", "les_deux", "je_ne_sais_pas"].includes(chaine(terrain.marche)) ? (terrain.marche as Etat["entree"]["terrain"]["marche"]) : "",
-          experience: chaine(terrain.experience),
-          clientsPasses: chaine(terrain.clientsPasses),
-          formats: liste(terrain.formats) as Etat["entree"]["terrain"]["formats"],
-          zone: chaine(terrain.zone),
-          prixActuel: chaine(terrain.prixActuel),
-          adresse: terrain.adresse === "tu" ? "tu" : "vous",
-          style: (["chaleureux", "direct", "expert", "enjoue"].includes(chaine(terrain.style)) ? terrain.style : "chaleureux") as Etat["entree"]["terrain"]["style"],
-        },
-        reponses: Array.isArray(entree.reponses)
-          ? entree.reponses.flatMap((r) => {
-              const x = objet(r);
-              return x ? [{ id: chaine(x.id), question: chaine(x.question), reponse: chaine(x.reponse) }] : [];
-            })
-          : [],
-      },
+      entree,
       prenom: chaine(o.prenom),
       cadrage,
       tour,
@@ -100,6 +108,9 @@ export function deserialiser(brut: string | null): Etat | null {
       resultat,
       resultatLe: typeof o.resultatLe === "string" ? o.resultatLe : null,
       coches: o.coches as boolean[],
+      plusLoin,
+      resultatPerime: o.resultatPerime === true,
+      entreeDuResultat: lireEntree(objet(o.entreeDuResultat)),
     };
   } catch {
     return null;

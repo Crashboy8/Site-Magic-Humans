@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { classerCibles } from "@/domain/maCible/scores";
 import type { Cadrage, Corrections } from "@/domain/maCible/types";
-import { ajouterReponses, etatInitial, langueEntree, peutNouvelleEsquisse, reducteur, travailExiste, type Etat } from "./etat";
+import { accesEtape, ajouterReponses, etatInitial, langueEntree, peutNouvelleEsquisse, questionsSautees, reducteur, travailExiste, type Etat } from "./etat";
 
 const esquisse: Cadrage = {
   statut: "esquisse",
@@ -27,7 +27,7 @@ const questions: Cadrage = {
 };
 const avecEsquisse = (): Etat => reducteur(reducteur(etatInitial(), { type: "cadrage", tour: 1, cadrage: esquisse }), { type: "aller", etape: "esquisse" });
 
-describe("réducteur de Ma Cible", () => {
+describe("réducteur du Cibleur", () => {
   it("modifier le terrain après l'esquisse remet le cadrage à null et le tour à 1", () => {
     let e = reducteur(etatInitial(), { type: "cadrage", tour: 2, cadrage: esquisse });
     expect(e.cadrage).not.toBeNull();
@@ -98,6 +98,32 @@ describe("réducteur de Ma Cible", () => {
     expect(e.entree.source).toBe("quiz");
     expect(travailExiste(e)).toBe(false);
     expect(travailExiste(reducteur(e, { type: "terrain", patch: { zone: "Rennes" } }))).toBe(true);
+  });
+  it("revenir au terrain garde le résultat, et le modifier le marque périmé sans l'effacer", () => {
+    const resultat = { ...RESULTAT_EXEMPLE, classement: classerCibles(RESULTAT_EXEMPLE.cibles) };
+    let e = reducteur(etatInitial(), { type: "resultat", resultat, maintenant: "2026-10-07T10:00:00.000Z" });
+    e = reducteur(e, { type: "aller", etape: "terrain" });
+    expect(e.etape).toBe("terrain");
+    expect(e.resultat).toBe(resultat);
+    expect(e.resultatPerime).toBe(false);
+    expect(e.plusLoin).toBe("resultat");
+    const avant = e.entree;
+    e = reducteur(e, { type: "terrain", patch: { zone: "Rennes" } });
+    expect(e.resultat).toBe(resultat);
+    expect(e.resultatPerime).toBe(true);
+    expect(e.entreeDuResultat).toBe(avant);
+    expect(e.entree.terrain.zone).toBe("Rennes");
+    e = reducteur(e, { type: "aller", etape: "resultat" });
+    expect(e.etape).toBe("resultat");
+    expect(e.resultat).toBe(resultat);
+  });
+  it("marque Précisions sautée quand l'esquisse arrive sans question", () => {
+    const e = reducteur(etatInitial(), { type: "cadrage", tour: 1, cadrage: esquisse });
+    expect(questionsSautees(e)).toBe(true);
+    expect(accesEtape(e, "questions")).toBe("sautee");
+    expect(accesEtape(e, "talent")).toBe("atteinte");
+    expect(accesEtape(e, "esquisse")).toBe("courante");
+    expect(accesEtape(e, "resultat")).toBe("future");
   });
   it("envoie à l'IA la langue de l'interface, le français tant que le reste n'est pas traduit", () => {
     expect(langueEntree("fr")).toBe("fr");

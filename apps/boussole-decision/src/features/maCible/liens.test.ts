@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { APPEL_DECOUVERTE, remplacerPrenom, urlAppel, urlBoussole, type ContenuAppel } from "./liens";
 
 describe("urlAppel", () => {
-  it.each<ContenuAppel>(["accueil", "esquisse", "resultat", "quota"])("ajoute utm_content=%s au lien Calendly", (contenu) => {
+  it.each<ContenuAppel>(["accueil", "esquisse", "resultat", "quota", "resultat-apres-cible", "resultat-sommaire", "resultat-fin"])("ajoute utm_content=%s au lien Calendly", (contenu) => {
     const url = urlAppel(contenu);
     expect(url.startsWith(APPEL_DECOUVERTE)).toBe(true);
     expect(url).toBe(`https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=ma-cible&utm_campaign=ma-cible&utm_content=${contenu}`);
@@ -14,6 +14,11 @@ describe("urlAppel", () => {
 
 describe("remplacerPrenom", () => {
   const mail = "Bonjour [Prénom],\n\nBien à vous,\n\n{{prenom}}";
+  it("normalise les variantes du jeton avant de remplacer", () => {
+    expect(remplacerPrenom("Signé {{ prénom }} et {prenom}", "Léa")).toBe("Signé Léa et Léa");
+    expect(remplacerPrenom("Bonjour [Prénom] {{prenom}}", "")).toBe("Bonjour [Prénom]");
+  });
+
   it("remplace {{prenom}} par le prénom et garde [Prénom]", () => {
     expect(remplacerPrenom(mail, "Camille")).toBe("Bonjour [Prénom],\n\nBien à vous,\n\nCamille");
   });

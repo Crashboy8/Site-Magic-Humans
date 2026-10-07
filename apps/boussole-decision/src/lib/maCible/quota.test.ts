@@ -146,15 +146,61 @@ describe("quotaSupabase", () => {
     expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: false, motif: "ip", restant: 0 });
   });
 
-  it("erreur de la base ou exception : bascule sur le secours et le journalise sans contenu", async () => {
-    const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("erreur de la base ou exception : bascule sur la mémoire et le signale sans contenu", async () => {
+    const avertissement = vi.spyOn(console, "warn").mockImplementation(() => {});
     for (const rpc of [vi.fn(async () => ({ data: null, error: { message: "boom" } })), vi.fn(async () => { throw new Error("réseau"); })]) {
       const s = secours();
       const q = quotaSupabase({ rpc } as never, limites, s);
       expect(await q.consommer(cle("a"), "cadrage")).toEqual({ ok: true, restant: 99 });
       expect(s.consommer).toHaveBeenCalledWith(cle("a"), "cadrage");
     }
-    expect(erreur).toHaveBeenCalledWith("[ma-cible]", { code: "quota_secours", etape: "cadrage" });
-    erreur.mockRestore();
+    expect(avertissement).toHaveBeenCalledWith("[ma-cible]", { code: "quota_memoire", etape: "cadrage", motif: "boom" });
+    expect(avertissement).toHaveBeenCalledWith("[ma-cible]", { code: "quota_memoire", etape: "cadrage", motif: "réseau" });
+    expect(JSON.stringify(avertissement.mock.calls)).not.toContain(cle("a"));
+    avertissement.mockRestore();
+  });
+
+  it("relit la table quand la fonction renvoie l'ancien compteur", async () => {
+    const avertissement = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const rpc = vi.fn(async () => ({ data: [{ ok: true, motif: null, n_ip: 1, n_global: 1 }], error: null }));
+    const from = () => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            in: async () => ({ data: [{ cle: "global", n: 4 }, { cle: cle("a"), n: 2 }], error: null }),
+          }),
+        }),
+      }),
+    });
+    const s = secours();
+    const q = quotaSupabase({ rpc, from } as never, limites, s);
+    expect(await q.consommer(cle("a"), "resultat")).toEqual({ ok: true, restant: 1 });
+    expect(s.consommer).not.toHaveBeenCalled();
+    expect(avertissement).toHaveBeenCalledWith("[ma-cible]", { code: "quota_ecart", etape: "resultat" });
+    avertissement.mockRestore();
+  });
+
+  it("si la fonction d'incrément manque, écrit dans la table au lieu de la mémoire", async () => {
+    const avertissement = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const rpc = vi.fn(async () => { throw new Error("function ma_cible_consommer does not exist"); });
+    const upsert = vi.fn(async () => ({ error: null }));
+    const from = () => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            in: async () => ({ data: [{ cle: "global", n: 1 }, { cle: cle("a"), n: 1 }], error: null }),
+          }),
+        }),
+      }),
+      upsert,
+    });
+    const s = secours();
+    const q = quotaSupabase({ rpc, from } as never, limites, s);
+    expect(await q.consommer(cle("a"), "resultat")).toEqual({ ok: true, restant: 1 });
+    expect(upsert).toHaveBeenCalled();
+    expect(s.consommer).not.toHaveBeenCalled();
+    expect(avertissement).toHaveBeenCalledWith("[ma-cible]", expect.objectContaining({ code: "quota_table", etape: "resultat" }));
+    expect(JSON.stringify(avertissement.mock.calls)).not.toContain(cle("a"));
+    avertissement.mockRestore();
   });
 });

@@ -24,6 +24,7 @@ export const PUBLIC_PATHS = [
   "/auth/confirm",
   "/ma-cible",
   "/api/ma-cible",
+  "/api/quiz-salle",
 ];
 
 export function isPublicPath(pathname: string): boolean {
