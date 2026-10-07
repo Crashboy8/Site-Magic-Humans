@@ -174,7 +174,15 @@ test("8 questions, ids uniques, types pick ou rank, n de 1 à 8", () => {
 
 test("questions : titres et aides en français naturel", () => {
   assert.equal(screen("instinct").title, "Quelle façon de vivre le couple te ressemble le plus ?");
-  assert.equal(screen("instinct").help, "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche encore pour retirer.");
+  assert.equal(screen("instinct").help, "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche-la à nouveau pour la retirer.");
+  assert.equal(screen("instinct").items.find((it) => it.id === "sp").label, "Le foyer · je protège le quotidien");
+  assert.equal(screen("instinct").items.find((it) => it.id === "sx").label, "Rien qu'à deux · je veux un lien fort");
+  assert.equal(screen("instinct").items.find((it) => it.id === "sx").hint, "Un long moment rien qu'à deux.");
+  assert.equal(screen("ennea").title, "Quelles phrases te ressemblent ? Coche celles qui te parlent, ou passe.");
+  assert.equal(screen("ennea").help, "C'est un point de départ, pas un verdict.");
+  assert.equal(screen("valeurs").rank.help, "Touche-les dans l'ordre, de la plus importante à la moins importante.");
+  assert.equal(group("valeurs", "valeurs").items.find((it) => it.id === "respect").hint, "Pas de mépris, et on ne tient pas les comptes.");
+  assert.equal(group("valeurs", "valeurs").items.find((it) => it.id === "famille").hint, "Tes proches et tes racines comptent beaucoup.");
   assert.equal(screen("instinct").cardRank, true);
   assert.equal(screen("instinct").autoCompleteLast, false);
   assert.equal(screen("instinct").minRanked, 3);
@@ -188,7 +196,7 @@ test("questions : titres et aides en français naturel", () => {
   assert.equal(screen("langages").title, "Pour te sentir aimé·e, qu'est-ce qui compte le plus ?");
   assert.equal(screen("langages").help, "Mets en premier ce qui te parle le plus. Deux suffisent. Tu peux toucher les cartes dans l'ordre, ou les faire glisser.");
   assert.equal(screen("freins").title, "Qu'est-ce qui te freine ou te met mal à l'aise en amour ?");
-  assert.equal(screen("freins").help, "Ce qui te bloque, ce qui te met dans des situations inconfortables, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.");
+  assert.equal(screen("freins").help, "Ce qui te bloque, ce qui te gêne, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.");
   assert.equal(group("freins", "freins").items.length, 12);
   assert.equal(D.ui.quiz.topCounter, "Tes 3 premières : {x}/{n}");
   const blob = allStrings(D).join("\n");
@@ -219,6 +227,7 @@ test("références valides", () => {
   for (const it of group("valeurs", "valeurs").items) {
     assert.ok(D.values[it.id] && D.values[it.id].short && D.values[it.id].opposite, it.id);
   }
+  assert.deepEqual(Object.keys(D.values).sort(), group("valeurs", "valeurs").items.map((it) => it.id).sort());
   for (const it of group("stress", "modere").items) assert.ok(D.stress.modere[it.id], it.id);
   for (const it of group("stress", "fort").items) assert.ok(D.stress.fort[it.id], it.id);
   for (const it of group("freins", "freins").items) assert.ok(D.brakes[it.id], it.id);
@@ -749,21 +758,21 @@ test("ce qui vide : jusqu'à 5 lignes perso, hors score, visibles, jamais autre:
   assert.equal(group("nourrit", "nourrit").other.max, 1);
   const plain = E.computeLoveProfile(firstAnswers(), D, "Léa");
   const mixed = firstAnswers();
-  mixed.nourrit.other.vide = ["Les mensonges répétés", "Le mépris en public", "   ", "Les comptes séparés imposés"];
+  mixed.nourrit.other.vide = ["Les mensonges répétés", "le mépris en public", "   ", "Les comptes séparés imposés"];
   mixed.nourrit.order.vide = ["autre:0", "justifier", "autre:1", "critiques", "autre:3"];
   const love = E.computeLoveProfile(mixed, D, "Léa");
   assert.deepEqual(love.profil.scores, plain.profil.scores);
   assert.equal(love.profil.dom, plain.profil.dom);
   assert.deepEqual(love.boussole.imp, plain.boussole.imp);
   assert.deepEqual(love.profil.sections[1].ownDrains, [
-    "les mensonges répétés",
-    "le mépris en public",
-    "les comptes séparés imposés",
+    "Les mensonges répétés",
+    "Le mépris en public",
+    "Les comptes séparés imposés",
   ]);
   assert.equal(love.vide.some((c) => !String(c.short).trim() || /^autre:\d+$/.test(c.short)), false);
-  assert.match(love.exportText, /les mensonges répétés/);
-  assert.match(love.exportText, /le mépris en public/);
-  assert.match(love.exportText, /les comptes séparés imposés/);
+  assert.match(love.exportText, /Les mensonges répétés/);
+  assert.match(love.exportText, /Le mépris en public/);
+  assert.match(love.exportText, /Les comptes séparés imposés/);
   assert.equal(love.exportText.includes("autre:"), false);
   assert.equal(JSON.stringify(love.boussole).includes("mensonges répétés"), false);
   assert.ok(E.salleIds(D).includes(love.profil.dom));
@@ -773,9 +782,9 @@ test("ce qui vide : jusqu'à 5 lignes perso, hors score, visibles, jamais autre:
   alone.nourrit.order.vide = ["autre:0", "autre:1", "autre:2"];
   const solo = E.computeLoveProfile(alone, D, "Léa");
   assert.deepEqual(solo.profil.sections[1].ownDrains, [
-    "le silence punitif",
-    "les critiques devant les amis",
-    "les promesses vagues",
+    "Le silence punitif",
+    "Les critiques devant les amis",
+    "Les promesses vagues",
   ]);
   assert.equal(solo.vide.length, 3);
   assert.equal(solo.exportText.includes("autre:"), false);

@@ -174,13 +174,13 @@ const AMOUR_DATA = {
       },
       "talentH": "Ce que ton profil dit de ton Talent Unique",
       "talent": {
-        "securite": "En amour, tu as besoin de savoir sur quoi compter. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand le cadre est clair et la parole tenue. Ton Contexte Déclencheur, c'est un lieu stable où chacun fait ce qu'il dit. Ton Anti-Contexte, c'est le flou qui dure. On pourra le creuser ensemble.",
-        "profondeur": "En amour, tu as besoin de vrai, au-delà des apparences. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand tu vas au fond des choses. Ton Contexte Déclencheur, c'est un échange sincère, sans masque. Ton Anti-Contexte, c'est le superficiel qui dure. On pourra le creuser ensemble.",
-        "admiration": "En amour, tu as besoin d'être vu·e et reconnu·e. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand tes efforts se voient. Ton Contexte Déclencheur, c'est une place où ce que tu apportes compte. Ton Anti-Contexte, c'est rester invisible trop longtemps. On pourra le creuser ensemble.",
-        "liberte": "En amour, tu as besoin de garder tes choix et ton air. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand personne ne te tient. Ton Contexte Déclencheur, c'est une vraie marge pour décider. Ton Anti-Contexte, c'est le contrôle qui se resserre. On pourra le creuser ensemble.",
-        "harmonie": "En amour, tu as besoin d'un climat doux, sans tension froide. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand la paix est réelle. Ton Contexte Déclencheur, c'est un cadre calme où l'on se dit les choses tôt. Ton Anti-Contexte, c'est le conflit qui s'installe. On pourra le creuser ensemble.",
-        "complicite": "En amour, tu as besoin de faire équipe et d'avancer à deux. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand tu construis avec d'autres. Ton Contexte Déclencheur, c'est un projet partagé, concret. Ton Anti-Contexte, c'est avancer seul·e trop longtemps. On pourra le creuser ensemble.",
-        "intensite": "En amour, tu as besoin d'élan, de vivant, de feu. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand ça pulse vraiment. Ton Contexte Déclencheur, c'est un défi qui te réveille. Ton Anti-Contexte, c'est la routine plate qui s'installe. On pourra le creuser ensemble."
+        "securite": "Savoir sur quoi compter te pose en amour. Pour ton Talent Unique, tu peux réussir dans le plaisir quand le cadre est clair et que la parole est tenue. Ton Contexte Déclencheur, c'est un lieu stable où chacun fait ce qu'il dit. Ton Anti-Contexte, c'est le flou qui dure. On pourra le creuser ensemble.",
+        "profondeur": "Le vrai, au-delà des apparences, te nourrit. Ton Talent Unique s'y retrouve : tu peux réussir dans le plaisir quand tu vas au fond des choses. Un échange sincère, sans masque, voilà ton Contexte Déclencheur. Le superficiel qui dure, c'est ton Anti-Contexte. On pourra le creuser ensemble.",
+        "admiration": "Tu as besoin d'être vu·e et reconnu·e. Là où tes efforts se voient, tu peux réussir dans le plaisir : c'est une piste pour ton Talent Unique. Ton Contexte Déclencheur, une place où ce que tu apportes compte. Ton Anti-Contexte, rester invisible trop longtemps. On pourra le creuser ensemble.",
+        "liberte": "Garder la main sur tes choix et de l'air, c'est vital pour toi en amour. Ton Talent Unique se précise : tu peux réussir dans le plaisir quand tu gardes ta liberté de décider. Ton Contexte Déclencheur, c'est une vraie marge pour décider. Ton Anti-Contexte, c'est le contrôle qui se resserre. On pourra le creuser ensemble.",
+        "harmonie": "Un climat doux, sans tension froide, te permet d'aimer. Ton Talent Unique suit la même ligne : tu peux réussir dans le plaisir quand la paix est réelle. Ton Contexte Déclencheur, c'est un cadre calme où l'on se dit les choses tôt. Ton Anti-Contexte, c'est le conflit qui s'installe. On pourra le creuser ensemble.",
+        "complicite": "Faire équipe et avancer à deux te met en mouvement. Le lien avec ton Talent Unique est direct. Tu peux réussir dans le plaisir quand tu construis avec d'autres. Ton Contexte Déclencheur, c'est un projet partagé, concret. Ton Anti-Contexte, c'est avancer seul·e trop longtemps. On pourra le creuser ensemble.",
+        "intensite": "L'élan, le vivant, le feu : voilà ton besoin en amour. Quand ça vibre vraiment, tu peux réussir dans le plaisir, et c'est là que ton Talent Unique se réveille. Ton Contexte Déclencheur, c'est un défi qui te réveille. Ton Anti-Contexte, c'est la routine plate qui s'installe. On pourra le creuser ensemble."
       }
     }
   },
@@ -642,8 +642,8 @@ const AMOUR_DATA = {
       "type": "pick",
       "n": 4,
       "eyebrow": "Ta piste ennéagramme",
-      "title": "Laquelle de ces phrases te ressemble le plus ? Coche celles qui te parlent, ou passe.",
-      "help": "C'est un point de départ, pas un verdict. Tu peux passer si aucune phrase ne te parle.",
+      "title": "Quelles phrases te ressemblent ? Coche celles qui te parlent, ou passe.",
+      "help": "C'est un point de départ, pas un verdict.",
       "optional": true,
       "groups": [
         {
@@ -739,12 +739,12 @@ const AMOUR_DATA = {
             {
               "id": "respect",
               "label": "Respect",
-              "hint": "Pas de mépris, et on ne compte pas tout."
+              "hint": "Pas de mépris, et on ne tient pas les comptes."
             },
             {
               "id": "famille",
               "label": "Famille",
-              "hint": "Les proches et tes racines tiennent une grande place."
+              "hint": "Tes proches et tes racines comptent beaucoup."
             },
             {
               "id": "enfants",
@@ -818,7 +818,7 @@ const AMOUR_DATA = {
           "valeurs"
         ],
         "title": "Quelles sont tes 3 valeurs les plus importantes ?",
-        "help": "Mets en premier celle qui compte le plus. Touche une valeur numérotée pour la retirer.",
+        "help": "Touche-les dans l'ordre, de la plus importante à la moins importante.",
         "cta": "Choisir mes 3 plus importantes →"
       }
     },
@@ -828,14 +828,14 @@ const AMOUR_DATA = {
       "n": 6,
       "eyebrow": "Ton sous-type en couple",
       "title": "Quelle façon de vivre le couple te ressemble le plus ?",
-      "help": "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche encore pour retirer.",
+      "help": "Touche les cartes dans l'ordre. La première devient ton n° 1. Touche-la à nouveau pour la retirer.",
       "minRanked": 3,
       "autoCompleteLast": false,
       "cardRank": true,
       "items": [
         {
           "id": "sp",
-          "label": "Conservation · je sécurise",
+          "label": "Le foyer · je protège le quotidien",
           "hint": "Un cocon tranquille, à la maison."
         },
         {
@@ -845,8 +845,8 @@ const AMOUR_DATA = {
         },
         {
           "id": "sx",
-          "label": "Tête-à-tête · j'intensifie",
-          "hint": "Rien que vous deux, longtemps."
+          "label": "Rien qu'à deux · je veux un lien fort",
+          "hint": "Un long moment rien qu'à deux."
         }
       ]
     },
@@ -923,7 +923,7 @@ const AMOUR_DATA = {
       "n": 8,
       "eyebrow": "Ce qui te freine",
       "title": "Qu'est-ce qui te freine ou te met mal à l'aise en amour ?",
-      "help": "Ce qui te bloque, ce qui te met dans des situations inconfortables, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.",
+      "help": "Ce qui te bloque, ce qui te gêne, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.",
       "groups": [
         {
           "id": "freins",
@@ -1296,11 +1296,6 @@ const AMOUR_DATA = {
       "opposite": "Un partenaire méprisant, même « pour rire ».",
       "direction": false
     },
-    "engagement": {
-      "short": "l'engagement",
-      "opposite": "Un partenaire qui refuse de s'engager.",
-      "direction": true
-    },
     "famille": {
       "short": "la famille",
       "opposite": "Un partenaire qui met les proches à distance.",
@@ -1321,26 +1316,6 @@ const AMOUR_DATA = {
       "opposite": "Un partenaire qui veut tout partager, tout le temps.",
       "direction": false
     },
-    "securite_fin": {
-      "short": "la sécurité financière",
-      "opposite": "Un partenaire qui dépense sans compter.",
-      "direction": true
-    },
-    "independance_fin": {
-      "short": "l'indépendance financière",
-      "opposite": "Un partenaire qui veut tout mettre en commun.",
-      "direction": true
-    },
-    "generosite": {
-      "short": "la générosité",
-      "opposite": "Un partenaire qui compte tout.",
-      "direction": false
-    },
-    "spiritualite": {
-      "short": "la spiritualité ou la foi",
-      "opposite": "Un partenaire qui rejette ta foi ou ta quête de sens.",
-      "direction": false
-    },
     "ambition": {
       "short": "l'ambition",
       "opposite": "Un partenaire qui freine tes projets.",
@@ -1354,21 +1329,6 @@ const AMOUR_DATA = {
     "aventure": {
       "short": "l'aventure",
       "opposite": "Un partenaire qui refuse de bouger.",
-      "direction": false
-    },
-    "ailleurs": {
-      "short": "pouvoir partir vivre ailleurs",
-      "opposite": "Un partenaire qui ne quittera jamais sa ville.",
-      "direction": true
-    },
-    "racines": {
-      "short": "rester près de tes racines",
-      "opposite": "Un partenaire qui veut partir loin.",
-      "direction": true
-    },
-    "nature": {
-      "short": "le respect de la nature",
-      "opposite": "Un partenaire indifférent à la planète.",
       "direction": false
     },
     "humour": {
@@ -1389,16 +1349,6 @@ const AMOUR_DATA = {
     "solidarite": {
       "short": "la solidarité",
       "opposite": "Un partenaire indifférent aux autres.",
-      "direction": false
-    },
-    "transparence": {
-      "short": "la transparence",
-      "opposite": "Un partenaire qui garde des secrets sur ce qui vous engage.",
-      "direction": false
-    },
-    "traditions": {
-      "short": "les traditions",
-      "opposite": "Un partenaire qui méprise tes traditions.",
       "direction": false
     },
     "creativite": {

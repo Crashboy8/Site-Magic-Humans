@@ -1,7 +1,7 @@
 /* Quiz Amour v1.4 · 8 questions, classement, résultats.
    Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
    Aucune réponse n'est envoyée. La progression reste dans ce navigateur
-   pour pouvoir reprendre. La réponse de sécurité n'est pas stockée. */
+   pour pouvoir reprendre. */
 (function () {
   const D = window.AMOUR_DATA;
   const E = window.AmourEngine;
@@ -141,9 +141,14 @@
     "#screen-amour .pr-score{color:var(--bc);font-weight:700;font-variant-numeric:tabular-nums}",
     "#screen-amour .pr-sec .snum{color:var(--bc)}",
     "#screen-amour details.am-fold{margin:0}",
-    "#screen-amour details.am-fold > summary{cursor:pointer}",
-    "#screen-amour details.am-fold > summary h2{display:inline}",
-    "#screen-amour details.am-fold > summary .rs{margin-bottom:0}",
+    "#screen-amour details.am-fold > summary{cursor:pointer;list-style:none}",
+    "#screen-amour details.am-fold > summary::-webkit-details-marker{display:none}",
+    "#screen-amour details.am-fold > summary::marker{content:\"\"}",
+    "#screen-amour details.am-fold > summary .rs{display:flex;flex-direction:row;align-items:center;gap:8px;margin-bottom:0}",
+    "#screen-amour details.am-fold > summary .rs::after{content:\"\\25B6\";margin-left:auto;flex:none;font-size:.85rem;line-height:1}",
+    "#screen-amour details.am-fold[open] > summary .rs::after{transform:rotate(90deg)}",
+    "#screen-amour details.am-fold > summary h2{margin:0;flex:1;min-width:0}",
+    "#screen-amour details.am-fold > summary .snum{margin:0}",
     "#screen-amour details.am-fold:not([open]) > .am-fold-body{display:none}",
     "#screen-amour .am-custom{display:flex;gap:8px;align-items:center}",
     "#screen-amour .am-custom .field{flex:1;min-width:0}",
@@ -168,13 +173,13 @@
     "#screen-amour .choice:disabled{opacity:.35;cursor:not-allowed}",
     "#screen-amour .am-divider{text-align:center;padding:4px 0}",
     "#screen-amour .am-tap{display:flex;align-items:center;gap:12px;text-align:left}",
-    "#screen-amour .am-tap .snum{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--am);color:#fff;font-weight:700;flex:none;font-size:1rem}",
+    "#screen-amour .am-tap .snum{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--am);color:#fff;font-weight:700;flex:none;font-size:1rem;font-family:inherit;font-style:normal}",
     "#screen-amour .am-steps{display:flex;justify-content:center;gap:14px;margin:2px 0 14px}",
     "#screen-amour .am-steps span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:1.05rem;border:2px solid var(--am);color:var(--am);background:var(--surface)}",
     "#screen-amour .am-steps span.is-next{box-shadow:0 0 0 4px color-mix(in srgb,var(--am) 28%,transparent)}",
     "#screen-amour .am-steps span.is-on{background:var(--am);border-color:var(--am);color:#fff;box-shadow:none}",
     "#screen-amour .am-style{display:flex;align-items:flex-start;gap:12px;text-align:left}",
-    "#screen-amour .am-style .snum{width:36px;height:36px;margin-top:1px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:1rem;border:2px dashed var(--am);background:transparent;color:transparent}",
+    "#screen-amour .am-style .snum{width:36px;height:36px;margin-top:1px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:1rem;font-family:inherit;font-style:normal;border:2px dashed var(--am);background:transparent;color:transparent}",
     "#screen-amour .am-style.picked .snum{border-style:solid;background:var(--am);color:#fff}",
     "#screen-amour .am-style[data-item-tone=sage] .snum{border-color:var(--sage)}",
     "#screen-amour .am-style[data-item-tone=sky] .snum{border-color:var(--sky)}",
