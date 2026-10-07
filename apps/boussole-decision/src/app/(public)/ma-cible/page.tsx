@@ -8,10 +8,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: M.meta.titre, description: M.meta.description, robots: { index: false, follow: true } };
 }
 
-const FOURNISSEURS = { anthropic: "Anthropic, modèle Claude", openai: "OpenAI" } as const;
+const FOURNISSEURS = { anthropic: "Anthropic Claude", openai: "OpenAI", gemini: "Google Gemini" } as const;
 
-// Lu côté serveur : le nom du fournisseur est affiché dans l'encart de confidentialité, la clé reste sur le serveur.
+// Lu côté serveur : la clé reste sur le serveur. L'encart nomme Gemini et Claude ensemble, sans ce libellé.
 export default function MaCiblePage() {
-  const choix = process.env.MA_CIBLE_FOURNISSEUR === "openai" ? "openai" : "anthropic";
+  const brut = process.env.MA_CIBLE_FOURNISSEUR?.trim().toLowerCase();
+  const choix = brut === "openai" || brut === "gemini" ? brut : "anthropic";
   return <MaCible fournisseur={FOURNISSEURS[choix]} />;
 }

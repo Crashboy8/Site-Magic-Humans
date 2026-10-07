@@ -43,8 +43,9 @@ const fr = {
   },
   confidentialite: {
     titre: "Ce que l'IA reçoit, et ce qu'on garde",
-    points: (fournisseur: string) => [
-      `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à un modèle d'IA (${fournisseur}) pour préparer ton résultat.`,
+    points: (_fournisseur: string) => [
+      `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à un modèle d'IA (Google Gemini ou Anthropic Claude selon la configuration) pour préparer ton résultat.`,
+      "Avec l'offre gratuite, le fournisseur peut utiliser ces réponses pour améliorer ses modèles : n'écris rien de sensible.",
       "Rien n'est enregistré sur nos serveurs : ni tes réponses, ni ton résultat. On garde seulement un compteur anonyme pour éviter les abus (une empreinte de ton adresse IP, effacée au bout de 2 jours).",
       "Ton travail reste dans ce navigateur pour que tu puisses y revenir. Le bouton « Tout effacer » le supprime.",
       "N'écris pas de données sensibles : santé, noms de clients, informations confidentielles.",
