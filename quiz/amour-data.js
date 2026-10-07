@@ -19,14 +19,14 @@ const AMOUR_DATA = {
     "intro": {
       "eyebrow": "Sommet de l'Amour · Gratuit · 8 questions · environ 8 minutes",
       "h1": "Découvre ton <em>profil amoureux</em>",
-      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 8 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
+      "lead": "Le coup de foudre ne suffit pas pour construire un couple heureux. En 8 minutes, fais le point sur ce qui te nourrit, ce qui te vide, et le genre de partenaire qui te va vraiment.",
       "bullets": [
         "Ce qui te nourrit en couple, et ce qui te vide",
-        "Ton ressourcement, pour ne plus t'épuiser dans une relation",
+        "Ce qui te recharge, pour ne plus t'épuiser dans une relation",
         "Tes langages de l'amour, tes valeurs et ta piste ennéagramme",
-        "Ta façon de réagir sous stress, et ce qui te freine"
+        "Ta façon de réagir quand ça chauffe, et ce qui te freine"
       ],
-      "howto": "Réponds avec ton premier élan. Il n'y a ni bonne ni mauvaise réponse.",
+      "howto": "Réponds sans trop réfléchir, ta première idée est souvent la bonne. Il n'y a pas de bonne ou de mauvaise réponse.",
       "nameLabel": "Ton prénom",
       "nameHelp": "Il sert seulement à personnaliser tes résultats.",
       "start": "Commencer →"
@@ -112,7 +112,7 @@ const AMOUR_DATA = {
       "relive": "Un partenaire qui te fait revivre {short}.",
       "ownOpposite": "Un partenaire qui ne partage pas « {texte} ».",
       "needsH": "Ce qui te nourrit, ce qui te vide",
-      "ressH": "Ton ressourcement",
+      "ressH": "Ce qui te recharge",
       "langH": "Tes langages de l'amour",
       "enneaH": "Ta piste ennéagramme",
       "instinctH": "Ton sous-type",
@@ -121,16 +121,16 @@ const AMOUR_DATA = {
       "partnerH": "Le partenaire qui te correspond",
       "partnerIntro": "Le partenaire qui te correspond, d'après tes réponses.",
       "completeLab": "Qui te complète",
-      "frictionLab": "Qui risque de frotter (à négocier)",
-      "criticalLab": "Incompatibilité critique (à ne pas négocier)",
+      "frictionLab": "Avec qui ça risque de coincer (à négocier)",
+      "criticalLab": "Incompatible pour toi (non négociable)",
       "gridH": "Comment lire les niveaux de risque",
       "keyH": "Ce qu'il faut retenir",
       "piegeLab": "Ton piège :",
       "pairPrefix": "Avec un partenaire {name} :",
-      "pairsNote": "Ces tendances ne décident de rien : elles éclairent les frictions possibles, pour en parler tôt.",
+      "pairsNote": "Ce ne sont que des tendances. Elles montrent où ça peut coincer, pour que vous en parliez tôt.",
       "tipsLab": "Concrètement",
-      "rechargeRule": "La règle d'or : après un moment ensemble, tu dois avoir plus d'énergie qu'avant. Si une relation te vide durablement, ce n'est pas un détail, c'est une information.",
-      "rechargeSame": "Ton profil de recharge est net : {title}.",
+      "rechargeRule": "La règle d'or : après un moment ensemble, tu dois avoir plus d'énergie qu'avant. Si une relation te vide pendant longtemps, ce n'est pas un détail : ça veut dire quelque chose.",
+      "rechargeSame": "Ta façon de te recharger est claire : {title}.",
       "rechargeMixed": "Tu te recharges de deux façons : {soirTitle} en semaine, {weekendTitle} le week-end.",
       "boussoleLab": "La Boussole Relation",
       "boussoleP": "Tu es en couple, ou tu hésites sur une relation ? La Boussole Relation t'aide à l'évaluer calmement, critère par critère. Elle sera préréglée avec tes résultats : tes besoins, ce qui te vide, tes défauts acceptables et tes non-négociables. Une alerte s'affiche si un point essentiel est touché, quel que soit le score.",
@@ -167,20 +167,20 @@ const AMOUR_DATA = {
       "nowPdf": "Télécharger mon profil (PDF)",
       "nowGeneric": "En 1 h, offert, on relie ton profil amoureux à ton Talent Unique.",
       "nowStress": {
-        "fight": "Tu as tendance à contre-attaquer sous stress fort.",
-        "flight": "Tu as tendance à fuir sous stress fort.",
-        "freeze": "Tu as tendance à te figer sous stress fort.",
-        "fawn": "Tu as tendance à céder pour apaiser sous stress fort."
+        "fight": "Quand ça chauffe vraiment, tu as tendance à contre-attaquer.",
+        "flight": "Quand ça chauffe vraiment, tu as tendance à fuir.",
+        "freeze": "Quand ça chauffe vraiment, tu as tendance à te figer.",
+        "fawn": "Quand ça chauffe vraiment, tu as tendance à céder pour calmer le jeu."
       },
       "talentH": "Ce que ton profil dit de ton Talent Unique",
       "talent": {
-        "securite": "Savoir sur quoi compter te pose en amour. Pour ton Talent Unique, tu peux réussir dans le plaisir quand le cadre est clair et que la parole est tenue. Ton Contexte Déclencheur, c'est un lieu stable où chacun fait ce qu'il dit. Ton Anti-Contexte, c'est le flou qui dure. On pourra le creuser ensemble.",
-        "profondeur": "Le vrai, au-delà des apparences, te nourrit. Ton Talent Unique s'y retrouve : tu peux réussir dans le plaisir quand tu vas au fond des choses. Un échange sincère, sans masque, voilà ton Contexte Déclencheur. Le superficiel qui dure, c'est ton Anti-Contexte. On pourra le creuser ensemble.",
-        "admiration": "Tu as besoin d'être vu·e et reconnu·e. Là où tes efforts se voient, tu peux réussir dans le plaisir : c'est une piste pour ton Talent Unique. Ton Contexte Déclencheur, une place où ce que tu apportes compte. Ton Anti-Contexte, rester invisible trop longtemps. On pourra le creuser ensemble.",
-        "liberte": "Garder la main sur tes choix et de l'air, c'est vital pour toi en amour. Ton Talent Unique se précise : tu peux réussir dans le plaisir quand tu gardes ta liberté de décider. Ton Contexte Déclencheur, c'est une vraie marge pour décider. Ton Anti-Contexte, c'est le contrôle qui se resserre. On pourra le creuser ensemble.",
-        "harmonie": "Un climat doux, sans tension froide, te permet d'aimer. Ton Talent Unique suit la même ligne : tu peux réussir dans le plaisir quand la paix est réelle. Ton Contexte Déclencheur, c'est un cadre calme où l'on se dit les choses tôt. Ton Anti-Contexte, c'est le conflit qui s'installe. On pourra le creuser ensemble.",
-        "complicite": "Faire équipe et avancer à deux te met en mouvement. Le lien avec ton Talent Unique est direct. Tu peux réussir dans le plaisir quand tu construis avec d'autres. Ton Contexte Déclencheur, c'est un projet partagé, concret. Ton Anti-Contexte, c'est avancer seul·e trop longtemps. On pourra le creuser ensemble.",
-        "intensite": "L'élan, le vivant, le feu : voilà ton besoin en amour. Quand ça vibre vraiment, tu peux réussir dans le plaisir, et c'est là que ton Talent Unique se réveille. Ton Contexte Déclencheur, c'est un défi qui te réveille. Ton Anti-Contexte, c'est la routine plate qui s'installe. On pourra le creuser ensemble."
+        "securite": "En amour, tu as besoin de savoir sur qui tu peux compter. Et c'est sûrement pareil ailleurs : au travail comme dans tes projets, tu donnes le meilleur de toi quand les règles sont claires et que les gens tiennent parole. C'est ton Contexte Déclencheur. À l'inverse, le flou qui s'éternise t'éteint, c'est ton Anti-Contexte.",
+        "profondeur": "Tu as besoin de vrai, de conversations qui vont au fond des choses. Ce besoin ne s'arrête pas au couple : ton talent se cache souvent là, dans ta façon de comprendre les gens mieux que la moyenne. Ton Contexte Déclencheur, ce sont les échanges sincères, sans masque. Ton Anti-Contexte, les relations qui restent en surface.",
+        "admiration": "Tu as besoin que ce que tu donnes soit vu. Ce n'est pas de l'ego, c'est un moteur, et il marche aussi dans ta vie pro : quand on reconnaît ton travail, tu te dépasses avec plaisir. Ton Contexte Déclencheur, c'est un endroit où ce que tu apportes compte vraiment. Ton Anti-Contexte, rester dans l'ombre trop longtemps.",
+        "liberte": "Tu aimes mieux quand tu restes libre de tes choix. Dans le reste de ta vie aussi, tu donnes le meilleur quand on te fait confiance et qu'on te laisse faire à ta façon. C'est ton Contexte Déclencheur. Ton Anti-Contexte, c'est d'être contrôlé·e ou de devoir rendre des comptes sans arrêt.",
+        "harmonie": "Tu as besoin d'un climat doux pour aimer pleinement. Ça dit quelque chose de ton talent : tu sais apaiser, relier, faire que les gens se sentent bien ensemble. Ton Contexte Déclencheur, un cadre serein où l'on se parle avant que ça coince. Ton Anti-Contexte, les tensions qui traînent sans jamais se régler.",
+        "complicite": "Pour toi, aimer, c'est faire équipe. Et tu fonctionnes sûrement pareil au boulot : seul·e, tu t'ennuies, à plusieurs, tu décolles. Ton Contexte Déclencheur, c'est un projet concret qu'on porte ensemble, dans la bonne humeur. Ton Anti-Contexte, c'est de tout porter seul·e, trop longtemps.",
+        "intensite": "Tu as besoin que ça vibre. En amour comme ailleurs, la routine plate t'éteint, alors qu'un défi te réveille. C'est une vraie piste pour ton Talent Unique : tu donnes le meilleur quand il y a de l'enjeu et de la nouveauté, c'est ton Contexte Déclencheur. Ton Anti-Contexte, c'est le train-train sans surprise."
       }
     }
   },
@@ -211,7 +211,7 @@ const AMOUR_DATA = {
             {
               "id": "rire",
               "label": "Rire ensemble",
-              "hint": "Des fous rires, des blagues qu'on est seuls à comprendre.",
+              "hint": "Des fous rires, des blagues que personne d'autre ne comprend.",
               "short": "rire ensemble",
               "need": "legerete"
             },
@@ -341,7 +341,7 @@ const AMOUR_DATA = {
             {
               "id": "silences",
               "label": "Les silences et les bouderies",
-              "hint": "Il ou elle se ferme pendant des jours.",
+              "hint": "Il ou elle fait la tête pendant des jours.",
               "short": "les silences qui durent",
               "need": "profondeur",
               "conflict": true
@@ -349,7 +349,7 @@ const AMOUR_DATA = {
             {
               "id": "cris",
               "label": "Les cris et les piques",
-              "hint": "Le ton monte vite, l'ironie blesse.",
+              "hint": "Le ton monte vite, les petites phrases qui font mal.",
               "short": "les cris et les piques",
               "need": "harmonie",
               "energy": true,
@@ -380,7 +380,7 @@ const AMOUR_DATA = {
             {
               "id": "jalousie",
               "label": "La jalousie",
-              "hint": "Chaque sortie entre amis devient un sujet.",
+              "hint": "Chaque sortie entre amis devient toute une histoire.",
               "short": "la jalousie",
               "need": "liberte",
               "conflict": true
@@ -401,7 +401,7 @@ const AMOUR_DATA = {
             },
             {
               "id": "fusion",
-              "label": "L'étouffement",
+              "label": "Me sentir étouffé·e",
               "hint": "Tout faire à deux, tout le temps.",
               "short": "l'étouffement",
               "need": "liberte",
@@ -444,13 +444,13 @@ const AMOUR_DATA = {
       "id": "ressource",
       "type": "pick",
       "n": 2,
-      "eyebrow": "Ton ressourcement",
+      "eyebrow": "Ce qui te recharge",
       "title": "Qu'est-ce qui te recharge vraiment ? Coche au moins 2 choses pour le soir et au moins 2 pour le week-end.",
-      "help": "Une relation qui te correspond te laisse plus d'énergie qu'avant, pas moins.",
+      "help": "Une relation qui te va te donne de l'énergie. Elle ne t'en prend pas.",
       "groups": [
         {
           "id": "soir",
-          "title": "En fin de journée, pour recharger mes batteries",
+          "title": "Le soir, pour recharger les batteries",
           "counter": "Le soir",
           "min": 2,
           "items": [
@@ -463,10 +463,10 @@ const AMOUR_DATA = {
             },
             {
               "id": "raconter",
-              "label": "Me raconter ma journée à deux",
+              "label": "Raconter ma journée à l'autre",
               "hint": "Sur le canapé, sans écran.",
               "recharge": "relationnel",
-              "short": "te raconter ta journée à deux"
+              "short": "raconter ta journée à l'autre"
             },
             {
               "id": "bouger",
@@ -505,10 +505,10 @@ const AMOUR_DATA = {
             },
             {
               "id": "douceur",
-              "label": "La douceur, rien à faire",
+              "label": "Ne rien faire, tranquille",
               "hint": "Un bain, une bougie, ma playlist.",
               "recharge": "solitaire",
-              "short": "la douceur, rien à faire"
+              "short": "ne rien faire, tranquille"
             }
           ],
           "other": {
@@ -521,7 +521,7 @@ const AMOUR_DATA = {
         },
         {
           "id": "weekend",
-          "title": "Le week-end, pour être plein·e d'énergie le lundi",
+          "title": "Le week-end, pour repartir en forme le lundi",
           "counter": "Le week-end",
           "min": 2,
           "items": [
@@ -534,10 +534,10 @@ const AMOUR_DATA = {
             },
             {
               "id": "moi",
-              "label": "Un temps rien que pour moi",
+              "label": "Du temps rien que pour moi",
               "hint": "Quelques heures seul·e, sans culpabiliser.",
               "recharge": "solitaire",
-              "short": "un temps rien que pour toi"
+              "short": "du temps rien que pour toi"
             },
             {
               "id": "nature",
@@ -556,7 +556,7 @@ const AMOUR_DATA = {
             {
               "id": "adeux",
               "label": "Un vrai temps à deux",
-              "hint": "Une journée rien que nous, téléphones coupés.",
+              "hint": "Une journée rien qu'à nous deux, téléphones coupés.",
               "recharge": "relationnel",
               "short": "un vrai temps à deux"
             },
@@ -623,7 +623,7 @@ const AMOUR_DATA = {
         {
           "id": "cadeaux",
           "label": "Les attentions et les cadeaux",
-          "hint": "Un petit mot, ta douceur préférée."
+          "hint": "Un petit mot, ta gourmandise préférée."
         },
         {
           "id": "services",
@@ -673,7 +673,7 @@ const AMOUR_DATA = {
             },
             {
               "id": "t5",
-              "label": "« J'ai besoin de comprendre, et de mon espace pour ça. »",
+              "label": "« J'ai besoin de comprendre, et pour ça, il me faut mon espace. »",
               "hint": "Je réfléchis avant de parler, je me recharge seul·e."
             },
             {
@@ -689,7 +689,7 @@ const AMOUR_DATA = {
             {
               "id": "t8",
               "label": "« Je fonce, je dis les choses en face, et personne ne me contrôle. »",
-              "hint": "Direct·e et protecteur·rice, j'ai du mal à montrer ma fragilité."
+              "hint": "Direct·e et protecteur·rice, j'ai du mal à montrer mes faiblesses."
             },
             {
               "id": "t9",
@@ -739,7 +739,7 @@ const AMOUR_DATA = {
             {
               "id": "respect",
               "label": "Respect",
-              "hint": "Pas de mépris, et on ne tient pas les comptes."
+              "hint": "Pas de mépris, pas de coups bas."
             },
             {
               "id": "famille",
@@ -769,7 +769,7 @@ const AMOUR_DATA = {
             {
               "id": "simplicite",
               "label": "Simplicité",
-              "hint": "Une vie sobre, sans course au toujours plus."
+              "hint": "Une vie simple, sans courir après toujours plus."
             },
             {
               "id": "aventure",
@@ -784,7 +784,7 @@ const AMOUR_DATA = {
             {
               "id": "culture",
               "label": "Culture et curiosité",
-              "hint": "Livres, expos, débats, apprendre encore."
+              "hint": "Livres, expos, discussions, toujours apprendre."
             },
             {
               "id": "sante",
@@ -835,12 +835,12 @@ const AMOUR_DATA = {
       "items": [
         {
           "id": "sp",
-          "label": "Le foyer · je protège le quotidien",
+          "label": "Le foyer · je prends soin de notre chez-nous",
           "hint": "Un cocon tranquille, à la maison."
         },
         {
           "id": "so",
-          "label": "Social · je vois du monde",
+          "label": "Social · j'aime voir du monde",
           "hint": "Un dîner avec des amis."
         },
         {
@@ -872,12 +872,12 @@ const AMOUR_DATA = {
             {
               "id": "I",
               "label": "Je dédramatise",
-              "hint": "Je parle, je plaisante, je cherche à alléger."
+              "hint": "Je parle, je plaisante, j'essaie de détendre l'atmosphère."
             },
             {
               "id": "S",
               "label": "Je fais le dos rond",
-              "hint": "J'attends que ça passe, je garde la paix."
+              "hint": "J'attends que ça passe, j'évite de faire des vagues."
             },
             {
               "id": "C",
@@ -938,7 +938,7 @@ const AMOUR_DATA = {
             {
               "id": "blesser",
               "label": "La peur de blesser l'autre",
-              "hint": "Je préfère me taire que faire de la peine."
+              "hint": "Je préfère me taire plutôt que de faire de la peine."
             },
             {
               "id": "moment",
@@ -1046,7 +1046,7 @@ const AMOUR_DATA = {
     "securite": {
       "name": "Sécurité et fiabilité",
       "title": "Cœur Ancre",
-      "desc": "Tu as besoin de savoir où tu en es. Un partenaire qui tient parole, qui est là quand il le dit, avec qui l'avenir se construit sans montagnes russes. Ce n'est pas un manque d'audace : c'est le sol sur lequel tu peux enfin te détendre.",
+      "desc": "Tu as besoin de savoir où tu en es. Un partenaire qui tient parole, qui est là quand il le dit, avec qui l'avenir se construit sans montagnes russes. Ce n'est pas un manque d'audace : c'est là que tu peux enfin te détendre.",
       "partner": "De la constance, de la parole tenue, des projets clairs. Quelqu'un qui rassure par les actes, pas seulement par les mots.",
       "anti": "Tu ne sais jamais sur quel pied danser. Les promesses non tenues, les changements d'humeur imprévisibles et le flou sur l'avenir t'épuisent lentement. Dans ce contexte, tu deviens vigilant·e, inquiet·e, et tu perds ta légèreté.",
       "lower": "sécurité et fiabilité",
@@ -1056,7 +1056,7 @@ const AMOUR_DATA = {
       "name": "Liberté et espace",
       "title": "Cœur Libre",
       "desc": "Tu as besoin de rester toi-même dans le couple : tes amis, tes projets, tes temps seuls. Ce n'est pas un manque d'amour. Au contraire, c'est en respirant que tu reviens vers l'autre avec envie.",
-      "partner": "De la confiance, une vie à lui ou à elle, et la capacité de te laisser partir quelques heures sans le vivre comme un abandon.",
+      "partner": "Quelqu'un qui te fait confiance, qui a sa propre vie, et qui te laisse partir quelques heures sans le vivre comme un abandon.",
       "anti": "Tu dois te justifier de tout. Les questions sur ton emploi du temps, la jalousie, les reproches quand tu vois tes amis t'éteignent. Dans ce contexte, tu te sens à l'étroit et tu finis par fuir, en pensée ou pour de vrai.",
       "lower": "liberté et espace",
       "danger": "une relation où tu dois te justifier de tout"
@@ -1065,7 +1065,7 @@ const AMOUR_DATA = {
       "name": "Reconnaissance et admiration",
       "title": "Cœur Lumière",
       "desc": "Tu as besoin de te sentir choisi·e, admiré·e, mis·e en valeur. Ce n'est pas de la vanité : c'est le signe que l'autre te voit vraiment, avec ce que tu apportes.",
-      "partner": "Un regard qui te valorise, des mots de fierté, la capacité de dire « merci » et « bravo », y compris devant les autres.",
+      "partner": "Quelqu'un qui est fier·e de toi, qui sait dire « merci » et « bravo », même devant les autres.",
       "anti": "Tes efforts passent inaperçus et l'on te prend pour acquis·e. Les moqueries, la comparaison, le manque de gratitude te ternissent. Dans ce contexte, tu doutes de toi et tu en fais trop pour être enfin vu·e.",
       "lower": "reconnaissance et admiration",
       "danger": "une relation où tes efforts passent inaperçus"
@@ -1074,7 +1074,7 @@ const AMOUR_DATA = {
       "name": "Profondeur et intimité émotionnelle",
       "title": "Cœur Profond",
       "desc": "Tu as besoin de pouvoir tout dire et d'être compris·e jusque dans tes émotions. Les conversations vraies, la vulnérabilité partagée, le sentiment d'être connu·e en profondeur te relient plus que tout.",
-      "partner": "De l'écoute, de la curiosité pour ton monde intérieur, et le courage de parler de lui ou d'elle aussi.",
+      "partner": "Quelqu'un qui écoute, qui s'intéresse à ce que tu ressens, et qui ose parler de lui ou d'elle aussi.",
       "anti": "Les conversations restent en surface et les émotions sont tues. Un partenaire qui change de sujet, qui fuit les discussions importantes ou se moque de ta sensibilité t'isole. Dans ce contexte, tu te sens seul·e à deux.",
       "lower": "profondeur et intimité émotionnelle",
       "danger": "une relation qui reste en surface"
@@ -1083,7 +1083,7 @@ const AMOUR_DATA = {
       "name": "Complicité et légèreté",
       "title": "Cœur Joueur",
       "desc": "Tu as besoin de rire, de jouer, de découvrir. Le couple est pour toi une aventure, une complicité, un terrain de jeu. Sans légèreté, même une belle histoire finit par te sembler grise.",
-      "partner": "De l'humour, de la curiosité, l'envie d'essayer de nouvelles choses, et la capacité de ne pas tout prendre au sérieux.",
+      "partner": "Quelqu'un qui a de l'humour, qui aime essayer de nouvelles choses et ne prend pas tout au sérieux.",
       "anti": "Tout devient lourd, sérieux, routinier. Les reproches permanents, l'absence de projets, les soirées toujours identiques t'éteignent. Dans ce contexte, tu t'ennuies et tu cherches l'étincelle ailleurs, parfois sans le vouloir.",
       "lower": "complicité et légèreté",
       "danger": "une relation lourde et routinière"
@@ -1092,7 +1092,7 @@ const AMOUR_DATA = {
       "name": "Douceur et harmonie",
       "title": "Cœur Paisible",
       "desc": "Tu as besoin d'un quotidien doux et apaisé. Ce n'est pas fuir les désaccords : c'est pouvoir les vivre sans cris, sans piques, sans tension qui dure. La paix est ton terreau.",
-      "partner": "Du calme, de la gentillesse dans les mots, et la capacité de se disputer sans blesser, puis de se réconcilier.",
+      "partner": "Quelqu'un de calme, gentil dans ses mots, qui sait se disputer sans blesser, puis se réconcilier.",
       "anti": "Les piques et les éclats de voix deviennent ordinaires. Les conflits qui s'enveniment, l'ironie, les tensions qui durent des jours t'épuisent. Dans ce contexte, tu te refermes et tu évites tout sujet sensible, ce qui finit par creuser la distance.",
       "lower": "douceur et harmonie",
       "danger": "une relation pleine de piques et de tensions"
@@ -1107,18 +1107,18 @@ const AMOUR_DATA = {
       "risk": "Un partenaire qui a besoin de toi tous les soirs, ou qui remplit l'agenda sans te demander."
     },
     "relationnel": {
-      "title": "Recharge relationnelle douce",
+      "title": "Recharge à deux, en douceur",
       "short": "dans des moments doux à deux",
-      "couple": "Tu te recharges dans la présence tranquille de l'autre, sans enjeu ni programme.",
+      "couple": "Tu reprends des forces juste en étant avec l'autre, tranquille, sans rien de prévu.",
       "fit": "Un partenaire disponible pour des soirées simples, téléphone rangé.",
       "risk": "Un partenaire toujours ailleurs, absorbé par son travail ou ses sorties."
     },
     "sensoriel": {
-      "title": "Recharge sensorielle et ancrage",
+      "title": "Recharge par le corps et le concret",
       "short": "par le corps, la nature et le concret",
       "couple": "Tu te recharges en faisant : bouger, cuisiner, marcher, créer avec tes mains.",
-      "fit": "Un partenaire partant pour des activités concrètes, ou qui te laisse les vivre.",
-      "risk": "Un partenaire qui vit tout sur écran et trouve tes activités inutiles."
+      "fit": "Un partenaire partant pour faire des choses avec toi, ou qui te laisse les faire de ton côté.",
+      "risk": "Un partenaire collé à ses écrans, qui trouve tes activités inutiles."
     },
     "evasion": {
       "title": "Recharge par l'évasion",
@@ -1128,9 +1128,9 @@ const AMOUR_DATA = {
       "risk": "Un partenaire qui se moque de tes centres d'intérêt ou coupe sans cesse ta bulle."
     },
     "elan": {
-      "title": "Recharge par l'élan social",
+      "title": "Recharge avec du monde",
       "short": "avec du monde et du mouvement",
-      "couple": "Tu te recharges dans le mouvement et la rencontre : sorties, amis, animation.",
+      "couple": "Tu te recharges en voyant du monde : sorties, amis, soirées animées.",
       "fit": "Un partenaire qui aime sortir, ou qui te laisse sortir sans jalousie.",
       "risk": "Un partenaire très casanier qui vit tes sorties comme une trahison."
     }
@@ -1142,21 +1142,21 @@ const AMOUR_DATA = {
       "recv": "Les mots comptent énormément pour toi. Un compliment sincère, un « je t'aime » dit au bon moment, un message qui reconnaît ce que tu fais te remplissent pour plusieurs jours. À l'inverse, une critique sèche ou un long silence peuvent te blesser plus que l'autre ne l'imagine.",
       "tips": [
         "Dis-le clairement à ton partenaire : « Ce qui me touche le plus, c'est quand tu me dis ce que tu apprécies chez moi. »",
-        "Remarque les mots gentils quand ils arrivent, et dis merci : on répète ce qui est accueilli.",
-        "Si les reproches sont fréquents, demande qu'ils soient formulés sur un fait précis, jamais sur ce que tu es."
+        "Remarque les mots gentils quand ils arrivent, et dis merci : on a plus envie de recommencer quand c'est bien reçu.",
+        "Si les reproches sont fréquents, demande qu'ils portent sur un fait précis, jamais sur ta personne."
       ],
-      "partnerHint": "met des mots sur ce qu'il ou elle ressent et apprécie chez toi"
+      "partnerHint": "te dit ce qu'il ou elle ressent, et ce qu'il ou elle aime chez toi"
     },
     "moments": {
       "name": "Les moments de qualité",
       "lower": "les moments de qualité",
-      "recv": "Pour toi, l'amour, c'est de la présence. Pas seulement être dans la même pièce : être vraiment là, attentif, sans écran, disponible. Une soirée où l'autre t'écoute pleinement vaut plus qu'un beau cadeau. Être remis·e à plus tard, encore et encore, te fait douter d'être important·e.",
+      "recv": "Pour toi, l'amour, c'est être là. Pas juste dans la même pièce : vraiment là, sans écran, à l'écoute. Une soirée où l'autre t'écoute pour de vrai vaut plus qu'un beau cadeau. Quand on te fait passer après, encore et encore, tu finis par douter de compter.",
       "tips": [
         "Propose un rendez-vous fixe, même court : 30 minutes par jour sans téléphone, ou une soirée par semaine rien qu'à deux.",
         "Dis ce qui compte : « Quand tu poses ton téléphone pour m'écouter, je me sens aimé·e. »",
-        "Repère les moments partagés qui existent déjà (un café, un trajet) et donne-leur de la valeur."
+        "Repère les moments partagés qui existent déjà (un café, un trajet) et profites-en vraiment."
       ],
-      "partnerHint": "t'offre du temps et une attention pleine, sans distraction"
+      "partnerHint": "prend du temps pour toi et t'écoute vraiment, sans téléphone"
     },
     "cadeaux": {
       "name": "Les cadeaux",
@@ -1165,31 +1165,31 @@ const AMOUR_DATA = {
       "tips": [
         "Explique que ce n'est pas matériel : « Un petit rien qui prouve que tu as pensé à moi me touche énormément. »",
         "Partage tes dates importantes et quelques idées simples : on ne devine pas toujours.",
-        "Garde une trace des attentions reçues (une boîte, une photo) : elles nourrissent dans les jours plus difficiles."
+        "Garde une trace des attentions reçues (une boîte, une photo) : ça fait du bien de les retrouver les jours difficiles."
       ],
-      "partnerHint": "pense à toi et te le prouve par de petites attentions"
+      "partnerHint": "pense à toi et te le montre par de petites attentions"
     },
     "services": {
       "name": "Les services rendus",
       "lower": "les services rendus",
-      "recv": "Pour toi, aimer se voit dans les actes. Quand l'autre prend en charge une tâche, anticipe ce qui te pèse, partage vraiment la charge du quotidien, tu te sens aimé·e. Les belles paroles sans actes, en revanche, sonnent creux.",
+      "recv": "Pour toi, l'amour se voit dans les actes. Quand l'autre s'occupe d'une corvée sans qu'on le lui demande, pense à ce qui te pèse, partage vraiment le quotidien, tu te sens aimé·e. Les belles paroles sans actes, par contre, ça sonne creux.",
       "tips": [
-        "Nomme précisément ce qui te soulagerait : « Si tu t'occupes des courses le samedi, je me sens soutenu·e. »",
-        "Remercie les gestes concrets : ils sont ton carburant, dis-le.",
+        "Dis précisément ce qui t'aiderait : « Si tu t'occupes des courses le samedi, je me sens soutenu·e. »",
+        "Dis merci pour les coups de main, et explique que c'est comme ça que tu te sens aimé·e.",
         "Si la charge est déséquilibrée depuis longtemps, mets le sujet sur la table calmement, liste à l'appui."
       ],
-      "partnerHint": "agit concrètement et partage vraiment la charge du quotidien"
+      "partnerHint": "met la main à la pâte et partage vraiment le quotidien"
     },
     "toucher": {
       "name": "Le toucher physique",
       "lower": "le toucher",
-      "recv": "Le contact physique est ton langage le plus direct : une main tenue, un câlin, une caresse en passant. Il te rassure et te relie, bien au-delà de la sexualité. Un partenaire distant physiquement peut te donner le sentiment d'être rejeté·e, même s'il t'aime.",
+      "recv": "Pour toi, le contact physique passe avant tout : une main tenue, un câlin, une caresse en passant. Ça te rassure et te rapproche de l'autre, et pas seulement au lit. Un partenaire peu tactile peut te donner l'impression d'être rejeté·e, même s'il t'aime.",
       "tips": [
-        "Dites-le simplement : « Un câlin le matin, ta main dans la mienne, c'est ce qui me rassure le plus. »",
+        "Dis-le simplement : « Un câlin le matin, ta main dans la mienne, c'est ce qui me rassure le plus. »",
         "Propose des gestes du quotidien, pas seulement des moments intimes.",
         "Si l'autre est peu tactile, cherche ensemble des gestes qui lui conviennent aussi, sans forcer."
       ],
-      "partnerHint": "est à l'aise avec le contact physique et l'offre spontanément"
+      "partnerHint": "aime les câlins et en donne sans que tu aies à demander"
     }
   },
   "ennea": {
@@ -1210,7 +1210,7 @@ const AMOUR_DATA = {
         "n": 3,
         "name": "le Battant",
         "couple": "En couple, tu apportes de l'élan et des projets, et tu as besoin d'un partenaire qui t'aime pour qui tu es, pas pour ce que tu réussis.",
-        "piege": "faire passer l'image ou le travail avant le lien"
+        "piege": "faire passer ton image ou ton travail avant ton couple"
       },
       "t4": {
         "n": 4,
@@ -1221,7 +1221,7 @@ const AMOUR_DATA = {
       "t5": {
         "n": 5,
         "name": "l'Observateur",
-        "couple": "En couple, tu apportes du calme, de la loyauté et un regard juste, et tu as besoin d'un partenaire qui respecte ton besoin de retrait.",
+        "couple": "En couple, tu apportes du calme, de la loyauté et un regard juste, et tu as besoin d'un partenaire qui respecte ton besoin d'être seul·e par moments.",
         "piege": "te retirer au lieu de partager ce que tu ressens"
       },
       "t6": {
@@ -1240,7 +1240,7 @@ const AMOUR_DATA = {
         "n": 8,
         "name": "le Protecteur",
         "couple": "En couple, tu apportes de la force et de la protection, et tu as besoin d'un partenaire solide, qui ose te tenir tête avec douceur.",
-        "piege": "prendre trop de place et confondre intensité et vérité"
+        "piege": "prendre trop de place, et croire que parler fort, c'est avoir raison"
       },
       "t9": {
         "n": 9,
@@ -1249,7 +1249,7 @@ const AMOUR_DATA = {
         "piege": "t'effacer pour éviter le conflit"
       }
     },
-    "disclaimer": "L'ennéagramme est une hypothèse de départ, pas une étiquette. Trois écrans ne suffisent pas à trouver ton type avec certitude : prends ce résultat comme une piste à explorer, idéalement accompagné·e.",
+    "disclaimer": "L'ennéagramme est une hypothèse de départ, pas une étiquette. Trois écrans ne suffisent pas à trouver ton type avec certitude : prends ce résultat comme une piste à explorer, idéalement avec quelqu'un qui connaît bien l'ennéagramme.",
     "credit": "L'ennéagramme décrit 9 motivations de base et 3 instincts (conservation, social, tête-à-tête).",
     "stressHint": "Ta réaction sous stress fort va dans le même sens que ta piste.",
     "confidenceOne": "C'est ta piste principale, à confirmer avec le temps.",
@@ -1258,27 +1258,27 @@ const AMOUR_DATA = {
   "instincts": {
     "sp": {
       "name": "conservation",
-      "desc": "Ton énergie va d'abord vers le confort, la sécurité matérielle et le bien-être du quotidien.",
+      "desc": "Tu penses d'abord au confort, à la sécurité matérielle, au bien-être de tous les jours.",
       "couple": "En couple, tu construis un nid : un foyer, des habitudes, une sécurité concrète."
     },
     "so": {
       "name": "social",
-      "desc": "Ton énergie va d'abord vers le groupe, l'appartenance et la place que vous avez parmi les autres.",
-      "couple": "En couple, tu as besoin que votre histoire s'inscrive dans une vie partagée, avec des amis, une famille, une communauté."
+      "desc": "Tu penses d'abord au groupe : faire partie d'un cercle, trouver ta place parmi les autres.",
+      "couple": "En couple, tu as besoin que votre histoire fasse partie d'une vie plus large, avec des amis, de la famille, un entourage."
     },
     "sx": {
       "name": "tête-à-tête",
-      "desc": "Ton énergie va d'abord vers l'intensité du lien avec une personne : la connexion, l'étincelle.",
+      "desc": "Tu cherches d'abord un lien fort avec une personne : l'attirance, l'étincelle.",
       "couple": "En couple, tu cherches l'attirance, la fusion et des échanges intenses, rien que vous deux."
     }
   },
   "instinctPairs": {
     "sp-sp": "Deux « conservation » : un foyer stable et rassurant. Le risque : que la routine et le confort remplacent le désir. Prévoyez de la nouveauté à deux.",
     "so-so": "Deux « social » : une vie riche d'amis et de projets communs. Le risque : ne plus avoir de temps rien qu'à deux. Protégez des moments intimes.",
-    "sx-sx": "Deux « tête-à-tête » : une connexion intense, magnétique. Le risque : les montagnes russes et la jalousie. Gardez des repères stables.",
+    "sx-sx": "Deux « tête-à-tête » : un lien intense, presque magnétique. Le risque : les montagnes russes et la jalousie. Gardez des repères stables.",
     "sp-so": "Conservation et social : l'un rêve de cocon, l'autre de monde. Bien vécu, c'est un bel équilibre entre foyer et ouverture. Mal vécu, l'un se sent seul à la maison et l'autre enfermé.",
     "sp-sx": "Conservation et tête-à-tête : l'un cherche la sécurité, l'autre l'intensité. Ensemble, vous pouvez allier stabilité et passion, si l'un ne vit pas l'autre comme « trop calme » ou « trop intense ».",
-    "so-sx": "Social et tête-à-tête : l'un s'épanouit en groupe, l'autre veut l'exclusivité. Friction classique : les soirées entre amis. Un accord simple aide, par exemple une sortie à plusieurs, puis une soirée rien qu'à deux."
+    "so-sx": "Social et tête-à-tête : l'un s'épanouit en groupe, l'autre veut l'exclusivité. Le sujet qui fâche, c'est souvent les soirées entre amis. Un accord simple aide, par exemple une sortie à plusieurs, puis une soirée rien qu'à deux."
   },
   "values": {
     "honnetete": {
@@ -1361,12 +1361,12 @@ const AMOUR_DATA = {
     "modere": {
       "D": {
         "short": "prends les choses en main",
-        "text": "Sous pression, tu passes à l'action et tu tranches. Précieux, tant que l'autre a le temps de suivre.",
+        "text": "Sous pression, tu passes à l'action et tu tranches. C'est une force, tant que l'autre a le temps de suivre.",
         "partner": "Un partenaire qui ose te dire « attends » sans s'écraser."
       },
       "I": {
         "short": "dédramatises",
-        "text": "Tu allèges l'ambiance par la parole et l'humour. Veille à ne pas glisser sur ce qui compte.",
+        "text": "Tu détends l'atmosphère en parlant, en plaisantant. Attention à ne pas passer à côté de ce qui compte.",
         "partner": "Un partenaire qui rit avec toi, puis revient au sujet avec douceur."
       },
       "S": {
@@ -1377,7 +1377,7 @@ const AMOUR_DATA = {
       "C": {
         "short": "analyses",
         "text": "Tu cherches les faits et la logique. Le risque : avoir raison, mais rater l'émotion de l'autre.",
-        "partner": "Un partenaire qui accepte les faits, et toi qui accueilles ses émotions."
+        "partner": "Un partenaire qui entend tes arguments, et à qui tu laisses de la place pour ses émotions."
       }
     },
     "fort": {
@@ -1432,7 +1432,7 @@ const AMOUR_DATA = {
     },
     "blesser": {
       "short": "la peur de blesser l'autre",
-      "antidote": "Dire ce que tu ressens avec douceur n'est pas blesser. Te taire, à la longue, blesse davantage."
+      "antidote": "Dire ce que tu ressens avec douceur, ce n'est pas blesser. Te taire, à la longue, fait plus de mal."
     },
     "moment": {
       "short": "attendre le bon moment",
@@ -1440,7 +1440,7 @@ const AMOUR_DATA = {
     },
     "espoir": {
       "short": "espérer que l'autre change",
-      "antidote": "Regarde ce qui est là aujourd'hui, pas ce qui pourrait être. Choisis en fonction des actes."
+      "antidote": "Regarde ce que l'autre fait aujourd'hui, pas ce qu'il pourrait devenir. Fie-toi aux actes."
     },
     "habitude": {
       "short": "le confort de l'habitude",
@@ -1452,7 +1452,7 @@ const AMOUR_DATA = {
     },
     "flou": {
       "short": "ne pas savoir ce que tu veux",
-      "antidote": "Relis tes 3 non-négociables : ils sont ta boussole quand tu doutes."
+      "antidote": "Relis tes 3 non-négociables : quand tu doutes, ce sont eux qui te guident."
     },
     "regard": {
       "short": "le regard des autres",
@@ -1460,7 +1460,7 @@ const AMOUR_DATA = {
     },
     "contraintes": {
       "short": "les contraintes matérielles",
-      "antidote": "Sépare la décision et l'organisation. On peut décider d'abord, puis organiser pas à pas."
+      "antidote": "D'abord tu décides, ensuite tu t'organises, étape par étape. Pas besoin de tout régler avant de choisir."
     },
     "energie": {
       "short": "le manque de temps ou d'énergie",
@@ -1599,11 +1599,11 @@ const AMOUR_DATA = {
   ],
   "universalCritical": "Un partenaire qui méprise, contrôle, menace ou violente. Ce n'est pas une incompatibilité : c'est un signal d'alerte, qui appelle l'aide d'un professionnel.",
   "keyMessages": [
-    "L'émotion et la chimie ne suffisent pas. Elles disent « je suis attiré·e », pas « nous pouvons être heureux ensemble ».",
-    "On peut être amoureux·se et malheureux·se. Ce n'est pas un paradoxe : c'est le signe que des besoins essentiels ne sont pas nourris.",
+    "Le coup de cœur et l'attirance ne suffisent pas. Ils disent « tu me plais », pas « on peut être heureux ensemble ».",
+    "On peut être amoureux·se et malheureux·se. Ce n'est pas un paradoxe : c'est le signe qu'il te manque quelque chose d'essentiel.",
     "On ne change pas quelqu'un. Lui demander de changer, c'est lui demander d'arrêter d'être lui-même.",
-    "Le bon critère : un partenaire dont tu peux accepter les défauts sur le long terme, parce qu'ils ne touchent pas tes besoins essentiels.",
-    "Le même fond, des formes différentes : partager les valeurs profondes, et avoir des talents différents en surface, c'est souvent la recette d'un couple qui dure."
+    "La bonne question : est-ce que tu peux vivre avec ses défauts sur le long terme ? Si oui, c'est qu'ils ne touchent pas à l'essentiel pour toi.",
+    "Pareils sur le fond, différents dans la forme : les mêmes valeurs, mais des talents différents, c'est souvent la recette d'un couple qui dure."
   ],
   "sentences": {
     "need": "{prenom}, ce qui te nourrit vraiment : {n1}, {n2} et {n3}. Tu te sens aimé·e surtout par {lang1} et {lang2}, et tu te recharges {rechargeShort}.",
@@ -1640,7 +1640,7 @@ AMOUR_DATA.profil = {
     "besoins": {
       "securite": {
         "name": "Sécurité",
-        "key": "J'ai besoin de savoir sur quoi je peux compter.",
+        "key": "J'ai besoin de savoir sur qui je peux compter.",
         "noun": "Ancre",
         "adj": "Fidèle",
         "lower": "la sécurité",
@@ -1651,25 +1651,25 @@ AMOUR_DATA.profil = {
         "dark": "#5FC4C4",
         "icon": "anchor",
         "who": "quelqu'un de constant, qui tient parole et aime les repères",
-        "s1": "aimes en construisant un lien solide, sur lequel on peut compter",
-        "secNeed": "que ce lien reste fiable dans la durée",
-        "bloomShort": "la parole donnée est tenue et que l'avenir se dessine à deux",
+        "s1": "aimes en construisant du solide, avec quelqu'un sur qui tu peux compter",
+        "secNeed": "de pouvoir compter sur l'autre, dans la durée",
+        "bloomShort": "l'autre tient parole et que vous faites des projets ensemble",
         "fadeShort": "le flou s'installe et que les promesses restent en l'air",
-        "bloom": "Tu donnes le meilleur de toi dans une relation stable, où chacun fait ce qu'il dit. La régularité ne t'ennuie pas : elle te détend. Quand tu sais où vous allez, tu peux enfin lâcher la vigilance et montrer toute ta tendresse.",
+        "bloom": "Tu donnes le meilleur de toi dans une relation stable, où chacun fait ce qu'il dit. La régularité ne t'ennuie pas : elle te détend. Quand tu sais où vous allez, tu arrêtes d'être sur tes gardes et tu montres toute ta tendresse.",
         "bloomList": [
           "Un ou une partenaire qui prévient quand il ou elle a un empêchement, sans que tu aies à demander.",
-          "Des projets posés à deux : un voyage réservé, un logement, une date dans l'agenda.",
+          "Des projets décidés à deux : un voyage réservé, un appart, une date dans l'agenda.",
           "Des rituels qui reviennent : le message du soir, le dîner du dimanche."
         ],
-        "secBloom": "tu as aussi besoin de repères et de parole tenue",
-        "fade": "Ce qui t'use, ce n'est pas un grand drame, c'est l'incertitude qui dure. Un message sans réponse, un projet repoussé, une humeur imprévisible, et tu passes en mode veille. Tu deviens vigilant·e, tu poses des questions, et l'autre peut croire que tu le contrôles alors que tu cherches juste un sol stable.",
+        "secBloom": "tu as aussi besoin de repères, et que l'autre tienne parole",
+        "fade": "Ce qui t'use, ce n'est pas un grand drame, c'est l'incertitude qui dure. Un message sans réponse, un projet repoussé, une humeur imprévisible, et tu te mets sur tes gardes. Tu poses des questions, tu surveilles, et l'autre peut croire que tu le contrôles, alors que tu as juste besoin d'être rassuré·e.",
         "fadeList": [
           "Les plans qui changent au dernier moment, sans explication.",
-          "« On verra » comme seule réponse à « où va-t-on ? ».",
+          "« On verra », comme seule réponse à « on va où, nous deux ? ».",
           "Un ou une partenaire chaleureux·se un jour, distant·e le lendemain."
         ],
-        "alarm": "Si tu te surprends à vérifier, relancer ou deviner l'humeur de l'autre plusieurs fois par jour, ce n'est pas toi qui es « trop » : c'est ton besoin de sécurité qui crie.",
-        "secFade": "le flou durable finit toujours par te peser",
+        "alarm": "Si tu te surprends à vérifier, relancer ou deviner l'humeur de l'autre plusieurs fois par jour, ce n'est pas toi qui es « trop » : c'est ton besoin de sécurité qui tire la sonnette d'alarme.",
+        "secFade": "le flou qui dure finit toujours par te peser",
         "rel": {
           "rythme": "Un rythme régulier, avec des rendez-vous qui reviennent. L'imprévu te va s'il reste l'exception.",
           "proximite": "Une proximité stable : se voir souvent, se donner des nouvelles, sans forcément tout faire ensemble.",
@@ -1679,20 +1679,20 @@ AMOUR_DATA.profil = {
         "secCond": "des engagements tenus, même petits",
         "partnerFond": "quelqu'un de constant, qui rassure par ses actes plus que par ses promesses",
         "sayPartner": [
-          "« J'ai besoin de savoir sur quoi je peux compter. Quand tu fais ce que tu dis, je me détends. »",
+          "« J'ai besoin de savoir que je peux compter sur toi. Quand tu fais ce que tu dis, je me détends. »",
           "« Si tu as un empêchement, préviens-moi, même d'un mot. Ça change tout pour moi. »",
           "« J'aimerais qu'on parle de nos projets pour l'année qui vient. »"
         ],
         "sayDate": [
-          "« J'aime les relations où l'on sait où l'on va, sans se presser. »",
+          "« J'aime bien savoir où on va, sans se presser pour autant. »",
           "Une question à poser : « Qu'est-ce qui compte le plus pour toi dans une relation qui dure ? »"
         ],
-        "trigger": "tu sens le lien vaciller : un silence, un doute, une promesse oubliée",
-        "calm": "une phrase qui rassure sur le lien, avant de chercher une solution"
+        "trigger": "tu sens que le lien n'est plus sûr : un silence, un doute, une promesse oubliée",
+        "calm": "une phrase qui te rassure sur vous deux, avant de chercher une solution"
       },
       "profondeur": {
         "name": "Profondeur",
-        "key": "J'ai besoin d'être connu·e vraiment, pas seulement aimé·e.",
+        "key": "J'ai besoin qu'on me connaisse vraiment, pas seulement qu'on m'aime.",
         "noun": "Miroir",
         "adj": "Profond·e",
         "lower": "la profondeur",
@@ -1703,18 +1703,18 @@ AMOUR_DATA.profil = {
         "dark": "#A99BE6",
         "icon": "waves",
         "who": "quelqu'un qui aime les vraies conversations et ose parler de ce qu'il ressent",
-        "s1": "aimes en profondeur, avec des conversations vraies et le cœur ouvert",
-        "secNeed": "de pouvoir tout dire, même ce qui est fragile",
+        "s1": "aimes en profondeur, avec de vraies conversations et le cœur ouvert",
+        "secNeed": "de pouvoir tout dire, même ce qui te rend fragile",
         "bloomShort": "tu peux tout dire et que l'autre cherche vraiment à te comprendre",
-        "fadeShort": "la relation reste en surface et que les émotions sont tues",
-        "bloom": "Tu t'épanouis quand la relation devient un lieu où l'on peut tout dire. Une soirée à parler de vos rêves et de vos peurs te nourrit plus qu'un grand restaurant. Quand tu te sens compris·e, tu deviens un ou une partenaire d'une loyauté et d'une écoute rares.",
+        "fadeShort": "la relation reste en surface et qu'on ne parle pas de ce qu'on ressent",
+        "bloom": "Tu t'épanouis quand tu peux tout dire à l'autre. Une soirée à parler de vos rêves et de vos peurs te fait plus de bien qu'un grand restaurant. Quand tu te sens compris·e, tu es d'une fidélité et d'une écoute rares.",
         "bloomList": [
           "Un ou une partenaire qui pose des questions et écoute la réponse jusqu'au bout.",
           "Des conversations qui durent tard, sans téléphone sur la table.",
           "Le droit d'être triste, inquiet·e ou ému·e sans être jugé·e."
         ],
         "secBloom": "tu as aussi besoin de vraies conversations, pas seulement de bons moments",
-        "fade": "Ce qui t'éteint, c'est la solitude à deux. Un ou une partenaire qui change de sujet, qui se moque de ta sensibilité ou qui est toujours ailleurs te laisse face à toi-même. Peu à peu, tu te tais, et le lien se vide sans bruit.",
+        "fade": "Ce qui t'éteint, c'est de te sentir seul·e à deux. Un ou une partenaire qui change de sujet, se moque de ta sensibilité ou a toujours la tête ailleurs, et tu restes seul·e avec ce que tu vis. Peu à peu, tu te tais, et la relation se vide sans bruit.",
         "fadeList": [
           "« Tu te prends la tête » en réponse à ce qui te touche.",
           "Des silences qui durent des jours après une dispute.",
@@ -1724,12 +1724,12 @@ AMOUR_DATA.profil = {
         "secFade": "une relation qui reste en surface finit par te laisser seul·e à deux",
         "rel": {
           "rythme": "Un rythme qui laisse le temps de se parler vraiment : moins de sorties, plus de vrais moments.",
-          "proximite": "Une proximité émotionnelle forte : savoir ce que l'autre vit, ressent, espère.",
+          "proximite": "Être très proches dans le cœur : savoir ce que l'autre vit, ressent, espère.",
           "independance": "Tu acceptes la distance physique, pas la distance du cœur. Ton ou ta partenaire peut voyager, tant qu'il ou elle te raconte.",
-          "conflits": "Tu as besoin de parler jusqu'à comprendre. Un conflit balayé sans explication reste ouvert en toi."
+          "conflits": "Tu as besoin de parler jusqu'à comprendre. Une dispute qu'on balaie sans s'expliquer, tu la gardes en toi."
         },
         "secCond": "des moments réguliers pour vraiment se parler",
-        "partnerFond": "quelqu'un de curieux de ton monde intérieur, qui ose aussi parler du sien",
+        "partnerFond": "quelqu'un qui s'intéresse à ce qui se passe en toi, et qui ose parler de ce qui se passe en lui ou en elle",
         "sayPartner": [
           "« Ce soir, j'aimerais qu'on se parle vraiment. Pas de l'organisation : de nous. »",
           "« Quand je te raconte quelque chose qui me touche, j'ai juste besoin que tu m'écoutes jusqu'au bout. »",
@@ -1744,7 +1744,7 @@ AMOUR_DATA.profil = {
       },
       "admiration": {
         "name": "Admiration",
-        "key": "J'ai besoin de me sentir vu·e et choisi·e.",
+        "key": "J'ai besoin de sentir que l'autre me remarque et me choisit.",
         "noun": "Étoile",
         "adj": "Brillant·e",
         "lower": "l'admiration",
@@ -1754,11 +1754,11 @@ AMOUR_DATA.profil = {
         "tint": "#F9E9F0",
         "dark": "#F08DB8",
         "icon": "sparkles",
-        "who": "quelqu'un qui a besoin d'être vu et valorisé, et qui sait valoriser en retour",
-        "s1": "aimes avec chaleur, en rayonnant quand on te regarde avec fierté",
-        "secNeed": "d'un regard fier de toi",
+        "who": "quelqu'un qui aime qu'on le ou la remarque, et qui sait faire des compliments en retour",
+        "s1": "aimes avec chaleur, et tu t'illumines quand l'autre est fier·e de toi",
+        "secNeed": "que l'autre soit fier·e de toi",
         "bloomShort": "l'autre est fier·e de toi et te le dit",
-        "fadeShort": "tes efforts passent inaperçus et que l'on te prend pour acquis·e",
+        "fadeShort": "personne ne remarque tes efforts et que tout ce que tu fais semble normal",
         "bloom": "Tu t'épanouis quand tu te sens choisi·e, chaque jour, et pas seulement au début. Un mot de fierté, un merci sincère, un compliment devant tes amis te donnent des ailes. Ce n'est pas de la vanité : c'est la preuve que l'autre te voit vraiment.",
         "bloomList": [
           "Un ou une partenaire qui remarque tes efforts, et qui le dit.",
@@ -1766,14 +1766,14 @@ AMOUR_DATA.profil = {
           "Des attentions qui montrent que tu comptes, pas seulement des habitudes."
         ],
         "secBloom": "tu as aussi besoin de mots de fierté et de reconnaissance",
-        "fade": "Ce qui t'éteint, c'est l'indifférence. Quand ce que tu fais devient normal, quand on te critique plus qu'on ne te remercie, tu te mets à en faire toujours plus pour être enfin vu·e. Ou tu te fermes, blessé·e, sans le dire.",
+        "fade": "Ce qui te fait mal, c'est l'indifférence. Quand tout ce que tu fais devient normal, quand on te critique plus qu'on ne te remercie, tu en fais toujours plus pour qu'on te remarque enfin. Ou alors tu te fermes, blessé·e, sans rien dire.",
         "fadeList": [
           "Les critiques répétées, surtout devant les autres.",
           "Tes réussites accueillies par un « ah, bien » distrait.",
           "Porter seul·e la charge du quotidien, sans un merci."
         ],
         "alarm": "Si tu te surprends à en faire toujours plus en espérant un regard qui ne vient pas, ton besoin d'admiration est à sec.",
-        "secFade": "l'indifférence finit par te ternir, même dans une relation stable",
+        "secFade": "l'indifférence finit par t'éteindre, même dans une relation stable",
         "rel": {
           "rythme": "Un rythme vivant, avec des moments où l'on se met en valeur : un dîner, une sortie, une fête.",
           "proximite": "Une proximité qui se voit : des gestes, des mots, une fierté affichée, y compris devant les autres.",
@@ -1808,7 +1808,7 @@ AMOUR_DATA.profil = {
         "icon": "feather",
         "who": "quelqu'un qui a sa propre vie et laisse de l'air",
         "s1": "aimes en restant toi-même, avec de l'espace pour respirer",
-        "secNeed": "de garder de l'air et une vie à toi",
+        "secNeed": "de garder une vie à toi",
         "bloomShort": "l'autre te fait confiance et te laisse respirer",
         "fadeShort": "tu dois te justifier de tout et que la relation t'enferme",
         "bloom": "Tu t'épanouis dans une relation où chacun garde sa vie : tes amis, tes projets, tes moments seul·e. Plus tu te sens libre, plus tu reviens vers l'autre avec envie. Ce n'est pas un manque d'amour, c'est ta façon d'aimer sans t'éteindre.",
@@ -1828,7 +1828,7 @@ AMOUR_DATA.profil = {
         "secFade": "une relation qui t'enferme finit par te faire fuir",
         "rel": {
           "rythme": "Un rythme souple, avec des temps forts ensemble et des temps pour toi, sans avoir à t'en excuser.",
-          "proximite": "Une proximité choisie plutôt qu'obligée : tu reviens vers l'autre parce que tu en as envie.",
+          "proximite": "Être proches parce que vous en avez envie, pas par obligation : tu reviens vers l'autre parce que ça te fait plaisir.",
           "independance": "Forte : tes amis, tes projets, ton argent, ton temps. Tu veux un ou une partenaire, pas un emploi du temps partagé.",
           "conflits": "Tu as besoin de recul avant d'en parler. Coincé·e dans une discussion, tu t'échappes ; avec un peu d'air, tu reviens avec des solutions."
         },
@@ -1859,29 +1859,29 @@ AMOUR_DATA.profil = {
         "dark": "#9CCB84",
         "icon": "leaf",
         "who": "quelqu'un de doux, qui cherche la paix et la tendresse",
-        "s1": "aimes avec douceur, en créant autour de toi un cocon apaisant",
+        "s1": "aimes avec douceur, et tu crées autour de toi un vrai cocon",
         "secNeed": "d'un quotidien doux, sans cris ni piques",
         "bloomShort": "le quotidien est doux et que les désaccords se disent sans cris",
         "fadeShort": "les piques et les tensions deviennent ordinaires",
-        "bloom": "Tu t'épanouis dans une relation tendre et apaisée. Les gestes du quotidien, une main dans le dos, une soirée tranquille, te remplissent profondément. Dans ce climat, tu offres une douceur et une gentillesse qui font du bien à tout le monde.",
+        "bloom": "Tu t'épanouis dans une relation tendre et apaisée. Les petits gestes de tous les jours, une main dans le dos, une soirée tranquille, te font un bien fou. Dans ce climat-là, tu offres une douceur et une gentillesse qui font du bien à tout le monde.",
         "bloomList": [
           "Des soirées calmes, à deux, sans tension dans l'air.",
           "La tendresse au quotidien : un câlin en passant, un mot doux.",
           "Des désaccords qui se disent calmement, puis une vraie réconciliation."
         ],
         "secBloom": "tu as aussi besoin de calme et de tendresse au quotidien",
-        "fade": "Ce qui t'éteint, ce sont les éclats de voix, l'ironie, les tensions qui durent. Pour éviter le conflit, tu arrondis les angles, tu te tais, tu t'adaptes. Les non-dits s'accumulent, jusqu'au jour où tu pars sans que l'autre ait rien vu venir.",
+        "fade": "Ce qui t'épuise, ce sont les éclats de voix, l'ironie, les tensions qui durent. Pour éviter le conflit, tu arrondis les angles, tu te tais, tu t'adaptes. Les non-dits s'accumulent, jusqu'au jour où tu pars sans que l'autre ait rien vu venir.",
         "fadeList": [
           "Les cris, les piques, l'ironie qui blesse.",
           "Une ambiance tendue qui dure des jours.",
           "Devoir toujours céder pour que la paix revienne."
         ],
-        "alarm": "Si tu te surprends à te taire pour éviter une dispute, encore et encore, ton besoin d'harmonie te coûte ta voix.",
+        "alarm": "Si tu te surprends à te taire pour éviter une dispute, encore et encore, ton besoin d'harmonie t'empêche de dire ce que tu penses.",
         "secFade": "les tensions qui durent finissent par t'épuiser",
         "rel": {
           "rythme": "Un rythme doux et prévisible, avec des soirées calmes et des moments de tendresse.",
           "proximite": "Une proximité tendre : des gestes, de la douceur, une présence qui apaise.",
-          "independance": "Modérée : tu aimes partager beaucoup, sans fusion, tant que l'ambiance reste paisible.",
+          "independance": "Moyenne : tu aimes partager beaucoup de choses, sans être collé·e à l'autre, tant que l'ambiance reste paisible.",
           "conflits": "Tu as besoin de désaccords sans cris ni piques. Parler calmement, au bon moment, puis se réconcilier vraiment."
         },
         "secCond": "des désaccords sans cris ni piques",
@@ -1915,14 +1915,14 @@ AMOUR_DATA.profil = {
         "secNeed": "de rire et de faire équipe au quotidien",
         "bloomShort": "vous riez ensemble et que vous avancez comme une équipe",
         "fadeShort": "tout devient lourd et que tu portes seul·e le quotidien",
-        "bloom": "Tu t'épanouis quand le couple est une équipe joyeuse. Des blagues que vous êtes seuls à comprendre, des petits projets, des tâches partagées sans compter : pour toi, c'est ça, l'amour. Dans une relation légère et solidaire, tu deviens un ou une partenaire plein·e d'énergie et de bonne humeur.",
+        "bloom": "Tu t'épanouis quand le couple est une équipe joyeuse. Des blagues que personne d'autre ne comprend, des petits projets, des tâches partagées sans compter : pour toi, c'est ça, l'amour. Dans une relation légère où l'on se serre les coudes, tu es un ou une partenaire plein·e d'énergie et de bonne humeur.",
         "bloomList": [
-          "Des fous rires et des blagues que vous êtes seuls à comprendre.",
+          "Des fous rires et des blagues que personne d'autre ne comprend.",
           "Des tâches partagées sans avoir à négocier.",
           "Des petits projets à deux : une recette, un week-end, un meuble à monter."
         ],
         "secBloom": "tu as aussi besoin de rire et de faire des choses ensemble",
-        "fade": "Ce qui t'éteint, c'est la lourdeur. Les reproches permanents, le sérieux en continu, la charge du quotidien qui repose sur toi te vident. Tu perds ta joie, tu deviens irritable, et tu finis par chercher la légèreté ailleurs.",
+        "fade": "Ce qui te plombe, c'est quand tout devient lourd. Les reproches permanents, le sérieux du matin au soir, la charge du quotidien qui repose sur toi te vident. Tu perds ta joie, tu deviens irritable, et tu finis par chercher la légèreté ailleurs.",
         "fadeList": [
           "Porter seul·e les courses, les rendez-vous, l'organisation.",
           "Un ou une partenaire qui ne rit plus à tes blagues.",
@@ -1932,7 +1932,7 @@ AMOUR_DATA.profil = {
         "secFade": "un quotidien sans rire ni entraide finit par te vider",
         "rel": {
           "rythme": "Un rythme animé : des rires, des sorties, des idées, des petits projets à deux.",
-          "proximite": "Une proximité de coéquipiers : faire ensemble, partager les tâches, se raconter les petites choses.",
+          "proximite": "Être proches comme des coéquipiers : faire ensemble, partager les tâches, se raconter les petites choses.",
           "independance": "Tu aimes faire beaucoup à deux, mais pas tout. Chacun peut avoir ses amis, tant que vous restez une équipe.",
           "conflits": "Tu as besoin de régler vite et de passer à autre chose. Une bouderie qui dure te pèse plus que la dispute elle-même."
         },
@@ -1974,7 +1974,7 @@ AMOUR_DATA.profil = {
           "Un ou une partenaire qui ose, qui propose, qui te bouscule un peu."
         ],
         "secBloom": "tu as aussi besoin d'élan, de surprise et de désir",
-        "fade": "Ce qui t'éteint, c'est la routine sans surprise. Les mêmes soirées, les mêmes conversations, un désir qui s'endort : tu t'éteins à petit feu. Le risque, c'est de chercher l'étincelle ailleurs, ou de créer des drames pour sentir que ça vit encore.",
+        "fade": "Ton ennemi, c'est la routine sans surprise. Les mêmes soirées, les mêmes conversations, un désir qui s'endort : tu t'éteins à petit feu. Le risque, c'est de chercher l'étincelle ailleurs, ou de créer des drames pour sentir que ça vit encore.",
         "fadeList": [
           "Les mêmes soirées, encore et encore.",
           "Un ou une partenaire qui ne propose jamais rien de nouveau.",
@@ -2004,14 +2004,14 @@ AMOUR_DATA.profil = {
       }
     },
     "alliages": {
-      "securite+profondeur": "Tu veux du solide et du vrai. Tu t'engages lentement, mais quand tu t'engages, c'est en profondeur : tu veux connaître l'autre et pouvoir compter sur lui. Ton défi : laisser la relation respirer avant d'avoir toutes les réponses.",
+      "securite+profondeur": "Tu veux du solide et du vrai. Tu t'engages lentement, mais quand tu t'engages, c'est en profondeur : tu veux connaître l'autre et pouvoir compter sur lui. Ton défi : accepter de ne pas avoir toutes les réponses tout de suite.",
       "securite+admiration": "Tu as besoin d'un lien fiable et d'un regard qui te valorise. Tu donnes beaucoup pour que la relation tienne, et tu as besoin que ce soit vu. Ton défi : demander la reconnaissance au lieu d'attendre qu'elle vienne seule.",
       "securite+liberte": "Tu veux un port d'attache et de l'air. C'est un mélange rare et précieux : une relation stable où chacun garde sa vie. Ton défi : dire clairement tes deux besoins, pour que l'autre ne croie pas que tu souffles le chaud et le froid.",
       "securite+harmonie": "Tu rêves d'un foyer doux et sûr. Tu apportes de la constance et de la paix, deux choses qui font du bien sur la durée. Ton défi : ne pas confondre paix et silence, et oser mettre les sujets sensibles sur la table.",
       "securite+complicite": "Tu veux une équipe solide qui rit ensemble. Pour toi, le couple, ce sont des projets et des fous rires, des rituels et des blagues. Ton défi : garder la légèreté, même quand l'organisation prend toute la place.",
       "securite+intensite": "Tu veux la flamme et le port d'attache. Tu as besoin que ça vibre, mais pas que ça tangue. Ton défi : accepter qu'une relation stable puisse aussi être intense, et qu'une relation intense ne soit pas forcément instable.",
       "profondeur+admiration": "Tu veux être vu·e vraiment, jusque dans ce que tu caches. Les compliments de surface ne te suffisent pas : tu veux être admiré·e pour qui tu es. Ton défi : te montrer aussi dans tes fragilités, c'est là que l'autre peut t'aimer en entier.",
-      "profondeur+liberte": "Tu as un monde intérieur riche, et tu as besoin d'espace pour l'habiter. Tu aimes les conversations qui vont loin, puis le retour au calme, seul·e. Ton défi : prévenir quand tu te retires, pour que l'autre ne le prenne pas pour un rejet.",
+      "profondeur+liberte": "Tu as une vie intérieure riche, et tu as besoin de temps seul·e pour en profiter. Tu aimes les conversations qui vont loin, puis te retrouver au calme. Ton défi : prévenir quand tu prends du recul, pour que l'autre ne le prenne pas pour un rejet.",
       "profondeur+harmonie": "Tu aimes avec douceur et sincérité. Tu écoutes, tu comprends, tu apaises. Ton défi : dire aussi ce qui te blesse, sans attendre que l'autre le devine.",
       "profondeur+complicite": "Tu veux pouvoir tout dire et tout rire avec la même personne. Tu passes d'une discussion profonde à un fou rire, et c'est ta force. Ton défi : ne pas utiliser l'humour pour esquiver ce qui fait mal.",
       "profondeur+intensite": "Tu aimes fort et en vrai. Tu cherches une connexion rare, des échanges qui marquent, une relation qui ne ressemble à aucune autre. Ton défi : laisser une place au calme, sans croire que l'amour faiblit.",
@@ -2020,7 +2020,7 @@ AMOUR_DATA.profil = {
       "admiration+complicite": "Tu veux un ou une partenaire qui t'encourage et qui rit avec toi. Tu mets de la vie et de la chaleur partout où tu passes. Ton défi : accepter les moments plus calmes sans croire que l'amour baisse.",
       "admiration+intensite": "Tu aimes avec panache. Tu veux te sentir désiré·e, choisi·e, admiré·e, et que ça se voie. Ton défi : te souvenir que la constance est aussi une preuve d'amour, même quand elle fait moins de bruit.",
       "liberte+harmonie": "Tu veux une relation légère, au bon sens du mot : sans pression, sans cris, sans contrôle. Tu laisses l'autre libre et tu attends la même chose. Ton défi : ne pas fuir les désaccords au nom de la paix.",
-      "liberte+complicite": "Tu veux un ou une complice de route, pas quelqu'un qui te retient. Rire, partir, se retrouver : c'est ta façon d'aimer. Ton défi : accepter un minimum de cadre, il protège votre liberté au lieu de la réduire.",
+      "liberte+complicite": "Tu veux un ou une complice, pas quelqu'un qui te retient. Rire, partir, se retrouver : c'est ta façon d'aimer. Ton défi : accepter quelques règles, elles protègent votre liberté au lieu de la réduire.",
       "liberte+intensite": "Tu aimes l'aventure, la nouveauté, l'élan. Une relation, pour toi, c'est un voyage. Ton défi : rester quand l'excitation des débuts retombe, c'est souvent là que commence le plus beau.",
       "harmonie+complicite": "Tu veux un quotidien doux et joyeux. Tu crées une ambiance où l'on se sent bien, simplement. Ton défi : garder ta voix quand un sujet fâche, au lieu de tout arrondir.",
       "harmonie+intensite": "Tu veux la tendresse et la flamme. Tu as besoin de douceur au quotidien et de moments qui te font vibrer. Ton défi : accepter que l'intensité bouscule parfois la paix, et que ce n'est pas grave.",
@@ -2033,11 +2033,11 @@ AMOUR_DATA.profil = {
       },
       "admiration+complicite": {
         "type": "nourrit",
-        "text": "Vous vous faites briller l'un l'autre. Les encouragements, les rires et les sorties à deux vous nourrissent tous les deux."
+        "text": "Vous vous mettez en valeur l'un l'autre. Les encouragements, les rires et les sorties à deux vous font du bien à tous les deux."
       },
       "admiration+intensite": {
         "type": "nourrit",
-        "text": "Vous vous admirez et vous vous désirez. Chacun se sent choisi, et la relation garde du relief."
+        "text": "Vous vous admirez et vous vous désirez. Chacun se sent choisi, et la relation ne s'endort pas."
       },
       "liberte+intensite": {
         "type": "nourrit",
@@ -2065,7 +2065,7 @@ AMOUR_DATA.profil = {
       },
       "profondeur+admiration": {
         "type": "frotte",
-        "text": "L'un a besoin d'éclat et de reconnaissance, l'autre de vérité et d'intimité. Le risque : que l'un trouve l'autre trop grave, et l'autre trop en surface. Ça marche si chacun dit ce qu'il admire chez l'autre."
+        "text": "L'un a besoin de briller et d'être reconnu, l'autre de vérité et d'intimité. Le risque : que l'un trouve l'autre trop grave, et l'autre trop superficiel. Ça marche si chacun dit ce qu'il admire chez l'autre."
       },
       "profondeur+complicite": {
         "type": "frotte",
@@ -2093,7 +2093,7 @@ AMOUR_DATA.profil = {
       },
       "profondeur+liberte": {
         "type": "proche",
-        "text": "Deux personnes qui ont besoin de temps à elles et d'un monde intérieur. Vous vous comprenez sans vous justifier. Veillez à garder des moments vraiment partagés."
+        "text": "Vous avez tous les deux besoin de temps à vous et d'une vie intérieure riche. Vous vous comprenez sans avoir à vous justifier. Veillez à garder des moments vraiment partagés."
       },
       "liberte+complicite": {
         "type": "proche",
@@ -2105,7 +2105,7 @@ AMOUR_DATA.profil = {
       },
       "profondeur+intensite": {
         "type": "proche",
-        "text": "Une connexion forte, presque magnétique. Veillez à garder des repères stables pour éviter les montagnes russes."
+        "text": "Un lien fort, presque magnétique. Veillez à garder des repères stables pour éviter les montagnes russes."
       },
       "complicite+intensite": {
         "type": "proche",
@@ -2129,11 +2129,11 @@ AMOUR_DATA.profil = {
       },
       "harmonie+harmonie": {
         "type": "miroir",
-        "text": "Deux profils Harmonie : une douceur de chaque instant. Attention aux non-dits qui s'accumulent, faute de conflit."
+        "text": "Deux profils Harmonie : une douceur de chaque instant. Attention aux non-dits qui s'accumulent, parce que personne n'ose se disputer."
       },
       "complicite+complicite": {
         "type": "miroir",
-        "text": "Deux profils Complicité : une équipe joyeuse. Attention à ne jamais aborder les sujets qui comptent."
+        "text": "Deux profils Complicité : une équipe joyeuse. Attention à ne pas fuir les sujets sérieux."
       },
       "intensite+intensite": {
         "type": "miroir",
@@ -2153,209 +2153,209 @@ AMOUR_DATA.profil = {
       "sameLab": "Même famille",
       "cards": {
         "securite": {
-          "portrait": "Tu aimes quand le lien a des repères. Savoir sur quoi compter te détend, et c'est là que ta tendresse sort. La régularité n'est pas une cage pour toi, c'est la preuve que l'autre est là.",
-          "nourrit": "La parole tenue, les rendez-vous qui reviennent, un avenir qu'on dessine à deux.",
-          "vide": "Le flou qui dure, les promesses en l'air, une humeur qui change sans explication.",
+          "portrait": "Tu as besoin de savoir sur qui tu peux compter. Quand c'est clair, tu te détends, et c'est là que tu deviens vraiment tendre. Les habitudes ne t'enferment pas. Pour toi, elles prouvent que l'autre est là.",
+          "nourrit": "Les promesses tenues, les petits rituels qui reviennent, parler ensemble de l'avenir.",
+          "vide": "Ne pas savoir où on en est, les promesses qui restent des promesses, quelqu'un qui change d'humeur sans rien dire.",
           "nuances": {
-            "profondeur": "Profond·e : tu veux du solide et du vrai. Tu t'engages quand tu peux connaître l'autre et compter sur l'autre.",
-            "admiration": "Brillant·e : tu construis un lien fiable, et tu as besoin que ce que tu donnes soit vu.",
-            "liberte": "Libre : tu veux un port d'attache et de l'air. La stabilité te va si chacun garde sa vie.",
-            "harmonie": "Paisible : tu rêves d'un foyer doux et sûr. La paix te pose, à condition de ne pas confondre silence et accord.",
-            "complicite": "Joueur·euse : tu veux une équipe qui tient et qui rit. Les projets avancent mieux quand la légèreté reste là.",
-            "intensite": "Passionné·e : tu veux la flamme et du solide. Ça peut vibrer, sans que les repères bougent."
+            "profondeur": "Profond·e : tu veux du solide et du vrai. Tu t'engages quand tu connais vraiment la personne et que tu peux compter sur elle.",
+            "admiration": "Brillant·e : on peut te faire confiance, et tu as besoin qu'on remarque tout ce que tu fais pour le couple.",
+            "liberte": "Libre : tu veux une maison où revenir, et du temps pour toi. Une vie stable te va très bien, si chacun garde ses amis et ses activités.",
+            "harmonie": "Paisible : tu rêves d'une maison douce et sûre. Le calme te fait du bien. Attention quand même, un silence ne veut pas toujours dire oui.",
+            "complicite": "Joueur·euse : tu veux pouvoir compter sur l'autre, et rire avec. Les projets avancent mieux quand on ne se prend pas trop au sérieux.",
+            "intensite": "Passionné·e : tu veux de la passion et de la stabilité. Que ce soit fort entre vous, oui, mais sans te demander chaque matin si l'autre va rester."
           }
         },
         "profondeur": {
-          "portrait": "Tu aimes quand on peut tout dire. Une vraie conversation te nourrit plus qu'un décor. Quand tu te sens compris·e, ta loyauté et ton écoute sont précieuses.",
-          "nourrit": "Être écouté·e jusqu'au bout, parler de ce qui est fragile, sentir que l'autre cherche à te comprendre.",
-          "vide": "La surface, les sujets qu'on change, la solitude à deux.",
+          "portrait": "Tu aimes quand on peut tout se dire. Une vraie conversation te touche plus qu'un beau restaurant. Quand tu te sens compris·e, tu es d'une fidélité et d'une écoute rares.",
+          "nourrit": "Qu'on t'écoute jusqu'au bout, pouvoir parler de ce qui te fait peur, sentir que l'autre cherche vraiment à te comprendre.",
+          "vide": "Les conversations creuses, les sujets qu'on évite, te sentir seul·e alors que vous êtes deux.",
           "nuances": {
-            "securite": "Fidèle : tu veux du vrai qui dure. Les promesses tenues rendent les confidences possibles.",
-            "admiration": "Brillant·e : tu veux être vu·e pour de bon, pas seulement complimenté·e. L'admiration compte si elle touche qui tu es.",
-            "liberte": "Libre : tu as un monde intérieur, et tu as besoin d'espace pour l'habiter. Tu reviens quand tu as pu te retirer sans te justifier.",
-            "harmonie": "Paisible : tu aimes dire les choses vraies sans éclats. La douceur te permet de rester ouvert·e.",
-            "complicite": "Joueur·euse : tu passes du fond au fou rire avec la même personne. L'humour te va, tant qu'il n'esquive pas ce qui fait mal.",
-            "intensite": "Passionné·e : tu aimes fort et en vrai. Tu cherches une connexion qui marque, avec aussi une place pour le calme."
+            "securite": "Fidèle : tu veux du vrai, et qui dure. Tu te confies plus facilement à quelqu'un qui tient parole.",
+            "admiration": "Brillant·e : tu veux qu'on te voie vraiment, pas juste qu'on te fasse des compliments. Ce qui te touche, c'est qu'on admire qui tu es au fond.",
+            "liberte": "Libre : tu as besoin de moments seul·e avec tes pensées. Quand tu peux t'isoler sans avoir à te justifier, tu reviens vers l'autre avec plaisir.",
+            "harmonie": "Paisible : tu aimes parler vrai, mais sans crier. Quand l'autre reste doux, tu peux tout lui dire.",
+            "complicite": "Joueur·euse : avec la même personne, tu peux parler de choses graves et finir en fou rire. L'humour te va, tant qu'il ne sert pas à éviter ce qui fait mal.",
+            "intensite": "Passionné·e : tu aimes fort, et pour de vrai. Tu cherches une relation qui te marque, avec aussi des moments calmes."
           }
         },
         "admiration": {
-          "portrait": "Tu t'épanouis quand on te choisit, pas seulement au début. Un merci sincère, un mot de fierté, et ça te donne des ailes. Ce n'est pas de la vanité, c'est la preuve que l'autre te voit.",
-          "nourrit": "Qu'on remarque tes efforts, qu'on te dise bravo, qu'on soit fier·e de toi, y compris devant les autres.",
-          "vide": "L'indifférence, les critiques qui reviennent, le sentiment d'être pris·e pour acquis·e.",
+          "portrait": "Tu t'épanouis quand l'autre te choisit, et pas seulement au début. Un vrai merci, un « je suis fier·e de toi », et tu te sens pousser des ailes. Ce n'est pas de la vanité, c'est ta façon de sentir que l'autre te voit.",
+          "nourrit": "Qu'on remarque tes efforts, qu'on te dise bravo, qu'on soit fier·e de toi, même devant les autres.",
+          "vide": "L'indifférence, les reproches à répétition, l'impression que plus personne ne remarque ce que tu fais.",
           "nuances": {
-            "securite": "Fidèle : tu donnes beaucoup pour que le lien tienne, et tu as besoin que ce soit reconnu.",
-            "profondeur": "Profond·e : les compliments de surface ne te suffisent pas. Tu veux être admiré·e pour qui tu es, y compris dans ce que tu caches.",
-            "liberte": "Libre : tu veux briller sans être retenu·e. Un regard fier te porte, à condition qu'on te laisse ta route.",
-            "harmonie": "Paisible : tu offres de la gentillesse, et tu as besoin qu'elle te revienne en mots doux.",
-            "complicite": "Joueur·euse : tu veux quelqu'un qui t'encourage et qui rit avec toi. Tu mets de la chaleur partout où tu passes.",
-            "intensite": "Passionné·e : tu aimes avec panache. Te sentir désiré·e et choisi·e, ça se voit, et ça te fait vibrer."
+            "securite": "Fidèle : tu fais beaucoup pour que votre couple dure, et tu as besoin qu'on le remarque.",
+            "profondeur": "Profond·e : les compliments faciles ne te suffisent pas. Tu veux qu'on t'admire pour qui tu es, même pour ce que tu montres peu.",
+            "liberte": "Libre : tu veux briller sans qu'on te retienne. Ça te fait du bien qu'on soit fier·e de toi, à condition qu'on te laisse mener ta vie.",
+            "harmonie": "Paisible : tu es gentil·le avec tout le monde, et tu as besoin qu'on te le rende avec des mots doux.",
+            "complicite": "Joueur·euse : tu veux quelqu'un qui t'encourage et qui rit avec toi. Partout où tu passes, l'ambiance se réchauffe.",
+            "intensite": "Passionné·e : tu aimes en grand. Te sentir désiré·e et choisi·e, et que ça se voie, c'est ce qui te fait vibrer."
           }
         },
         "liberte": {
-          "portrait": "Tu aimes en gardant ta vie. Tes amis, tes projets, tes moments seul·e ne sont pas un manque d'amour. Plus tu te sens libre, plus tu reviens avec envie.",
-          "nourrit": "La confiance, l'air, un ou une partenaire qui a aussi sa propre vie.",
-          "vide": "Les comptes à rendre, la jalousie, un agenda rempli à deux sans qu'on te demande ton avis.",
+          "portrait": "Tu aimes sans renoncer à ta vie. Voir tes amis, avoir tes projets, passer du temps seul·e, ça ne veut pas dire que tu aimes moins. Au contraire, plus tu te sens libre, plus tu as envie de revenir.",
+          "nourrit": "La confiance, du temps pour toi, quelqu'un qui a aussi sa vie à côté.",
+          "vide": "Devoir te justifier, la jalousie, un agenda rempli à deux sans qu'on t'ait demandé ton avis.",
           "nuances": {
-            "securite": "Fidèle : tu veux de l'air et un port. La liberté te va mieux quand les rendez-vous qui comptent sont tenus.",
-            "profondeur": "Profond·e : tu te retires pour habiter ton monde, puis tu reviens avec des choses vraies à dire.",
-            "admiration": "Brillant·e : tu veux qu'on soit fier·e de ta route, sans te garder près de soi.",
-            "harmonie": "Paisible : tu aimes une relation légère, sans pression et sans cris. La paix, pour toi, c'est aussi le droit de partir et de revenir.",
-            "complicite": "Joueur·euse : tu veux un complice de route. Rire, partir, se retrouver, c'est ta façon d'aimer.",
-            "intensite": "Passionné·e : tu aimes l'aventure et l'élan. La relation est un voyage, pas une salle d'attente."
+            "securite": "Fidèle : tu veux ta liberté et un endroit où revenir. Ça marche mieux quand les rendez-vous importants sont respectés.",
+            "profondeur": "Profond·e : tu as besoin de moments seul·e pour réfléchir, puis tu reviens avec des choses vraies à partager.",
+            "admiration": "Brillant·e : tu veux qu'on soit fier·e de ton parcours, sans chercher à te garder pour soi.",
+            "harmonie": "Paisible : tu aimes une relation simple, sans pression et sans cris. Pour toi, être en paix, c'est aussi pouvoir partir et revenir.",
+            "complicite": "Joueur·euse : tu veux un ou une complice. Rire, partir, se retrouver, c'est ta façon d'aimer.",
+            "intensite": "Passionné·e : tu aimes l'aventure et les coups de tête. Pour toi, l'amour, c'est un voyage, pas une salle d'attente."
           }
         },
         "harmonie": {
-          "portrait": "Tu t'épanouis dans la douceur. Un geste tendre, une soirée calme, et tu te remplis. Dans ce climat, tu offres une gentillesse qui fait du bien, et ton chemin, c'est d'oser dire quand quelque chose te gêne.",
-          "nourrit": "Le calme, la tendresse du quotidien, les désaccords qui se disent sans blesser.",
-          "vide": "Les cris, les piques, les tensions qui durent, devoir toujours céder pour que ça s'arrête.",
+          "portrait": "Tu t'épanouis dans la douceur. Un geste tendre, une soirée tranquille, et tu recharges tes batteries. Quand l'ambiance est douce, ta gentillesse fait du bien à tout le monde. Ton défi, c'est d'oser dire quand quelque chose te dérange.",
+          "nourrit": "Le calme, les petites tendresses du quotidien, pouvoir ne pas être d'accord sans se blesser.",
+          "vide": "Les cris, les piques, les tensions qui traînent, devoir toujours céder pour avoir la paix.",
           "nuances": {
-            "securite": "Fidèle : tu rêves d'un foyer doux et sûr. La constance t'apaise, si les sujets sensibles ont aussi leur place.",
-            "profondeur": "Profond·e : tu dis les choses vraies avec douceur. Tu écoutes, et tu as besoin qu'on entende aussi ce qui te blesse.",
-            "admiration": "Brillant·e : les mots doux te portent. Tu donnes de la gentillesse, et tu as besoin qu'on la remarque.",
-            "liberte": "Libre : tu veux la paix sans la cage. Chacun respire, et les retrouvailles restent douces.",
-            "complicite": "Joueur·euse : tu aimes un quotidien joyeux et tranquille. Le rire te va, tant que l'ambiance ne devient pas une pression.",
-            "intensite": "Passionné·e : tu veux la tendresse et quelques éclats de vie. L'intensité te nourrit quand elle passe par le désir, pas par la dispute."
+            "securite": "Fidèle : tu rêves d'une maison douce et sûre. Une vie régulière te rassure, si on peut aussi parler des sujets qui fâchent.",
+            "profondeur": "Profond·e : tu dis les choses vraies avec douceur. Tu écoutes beaucoup, et tu as besoin qu'on t'écoute aussi quand quelque chose te blesse.",
+            "admiration": "Brillant·e : les mots doux te font du bien. Tu es gentil·le, et tu as besoin qu'on le remarque.",
+            "liberte": "Libre : tu veux la paix, pas une prison. Chacun a sa vie, et on se retrouve avec plaisir.",
+            "complicite": "Joueur·euse : tu aimes une vie joyeuse et tranquille. Rire, oui, mais sans l'obligation d'être toujours de bonne humeur.",
+            "intensite": "Passionné·e : tu veux de la tendresse et un peu de piment. L'intensité te plaît quand elle passe par le désir, pas par les disputes."
           }
         },
         "complicite": {
-          "portrait": "Pour toi, aimer c'est faire équipe. Les blagues que personne d'autre ne comprend, les tâches partagées, les petits projets. Dans une relation légère et solidaire, tu rayonnes.",
-          "nourrit": "Les fous rires, l'entraide sans compter, avancer à deux sur des choses concrètes.",
-          "vide": "La lourdeur, porter seul·e le quotidien, une bonne humeur qui disparaît.",
+          "portrait": "Pour toi, aimer, c'est faire équipe. Les blagues que personne d'autre ne comprend, les corvées à deux, les petits projets. Dans une relation légère où on se serre les coudes, tu es dans ton élément.",
+          "nourrit": "Les fous rires, s'aider sans compter, avancer ensemble sur des choses concrètes.",
+          "vide": "Les ambiances lourdes, tout porter seul·e au quotidien, la bonne humeur qui s'en va.",
           "nuances": {
-            "securite": "Fidèle : tu veux une équipe qui tient dans la durée. Les rituels et les fous rires vont ensemble.",
-            "profondeur": "Profond·e : tu peux rire de tout et tout dire avec la même personne. L'humour reste, et les sujets qui comptent aussi.",
-            "admiration": "Brillant·e : tu veux un coéquipier ou une coéquipière qui te voit et t'encourage. La chaleur que tu donnes a besoin d'un écho.",
-            "liberte": "Libre : tu veux un complice, pas quelqu'un qui te retient. On rit, on part, on se retrouve.",
-            "harmonie": "Paisible : tu aimes la joie sans les cris. Une équipe douce, où l'on règle vite les tensions et où l'on se retrouve bien.",
-            "intensite": "Passionné·e : tu veux une histoire vivante. Rire, oser, surprendre, sans oublier les moments simples."
+            "securite": "Fidèle : tu veux une équipe qui dure. Pour toi, les habitudes à deux et les fous rires vont ensemble.",
+            "profondeur": "Profond·e : avec la même personne, tu peux rire de tout et tout lui dire. On blague, et on parle aussi de ce qui compte.",
+            "admiration": "Brillant·e : tu veux un ou une partenaire qui te voit et t'encourage. Tu donnes beaucoup de chaleur, et tu as besoin qu'on t'en rende.",
+            "liberte": "Libre : tu veux un ou une complice, pas quelqu'un qui te retient. On rit, on part chacun de son côté, on se retrouve.",
+            "harmonie": "Paisible : tu aimes la bonne humeur sans les cris. Une équipe tranquille, où les tensions se règlent vite.",
+            "intensite": "Passionné·e : tu veux une histoire où il se passe des choses. Rire, oser, se surprendre, sans oublier les moments tout simples."
           }
         },
         "intensite": {
-          "portrait": "Tu t'épanouis quand la relation vibre. Le désir, la surprise, un projet un peu fou. Quand ça vit, tu donnes une énergie rare, et la routine sans élan t'éteint à petit feu.",
-          "nourrit": "Te sentir désiré·e, la nouveauté, quelqu'un qui ose et qui propose.",
-          "vide": "Les mêmes soirées sans fin, un désir qui s'endort, plus aucune surprise.",
+          "portrait": "Tu t'épanouis quand ça bouge entre vous. Le désir, les surprises, un projet un peu fou. Quand c'est vivant, tu as une énergie incroyable. La routine sans envie, par contre, t'éteint petit à petit.",
+          "nourrit": "Te sentir désiré·e, découvrir des choses nouvelles, quelqu'un qui ose et qui a des idées.",
+          "vide": "Les soirées toutes pareilles, un désir qui s'endort, plus jamais de surprise.",
           "nuances": {
-            "securite": "Fidèle : tu veux la flamme et du solide. L'aventure peut se prévoir un peu, et la stabilité peut encore surprendre.",
-            "profondeur": "Profond·e : tu cherches une connexion rare. Les échanges qui marquent te portent, avec une place pour le calme.",
-            "admiration": "Brillant·e : tu veux te sentir choisi·e et désiré·e, et que ça se voie. Le panache te va, la constance aussi.",
-            "liberte": "Libre : tu aimes l'aventure à deux, chacun libre de ses élans. Personne ne retient l'autre.",
-            "harmonie": "Paisible : tu veux du vivant sans la guerre. La flamme passe par le désir et la nouveauté, pas par les éclats de voix.",
-            "complicite": "Joueur·euse : tu veux rire et oser. L'ennui n'a pas sa place, et les conversations sérieuses ont la leur."
+            "securite": "Fidèle : tu veux de la passion et de la stabilité. Une aventure, ça peut se préparer un peu, et une vie stable peut encore te surprendre.",
+            "profondeur": "Profond·e : tu cherches une rencontre rare. Les conversations qui te marquent te font vibrer, et tu as aussi besoin de calme.",
+            "admiration": "Brillant·e : tu veux te sentir choisi·e et désiré·e, et que ça se voie. Tu aimes les grands gestes, et les petites attentions de tous les jours aussi.",
+            "liberte": "Libre : tu aimes vivre des aventures à deux, chacun libre de ses envies. Personne ne retient personne.",
+            "harmonie": "Paisible : tu veux de la vie, pas la guerre. La passion passe par le désir et la nouveauté, pas par les cris.",
+            "complicite": "Joueur·euse : tu veux rire et oser. Pas de place pour l'ennui, mais les conversations sérieuses ont aussi leur moment."
           }
         }
       },
       "paires": {
         "securite+securite": {
-          "text": "Deux Ancres construisent vite un foyer solide. On sait à quoi s'en tenir, et c'est reposant.",
-          "tip": "On glisse un peu de nouveau dans le calendrier, pour que le confort ne remplace pas l'envie."
+          "text": "Deux Ancres construisent vite un foyer solide. Chacun sait sur qui il peut compter, et ça repose.",
+          "tip": "De temps en temps, on prévoit quelque chose de nouveau, pour que l'habitude ne remplace pas l'envie."
         },
         "profondeur+profondeur": {
-          "text": "Deux Miroirs peuvent tout se dire. Leur intimité est rare et précieuse.",
-          "tip": "On garde aussi des moments légers. Tout n'a pas besoin d'être profond pour être vrai."
+          "text": "Deux Miroirs peuvent tout se dire. Une intimité comme ça, c'est rare.",
+          "tip": "On garde aussi des moments légers. Une conversation n'a pas besoin d'être profonde pour être sincère."
         },
         "admiration+admiration": {
           "text": "Deux Étoiles savent se mettre en valeur et se faire du bien avec des mots.",
-          "tip": "On laisse la lumière à l'autre aussi souvent qu'on la prend. On se fête à tour de rôle."
+          "tip": "On laisse briller l'autre aussi souvent que soi. Chacun son tour d'être à l'honneur."
         },
         "liberte+liberte": {
-          "text": "Deux Oiseaux se respectent sans se surveiller. Chacun a sa vie, et le lien reste choisi.",
-          "tip": "On pose quelques rendez-vous qui comptent. Sinon la liberté devient de la distance."
+          "text": "Deux Oiseaux se respectent sans se surveiller. Chacun a sa vie, et on est ensemble parce qu'on en a envie.",
+          "tip": "On se fixe quelques rendez-vous importants. Sinon, à force de liberté, on finit par s'éloigner."
         },
         "harmonie+harmonie": {
-          "text": "Deux Oasis offrent une douceur rare. Le quotidien est calme, tendre, facile à vivre.",
-          "tip": "On dit une chose qui gêne, même petite. La paix dure mieux quand elle n'est pas un silence."
+          "text": "Deux Oasis, c'est une douceur rare. Le quotidien est calme, tendre, facile à vivre.",
+          "tip": "On dit ce qui gêne, même si c'est un détail. On est mieux ensemble quand on ne garde pas tout pour soi."
         },
         "complicite+complicite": {
           "text": "Deux Équipes rient, s'entraident et avancent. La vie à deux a du rythme et de la joie.",
-          "tip": "On garde un moment pour les sujets sérieux. L'humour n'a pas à tout porter."
+          "tip": "On garde un moment pour les sujets sérieux. On ne peut pas tout régler avec une blague."
         },
         "intensite+intensite": {
-          "text": "Deux Volcans se cherchent et se réveillent. La passion est là, forte, vivante.",
-          "tip": "On pose des repères quand la vague monte. L'intensité tient mieux avec des repères."
+          "text": "Deux Volcans s'attirent et se réveillent l'un l'autre. La passion est là, forte, vivante.",
+          "tip": "Quand ça s'enflamme, on se fixe quelques règles simples, par exemple ne jamais aller se coucher fâchés. La passion dure mieux comme ça."
         },
         "securite+profondeur": {
-          "text": "L'Ancre pose des repères, le Miroir met du vrai. Ensemble, la confiance a de la profondeur.",
-          "tip": "On laisse la relation respirer avant d'avoir toutes les réponses. Le vrai n'a pas besoin d'être immédiat."
+          "text": "L'Ancre est fiable, le Miroir parle vrai. Ensemble, on peut se faire confiance et tout se dire.",
+          "tip": "On se laisse le temps. Pas besoin d'avoir toutes les réponses tout de suite pour être sincère."
         },
         "securite+admiration": {
-          "text": "L'Ancre apporte la constance, l'Étoile les mots qui réchauffent. Chacun peut se sentir soutenu et reconnu.",
-          "tip": "On dit merci souvent, à voix haute. La fiabilité se voit mieux quand elle est nommée."
+          "text": "L'Ancre est là tous les jours, l'Étoile a les mots qui font chaud au cœur. Chacun se sent soutenu et apprécié.",
+          "tip": "On se dit merci souvent, à voix haute. Ce que l'autre fait tous les jours se voit mieux quand on le dit."
         },
         "securite+liberte": {
-          "text": "L'Ancre cherche des repères, l'Oiseau cherche de l'air. Au début ça s'équilibre. Ensuite l'un peut se sentir lâché, l'autre à l'étroit.",
-          "tip": "On pose tôt le rythme des nouvelles et des rendez-vous. L'air reste, et le lien aussi."
+          "text": "L'Ancre a besoin de savoir sur qui elle peut compter, l'Oiseau a besoin de liberté. Au début, ça s'équilibre. Avec le temps, l'un peut se sentir délaissé, l'autre étouffé.",
+          "tip": "On décide tôt à quel rythme on se donne des nouvelles et on se voit. Chacun garde sa liberté, et personne ne reste dans le flou."
         },
         "securite+harmonie": {
-          "text": "L'Ancre et l'Oasis aiment la paix et la durée. La vie à deux devient simple, douce, prévisible.",
-          "tip": "On met un sujet sensible sur la table de temps en temps. La stabilité n'oblige pas au silence."
+          "text": "L'Ancre et l'Oasis aiment le calme et les histoires qui durent. La vie à deux est simple, douce, sans mauvaise surprise.",
+          "tip": "De temps en temps, on aborde un sujet délicat. Être bien ensemble, ça ne veut pas dire se taire."
         },
         "securite+complicite": {
-          "text": "L'Ancre tient le cap, l'Équipe met la bonne humeur. Les projets avancent, et on rit en chemin.",
-          "tip": "Quand l'organisation prend toute la place, on garde un fou rire au calendrier. Il fait partie du lien."
+          "text": "L'Ancre garde le cap, l'Équipe apporte la bonne humeur. Les projets avancent, et on rigole en route.",
+          "tip": "Quand l'organisation prend toute la place, on se garde un moment pour rire. Ça compte autant que la liste de courses."
         },
         "securite+intensite": {
-          "text": "Le Volcan veut que ça vibre, l'Ancre veut que ça tienne. L'un peut trouver l'autre trop calme, l'autre trop imprévisible.",
-          "tip": "On prévoit l'aventure un peu, et on laisse des surprises dans la routine. Les deux besoins peuvent vivre ensemble."
+          "text": "Le Volcan veut que ça bouge, l'Ancre veut que ça dure. L'un peut trouver l'autre trop calme, l'autre trop imprévisible.",
+          "tip": "On prépare un peu les aventures, et on glisse des surprises dans le quotidien. Comme ça, chacun y trouve son compte."
         },
         "profondeur+admiration": {
-          "text": "L'Étoile a besoin d'éclat, le Miroir de vérité. L'un peut trouver l'autre trop grave, l'autre trop en surface.",
-          "tip": "On dit ce qu'on admire vraiment chez l'autre, pas seulement ce qui brille. L'intimité et la fierté peuvent se parler."
+          "text": "L'Étoile aime briller, le Miroir veut aller au fond des choses. L'un peut trouver l'autre trop sérieux, l'autre trop superficiel.",
+          "tip": "On se dit ce qu'on admire vraiment l'un chez l'autre, pas seulement ce qui se voit de loin. Chacun s'y retrouve."
         },
         "profondeur+liberte": {
-          "text": "Le Miroir et l'Oiseau ont besoin de temps à eux et d'un monde intérieur. Ils se comprennent sans se justifier.",
-          "tip": "On prévient quand on se retire, et on garde des moments vraiment partagés. Le retrait n'est pas un rejet."
+          "text": "Le Miroir et l'Oiseau ont tous les deux besoin de moments à eux. Ils se comprennent sans avoir à se justifier.",
+          "tip": "On prévient quand on a besoin d'être seul·e, et on garde de vrais moments à deux. Prendre du recul, ce n'est pas rejeter l'autre."
         },
         "profondeur+harmonie": {
-          "text": "L'Oasis met de la douceur, le Miroir de l'écoute. On peut tout se dire sans crainte.",
-          "tip": "On ose aussi ce qui blesse, avec la même douceur. Deviner ne suffit pas."
+          "text": "L'Oasis apporte la douceur, le Miroir l'écoute. On peut se dire les choses sans avoir peur.",
+          "tip": "On ose dire aussi ce qui blesse, avec la même douceur. L'autre ne peut pas tout deviner."
         },
         "profondeur+complicite": {
-          "text": "Le Miroir veut aller au fond, l'Équipe préfère alléger. Au début c'est charmant. Puis l'un peut avoir l'impression que l'autre se dérobe, et l'autre se sentir accablé.",
-          "tip": "On sépare les temps. Un moment pour rire, un moment pour parler, sans les mélanger de force."
+          "text": "Le Miroir veut aller au fond des choses, l'Équipe préfère en rire. Au début, c'est charmant. Puis l'un peut avoir l'impression que l'autre fuit, et l'autre se sentir écrasé.",
+          "tip": "On sépare les moments. Un temps pour rire, un temps pour parler, sans tout mélanger."
         },
         "profondeur+intensite": {
-          "text": "Le Miroir et le Volcan cherchent une connexion forte. Les échanges marquent, il y a quelque chose de magnétique.",
-          "tip": "On garde quelques repères stables. L'intensité n'a pas besoin de montagnes russes pour rester vraie."
+          "text": "Le Miroir et le Volcan cherchent une relation forte. Leurs conversations marquent, et l'attirance est là.",
+          "tip": "On garde quelques habitudes rassurantes. Pas besoin de montagnes russes pour que ce soit fort."
         },
         "admiration+liberte": {
-          "text": "L'Oiseau vit sa vie, l'Étoile a besoin d'être regardé·e. L'un peut se sentir surveillé, l'autre oublié.",
-          "tip": "On annonce des moments rien qu'à deux, et on les tient. La liberté reste, le regard aussi."
+          "text": "L'Oiseau vit sa vie, l'Étoile a besoin qu'on la regarde. L'un peut se sentir surveillé, l'autre oublié.",
+          "tip": "On prévoit des moments rien qu'à deux, et on s'y tient. L'Oiseau garde sa liberté, et l'Étoile sait qu'elle compte."
         },
         "admiration+harmonie": {
-          "text": "L'Oasis et l'Étoile savent se faire du bien. Gentillesse, mots doux, climat tendre.",
-          "tip": "On ose un désaccord de temps en temps. Se faire du bien, ce n'est pas toujours être d'accord."
+          "text": "L'Oasis et l'Étoile savent se faire du bien. De la gentillesse, des mots doux, une ambiance tendre.",
+          "tip": "On ose ne pas être d'accord de temps en temps. Se faire du bien, ce n'est pas toujours dire oui."
         },
         "admiration+complicite": {
-          "text": "L'Étoile et l'Équipe se font briller. Encouragements, rires, sorties. Chacun se sent vivant.",
-          "tip": "Dans les semaines calmes, un merci simple suffit. L'amour n'a pas à être une fête tous les soirs."
+          "text": "L'Étoile et l'Équipe se mettent en valeur l'une l'autre. On s'encourage, on rit, on sort beaucoup. Ça pétille.",
+          "tip": "Quand la semaine est calme, un simple merci suffit. Pas besoin que chaque soir soit une fête."
         },
         "admiration+intensite": {
-          "text": "L'Étoile et le Volcan se désirent et s'admirent. Chacun se sent choisi, et le lien a du relief.",
-          "tip": "On se rappelle que la constance est aussi une preuve d'amour, même quand elle fait moins de bruit."
+          "text": "L'Étoile et le Volcan se désirent et s'admirent. Chacun se sent choisi, et ce n'est jamais plat.",
+          "tip": "On se rappelle qu'être là tous les jours, c'est aussi une preuve d'amour, même si ça se remarque moins."
         },
         "liberte+harmonie": {
-          "text": "L'Oiseau a besoin d'air, l'Oasis de calme. L'un laisse l'autre respirer, sans tension.",
-          "tip": "Au retour, un geste doux vaut mieux qu'un interrogatoire. Les retrouvailles restent légères."
+          "text": "L'Oiseau a besoin de liberté, l'Oasis de calme. Chacun laisse l'autre vivre à sa façon, sans tension.",
+          "tip": "Quand l'autre rentre, un geste tendre vaut mieux qu'un interrogatoire. Les retrouvailles restent légères."
         },
         "liberte+complicite": {
-          "text": "L'Oiseau et l'Équipe aiment la légèreté. On se sent bien, sans pression, avec de l'humour.",
-          "tip": "On pose quand même un projet commun. Un cadre léger protège la liberté au lieu de la réduire."
+          "text": "L'Oiseau et l'Équipe aiment la légèreté. On est bien ensemble, sans pression, et on rigole beaucoup.",
+          "tip": "On se lance quand même dans un projet à deux. Ça n'enlève rien à la liberté de chacun, au contraire."
         },
         "liberte+intensite": {
-          "text": "L'Oiseau et le Volcan partagent l'aventure et le respect de l'espace. Personne ne retient l'autre.",
-          "tip": "On reste aussi quand l'élan des débuts retombe. C'est souvent là que le voyage se fait vraiment à deux."
+          "text": "L'Oiseau et le Volcan aiment l'aventure, et chacun laisse de la place à l'autre. Personne ne retient personne.",
+          "tip": "On reste aussi quand l'excitation des débuts retombe. C'est souvent là que l'histoire commence vraiment."
         },
         "harmonie+complicite": {
-          "text": "L'Équipe veut de l'animation, l'Oasis de la tranquillité. Les soirées et les invitations peuvent devenir un sujet.",
-          "tip": "Chacun garde ses sorties ou ses soirées calmes, sans culpabiliser l'autre. Les deux rythmes ont leur place."
+          "text": "L'Équipe aime quand ça bouge, l'Oasis préfère la tranquillité. Les sorties et les invitations peuvent vite devenir un sujet.",
+          "tip": "Chacun garde ses sorties ou ses soirées tranquilles, sans culpabiliser l'autre. Il y a de la place pour les deux rythmes."
         },
         "harmonie+intensite": {
-          "text": "L'Oasis cherche la paix, le Volcan l'étincelle. Ce qui réveille l'un peut fatiguer l'autre.",
-          "tip": "On fait passer l'intensité par le désir et la nouveauté, jamais par la dispute. La flamme peut être douce."
+          "text": "L'Oasis cherche la paix, le Volcan a besoin d'étincelles. Ce qui réveille l'un peut fatiguer l'autre.",
+          "tip": "On met la passion dans le désir et les nouveautés, jamais dans les disputes. La passion aussi peut être douce."
         },
         "complicite+intensite": {
-          "text": "L'Équipe et le Volcan veulent une histoire vivante. Des idées, des fous rires, l'envie d'oser.",
-          "tip": "On laisse aussi de la place au repos et aux conversations sérieuses. Être vivant, ce n'est pas seulement faire du bruit."
+          "text": "L'Équipe et le Volcan veulent une histoire où il se passe des choses. Des idées, des fous rires, l'envie d'oser.",
+          "tip": "On se garde aussi du temps pour souffler et pour parler sérieusement. Pas besoin de faire du bruit pour être heureux ensemble."
         }
       }
     },
@@ -2363,8 +2363,8 @@ AMOUR_DATA.profil = {
       "fight": {
         "name": "l'escalade",
         "title": "L'escalade",
-        "short": "tu montes en puissance pour ne pas perdre",
-        "mech": "Quand tu as peur de perdre l'autre ou de ne pas être entendu·e, tu montes en puissance : le ton, les arguments, le dernier mot. Sur le moment, ça ressemble à de la force. En réalité, c'est une alarme, et l'autre n'entend plus que le bruit.",
+        "short": "tu montes dans les tours pour ne pas perdre",
+        "mech": "Quand tu as peur de perdre l'autre ou de ne pas être entendu·e, tu montes dans les tours : le ton, les arguments, le dernier mot. Sur le moment, ça ressemble à de la force. En réalité, c'est de la peur, et l'autre n'entend plus que le bruit.",
         "exits": [
           "Repère le signal du corps (chaleur, voix qui monte) : c'est le moment de t'arrêter, pas d'accélérer.",
           "Dis « je fais une pause de 20 minutes et je reviens », puis reviens vraiment.",
@@ -2404,7 +2404,7 @@ AMOUR_DATA.profil = {
         "exits": [
           "Remplace le oui réflexe par : « Je ne suis pas sûr·e, j'y réfléchis et je te dis. »",
           "Avant de céder, demande-toi : de quoi ai-je besoin, là, tout de suite ?",
-          "Dis une chose vraie par jour, même petite. C'est un muscle."
+          "Dis une chose vraie par jour, même petite. Ça se travaille, comme un muscle."
         ],
         "exitShort": "remplace le oui réflexe par « j'y réfléchis et je te dis »"
       }
@@ -2713,10 +2713,10 @@ AMOUR_DATA.profil = {
       "alliageLab": "Ton alliage",
       "barsLab": "Tes 7 besoins amoureux",
       "netLine": "Ton besoin dominant ressort très nettement.",
-      "mixedLine": "Tes deux premiers besoins pèsent presque autant : tu peux aussi te lire comme {inverse}.",
+      "mixedLine": "Tes deux premiers besoins pèsent presque autant : tu te reconnaîtras peut-être aussi dans le profil {inverse}.",
       "whyLab": "Pourquoi ce profil ?",
       "whyIntro": "Ce qui a le plus pesé vers {domName} :",
-      "whyNote": "Chaque réponse donne des points à un ou deux besoins. Ton profil réunit les deux besoins qui en ont le plus. C'est une hypothèse, à confronter à ton histoire réelle.",
+      "whyNote": "Chaque réponse donne des points à un ou deux besoins. Ton profil réunit les deux besoins qui en ont le plus. C'est une hypothèse : vérifie-la avec ce que tu as vraiment vécu.",
       "toc": [
         "T'épanouir",
         "T'éteindre",
@@ -2732,14 +2732,14 @@ AMOUR_DATA.profil = {
         "s3": "Sous stress fort, ton piège, c'est {trapName} : {trapShort}. Pour en sortir, {exitShort}."
       },
       "s1h": "Là où tu t'épanouis en amour",
-      "s1top": "Ce que tu as classé en tête, « {short} », parle de ton besoin {de}.",
+      "s1top": "Ce que tu as classé en tête, « {short} », en dit long sur ton besoin {de}.",
       "s1recharge": "Côté énergie, {title} : {couple}",
       "s2h": "Là où tu t'éteins",
       "s2ownH": "Ce que tu ne veux plus vivre",
       "s2alarmLab": "Signal d'alerte",
       "s2noMore": "Ta bête noire, « {short} », touche directement ton besoin {de}.",
-      "s2noMoreOwn": "Ta bête noire, « {short} », c'est ce que tu ne veux plus vivre. Note-la : c'est une information en or.",
-      "s2test": "Le test des 10 ans : si un ou une partenaire te fait vivre ça, pourras-tu le supporter dix ans, même 20 % pire ? Si la réponse est non, écoute-la, même amoureux·se.",
+      "s2noMoreOwn": "Ta bête noire, « {short} », c'est ce que tu ne veux plus vivre. Note-la bien : c'est précieux pour bien choisir.",
+      "s2test": "Le test des 10 ans : si un ou une partenaire te fait vivre ça, est-ce que tu pourrais le supporter pendant dix ans, et même en un peu pire ? Si la réponse est non, écoute-la, même si tu es amoureux·se.",
       "s3h": "Le type de relation qui te correspond",
       "s3rows": {
         "rythme": "Rythme",
@@ -2750,14 +2750,14 @@ AMOUR_DATA.profil = {
       "s3sec": "Ton besoin secondaire ({name}) ajoute une condition : {cond}.",
       "s3instinct": "Ton sous-type ({name}) : {couple}",
       "s4h": "Le ou la partenaire compatible",
-      "s4rule": "La règle : le fond pareil, la forme différente. Partager les mêmes besoins profonds et les mêmes valeurs, avoir des façons différentes de les vivre.",
+      "s4rule": "La règle : pareils sur le fond, différents dans la forme. Les mêmes besoins et les mêmes valeurs, mais chacun sa façon de les vivre.",
       "s4fond": "Au fond, il te faut {fond}.",
       "s4fondSec": "Et pour ton besoin secondaire : {fond}.",
       "s4lang": "Pour que tu te sentes aimé·e : quelqu'un qui {hint}.",
       "s4stress": "Quand ça chauffe : {partner}",
       "s4nourrit": "Ça nourrit",
       "s4proche": "Proches de toi (facile, à entretenir)",
-      "s4frotte": "Ça frotte (à poser tôt)",
+      "s4frotte": "Ça peut coincer (à aborder tôt)",
       "s4critical": "Incompatible (non négociable)",
       "s4profileLine": "Un profil {name} ({who})",
       "s4mirrorLab": "Avec quelqu'un qui te ressemble",
@@ -2765,8 +2765,8 @@ AMOUR_DATA.profil = {
       "s5partner": "À ton ou ta partenaire",
       "s5date": "Lors d'un premier rendez-vous",
       "s6h": "Ton piège classique sous stress, et comment en sortir",
-      "s6trigger": "Chez toi, ça s'allume surtout quand {trigger}.",
-      "s6early": "Avant d'en arriver là, sous stress modéré, tu {modere} : c'est ton signal précoce. Agis à ce moment-là.",
+      "s6trigger": "Chez toi, ça se déclenche surtout quand {trigger}.",
+      "s6early": "Avant d'en arriver là, sous stress modéré, tu {modere} : c'est le premier signe. C'est là qu'il faut agir.",
       "s6calm": "Ce dont tu as vraiment besoin à ce moment-là : {calm}.",
       "s6exitLab": "Pour en sortir, en 3 temps",
       "s6also": "Tu as aussi coché : {others}.",

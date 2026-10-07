@@ -765,7 +765,7 @@
     const s1 = {
       title: U.s1h, icon: "sun", lead: d.bloom, list: d.bloomList.slice(),
       extra: [
-        "Ton besoin secondaire (" + s.name + ") ajoute une couleur : " + s.secBloom + ".",
+        "Ton besoin secondaire (" + s.name + ") compte aussi : " + s.secBloom + ".",
         top ? (topNeed ? fill(U.s1top, { short: top.short, de: B[topNeed].de }) : "") : "",
         fill(U.s1recharge, { title: lc1(rc.title), couple: lc1(rc.couple) }),
       ].filter(Boolean),

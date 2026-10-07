@@ -16,8 +16,8 @@
   style.textContent = [
     "#screen-amour .hero em{color:var(--accent)}",
     "#screen-amour .am-stage{padding-bottom:12px}",
-    "#screen-amour .am-in{animation:am-in .32s ease}",
-    "@keyframes am-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}",
+    "#screen-amour .am-in{animation:am-in .38s ease}",
+    "@keyframes am-in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}",
     "#screen-amour .am-group{scroll-margin-top:16px;display:flex;flex-direction:column;gap:10px}",
     "#screen-amour .am-body{padding-bottom:12px}",
     "#screen-amour ol.items{list-style:none;margin:0;padding:0}",
@@ -130,7 +130,8 @@
     "#screen-amour .pr-bar-n{display:flex;align-items:center;gap:6px;color:var(--bc);font-weight:700;min-width:0}",
     "#screen-amour .pr-bar-n span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
     "#screen-amour .pr-track{height:10px;border-radius:99px;background:var(--line);overflow:hidden}",
-    "#screen-amour .pr-track i{display:block;height:100%;background:var(--bf);border-radius:99px}",
+    "#screen-amour .pr-track i{display:block;height:100%;width:0;background:var(--bf);border-radius:99px;animation:am-bar .8s cubic-bezier(.2,.7,.2,1) forwards}",
+    "@keyframes am-bar{to{width:var(--w,0%)}}",
     "#screen-amour .am-salle .salle-row{display:grid;grid-template-columns:minmax(0,108px) 1fr auto;align-items:center;gap:8px;margin:8px 0;font-size:.92rem}",
     "#screen-amour .am-salle .salle-lab{font-weight:700;color:var(--bf);min-width:0}",
     "#screen-amour .am-salle .salle-lab span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
@@ -231,7 +232,93 @@
     "#screen-amour .rule .quote{color:var(--ink);font-size:1.15rem}",
     "#screen-amour .rule .btn{align-self:flex-start;margin-top:4px}",
     "@media(max-width:420px){#screen-amour .am-nav-row .btn{padding:12px 10px;font-size:.92rem}}",
-    "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item{animation:none!important;transition:none!important}#screen-amour .am-pop{display:none}}",
+    "#screen-amour{background:radial-gradient(880px 420px at 0% 0%, color-mix(in srgb, var(--am) 16%, transparent), transparent 62%), radial-gradient(640px 360px at 100% 0%, color-mix(in srgb, var(--am) 10%, transparent), transparent 58%);transition:background .45s ease}",
+    "#screen-amour:not([data-tone]){background:radial-gradient(520px 280px at 6% 0%, color-mix(in srgb, var(--sage) 20%, transparent), transparent 70%), radial-gradient(480px 260px at 96% 2%, color-mix(in srgb, var(--pink) 16%, transparent), transparent 70%), radial-gradient(420px 220px at 70% 12%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 72%)}",
+    "#screen-amour .am-hero .eyebrow .am-ico{animation:am-float 2.8s ease-in-out infinite}",
+    "@keyframes am-float{50%{transform:translateY(-3px)}}",
+    "#screen-amour .am-benefit{animation:am-in .45s ease both}",
+    "#screen-amour .am-benefit:nth-child(2){animation-delay:.05s}",
+    "#screen-amour .am-benefit:nth-child(3){animation-delay:.1s}",
+    "#screen-amour .am-benefit:nth-child(4){animation-delay:.15s}",
+    "#screen-amour .qhead .eyebrow .am-ico{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--am-soft);color:var(--am)}",
+    "#screen-amour .progress span.done[data-tone=sage],#screen-amour .progress span.is-now[data-tone=sage]{background:linear-gradient(90deg,#9ED9B8,var(--sage))}",
+    "#screen-amour .progress span.done[data-tone=coral],#screen-amour .progress span.is-now[data-tone=coral]{background:linear-gradient(90deg,#F6C2B6,var(--coral))}",
+    "#screen-amour .progress span.done[data-tone=pink],#screen-amour .progress span.is-now[data-tone=pink]{background:linear-gradient(90deg,#F7C2D6,var(--pink))}",
+    "#screen-amour .progress span.done[data-tone=gold],#screen-amour .progress span.is-now[data-tone=gold]{background:linear-gradient(90deg,#F6E2A4,var(--gold))}",
+    "#screen-amour .progress span.done[data-tone=sky],#screen-amour .progress span.is-now[data-tone=sky]{background:linear-gradient(90deg,#C5E4F8,var(--sky))}",
+    "#screen-amour .progress span.done[data-tone=split],#screen-amour .progress span.is-now[data-tone=split]{background:linear-gradient(90deg,var(--sage),var(--coral))}",
+    "#screen-amour .progress span.is-now{position:relative;overflow:visible;color:var(--am)}",
+    "#screen-amour .progress span.is-now[data-tone=sage]{color:var(--sage)}",
+    "#screen-amour .progress span.is-now[data-tone=coral]{color:var(--coral)}",
+    "#screen-amour .progress span.is-now[data-tone=pink]{color:var(--pink)}",
+    "#screen-amour .progress span.is-now[data-tone=gold]{color:var(--gold)}",
+    "#screen-amour .progress span.is-now[data-tone=sky]{color:var(--sky)}",
+    "#screen-amour .progress span.is-now[data-tone=split]{color:var(--coral)}",
+    "#screen-amour .progress span.is-now::after{content:\"\";position:absolute;right:-8px;top:50%;width:16px;height:16px;transform:translateY(-50%);background:currentColor;z-index:2;pointer-events:none;-webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E\") center/contain no-repeat;mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E\") center/contain no-repeat;animation:am-spark 1.5s ease-in-out infinite}",
+    "@keyframes am-spark{50%{transform:translateY(-50%) scale(1.18)}}",
+    "#screen-amour .rsrc-opt{position:relative;border-radius:16px;padding-right:28px;transition:transform .16s ease, border-color .15s, background .15s, box-shadow .16s}",
+    "#screen-amour label.rsrc-opt:active,#screen-amour button.rsrc-opt:active{transform:scale(.98)}",
+    "#screen-amour .rsrc-opt.picked{box-shadow:0 8px 18px color-mix(in srgb, var(--am) 16%, transparent)}",
+    "#screen-amour .rsrc-opt.am-just{animation:am-pick .34s ease}",
+    "@keyframes am-pick{0%{transform:scale(.96)}55%{transform:scale(1.02)}100%{transform:scale(1)}}",
+    "#screen-amour label.rsrc-opt.picked::after,#screen-amour button.rsrc-opt.am-style.picked::after,#screen-amour button.rsrc-opt.am-tap.picked::after{content:\"\";position:absolute;right:12px;top:16px;width:7px;height:12px;border:solid var(--am);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);pointer-events:none}",
+    "#screen-amour .rsrc-opt[data-item-tone=sage].picked::after{border-color:var(--sage)}",
+    "#screen-amour .rsrc-opt[data-item-tone=coral].picked::after{border-color:var(--coral)}",
+    "#screen-amour .rsrc-opt[data-item-tone=pink].picked::after{border-color:var(--pink)}",
+    "#screen-amour .rsrc-opt[data-item-tone=gold].picked::after{border-color:var(--gold)}",
+    "#screen-amour .rsrc-opt[data-item-tone=sky].picked::after{border-color:var(--sky)}",
+    "#screen-amour .rsrc-opt.am-just.picked::after{animation:am-draw .28s ease}",
+    "@keyframes am-draw{from{opacity:0;transform:rotate(45deg) scale(.4)}to{opacity:1;transform:rotate(45deg) scale(1)}}",
+    "#screen-amour .am-reveal{display:flex;justify-content:flex-start;margin:0 0 6px}",
+    "#screen-amour .am-badge{position:relative;width:116px;height:116px;border-radius:36px;display:grid;place-items:center;background:var(--bt);color:var(--bc);box-shadow:0 0 0 8px color-mix(in srgb, var(--bf) 22%, #fff), 0 16px 32px color-mix(in srgb, var(--bf) 28%, transparent);animation:am-badge .7s ease both}",
+    "@keyframes am-badge{0%{transform:scale(.9);opacity:0}70%{transform:scale(1.03)}100%{transform:none;opacity:1}}",
+    "#screen-amour .am-badge .am-ico svg{width:58px;height:58px}",
+    "#screen-amour .am-burst{position:absolute;inset:0;pointer-events:none}",
+    "#screen-amour .am-bit{position:absolute;left:50%;top:50%;color:var(--bf);opacity:0;animation:am-bit 1.05s ease forwards}",
+    "#screen-amour .am-bit .am-ico svg{width:14px;height:14px}",
+    "#screen-amour .am-bit:nth-child(1){--dx:-46px;--dy:-28px}",
+    "#screen-amour .am-bit:nth-child(2){--dx:40px;--dy:-34px;animation-delay:.04s}",
+    "#screen-amour .am-bit:nth-child(3){--dx:-52px;--dy:10px;animation-delay:.08s}",
+    "#screen-amour .am-bit:nth-child(4){--dx:48px;--dy:6px;animation-delay:.02s}",
+    "#screen-amour .am-bit:nth-child(5){--dx:-18px;--dy:-48px;animation-delay:.06s}",
+    "#screen-amour .am-bit:nth-child(6){--dx:12px;--dy:42px;animation-delay:.1s}",
+    "#screen-amour .am-bit:nth-child(7){--dx:28px;--dy:-8px;animation-delay:.05s}",
+    "@keyframes am-bit{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1)}}",
+    "#screen-amour .rs{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 16px 18px;box-shadow:0 8px 22px rgba(43,37,34,.04)}",
+    "#screen-amour .pr-sec{border-color:color-mix(in srgb, var(--bf) 42%, var(--line));border-top:4px solid var(--bf);background:linear-gradient(180deg, color-mix(in srgb, var(--bt) 78%, var(--surface)), var(--surface) 46%)}",
+    "#screen-amour .pr-sec > .snum{display:inline-flex;align-items:center;gap:6px;width:fit-content;margin:0;padding:4px 10px 4px 6px;border-radius:999px;background:var(--bt);color:var(--bc)}",
+    "#screen-amour .am-talent{position:relative;border:1px solid color-mix(in srgb, var(--bf) 48%, var(--line));border-radius:22px;background:radial-gradient(280px 120px at 100% 0%, color-mix(in srgb, var(--bf) 20%, transparent), transparent 70%), linear-gradient(180deg, var(--bt), var(--surface) 62%);box-shadow:0 14px 30px color-mix(in srgb, var(--bf) 16%, transparent);padding:18px 16px 20px}",
+    "#screen-amour .am-talent-mark{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--bf);color:#fff;margin-bottom:2px}",
+    "#screen-amour .am-talent-mark .am-ico svg{width:30px;height:30px}",
+    "#screen-amour .am-cta{background:radial-gradient(420px 180px at 100% 0%, color-mix(in srgb, var(--pink) 18%, transparent), transparent 70%), linear-gradient(165deg, #fffaf6, var(--surface));border:1px solid color-mix(in srgb, #C4501F 32%, var(--line));box-shadow:0 16px 36px rgba(196,80,31,.12)}",
+    "#screen-amour .am-cta .eyebrow{color:#C4501F}",
+    "#screen-amour .am-fam-card{border:1px solid color-mix(in srgb, var(--bf) 36%, var(--line));border-radius:20px;overflow:hidden;background:var(--surface);gap:0;animation:am-in .36s ease}",
+    "#screen-amour .am-fam-band{display:flex;align-items:center;gap:14px;padding:16px;background:linear-gradient(135deg, var(--bt), color-mix(in srgb, var(--bf) 18%, var(--bt)));border-bottom:4px solid var(--bf);color:var(--bc)}",
+    "#screen-amour .am-fam-band h3{margin:0}",
+    "#screen-amour .am-fam-mark{width:72px;height:72px;border-radius:22px;flex:none;display:grid;place-items:center;background:var(--bf);color:#fff;box-shadow:0 8px 16px color-mix(in srgb, var(--bf) 28%, transparent)}",
+    "#screen-amour .am-fam-mark .am-ico svg{width:40px;height:40px}",
+    "#screen-amour .am-fam-pad{display:flex;flex-direction:column;gap:10px;padding:14px 14px 16px}",
+    "#screen-amour .am-fact{display:flex;gap:10px;align-items:flex-start;margin:0}",
+    "#screen-amour .am-fact-ico{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--bt);color:var(--bc)}",
+    "#screen-amour .am-fact-ico .am-ico svg{width:18px;height:18px}",
+    "#screen-amour .am-fam-nu{display:flex;flex-direction:column;gap:8px;list-style:none;margin:0;padding:0}",
+    "#screen-amour .am-fam-nu li{margin:0;padding:8px 12px;border-radius:16px;background:color-mix(in srgb, var(--bt) 75%, var(--surface));border:1px solid color-mix(in srgb, var(--bf) 28%, var(--line))}",
+    "#screen-amour .am-pair{border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0 0;background:var(--surface)}",
+    "#screen-amour .am-pair.am-coule{border-color:color-mix(in srgb, #146B3A 34%, var(--line));background:linear-gradient(180deg, #F4FBF6, var(--surface) 46%)}",
+    "#screen-amour .am-pair.am-attention{border-color:color-mix(in srgb, #8A5A00 34%, var(--line));background:linear-gradient(180deg, #FFF9EC, var(--surface) 46%)}",
+    "#screen-amour .am-pair-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px}",
+    "#screen-amour .am-pair h4{margin:0;font-size:1rem}",
+    "#screen-amour .am-duo{display:inline-flex;align-items:center;gap:2px}",
+    "#screen-amour .am-duo-b{display:inline-flex;color:var(--bc)}",
+    "#screen-amour .am-tag{margin-left:auto;font-size:.75rem;font-weight:700;line-height:1.3;padding:4px 8px;border-radius:999px}",
+    "#screen-amour .am-tag-coule{background:#E5F6EB;color:#146B3A}",
+    "#screen-amour .am-tag-attention{background:#FFF3CC;color:#8A5A00}",
+    "#screen-amour .am-fam-chips .chip{border-color:var(--bf);color:var(--bc)}",
+    "#screen-amour .am-fam-chips .chip[aria-pressed=true]{background:var(--bt);border-color:var(--bf);color:var(--bc)}",
+    "#screen-amour .am-salle .salle-lab{display:flex;align-items:center;gap:6px;color:var(--bc)}",
+    "#screen-amour .am-salle .salle-lab .am-namebtn{flex:1;min-width:0}",
+    "#screen-amour .am-salle .salle-row{grid-template-columns:minmax(0,132px) 1fr auto}",
+    "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item,#screen-amour .am-benefit,#screen-amour .am-hero .eyebrow .am-ico,#screen-amour .am-badge,#screen-amour .am-just,#screen-amour .rsrc-opt,#screen-amour .pr-track i,#screen-amour .am-fam-card,#screen-amour .progress span.is-now::after{animation:none!important;transition:none!important}#screen-amour .am-pop,#screen-amour .am-burst{display:none}#screen-amour .pr-track i{width:var(--w,0%)}}",
     "@media print{",
     "@page{size:A4;margin:9mm}",
     "html,body{background:#fff!important;color:#1B1816!important;font-size:8.6pt!important;line-height:1.3!important}",
@@ -265,6 +352,17 @@
     "#screen-amour .pr-say li{font-size:9.5pt}",
     "#screen-amour .pr-exit .k{color:#fff}",
     "#screen-amour .rs h2{font-size:13.5pt;margin:0 0 4px}",
+    "#screen-amour .am-burst,#screen-amour .am-bit{display:none!important}",
+    "#screen-amour .am-badge{animation:none!important;box-shadow:none;background:var(--bt)!important;color:var(--bc)!important}",
+    "#screen-amour .am-talent{background:#fff!important;box-shadow:none}",
+    "#screen-amour .am-cta{background:#fff!important;box-shadow:none}",
+    "#screen-amour .rs{box-shadow:none;background:#fff}",
+    "#screen-amour .pr-sec{background:#fff!important;border-top:3px solid var(--bf)}",
+    "#screen-amour .am-fam-card{animation:none!important;break-inside:avoid}",
+    "#screen-amour .am-fam-band{background:var(--bt)!important;color:var(--bc)!important}",
+    "#screen-amour .am-pair{break-inside:avoid}",
+    "#screen-amour .pr-track i{animation:none!important;width:var(--w,0%)}",
+    "#screen-amour .progress span.is-now::after{display:none!important}",
     "*{print-color-adjust:exact;-webkit-print-color-adjust:exact}",
     "}"
   ].join("");
@@ -302,6 +400,7 @@
   let salleTimer = null;
   let sallePosting = false;
   let runId = 1;
+  let justPick = "";
   let stack = [{ view: "intro", qi: 0, phase: "ask", groupStep: 0 }];
   let historyReady = false;
 
@@ -390,6 +489,9 @@
   const GROUP_TONE = { nourrit: "sage", vide: "coral", modere: "gold", fort: "coral" };
   const ITEM_TONE = { sp: "sage", so: "sky", sx: "pink" };
   const CARD_ICON = {
+    nourrit: { ecoute: "message", rire: "smile", fiable: "shield", espace: "compass", tendresse: "heart", admiration: "star", projets: "home", aventure: "spark", calme: "leaf", profondeur: "eye", rituels: "coffee", soutien: "hand", desir: "flame", partage: "users", justifier: "help", critiques: "pen", silences: "moon", cris: "zap", flou: "cloud", charge: "battery", ecrans: "phone", jalousie: "eye", routine: "repeat", promesses: "flag", fusion: "users", indifference: "userx" },
+    ennea: { t1: "search", t2: "heart", t3: "star", t4: "flame", t5: "compass", t6: "shield", t7: "sun", t8: "zap", t9: "leaf" },
+    valeurs: { honnetete: "message", fidelite: "heart", respect: "hand", famille: "home", enfants: "users", sans_enfants: "user", liberte: "compass", ambition: "star", simplicite: "leaf", aventure: "spark", humour: "smile", culture: "gem", sante: "pulse", solidarite: "hand", creativite: "pen" },
     ressource: { seul: "user", raconter: "message", bouger: "pulse", mains: "hand", evader: "moon", monde: "pin", tendresse: "heart", douceur: "coffee", rien: "moon", moi: "user", nature: "tree", sport: "pulse", adeux: "users", proches: "users", sortir: "pin", decouvrir: "compass", projet: "pen" },
     langages: { paroles: "message", moments: "clock", cadeaux: "gift", services: "hand", toucher: "heart" },
     instinct: { sp: "home", so: "users", sx: "flame" },
@@ -689,7 +791,9 @@
         const on = picked.indexOf(it.id) !== -1;
         const mark = cardIcon(s.id, it.id);
         const tone = ITEM_TONE[it.id] || "";
-        html += '<label class="rsrc-opt' + (on ? " picked" : "") + (mark ? " has-ico" : "") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + '><input class="am-sr" type="checkbox" data-act="check" data-group="' + esc(g.id) + '" data-id="' + esc(it.id) + '"' + (on ? " checked" : "") + ">" + (mark ? ico(mark, tone) : "") + "<strong>" + esc(it.label) + "</strong>" +
+        const fresh = justPick === g.id + ":" + it.id;
+        if (fresh) justPick = "";
+        html += '<label class="rsrc-opt' + (on ? " picked" : "") + (fresh ? " am-just" : "") + (mark ? " has-ico" : "") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + '><input class="am-sr" type="checkbox" data-act="check" data-group="' + esc(g.id) + '" data-id="' + esc(it.id) + '"' + (on ? " checked" : "") + ">" + (mark ? ico(mark, tone) : "") + "<strong>" + esc(it.label) + "</strong>" +
           (it.hint ? '<span class="muted">' + esc(it.hint) + "</span>" : "") + "</label>";
       });
       if (g.other && g.other.multi) {
@@ -720,7 +824,9 @@
     const rest = t.ch.filter(function (id) { return t.head.indexOf(id) === -1; });
     let html = '<div class="items">';
     t.head.forEach(function (id, i) {
-      html += '<button type="button" class="rsrc-opt am-tap picked" data-act="tap-top" data-group="' + esc(t.gid) + '" data-id="' + esc(id) + '" aria-pressed="true"><span class="snum">' + (i + 1) + "</span><strong>" + esc(labelFor(s, t.gid, id)) + "</strong></button>";
+      const fresh = justPick === "tap:" + id;
+      if (fresh) justPick = "";
+      html += '<button type="button" class="rsrc-opt am-tap picked' + (fresh ? " am-just" : "") + '" data-act="tap-top" data-group="' + esc(t.gid) + '" data-id="' + esc(id) + '" aria-pressed="true"><span class="snum">' + (i + 1) + "</span><strong>" + esc(labelFor(s, t.gid, id)) + "</strong></button>";
     });
     rest.forEach(function (id) {
       html += '<button type="button" class="rsrc-opt am-tap" data-act="tap-top" data-group="' + esc(t.gid) + '" data-id="' + esc(id) + '" aria-pressed="false"><strong>' + esc(labelFor(s, t.gid, id)) + "</strong></button>";
@@ -753,7 +859,9 @@
       const on = pos !== -1;
       const mark = cardIcon(s.id, it.id);
       const tone = ITEM_TONE[it.id] || "";
-      html += '<button type="button" class="rsrc-opt am-style' + (on ? " picked" : "") + '" data-act="rank-card" data-id="' + esc(it.id) + '" aria-pressed="' + (on ? "true" : "false") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + ">" +
+      const fresh = justPick === "rank:" + it.id;
+      if (fresh) justPick = "";
+      html += '<button type="button" class="rsrc-opt am-style' + (on ? " picked" : "") + (fresh ? " am-just" : "") + '" data-act="rank-card" data-id="' + esc(it.id) + '" aria-pressed="' + (on ? "true" : "false") + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + ">" +
         '<span class="snum">' + (on ? String(pos + 1) : "") + "</span>" +
         '<span class="am-style-copy"><strong>' + (mark ? ico(mark, tone) : "") + esc(it.label) + "</strong>" +
         (it.hint ? '<span class="muted">' + esc(it.hint) + "</span>" : "") +
@@ -941,7 +1049,7 @@
     root.classList.remove("has-sticky");
     root.innerHTML =
       resumeHtml() +
-      '<div class="hero"><span class="eyebrow">' + ico("heart") + esc(I.eyebrow) + "</span><h1>" + I.h1 + '</h1><p class="lead">' + esc(I.lead) + "</p></div>" +
+      '<div class="hero am-hero"><span class="eyebrow">' + ico("heart") + esc(I.eyebrow) + "</span><h1>" + I.h1 + '</h1><p class="lead">' + esc(I.lead) + "</p></div>" +
       '<div class="stack-lg" style="padding-top:18px"><div class="howto"><div class="rules">' +
       I.bullets.map(function (b, i) {
         const tone = introTones[i] || "pink";
@@ -1024,7 +1132,7 @@
   }
   function discoveryBlock(place, pierreLine) {
     const lead = pierreLine ? "<p>" + esc(pierreLine) + "</p>" : "";
-    return '<section class="rs am-cta"><span class="eyebrow">' + esc(R.ctaEyebrow) + "</span><h2>" + esc(R.ctaH) + "</h2>" + lead + "<p>" + esc(R.ctaP) + '</p><a class="btn" data-cta-place="quiz_amour_' + place + '" href="' + esc(calendlyHref(place)) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + '</a><p class="muted">' + esc(R.ctaSign) + "</p></section>";
+    return '<section class="rs am-cta"><span class="eyebrow">' + ico("spark") + esc(R.ctaEyebrow) + "</span><h2>" + esc(R.ctaH) + "</h2>" + lead + "<p>" + esc(R.ctaP) + '</p><a class="btn" data-cta-place="quiz_amour_' + place + '" href="' + esc(calendlyHref(place)) + '" target="_blank" rel="noopener noreferrer">' + esc(R.ctaBtn) + '</a><p class="muted">' + esc(R.ctaSign) + "</p></section>";
   }
   function stickyBar() {
     if (stickyOff) return "";
@@ -1042,10 +1150,12 @@
     return '<button type="button" class="am-namebtn" data-act="family" data-id="' + esc(id) + '">' + esc(label) + "</button>";
   }
 
-  function familyPairsHtml(list, enc) {
+  function familyPairsHtml(list, enc, kind, selfIcon) {
+    const tag = kind === "attention" ? enc.attentionLab : enc.couleLab;
     return list.map(function (pair) {
+      const other = D.profil.besoins[pair.id];
       const who = familyNameBtn(pair.id, pair.noun) + (pair.same ? " <small>" + esc(enc.sameLab) + "</small>" : "");
-      return '<article class="am-pair"><h4>' + who + "</h4><p>" + esc(pair.text) + "</p><p><strong>" + esc(enc.tipLab) + ".</strong> " + esc(pair.tip) + "</p></article>";
+      return '<article class="am-pair am-' + kind + '"><div class="am-pair-top"><span class="am-duo">' + profilSvg(selfIcon) + '<span class="am-duo-b" style="' + needStyle(pair.id) + '">' + profilSvg(other.icon) + '</span></span><h4>' + who + '</h4><span class="am-tag am-tag-' + kind + '">' + esc(tag) + "</span></div><p>" + esc(pair.text) + "</p><p><strong>" + esc(enc.tipLab) + ".</strong> " + esc(pair.tip) + "</p></article>";
     }).join("");
   }
 
@@ -1057,14 +1167,14 @@
       return "<li>" + esc(row.line) + "</li>";
     }).join("") + "</ul>";
     return '<div class="am-fam-card"' + (anchor ? ' id="fam-' + esc(id) + '"' : "") + ' style="' + needStyle(id) + '">' +
-      "<h3>" + profilSvg(guide.icon) + "<span>" + esc(guide.noun + " · " + guide.name) + "</span></h3>" +
-      "<p>" + esc(guide.portrait) + "</p>" +
-      "<p><strong>" + esc(enc.nourritLab) + ".</strong> " + esc(guide.nourrit) + "</p>" +
-      "<p><strong>" + esc(enc.videLab) + ".</strong> " + esc(guide.vide) + "</p>" +
+      '<header class="am-fam-band"><span class="am-fam-mark">' + profilSvg(guide.icon) + "</span><h3><span>" + esc(guide.noun + " · " + guide.name) + "</span></h3></header>" +
+      '<div class="am-fam-pad"><p>' + esc(guide.portrait) + "</p>" +
+      '<p class="am-fact"><span class="am-fact-ico">' + ico("heart") + "</span><span><strong>" + esc(enc.nourritLab) + ".</strong> " + esc(guide.nourrit) + "</span></p>" +
+      '<p class="am-fact"><span class="am-fact-ico">' + ico("cloud") + "</span><span><strong>" + esc(enc.videLab) + ".</strong> " + esc(guide.vide) + "</span></p>" +
       "<h4>" + esc(enc.nuancesLab) + "</h4>" + nuances +
-      "<h4>" + esc(enc.couleLab) + "</h4>" + familyPairsHtml(guide.coule, enc) +
-      "<h4>" + esc(enc.attentionLab) + "</h4>" + familyPairsHtml(guide.attention, enc) +
-      "</div>";
+      "<h4>" + esc(enc.couleLab) + "</h4>" + familyPairsHtml(guide.coule, enc, "coule", guide.icon) +
+      "<h4>" + esc(enc.attentionLab) + "</h4>" + familyPairsHtml(guide.attention, enc, "attention", guide.icon) +
+      "</div></div>";
   }
 
   function familyFold(domId) {
@@ -1078,7 +1188,7 @@
     const enc = D.profil.encyclo;
     const chips = D.profil.order.map(function (id) {
       const b = D.profil.besoins[id];
-      return '<button type="button" class="chip" data-act="family" data-id="' + esc(id) + '" aria-pressed="false">' + esc(b.noun) + "</button>";
+      return '<button type="button" class="chip" data-act="family" data-id="' + esc(id) + '" aria-pressed="false" style="' + needStyle(id) + '">' + profilSvg(b.icon) + esc(b.noun) + "</button>";
     }).join("");
     return '<dialog id="am-fam-dialog" class="am-fam"><div class="am-fam-box"><div class="am-fam-head"><p class="am-fam-kicker" id="am-fam-kicker">' + esc(enc.openAll) + '</p><button type="button" class="btn ghost small" data-act="family-close">' + esc(enc.close) + "</button></div>" +
       '<div class="am-fam-chips" role="group" aria-label="' + esc(enc.openAll) + '">' + chips + '</div><div class="am-fam-body" id="am-fam-body"></div></div></dialog>';
@@ -1135,13 +1245,14 @@
       '<button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.sec) + '" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>Secondaire</small>" + esc(sec.name) + "</span></button></div>";
     const bars = pr.bars.map(function (bar) {
       const b = B[bar.id];
-      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + familyNameBtn(bar.id, b.name) + '</span><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(Math.round(bar.score))) + "</span></div>";
+      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + familyNameBtn(bar.id, b.name) + '</span><span class="pr-track"><i style="--w:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(Math.round(bar.score))) + "</span></div>";
     }).join("");
     const why = '<details class="pr-hide"><summary>' + esc(U.whyLab) + "</summary><p>" + esc(fill(U.whyIntro, { domName: dom.name })) + "</p><ul class=\"clean\">" +
       pr.why.map(function (line) { return "<li>" + esc(line) + "</li>"; }).join("") +
       "</ul><p class=\"muted\">" + esc(U.whyNote) + "</p></details>";
+    const burst = '<span class="am-burst" aria-hidden="true">' + [0, 1, 2, 3, 4, 5, 6].map(function () { return '<i class="am-bit">' + ico("heart") + "</i>"; }).join("") + "</span>";
     const header =
-      '<div class="rhead" style="' + headStyle + '"><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
+      '<div class="rhead" style="' + headStyle + '"><div class="am-reveal"><div class="am-badge" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + burst + '</div></div><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
       '<div class="alloy">' + familyNameBtn(pr.dom, pr.name.noun) + " <em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em></div>" +
       '<p class="pr-domsec">' + esc(pr.header.domSec) + "</p>" + pills +
       '<button type="button" class="btn ghost small am-fam-open" data-act="family-all">' + esc(enc.openAll) + "</button>" +
@@ -1157,7 +1268,7 @@
       }).join("") + "</div>" +
       '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><button type="button" class="btn ghost small" data-act="share">' + esc(R.shareBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>';
     const talentText = (R.talent && R.talent[pr.dom]) || "";
-    const talentBlock = '<section class="rs" id="sec-talent"><h2>' + esc(R.talentH) + "</h2><p>" + esc(talentText) + "</p></section>";
+    const talentBlock = '<section class="rs am-talent" id="sec-talent" style="' + needStyle(pr.dom) + '"><div class="am-talent-mark">' + profilSvg(dom.icon) + "</div><h2>" + esc(R.talentH) + "</h2><p>" + esc(talentText) + "</p></section>";
     const hrefs = ["#am-s1", "#am-s2", "#am-s3", "#am-s4", "#am-s5", "#am-s6", "#sec-now"];
     const toc = '<nav class="toc" aria-label="Sommaire">' + U.toc.map(function (label, i) {
       return '<a href="' + hrefs[i] + '">' + esc(label) + "</a>";
@@ -1392,7 +1503,8 @@
     }
     const rows = photo.bars.map(function (bar) {
       const you = bar.id === dom ? ' <small class="salle-you">' + esc(R.salleYou) + "</small>" : "";
-      return '<div class="salle-row" style="--bf:' + esc(bar.color) + '"><div class="salle-lab">' + familyNameBtn(bar.id, bar.name) + you + '</div><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="salle-pct">' + esc(String(bar.pct)) + " %</span></div>";
+      const besoin = D.profil.besoins[bar.id];
+      return '<div class="salle-row" style="' + needStyle(bar.id) + '"><div class="salle-lab">' + profilSvg(besoin.icon) + familyNameBtn(bar.id, bar.name) + you + '</div><span class="pr-track"><i style="--w:' + bar.pct + '%"></i></span><span class="salle-pct">' + esc(String(bar.pct)) + " %</span></div>";
     }).join("");
     const compat = photo.compat
       ? "<p>" + esc(fill(R.salleCompat, { name: photo.compat.name, pct: photo.compat.pct })) + "</p>"
@@ -1439,6 +1551,7 @@
   }
 
   function toggleCheck(s, gid, id, on) {
+    if (on) justPick = gid + ":" + id;
     const bag = ensure(s);
     let list = (bag.picked[gid] || []).slice();
     let dropped = "";
@@ -1807,6 +1920,7 @@
         pendingLive = fill(Q.untap, { label: label });
       } else if (head.length < t.top) {
         head.push(id);
+        justPick = "tap:" + id;
         pendingLive = fill(Q.placed, { label: label, pos: head.length, total: t.top });
       }
       ensure(s).order[t.gid] = head;
@@ -1870,6 +1984,7 @@
         pendingLive = fill(Q.rankUndo, { label: item.label });
       } else {
         bag.order = E.rankingState(bag.order, { type: "add", id: id });
+        justPick = "rank:" + id;
         pendingLive = fill(Q.placed, { label: item.label, pos: bag.order.length, total: s.items.length });
       }
       showQuestion(false);
