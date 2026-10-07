@@ -856,6 +856,77 @@
     return url.toString();
   }
 
+  var SALLE_SESSION = /^webinaire-[a-z0-9][a-z0-9-]{0,40}$/;
+
+  function salleSessionOk(value) {
+    return SALLE_SESSION.test(String(value || ""));
+  }
+
+  function salleSession(search) {
+    var params;
+    try {
+      params = search && typeof search.get === "function"
+        ? search
+        : new URLSearchParams(String(search || "").replace(/^\?/, ""));
+    } catch (e) { return ""; }
+    var explicit = params.get("salle");
+    if (salleSessionOk(explicit)) return String(explicit);
+    var src = params.get("utm_source") || "";
+    if (String(src).indexOf("webinaire-") === 0 && salleSessionOk(src)) return String(src);
+    return "";
+  }
+
+  function salleIds(D) {
+    var order = D && D.profil && Array.isArray(D.profil.order) ? D.profil.order : [];
+    return order.filter(function (id) { return D.profil.besoins && D.profil.besoins[id]; });
+  }
+
+  function salleNourrit(dom, D) {
+    var P = D && D.profil;
+    if (!P || !P.besoins || !P.besoins[dom] || !P.couples || !Array.isArray(P.order)) return [];
+    return P.order.filter(function (id) {
+      if (id === dom || !P.besoins[id]) return false;
+      var row = P.couples[profilPairKey(P, dom, id)];
+      return !!(row && row.type === "nourrit");
+    });
+  }
+
+  function sallePhoto(dom, rows, D) {
+    var ids = salleIds(D);
+    var counts = {};
+    ids.forEach(function (id) { counts[id] = 0; });
+    (Array.isArray(rows) ? rows : []).forEach(function (row) {
+      if (!row || !Object.prototype.hasOwnProperty.call(counts, row.id)) return;
+      var n = Number(row.n);
+      if (Number.isInteger(n) && n > 0 && n < 1000000) counts[row.id] = n;
+    });
+    var total = ids.reduce(function (sum, id) { return sum + counts[id]; }, 0);
+    var bars = ids.map(function (id) {
+      var b = D.profil.besoins[id];
+      return {
+        id: id,
+        name: b.name,
+        color: b.color,
+        n: counts[id],
+        pct: total > 0 ? Math.round((counts[id] / total) * 100) : 0,
+      };
+    });
+    var compat = null;
+    var nourrit = salleNourrit(dom, D);
+    if (nourrit.length && total > 0) {
+      var best = nourrit[0];
+      nourrit.forEach(function (id) {
+        if (counts[id] > counts[best]) best = id;
+      });
+      compat = {
+        id: best,
+        name: D.profil.besoins[best].name,
+        pct: Math.round((counts[best] / total) * 100),
+      };
+    }
+    return { total: total, bars: bars, compat: compat };
+  }
+
   function answerLabel(answers, D, screenId, groupId, id) {
     const screen = screenOf(D, screenId);
     const group = groupOf(screen, groupId);
@@ -872,6 +943,7 @@
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
     progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
     calendlyLink, answerLabel,
+    salleSession, salleSessionOk, salleIds, salleNourrit, sallePhoto,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.AmourEngine = api;

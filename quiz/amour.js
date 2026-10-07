@@ -118,6 +118,13 @@
     "#screen-amour .pr-bar-n span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
     "#screen-amour .pr-track{height:10px;border-radius:99px;background:var(--line);overflow:hidden}",
     "#screen-amour .pr-track i{display:block;height:100%;background:var(--bf);border-radius:99px}",
+    "#screen-amour .am-salle .salle-row{display:grid;grid-template-columns:minmax(0,108px) 1fr auto;align-items:center;gap:8px;margin:8px 0;font-size:.92rem}",
+    "#screen-amour .am-salle .salle-lab{font-weight:700;color:var(--bf);min-width:0}",
+    "#screen-amour .am-salle .salle-lab span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    "#screen-amour .am-salle .salle-you{font-weight:700;font-size:.75rem;color:var(--muted)}",
+    "#screen-amour .am-salle .salle-pct{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}",
+    "#screen-amour .am-salle .pr-track{background:var(--line)}",
+    "#screen-amour .am-salle .pr-track i{background:var(--bf)}",
     "#screen-amour .pr-score{color:var(--bc);font-weight:700;font-variant-numeric:tabular-nums}",
     "#screen-amour .pr-sec .snum{color:var(--bc)}",
     "#screen-amour .pr-rows{display:grid;gap:8px}",
@@ -189,7 +196,7 @@
   const brand = document.querySelector(".brand span");
   if (brand) brand.textContent = U.brand;
   const footer = document.querySelector("footer");
-  if (footer) footer.textContent = U.footer;
+  if (footer) footer.textContent = E.salleSession(location.search || "") ? U.footerSalle : U.footer;
   document.title = U.pageTitle + " | Magic Humans";
   document.documentElement.lang = "fr";
 
@@ -208,6 +215,8 @@
   let resumeNote = false;
   let stickyOff = false;
   let composing = false;
+  let salleTimer = null;
+  let sallePosting = false;
   let runId = 1;
   let stack = [{ view: "intro", qi: 0, phase: "ask", groupStep: 0 }];
   let historyReady = false;
@@ -736,6 +745,7 @@
   }
 
   function showIntro() {
+    stopSalle();
     const I = U.intro;
     const introTones = ["sage", "gold", "pink", "coral"];
     view = "intro";
@@ -763,6 +773,7 @@
   }
 
   function showQuestion(scroll) {
+    stopSalle();
     view = "question";
     const s = screenAt(qi);
     ensure(s);
@@ -931,7 +942,7 @@
       if (secItem.also) body += "<p>" + esc(secItem.also) + "</p>";
       return '<section class="rs pr-sec" id="am-s' + (i + 1) + '" style="' + style + '"><p class="snum">' + profilSvg(secItem.icon) + " " + (i + 1) + "</p><h2>" + esc(secItem.title) + "</h2>" + body + "</section>";
     });
-    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + discoveryBlock("resultat-apres-profil", pierreLine) + toc +
+    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + discoveryBlock("resultat-apres-profil", pierreLine) + salleSlot() + toc +
       '<div class="pr-cols">' + sections[0] + sections[1] + "</div>" +
       sections.slice(2).join("") + "</div>";
   }
@@ -1045,6 +1056,103 @@
     pinSticky();
     scrollTop();
     saveProgress();
+    startSalle(profile);
+  }
+
+  function salleSlot() {
+    if (!E.salleSession(location.search || "")) return "";
+    return '<div id="am-salle" class="am-screen-only" hidden></div>';
+  }
+
+  function stopSalle() {
+    if (salleTimer) {
+      clearInterval(salleTimer);
+      salleTimer = null;
+    }
+  }
+
+  function salleFlagKey(session) {
+    return "quiz_amour_salle_" + session;
+  }
+
+  function compterSalle(profile) {
+    const session = E.salleSession(location.search || "");
+    const profil = profile && profile.profil ? profile.profil.dom : "";
+    if (!session || !salleIdsHas(profil)) return Promise.resolve();
+    let store = null;
+    try { store = window.localStorage; } catch (e) { store = null; }
+    try { if (store && store.getItem(salleFlagKey(session)) === "1") return Promise.resolve(); } catch (e) { /* quota */ }
+    if (sallePosting) return Promise.resolve();
+    sallePosting = true;
+    const body = JSON.stringify({ session: session, profil: profil });
+    return fetch("/boussole-decision/api/quiz-salle/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: body,
+      credentials: "omit",
+      keepalive: true,
+    }).then(function (res) {
+      if (res && res.ok && store) {
+        try { store.setItem(salleFlagKey(session), "1"); } catch (e) { /* quota */ }
+      } else sallePosting = false;
+    }).catch(function () { sallePosting = false; });
+  }
+
+  function salleIdsHas(id) {
+    return E.salleIds(D).indexOf(id) !== -1;
+  }
+
+  function cacherSalle() {
+    const box = document.getElementById("am-salle");
+    if (!box) return;
+    box.hidden = true;
+    box.innerHTML = "";
+  }
+
+  function dessinerSalle(profile, data) {
+    const box = document.getElementById("am-salle");
+    if (!box) return;
+    if (!data || data.ok !== true || !Array.isArray(data.profils)) {
+      cacherSalle();
+      return;
+    }
+    const dom = profile && profile.profil ? profile.profil.dom : "";
+    const photo = E.sallePhoto(dom, data.profils, D);
+    if (photo.total < 5) {
+      box.hidden = false;
+      box.innerHTML =
+        '<section class="rs am-salle" aria-live="polite"><h2>' + esc(R.salleH) + "</h2><p>" + esc(R.salleWait) + '</p><button type="button" class="btn ghost small" data-act="salle-refresh">' + esc(R.salleRefresh) + "</button></section>";
+      return;
+    }
+    const rows = photo.bars.map(function (bar) {
+      const you = bar.id === dom ? ' <small class="salle-you">' + esc(R.salleYou) + "</small>" : "";
+      return '<div class="salle-row" style="--bf:' + esc(bar.color) + '"><div class="salle-lab"><span>' + esc(bar.name) + "</span>" + you + '</div><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="salle-pct">' + esc(String(bar.pct)) + " %</span></div>";
+    }).join("");
+    const compat = photo.compat
+      ? "<p>" + esc(fill(R.salleCompat, { name: photo.compat.name, pct: photo.compat.pct })) + "</p>"
+      : "";
+    box.hidden = false;
+    box.innerHTML =
+      '<section class="rs am-salle" aria-live="polite"><h2>' + esc(R.salleH) + "</h2><p class=\"muted\">" + esc(fill(R.salleTotal, { n: photo.total })) + "</p>" + rows + compat +
+      '<button type="button" class="btn ghost small" data-act="salle-refresh">' + esc(R.salleRefresh) + "</button></section>";
+  }
+
+  function chargerSalle(profile) {
+    const session = E.salleSession(location.search || "");
+    if (!session || !document.getElementById("am-salle")) return Promise.resolve();
+    if (document.visibilityState === "hidden") return Promise.resolve();
+    return fetch("/boussole-decision/api/quiz-salle/?session=" + encodeURIComponent(session), { credentials: "omit" })
+      .then(function (res) { return res && res.ok ? res.json() : null; })
+      .then(function (data) { dessinerSalle(profile, data); })
+      .catch(function () { cacherSalle(); });
+  }
+
+  function startSalle(profile) {
+    stopSalle();
+    if (!E.salleSession(location.search || "")) return;
+    const tick = function () { chargerSalle(profile); };
+    Promise.resolve(compterSalle(profile)).then(tick);
+    salleTimer = setInterval(tick, 30000);
   }
 
   function rememberTheme() {
@@ -1336,6 +1444,10 @@
       restartQuiz();
       return;
     }
+    if (act === "salle-refresh") {
+      if (resultProfile) chargerSalle(resultProfile);
+      return;
+    }
     if (act === "dismiss-sticky") {
       stickyOff = true;
       root.classList.remove("has-sticky");
@@ -1526,6 +1638,7 @@
   }
 
   function restartQuiz() {
+    stopSalle();
     E.clearProgress(browserStore());
     answers = {};
     prenom = "";

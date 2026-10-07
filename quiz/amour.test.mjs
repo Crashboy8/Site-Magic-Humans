@@ -693,6 +693,51 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(vercel.includes("/quiz-amour"), false);
 });
 
+test("photo de la salle : session, profil anonyme, compatibilité déjà dans le moteur", () => {
+  assert.equal(E.salleSession(""), "");
+  assert.equal(E.salleSession("?theme=amour"), "");
+  assert.equal(E.salleSession("?utm_source=newsletter"), "");
+  assert.equal(E.salleSession("?utm_source=webinaire-8oct"), "webinaire-8oct");
+  assert.equal(E.salleSession("?salle=webinaire-8oct&utm_source=site"), "webinaire-8oct");
+  assert.equal(E.salleSession("?salle=webinaire-live&utm_source=webinaire-8oct"), "webinaire-live");
+  assert.equal(E.salleSession("?utm_source=webinaire-"), "");
+  assert.equal(E.salleSession("?utm_source=webinaire-8oct<script>"), "");
+  assert.deepEqual(E.salleIds(D), ["securite", "profondeur", "admiration", "liberte", "harmonie", "complicite", "intensite"]);
+  const nourrit = E.salleNourrit("securite", D);
+  assert.ok(nourrit.includes("complicite"));
+  assert.ok(nourrit.includes("profondeur"));
+  assert.equal(nourrit.includes("liberte"), false);
+  for (const id of nourrit) assert.equal(D.profil.couples[E.pairKey(D.profil, "securite", id)].type, "nourrit");
+  const photo = E.sallePhoto("securite", [
+    { id: "profondeur", n: 8 },
+    { id: "complicite", n: 2 },
+    { id: "intrus", n: 100 },
+    { id: "securite", n: 5 },
+  ], D);
+  assert.equal(photo.total, 15);
+  assert.equal(photo.bars.length, 7);
+  assert.equal(photo.compat.id, "profondeur");
+  assert.equal(photo.compat.name, "Profondeur");
+  assert.equal(photo.compat.pct, Math.round((8 / 15) * 100));
+  assert.equal(E.sallePhoto("securite", [], D).compat, null);
+  assert.equal(D.ui.footer.includes("Rien n'est envoyé"), true);
+  assert.equal(D.ui.footerSalle.includes("Rien n'est envoyé"), false);
+  assert.match(D.ui.footerSalle, /Seul ton profil anonyme est compté pour la photo de la salle/);
+  assert.equal(D.ui.results.salleH, "Photo de la salle ce soir");
+  assert.equal(D.ui.results.salleWait, "La photo s'affiche dès 5 participants.");
+  assert.equal(D.ui.results.salleRefresh, "Actualiser");
+  assert.equal(D.ui.results.salleTotal, "{n} participants");
+  assert.equal(D.ui.results.salleCompat, "Le profil le plus compatible avec toi, {name}, représente {pct} % de la salle.");
+  const textes = [D.ui.footerSalle, D.ui.results.salleH, D.ui.results.salleWait, D.ui.results.salleCompat].join("\n");
+  assert.equal(/[\u2014\u2013]/.test(textes), false);
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  assert.match(src, /JSON\.stringify\(\{ session: session, profil: profil \}\)/);
+  const html = fs.readFileSync(new URL("../quiz-amour/salle/index.html", import.meta.url), "utf8");
+  assert.match(html, /noindex/);
+  assert.match(html, /setInterval\(charger, 10000\)/);
+  assert.match(html, /Photo de la salle/);
+});
+
 test("encodage", () => {
   const r = rnd(7);
   for (let i = 0; i < 2000; i++) {
