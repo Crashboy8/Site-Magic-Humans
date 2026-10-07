@@ -15,6 +15,8 @@ export class ErreurFournisseur extends Error {
   constructor(
     public code: "reseau" | "delai" | "statut" | "tronque" | "vide",
     public statut?: number,
+    /** Message du fournisseur (`error.message`), au plus 300 caractères. Jamais le texte saisi. */
+    public messageFournisseur?: string,
   ) {
     super(code);
   }
@@ -27,22 +29,24 @@ export interface Fournisseur {
 }
 
 export const MODELE_ANTHROPIC_DEFAUT = "claude-sonnet-5";
-/** Meilleur modèle gratuit stable pour un nouveau projet (oct. 2026). `gemini-2.5-flash` reste gratuit, mais Google le réserve aux clés qui l'utilisaient déjà. */
-export const MODELE_GEMINI_DEFAUT = "gemini-3.8-flash";
+/** Modèle Flash stable de l'offre gratuite (doc modèles Gemini). */
+export const MODELE_GEMINI_DEFAUT = "gemini-2.5-flash";
 const URL_ANTHROPIC = "https://api.anthropic.com/v1/messages";
 const URL_OPENAI = "https://api.openai.com/v1/responses";
+const LIMITE_MESSAGE_FOURNISSEUR = 300;
 
-/** Mots-clés JSON Schema acceptés par Gemini (`responseFormat`, doc « Structured outputs »). Les autres provoquent un rejet. */
+/**
+ * Mots-clés gardés pour `responseJsonSchema` (REST GenerationConfig).
+ * `additionalProperties` n'en fait pas partie : le schéma OpenAPI de l'API le refuse (HTTP 400).
+ */
 const CLES_SCHEMA_GEMINI = new Set([
   "$anchor",
   "$defs",
   "$id",
   "$ref",
-  "additionalProperties",
   "anyOf",
   "description",
   "enum",
-  "format",
   "items",
   "maxItems",
   "maximum",
@@ -57,41 +61,40 @@ const CLES_SCHEMA_GEMINI = new Set([
   "type",
 ]);
 
-/** `false` si le schéma contient un mot-clé que Gemini refuse : on n'enverra alors que le type MIME. */
-export function schemaAccepteParGemini(schema: unknown): boolean {
-  if (!schema || typeof schema !== "object") return true;
-  if (Array.isArray(schema)) return schema.every(schemaAccepteParGemini);
+/** Retire, à tous les niveaux, les mots-clés que Gemini refuse (`pattern`, `additionalProperties`, `format` hors `date-time` et `enum`). */
+export function schemaPourGemini(schema: unknown): unknown {
+  if (Array.isArray(schema)) return schema.map(schemaPourGemini);
+  if (!schema || typeof schema !== "object") return schema;
+  const sortie: Record<string, unknown> = {};
   for (const [cle, valeur] of Object.entries(schema)) {
-    if (cle === "properties" || cle === "$defs") {
-      if (!valeur || typeof valeur !== "object" || Array.isArray(valeur)) return false;
-      if (!Object.values(valeur).every(schemaAccepteParGemini)) return false;
+    if (cle === "format") {
+      if (valeur === "date-time" || valeur === "enum") sortie.format = valeur;
       continue;
     }
-    if (!CLES_SCHEMA_GEMINI.has(cle)) return false;
-    if (valeur && typeof valeur === "object" && !schemaAccepteParGemini(valeur)) return false;
+    if (cle === "properties" || cle === "$defs") {
+      if (valeur && typeof valeur === "object" && !Array.isArray(valeur)) {
+        sortie[cle] = Object.fromEntries(Object.entries(valeur).map(([nom, sous]) => [nom, schemaPourGemini(sous)]));
+      }
+      continue;
+    }
+    if (!CLES_SCHEMA_GEMINI.has(cle)) continue;
+    sortie[cle] = valeur && typeof valeur === "object" ? schemaPourGemini(valeur) : valeur;
   }
-  return true;
+  return sortie;
 }
 
 export function urlGemini(modele: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent`;
 }
 
-/**
- * Corps `generateContent`. Le schéma passe par `generationConfig.responseFormat.text.schema`
- * (champ actuel ; `responseSchema` est déprécié). Schéma incompatible : `responseMimeType` seul.
- */
-export function corpsGemini(a: AppelModele) {
+/** Corps `generateContent`. `avecSchema` à faux : seulement `responseMimeType` (repli après un HTTP 400). */
+export function corpsGemini(a: AppelModele, avecSchema = true) {
   const generationConfig: {
     maxOutputTokens: number;
-    responseMimeType?: "application/json";
-    responseFormat?: { text: { mimeType: "application/json"; schema: object } };
-  } = { maxOutputTokens: a.maxTokens };
-  if (schemaAccepteParGemini(a.schema)) {
-    generationConfig.responseFormat = { text: { mimeType: "application/json", schema: a.schema } };
-  } else {
-    generationConfig.responseMimeType = "application/json";
-  }
+    responseMimeType: "application/json";
+    responseJsonSchema?: unknown;
+  } = { maxOutputTokens: a.maxTokens, responseMimeType: "application/json" };
+  if (avecSchema) generationConfig.responseJsonSchema = schemaPourGemini(a.schema);
   return {
     systemInstruction: { parts: [{ text: a.systeme }] },
     contents: [{ role: "user", parts: [{ text: a.utilisateur }] }],
@@ -174,12 +177,25 @@ async function envoyer(fetchImpl: typeof fetch, url: string, headers: Record<str
     const nom = (e as { name?: string })?.name;
     throw new ErreurFournisseur(nom === "TimeoutError" || nom === "AbortError" ? "delai" : "reseau");
   }
-  if (!reponse.ok) throw new ErreurFournisseur("statut", reponse.status);
+  if (!reponse.ok) throw new ErreurFournisseur("statut", reponse.status, await messageStatut(reponse));
   try {
     return await reponse.json();
   } catch (e) {
     const nom = (e as { name?: string })?.name;
     throw new ErreurFournisseur(nom === "TimeoutError" || nom === "AbortError" ? "delai" : "vide");
+  }
+}
+
+/** `error.message` du JSON d'erreur, tronqué. Rien si le corps n'a pas cette forme (on n'y met pas la saisie). */
+async function messageStatut(reponse: Response): Promise<string | undefined> {
+  try {
+    const json = (await reponse.json()) as { error?: { message?: unknown } };
+    const brut = json?.error && typeof json.error === "object" ? json.error.message : undefined;
+    if (typeof brut !== "string") return undefined;
+    const texte = brut.trim();
+    return texte ? texte.slice(0, LIMITE_MESSAGE_FOURNISSEUR) : undefined;
+  } catch {
+    return undefined;
   }
 }
 
@@ -204,7 +220,14 @@ export function creerFournisseur(env: NodeJS.ProcessEnv, fetchImpl: typeof fetch
     return {
       nom: "gemini",
       async appeler(a) {
-        return texteGemini(await envoyer(fetchImpl, urlGemini(modeleGemini), { "x-goog-api-key": cle }, corpsGemini(a), a.delaiMs));
+        const url = urlGemini(modeleGemini);
+        const headers = { "x-goog-api-key": cle };
+        try {
+          return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a), a.delaiMs));
+        } catch (e) {
+          if (!(e instanceof ErreurFournisseur) || e.statut !== 400) throw e;
+          return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a, false), a.delaiMs));
+        }
       },
     };
   }

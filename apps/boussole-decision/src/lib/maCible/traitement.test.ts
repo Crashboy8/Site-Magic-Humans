@@ -301,6 +301,18 @@ describe("confidentialité des journaux", () => {
     expect(journal).toContain("config_manquante");
   });
 
+  it("journalise messageFournisseur, pas le texte saisi", async () => {
+    const SECRET = "SECRET-SAISIE-7777";
+    const e = structuredClone(ENTREE_EXEMPLE);
+    e.talent.mecanisme = `démêle les situations ${SECRET}`;
+    preparer([new ErreurFournisseur("statut", 400, "Unknown name responseFormat")]);
+    await traiterDemande(deps, requete({ ...demandeCadrage(), entree: e }));
+    const journal = JSON.stringify(erreurConsole.mock.calls);
+    expect(journal).toContain("messageFournisseur");
+    expect(journal).toContain("Unknown name responseFormat");
+    expect(journal).not.toContain(SECRET);
+  });
+
   it("ne journalise rien en cas de succès", async () => {
     preparer([JSON.stringify(CADRAGE_ESQUISSE)]);
     await traiterDemande(deps, requete(demandeCadrage()));

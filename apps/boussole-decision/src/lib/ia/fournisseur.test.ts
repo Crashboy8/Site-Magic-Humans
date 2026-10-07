@@ -46,9 +46,11 @@ describe("Anthropic", () => {
     expect(JSON.parse((fetchSimule.mock.calls[0] as unknown as [string, RequestInit])[1].body as string).model).toBe("claude-sonnet-5");
   });
 
-  it("statut 529 : erreur statut", async () => {
-    const f = creerFournisseur(env({ ANTHROPIC_API_KEY: "k" }), (async () => reponseJson({ error: "surcharge" }, 529)) as unknown as typeof fetch)!;
-    expect(await code(f.appeler(appel))).toEqual({ code: "statut", statut: 529 });
+  it("statut 529 : erreur statut, avec error.message tronqué", async () => {
+    const fetchSimule = vi.fn(async () => reponseJson({ error: { message: `surcharge ${"y".repeat(400)}` } }, 529));
+    const f = creerFournisseur(env({ ANTHROPIC_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!;
+    await expect(f.appeler(appel)).rejects.toMatchObject({ code: "statut", statut: 529, messageFournisseur: `surcharge ${"y".repeat(400)}`.slice(0, 300) });
+    expect(fetchSimule).toHaveBeenCalledTimes(1);
   });
 
   it("délai dépassé : erreur délai ; panne réseau : erreur réseau", async () => {
@@ -93,22 +95,48 @@ describe("OpenAI", () => {
 });
 
 describe("Gemini", () => {
-  it("corpsGemini : instruction système, message utilisateur, schéma JSON via responseFormat", () => {
-    expect(corpsGemini(appel)).toEqual({
-      systemInstruction: { parts: [{ text: "Tu es utile." }] },
-      contents: [{ role: "user", parts: [{ text: "Bonjour" }] }],
-      generationConfig: {
-        maxOutputTokens: 1500,
-        responseFormat: { text: { mimeType: "application/json", schema: SCHEMA_CADRAGE } },
-      },
-    });
-    expect(corpsGemini({ ...appel, schema: SCHEMA_RESULTAT }).generationConfig.responseFormat?.text.schema).toBe(SCHEMA_RESULTAT);
+  it("corpsGemini : responseMimeType et responseJsonSchema, sans additionalProperties", () => {
+    const corps = corpsGemini(appel);
+    expect(corps.systemInstruction).toEqual({ parts: [{ text: "Tu es utile." }] });
+    expect(corps.contents).toEqual([{ role: "user", parts: [{ text: "Bonjour" }] }]);
+    expect(corps.generationConfig.responseMimeType).toBe("application/json");
+    expect(corps.generationConfig.maxOutputTokens).toBe(1500);
+    expect(corps.generationConfig).not.toHaveProperty("responseFormat");
+    const schema = corps.generationConfig.responseJsonSchema as { type: string; required: string[] };
+    expect(schema.type).toBe("object");
+    expect(schema.required).toContain("statut");
+    expect(JSON.stringify(schema)).not.toContain("additionalProperties");
+    expect(JSON.stringify(schema)).toContain("hors_sujet");
+    expect(JSON.stringify(corpsGemini({ ...appel, schema: SCHEMA_RESULTAT }).generationConfig.responseJsonSchema)).not.toContain("additionalProperties");
   });
 
-  it("schéma avec un mot-clé refusé : seulement responseMimeType", () => {
-    const corps = corpsGemini({ ...appel, schema: { type: "string", pattern: "^a" } });
-    expect(corps.generationConfig).toEqual({ maxOutputTokens: 1500, responseMimeType: "application/json" });
-    expect(corps.generationConfig).not.toHaveProperty("responseFormat");
+  it("retire pattern, format hors date-time, et les mots-clés inconnus", () => {
+    const corps = corpsGemini({
+      ...appel,
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          a: { type: "string", pattern: "^a", format: "email", minLength: 1 },
+          b: { type: "string", format: "date-time" },
+          c: { type: "string", format: "enum" },
+        },
+        required: ["a"],
+      },
+    });
+    expect(corps.generationConfig.responseJsonSchema).toEqual({
+      type: "object",
+      properties: {
+        a: { type: "string" },
+        b: { type: "string", format: "date-time" },
+        c: { type: "string", format: "enum" },
+      },
+      required: ["a"],
+    });
+  });
+
+  it("corpsGemini sans schéma : seulement responseMimeType", () => {
+    expect(corpsGemini(appel, false).generationConfig).toEqual({ maxOutputTokens: 1500, responseMimeType: "application/json" });
   });
 
   it("texteGemini concatène les blocs texte, sans le raisonnement", () => {
@@ -137,18 +165,50 @@ describe("Gemini", () => {
     expect(init.headers).toMatchObject({ "x-goog-api-key": "cle-test", "content-type": "application/json" });
     expect(url).not.toContain("cle-test");
     expect(init.body).not.toContain("cle-test");
-    expect(JSON.parse(init.body as string).generationConfig.maxOutputTokens).toBe(1500);
+    const corps = JSON.parse(init.body as string);
+    expect(corps.generationConfig.maxOutputTokens).toBe(1500);
+    expect(corps.generationConfig.responseMimeType).toBe("application/json");
+    expect(corps.generationConfig.responseJsonSchema).toBeDefined();
+    expect(corps.generationConfig).not.toHaveProperty("responseFormat");
   });
 
-  it("utilise gemini-3.8-flash par défaut", async () => {
+  it("utilise gemini-2.5-flash par défaut", async () => {
     const fetchSimule = vi.fn(async () => reponseJson({ candidates: [{ content: { parts: [{ text: "{}" }] } }] }));
     await creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!.appeler(appel);
-    expect((fetchSimule.mock.calls[0] as unknown as [string])[0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent");
+    expect((fetchSimule.mock.calls[0] as unknown as [string])[0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent");
   });
 
-  it("statut 429 : même erreur d'indisponibilité que les autres fournisseurs", async () => {
-    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), (async () => reponseJson({ error: "quota" }, 429)) as unknown as typeof fetch)!;
+  it("statut 429 : même erreur d'indisponibilité, sans second essai", async () => {
+    const fetchSimule = vi.fn(async () => reponseJson({ error: { message: "quota" } }, 429));
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!;
     expect(await code(f.appeler(appel))).toEqual({ code: "statut", statut: 429 });
+    expect(fetchSimule).toHaveBeenCalledTimes(1);
+    await expect(f.appeler(appel)).rejects.toMatchObject({ messageFournisseur: "quota" });
+  });
+
+  it("400 avec le schéma : un second appel sans responseJsonSchema", async () => {
+    const fetchSimule = vi.fn()
+      .mockResolvedValueOnce(reponseJson({ error: { message: "Unknown name \"additionalProperties\"" } }, 400))
+      .mockResolvedValueOnce(reponseJson({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: "{}" }] } }] }));
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!;
+    expect(await f.appeler(appel)).toBe("{}");
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
+    const corps = (i: number) => JSON.parse((fetchSimule.mock.calls[i] as unknown as [string, RequestInit])[1].body as string);
+    expect(corps(0).generationConfig.responseJsonSchema).toBeDefined();
+    expect(corps(1).generationConfig).toEqual({ maxOutputTokens: 1500, responseMimeType: "application/json" });
+    expect(corps(1).generationConfig).not.toHaveProperty("responseJsonSchema");
+  });
+
+  it("400 puis encore 400 : on abandonne, message tronqué à 300 caractères", async () => {
+    const message = `modèle refusé ${"x".repeat(400)}`;
+    const fetchSimule = vi.fn(async () => reponseJson({ error: { message } }, 400));
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!;
+    await expect(f.appeler(appel)).rejects.toMatchObject({
+      code: "statut",
+      statut: 400,
+      messageFournisseur: message.slice(0, 300),
+    });
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
   });
 });
 
