@@ -17,9 +17,9 @@ const AMOUR_DATA = {
     "footer": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur cet appareil pour que tu puisses reprendre. Rien n'est envoyé.",
     "footerSalle": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur cet appareil pour que tu puisses reprendre. Seul ton profil anonyme est compté pour la photo de la salle.",
     "intro": {
-      "eyebrow": "Sommet de l'Amour · Gratuit · 10 questions · environ 10 minutes",
+      "eyebrow": "Sommet de l'Amour · Gratuit · 9 questions · environ 9 minutes",
       "h1": "Découvre ton <em>profil amoureux</em>",
-      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 10 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
+      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 9 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
       "bullets": [
         "Ce qui te nourrit en couple, et ce qui te vide",
         "Ton ressourcement, pour ne plus t'épuiser dans une relation",
@@ -52,6 +52,7 @@ const AMOUR_DATA = {
       "addOther": "+ Ajouter une autre valeur",
       "next": "Suivant →",
       "prev": "← Précédent",
+      "skip": "Passer",
       "finish": "Voir mes résultats →",
       "more": "Encore {k} choix pour continuer.",
       "moreDown": "Coche encore {k} pour « {label} », plus bas ↓",
@@ -156,6 +157,16 @@ const AMOUR_DATA = {
         "flight": "Tu as tendance à fuir sous stress fort.",
         "freeze": "Tu as tendance à te figer sous stress fort.",
         "fawn": "Tu as tendance à céder pour apaiser sous stress fort."
+      },
+      "talentH": "Ce que ton profil dit de ton Talent Unique",
+      "talent": {
+        "securite": "En amour, tu as besoin de savoir sur quoi compter. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand le cadre est clair et la parole tenue. Ton Contexte Déclencheur, c'est un lieu stable où chacun fait ce qu'il dit. Ton Anti-Contexte, c'est le flou qui dure. On pourra le creuser ensemble.",
+        "profondeur": "En amour, tu as besoin de vrai, au-delà des apparences. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand tu vas au fond des choses. Ton Contexte Déclencheur, c'est un échange sincère, sans masque. Ton Anti-Contexte, c'est le superficiel qui dure. On pourra le creuser ensemble.",
+        "admiration": "En amour, tu as besoin d'être vu·e et reconnu·e. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand tes efforts se voient. Ton Contexte Déclencheur, c'est une place où ce que tu apportes compte. Ton Anti-Contexte, c'est rester invisible trop longtemps. On pourra le creuser ensemble.",
+        "liberte": "En amour, tu as besoin de garder tes choix et ton air. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand personne ne te tient. Ton Contexte Déclencheur, c'est une vraie marge pour décider. Ton Anti-Contexte, c'est le contrôle qui se resserre. On pourra le creuser ensemble.",
+        "harmonie": "En amour, tu as besoin d'un climat doux, sans tension froide. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand la paix est réelle. Ton Contexte Déclencheur, c'est un cadre calme où l'on se dit les choses tôt. Ton Anti-Contexte, c'est le conflit qui s'installe. On pourra le creuser ensemble.",
+        "complicite": "En amour, tu as besoin de faire équipe et d'avancer à deux. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand tu construis avec d'autres. Ton Contexte Déclencheur, c'est un projet partagé, concret. Ton Anti-Contexte, c'est avancer seul·e trop longtemps. On pourra le creuser ensemble.",
+        "intensite": "En amour, tu as besoin d'élan, de vivant, de feu. Ça ouvre une piste sur ton Talent Unique : tu peux réussir dans le plaisir quand ça pulse vraiment. Ton Contexte Déclencheur, c'est un défi qui te réveille. Ton Anti-Contexte, c'est la routine plate qui s'installe. On pourra le creuser ensemble."
       }
     }
   },
@@ -616,13 +627,14 @@ const AMOUR_DATA = {
       "type": "pick",
       "n": 4,
       "eyebrow": "Ta piste ennéagramme",
-      "title": "Laquelle de ces phrases te ressemble le plus ? Coche au moins 1 phrase, puis classe-les si tu en coches plusieurs.",
-      "help": "C'est un point de départ, pas un verdict.",
+      "title": "Laquelle de ces phrases te ressemble le plus ? Coche celles qui te parlent, ou passe.",
+      "help": "C'est un point de départ, pas un verdict. Tu peux passer si aucune phrase ne te parle.",
+      "optional": true,
       "groups": [
         {
           "id": "types",
           "counter": "",
-          "min": 1,
+          "min": 0,
           "items": [
             {
               "id": "t1",
@@ -714,11 +726,6 @@ const AMOUR_DATA = {
               "hint": "Pas de mépris, même en colère."
             },
             {
-              "id": "engagement",
-              "label": "Engagement",
-              "hint": "Choisir l'autre chaque jour, pour longtemps."
-            },
-            {
               "id": "famille",
               "label": "Famille",
               "hint": "Les proches tiennent une grande place."
@@ -739,26 +746,6 @@ const AMOUR_DATA = {
               "hint": "Chacun garde sa vie et ses choix."
             },
             {
-              "id": "securite_fin",
-              "label": "Sécurité financière",
-              "hint": "Épargner, prévoir, ne pas manquer."
-            },
-            {
-              "id": "independance_fin",
-              "label": "Indépendance financière",
-              "hint": "Chacun ses comptes, chacun son autonomie."
-            },
-            {
-              "id": "generosite",
-              "label": "Générosité",
-              "hint": "Donner, partager, recevoir."
-            },
-            {
-              "id": "spiritualite",
-              "label": "Spiritualité ou foi",
-              "hint": "Une pratique, une quête de sens."
-            },
-            {
               "id": "ambition",
               "label": "Ambition",
               "hint": "Réussir, se dépasser, grandir."
@@ -772,21 +759,6 @@ const AMOUR_DATA = {
               "id": "aventure",
               "label": "Aventure",
               "hint": "Voyager, bouger, changer d'air."
-            },
-            {
-              "id": "ailleurs",
-              "label": "Pouvoir partir vivre ailleurs",
-              "hint": "Une autre ville, un autre pays."
-            },
-            {
-              "id": "racines",
-              "label": "Rester près de mes racines",
-              "hint": "Ma ville, ma région, mes proches."
-            },
-            {
-              "id": "nature",
-              "label": "Respect de la nature",
-              "hint": "Consommer moins, vivre plus vert."
             },
             {
               "id": "humour",
@@ -807,16 +779,6 @@ const AMOUR_DATA = {
               "id": "solidarite",
               "label": "Solidarité",
               "hint": "S'engager pour les autres."
-            },
-            {
-              "id": "transparence",
-              "label": "Transparence",
-              "hint": "Pas de secrets sur ce qui engage le couple."
-            },
-            {
-              "id": "traditions",
-              "label": "Traditions",
-              "hint": "Fêtes, rituels, valeurs transmises."
             },
             {
               "id": "creativite",
@@ -1025,16 +987,17 @@ const AMOUR_DATA = {
       ]
     },
     {
-      "id": "demain",
-      "type": "pick",
+      "id": "etape",
+      "type": "commit",
       "n": 9,
-      "eyebrow": "Passer à l'action demain",
-      "title": "Comment veux-tu passer à l'action dès demain ? Coche au moins 1 case.",
-      "badge": "En test : dis-nous si ça t'aide.",
+      "splitGroups": true,
+      "eyebrow": "Ta prochaine étape",
       "groups": [
         {
           "id": "actions",
-          "counter": "",
+          "title": "Passer à l'action",
+          "stepTitle": "Comment veux-tu passer à l'action dès demain ? Coche au moins 1 case.",
+          "counter": "Actions",
           "min": 1,
           "items": [
             {
@@ -1064,13 +1027,7 @@ const AMOUR_DATA = {
           "18:00",
           "21:00"
         ]
-      }
-    },
-    {
-      "id": "etape",
-      "type": "commit",
-      "n": 10,
-      "eyebrow": "Ta prochaine étape",
+      },
       "title": "Quelle est ta prochaine étape dans ta relation ? Écris ton engagement en une phrase.",
       "help": "Pour t'inspirer, touche un exemple : il se recopie dans ton engagement.",
       "examples": [
@@ -2565,27 +2522,17 @@ AMOUR_DATA.profil = {
         "honnetete": "profondeur",
         "fidelite": "securite",
         "respect": "harmonie",
-        "engagement": "securite",
         "famille": "complicite",
         "enfants": "securite",
         "sans_enfants": "liberte",
         "liberte": "liberte",
-        "securite_fin": "securite",
-        "independance_fin": "liberte",
-        "generosite": "harmonie",
-        "spiritualite": "profondeur",
         "ambition": "admiration",
         "simplicite": "harmonie",
         "aventure": "intensite",
-        "ailleurs": "liberte",
-        "racines": "complicite",
-        "nature": "harmonie",
         "humour": "complicite",
         "culture": "profondeur",
         "sante": "intensite",
         "solidarite": "complicite",
-        "transparence": "profondeur",
-        "traditions": "securite",
         "creativite": "admiration"
       },
       "instinct": {
@@ -2606,11 +2553,7 @@ AMOUR_DATA.profil = {
         "D": "admiration",
         "I": "complicite",
         "S": "harmonie",
-        "C": "securite",
-        "fight": "intensite",
-        "flight": "liberte",
-        "freeze": "profondeur",
-        "fawn": "harmonie"
+        "C": "securite"
       }
     },
     "points": {

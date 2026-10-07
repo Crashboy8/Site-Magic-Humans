@@ -1,4 +1,4 @@
-/* Quiz Amour v1.4 · 10 questions, classement, résultats.
+/* Quiz Amour v1.4 · 9 questions, classement, résultats.
    Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
    Aucune réponse n'est envoyée. La progression reste dans ce navigateur
    pour pouvoir reprendre. La réponse de sécurité n'est pas stockée. */
@@ -127,6 +127,11 @@
     "#screen-amour .am-salle .pr-track i{background:var(--bf)}",
     "#screen-amour .pr-score{color:var(--bc);font-weight:700;font-variant-numeric:tabular-nums}",
     "#screen-amour .pr-sec .snum{color:var(--bc)}",
+    "#screen-amour details.am-fold{margin:0}",
+    "#screen-amour details.am-fold > summary{cursor:pointer}",
+    "#screen-amour details.am-fold > summary h2{display:inline}",
+    "#screen-amour details.am-fold > summary .rs{margin-bottom:0}",
+    "#screen-amour details.am-fold:not([open]) > .am-fold-body{display:none}",
     "#screen-amour .pr-rows{display:grid;gap:8px}",
     "#screen-amour .pr-rows div{display:grid;grid-template-columns:108px 1fr;gap:8px}",
     "#screen-amour .pr-rows b{color:var(--bc)}",
@@ -176,6 +181,9 @@
     "#screen-amour #sec-now .rule p{display:none!important}",
     "#screen-amour .quote{font-size:11.5pt}",
     "#screen-amour .pr-hide,#screen-amour .toc,#screen-amour .pr-bars,#screen-amour details{display:none!important}",
+    "#screen-amour details.am-fold{display:block!important}",
+    "#screen-amour details.am-fold > summary{display:block!important}",
+    "#screen-amour details.am-fold > .am-fold-body{display:block!important}",
     "#screen-amour .pr-cols,#screen-amour .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}",
     "#screen-amour .fond li:nth-child(n+3){display:none}",
     "#screen-amour .am-pill{padding:3px 10px 3px 6px}",
@@ -309,7 +317,7 @@
     instinct: { sp: "home", so: "users", sx: "flame" },
     stress: { D: "arrow", I: "smile", S: "shield", C: "search", fight: "swords", flight: "arrow", freeze: "snow", fawn: "heart" },
     freins: { rejet: "userx", blesser: "heart", moment: "clock", espoir: "spark", habitude: "repeat", seul: "user", flou: "help", regard: "eye", contraintes: "box", energie: "battery", parfait: "star", passe: "history" },
-    demain: { a5: "timer", voix: "mic", rappel: "bell" }
+    etape: { a5: "timer", voix: "mic", rappel: "bell" }
   };
 
   function ico(name, tone) {
@@ -334,6 +342,9 @@
     return SCREEN_TONE[sc.id] || "pink";
   }
   function subProgress(s) {
+    if (s.type === "commit" && s.groups && s.groups.length) {
+      return { parts: 2, index: groupStep > 0 ? 1 : 0 };
+    }
     const split = !!(s.splitGroups && s.groups && s.groups.length > 1);
     const rankStep = !!(s.rank && s.rank.mode === "step");
     const base = split ? s.groups.length : 1;
@@ -373,7 +384,15 @@
         });
         answers[s.id] = bag;
       } else if (s.type === "rank") answers[s.id] = { order: [] };
-      else answers[s.id] = { engagement: "", who: "", moment: null, safety: null };
+      else {
+        const bag = { engagement: "", who: "", moment: null, safety: null, time: null, picked: {}, other: {}, order: {} };
+        (s.groups || []).forEach(function (g) {
+          bag.picked[g.id] = [];
+          bag.other[g.id] = g.other ? [""] : [];
+          bag.order[g.id] = [];
+        });
+        answers[s.id] = bag;
+      }
     }
     return answers[s.id];
   }
@@ -424,7 +443,12 @@
       if (s.type === "rank") return Math.max(0, s.minRanked - ensure(s).order.length);
       return 0;
     }
-    if (s.type === "commit") return ensure(s).moment ? 0 : 1;
+    if (s.type === "commit") {
+      if (s.groups && groupStep === 0) {
+        return activeGroups(s).reduce(function (sum, g) { return sum + Math.max(0, g.min - chosenIds(s, g).length); }, 0);
+      }
+      return ensure(s).moment ? 0 : 1;
+    }
     return 0;
   }
 
@@ -469,8 +493,9 @@
 
   function countersHtml(s, pop) {
     const bits = [];
-    if (s.type === "pick" && phase !== "rank") {
+    if ((s.type === "pick" && phase !== "rank") || (s.type === "commit" && s.groups && groupStep === 0)) {
       activeGroups(s).forEach(function (g) {
+        if (!g.min) return;
         const x = chosenIds(s, g).length;
         const ok = x >= g.min;
         const tone = GROUP_TONE[g.id] || "";
@@ -708,7 +733,11 @@
       const cls = [(i < qi || (i === qi && ok && !partial)) ? "done" : "", i === qi ? "is-now" : "", partial ? "is-partial" : ""].filter(Boolean).join(" ");
       return '<span class="' + cls + '" data-tone="' + barTone(sc) + '">' + (partial ? '<i style="width:' + pct + '%"></i>' : "") + "</span>";
     }).join("");
+    const subNow = subProgress(s);
+    let progressLabel = fill(Q.progress, { i: s.n, n: n });
+    if (subNow.parts > 1) progressLabel += " · " + (subNow.index + 1) + "/" + subNow.parts;
     const suffix = s.rank && s.rank.mode === "step" && phase === "rank" ? Q.rankSuffix : "";
+    const skipBtn = s.optional && phase !== "rank" ? '<button type="button" class="btn ghost" data-act="skip">' + esc(Q.skip) + "</button>" : "";
     const pop = !scroll && ok && armed;
     armed = !ok;
     root.dataset.tone = currentTone(s);
@@ -717,7 +746,7 @@
       resumeHtml() +
       '<div class="am-stage' + (scroll ? " am-in" : "") + '">' +
       '<div class="progress" aria-hidden="true">' + segs + "</div>" +
-      '<div class="qhead"><span class="eyebrow">' + ico(questionIcon(s)) + esc(fill(Q.progress, { i: s.n, n: n }) + " · " + s.eyebrow + suffix) + "</span>" +
+      '<div class="qhead"><span class="eyebrow">' + ico(questionIcon(s)) + esc(progressLabel + " · " + s.eyebrow + suffix) + "</span>" +
       (s.badge && phase !== "rank" ? '<span class="tag">' + esc(s.badge) + "</span>" : "") +
       "<h2>" + esc(title) + "</h2>" +
       (help ? '<p class="muted">' + esc(help) + "</p>" : "") +
@@ -729,6 +758,7 @@
       '<div class="qnav"><div class="am-nav-inner">' +
       moreHtml(s) +
       '<div class="row-actions am-nav-row"><button type="button" class="btn ghost" data-act="prev">' + esc(Q.prev) + "</button>" +
+      skipBtn +
       '<button type="button" class="btn" data-act="next"' + (ok ? "" : " disabled") + ' aria-disabled="' + (ok ? "false" : "true") + '">' + esc(buttonLabel) + "</button></div></div></div>";
     pinNav();
     if (focusSel) {
@@ -786,6 +816,11 @@
       return;
     }
     if (s.type === "commit") {
+      if (s.groups && groupStep === 0) {
+        const g0 = s.groups[0];
+        shell(s, g0.stepTitle || s.title, g0.help || "", pickHtml(s) + demainExtra(s), Q.next, scroll);
+        return;
+      }
       shell(s, s.title, s.help, commitHtml(s), Q.finish, scroll);
       return;
     }
@@ -794,7 +829,6 @@
     const g = s.splitGroups ? activeGroups(s)[0] : null;
     const title = g && g.stepTitle ? g.stepTitle : s.title;
     let body = pickHtml(s);
-    if (s.id === "demain") body += demainExtra(s);
     if (s.rank && s.rank.mode === "inline") body += inlineRank(s);
     shell(s, title, s.help, body, button, scroll);
   }
@@ -869,7 +903,7 @@
       '<span class="am-pill" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>Secondaire</small>" + esc(sec.name) + "</span></span></div>";
     const bars = pr.bars.map(function (bar) {
       const b = B[bar.id];
-      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + "<span>" + esc(b.name) + '</span></span><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(bar.score)) + "</span></div>";
+      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + "<span>" + esc(b.name) + '</span></span><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(Math.round(bar.score))) + "</span></div>";
     }).join("");
     const why = '<details class="pr-hide"><summary>' + esc(U.whyLab) + "</summary><p>" + esc(fill(U.whyIntro, { domName: dom.name })) + "</p><ul class=\"clean\">" +
       pr.why.map(function (line) { return "<li>" + esc(line) + "</li>"; }).join("") +
@@ -889,6 +923,8 @@
         return '<p class="am-sentence' + (i === 0 ? " quote" : "") + '" style="' + needStyle(tones[i]) + '">' + profilSvg(marks[i]) + "<span>" + esc(sentence) + "</span></p>";
       }).join("") + "</div>" +
       '<div class="row-actions am-screen-only"><button type="button" class="btn ghost small" data-act="copy-short">' + esc(R.copyShortBtn) + '</button><button type="button" class="btn ghost small" data-act="share">' + esc(R.shareBtn) + '</button><span class="toast" id="am-toast-short" aria-live="polite"></span></div></section>';
+    const talentText = (R.talent && R.talent[pr.dom]) || "";
+    const talentBlock = '<section class="rs" id="sec-talent"><h2>' + esc(R.talentH) + "</h2><p>" + esc(talentText) + "</p></section>";
     const hrefs = ["#am-s1", "#am-s2", "#am-s3", "#am-s4", "#am-s5", "#am-s6", "#sec-now"];
     const toc = '<nav class="toc" aria-label="Sommaire">' + U.toc.map(function (label, i) {
       return '<a href="' + hrefs[i] + '">' + esc(label) + "</a>";
@@ -940,9 +976,11 @@
         }).join("");
       }
       if (secItem.also) body += "<p>" + esc(secItem.also) + "</p>";
-      return '<section class="rs pr-sec" id="am-s' + (i + 1) + '" style="' + style + '"><p class="snum">' + profilSvg(secItem.icon) + " " + (i + 1) + "</p><h2>" + esc(secItem.title) + "</h2>" + body + "</section>";
+      const head = '<section class="rs pr-sec" id="am-s' + (i + 1) + '" style="' + style + '"><p class="snum">' + profilSvg(secItem.icon) + " " + (i + 1) + "</p><h2>" + esc(secItem.title) + "</h2>";
+      if (i >= 2) return '<details class="am-fold"><summary>' + head + "</section></summary><div class=\"am-fold-body\">" + body + "</div></details>";
+      return head + body + "</section>";
     });
-    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + discoveryBlock("resultat-apres-profil", pierreLine) + salleSlot() + toc +
+    return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + talentBlock + discoveryBlock("resultat-apres-profil", pierreLine) + salleSlot() + toc +
       '<div class="pr-cols">' + sections[0] + sections[1] + "</div>" +
       sections.slice(2).join("") + "</div>";
   }
@@ -992,16 +1030,19 @@
       "</div>" +
       '<div class="panel"><span class="lab">' + esc(R.stepLab) + "</span><p>" + esc(stepGlance(profile)) + "</p></div>";
 
-    const type = D.ennea.types[profile.ennea.type];
+    const type = profile.ennea.type ? D.ennea.types[profile.ennea.type] : null;
+    const enneaBlock = type
+      ? '<section class="rs"><h2>' + esc(R.enneaH) + "</h2><p>" + esc(type.couple) + "</p><p><strong>" + esc(R.piegeLab) + "</strong> " + esc(type.piege) + "</p>" +
+        (profile.ennea.stressHint ? "<p>" + esc(profile.ennea.stressHint) + "</p>" : "") +
+        "<p>" + esc(profile.ennea.confidenceText) + "</p><p class=\"muted\">" + esc(D.ennea.disclaimer) + "</p><p class=\"muted\">" + esc(D.ennea.credit) + "</p></section>"
+      : "";
     const detail =
       '<section class="rs"><h2>' + esc(R.ressH) + "</h2><p>" + esc(profile.recharge.line) + "</p><p>" + esc(D.recharge[profile.recharge.profile].couple) + "</p><p>" + esc(D.recharge[profile.recharge.profile].fit) + "</p><p>" + esc(D.recharge[profile.recharge.profile].risk) + "</p><p>" + esc(R.rechargeRule) + "</p></section>" +
       '<section class="rs"><h2>' + esc(R.langH) + "</h2>" + [profile.languages.lang1, profile.languages.lang2].filter(Boolean).map(function (id) {
         const L = D.languages[id];
         return "<p><strong>" + esc(L.name) + "</strong> " + esc(L.recv) + "</p><p>" + esc(R.tipsLab + " " + L.tips) + "</p>";
       }).join("") + "</section>" +
-      '<section class="rs"><h2>' + esc(R.enneaH) + "</h2><p>" + esc(type.couple) + "</p><p><strong>" + esc(R.piegeLab) + "</strong> " + esc(type.piege) + "</p>" +
-      (profile.ennea.stressHint ? "<p>" + esc(profile.ennea.stressHint) + "</p>" : "") +
-      "<p>" + esc(profile.ennea.confidenceText) + "</p><p class=\"muted\">" + esc(D.ennea.disclaimer) + "</p><p class=\"muted\">" + esc(D.ennea.credit) + "</p></section>" +
+      enneaBlock +
       '<section class="rs"><h2>' + esc(R.instinctH) + "</h2><p>" + esc(D.instincts[profile.ennea.instinct].couple) + "</p>" +
       profile.ennea.pairs.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("") +
       "<p class=\"muted\">" + esc(R.pairsNote) + "</p></section>" +
@@ -1431,6 +1472,13 @@
   });
 
   root.addEventListener("click", function (ev) {
+    const tocLink = ev.target.closest(".toc a");
+    if (tocLink) {
+      const foldId = (tocLink.getAttribute("href") || "").replace("#", "");
+      const foldTarget = foldId ? document.getElementById(foldId) : null;
+      const fold = foldTarget && foldTarget.closest("details.am-fold");
+      if (fold) fold.open = true;
+    }
     const btn = ev.target.closest("[data-act]");
     if (!btn || !root.contains(btn)) return;
     const act = btn.getAttribute("data-act");
@@ -1536,6 +1584,23 @@
       if (target && target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
+    if (act === "skip") {
+      if (!s || !s.optional) return;
+      const bag = ensure(s);
+      (s.groups || []).forEach(function (g) {
+        bag.picked[g.id] = [];
+        bag.order[g.id] = [];
+        if (bag.other && bag.other[g.id]) bag.other[g.id] = bag.other[g.id].map(function () { return ""; });
+      });
+      track("question_validee", { index: s.n });
+      qi += 1;
+      phase = "ask";
+      groupStep = 0;
+      view = "question";
+      pushHist();
+      showQuestion(true);
+      return;
+    }
     if (act === "prev") {
       resumeNote = false;
       if (stack.length > 1) {
@@ -1563,6 +1628,13 @@
     if (act === "next") {
       if (!s || deficit(s) > 0) return;
       resumeNote = false;
+      if (s.type === "commit" && s.groups && groupStep === 0) {
+        groupStep = 1;
+        view = "question";
+        pushHist();
+        showQuestion(true);
+        return;
+      }
       if (s.splitGroups && phase !== "rank" && groupStep < s.groups.length - 1) {
         groupStep += 1;
         view = "question";

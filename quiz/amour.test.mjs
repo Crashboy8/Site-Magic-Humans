@@ -58,8 +58,15 @@ function firstAnswers() {
     instinct: { order: screen("instinct").items.map((it) => it.id) },
     stress: pick("stress", { modere: ["D"], fort: ["fight"] }),
     freins: pick("freins", { freins: ["rejet"] }),
-    demain: pick("demain", { actions: ["a5"] }),
-    etape: { engagement: "Cette semaine, je dis ce dont j'ai besoin.", moment: "demain", safety: null },
+    etape: {
+      engagement: "Cette semaine, je dis ce dont j'ai besoin.",
+      moment: "demain",
+      safety: null,
+      time: null,
+      picked: { actions: ["a5"] },
+      other: { actions: [] },
+      order: { actions: ["a5"] },
+    },
   };
 }
 
@@ -91,12 +98,25 @@ function randomAnswers(r) {
       a[s.id] = { order: shuffle(r, s.items.map((it) => it.id)).slice(0, n) };
     } else {
       const safeties = ["non", "passe", "doute", "present", null];
-      a[s.id] = {
+      const bag = {
         engagement: "Cette semaine, je dis ce dont j'ai besoin.",
         moment: D.moments[Math.floor(r() * D.moments.length)].id,
         who: r() < 0.5 ? "Léa <b>" : "",
         safety: safeties[Math.floor(r() * safeties.length)],
+        time: null,
+        picked: {},
+        other: {},
+        order: {},
       };
+      for (const g of s.groups || []) {
+        const n = g.min + Math.floor(r() * (g.items.length - g.min + 1));
+        const ids = shuffle(r, g.items.map((it) => it.id)).slice(0, n);
+        bag.picked[g.id] = ids;
+        bag.other[g.id] = [];
+        bag.order[g.id] = ids.slice();
+        if (ids.includes("rappel")) bag.time = "18:00";
+      }
+      a[s.id] = bag;
     }
   }
   return a;
@@ -140,10 +160,16 @@ test("question 1 en deux sous-écrans, même numéro", () => {
   assert.equal(screen("stress").splitGroups, undefined);
 });
 
-test("10 questions, ids uniques, types pick/rank/commit, n de 1 à 10", () => {
+test("9 questions, ids uniques, types pick/rank/commit, n de 1 à 9", () => {
   assert.equal(D.version, 4);
-  assert.equal(D.screens.length, 10);
-  assert.equal(new Set(D.screens.map((s) => s.id)).size, 10);
+  assert.equal(D.screens.length, 9);
+  assert.equal(new Set(D.screens.map((s) => s.id)).size, 9);
+  assert.equal(screen("demain"), undefined);
+  assert.equal(screen("ennea").optional, true);
+  assert.equal(group("ennea", "types").min, 0);
+  assert.equal(group("valeurs", "valeurs").items.length, 15);
+  assert.equal(screen("etape").groups[0].id, "actions");
+  assert.equal(screen("etape").n, 9);
   D.screens.forEach((s, i) => {
     assert.equal(s.n, i + 1);
     assert.ok(["pick", "rank", "commit"].includes(s.type));
@@ -177,7 +203,7 @@ test("références valides", () => {
   for (const it of group("stress", "modere").items) assert.ok(D.stress.modere[it.id], it.id);
   for (const it of group("stress", "fort").items) assert.ok(D.stress.fort[it.id], it.id);
   for (const it of group("freins", "freins").items) assert.ok(D.brakes[it.id], it.id);
-  for (const it of group("demain", "actions").items) assert.ok(D.actions[it.id], it.id);
+  for (const it of group("etape", "actions").items) assert.ok(D.actions[it.id], it.id);
   assert.equal(Object.keys(D.instinctPairs).length, 6);
   for (const pair of screen("valeurs").exclusive) {
     for (const id of pair) assert.ok(group("valeurs", "valeurs").items.some((it) => it.id === id));
@@ -396,8 +422,15 @@ function camilleAnswers() {
     instinct: { order: ["sx", "sp", "so"] },
     stress: pick({ modere: ["C"], fort: ["freeze", "fawn"] }),
     freins: pick({ freins: ["moment"] }),
-    demain: pick({ actions: ["a5"] }),
-    etape: { engagement: "Cette semaine, je propose une soirée rien qu'à deux.", moment: "weekend", safety: null },
+    etape: {
+      engagement: "Cette semaine, je propose une soirée rien qu'à deux.",
+      moment: "weekend",
+      safety: null,
+      time: null,
+      picked: { actions: ["a5"] },
+      other: { actions: [] },
+      order: { actions: ["a5"] },
+    },
   };
 }
 
@@ -482,7 +515,8 @@ test("v1.4 · table de pondération : chaque option de Q1 à Q7 est connue", () 
   check(P.weights.ennea, ids("ennea", "types"));
   check(P.weights.valeurs, ids("valeurs", "valeurs"));
   check(P.weights.instinct, ids("instinct"));
-  check(P.weights.stress, ids("stress", "modere").concat(ids("stress", "fort")));
+  check(P.weights.stress, ids("stress", "modere"));
+  for (const id of ids("stress", "fort")) assert.equal(P.weights.stress[id], undefined, id);
 });
 
 test("v1.4 · aucun tiret long, jamais « sexuel », aucun TODO dans le profil", () => {
@@ -533,17 +567,17 @@ test("v1.4 · déterministe et complet sur 3000 réponses, sans l'ennéagramme d
 test("v1.4 · calcul de référence (firstAnswers), sans Q4", () => {
   const p = E.computeLoveProfile(firstAnswers(), D, "Léa").profil;
   assert.deepEqual(p.scores, {
-    securite: 16.7, profondeur: 27.9, admiration: 19.4, liberte: 16.2, harmonie: 21.6, complicite: 12.5, intensite: 3.2,
+    securite: 20, profondeur: 33.3, admiration: 19.4, liberte: 20, harmonie: 25, complicite: 13.2, intensite: 0,
   });
   assert.equal(p.name.text, "Miroir Paisible");
 });
 
 test("v1.4 · égalités : ratio, puis nourrit, puis vide, puis ordre fixe", () => {
   const r = E.rank(P, [
-    { need: "securite", pts: 54, src: "valeurs" },
-    { need: "complicite", pts: 56, src: "nourrit" },
-    { need: "liberte", pts: 37, src: "vide" },
-    { need: "intensite", pts: 31, src: "valeurs" },
+    { need: "securite", pts: 45, src: "valeurs" },
+    { need: "complicite", pts: 53, src: "nourrit" },
+    { need: "liberte", pts: 30, src: "vide" },
+    { need: "intensite", pts: 30, src: "valeurs" },
   ]);
   assert.deepEqual(r.ranking.slice(0, 4), ["complicite", "liberte", "securite", "intensite"]);
   assert.deepEqual(E.rank(P, []).ranking, P.order);
@@ -551,28 +585,30 @@ test("v1.4 · égalités : ratio, puis nourrit, puis vide, puis ordre fixe", () 
 
 test("v1.4 · exposition sans l'ennéagramme", () => {
   assert.deepEqual(E.exposure(P), {
-    securite: 54, profondeur: 43, admiration: 36, liberte: 37, harmonie: 51, complicite: 56, intensite: 31,
+    securite: 45, profondeur: 36, admiration: 36, liberte: 30, harmonie: 44, complicite: 53, intensite: 30,
   });
 });
 
-test("v1.4 · exemple Camille : Miroir Passionné·e, Q4 sans effet", () => {
+test("v1.4 · exemple Camille : Miroir Fidèle, Q4 sans effet, piège gelé", () => {
   const a = camilleAnswers();
   const love = E.computeLoveProfile(a, D, "Camille");
   const p = love.profil;
-  assert.equal(p.name.text, "Miroir Passionné·e");
+  assert.equal(p.name.text, "Miroir Fidèle");
   assert.equal(p.margin, "net");
   assert.equal(p.trapId, "freeze");
   assert.equal(p.boussoleDom, "profondeur");
   assert.equal(love.boussole.imp.langage, "tres_important");
   assert.deepEqual(p.scores, {
-    securite: 27.8, profondeur: 58.1, admiration: 2.8, liberte: 2.7, harmonie: 13.7, complicite: 7.1, intensite: 32.3,
+    securite: 33.3, profondeur: 66.7, admiration: 2.8, liberte: 3.3, harmonie: 13.6, complicite: 7.5, intensite: 33.3,
   });
-  assert.match(p.sentences[0], /^Camille, ton profil amoureux est Miroir Passionné·e : /);
+  assert.match(p.sentences[0], /^Camille, ton profil amoureux est Miroir Fidèle : /);
+  assert.equal(love.boussole.v, 2);
+  assert.deepEqual(Object.keys(love.boussole).sort(), ["imp", "notes", "v"]);
   const other = camilleAnswers();
   other.ennea = { picked: { types: ["t8"] }, other: { types: [] }, order: { types: ["t8"] } };
   const love2 = E.computeLoveProfile(other, D, "Camille");
   assert.equal(E.encodePayload(love.boussole), E.encodePayload(love2.boussole));
-  assert.equal(love2.profil.name.text, "Miroir Passionné·e");
+  assert.equal(love2.profil.name.text, "Miroir Fidèle");
 });
 
 function memoryStore() {
@@ -585,7 +621,7 @@ function memoryStore() {
 }
 
 test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
-  assert.equal(E.progressKey(), "quiz_amour_v14_progress");
+  assert.equal(E.progressKey(), "quiz_amour_v15_progress");
   const store = memoryStore();
   const answers = firstAnswers();
   answers.etape.safety = "passe";
@@ -593,12 +629,12 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
   assert.ok(profile.pastAbuse);
   const stack = [
     { view: "intro", qi: 0, phase: "ask", groupStep: 0 },
-    { view: "question", qi: 9, phase: "ask", groupStep: 0 },
-    { view: "results", qi: 9, phase: "ask", groupStep: 0 },
+    { view: "question", qi: 8, phase: "ask", groupStep: 1 },
+    { view: "results", qi: 8, phase: "ask", groupStep: 1 },
   ];
   assert.equal(E.writeProgress(store, {
     prenom: "Léa",
-    qi: 9,
+    qi: 8,
     phase: "ask",
     groupStep: 0,
     view: "results",
@@ -608,9 +644,9 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
     stack,
   }), true);
   const back = E.readProgress(store);
-  assert.equal(back.v, 14);
+  assert.equal(back.v, 15);
   assert.equal(back.prenom, "Léa");
-  assert.equal(back.qi, 9);
+  assert.equal(back.qi, 8);
   assert.equal(back.view, "results");
   assert.equal(back.answers.etape.safety, null);
   assert.equal(back.answers.etape.engagement, answers.etape.engagement);
@@ -628,6 +664,7 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
   assert.equal(E.readProgress(store), null);
   assert.equal(E.parseProgress("{"), null);
   assert.equal(E.parseProgress({ v: 13, view: "intro", answers: {} }), null);
+  assert.equal(E.parseProgress({ v: 14, view: "intro", answers: {} }), null);
 });
 
 test("frein personnalisé : le texte saisi est le titre, pas autre:0", () => {
@@ -667,7 +704,9 @@ test("Calendly : utm d'arrivée dans utm_content, UTM du lien inchangés", () =>
 
 test("textes du webinaire et page de partage", () => {
   assert.match(D.ui.intro.eyebrow, /Sommet de l'Amour/);
-  assert.match(D.ui.intro.eyebrow, /environ 10 minutes/);
+  assert.match(D.ui.intro.eyebrow, /9 questions/);
+  assert.match(D.ui.intro.eyebrow, /environ 9 minutes/);
+  assert.match(D.ui.intro.lead, /En 9 minutes/);
   assert.equal(D.ui.intro.eyebrow.includes("Love & Connexion"), false);
   assert.equal(D.ui.intro.lead.includes("6 minutes"), false);
   assert.equal(D.ui.quiz.engagementCounter, "Écris ton engagement et choisis un moment");
@@ -679,7 +718,7 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(D.ui.intro.h1.includes("malheureux"), false);
   assert.match(D.ui.intro.h1, /Découvre ton <em>profil amoureux<\/em>/);
   assert.match(html, /property="og:title" content="Découvre ton profil amoureux"/);
-  assert.match(html, /property="og:description" content="10 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
+  assert.match(html, /property="og:description" content="9 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
   assert.equal(html.includes("Amoureux, mais malheureux"), false);
   assert.match(html, /Sommet de l'Amour/);
   assert.match(html, /og:image" content="https:\/\/www\.magichumans\.com\/assets\/img\/og-image\.png"/);
@@ -691,6 +730,47 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(/[\u2014\u2013]/.test(html), false);
   const vercel = fs.readFileSync(new URL("../vercel.json", import.meta.url), "utf8");
   assert.equal(vercel.includes("/quiz-amour"), false);
+});
+
+test("stress fort hors du score, toujours dans le piège", () => {
+  const fight = firstAnswers();
+  const freeze = firstAnswers();
+  freeze.stress.picked.fort = ["freeze"];
+  freeze.stress.order.fort = ["freeze"];
+  const a = E.computeLoveProfile(fight, D, "Léa");
+  const b = E.computeLoveProfile(freeze, D, "Léa");
+  assert.deepEqual(a.profil.scores, b.profil.scores);
+  assert.equal(a.profil.name.text, b.profil.name.text);
+  assert.equal(a.profil.trapId, "fight");
+  assert.equal(b.profil.trapId, "freeze");
+  assert.match(a.profil.sentences[2], /l'escalade/);
+  assert.match(b.profil.sentences[2], /le blanc/);
+});
+
+test("Q4 vide : profil calculé, sans piste ennéagramme", () => {
+  const a = firstAnswers();
+  a.ennea = { picked: { types: [] }, other: { types: [] }, order: { types: [] } };
+  const love = E.computeLoveProfile(a, D, "Léa");
+  assert.equal(love.ennea.type, undefined);
+  assert.equal(love.ennea.confidenceText, "");
+  assert.equal(love.profil.name.text, "Miroir Paisible");
+});
+
+test("Talent Unique : un texte par besoin, 40 à 60 mots, piste et pas diagnostic", () => {
+  const talent = D.ui.results.talent;
+  assert.equal(D.ui.results.talentH, "Ce que ton profil dit de ton Talent Unique");
+  assert.deepEqual(Object.keys(talent).sort(), D.profil.order.slice().sort());
+  for (const id of D.profil.order) {
+    const text = talent[id];
+    const words = text.trim().split(/\s+/).length;
+    assert.ok(words >= 40 && words <= 60, id + " " + words);
+    assert.match(text, /Talent Unique/);
+    assert.match(text, /Contexte Déclencheur/);
+    assert.match(text, /Anti-Contexte/);
+    assert.match(text, /réussir dans le plaisir/);
+    assert.equal(/[\u2013\u2014]/.test(text), false, id);
+    assert.equal(/[•✅➔]/.test(text), false, id);
+  }
 });
 
 test("photo de la salle : session, profil anonyme, compatibilité déjà dans le moteur", () => {

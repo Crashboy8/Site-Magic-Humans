@@ -179,6 +179,14 @@
         const row = bagOf(src, screen.id);
         const moments = new Set((screen.share.moments || D.moments.map((m) => m.id)));
         if (!moments.has(row.moment)) bad.push(screen.id);
+        for (const group of screen.groups || []) {
+          const picked = row.picked && Array.isArray(row.picked[group.id]) ? row.picked[group.id] : null;
+          const raw = picked || [];
+          const unknown = raw.some((id) => !group.items.some((it) => it.id === id));
+          const dup = new Set(raw).size !== raw.length;
+          const ch = chosen(src, screen, group);
+          if (!picked || unknown || dup || ch.length < group.min || !knownIds(group, ch)) bad.push(screen.id + "." + group.id);
+        }
       }
     }
     return [...new Set(bad)];
@@ -247,7 +255,7 @@
     const instinctScreen = screenOf(D, "instinct");
     const stressScreen = screenOf(D, "stress");
     const freinsScreen = screenOf(D, "freins");
-    const demainScreen = screenOf(D, "demain");
+    const etapeScreen = screenOf(D, "etape");
 
     const gNourrit = groupOf(nourritScreen, "nourrit");
     const gVide = groupOf(nourritScreen, "vide");
@@ -317,9 +325,11 @@
     const typeOrder = ordered(answers, enneaScreen, gTypes);
     const enneaType = typeOrder[0];
     const enneaAlt = typeOrder[1] || null;
-    const confidenceText = enneaAlt
-      ? fill(D.ennea.confidenceMany, { typeLabel: typeLabel(D, enneaType), altLabel: typeLabel(D, enneaAlt) })
-      : D.ennea.confidenceOne;
+    const confidenceText = !enneaType
+      ? ""
+      : enneaAlt
+        ? fill(D.ennea.confidenceMany, { typeLabel: typeLabel(D, enneaType), altLabel: typeLabel(D, enneaAlt) })
+        : D.ennea.confidenceOne;
 
     const gMod = groupOf(stressScreen, "modere");
     const gFort = groupOf(stressScreen, "fort");
@@ -360,9 +370,9 @@
       ? D.brakes.energie.antidote
       : D.brakes[brakeFirst].antidote;
 
-    const gAct = groupOf(demainScreen, "actions");
-    const actionIds = dataOrder(gAct, chosen(answers, demainScreen, gAct));
-    const timeRaw = bagOf(answers, "demain").time;
+    const gAct = groupOf(etapeScreen, "actions");
+    const actionIds = dataOrder(gAct, chosen(answers, etapeScreen, gAct));
+    const timeRaw = bagOf(answers, "etape").time;
     const time = actionIds.indexOf("rappel") !== -1 ? (timeRaw || "18:00") : null;
 
     const etapeBag = bagOf(answers, "etape");
@@ -752,7 +762,7 @@
   function boussoleBoost(profil, D) { return D.profil.boussoleBoost[profil.boussoleDom]; }
 
   function progressKey() {
-    return "quiz_amour_v14_progress";
+    return "quiz_amour_v15_progress";
   }
 
   function cloneJson(value, fallback) {
@@ -788,7 +798,7 @@
       };
     }).filter(Boolean);
     return {
-      v: 14,
+      v: 15,
       prenom: String(src.prenom || "").replace(/[<>]/g, "").trim().slice(0, 40),
       qi: Number.isInteger(qiNum) && qiNum >= 0 ? qiNum : 0,
       phase: src.phase === "rank" ? "rank" : "ask",
@@ -806,7 +816,7 @@
     if (typeof raw === "string") {
       try { data = JSON.parse(raw); } catch (e) { return null; }
     }
-    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 14) return null;
+    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 15) return null;
     if (!data.answers || typeof data.answers !== "object" || Array.isArray(data.answers)) return null;
     if (data.view !== "intro" && data.view !== "question" && data.view !== "results") return null;
     return packProgress(data);
