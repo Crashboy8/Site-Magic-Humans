@@ -14,6 +14,11 @@ describe("urlAppel", () => {
 
 describe("remplacerPrenom", () => {
   const mail = "Bonjour [Prénom],\n\nBien à vous,\n\n{{prenom}}";
+  it("normalise les variantes du jeton avant de remplacer", () => {
+    expect(remplacerPrenom("Signé {{ prénom }} et {prenom}", "Léa")).toBe("Signé Léa et Léa");
+    expect(remplacerPrenom("Bonjour [Prénom] {{prenom}}", "")).toBe("Bonjour [Prénom]");
+  });
+
   it("remplace {{prenom}} par le prénom et garde [Prénom]", () => {
     expect(remplacerPrenom(mail, "Camille")).toBe("Bonjour [Prénom],\n\nBien à vous,\n\nCamille");
   });

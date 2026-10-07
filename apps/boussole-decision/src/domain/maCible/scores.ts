@@ -47,11 +47,14 @@ export function scoreSur10(s: Cible["scores"]): number {
 }
 
 export type Rang = "prioritaire" | "secondaire" | "tertiaire";
+export type MotifDepartage = "plaisir" | "urgence" | "identifiant";
 export interface LigneClassement {
   id: IdCible;
   score: number;
   rang: Rang;
   alertePlaisir: boolean;
+  /** Présent quand le score affiché a été baissé d'un dixième pour sortir d'une égalité. */
+  departage?: MotifDepartage;
 }
 
 const RANGS: readonly Rang[] = ["prioritaire", "secondaire", "tertiaire"];
@@ -76,5 +79,20 @@ export function classerCibles(cibles: readonly Pick<Cible, "id" | "scores">[]): 
       b.urgence - a.urgence ||
       (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
   );
-  return lignes.map((l, i) => ({ id: l.id, score: l.score, rang: RANGS[i] ?? "tertiaire", alertePlaisir: l.alertePlaisir }));
+  const departages: (MotifDepartage | undefined)[] = lignes.map(() => undefined);
+  for (let i = 1; i < lignes.length; i++) {
+    const avant = lignes[i - 1];
+    const courant = lignes[i];
+    if (avant.alertePlaisir !== courant.alertePlaisir) continue;
+    if (courant.score < avant.score) continue;
+    departages[i] = avant.plaisir !== courant.plaisir ? "plaisir" : avant.urgence !== courant.urgence ? "urgence" : "identifiant";
+    courant.score = Math.max(0, Math.round((avant.score - 0.1) * 10) / 10);
+  }
+  return lignes.map((l, i) => ({
+    id: l.id,
+    score: l.score,
+    rang: RANGS[i] ?? "tertiaire",
+    alertePlaisir: l.alertePlaisir,
+    ...(departages[i] ? { departage: departages[i] } : {}),
+  }));
 }

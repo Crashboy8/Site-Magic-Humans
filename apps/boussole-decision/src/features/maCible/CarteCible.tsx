@@ -110,7 +110,8 @@ export function CarteCible({
   const R = M.resultat;
   const idTitre = `cible-${rang}-titre`;
   const cleCorps = `cible-${rang}`;
-  const corps = remplacerPrenom(cible.messages.emailCorps, prenom);
+  const voir = (s: string) => remplacerPrenom(s, prenom);
+  const corps = voir(cible.messages.emailCorps);
   const objetEmail = R.objet(cible.messages.emailObjet);
   const lin = cible.linkedin;
   const canaux = cible.canaux.slice().sort((a, b) => a.priorite - b.priorite);
@@ -146,7 +147,7 @@ export function CarteCible({
             </p>
           </div>
         </div>
-        <p className="font-serif text-[22px] italic leading-snug">{cible.promesse}</p>
+        <p className="font-serif text-[22px] italic leading-snug">{voir(cible.promesse)}</p>
         {ligne.alertePlaisir && <p className="rounded-xl border border-accent/30 bg-blush px-4 py-3 text-[15px]">{R.alertePlaisir}</p>}
         <div data-ecran-seul>
           <BoutonCopier texte={texteCible(cible, prenom, R.score(ligne.score), false)} M={M} libelle={R.copierCible} />
@@ -196,10 +197,10 @@ export function CarteCible({
           </details>
 
           <Bloc titre={R.blocs.portrait}>
-            <p className="text-[17px] leading-relaxed">{cible.portrait}</p>
+            <p className="text-[17px] leading-relaxed">{voir(cible.portrait)}</p>
           </Bloc>
           <Bloc id={`cible-${rang}-douleur`} titre={R.blocs.douleur} pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
-            <p className="text-[17px] leading-relaxed">{cible.douleur}</p>
+            <p className="text-[17px] leading-relaxed">{voir(cible.douleur)}</p>
           </Bloc>
           <Bloc titre={R.blocs.ancrage}>
             <p className="text-[17px] leading-relaxed">{cible.ancrage}</p>
@@ -224,7 +225,7 @@ export function CarteCible({
             <p className="text-sm italic text-ink-soft">{R.prixNote}</p>
           </Bloc>
           <Bloc titre={R.blocs.pitch}>
-            <p className="text-[17px] leading-relaxed">{cible.pitch}</p>
+            <p className="text-[17px] leading-relaxed">{voir(cible.pitch)}</p>
           </Bloc>
           <Bloc titre={R.blocs.pourquoi}>
             <p className="text-[17px] leading-relaxed">{cible.pourquoi}</p>
@@ -282,9 +283,9 @@ export function CarteCible({
           <Detail id={`cible-${rang}-messages`} titre={R.blocs.messages} ouvert={ouvert(`cible-${rang}-messages`)} onOuvert={onOuvert}>
             <div className="space-y-2">
               <p className="text-[15px] font-medium">{R.messageLinkedin}</p>
-              <p className="whitespace-pre-line rounded-xl bg-sand p-3 text-[16px] leading-relaxed">{remplacerPrenom(cible.messages.linkedin, prenom)}</p>
+              <p className="whitespace-pre-line rounded-xl bg-sand p-3 text-[16px] leading-relaxed">{voir(cible.messages.linkedin)}</p>
               <p className="text-sm text-ink-soft">{R.caracteres(cible.messages.linkedin.length)}</p>
-              <BoutonCopier texte={remplacerPrenom(cible.messages.linkedin, prenom)} M={M} />
+              <BoutonCopier texte={voir(cible.messages.linkedin)} M={M} />
             </div>
             <div className="space-y-2">
               <p className="text-[15px] font-medium">{R.email}</p>
@@ -303,7 +304,7 @@ export function CarteCible({
             <p className="text-[16px] font-medium">{R.questionsTest}</p>
             <ol className="list-decimal space-y-1 pl-5 text-[16px]">
               {cible.testTerrain.questions.map((q) => (
-                <li key={q}>{q}</li>
+                <li key={q}>{voir(q)}</li>
               ))}
             </ol>
             <p className="text-[16px] font-medium">{R.signauxPositifs}</p>

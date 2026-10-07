@@ -6,6 +6,7 @@ import { validerCorrections, validerEntree, type ErreurChamp } from "@/domain/ma
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { nettoyerTextes } from "@/domain/maCible/nettoyage";
 import { messageUtilisateur, promptSysteme } from "@/domain/maCible/prompt";
+import { ajouterPhrases, appliquerQualite, phrasesDepartage, questionsManquantes, type ContexteQualite } from "@/domain/maCible/qualite";
 import { classerCibles } from "@/domain/maCible/scores";
 import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "@/domain/maCible/schemas";
 import type { Cadrage, Corrections, Demande, Esquisse, ResultatClasse } from "@/domain/maCible/types";
@@ -131,7 +132,22 @@ type Traite =
   | { ok: true; resultat: ResultatClasse; reparations: number }
   | { ok: false; erreurs: string[]; reparations: number };
 
-/** JSON.parse, nettoyage, validation (§8.3). */
+function contexteQualite(demande: Demande): ContexteQualite {
+  const { talent, terrain } = demande.entree;
+  const idee = "corrections" in demande && demande.corrections ? demande.corrections.idee : "";
+  return {
+    antiContexte: talent.antiContexte,
+    reseau: [terrain.experience, terrain.clientsPasses, talent.reussite].filter(Boolean).join("\n"),
+    idee,
+    marche: terrain.marche,
+    prixActuel: terrain.prixActuel,
+    adresse: terrain.adresse,
+    formats: terrain.formats,
+    talent: `${talent.mecanisme}\n${talent.contexte}`,
+  };
+}
+
+/** JSON.parse, nettoyage, validation (§8.3), puis contrôles déterministes. */
 function traiterTexte(brut: string, demande: Demande): Traite {
   let json: unknown;
   try {
@@ -142,11 +158,22 @@ function traiterTexte(brut: string, demande: Demande): Traite {
   json = nettoyerTextes(json);
   if (demande.etape === "cadrage") {
     const v = validerCadrage(json, demande.tour);
-    return v.ok ? { ok: true, cadrage: v.valeur, reparations: v.reparations } : { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+    if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+    const manque = questionsManquantes(v.valeur, demande.tour, contexteQualite(demande));
+    if (manque) return { ok: false, erreurs: [manque], reparations: v.reparations };
+    return { ok: true, cadrage: v.valeur, reparations: v.reparations };
   }
   const v = validerResultat(json);
   if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
-  return { ok: true, resultat: { ...v.valeur, classement: classerCibles(v.valeur.cibles) }, reparations: v.reparations };
+  const q = appliquerQualite(v.valeur, contexteQualite(demande));
+  if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations: v.reparations + q.reparations };
+  const classement = classerCibles(q.resultat.cibles);
+  const phrases = ajouterPhrases(q.resultat.hypotheses, phrasesDepartage(q.resultat.cibles, classement));
+  return {
+    ok: true,
+    resultat: { ...q.resultat, hypotheses: phrases.hypotheses, classement },
+    reparations: v.reparations + q.reparations + phrases.ajoutees,
+  };
 }
 
 function echec(code: string, demande: Demande, extra: Record<string, unknown> = {}) {

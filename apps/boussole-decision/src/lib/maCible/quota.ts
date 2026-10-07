@@ -102,65 +102,127 @@ export function quotaMemoire(limites: Limites, maintenant: () => Date): Quota {
   };
 }
 
-/** Lit le compteur déjà en place, sans la fonction `ma_cible_autoriser` (migration pas encore jouée). */
-async function autoriserParTable(
-  client: Pick<SupabaseClient, "from">,
-  limites: Limites,
-  cle: string,
-  etape: EtapeQuota,
-): Promise<DecisionQuota> {
-  const jour = jourParis(new Date());
-  const { data, error } = await client.from("ma_cible_quota").select("cle, n").eq("jour", jour).eq("etape", etape).in("cle", [cle, "global"]);
-  if (error) throw new Error("quota");
-  const lignes = (data ?? []) as { cle: string; n: number }[];
-  const nGlobal = Number(lignes.find((l) => l.cle === "global")?.n ?? 0);
-  const nIp = Number(lignes.find((l) => l.cle === cle)?.n ?? 0);
-  if (depasse(nGlobal, maxGlobal(limites, etape), false)) return { ok: false, motif: "global", restant: 0 };
-  if (depasse(nIp, maxIp(limites, etape), false)) return { ok: false, motif: "ip", restant: 0 };
+type ClientQuota = Pick<SupabaseClient, "rpc"> & Partial<Pick<SupabaseClient, "from">>;
+type NombresQuota = { nIp: number; nGlobal: number };
+
+function decision(limites: Limites, etape: EtapeQuota, nGlobal: number, nIp: number, dejaCompte: boolean): DecisionQuota {
+  if (depasse(nGlobal, maxGlobal(limites, etape), dejaCompte)) return { ok: false, motif: "global", restant: 0 };
+  if (depasse(nIp, maxIp(limites, etape), dejaCompte)) return { ok: false, motif: "ip", restant: 0 };
   return { ok: true, restant: restantDe(limites, etape, nIp) };
 }
 
-/** Compteur partagé (fonctions SQL) ; en cas d'échec, bascule sur `secours`. */
-export function quotaSupabase(client: Pick<SupabaseClient, "rpc"> & Partial<Pick<SupabaseClient, "from">>, limites: Limites, secours: Quota): Quota {
-  const viaRpc = async (nom: "ma_cible_autoriser" | "ma_cible_consommer", cle: string, etape: EtapeQuota): Promise<DecisionQuota> => {
-    const { data, error } = await client.rpc(nom, {
-      p_cle: cle,
-      p_etape: etape,
-      p_max_ip: maxIp(limites, etape),
-      p_max_global: maxGlobal(limites, etape),
-    });
-    const ligne = Array.isArray(data) ? data[0] : data;
-    if (error || !ligne || typeof ligne.ok !== "boolean" || ligne.motif === "invalide") throw new Error("quota");
-    const restant = restantDe(limites, etape, Number(ligne.n_ip) || 0);
-    if (ligne.ok) return { ok: true, restant };
-    return { ok: false, motif: ligne.motif === "global" ? "global" : "ip", restant: 0 };
+function motifErreur(e: unknown): string {
+  const brut = e instanceof Error ? e.message : typeof e === "object" && e !== null && "message" in e ? String((e as { message: unknown }).message) : "inconnu";
+  return brut.replace(/\s+/g, " ").slice(0, 160);
+}
+
+function avertirQuota(code: "quota_memoire" | "quota_ecart" | "quota_table", etape: EtapeQuota, motif?: string) {
+  console.warn("[ma-cible]", motif ? { code, etape, motif } : { code, etape });
+}
+
+/** Lit le compteur du jour. `null` si la table ne répond pas. */
+async function lireCompteurs(client: Pick<SupabaseClient, "from">, cle: string, etape: EtapeQuota): Promise<NombresQuota> {
+  const jour = jourParis(new Date());
+  const { data, error } = await client.from("ma_cible_quota").select("cle, n").eq("jour", jour).eq("etape", etape).in("cle", [cle, "global"]);
+  if (error) throw new Error(motifErreur(error));
+  const lignes = (data ?? []) as { cle: string; n: number }[];
+  return {
+    nGlobal: Number(lignes.find((l) => l.cle === "global")?.n ?? 0),
+    nIp: Number(lignes.find((l) => l.cle === cle)?.n ?? 0),
   };
-  const avecSecours = (nom: "ma_cible_autoriser" | "ma_cible_consommer", suite: (cle: string, etape: EtapeQuota) => Promise<DecisionQuota>) => {
-    return async (cle: string, etape: EtapeQuota) => {
-      try {
-        return await viaRpc(nom, cle, etape);
-      } catch {
-        console.error("[ma-cible]", { code: "quota_secours", etape });
-        return suite(cle, etape);
-      }
-    };
+}
+
+/** Incrément de secours si la fonction SQL manque : pas atomique, mais partagé entre les instances. */
+async function incrementerParTable(client: Pick<SupabaseClient, "from">, limites: Limites, cle: string, etape: EtapeQuota): Promise<DecisionQuota> {
+  const avant = await lireCompteurs(client, cle, etape);
+  const nGlobal = avant.nGlobal + 1;
+  const nIp = avant.nIp + 1;
+  const jour = jourParis(new Date());
+  const { error } = await client.from("ma_cible_quota").upsert(
+    [
+      { cle: "global", jour, etape, n: nGlobal },
+      { cle, jour, etape, n: nIp },
+    ],
+    { onConflict: "cle,jour,etape" },
+  );
+  if (error) throw new Error(motifErreur(error));
+  return decision(limites, etape, nGlobal, nIp, true);
+}
+
+/** Compteur partagé (fonctions SQL). Si l'appel échoue : table, puis mémoire de l'instance. */
+export function quotaSupabase(client: ClientQuota, limites: Limites, secours: Quota): Quota {
+  const viaRpc = async (nom: "ma_cible_autoriser" | "ma_cible_consommer", cle: string, etape: EtapeQuota): Promise<DecisionQuota & NombresQuota> => {
+    let data: unknown;
+    let error: { message?: string } | null = null;
+    try {
+      const r = await client.rpc(nom, {
+        p_cle: cle,
+        p_etape: etape,
+        p_max_ip: maxIp(limites, etape),
+        p_max_global: maxGlobal(limites, etape),
+      });
+      data = r.data;
+      error = r.error;
+    } catch (e) {
+      throw new Error(motifErreur(e));
+    }
+    const ligne = (Array.isArray(data) ? data[0] : data) as { ok?: unknown; motif?: unknown; n_ip?: unknown; n_global?: unknown } | null;
+    if (error || !ligne || typeof ligne.ok !== "boolean" || ligne.motif === "invalide") throw new Error(error ? motifErreur(error) : "reponse_quota");
+    const nIp = Number(ligne.n_ip) || 0;
+    const nGlobal = Number(ligne.n_global) || 0;
+    const base = ligne.ok ? { ok: true as const, restant: restantDe(limites, etape, nIp) } : { ok: false as const, motif: ligne.motif === "global" ? ("global" as const) : ("ip" as const), restant: 0 };
+    return { ...base, nIp, nGlobal };
   };
+
+  const memoire = (etape: EtapeQuota, motif: string, suite: () => Promise<DecisionQuota>) => {
+    avertirQuota("quota_memoire", etape, motif);
+    return suite();
+  };
+
   return {
     autoriser: async (cle, etape) => {
       try {
-        return await viaRpc("ma_cible_autoriser", cle, etape);
-      } catch {
+        const lu = await viaRpc("ma_cible_autoriser", cle, etape);
+        return { ok: lu.ok, motif: lu.motif, restant: lu.restant };
+      } catch (e) {
         if (client.from) {
           try {
-            return await autoriserParTable(client as Pick<SupabaseClient, "from">, limites, cle, etape);
+            const n = await lireCompteurs(client as Pick<SupabaseClient, "from">, cle, etape);
+            return decision(limites, etape, n.nGlobal, n.nIp, false);
           } catch {
             // La table non plus : dernier recours, le compteur mémoire de l'instance.
           }
         }
-        console.error("[ma-cible]", { code: "quota_secours", etape });
-        return secours.autoriser(cle, etape);
+        return memoire(etape, motifErreur(e), () => secours.autoriser(cle, etape));
       }
     },
-    consommer: avecSecours("ma_cible_consommer", (cle, etape) => secours.consommer(cle, etape)),
+    consommer: async (cle, etape) => {
+      try {
+        const lu = await viaRpc("ma_cible_consommer", cle, etape);
+        if (client.from) {
+          try {
+            const n = await lireCompteurs(client as Pick<SupabaseClient, "from">, cle, etape);
+            if ((n.nIp > 0 || n.nGlobal > 0) && (n.nIp !== lu.nIp || n.nGlobal !== lu.nGlobal)) {
+              avertirQuota("quota_ecart", etape);
+              return decision(limites, etape, n.nGlobal, n.nIp, true);
+            }
+          } catch {
+            // On garde la réponse de la fonction.
+          }
+        }
+        return { ok: lu.ok, motif: lu.motif, restant: lu.restant };
+      } catch (e) {
+        const motif = motifErreur(e);
+        if (client.from) {
+          try {
+            avertirQuota("quota_table", etape, motif);
+            return await incrementerParTable(client as Pick<SupabaseClient, "from">, limites, cle, etape);
+          } catch {
+            // Écriture impossible : mémoire.
+          }
+        }
+        return memoire(etape, motif, () => secours.consommer(cle, etape));
+      }
+    },
   };
 }
