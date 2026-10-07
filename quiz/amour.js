@@ -1,4 +1,4 @@
-/* Quiz Amour v1.4 · 9 questions, classement, résultats.
+/* Quiz Amour v1.4 · 8 questions, classement, résultats.
    Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
    Aucune réponse n'est envoyée. La progression reste dans ce navigateur
    pour pouvoir reprendre. La réponse de sécurité n'est pas stockée. */
@@ -343,8 +343,8 @@
     swords: '<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/>',
     tree: '<path d="M12 22v-6"/><path d="M7 22h10"/><path d="m12 2 5 8h-3l3 6H7l3-6H7z"/>'
   };
-  const SCREEN_TONE = { ressource: "gold", langages: "pink", ennea: "gold", valeurs: "sky", instinct: "pink", stress: "coral", freins: "sky", demain: "sage", etape: "pink" };
-  const SCREEN_ICON = { nourrit: "leaf", ressource: "sun", langages: "message", ennea: "compass", valeurs: "gem", instinct: "flame", stress: "zap", freins: "anchor", demain: "flag", etape: "pen" };
+  const SCREEN_TONE = { ressource: "gold", langages: "pink", ennea: "gold", valeurs: "sky", instinct: "pink", stress: "coral", freins: "sky" };
+  const SCREEN_ICON = { nourrit: "leaf", ressource: "sun", langages: "message", ennea: "compass", valeurs: "gem", instinct: "flame", stress: "zap", freins: "anchor" };
   const GROUP_TONE = { nourrit: "sage", vide: "coral", modere: "gold", fort: "coral" };
   const ITEM_TONE = { sp: "sage", so: "sky", sx: "pink" };
   const CARD_ICON = {
@@ -352,8 +352,7 @@
     langages: { paroles: "message", moments: "clock", cadeaux: "gift", services: "hand", toucher: "heart" },
     instinct: { sp: "home", so: "users", sx: "flame" },
     stress: { D: "arrow", I: "smile", S: "shield", C: "search", fight: "swords", flight: "arrow", freeze: "snow", fawn: "heart" },
-    freins: { rejet: "userx", blesser: "heart", moment: "clock", espoir: "spark", habitude: "repeat", seul: "user", flou: "help", regard: "eye", contraintes: "box", energie: "battery", parfait: "star", passe: "history" },
-    etape: { a5: "timer", voix: "mic", rappel: "bell" }
+    freins: { rejet: "userx", blesser: "heart", moment: "clock", espoir: "spark", habitude: "repeat", seul: "user", flou: "help", regard: "eye", contraintes: "box", energie: "battery", parfait: "star", passe: "history" }
   };
 
   function ico(name, tone) {
@@ -989,17 +988,6 @@
     if (stickyOff) return "";
     return '<div class="am-sticky" id="am-sticky"><a class="btn small" data-cta-place="quiz_amour_resultat-sticky" href="' + esc(calendlyHref("resultat-sticky")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.stickyCta) + '</a><button type="button" class="btn ghost small" data-act="dismiss-sticky" aria-label="' + esc(R.stickyClose) + '">×</button></div>';
   }
-  function stepGlance(profile) {
-    const stepText = String(profile.etape.engagement || "").trim();
-    const who = profile.etape.who ? fill(R.shareWith, { who: profile.etape.who }) : "";
-    const momentLabel = (D.moments.find(function (m) { return m.id === profile.etape.moment; }) || {}).label || "";
-    const parts = [];
-    if (stepText) parts.push("« " + stepText + " »");
-    else parts.push(R.nowStepEmpty);
-    if (who) parts.push(who);
-    if (momentLabel) parts.push(momentLabel);
-    return parts.join(" · ");
-  }
   function brakeTitle(id, asShort) {
     if (String(id).indexOf("autre:") === 0) return E.answerLabel(answers, D, "freins", "freins", id);
     if (asShort) return D.brakes[id] ? D.brakes[id].short : "";
@@ -1113,11 +1101,6 @@
     const fortId = (profile.stress.fort || [])[0];
     const stressLine = (R.nowStress && R.nowStress[fortId]) || "";
     const endLine = stressLine ? stressLine + " " + R.nowGeneric : R.nowGeneric;
-    const stepText = String(profile.etape.engagement || "").trim();
-    const stepMoment = (D.moments.find(function (m) { return m.id === profile.etape.moment; }) || {}).label || "";
-    const stepBody = stepText
-      ? '<p class="quote">« ' + esc(stepText) + " »</p>" + (stepMoment ? "<p>" + esc(stepMoment) + "</p>" : "")
-      : "<p>" + esc(R.nowStepEmpty) + "</p>";
 
     function ol(title, rows) {
       return '<div class="panel"><span class="lab">' + esc(title) + '</span><ol class="clean">' + rows.map(function (row) { return "<li>" + esc(row) + "</li>"; }).join("") + "</ol></div>";
@@ -1143,13 +1126,7 @@
         return shorts.length ? " : " + shorts.slice(0, 2).join(", ") : "";
       })()) + "</p></div>" +
       '<div class="panel"><span class="lab">' + esc(R.stressLab) + "</span><p>" + esc("modéré → " + profile.stress.modere.map(function (id) { return D.stress.modere[id].short; }).join(", ") + " · fort → " + profile.stress.fort.map(function (id) { return D.stress.fort[id].short; }).join(", ")) + "</p></div>" +
-      '<div class="panel"><span class="lab">' + esc(R.brakeLab) + "</span><p>" + esc(brakeTitle(profile.brakes.first, false) + " " + profile.brakes.antidote) + "</p></div>" +
-      '<div class="panel"><span class="lab">' + esc(R.demainLab) + "</span><p>" + esc(profile.demain.actions.map(function (id) {
-        return id === "rappel" ? fill(D.actions.rappel, { heure: (D.times.find(function (t) { return t.id === profile.demain.time; }) || {}).label || "" }) : D.actions[id];
-      }).join(" ")) + "</p>" +
-      (profile.demain.actions.indexOf("rappel") !== -1 ? '<p><button type="button" class="btn ghost small" data-act="ics">' + esc(R.icsBtn) + "</button></p>" : "") +
-      "</div>" +
-      '<div class="panel"><span class="lab">' + esc(R.stepLab) + "</span><p>" + esc(stepGlance(profile)) + "</p></div>";
+      '<div class="panel"><span class="lab">' + esc(R.brakeLab) + "</span><p>" + esc(brakeTitle(profile.brakes.first, false) + " " + profile.brakes.antidote) + "</p></div>";
 
     const type = profile.ennea.type ? D.ennea.types[profile.ennea.type] : null;
     const enneaBlock = type
@@ -1195,10 +1172,9 @@
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       profilReport(profile, stressLine) +
       '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + '</h2><div class="stack">' +
-      '<article class="rule" data-tone="sage"><span class="k">1</span><strong>' + ico("flag", "sage") + esc(R.nowStep) + "</strong>" + stepBody + "</article>" +
-      '<article class="rule" data-tone="sky"><span class="k">2</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
+      '<article class="rule" data-tone="sky"><span class="k">1</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
-      '<article class="rule" data-tone="pink"><span class="k">3</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(endLine) + "</p>" +
+      '<article class="rule" data-tone="pink"><span class="k">2</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(endLine) + "</p>" +
       '<a class="btn" data-cta-place="quiz_amour_resultat-fin" href="' + esc(calendlyHref("resultat-fin")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
       '<div class="row-actions"><button type="button" class="btn ghost" data-act="print">' + esc(R.nowPdf) + "</button></div></section>" +
@@ -1214,7 +1190,6 @@
 
     delete root.dataset.tone;
     root.dataset.share = profile.shareText;
-    root.dataset.ics = JSON.stringify({ engagement: profile.etape.engagement, time: profile.demain.time });
     pinSticky();
     scrollTop();
     saveProgress();
@@ -1332,33 +1307,6 @@
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { done(R.copied); }, fallback);
     } else fallback();
-  }
-
-  function icsFile() {
-    let data = {};
-    try { data = JSON.parse(root.dataset.ics || "{}"); } catch (e) { data = {}; }
-    const pad = function (n) { return String(n).padStart(2, "0"); };
-    const now = new Date();
-    const stamp = now.getUTCFullYear() + pad(now.getUTCMonth() + 1) + pad(now.getUTCDate()) + "T" + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + "Z";
-    const parts = String(data.time || "18:00").split(":");
-    const start = new Date();
-    start.setDate(start.getDate() + 1);
-    start.setHours(Number(parts[0]) || 18, Number(parts[1]) || 0, 0, 0);
-    const local = start.getFullYear() + pad(start.getMonth() + 1) + pad(start.getDate()) + "T" + pad(start.getHours()) + pad(start.getMinutes()) + "00";
-    const desc = String(data.engagement || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/\n/g, "\\n");
-    const body = [
-      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Magic Humans//Quiz Amour//FR", "BEGIN:VEVENT",
-      "UID:" + Date.now() + "@magichumans.com", "DTSTAMP:" + stamp, "DTSTART:" + local, "DURATION:PT15M",
-      "SUMMARY:Ma prochaine étape (Quiz Amour)", "DESCRIPTION:" + desc, "BEGIN:VALARM", "TRIGGER:PT0M",
-      "ACTION:DISPLAY", "DESCRIPTION:Ma prochaine étape", "END:VALARM", "END:VEVENT", "END:VCALENDAR"
-    ].join("\r\n");
-    const blob = new Blob([body], { type: "text/calendar" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "prochaine-etape.ics";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
   }
 
   function toggleCheck(s, gid, id, on) {
@@ -1508,7 +1456,7 @@
   });
 
   function isTypedField(el) {
-    return !!(el && (el.id === "am-engagement" || (el.getAttribute && el.getAttribute("data-act") === "other")));
+    return !!(el && el.getAttribute && el.getAttribute("data-act") === "other");
   }
 
   function paintAsk(s) {
@@ -1584,44 +1532,8 @@
     if (el.id === "am-prenom") {
       prenom = cleanName(el.value);
       saveProgress();
-      return;
-    }
-    if (el.id === "am-engagement") {
-      if (composing) {
-        const chars = root.querySelector("[data-am-chars]");
-        if (chars) chars.textContent = fill(Q.chars, { n: String(el.value || "").length, max: 140 });
-        return;
-      }
-      applyEngagement(el);
-      return;
-    }
-    if (el.id === "am-who") {
-      ensure(screenAt(qi)).who = el.value.replace(/[<>]/g, "").slice(0, 40);
-      saveProgress();
     }
   });
-
-  function applyEngagement(el) {
-    const s = screenAt(qi);
-    if (!s || s.type !== "commit" || !el) return;
-    const bag = ensure(s);
-    const clean = String(el.value || "").replace(/[<>]/g, "").slice(0, 140);
-    if (el.value !== clean) el.value = clean;
-    bag.engagement = clean;
-    if (bag.engagement !== lastPrefix) lastPrefix = "";
-    const chars = root.querySelector("[data-am-chars]");
-    if (chars) chars.textContent = fill(Q.chars, { n: String(bag.engagement).length, max: 140 });
-    const wrote = clean.trim().length >= (s.engagement.minLength || 5);
-    const legend = root.querySelector(".legend b");
-    if (legend) legend.textContent = Q.engagementCounter + (wrote && bag.moment ? " " + Q.counterOk : "");
-    const next = root.querySelector("[data-act=next]");
-    const blocked = deficit(s) > 0;
-    if (next) {
-      next.disabled = blocked;
-      next.setAttribute("aria-disabled", blocked ? "true" : "false");
-    }
-    saveProgress();
-  }
 
   root.addEventListener("compositionstart", function (ev) {
     if (isTypedField(ev.target)) composing = true;
@@ -1629,8 +1541,7 @@
   root.addEventListener("compositionend", function (ev) {
     if (!isTypedField(ev.target)) return;
     composing = false;
-    if (ev.target.id === "am-engagement") applyEngagement(ev.target);
-    else applyOther(ev.target);
+    applyOther(ev.target);
   });
 
   root.addEventListener("change", function (ev) {
@@ -1932,7 +1843,6 @@
       return;
     }
     if (act === "print") { window.print(); return; }
-    if (act === "ics") icsFile();
   });
 
   window.addEventListener("resize", pinNav);

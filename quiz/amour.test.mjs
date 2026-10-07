@@ -58,15 +58,6 @@ function firstAnswers() {
     instinct: { order: screen("instinct").items.map((it) => it.id) },
     stress: pick("stress", { modere: ["D"], fort: ["fight"] }),
     freins: pick("freins", { freins: ["rejet"] }),
-    etape: {
-      engagement: "Cette semaine, je dis ce dont j'ai besoin.",
-      moment: "demain",
-      safety: null,
-      time: null,
-      picked: { actions: ["a5"] },
-      other: { actions: [] },
-      order: { actions: ["a5"] },
-    },
   };
 }
 
@@ -161,19 +152,19 @@ test("question 1 en deux sous-écrans, même numéro", () => {
   assert.equal(screen("stress").splitGroups, undefined);
 });
 
-test("9 questions, ids uniques, types pick/rank/commit, n de 1 à 9", () => {
+test("8 questions, ids uniques, types pick ou rank, n de 1 à 8", () => {
   assert.equal(D.version, 4);
-  assert.equal(D.screens.length, 9);
-  assert.equal(new Set(D.screens.map((s) => s.id)).size, 9);
+  assert.equal(D.screens.length, 8);
+  assert.equal(new Set(D.screens.map((s) => s.id)).size, 8);
   assert.equal(screen("demain"), undefined);
+  assert.equal(screen("etape"), undefined);
+  assert.equal(screen("freins").n, 8);
   assert.equal(screen("ennea").optional, true);
   assert.equal(group("ennea", "types").min, 0);
   assert.equal(group("valeurs", "valeurs").items.length, 15);
-  assert.equal(screen("etape").groups[0].id, "actions");
-  assert.equal(screen("etape").n, 9);
   D.screens.forEach((s, i) => {
     assert.equal(s.n, i + 1);
-    assert.ok(["pick", "rank", "commit"].includes(s.type));
+    assert.ok(["pick", "rank"].includes(s.type));
   });
 });
 
@@ -195,8 +186,6 @@ test("questions : titres et aides en français naturel", () => {
   assert.equal(screen("freins").title, "Qu'est-ce qui te freine ou te met mal à l'aise en amour ?");
   assert.equal(screen("freins").help, "Ce qui te bloque, ce qui te met dans des situations inconfortables, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.");
   assert.equal(group("freins", "freins").items.length, 12);
-  assert.equal(screen("etape").groups[0].stepTitle, "Comment veux-tu t'y prendre dès demain ? Coche au moins une chose.");
-  assert.equal(screen("etape").help, "Touche un exemple pour t'inspirer : il s'inscrit dans ta phrase.");
   assert.equal(D.ui.quiz.topCounter, "Tes 3 premières : {x}/{n}");
   const blob = allStrings(D).join("\n");
   assert.equal(/plus toi|top 3|Top 3|je connecte|en haut/i.test(blob), false);
@@ -229,7 +218,6 @@ test("références valides", () => {
   for (const it of group("stress", "modere").items) assert.ok(D.stress.modere[it.id], it.id);
   for (const it of group("stress", "fort").items) assert.ok(D.stress.fort[it.id], it.id);
   for (const it of group("freins", "freins").items) assert.ok(D.brakes[it.id], it.id);
-  for (const it of group("etape", "actions").items) assert.ok(D.actions[it.id], it.id);
   assert.equal(Object.keys(D.instinctPairs).length, 6);
   for (const pair of screen("valeurs").exclusive) {
     for (const id of pair) assert.ok(group("valeurs", "valeurs").items.some((it) => it.id === id));
@@ -256,17 +244,12 @@ test("minimums", () => {
   both.valeurs.picked.valeurs = ["enfants", "sans_enfants", "honnetete"];
   both.valeurs.order.valeurs = ["enfants", "sans_enfants", "honnetete"];
   assert.throws(() => E.computeLoveProfile(both, D, "Léa"));
-  const noMoment = firstAnswers();
-  delete noMoment.etape.moment;
-  assert.throws(() => E.computeLoveProfile(noMoment, D, "Léa"));
-  const shortText = firstAnswers();
-  shortText.etape.engagement = "oui";
-  assert.doesNotThrow(() => E.computeLoveProfile(shortText, D, "Léa"));
-  const emptyEng = firstAnswers();
-  emptyEng.etape.engagement = "   ";
-  const emptyProfile = E.computeLoveProfile(emptyEng, D, "Léa");
-  assert.equal(emptyProfile.etape.engagement, "");
-  assert.match(emptyProfile.exportText, /Choisis un petit pas/);
+  const done = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  assert.equal(done.safety, null);
+  assert.equal(done.pastAbuse, null);
+  assert.equal(done.etape, undefined);
+  assert.equal(done.demain, undefined);
+  assert.equal(/Choisis un petit pas|Ton engagement/.test(done.exportText), false);
   const emptyOther = firstAnswers();
   emptyOther.nourrit.picked.nourrit = ["ecoute", "rire"];
   emptyOther.nourrit.other.nourrit = ["   "];
@@ -395,30 +378,25 @@ test("valeurs : 3 à 5, top 3 à 3 points, la suite à 1", () => {
   assert.equal(fromTaps.profil.raw.profondeur - ranked.profil.raw.profondeur, -2);
 });
 
-test("sécurité", () => {
-  for (const id of ["present", "doute"]) {
+test("sécurité : la question a disparu, aucun bandeau", () => {
+  assert.equal(screen("etape"), undefined);
+  for (const id of ["present", "doute", "passe", "non"]) {
     const a = firstAnswers();
-    a.etape.safety = id;
+    a.etape = { safety: id, engagement: "phrase secrète", moment: "demain" };
     const p = E.computeLoveProfile(a, D, "Léa");
-    assert.equal(p.safety, D.safety[id]);
+    assert.equal(p.safety, null);
     assert.equal(p.pastAbuse, null);
+    assert.equal(p.exportText.includes("phrase secrète"), false);
+    assert.equal(p.exportText.includes("3919"), false);
   }
-  const passe = firstAnswers();
-  passe.etape.safety = "passe";
-  const p = E.computeLoveProfile(passe, D, "Léa");
-  assert.equal(p.safety, null);
-  assert.equal(p.pastAbuse, D.pastAbuseNote);
+  assert.match(D.ui.results.ethicsP, /3919/);
 });
 
 test("rien de privé ne sort", () => {
   const a = firstAnswers();
   const b = firstAnswers();
-  a.etape.safety = "present";
-  b.etape.safety = "non";
-  a.etape.who = "WaldoUnique";
-  b.etape.who = "";
-  a.etape.engagement = "Cette semaine, je dis ce dont j'ai besoin.";
-  b.etape.engagement = "Cette semaine, je pose une limite claire.";
+  a.etape = { safety: "present", who: "WaldoUnique", engagement: "Cette semaine, je dis ce dont j'ai besoin." };
+  b.etape = { safety: "non", who: "", engagement: "Cette semaine, je pose une limite claire." };
   a.nourrit.other.nourrit = ["déjà <b> secret"];
   a.nourrit.order.nourrit = ["ecoute", "rire", "fiable", "autre:0"];
   a.valeurs.other = { valeurs: ["la fidélité aux amis"] };
@@ -433,8 +411,10 @@ test("rien de privé ne sort", () => {
   assert.ok(!raw.includes("secret"));
   assert.ok(!raw.includes("fidélité aux amis"));
   assert.ok(!pa.shareText.includes(a.etape.engagement));
+  assert.ok(!pa.exportText.includes(a.etape.engagement));
+  assert.ok(!pa.exportText.includes("Ton engagement"));
   assert.ok(!pa.shareText.includes("3919"));
-  assert.ok(pa.exportText.includes(a.etape.engagement));
+  assert.ok(!JSON.stringify(pa.boussole).includes(a.etape.engagement));
 });
 
 test("préréglage", () => {
@@ -485,15 +465,6 @@ function camilleAnswers() {
     instinct: { order: ["sx", "sp", "so"] },
     stress: pick({ modere: ["C"], fort: ["freeze", "fawn"] }),
     freins: pick({ freins: ["moment"] }),
-    etape: {
-      engagement: "Cette semaine, je propose une soirée rien qu'à deux.",
-      moment: "weekend",
-      safety: null,
-      time: null,
-      picked: { actions: ["a5"] },
-      other: { actions: [] },
-      order: { actions: ["a5"] },
-    },
   };
 }
 
@@ -683,21 +654,23 @@ function memoryStore() {
   };
 }
 
-test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
-  assert.equal(E.progressKey(), "quiz_amour_v16_progress");
+test("persistance : réponses, résultat, jamais la sécurité", () => {
+  assert.equal(E.progressKey(), "quiz_amour_v17_progress");
   const store = memoryStore();
   const answers = firstAnswers();
-  answers.etape.safety = "passe";
+  answers.etape = { safety: "passe", engagement: "Cette semaine, je dis ce dont j'ai besoin.", moment: "demain" };
   const profile = E.computeLoveProfile(answers, D, "Léa");
-  assert.ok(profile.pastAbuse);
+  assert.equal(profile.pastAbuse, null);
+  profile.pastAbuse = "note privée";
+  profile.safety = { title: "alerte" };
   const stack = [
     { view: "intro", qi: 0, phase: "ask", groupStep: 0 },
-    { view: "question", qi: 8, phase: "ask", groupStep: 1 },
-    { view: "results", qi: 8, phase: "ask", groupStep: 1 },
+    { view: "question", qi: 7, phase: "ask", groupStep: 0 },
+    { view: "results", qi: 7, phase: "ask", groupStep: 0 },
   ];
   assert.equal(E.writeProgress(store, {
     prenom: "Léa",
-    qi: 8,
+    qi: 7,
     phase: "ask",
     groupStep: 0,
     view: "results",
@@ -707,9 +680,9 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
     stack,
   }), true);
   const back = E.readProgress(store);
-  assert.equal(back.v, 16);
+  assert.equal(back.v, 17);
   assert.equal(back.prenom, "Léa");
-  assert.equal(back.qi, 8);
+  assert.equal(back.qi, 7);
   assert.equal(back.view, "results");
   assert.equal(back.answers.etape.safety, null);
   assert.equal(back.answers.etape.engagement, answers.etape.engagement);
@@ -729,6 +702,7 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
   assert.equal(E.parseProgress({ v: 13, view: "intro", answers: {} }), null);
   assert.equal(E.parseProgress({ v: 14, view: "intro", answers: {} }), null);
   assert.equal(E.parseProgress({ v: 15, view: "intro", answers: {} }), null);
+  assert.equal(E.parseProgress({ v: 16, view: "intro", answers: {} }), null);
 });
 
 test("ce qui vide : jusqu'à 5 lignes perso, hors score, visibles, jamais autre:0", () => {
@@ -851,12 +825,13 @@ test("accueil : une icône ligne par carré, dans sa couleur, décorative", () =
 
 test("textes du webinaire et page de partage", () => {
   assert.match(D.ui.intro.eyebrow, /Sommet de l'Amour/);
-  assert.match(D.ui.intro.eyebrow, /9 questions/);
-  assert.match(D.ui.intro.eyebrow, /environ 9 minutes/);
-  assert.match(D.ui.intro.lead, /En 9 minutes/);
+  assert.match(D.ui.intro.eyebrow, /8 questions/);
+  assert.match(D.ui.intro.eyebrow, /environ 8 minutes/);
+  assert.match(D.ui.intro.lead, /En 8 minutes/);
   assert.equal(D.ui.intro.eyebrow.includes("Love & Connexion"), false);
   assert.equal(D.ui.intro.lead.includes("6 minutes"), false);
-  assert.equal(D.ui.quiz.engagementCounter, "Écris ton engagement et choisis un moment");
+  assert.match(D.ui.intro.bullets[3], /ce qui te freine/);
+  assert.equal(/prochaine étape/.test(D.ui.intro.bullets.join(" ")), false);
   assert.equal(D.ui.quiz.resumeNotice, "On reprend où tu en étais");
   assert.equal(D.ui.results.shareBtn, "Partager");
   assert.equal(D.ui.results.stickyCta, "Parler avec Pierre");
@@ -865,7 +840,7 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(D.ui.intro.h1.includes("malheureux"), false);
   assert.match(D.ui.intro.h1, /Découvre ton <em>profil amoureux<\/em>/);
   assert.match(html, /property="og:title" content="Découvre ton profil amoureux"/);
-  assert.match(html, /property="og:description" content="9 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
+  assert.match(html, /property="og:description" content="8 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
   assert.equal(html.includes("Amoureux, mais malheureux"), false);
   assert.match(html, /Sommet de l'Amour/);
   assert.match(html, /og:image" content="https:\/\/www\.magichumans\.com\/assets\/img\/og-image\.png"/);

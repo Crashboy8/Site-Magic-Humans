@@ -17,14 +17,14 @@ const AMOUR_DATA = {
     "footer": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur cet appareil pour que tu puisses reprendre. Rien n'est envoyé.",
     "footerSalle": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur cet appareil pour que tu puisses reprendre. Seul ton profil anonyme est compté pour la photo de la salle.",
     "intro": {
-      "eyebrow": "Sommet de l'Amour · Gratuit · 9 questions · environ 9 minutes",
+      "eyebrow": "Sommet de l'Amour · Gratuit · 8 questions · environ 8 minutes",
       "h1": "Découvre ton <em>profil amoureux</em>",
-      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 9 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
+      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 8 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
       "bullets": [
         "Ce qui te nourrit en couple, et ce qui te vide",
         "Ton ressourcement, pour ne plus t'épuiser dans une relation",
         "Tes langages de l'amour, tes valeurs et ta piste ennéagramme",
-        "Ta façon de réagir sous stress, ce qui te freine, et ta prochaine étape"
+        "Ta façon de réagir sous stress, et ce qui te freine"
       ],
       "howto": "Réponds avec ton premier élan. Il n'y a ni bonne ni mauvaise réponse.",
       "nameLabel": "Ton prénom",
@@ -93,7 +93,7 @@ const AMOUR_DATA = {
       "salleTotal": "{n} participants",
       "salleYou": "Toi",
       "salleCompat": "Le profil le plus compatible avec toi, {name}, représente {pct} % de la salle.",
-      "boussoleNote": "Ta Boussole sera préréglée avec tes résultats. Ta réponse sur la sécurité n'est jamais transmise.",
+      "boussoleNote": "Ta Boussole sera préréglée avec tes résultats.",
       "nourritLab": "Ce qui te nourrit",
       "videLab": "Ce qui te vide",
       "langLab": "Tes langages de l'amour",
@@ -996,123 +996,6 @@ const AMOUR_DATA = {
           }
         }
       ]
-    },
-    {
-      "id": "etape",
-      "type": "commit",
-      "n": 9,
-      "splitGroups": true,
-      "eyebrow": "Ta prochaine étape",
-      "groups": [
-        {
-          "id": "actions",
-          "title": "Passer à l'action",
-          "stepTitle": "Comment veux-tu t'y prendre dès demain ? Coche au moins une chose.",
-          "counter": "Actions",
-          "min": 1,
-          "items": [
-            {
-              "id": "a5",
-              "label": "Une action de 5 minutes",
-              "hint": "Envoyer le message, poser la question, réserver la soirée."
-            },
-            {
-              "id": "voix",
-              "label": "Un engagement dit à voix haute",
-              "hint": "Je le dis maintenant, tout haut : « Demain, je... »"
-            },
-            {
-              "id": "rappel",
-              "label": "Un rappel à heure fixe",
-              "hint": "Je choisis une heure, et je reçois un rappel dans mon agenda."
-            }
-          ]
-        }
-      ],
-      "time": {
-        "when": "rappel",
-        "label": "À quelle heure demain ?",
-        "options": [
-          "08:00",
-          "12:30",
-          "18:00",
-          "21:00"
-        ]
-      },
-      "title": "Quelle est ta prochaine étape dans ta relation ? Écris ton engagement en une phrase.",
-      "help": "Touche un exemple pour t'inspirer : il s'inscrit dans ta phrase.",
-      "examples": [
-        {
-          "id": "besoin",
-          "label": "Dire clairement ce dont j'ai besoin"
-        },
-        {
-          "id": "soiree",
-          "label": "Proposer une soirée rien qu'à deux"
-        },
-        {
-          "id": "question",
-          "label": "Poser la question qui compte (enfants, projet, lieu de vie)"
-        },
-        {
-          "id": "limite",
-          "label": "Mettre une limite claire"
-        },
-        {
-          "id": "boussole",
-          "label": "Faire le point sur ma relation avec la Boussole"
-        },
-        {
-          "id": "jetaime",
-          "label": "Oser dire « je t'aime »"
-        },
-        {
-          "id": "recul",
-          "label": "Prendre quelques jours de recul"
-        },
-        {
-          "id": "accompagner",
-          "label": "Me faire accompagner"
-        }
-      ],
-      "engagement": {
-        "placeholder": "Cette semaine, je...",
-        "minLength": 5,
-        "maxLength": 140
-      },
-      "share": {
-        "title": "Partage-le à quelqu'un, et choisis un moment.",
-        "whoPlaceholder": "son prénom",
-        "whoMaxLength": 40,
-        "moments": [
-          "soir",
-          "demain",
-          "weekend",
-          "semaine"
-        ]
-      },
-      "safety": {
-        "text": "Une dernière chose : dans une relation, t'est-il arrivé d'avoir peur de l'autre, ou de te sentir rabaissé·e, contrôlé·e ou menacé·e ?",
-        "options": [
-          {
-            "id": "non",
-            "label": "Non, jamais"
-          },
-          {
-            "id": "passe",
-            "label": "Oui, par le passé"
-          },
-          {
-            "id": "doute",
-            "label": "Je ne suis pas sûr·e"
-          },
-          {
-            "id": "present",
-            "label": "Oui, aujourd'hui"
-          }
-        ],
-        "note": "Cette réponse n'est ni enregistrée ni transmise."
-      }
     }
   ],
   "order": {

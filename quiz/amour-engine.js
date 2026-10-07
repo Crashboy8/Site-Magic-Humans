@@ -279,7 +279,6 @@
     const instinctScreen = screenOf(D, "instinct");
     const stressScreen = screenOf(D, "stress");
     const freinsScreen = screenOf(D, "freins");
-    const etapeScreen = screenOf(D, "etape");
 
     const gNourrit = groupOf(nourritScreen, "nourrit");
     const gVide = groupOf(nourritScreen, "vide");
@@ -394,21 +393,8 @@
       ? D.brakes.energie.antidote
       : D.brakes[brakeFirst].antidote;
 
-    const gAct = groupOf(etapeScreen, "actions");
-    const actionIds = dataOrder(gAct, chosen(answers, etapeScreen, gAct));
-    const timeRaw = bagOf(answers, "etape").time;
-    const time = actionIds.indexOf("rappel") !== -1 ? (timeRaw || "18:00") : null;
-
-    const etapeBag = bagOf(answers, "etape");
-    const etape = {
-      engagement: cleanFree(etapeBag.engagement, 140),
-      who: cleanFree(etapeBag.who, 40),
-      moment: etapeBag.moment,
-    };
-
-    const safetyId = etapeBag.safety || null;
-    const safety = safetyId === "present" || safetyId === "doute" ? D.safety[safetyId] : null;
-    const pastAbuse = safetyId === "passe" ? D.pastAbuseNote : null;
+    const safety = null;
+    const pastAbuse = null;
 
     const card = (screen, groupId, id) => ({ id, short: shortOf(D, screen, groupId, id) || labelOf(D, screen, groupId, id) });
     const nourritCards = nourritOrder.map((id) => card(nourritScreen, "nourrit", id));
@@ -504,9 +490,6 @@
 
     const boussole = { v: 2, imp, notes };
 
-    const timeLabel = (D.times.find((t) => t.id === time) || {}).label || "";
-    const demainLines = actionIds.map((id) => id === "rappel" ? fill(D.actions.rappel, { heure: timeLabel }) : D.actions[id]);
-    const momentLabel = (D.moments.find((m) => m.id === etape.moment) || {}).label || "";
     const glanceLines = [];
     const ol = (title, rows) => {
       glanceLines.push(title);
@@ -527,15 +510,6 @@
     glanceLines.push("modéré → " + modere.map((id) => (gMod.items.find((it) => it.id === id) || {}).label).join(", ") + " · fort → " + fort.map((id) => (gFort.items.find((it) => it.id === id) || {}).label).join(", "));
     glanceLines.push(D.ui.results.brakeLab);
     glanceLines.push((String(brakeFirst).indexOf("autre:") === 0 ? shortOf(D, freinsScreen, "freins", brakeFirst) : (gFrein.items.find((it) => it.id === brakeFirst) || {}).label) + " " + brakeAntidote);
-    glanceLines.push(D.ui.results.demainLab);
-    glanceLines.push(demainLines.join(" "));
-    glanceLines.push(D.ui.results.stepLab);
-    const stepParts = [];
-    if (etape.engagement) stepParts.push("« " + etape.engagement + " »");
-    else stepParts.push(D.ui.results.nowStepEmpty);
-    if (etape.who) stepParts.push(fill(D.ui.results.shareWith, { who: etape.who }));
-    if (momentLabel) stepParts.push(momentLabel);
-    glanceLines.push(stepParts.join(" · "));
 
     const shareText = D.shareTemplate.map((line) => fill(line, { s1, s2, s3, quizUrl: D.config.quizUrl })).join("\n");
     const exportBody = D.exportTemplate.map((line) => fill(line, {
@@ -562,8 +536,6 @@
       values: { order: valueEntries, nonNegotiables, toDiscuss, directionValues },
       stress: { modere, fort },
       brakes: { all: brakeAll, first: brakeFirst, antidote: brakeAntidote },
-      demain: { actions: actionIds, time },
-      etape,
       partner: { complete, friction, critical },
       keyMessages: D.keyMessages,
       boussole,
@@ -795,7 +767,7 @@
   function boussoleBoost(profil, D) { return D.profil.boussoleBoost[profil.boussoleDom]; }
 
   function progressKey() {
-    return "quiz_amour_v16_progress";
+    return "quiz_amour_v17_progress";
   }
 
   function cloneJson(value, fallback) {
@@ -831,7 +803,7 @@
       };
     }).filter(Boolean);
     return {
-      v: 16,
+      v: 17,
       prenom: String(src.prenom || "").replace(/[<>]/g, "").trim().slice(0, 40),
       qi: Number.isInteger(qiNum) && qiNum >= 0 ? qiNum : 0,
       phase: src.phase === "rank" ? "rank" : "ask",
@@ -849,7 +821,7 @@
     if (typeof raw === "string") {
       try { data = JSON.parse(raw); } catch (e) { return null; }
     }
-    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 16) return null;
+    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 17) return null;
     if (!data.answers || typeof data.answers !== "object" || Array.isArray(data.answers)) return null;
     if (data.view !== "intro" && data.view !== "question" && data.view !== "results") return null;
     return packProgress(data);
