@@ -667,7 +667,12 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(D.ui.results.shareBtn, "Partager");
   assert.equal(D.ui.results.stickyCta, "Parler avec Pierre");
   const html = fs.readFileSync(new URL("../quiz-amour/index.html", import.meta.url), "utf8");
-  assert.match(html, /property="og:title" content="Amoureux, mais malheureux \?"/);
+  assert.equal(D.ui.pageTitle, "Découvre ton profil amoureux");
+  assert.equal(D.ui.intro.h1.includes("malheureux"), false);
+  assert.match(D.ui.intro.h1, /Découvre ton <em>profil amoureux<\/em>/);
+  assert.match(html, /property="og:title" content="Découvre ton profil amoureux"/);
+  assert.match(html, /property="og:description" content="10 minutes pour mettre des mots sur ce dont tu as besoin en amour\. Quiz offert du Sommet de l'Amour\."/);
+  assert.equal(html.includes("Amoureux, mais malheureux"), false);
   assert.match(html, /Sommet de l'Amour/);
   assert.match(html, /og:image" content="https:\/\/www\.magichumans\.com\/assets\/img\/og-image\.png"/);
   assert.match(html, /rel="canonical" href="https:\/\/www\.magichumans\.com\/quiz-amour\/"/);

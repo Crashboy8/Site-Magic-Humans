@@ -12,12 +12,12 @@ const AMOUR_DATA = {
     "matchingEmail": "sommetamourconnexion@gmail.com"
   },
   "ui": {
-    "pageTitle": "Quiz Amour : choisir un partenaire qui te correspond vraiment",
+    "pageTitle": "Découvre ton profil amoureux",
     "brand": "Magic Humans · Quiz Amour",
     "footer": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur cet appareil pour que tu puisses reprendre. Rien n'est envoyé.",
     "intro": {
       "eyebrow": "Sommet de l'Amour · Gratuit · 10 questions · environ 10 minutes",
-      "h1": "Amoureux, mais <em>malheureux</em> ?",
+      "h1": "Découvre ton <em>profil amoureux</em>",
       "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 10 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
       "bullets": [
         "Ce qui te nourrit en couple, et ce qui te vide",

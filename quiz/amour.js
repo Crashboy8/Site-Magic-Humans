@@ -1344,7 +1344,7 @@
     if (act === "share") {
       const text = root.dataset.share || "";
       const toast = document.getElementById("am-toast-short");
-      const payload = { title: "Amoureux, mais malheureux ?", text: text, url: D.config.quizUrl };
+      const payload = { title: U.pageTitle, text: text, url: D.config.quizUrl };
       if (navigator.share) {
         navigator.share(payload).catch(function (err) {
           if (err && err.name === "AbortError") return;
