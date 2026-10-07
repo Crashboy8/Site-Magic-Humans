@@ -194,6 +194,10 @@
     "#screen-amour .am-nav-row{flex-wrap:nowrap;width:100%}",
     "#screen-amour .am-nav-row .btn{flex:1 1 0;justify-content:center;white-space:nowrap}",
     "#screen-amour .am-nav-row .btn:disabled{opacity:1;background:var(--bg);color:var(--muted);border:1px solid var(--line)}",
+    "#screen-amour .am-petit{display:flex;flex-direction:column;gap:6px;margin:0 0 8px}",
+    "#screen-amour .am-petit label{font-weight:700}",
+    "#screen-amour .am-petit textarea{width:100%;min-height:72px}",
+    "#screen-amour .am-petit-print{display:none}",
     "#screen-amour .rule .quote{color:var(--ink);font-size:1.15rem}",
     "#screen-amour .rule .btn{align-self:flex-start;margin-top:4px}",
     "@media(max-width:420px){#screen-amour .am-nav-row .btn{padding:12px 10px;font-size:.92rem}}",
@@ -214,6 +218,11 @@
     "#screen-amour .panel{break-inside:auto;padding:6px 8px;margin:4px 0;gap:3px}",
     "#screen-amour .rule{break-inside:avoid;padding:4px 8px;margin:2px 0;gap:2px 8px}",
     "#screen-amour #sec-now .rule p{display:none!important}",
+    "#screen-amour .am-petit{display:none!important}",
+    "#screen-amour .am-petit.is-filled{display:block!important}",
+    "#screen-amour .am-petit.is-filled textarea,#screen-amour .am-petit.is-filled .muted{display:none!important}",
+    "#screen-amour .am-petit.is-filled label{display:block!important;font-weight:700}",
+    "#screen-amour .am-petit.is-filled .am-petit-print{display:block!important}",
     "#screen-amour .quote{font-size:11.5pt}",
     "#screen-amour .pr-hide,#screen-amour .toc,#screen-amour .pr-bars,#screen-amour details{display:none!important}",
     "#screen-amour details.am-fold{display:block!important}",
@@ -249,6 +258,7 @@
   let groupStep = 0;
   let answers = {};
   let lastPrefix = "";
+  let petitPas = "";
   let held = null;
   let focusSel = "";
   let pendingLive = "";
@@ -284,6 +294,7 @@
       view: view,
       answers: answers,
       lastPrefix: lastPrefix,
+      petitPas: petitPas,
       profile: resultProfile,
       stack: stack,
     });
@@ -1171,7 +1182,7 @@
       resumeHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       profilReport(profile, stressLine) +
-      '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + '</h2><div class="stack">' +
+      '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + "</h2>" + petitPasHtml() + '<div class="stack">' +
       '<article class="rule" data-tone="sky"><span class="k">1</span><strong>' + ico("compass", "sky") + esc(R.nowTest) + "</strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
       '<article class="rule" data-tone="pink"><span class="k">2</span><strong>' + ico("phone", "pink") + esc(R.nowPierre) + "</strong><p>" + esc(endLine) + "</p>" +
@@ -1181,7 +1192,7 @@
       '<div class="am-screen-only stack-lg">' +
       '<section class="rs" id="sec-glance"><h2>' + esc(R.glanceH) + '</h2><div class="stack">' + glance + "</div></section>" +
       "<details><summary>" + esc(R.detailsSummary) + "</summary><div>" + detail + "</div></details>" +
-      '<section class="rs"><h2>' + esc(R.exportH) + '</h2><div class="panel"><p>' + esc(R.exportP) + '</p><textarea id="am-export" readonly>' + esc(profile.exportText) + "</textarea>" +
+      '<section class="rs"><h2>' + esc(R.exportH) + '</h2><div class="panel"><p>' + esc(R.exportP) + '</p><textarea id="am-export" readonly>' + esc(E.exportWithPetitPas(profile.exportText, D, petitPas)) + "</textarea>" +
       '<textarea id="am-share" readonly hidden>' + esc(profile.shareText) + '</textarea><div class="row-actions"><button type="button" class="btn" data-act="copy">' + esc(R.copyBtn) + '</button><span class="toast" id="am-toast" aria-live="polite"></span></div></div></section>' +
       '<section class="rs"><h2>' + esc(R.matchingH) + '</h2><div class="panel"><p class="muted">' + matching + "</p></div></section>" +
       '<section class="rs"><h2>' + esc(R.ethicsH) + '</h2><div class="prose"><p>' + esc(R.ethicsP) + '</p><p><button type="button" class="link" data-act="restart">' + esc(R.restart) + "</button></p></div></section>" +
@@ -1456,7 +1467,36 @@
   });
 
   function isTypedField(el) {
-    return !!(el && el.getAttribute && el.getAttribute("data-act") === "other");
+    return !!(el && ((el.id === "am-petit-pas") || (el.getAttribute && el.getAttribute("data-act") === "other")));
+  }
+
+  function petitPasHtml() {
+    const texte = E.petitPasStored(petitPas);
+    const shown = String(texte || "").trim();
+    return '<div class="am-petit' + (shown ? " is-filled" : "") + '" id="am-petit">' +
+      '<label for="am-petit-pas">' + esc(R.petitPasLabel) + "</label>" +
+      '<textarea id="am-petit-pas" rows="2" maxlength="140" placeholder="' + esc(R.petitPasPh) + '">' + esc(texte) + "</textarea>" +
+      '<p class="muted">' + esc(R.petitPasHint) + "</p>" +
+      '<p class="am-petit-print"' + (shown ? "" : " hidden") + ">" + esc(shown) + "</p></div>";
+  }
+
+  function applyPetitPas(el) {
+    if (!el || el.id !== "am-petit-pas") return;
+    const raw = String(el.value || "");
+    const clean = raw.replace(/[<>]/g, "").slice(0, 140);
+    if (!composing && el.value !== clean) el.value = clean;
+    petitPas = composing ? raw.replace(/[<>]/g, "").slice(0, 140) : clean;
+    const box = document.getElementById("am-petit");
+    const shown = String(petitPas || "").trim();
+    if (box) box.classList.toggle("is-filled", !!shown);
+    const printed = box && box.querySelector(".am-petit-print");
+    if (printed) {
+      printed.hidden = !shown;
+      printed.textContent = shown;
+    }
+    const area = document.getElementById("am-export");
+    if (area && resultProfile) area.value = E.exportWithPetitPas(resultProfile.exportText, D, petitPas);
+    if (!composing) saveProgress();
   }
 
   function paintAsk(s) {
@@ -1524,6 +1564,11 @@
 
   root.addEventListener("input", function (ev) {
     const el = ev.target;
+    if (el.id === "am-petit-pas") {
+      if (composing) return;
+      applyPetitPas(el);
+      return;
+    }
     if (el.getAttribute("data-act") === "other") {
       if (composing) return;
       applyOther(el);
@@ -1541,7 +1586,8 @@
   root.addEventListener("compositionend", function (ev) {
     if (!isTypedField(ev.target)) return;
     composing = false;
-    applyOther(ev.target);
+    if (ev.target.id === "am-petit-pas") applyPetitPas(ev.target);
+    else applyOther(ev.target);
   });
 
   root.addEventListener("change", function (ev) {
@@ -1880,6 +1926,7 @@
     view = "intro";
     resultProfile = null;
     lastPrefix = "";
+    petitPas = "";
     resumeNote = false;
     stickyOff = false;
     runId += 1;
@@ -1940,6 +1987,7 @@
         groupStep = saved.groupStep || 0;
         answers = saved.answers || {};
         lastPrefix = saved.lastPrefix || "";
+        petitPas = saved.petitPas || "";
         view = saved.view === "results" && saved.profile ? "results" : "question";
         if (view === "results") resultProfile = saved.profile;
         if (Array.isArray(saved.stack) && saved.stack.length) {

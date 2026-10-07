@@ -117,6 +117,10 @@ function randomAnswers(r) {
 test("résultat : bloc Et maintenant, une phrase par stress fort", () => {
   const n = D.ui.results;
   assert.equal(n.nowH, "Et maintenant ?");
+  assert.equal(n.petitPasLabel, "Et toi, quel petit pas tu fais cette semaine ?");
+  assert.equal(n.petitPasPh, "Exemple : dire ce soir ce dont j'ai besoin.");
+  assert.match(n.petitPasHint, /Facultatif/);
+  assert.match(n.petitPasHint, /appareil/);
   assert.equal(n.nowStep, "Ta prochaine étape");
   assert.equal(n.nowStepEmpty, "Choisis un petit pas pour ta relation cette semaine.");
   assert.equal(n.nowTest, "Teste ta relation");
@@ -653,6 +657,37 @@ function memoryStore() {
     removeItem: (key) => data.delete(key),
   };
 }
+
+test("petit pas : facultatif, dans l'export s'il est rempli, hors score et hors envoi", () => {
+  const p = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  const base = p.exportText.replace(/\s*$/, "");
+  assert.equal(E.exportWithPetitPas(p.exportText, D, "   "), base);
+  const line = E.exportWithPetitPas(p.exportText, D, "  Dire <b>ce soir  ");
+  assert.equal(line, base + "\n\nMon petit pas cette semaine : « Dire bce soir »");
+  assert.equal(p.shareText.includes("ce soir"), false);
+  assert.equal(JSON.stringify(p.boussole).includes("ce soir"), false);
+  const a = firstAnswers();
+  a.petitPas = "un pas secret";
+  const q = E.computeLoveProfile(a, D, "Léa");
+  assert.deepEqual(q.profil.scores, p.profil.scores);
+  assert.equal(q.profil.name.text, p.profil.name.text);
+  assert.equal(q.profil.dom, p.profil.dom);
+  assert.equal(JSON.stringify(q.boussole), JSON.stringify(p.boussole));
+  assert.equal(q.shareText, p.shareText);
+  assert.equal(E.petitPasStored("x".repeat(200)).length, 140);
+  const store = memoryStore();
+  assert.equal(E.writeProgress(store, {
+    view: "results", qi: 7, answers: firstAnswers(), profile: p, petitPas: "  Dire <b>ce soir  ",
+  }), true);
+  assert.equal(E.readProgress(store).petitPas, "  Dire bce soir  ");
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  const fn = src.slice(src.indexOf("function applyPetitPas"), src.indexOf("function paintAsk"));
+  assert.equal(/showResults|showQuestion|innerHTML/.test(fn), false);
+  assert.match(fn, /if \(!composing && el\.value !== clean\) el\.value = clean/);
+  assert.match(src, /el\.id === "am-petit-pas"/);
+  assert.match(src, /if \(composing\) return;\s*applyPetitPas\(el\)/);
+  assert.match(src, /JSON\.stringify\(\{ session: session, profil: profil \}\)/);
+});
 
 test("persistance : réponses, résultat, jamais la sécurité", () => {
   assert.equal(E.progressKey(), "quiz_amour_v17_progress");

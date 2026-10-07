@@ -14,6 +14,18 @@
     return String(text || "").replace(/[<>]/g, "").trim().slice(0, max || 140);
   }
 
+  function petitPasStored(raw) {
+    return String(raw || "").replace(/[<>]/g, "").slice(0, 140);
+  }
+
+  function exportWithPetitPas(exportText, D, raw) {
+    const texte = cleanFree(raw, 140);
+    const base = String(exportText || "").replace(/\s*$/, "");
+    if (!texte) return base;
+    const line = fill(D.ui.results.petitPasExport, { texte });
+    return base + "\n\n" + line;
+  }
+
   function screenOf(D, id) {
     return D.screens.find((s) => s.id === id);
   }
@@ -811,6 +823,7 @@
       view,
       answers,
       lastPrefix: String(src.lastPrefix || "").slice(0, 140),
+      petitPas: petitPasStored(src.petitPas),
       profile,
       stack,
     };
@@ -957,7 +970,7 @@
     computeLoveProfile, missingAnswers, boussolePayload, encodePayload, fill, rankingState,
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
     progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
-    calendlyLink, answerLabel,
+    exportWithPetitPas, petitPasStored, calendlyLink, answerLabel,
     salleSession, salleSessionOk, salleIds, salleNourrit, sallePhoto,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
