@@ -17,12 +17,22 @@
       "permanent": false
     },
     {
+      "source": "/apps/",
+      "destination": "/",
+      "permanent": false
+    },
+    {
       "source": "/apps/:path*",
       "destination": "/",
       "permanent": false
     },
     {
       "source": "/ma-cible",
+      "destination": "/boussole-decision/ma-cible/",
+      "permanent": false
+    },
+    {
+      "source": "/ma-cible/",
       "destination": "/boussole-decision/ma-cible/",
       "permanent": false
     },
