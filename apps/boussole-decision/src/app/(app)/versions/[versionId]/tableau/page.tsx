@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Notice } from "@/components/ui";
-import { isLoveProfile, LOVE_TEXTS } from "@/content/amour";
+import { isLoveProfile, LOVE_TABLE, LOVE_TEXTS } from "@/content/amour";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
 import { LoveGuide } from "@/features/amour/LoveGuide";
 import { getI18n } from "@/i18n/server";
@@ -39,7 +39,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
         <h1 className="text-4xl italic sm:text-5xl">{T.heading}</h1>
         <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">
           {T.introStart} <strong className="font-medium text-ink">{T.introRows}</strong>
-          {T.introMiddle} <strong className="font-medium text-ink">{T.introCols}</strong>
+          {T.introMiddle} <strong className="font-medium text-ink">{love ? LOVE_TABLE.introCols : T.introCols}</strong>
           {T.introEnd}
         </p>
         {love ? (
@@ -85,6 +85,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
         readOnly={ctx.readOnly}
         comments={ctx.comments}
         commentViewer={ctx.commentViewer}
+        theme={love ? "amour" : undefined}
       />
     </>
   );

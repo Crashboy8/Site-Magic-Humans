@@ -3,6 +3,7 @@
 // - Tranche selon le score d'alignement arrondi : 80+ solide, 65-79 base, 50-64 tension, moins de 50 désalignement.
 // - Alerte critique : tout critère « pour aller vers » d'importance Critique noté 50 % ou moins (À moitié, Plutôt non, Non).
 // - Ligne rouge : critère « à éviter » non négociable présent (déjà calculé par scoring.ts, severity « ligne_rouge »).
+//   Texte : présence ≤ 50 % → ligneRougeLow ; au-dessus → ligneRougeHigh.
 // - Sécurité : critère « respect » (libellé du modèle) noté 25 % ou moins : texte d'aide affiché en premier.
 // - Énergie : critère « energie » noté 25 % ou moins, après les alertes critiques.
 // - Lecture provisoire si moins de 7 critères évalués, ou s'il reste au moins un critère critique non évalué.
@@ -50,7 +51,7 @@ export function loveReadingOf(result: OpportunityResult): LoveReading {
   }
   for (const a of result.antiContextAlerts) {
     if (a.severity !== "ligne_rouge") continue;
-    alerts.push({ kind: "ligne_rouge", criterionId: a.criterionId, text: a.presence >= 50 ? LOVE_TEXTS.ligneRougeHigh : LOVE_TEXTS.ligneRougeLow });
+    alerts.push({ kind: "ligne_rouge", criterionId: a.criterionId, text: a.presence > 50 ? LOVE_TEXTS.ligneRougeHigh : LOVE_TEXTS.ligneRougeLow });
   }
   for (const d of result.details) {
     const c = d.criterion;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Card, Notice, Textarea, cx } from "@/components/ui";
+import { LOVE_TABLE } from "@/content/amour";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { updateVersion } from "@/data/repository";
 import { useI18n } from "@/i18n/client";
@@ -149,7 +150,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
                 <span className="font-serif text-3xl italic">{fmt(r.score)}</span>
               </div>
               <p className="mt-1 font-semibold leading-snug">{r.opportunity.name}</p>
-              <StatusBadges result={r} />
+              <StatusBadges result={r} love={love} />
             </li>
           ))}
         </ol>
@@ -273,7 +274,7 @@ function SectionTitle({ id, title, children }: { id: string; title: string; chil
   );
 }
 
-function StatusBadges({ result }: { result: OpportunityResult }) {
+function StatusBadges({ result, love }: { result: OpportunityResult; love: boolean }) {
   const redLine = result.antiContextAlerts.some((a) => a.severity === "ligne_rouge");
   const R = useI18n().t.results;
   return (
@@ -282,7 +283,9 @@ function StatusBadges({ result }: { result: OpportunityResult }) {
         <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">{R.badgeNonNegotiable}</span>
       )}
       {result.antiContextAlerts.length > 0 && (
-        <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">⚡ {redLine ? R.badgeRedLine : R.badgeAnti}</span>
+        <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">
+          ⚡ {redLine ? (love ? LOVE_TABLE.redLine : R.badgeRedLine) : R.badgeAnti}
+        </span>
       )}
       {result.toVerify.length > 0 && (
         <span className="rounded-full bg-sand px-2 py-0.5 text-ink-soft">{R.badgeToCheck(result.toVerify.length)}</span>

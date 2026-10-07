@@ -111,7 +111,7 @@ export const LOVE_TEXTS = {
   alertIntro: "Ton score est de {score} %, mais un ou plusieurs points essentiels sont touchés. Un bon total peut cacher l'essentiel : lis ceci en premier.",
   genericAlert: "Le critère « {label} » est noté bas alors que tu l'as classé critique. Prends le temps de te demander s'il peut vraiment s'améliorer, et à quelle condition.",
   ligneRougeLow: "Tu vois un début d'incompatibilité critique. Ce n'est peut-être qu'un malentendu : parles-en tôt, franchement, avant que chacun ne s'installe dans l'espoir que l'autre changera d'avis.",
-  ligneRougeHigh: "L'incompatibilité critique est bien présente. Un non-négociable ne se négocie pas : si vous restez ensemble, l'un de vous deux renoncera à une part essentielle de lui-même. Ce constat peut être douloureux, et il mérite d'être accompagné.",
+  ligneRougeHigh: "L'incompatibilité critique semble bien présente. Un non-négociable ne se négocie pas : si vous restez ensemble sans le clarifier, l'un de vous deux risque de renoncer à une part essentielle de lui-même. Ce constat peut être douloureux, et il mérite d'être éclairci, à deux ou avec quelqu'un de confiance.",
   safety: "Tu as noté le respect et la sécurité émotionnelle très bas. Si tu vis de la peur, des humiliations, du contrôle ou de la violence, ce n'est pas une question de compatibilité et ce n'est pas de ta faute. En France : 3919 (violences conjugales, gratuit et anonyme, 24h/24), 17 ou 112 en cas de danger immédiat, 114 par SMS. Hors de France, contacte les services d'urgence de ton pays.",
   energyAlert: "Tu as noté que cette relation te vide de ton énergie. Ce n'est pas un détail : une relation qui te correspond te laisse plus vivant·e, pas plus épuisé·e. Regarde ce qui te vide (ton Quiz Amour te le dit) et demande-toi si c'est passager ou installé.",
   quizNoteLabel: "D'après ton Quiz Amour : ",
@@ -168,4 +168,25 @@ export const LOVE_TEXTS = {
   },
   tableNotice: "Mode amour : chaque colonne est une relation (renomme-la avec un prénom), chaque ligne un critère. Les critères marqués « Critique » déclenchent une alerte s'ils sont notés « À moitié » ou moins. Les résultats s'affichent dans l'onglet Résultats.",
   guideTitle: "Comment évaluer chaque critère",
+} as const;
+
+/**
+ * Surcharge française du tableau, uniquement en mode amour.
+ * Les libellés pro (« opportunité ») restent dans l'i18n globale.
+ */
+export const LOVE_TABLE = {
+  introCols: "tes relations en colonnes",
+  newOpportunityName: (n: number) => `Relation ${n}`,
+  deleteOpportunityConfirm: (name: string) => `Supprimer la relation « ${name} » et toutes ses cases ?`,
+  opportunitiesCount: (n: number) => `relation${n > 1 ? "s" : ""}`,
+  shownOpportunity: "Relation affichée",
+  addOpportunity: "+ Relation",
+  firstOpportunityStart: "Ajoute une première relation avec le bouton",
+  firstOpportunityButton: "« + Relation »",
+  firstOpportunityEnd: "en haut à droite du tableau (par exemple : « Camille », « La relation qui commence »).",
+  opportunityName: "Nom de la relation",
+  deleteOpportunity: (name: string) => `Supprimer la relation « ${name} »`,
+  failsNonNegotiables: "À regarder : un non-négociable n'est pas pleinement respecté",
+  redLine: "Signal d'incompatibilité à clarifier",
+  legendNonNegotiableText: ": s'il n'est pas pleinement respecté, la relation est signalée et classée après les autres",
 } as const;
