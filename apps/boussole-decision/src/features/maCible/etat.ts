@@ -23,6 +23,12 @@ export interface Etat {
   /** Date de réception du résultat (ISO). */
   resultatLe: string | null;
   coches: boolean[];
+  /** Étape la plus loin atteinte. Revenir en arrière ne la diminue pas. */
+  plusLoin: Etape;
+  /** Vrai si le talent ou le terrain a changé depuis le résultat affiché. */
+  resultatPerime: boolean;
+  /** Réponses qui ont produit le résultat, figées au premier changement. */
+  entreeDuResultat: EntreeMaCible | null;
 }
 
 export const TALENT_VIDE: Talent = { nom: "", mecanisme: "", contexte: "", benefice: "", antiContexte: "", reussite: "", sousTalents: [], pistes: [], aDeleguer: [] };
@@ -46,6 +52,9 @@ export function etatInitial(locale = "fr", maintenant = new Date()): Etat {
     resultat: null,
     resultatLe: null,
     coches: Array<boolean>(NB_ACTIONS).fill(false),
+    plusLoin: "accueil",
+    resultatPerime: false,
+    entreeDuResultat: null,
   };
 }
 
@@ -66,8 +75,26 @@ export type Action =
   | { type: "cadrage"; tour: 1 | 2 | 3; cadrage: Cadrage }
   | { type: "corrections"; corrections: Corrections }
   | { type: "resultat"; resultat: ResultatClasse; maintenant: string }
+  | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[] }
   | { type: "coche"; index: number }
   | { type: "recommencer"; locale?: string };
+
+const INDICE: Record<Etape, number> = { accueil: 0, talent: 1, terrain: 2, questions: 3, esquisse: 4, resultat: 5 };
+
+export const ETAPES_BARRE = ["talent", "terrain", "questions", "esquisse", "resultat"] as const;
+export type EtapeBarre = (typeof ETAPES_BARRE)[number];
+export type AccesEtape = "courante" | "atteinte" | "future" | "sautee";
+
+function avancer(e: Etat, etape: Etape): Etat {
+  const plusLoin = INDICE[e.plusLoin] >= INDICE[etape] ? e.plusLoin : etape;
+  return { ...e, etape, plusLoin };
+}
+
+/** Le résultat reste. Au premier changement, on fige les réponses qui l'ont produit. */
+function marquerResultat(e: Etat, suivant: Etat): Etat {
+  if (!e.resultat) return suivant;
+  return { ...suivant, resultatPerime: true, entreeDuResultat: e.entreeDuResultat ?? e.entree };
+}
 
 const memes = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -94,37 +121,60 @@ export function reducteur(e: Etat, a: Action): Etat {
     case "charger":
       return a.etat;
     case "aller":
-      return { ...e, etape: a.etape };
+      return avancer(e, a.etape);
     case "talent": {
       const talent = { ...e.entree.talent, ...a.patch };
       if (memes(talent, e.entree.talent)) return e;
-      return invalider({ ...e, entree: { ...e.entree, talent } });
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, talent } }));
     }
     case "terrain": {
       const terrain = { ...e.entree.terrain, ...a.patch };
       if (memes(terrain, e.entree.terrain)) return e;
-      return invalider({ ...e, entree: { ...e.entree, terrain } });
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, terrain } }));
     }
     case "prenom":
       return { ...e, prenom: a.prenom };
     case "ancre": {
       const talent = { ...e.entree.talent, ...a.ancre.talent };
-      return invalider({ ...e, entree: { ...e.entree, source: a.ancre.source, talent } });
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, source: a.ancre.source, talent } }));
     }
     case "reponses":
       return { ...e, entree: { ...e.entree, reponses: ajouterReponses(e.entree.reponses, a.tour, a.reponses) } };
     case "cadrage": {
       const { cadrage, tour } = a;
-      if (cadrage.statut === "questions") return { ...e, cadrage, tour, etape: "questions" };
+      if (cadrage.statut === "questions") return avancer({ ...e, cadrage, tour }, "questions");
       if (cadrage.statut === "esquisse") {
-        return { ...e, cadrage, tour, etape: "esquisse", corrections: null, nouvelleEsquisseFaite: e.nouvelleEsquisseFaite || tour === 3 };
+        return avancer({ ...e, cadrage, tour, corrections: null, nouvelleEsquisseFaite: e.nouvelleEsquisseFaite || tour === 3 }, "esquisse");
       }
       return { ...e, cadrage: null, tour: 1, etape: "terrain" }; // hors_sujet : le message est affiché par l'écran
     }
     case "corrections":
       return { ...e, corrections: a.corrections };
     case "resultat":
-      return { ...e, resultat: a.resultat, resultatLe: a.maintenant, etape: "resultat", coches: Array<boolean>(NB_ACTIONS).fill(false) };
+      return {
+        ...avancer(e, "resultat"),
+        resultat: a.resultat,
+        resultatLe: a.maintenant,
+        coches: Array<boolean>(NB_ACTIONS).fill(false),
+        resultatPerime: false,
+        entreeDuResultat: null,
+      };
+    case "reprendre":
+      return {
+        ...e,
+        entree: a.entree,
+        resultat: a.resultat,
+        resultatLe: a.faitLe,
+        coches: a.coches.slice(),
+        etape: "resultat",
+        plusLoin: "resultat",
+        resultatPerime: false,
+        entreeDuResultat: null,
+        cadrage: null,
+        corrections: null,
+        tour: 1,
+        nouvelleEsquisseFaite: false,
+      };
     case "coche": {
       if (a.index < 0 || a.index >= NB_ACTIONS) return e;
       const coches = e.coches.slice();
@@ -134,4 +184,21 @@ export function reducteur(e: Etat, a: Action): Etat {
     case "recommencer":
       return etatInitial(a.locale);
   }
+}
+
+/** L'étape Précisions a été sautée : l'esquisse ou le résultat est atteint, sans question ni réponse. */
+export function questionsSautees(e: Etat): boolean {
+  if (e.etape === "questions" || e.cadrage?.statut === "questions" || e.entree.reponses.length > 0) return false;
+  return INDICE[e.plusLoin] >= INDICE.esquisse;
+}
+
+/** Bouton de la barre : actif, en cours, pas encore atteint, ou Précisions sautée. */
+export function accesEtape(e: Etat, etape: EtapeBarre): AccesEtape {
+  if (etape === "questions" && questionsSautees(e)) return "sautee";
+  if (e.etape === etape) return "courante";
+  if (etape === "esquisse" && e.cadrage?.statut !== "esquisse") return "future";
+  if (etape === "resultat" && !e.resultat) return "future";
+  if (etape === "questions" && e.cadrage?.statut !== "questions" && e.entree.reponses.length === 0) return "future";
+  if (INDICE[etape] > INDICE[e.plusLoin]) return "future";
+  return "atteinte";
 }

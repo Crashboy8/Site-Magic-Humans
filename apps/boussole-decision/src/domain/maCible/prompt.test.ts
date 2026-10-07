@@ -18,6 +18,12 @@ const corrections = {
 };
 
 describe("prompts", () => {
+  it("nomme le Cibleur et interdit les fausses citations de clients", () => {
+    expect(PROMPT_COMMUN).toContain("l'experte marketing du Cibleur");
+    expect(PROMPT_COMMUN).toContain("N'écris jamais une phrase entre guillemets comme si un vrai client l'avait dite.");
+    expect(PROMPT_COMMUN).not.toContain("Ma Cible");
+  });
+
   it("ne contiennent aucun tiret cadratin ni demi-cadratin", () => {
     for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
   });

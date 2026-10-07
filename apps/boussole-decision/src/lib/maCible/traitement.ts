@@ -126,7 +126,10 @@ function lireDemande(corps: unknown): { ok: true; demande: Demande } | { ok: fal
   return { ok: true, demande: { etape, tour: tour as 1 | 2, entree: e.entree } };
 }
 
-type Traite = { ok: true; cadrage: Cadrage } | { ok: true; resultat: ResultatClasse } | { ok: false; erreurs: string[] };
+type Traite =
+  | { ok: true; cadrage: Cadrage; reparations: number }
+  | { ok: true; resultat: ResultatClasse; reparations: number }
+  | { ok: false; erreurs: string[]; reparations: number };
 
 /** JSON.parse, nettoyage, validation (§8.3). */
 function traiterTexte(brut: string, demande: Demande): Traite {
@@ -134,16 +137,16 @@ function traiterTexte(brut: string, demande: Demande): Traite {
   try {
     json = JSON.parse(extraireJson(brut));
   } catch {
-    return { ok: false, erreurs: ["JSON illisible : la réponse doit être un objet JSON seul"] };
+    return { ok: false, erreurs: ["JSON illisible : la réponse doit être un objet JSON seul"], reparations: 0 };
   }
   json = nettoyerTextes(json);
   if (demande.etape === "cadrage") {
     const v = validerCadrage(json, demande.tour);
-    return v.ok ? { ok: true, cadrage: v.valeur } : { ok: false, erreurs: v.erreurs };
+    return v.ok ? { ok: true, cadrage: v.valeur, reparations: v.reparations } : { ok: false, erreurs: v.erreurs, reparations: v.reparations };
   }
   const v = validerResultat(json);
-  if (!v.ok) return { ok: false, erreurs: v.erreurs };
-  return { ok: true, resultat: { ...v.valeur, classement: classerCibles(v.valeur.cibles) } };
+  if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+  return { ok: true, resultat: { ...v.valeur, classement: classerCibles(v.valeur.cibles) }, reparations: v.reparations };
 }
 
 function echec(code: string, demande: Demande, extra: Record<string, unknown> = {}) {
@@ -286,6 +289,7 @@ async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
     derniereLongueur = brut.length;
     const traite = traiterTexte(brut, demande);
     if (traite.ok) {
+      if (traite.reparations > 0) echec("reparations", demande, { reparations: traite.reparations });
       const corps =
         "cadrage" in traite
           ? { ok: true, etape: "cadrage", cadrage: traite.cadrage, restant: 0 }

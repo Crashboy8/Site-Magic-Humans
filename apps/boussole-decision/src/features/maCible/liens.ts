@@ -3,7 +3,7 @@
 /** Lien Calendly du site (même convention que la Carte). Une seule source : ne jamais écrire cette adresse ailleurs. */
 export const APPEL_DECOUVERTE = "https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=ma-cible&utm_campaign=ma-cible";
 
-export type ContenuAppel = "accueil" | "esquisse" | "resultat" | "quota";
+export type ContenuAppel = "accueil" | "esquisse" | "resultat" | "quota" | "resultat-apres-cible" | "resultat-sommaire" | "resultat-fin";
 
 export const urlAppel = (contenu: ContenuAppel): string => `${APPEL_DECOUVERTE}&utm_content=${contenu}`;
 export const urlBoussole = (): string => "/boussole-decision/";
