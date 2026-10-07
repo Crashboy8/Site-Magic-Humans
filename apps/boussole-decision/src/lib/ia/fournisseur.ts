@@ -30,7 +30,7 @@ export interface Fournisseur {
 
 export const MODELE_ANTHROPIC_DEFAUT = "claude-sonnet-5";
 /** Modèle Flash stable de l'offre gratuite (doc modèles Gemini). */
-export const MODELE_GEMINI_DEFAUT = "gemini-2.5-flash";
+export const MODELE_GEMINI_DEFAUT = "gemini-3.8-flash";
 const URL_ANTHROPIC = "https://api.anthropic.com/v1/messages";
 const URL_OPENAI = "https://api.openai.com/v1/responses";
 const LIMITE_MESSAGE_FOURNISSEUR = 300;

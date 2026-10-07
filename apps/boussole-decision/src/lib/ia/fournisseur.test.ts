@@ -172,10 +172,10 @@ describe("Gemini", () => {
     expect(corps.generationConfig).not.toHaveProperty("responseFormat");
   });
 
-  it("utilise gemini-2.5-flash par défaut", async () => {
+  it("utilise gemini-3.8-flash par défaut", async () => {
     const fetchSimule = vi.fn(async () => reponseJson({ candidates: [{ content: { parts: [{ text: "{}" }] } }] }));
     await creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!.appeler(appel);
-    expect((fetchSimule.mock.calls[0] as unknown as [string])[0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent");
+    expect((fetchSimule.mock.calls[0] as unknown as [string])[0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent");
   });
 
   it("statut 429 : même erreur d'indisponibilité, sans second essai", async () => {
