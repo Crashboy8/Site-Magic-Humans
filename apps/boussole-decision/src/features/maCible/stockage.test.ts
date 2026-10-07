@@ -38,6 +38,17 @@ describe("stockage local", () => {
     expect(deserialiser(JSON.stringify({ ...etatInitial(), etape: "esquisse" }))).toBeNull();
     expect(deserialiser(JSON.stringify({ ...etatInitial(), resultat: { cibles: [] } }))).toBeNull();
   });
+  it("relit un état ancien sans les champs de navigation", () => {
+    const brut = JSON.parse(serialiser(etatComplet())) as Record<string, unknown>;
+    delete brut.plusLoin;
+    delete brut.resultatPerime;
+    delete brut.entreeDuResultat;
+    const lu = deserialiser(JSON.stringify(brut));
+    expect(lu?.plusLoin).toBe("resultat");
+    expect(lu?.resultatPerime).toBe(false);
+    expect(lu?.entreeDuResultat).toBeNull();
+    expect(lu?.resultat?.cibles).toHaveLength(3);
+  });
   it("ne lève aucune erreur sans window", () => {
     expect(typeof window).toBe("undefined");
     expect(lire()).toBeNull();

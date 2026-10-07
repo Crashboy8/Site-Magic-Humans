@@ -6,6 +6,7 @@ import { validerCorrections, validerEntree, type ErreurChamp } from "@/domain/ma
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { nettoyerTextes } from "@/domain/maCible/nettoyage";
 import { messageUtilisateur, promptSysteme } from "@/domain/maCible/prompt";
+import { ajouterPhrases, appliquerQualite, phrasesDepartage, questionsManquantes, type ContexteQualite } from "@/domain/maCible/qualite";
 import { classerCibles } from "@/domain/maCible/scores";
 import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "@/domain/maCible/schemas";
 import type { Cadrage, Corrections, Demande, Esquisse, ResultatClasse } from "@/domain/maCible/types";
@@ -126,24 +127,53 @@ function lireDemande(corps: unknown): { ok: true; demande: Demande } | { ok: fal
   return { ok: true, demande: { etape, tour: tour as 1 | 2, entree: e.entree } };
 }
 
-type Traite = { ok: true; cadrage: Cadrage } | { ok: true; resultat: ResultatClasse } | { ok: false; erreurs: string[] };
+type Traite =
+  | { ok: true; cadrage: Cadrage; reparations: number }
+  | { ok: true; resultat: ResultatClasse; reparations: number }
+  | { ok: false; erreurs: string[]; reparations: number };
 
-/** JSON.parse, nettoyage, validation (§8.3). */
+function contexteQualite(demande: Demande): ContexteQualite {
+  const { talent, terrain } = demande.entree;
+  const idee = "corrections" in demande && demande.corrections ? demande.corrections.idee : "";
+  return {
+    antiContexte: talent.antiContexte,
+    reseau: [terrain.experience, terrain.clientsPasses, talent.reussite].filter(Boolean).join("\n"),
+    idee,
+    marche: terrain.marche,
+    prixActuel: terrain.prixActuel,
+    adresse: terrain.adresse,
+    formats: terrain.formats,
+    talent: `${talent.mecanisme}\n${talent.contexte}`,
+  };
+}
+
+/** JSON.parse, nettoyage, validation (§8.3), puis contrôles déterministes. */
 function traiterTexte(brut: string, demande: Demande): Traite {
   let json: unknown;
   try {
     json = JSON.parse(extraireJson(brut));
   } catch {
-    return { ok: false, erreurs: ["JSON illisible : la réponse doit être un objet JSON seul"] };
+    return { ok: false, erreurs: ["JSON illisible : la réponse doit être un objet JSON seul"], reparations: 0 };
   }
   json = nettoyerTextes(json);
   if (demande.etape === "cadrage") {
     const v = validerCadrage(json, demande.tour);
-    return v.ok ? { ok: true, cadrage: v.valeur } : { ok: false, erreurs: v.erreurs };
+    if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+    const manque = questionsManquantes(v.valeur, demande.tour, contexteQualite(demande));
+    if (manque) return { ok: false, erreurs: [manque], reparations: v.reparations };
+    return { ok: true, cadrage: v.valeur, reparations: v.reparations };
   }
   const v = validerResultat(json);
-  if (!v.ok) return { ok: false, erreurs: v.erreurs };
-  return { ok: true, resultat: { ...v.valeur, classement: classerCibles(v.valeur.cibles) } };
+  if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+  const q = appliquerQualite(v.valeur, contexteQualite(demande));
+  if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations: v.reparations + q.reparations };
+  const classement = classerCibles(q.resultat.cibles);
+  const phrases = ajouterPhrases(q.resultat.hypotheses, phrasesDepartage(q.resultat.cibles, classement));
+  return {
+    ok: true,
+    resultat: { ...q.resultat, hypotheses: phrases.hypotheses, classement },
+    reparations: v.reparations + q.reparations + phrases.ajoutees,
+  };
 }
 
 function echec(code: string, demande: Demande, extra: Record<string, unknown> = {}) {
@@ -286,6 +316,7 @@ async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
     derniereLongueur = brut.length;
     const traite = traiterTexte(brut, demande);
     if (traite.ok) {
+      if (traite.reparations > 0) echec("reparations", demande, { reparations: traite.reparations });
       const corps =
         "cadrage" in traite
           ? { ok: true, etape: "cadrage", cadrage: traite.cadrage, restant: 0 }

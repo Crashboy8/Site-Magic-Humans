@@ -188,7 +188,7 @@ export const RESULTAT_EXEMPLE: Resultat = {
       "messages": {
         "linkedin": "Bonjour [Prénom], félicitations pour ce nouveau poste ! J'accompagne des managers qui prennent leurs fonctions. Quel est le sujet d'équipe qui vous occupe le plus en ce moment ?",
         "emailObjet": "Votre premier conflit d'équipe",
-        "emailCorps": "Bonjour [Prénom],\n\nPrendre un poste de manager, c'est souvent hériter d'une équipe qui a ses vieilles tensions. On n'ose pas toujours en parler à sa hiérarchie.\n\nJ'aide les nouveaux managers à préparer les conversations difficiles, en quatre séances courtes, pour qu'ils repartent avec des mots qui marchent.\n\nSi vous le souhaitez, nous pouvons en parler 15 minutes, juste pour voir si cela vous aiderait.\n\nBelle journée,\n\n{{prenom}}"
+        "emailCorps": "Bonjour [Prénom],\n\nPrendre un poste de manager, c'est souvent hériter d'une équipe qui a ses vieilles tensions. On n'ose pas toujours en parler à sa hiérarchie.\n\nJ'aide les nouveaux managers à préparer les conversations difficiles, en quatre séances courtes, pour qu'ils repartent avec des mots qui marchent.\n\nSi vous le souhaitez, nous pouvons en parler 15 minutes, juste pour voir si cela vous aiderait.\n\nBien à vous,\n\n{{prenom}}"
       },
       "testTerrain": {
         "profils": "Trois managers promus depuis moins d'un an, trouvés parmi tes anciens collègues ou leurs contacts.",
@@ -216,13 +216,13 @@ export const RESULTAT_EXEMPLE: Resultat = {
       { "texte": "Mettre à jour ton titre LinkedIn avec ta promesse.", "cible": "toutes", "canal": "linkedin", "minutes": 20 }
     ] },
     { "semaine": 3, "titre": "Se montrer", "actions": [
-      { "texte": "Publier un cas anonymisé de conflit d'équipe débloqué, avec ce qui a marché.", "cible": "c1", "canal": "linkedin", "minutes": 60 },
+      { "texte": "Publier un cas anonymisé d'un manager promu qui a repris une conversation difficile.", "cible": "c3", "canal": "linkedin", "minutes": 60 },
       { "texte": "T'inscrire à une réunion de réseau de dirigeants ou d'association professionnelle.", "cible": "c2", "canal": "evenements", "minutes": 30 },
       { "texte": "Relancer avec une phrase les personnes contactées en semaine 2.", "cible": "toutes", "canal": "linkedin", "minutes": 30 }
     ] },
     { "semaine": 4, "titre": "Proposer et faire le bilan", "actions": [
       { "texte": "Proposer le diagnostic sur site à la personne la plus intéressée du test terrain.", "cible": "c1", "canal": "telephone", "minutes": 45 },
-      { "texte": "Écrire ta fiche d'offre d'une page avec le prix et le format.", "cible": "c1", "canal": "autre", "minutes": 90 },
+      { "texte": "Écrire la fiche du parcours de 4 séances pour un manager, avec le prix.", "cible": "c3", "canal": "autre", "minutes": 90 },
       { "texte": "Faire le bilan : quelle cible a répondu le plus, et que faut-il changer ?", "cible": "toutes", "canal": "autre", "minutes": 30 }
     ] }
   ],

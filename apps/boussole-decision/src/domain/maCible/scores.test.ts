@@ -50,8 +50,12 @@ describe("classerCibles", () => {
     const moins = cible("c1", 2, 5, 2, 3);
     expect(scoreSur10(urgente.scores)).toBe(scoreSur10(moins.scores));
     expect(classerCibles([moins, urgente]).map((x) => x.id)).toEqual(["c2", "c1"]);
-    // Tout égal : id croissant.
-    expect(classerCibles([cible("c3", 3, 3, 3, 3), cible("c1", 3, 3, 3, 3), cible("c2", 3, 3, 3, 3)]).map((x) => x.id)).toEqual(["c1", "c2", "c3"]);
+    // Tout égal : id croissant, et les scores affichés se séparent d'un dixième.
+    const egaux = classerCibles([cible("c3", 3, 3, 3, 3), cible("c1", 3, 3, 3, 3), cible("c2", 3, 3, 3, 3)]);
+    expect(egaux.map((x) => x.id)).toEqual(["c1", "c2", "c3"]);
+    expect(egaux.map((x) => x.score)).toEqual([6, 5.9, 5.8]);
+    expect(egaux[1].departage).toBe("identifiant");
+    expect(egaux[0].departage).toBeUndefined();
   });
 
   it("est déterministe", () => {

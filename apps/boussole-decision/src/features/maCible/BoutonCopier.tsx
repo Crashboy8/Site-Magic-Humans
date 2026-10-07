@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 
 /** Copie un texte dans le presse-papiers. Le libellé change 2 secondes, et la zone `aria-live` annonce le résultat. */
-export function BoutonCopier({ texte, M }: { texte: string; M: MaCibleMessages }) {
+export function BoutonCopier({ texte, M, libelle }: { texte: string; M: MaCibleMessages; libelle?: string }) {
   const [etat, setEtat] = useState<"repos" | "copie" | "echec">("repos");
   const minuteur = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -25,7 +25,7 @@ export function BoutonCopier({ texte, M }: { texte: string; M: MaCibleMessages }
   return (
     <span data-ecran-seul className="inline-flex items-center gap-2">
       <Button type="button" variant="secondary" onClick={copier}>
-        {etat === "copie" ? M.resultat.copie : M.resultat.copier}
+        {etat === "copie" ? M.resultat.copie : (libelle ?? M.resultat.copier)}
       </Button>
       <span className="text-sm text-ink-soft" aria-live="polite">
         {etat === "copie" ? M.resultat.copie : etat === "echec" ? M.resultat.copieEchec : ""}

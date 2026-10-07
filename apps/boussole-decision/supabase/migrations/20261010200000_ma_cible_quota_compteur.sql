@@ -1,12 +1,6 @@
--- Ma Cible : compteur anti-abus. Aucun contenu, seulement une empreinte (IP + sel + jour) et un nombre.
-create table if not exists public.ma_cible_quota (
-  cle   text not null,                       -- empreinte sha256 en hexadécimal, ou 'global'
-  jour  date not null,
-  etape text not null check (etape in ('cadrage', 'resultat')),
-  n     integer not null default 0,
-  primary key (cle, jour, etape)
-);
-alter table public.ma_cible_quota enable row level security;  -- aucune règle : table invisible pour anon et authenticated
+-- Corrige ma_cible_consommer : `returning q.n` renvoyait la valeur d'avant l'incrément.
+-- Deux résultats réussis d'affilée affichaient donc le même restant (par exemple 14 puis 14).
+-- La ligne en base montait bien, mais la réponse HTTP non. À jouer dans le SQL editor, puis le cache PostgREST est rechargé.
 
 create or replace function public.ma_cible_consommer(p_cle text, p_etape text, p_max_ip integer, p_max_global integer)
 returns table (ok boolean, motif text, n_ip integer, n_global integer)
@@ -18,8 +12,7 @@ begin
   if p_etape not in ('cadrage', 'resultat') or p_cle !~ '^[0-9a-f]{64}$' then
     return query select false, 'invalide'::text, 0, 0; return;
   end if;
-  delete from ma_cible_quota where jour < v_jour - 1;          -- rien n'est gardé plus de 2 jours
-  -- `returning n` (non qualifié) : la valeur après incrément. `returning q.n` renvoyait l'ancienne.
+  delete from ma_cible_quota where jour < v_jour - 1;
   insert into ma_cible_quota as q (cle, jour, etape, n) values ('global', v_jour, p_etape, 1)
     on conflict (cle, jour, etape) do update set n = q.n + 1 returning n into v_g;
   if v_g > p_max_global then return query select false, 'global'::text, 0, v_g; return; end if;
@@ -30,3 +23,5 @@ end $$;
 
 revoke all on function public.ma_cible_consommer(text, text, integer, integer) from public, anon, authenticated;
 grant execute on function public.ma_cible_consommer(text, text, integer, integer) to service_role;
+
+notify pgrst, 'reload schema';
