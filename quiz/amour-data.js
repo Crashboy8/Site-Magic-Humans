@@ -4,6 +4,7 @@
 const AMOUR_DATA = {
   "version": 4,
   "config": {
+    // TODO(pierre): remplacer cette URL par le lien direct de l'événement « Appel Découverte amour » dès qu'il existe. Garder utm_source, utm_medium et utm_campaign.
     "calendly": "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=quiz-amour&utm_campaign=amoureux-mais-malheureux",
     "site": "https://www.magichumans.com/",
     "quizUrl": "https://www.magichumans.com/quiz-amour/",
@@ -13,11 +14,11 @@ const AMOUR_DATA = {
   "ui": {
     "pageTitle": "Quiz Amour : choisir un partenaire qui te correspond vraiment",
     "brand": "Magic Humans · Quiz Amour",
-    "footer": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur ton appareil : rien n'est enregistré ni envoyé.",
+    "footer": "Magic Humans · Ce quiz propose des pistes de réflexion, pas un diagnostic. Tes réponses restent sur cet appareil pour que tu puisses reprendre. Rien n'est envoyé.",
     "intro": {
-      "eyebrow": "Sommet Love & Connexion · Gratuit · 10 questions · environ 6 minutes",
+      "eyebrow": "Sommet de l'Amour · Gratuit · 10 questions · environ 10 minutes",
       "h1": "Amoureux, mais <em>malheureux</em> ?",
-      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 6 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
+      "lead": "L'émotion et la chimie ne suffisent pas à faire un couple heureux. En 10 minutes, vois clair sur ce qui te nourrit, ce qui te vide, et le partenaire qui te correspond vraiment.",
       "bullets": [
         "Ce qui te nourrit en couple, et ce qui te vide",
         "Ton ressourcement, pour ne plus t'épuiser dans une relation",
@@ -55,7 +56,9 @@ const AMOUR_DATA = {
       "moreDown": "Coche encore {k} pour « {label} », plus bas ↓",
       "idea": "Idée : {antidote}",
       "timeAsk": "À quelle heure demain ?",
-      "engagementCounter": "Engagement + moment : {x}/{min} minimum",
+      "engagementCounter": "Écris ton engagement et choisis un moment",
+      "resumeNotice": "On reprend où tu en étais",
+      "resumeRestart": "Recommencer",
       "engagementLabel": "Mon engagement",
       "shareBlock": "Partage-le à quelqu'un, et choisis un moment.",
       "whoLabel": "À qui ?",
@@ -69,6 +72,9 @@ const AMOUR_DATA = {
       "glanceH": "Tes classements en un coup d'œil",
       "detailsSummary": "Voir mon profil détaillé",
       "copyShortBtn": "Copier mes 3 phrases",
+      "shareBtn": "Partager",
+      "stickyCta": "Parler avec Pierre",
+      "stickyClose": "Fermer",
       "boussoleNote": "Ta Boussole sera préréglée avec tes résultats. Ta réponse sur la sécurité n'est jamais transmise.",
       "nourritLab": "Ce qui te nourrit",
       "videLab": "Ce qui te vide",

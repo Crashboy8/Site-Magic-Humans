@@ -14,6 +14,20 @@
     }
   }
 
+  function track(eventName, params) {
+    var data = {};
+    if (params) {
+      Object.keys(params).forEach(function (key) { data[key] = params[key]; });
+    }
+    if (!data.transport_type) data.transport_type = "beacon";
+    send(eventName, data);
+    if (window.va) {
+      try { window.va("event", { name: eventName, data: data }); } catch (e) { /* mesure indisponible */ }
+    }
+  }
+
+  window.mhTrack = track;
+
   function buildParams(link) {
     var placed = link.closest("[data-cta-place]");
     var text = (link.textContent || "").replace(/\s+/g, " ").trim().slice(0, 80);

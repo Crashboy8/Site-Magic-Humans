@@ -177,9 +177,8 @@
         if (!ok) bad.push(screen.id);
       } else if (screen.type === "commit") {
         const row = bagOf(src, screen.id);
-        const text = cleanFree(row.engagement, screen.engagement.maxLength);
         const moments = new Set((screen.share.moments || D.moments.map((m) => m.id)));
-        if (text.length < screen.engagement.minLength || !moments.has(row.moment)) bad.push(screen.id);
+        if (!moments.has(row.moment)) bad.push(screen.id);
       }
     }
     return [...new Set(bad)];
@@ -494,7 +493,12 @@
     glanceLines.push(D.ui.results.demainLab);
     glanceLines.push(demainLines.join(" "));
     glanceLines.push(D.ui.results.stepLab);
-    glanceLines.push("« " + etape.engagement + " »" + (etape.who ? " · " + fill(D.ui.results.shareWith, { who: etape.who }) : "") + " · " + momentLabel);
+    const stepParts = [];
+    if (etape.engagement) stepParts.push("« " + etape.engagement + " »");
+    else stepParts.push(D.ui.results.nowStepEmpty);
+    if (etape.who) stepParts.push(fill(D.ui.results.shareWith, { who: etape.who }));
+    if (momentLabel) stepParts.push(momentLabel);
+    glanceLines.push(stepParts.join(" · "));
 
     const shareText = D.shareTemplate.map((line) => fill(line, { s1, s2, s3, quizUrl: D.config.quizUrl })).join("\n");
     const exportBody = D.exportTemplate.map((line) => fill(line, {
@@ -747,9 +751,127 @@
   }
   function boussoleBoost(profil, D) { return D.profil.boussoleBoost[profil.boussoleDom]; }
 
+  function progressKey() {
+    return "quiz_amour_v14_progress";
+  }
+
+  function cloneJson(value, fallback) {
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch (e) { return fallback; }
+  }
+
+  function packProgress(state) {
+    const src = state && typeof state === "object" ? state : {};
+    const cloned = cloneJson(src.answers, {});
+    const answers = cloned && typeof cloned === "object" && !Array.isArray(cloned) ? cloned : {};
+    if (answers.etape && typeof answers.etape === "object") answers.etape.safety = null;
+    let profile = null;
+    if (src.view === "results" && src.profile) {
+      profile = cloneJson(src.profile, null);
+      if (profile && typeof profile === "object" && !Array.isArray(profile)) {
+        profile.safety = null;
+        profile.pastAbuse = null;
+      } else profile = null;
+    }
+    const qiNum = Number(src.qi);
+    const gsNum = Number(src.groupStep);
+    const view = src.view === "question" || src.view === "results" ? src.view : "intro";
+    const stack = (Array.isArray(src.stack) ? src.stack : []).slice(-40).map((step) => {
+      if (!step || typeof step !== "object") return null;
+      const q = Number(step.qi);
+      const g = Number(step.groupStep);
+      return {
+        view: step.view === "question" || step.view === "results" ? step.view : "intro",
+        qi: Number.isInteger(q) && q >= 0 ? q : 0,
+        phase: step.phase === "rank" ? "rank" : "ask",
+        groupStep: Number.isInteger(g) && g >= 0 ? g : 0,
+      };
+    }).filter(Boolean);
+    return {
+      v: 14,
+      prenom: String(src.prenom || "").replace(/[<>]/g, "").trim().slice(0, 40),
+      qi: Number.isInteger(qiNum) && qiNum >= 0 ? qiNum : 0,
+      phase: src.phase === "rank" ? "rank" : "ask",
+      groupStep: Number.isInteger(gsNum) && gsNum >= 0 ? gsNum : 0,
+      view,
+      answers,
+      lastPrefix: String(src.lastPrefix || "").slice(0, 140),
+      profile,
+      stack,
+    };
+  }
+
+  function parseProgress(raw) {
+    let data = raw;
+    if (typeof raw === "string") {
+      try { data = JSON.parse(raw); } catch (e) { return null; }
+    }
+    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 14) return null;
+    if (!data.answers || typeof data.answers !== "object" || Array.isArray(data.answers)) return null;
+    if (data.view !== "intro" && data.view !== "question" && data.view !== "results") return null;
+    return packProgress(data);
+  }
+
+  function readProgress(store) {
+    try {
+      if (!store || typeof store.getItem !== "function") return null;
+      const raw = store.getItem(progressKey());
+      if (!raw) return null;
+      return parseProgress(raw);
+    } catch (e) { return null; }
+  }
+
+  function writeProgress(store, state) {
+    try {
+      if (!store || typeof store.setItem !== "function") return false;
+      store.setItem(progressKey(), JSON.stringify(packProgress(state)));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function clearProgress(store) {
+    try {
+      if (!store || typeof store.removeItem !== "function") return false;
+      store.removeItem(progressKey());
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function cleanUtmBit(value) {
+    return String(value == null ? "" : value).replace(/[^a-zA-Z0-9._~:-]/g, "").slice(0, 80);
+  }
+
+  function calendlyLink(base, place, search) {
+    const url = new URL(String(base), "https://www.magichumans.com");
+    const params = search && typeof search.get === "function"
+      ? search
+      : new URLSearchParams(String(search || "").replace(/^\?/, ""));
+    const src = cleanUtmBit(params.get("utm_source"));
+    const camp = cleanUtmBit(params.get("utm_campaign"));
+    const spot = cleanUtmBit(place) || "resultat";
+    const bits = [spot];
+    if (src) bits.push(src);
+    if (camp) bits.push(camp);
+    url.searchParams.set("utm_content", bits.join("|"));
+    return url.toString();
+  }
+
+  function answerLabel(answers, D, screenId, groupId, id) {
+    const screen = screenOf(D, screenId);
+    const group = groupOf(screen, groupId);
+    if (!screen || !group) return "";
+    if (String(id).indexOf("autre:") === 0) {
+      return otherTextAt(answers, screen, group, Number(String(id).split(":")[1]));
+    }
+    const item = itemById(group, id);
+    return item ? item.label : "";
+  }
+
   const api = {
     computeLoveProfile, missingAnswers, boussolePayload, encodePayload, fill, rankingState,
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
+    progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
+    calendlyLink, answerLabel,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.AmourEngine = api;
