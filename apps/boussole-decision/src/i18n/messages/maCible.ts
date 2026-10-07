@@ -1,4 +1,7 @@
 // Ma Cible : textes de l'interface. Le français fait foi ; l'anglais et l'espagnol suivront avec la même forme.
+
+/** Nom affiché dans l'encart : neutre, le fournisseur réel dépend de la configuration. */
+export const LIBELLE_FOURNISSEUR_IA = "un modèle d'IA (Google Gemini ou Anthropic Claude selon la configuration)";
 const fr = {
   meta: {
     titre: "Ma Cible : trouve les clients faits pour ton talent",
@@ -43,8 +46,8 @@ const fr = {
   },
   confidentialite: {
     titre: "Ce que l'IA reçoit, et ce qu'on garde",
-    points: (_fournisseur: string) => [
-      `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à un modèle d'IA (Google Gemini ou Anthropic Claude selon la configuration) pour préparer ton résultat.`,
+    points: (fournisseur: string) => [
+      `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à ${fournisseur} pour préparer ton résultat.`,
       "Avec l'offre gratuite, le fournisseur peut utiliser ces réponses pour améliorer ses modèles : n'écris rien de sensible.",
       "Rien n'est enregistré sur nos serveurs : ni tes réponses, ni ton résultat. On garde seulement un compteur anonyme pour éviter les abus (une empreinte de ton adresse IP, effacée au bout de 2 jours).",
       "Ton travail reste dans ce navigateur pour que tu puisses y revenir. Le bouton « Tout effacer » le supprime.",
