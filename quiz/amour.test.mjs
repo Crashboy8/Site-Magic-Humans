@@ -192,6 +192,9 @@ test("questions : titres et aides en français naturel", () => {
   assert.equal(screen("nourrit").rank.divider.text, "En premier : ce que tu ne veux plus vivre.");
   assert.equal(screen("langages").title, "Pour te sentir aimé·e, qu'est-ce qui compte le plus ?");
   assert.equal(screen("langages").help, "Mets en premier ce qui te parle le plus. Deux suffisent. Tu peux toucher les cartes dans l'ordre, ou les faire glisser.");
+  assert.equal(screen("freins").title, "Qu'est-ce qui te freine ou te met mal à l'aise en amour ?");
+  assert.equal(screen("freins").help, "Ce qui te bloque, ce qui te met dans des situations inconfortables, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.");
+  assert.equal(group("freins", "freins").items.length, 12);
   assert.equal(screen("etape").groups[0].stepTitle, "Comment veux-tu t'y prendre dès demain ? Coche au moins une chose.");
   assert.equal(screen("etape").help, "Touche un exemple pour t'inspirer : il s'inscrit dans ta phrase.");
   assert.equal(D.ui.quiz.topCounter, "Tes 3 premières : {x}/{n}");

@@ -918,7 +918,8 @@ const AMOUR_DATA = {
       "type": "pick",
       "n": 8,
       "eyebrow": "Ce qui te freine",
-      "title": "Qu'est-ce qui t'empêche d'agir dans ta vie amoureuse ? Coche au moins 1 frein.",
+      "title": "Qu'est-ce qui te freine ou te met mal à l'aise en amour ?",
+      "help": "Ce qui te bloque, ce qui te met dans des situations inconfortables, ou ce qui te donne moins envie d'avancer avec quelqu'un. Coche ce qui te parle.",
       "groups": [
         {
           "id": "freins",
