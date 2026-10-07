@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MaCible } from "@/features/maCible/MaCible";
+import { LIBELLE_FOURNISSEUR_IA } from "@/i18n/messages/maCible";
 import { getI18n } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -8,10 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: M.meta.titre, description: M.meta.description, robots: { index: false, follow: true } };
 }
 
-const FOURNISSEURS = { anthropic: "Anthropic, modèle Claude", openai: "OpenAI" } as const;
-
-// Lu côté serveur : le nom du fournisseur est affiché dans l'encart de confidentialité, la clé reste sur le serveur.
+// La clé du fournisseur reste sur le serveur. L'encart nomme Gemini et Claude ensemble.
 export default function MaCiblePage() {
-  const choix = process.env.MA_CIBLE_FOURNISSEUR === "openai" ? "openai" : "anthropic";
-  return <MaCible fournisseur={FOURNISSEURS[choix]} />;
+  return <MaCible fournisseur={LIBELLE_FOURNISSEUR_IA} />;
 }

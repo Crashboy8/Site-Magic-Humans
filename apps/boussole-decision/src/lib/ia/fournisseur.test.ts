@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { SCHEMA_CADRAGE } from "@/domain/maCible/schemas";
-import { corpsAnthropic, corpsOpenAI, creerFournisseur, ErreurFournisseur, texteAnthropic, texteOpenAI, type AppelModele } from "./fournisseur";
+import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "@/domain/maCible/schemas";
+import { corpsAnthropic, corpsGemini, corpsOpenAI, creerFournisseur, ErreurFournisseur, texteAnthropic, texteGemini, texteOpenAI, type AppelModele } from "./fournisseur";
 
 const appel: AppelModele = { systeme: "Tu es utile.", utilisateur: "Bonjour", schema: SCHEMA_CADRAGE, nomSchema: "cadrage", maxTokens: 1500, delaiMs: 5000 };
 const reponseJson = (corps: unknown, status = 200) => new Response(JSON.stringify(corps), { status, headers: { "content-type": "application/json" } });
@@ -92,10 +92,72 @@ describe("OpenAI", () => {
   });
 });
 
+describe("Gemini", () => {
+  it("corpsGemini : instruction système, message utilisateur, schéma JSON via responseFormat", () => {
+    expect(corpsGemini(appel)).toEqual({
+      systemInstruction: { parts: [{ text: "Tu es utile." }] },
+      contents: [{ role: "user", parts: [{ text: "Bonjour" }] }],
+      generationConfig: {
+        maxOutputTokens: 1500,
+        responseFormat: { text: { mimeType: "application/json", schema: SCHEMA_CADRAGE } },
+      },
+    });
+    expect(corpsGemini({ ...appel, schema: SCHEMA_RESULTAT }).generationConfig.responseFormat?.text.schema).toBe(SCHEMA_RESULTAT);
+  });
+
+  it("schéma avec un mot-clé refusé : seulement responseMimeType", () => {
+    const corps = corpsGemini({ ...appel, schema: { type: "string", pattern: "^a" } });
+    expect(corps.generationConfig).toEqual({ maxOutputTokens: 1500, responseMimeType: "application/json" });
+    expect(corps.generationConfig).not.toHaveProperty("responseFormat");
+  });
+
+  it("texteGemini concatène les blocs texte, sans le raisonnement", () => {
+    expect(texteGemini({
+      candidates: [{
+        finishReason: "STOP",
+        content: { parts: [{ text: "je réfléchis", thought: true }, { text: '{"a":' }, { text: "1}" }] },
+      }],
+    })).toBe('{"a":1}');
+  });
+
+  it("finishReason MAX_TOKENS : tronqué ; réponse sans texte : vide", () => {
+    expect(() => texteGemini({ candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: "{" }] } }] })).toThrow(expect.objectContaining({ code: "tronque" }));
+    expect(() => texteGemini({ candidates: [{ finishReason: "STOP", content: { parts: [] } }] })).toThrow(expect.objectContaining({ code: "vide" }));
+    expect(() => texteGemini({})).toThrow(expect.objectContaining({ code: "vide" }));
+  });
+
+  it("envoie la requête avec x-goog-api-key, sans clé dans l'adresse ni le corps", async () => {
+    const fetchSimule = vi.fn(async () => reponseJson({ candidates: [{ content: { parts: [{ text: "{}" }] }, finishReason: "STOP" }] }));
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "cle-test", MA_CIBLE_MODELE: "mon-modele" }), fetchSimule as unknown as typeof fetch)!;
+    expect(f.nom).toBe("gemini");
+    expect(await f.appeler(appel)).toBe("{}");
+    const [url, init] = fetchSimule.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://generativelanguage.googleapis.com/v1beta/models/mon-modele:generateContent");
+    expect(init.method).toBe("POST");
+    expect(init.headers).toMatchObject({ "x-goog-api-key": "cle-test", "content-type": "application/json" });
+    expect(url).not.toContain("cle-test");
+    expect(init.body).not.toContain("cle-test");
+    expect(JSON.parse(init.body as string).generationConfig.maxOutputTokens).toBe(1500);
+  });
+
+  it("utilise gemini-3.8-flash par défaut", async () => {
+    const fetchSimule = vi.fn(async () => reponseJson({ candidates: [{ content: { parts: [{ text: "{}" }] } }] }));
+    await creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!.appeler(appel);
+    expect((fetchSimule.mock.calls[0] as unknown as [string])[0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent");
+  });
+
+  it("statut 429 : même erreur d'indisponibilité que les autres fournisseurs", async () => {
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), (async () => reponseJson({ error: "quota" }, 429)) as unknown as typeof fetch)!;
+    expect(await code(f.appeler(appel))).toEqual({ code: "statut", statut: 429 });
+  });
+});
+
 describe("creerFournisseur", () => {
   it("renvoie null sans clé", () => {
     expect(creerFournisseur(env({}))).toBeNull();
     expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "anthropic", OPENAI_API_KEY: "x" }))).toBeNull();
+    expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini" }))).toBeNull();
+    expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", ANTHROPIC_API_KEY: "k" }))).toBeNull();
   });
   it("openai sans MA_CIBLE_MODELE : null", () => {
     expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "openai", OPENAI_API_KEY: "k" }))).toBeNull();
