@@ -352,4 +352,39 @@ update profiles set failure_situations = 'Trop isolé, derrière un écran' wher
 select pg_temp.check((select failure_situations from profiles where id = :'res_profile') like 'Trop isolé%', 'les contextes d''échec vécus sont enregistrés');
 reset role;
 
+-- Ma Cible : compteur anti-abus ---------------------------------------------------
+set role anon;
+select pg_temp.expect_error(
+  $$select * from public.ma_cible_consommer(repeat('a', 64), 'resultat', 3, 10)$$, 'permission denied');
+reset role;
+set role authenticated;
+select pg_temp.expect_error(
+  $$select * from public.ma_cible_consommer(repeat('a', 64), 'resultat', 3, 10)$$, 'permission denied');
+reset role;
+
+set role service_role;
+select ok as r_ok from public.ma_cible_consommer(repeat('a', 64), 'resultat', 2, 10) \gset
+select pg_temp.check(:'r_ok' = 't', 'ma cible : le premier appel est accepté');
+select ok as r_ok from public.ma_cible_consommer(repeat('a', 64), 'resultat', 2, 10) \gset
+select pg_temp.check(:'r_ok' = 't', 'ma cible : le deuxième appel est accepté (plafond de 2)');
+select ok as r_ok, motif as r_motif, n_ip as r_n from public.ma_cible_consommer(repeat('a', 64), 'resultat', 2, 10) \gset
+select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'ip' and :'r_n' = '3', 'ma cible : au-delà du plafond par IP, refus avec le motif ip');
+select ok as r_ok, motif as r_motif from public.ma_cible_consommer(repeat('b', 64), 'cadrage', 5, 10) \gset
+select pg_temp.check(:'r_ok' = 't', 'ma cible : les étapes ont des compteurs séparés');
+select ok as r_ok, motif as r_motif from public.ma_cible_consommer(repeat('c', 64), 'resultat', 5, 3) \gset
+select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'global', 'ma cible : au-delà du plafond global, refus avec le motif global');
+select ok as r_ok, motif as r_motif from public.ma_cible_consommer('pas-une-empreinte', 'resultat', 5, 10) \gset
+select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'invalide', 'ma cible : une clé qui n''est pas une empreinte sha256 est refusée');
+reset role;
+select pg_temp.check((select count(*) from ma_cible_quota where cle <> 'global' and cle !~ '^[0-9a-f]{64}$') = 0,
+  'ma cible : la table ne contient que des empreintes et des nombres');
+
+set role anon;
+select pg_temp.check((select count(*) from ma_cible_quota) = 0, 'ma cible : anon ne voit aucune ligne du compteur');
+reset role;
+set role authenticated;
+select pg_temp.check((select count(*) from ma_cible_quota) = 0, 'ma cible : authenticated ne voit aucune ligne du compteur');
+reset role;
+select pg_temp.check((select count(*) from ma_cible_quota) > 0, 'ma cible : le compteur est bien alimenté');
+
 \echo 'Tous les tests de base de données sont passés.'

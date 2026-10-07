@@ -22,6 +22,8 @@ export const PUBLIC_PATHS = [
   "/mot-de-passe-oublie",
   "/auth/callback",
   "/auth/confirm",
+  "/ma-cible",
+  "/api/ma-cible",
 ];
 
 export function isPublicPath(pathname: string): boolean {

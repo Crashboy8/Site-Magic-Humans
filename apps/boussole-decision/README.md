@@ -123,6 +123,69 @@ npm test          # tests unitaires (Vitest)
 npm run test:db   # tests de sécurité SQL, sur un Postgres local (psql/createdb)
 ```
 
+## Ma Cible
+
+Outil gratuit de Magic Humans : à partir du Talent Unique d'une personne qui connaît son talent (entrepreneur ou indépendant), une IA experte en marketing l'aide à affiner son offre et à choisir ses trois cibles. Cahier des charges : `docs/spec-ma-cible.md`.
+
+Cette partie de l'app ne contient pour l'instant que le moteur et la route API (PR 1) : les écrans arrivent avec la PR 2.
+
+- **Adresse de l'outil** (PR 2) : `https://www.magichumans.com/boussole-decision/ma-cible/`, avec une redirection `/ma-cible/`.
+- **Route API** : `POST https://www.magichumans.com/boussole-decision/api/ma-cible/` (slash final obligatoire). Deux étapes : `cadrage` (questions ou esquisse) et `resultat`. Corps limité à 16 000 octets, origine contrôlée, réponses en `Cache-Control: no-store`.
+
+### Où est le code
+
+| Quoi | Où |
+|---|---|
+| Domaine pur : types, limites, validation de l'entrée, ancres `#cible=` / `#q=` / `#b=`, schémas JSON, validation des réponses, nettoyage, grille et scores, **prompts** | `src/domain/maCible/` |
+| Appel au modèle par `fetch` (Anthropic ou OpenAI, aucun SDK) | `src/lib/ia/fournisseur.ts` |
+| Logique de la route (`traiterDemande`), quota, origines acceptées | `src/lib/maCible/` |
+| Route | `src/app/api/ma-cible/route.ts` |
+| Client Supabase serveur (clé secrète, compteur seulement) | `src/lib/supabase/admin.ts` |
+| Compteur anti-abus | `supabase/migrations/20261010000000_ma_cible_quota.sql` |
+
+### Variables d'environnement
+
+À définir dans le projet Vercel `boussole-decision` (serveur uniquement, jamais `NEXT_PUBLIC_`). Le modèle de fichier est dans `.env.example`.
+
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `MA_CIBLE_FOURNISSEUR` | `anthropic` ou `openai` | `anthropic` |
+| `MA_CIBLE_MODELE` | nom exact du modèle chez le fournisseur (obligatoire avec `openai`) | `claude-sonnet-5` |
+| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` | clé du fournisseur choisi | |
+| `MA_CIBLE_SEL` | sel de l'empreinte du compteur, 32 caractères au moins (`openssl rand -hex 32`) | |
+| `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
+| `MA_CIBLE_MAX_IP_CADRAGE` / `MA_CIBLE_MAX_IP_RESULTAT` | appels par IP et par jour | 8 / 3 |
+| `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 600 / 200 |
+
+En production, la route répond `503 config_manquante` si la clé du fournisseur choisi ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris.
+
+### Ce qui est stocké
+
+Rien, à part un compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une date, l'étape et un nombre, effacés au bout de 2 jours. Ni les réponses de la personne, ni le résultat, ni l'adresse IP ne sont stockés ou journalisés. En cas d'échec, `console.error` n'écrit que des codes et des longueurs.
+
+### Mise en place
+
+1. Dans le SQL Editor de Supabase, exécuter `supabase/migrations/20261010000000_ma_cible_quota.sql`.
+2. Créer la clé API chez le fournisseur et **fixer un plafond de dépense mensuel dans sa console** (les plafonds par jour bornent déjà la dépense, mais le plafond mensuel protège contre une erreur de réglage).
+3. Renseigner les variables ci-dessus dans Vercel, puis redéployer.
+4. Avant la première mise en ligne, vérifier dans la documentation du fournisseur le nom exact du modèle et la forme du paramètre `output_config` (l'API évolue), puis suivre la recette PR 1 du cahier des charges (§17).
+
+### Tester
+
+```bash
+npm test                      # tout, dont les tests de Ma Cible (aucun appel réel à l'IA)
+npx vitest run src/domain/maCible src/lib/ia src/lib/maCible
+npm run test:db               # y compris le compteur : anon ne peut ni lire la table ni appeler la fonction
+```
+
+Essai à la main, avec l'app lancée en local (`npm run dev`) et une clé dans `.env.local` :
+
+```bash
+curl -X POST http://localhost:3000/boussole-decision/api/ma-cible/ \
+  -H 'Content-Type: application/json' -H 'Origin: http://localhost:3000' \
+  -d '{"etape":"cadrage","tour":1,"entree":{ ... }}'   # entree : voir ENTREE_EXEMPLE dans src/domain/maCible/exemple.ts
+```
+
 ## Mise en production
 
 ### 1. Supabase
