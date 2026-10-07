@@ -15,7 +15,7 @@ export class ErreurFournisseur extends Error {
   constructor(
     public code: "reseau" | "delai" | "statut" | "tronque" | "vide",
     public statut?: number,
-    /** Message du fournisseur (`error.message`), au plus 300 caractères. Jamais le texte saisi. */
+    /** Message du fournisseur, au plus 300 caractères. Jamais le texte saisi. */
     public messageFournisseur?: string,
   ) {
     super(code);
@@ -23,7 +23,7 @@ export class ErreurFournisseur extends Error {
 }
 
 export interface Fournisseur {
-  nom: "anthropic" | "openai" | "gemini";
+  nom: "anthropic" | "openai" | "gemini" | "mistral";
   /** Renvoie le texte JSON brut. */
   appeler(a: AppelModele): Promise<string>;
 }
@@ -36,11 +36,17 @@ export const MODELE_GEMINI_DEFAUT = "gemini-3.8-flash";
  * `gemini-3.8-flash-lite` n'y figure pas.
  */
 export const MODELE_GEMINI_SECOURS = "gemini-3.5-flash-lite";
-/** Pause avant de relancer le même modèle (503, 429, 500 ou réseau). */
+/**
+ * Alias du mode gratuit Mistral (quickstart « Activate Studio and generate an API key ») :
+ * `mistral-small-latest`. Sorties JSON par schéma.
+ */
+export const MODELE_MISTRAL_DEFAUT = "mistral-small-latest";
+/** Pause avant de relancer le même modèle Gemini (503, 429, 500 ou réseau). */
 export const PAUSE_REESSAI_GEMINI_MS = 3_000;
 const STATUTS_SURCHARGE = new Set([429, 500, 503]);
 const URL_ANTHROPIC = "https://api.anthropic.com/v1/messages";
 const URL_OPENAI = "https://api.openai.com/v1/responses";
+const URL_MISTRAL = "https://api.mistral.ai/v1/chat/completions";
 const LIMITE_MESSAGE_FOURNISSEUR = 300;
 
 /**
@@ -111,12 +117,13 @@ function delaiDepasse(e: unknown): boolean {
   return e instanceof ErreurFournisseur && e.code === "delai";
 }
 
-/** Échec d'un essai : codes et message du fournisseur, jamais le texte saisi ni la réponse. */
-function journaliserEchecGemini(modele: string, e: unknown) {
+/** Échec d'un essai : fournisseur, modèle, codes et message, jamais le texte saisi ni la réponse. */
+function journaliserEchec(fournisseur: "gemini" | "mistral", modele: string, e: unknown) {
   if (!(e instanceof ErreurFournisseur)) return;
   const messageFournisseur = e.messageFournisseur?.slice(0, LIMITE_MESSAGE_FOURNISSEUR);
   console.error("[ma-cible]", {
-    code: "essai_gemini",
+    code: fournisseur === "gemini" ? "essai_gemini" : "essai_mistral",
+    fournisseur,
     modele,
     motif: e.code,
     ...(e.statut !== undefined ? { statutFournisseur: e.statut } : {}),
@@ -124,9 +131,17 @@ function journaliserEchecGemini(modele: string, e: unknown) {
   });
 }
 
-/** Modèle qui a réellement répondu. Aucun contenu. */
-function journaliserModeleGemini(modele: string) {
-  console.error("[ma-cible]", { code: "modele", modele });
+/** Fournisseur et modèle qui ont réellement répondu. Aucun contenu. */
+function journaliserModele(fournisseur: "gemini" | "mistral", modele: string) {
+  console.error("[ma-cible]", { code: "modele", fournisseur, modele });
+}
+
+/** 429, 5xx ou délai : Mistral laisse la place à Gemini. */
+function basculeGemini(e: unknown): boolean {
+  if (!(e instanceof ErreurFournisseur)) return false;
+  if (e.code === "delai") return true;
+  if (e.code !== "statut" || e.statut === undefined) return false;
+  return e.statut === 429 || (e.statut >= 500 && e.statut <= 599);
 }
 
 /**
@@ -212,6 +227,52 @@ export function texteOpenAI(json: unknown): string {
   return texte;
 }
 
+/**
+ * Corps `chat/completions`. `avecSchema` à faux : `json_object` et le schéma dans le message système
+ * (repli après un HTTP 400). Forme documentée : `response_format.json_schema` avec `name`, `schema`, `strict`.
+ */
+export function corpsMistral(a: AppelModele, modele: string, avecSchema = true) {
+  const systeme = avecSchema
+    ? a.systeme
+    : `${a.systeme}\n\nRéponds uniquement par un objet JSON conforme à ce schéma :\n${JSON.stringify(a.schema)}`;
+  return {
+    model: modele,
+    max_tokens: a.maxTokens,
+    messages: [
+      { role: "system", content: systeme },
+      { role: "user", content: a.utilisateur },
+    ],
+    response_format: avecSchema
+      ? { type: "json_schema", json_schema: { name: a.nomSchema, strict: true, schema: a.schema } }
+      : { type: "json_object" },
+  };
+}
+
+/** `choices[0].message.content` (chaîne ou blocs `text`). `finish_reason` `length` ou `model_length` : tronqué. */
+export function texteMistral(json: unknown): string {
+  const j = (json ?? {}) as {
+    choices?: { finish_reason?: string; message?: { content?: unknown } }[];
+  };
+  const choix = Array.isArray(j.choices) ? j.choices[0] : undefined;
+  if (choix?.finish_reason === "length" || choix?.finish_reason === "model_length") throw new ErreurFournisseur("tronque");
+  const contenu = choix?.message?.content;
+  const texte = typeof contenu === "string" ? contenu : texteBlocsMistral(contenu);
+  if (!texte) throw new ErreurFournisseur("vide");
+  return texte;
+}
+
+function texteBlocsMistral(contenu: unknown): string {
+  if (!Array.isArray(contenu)) return "";
+  return contenu
+    .map((part) => {
+      if (!part || typeof part !== "object") return "";
+      const p = part as { type?: string; text?: unknown };
+      if (p.type && p.type !== "text") return "";
+      return typeof p.text === "string" ? p.text : "";
+    })
+    .join("");
+}
+
 async function envoyer(fetchImpl: typeof fetch, url: string, headers: Record<string, string>, corps: unknown, delaiMs: number): Promise<unknown> {
   let reponse: Response;
   try {
@@ -234,17 +295,78 @@ async function envoyer(fetchImpl: typeof fetch, url: string, headers: Record<str
   }
 }
 
-/** `error.message` du JSON d'erreur, tronqué. Rien si le corps n'a pas cette forme (on n'y met pas la saisie). */
+/** Message d'erreur du JSON, tronqué : `error.message`, sinon `message` ou `detail` s'ils sont des chaînes. */
 async function messageStatut(reponse: Response): Promise<string | undefined> {
   try {
-    const json = (await reponse.json()) as { error?: { message?: unknown } };
-    const brut = json?.error && typeof json.error === "object" ? json.error.message : undefined;
-    if (typeof brut !== "string") return undefined;
+    const json = (await reponse.json()) as {
+      message?: unknown;
+      detail?: unknown;
+      error?: { message?: unknown } | string;
+    };
+    const imbrique = json?.error && typeof json.error === "object" ? json.error.message : undefined;
+    const candidats = [imbrique, typeof json?.error === "string" ? json.error : undefined, json?.message, json?.detail];
+    const brut = candidats.find((c): c is string => typeof c === "string");
+    if (!brut) return undefined;
     const texte = brut.trim();
     return texte ? texte.slice(0, LIMITE_MESSAGE_FOURNISSEUR) : undefined;
   } catch {
     return undefined;
   }
+}
+
+async function appelerGemini(
+  fetchImpl: typeof fetch,
+  cle: string,
+  modeleGemini: string,
+  modeleSecours: string,
+  attendre: (ms: number) => Promise<void>,
+  a: AppelModele,
+): Promise<string> {
+  const { primaire, secours } = partagerDelaiGemini(a.delaiMs);
+  const uneFois = async (modeleEssai: string, budgetMs: number) => {
+    const url = urlGemini(modeleEssai);
+    const headers = { "x-goog-api-key": cle };
+    try {
+      return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a), budgetMs));
+    } catch (e) {
+      journaliserEchec("gemini", modeleEssai, e);
+      if (!(e instanceof ErreurFournisseur) || e.statut !== 400) throw e;
+      try {
+        return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a, false), budgetMs));
+      } catch (e2) {
+        journaliserEchec("gemini", modeleEssai, e2);
+        throw e2;
+      }
+    }
+  };
+
+  const debut = Date.now();
+  let dernier: unknown;
+  try {
+    const texte = await uneFois(modeleGemini, primaire);
+    journaliserModele("gemini", modeleGemini);
+    return texte;
+  } catch (e) {
+    dernier = e;
+    const reste = primaire - (Date.now() - debut);
+    if (surcharge(e) && reste > PAUSE_REESSAI_GEMINI_MS) {
+      await attendre(PAUSE_REESSAI_GEMINI_MS);
+      try {
+        const texte = await uneFois(modeleGemini, reste - PAUSE_REESSAI_GEMINI_MS);
+        journaliserModele("gemini", modeleGemini);
+        return texte;
+      } catch (e2) {
+        dernier = e2;
+        if (!surcharge(e2) && !delaiDepasse(e2)) throw e2;
+      }
+    } else if (!surcharge(e) && !delaiDepasse(e)) {
+      throw e;
+    }
+  }
+  if (modeleSecours === modeleGemini || secours < 1) throw dernier;
+  const texte = await uneFois(modeleSecours, secours);
+  journaliserModele("gemini", modeleSecours);
+  return texte;
 }
 
 /** `null` si la clé du fournisseur choisi est absente (ou, pour OpenAI, si le modèle n'est pas précisé). */
@@ -273,52 +395,43 @@ export function creerFournisseur(
     const attendre = options?.attendre ?? pause;
     return {
       nom: "gemini",
+      appeler: (a) => appelerGemini(fetchImpl, cle, modeleGemini, modeleSecours, attendre, a),
+    };
+  }
+  if (choix === "mistral") {
+    const cle = env.MISTRAL_API_KEY?.trim();
+    if (!cle) return null;
+    const modeleMistral = modele || MODELE_MISTRAL_DEFAUT;
+    const cleGemini = env.GEMINI_API_KEY?.trim();
+    const modeleSecours = env.MA_CIBLE_MODELE_SECOURS?.trim() || MODELE_GEMINI_SECOURS;
+    const attendre = options?.attendre ?? pause;
+    return {
+      nom: "mistral",
       async appeler(a) {
         const { primaire, secours } = partagerDelaiGemini(a.delaiMs);
-        const uneFois = async (modeleEssai: string, budgetMs: number) => {
-          const url = urlGemini(modeleEssai);
-          const headers = { "x-goog-api-key": cle };
+        const headers = { authorization: `Bearer ${cle}` };
+        const uneFois = async (avecSchema: boolean) => {
           try {
-            return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a), budgetMs));
+            return texteMistral(await envoyer(fetchImpl, URL_MISTRAL, headers, corpsMistral(a, modeleMistral, avecSchema), primaire));
           } catch (e) {
-            journaliserEchecGemini(modeleEssai, e);
-            if (!(e instanceof ErreurFournisseur) || e.statut !== 400) throw e;
-            try {
-              return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a, false), budgetMs));
-            } catch (e2) {
-              journaliserEchecGemini(modeleEssai, e2);
-              throw e2;
-            }
-          }
-        };
-
-        const debut = Date.now();
-        let dernier: unknown;
-        try {
-          const texte = await uneFois(modeleGemini, primaire);
-          journaliserModeleGemini(modeleGemini);
-          return texte;
-        } catch (e) {
-          dernier = e;
-          const reste = primaire - (Date.now() - debut);
-          if (surcharge(e) && reste > PAUSE_REESSAI_GEMINI_MS) {
-            await attendre(PAUSE_REESSAI_GEMINI_MS);
-            try {
-              const texte = await uneFois(modeleGemini, reste - PAUSE_REESSAI_GEMINI_MS);
-              journaliserModeleGemini(modeleGemini);
-              return texte;
-            } catch (e2) {
-              dernier = e2;
-              if (!surcharge(e2) && !delaiDepasse(e2)) throw e2;
-            }
-          } else if (!surcharge(e) && !delaiDepasse(e)) {
+            journaliserEchec("mistral", modeleMistral, e);
             throw e;
           }
+        };
+        try {
+          let texte: string;
+          try {
+            texte = await uneFois(true);
+          } catch (e) {
+            if (!(e instanceof ErreurFournisseur) || e.statut !== 400) throw e;
+            texte = await uneFois(false);
+          }
+          journaliserModele("mistral", modeleMistral);
+          return texte;
+        } catch (e) {
+          if (!basculeGemini(e) || !cleGemini || secours < 1) throw e;
+          return appelerGemini(fetchImpl, cleGemini, MODELE_GEMINI_DEFAUT, modeleSecours, attendre, { ...a, delaiMs: secours });
         }
-        if (modeleSecours === modeleGemini || secours < 1) throw dernier;
-        const texte = await uneFois(modeleSecours, secours);
-        journaliserModeleGemini(modeleSecours);
-        return texte;
       },
     };
   }

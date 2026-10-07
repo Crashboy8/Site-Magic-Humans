@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "@/domain/maCible/schemas";
-import { corpsAnthropic, corpsGemini, corpsOpenAI, creerFournisseur, ErreurFournisseur, MODELE_GEMINI_SECOURS, PAUSE_REESSAI_GEMINI_MS, partagerDelaiGemini, texteAnthropic, texteGemini, texteOpenAI, type AppelModele } from "./fournisseur";
+import { corpsAnthropic, corpsGemini, corpsMistral, corpsOpenAI, creerFournisseur, ErreurFournisseur, MODELE_GEMINI_SECOURS, MODELE_MISTRAL_DEFAUT, PAUSE_REESSAI_GEMINI_MS, partagerDelaiGemini, texteAnthropic, texteGemini, texteMistral, texteOpenAI, type AppelModele } from "./fournisseur";
 
 const appel: AppelModele = { systeme: "Tu es utile.", utilisateur: "Bonjour", schema: SCHEMA_CADRAGE, nomSchema: "cadrage", maxTokens: 1500, delaiMs: 5000 };
 const reponseJson = (corps: unknown, status = 200) => new Response(JSON.stringify(corps), { status, headers: { "content-type": "application/json" } });
@@ -317,12 +317,213 @@ describe("Gemini", () => {
   });
 });
 
+const reponseMistral = (content: unknown = "{}", finish = "stop") =>
+  reponseJson({ choices: [{ finish_reason: finish, message: { content } }] });
+const urlAppel = (fetchSimule: { mock: { calls: unknown[] } }, i: number) => (fetchSimule.mock.calls[i] as unknown as [string])[0];
+const corpsAppel = (fetchSimule: { mock: { calls: unknown[] } }, i: number) =>
+  JSON.parse((fetchSimule.mock.calls[i] as unknown as [string, RequestInit])[1].body as string);
+
+describe("Mistral", () => {
+  const envMistral = (suite: Record<string, string> = {}) =>
+    env({ MA_CIBLE_FOURNISSEUR: "mistral", MISTRAL_API_KEY: "cle-mistral", ...suite });
+
+  it("corpsMistral : json_schema (name, strict, schema), max_tokens, messages", () => {
+    expect(MODELE_MISTRAL_DEFAUT).toBe("mistral-small-latest");
+    expect(corpsMistral(appel, "mistral-small-latest")).toEqual({
+      model: "mistral-small-latest",
+      max_tokens: 1500,
+      messages: [
+        { role: "system", content: "Tu es utile." },
+        { role: "user", content: "Bonjour" },
+      ],
+      response_format: { type: "json_schema", json_schema: { name: "cadrage", strict: true, schema: SCHEMA_CADRAGE } },
+    });
+  });
+
+  it("corpsMistral sans schéma : json_object et le schéma dans le message système", () => {
+    const corps = corpsMistral(appel, "mistral-small-latest", false);
+    expect(corps.response_format).toEqual({ type: "json_object" });
+    expect(corps).not.toHaveProperty("json_schema");
+    expect(corps.messages[0].content).toContain(JSON.stringify(SCHEMA_CADRAGE));
+    expect(corps.messages[0].content).toContain("Tu es utile.");
+  });
+
+  it("texteMistral lit la chaîne ou les blocs text, ignore le raisonnement", () => {
+    expect(texteMistral({ choices: [{ finish_reason: "stop", message: { content: '{"a":1}' } }] })).toBe('{"a":1}');
+    expect(texteMistral({
+      choices: [{
+        finish_reason: "stop",
+        message: { content: [{ type: "thinking", thinking: [{ type: "text", text: "secret" }] }, { type: "text", text: '{"a":' }, { type: "text", text: "1}" }] },
+      }],
+    })).toBe('{"a":1}');
+  });
+
+  it("finish_reason length ou model_length : tronqué ; contenu vide : vide", () => {
+    expect(() => texteMistral({ choices: [{ finish_reason: "length", message: { content: "{" } }] })).toThrow(expect.objectContaining({ code: "tronque" }));
+    expect(() => texteMistral({ choices: [{ finish_reason: "model_length", message: { content: "{" } }] })).toThrow(expect.objectContaining({ code: "tronque" }));
+    expect(() => texteMistral({ choices: [{ finish_reason: "stop", message: { content: "" } }] })).toThrow(expect.objectContaining({ code: "vide" }));
+    expect(() => texteMistral({})).toThrow(expect.objectContaining({ code: "vide" }));
+  });
+
+  it("envoie Bearer vers chat/completions, mistral-small-latest par défaut, clé absente du corps", async () => {
+    const fetchSimule = vi.fn(async () => reponseMistral());
+    const erreurConsole = vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = creerFournisseur(envMistral(), fetchSimule as unknown as typeof fetch)!;
+    expect(f.nom).toBe("mistral");
+    const secret = "SECRET-SAISIE-MISTRAL";
+    expect(await f.appeler({ ...appel, utilisateur: secret })).toBe("{}");
+    const [url, init] = fetchSimule.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.mistral.ai/v1/chat/completions");
+    expect(init.method).toBe("POST");
+    expect(init.headers).toMatchObject({ authorization: "Bearer cle-mistral", "content-type": "application/json" });
+    expect(url).not.toContain("cle-mistral");
+    expect(init.body).not.toContain("cle-mistral");
+    expect(corpsAppel(fetchSimule, 0).model).toBe("mistral-small-latest");
+    const journal = JSON.stringify(erreurConsole.mock.calls);
+    expect(journal).toContain('"fournisseur":"mistral"');
+    expect(journal).toContain('"code":"modele"');
+    expect(journal).toContain("mistral-small-latest");
+    expect(journal).not.toContain(secret);
+    expect(journal).not.toContain("{}");
+    erreurConsole.mockRestore();
+  });
+
+  it("MA_CIBLE_MODELE remplace le modèle Mistral", async () => {
+    const fetchSimule = vi.fn(async () => reponseMistral());
+    await creerFournisseur(envMistral({ MA_CIBLE_MODELE: "mistral-autre" }), fetchSimule as unknown as typeof fetch)!.appeler(appel);
+    expect(corpsAppel(fetchSimule, 0).model).toBe("mistral-autre");
+  });
+
+  it("400 : un second appel en json_object, sans basculer vers Gemini", async () => {
+    const fetchSimule = vi.fn()
+      .mockResolvedValueOnce(reponseJson({ message: "Invalid json_schema" }, 400))
+      .mockResolvedValueOnce(reponseMistral('{"ok":1}'));
+    const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "cle-gemini" }), fetchSimule as unknown as typeof fetch)!;
+    expect(await f.appeler(appel)).toBe('{"ok":1}');
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
+    expect(corpsAppel(fetchSimule, 0).response_format.type).toBe("json_schema");
+    expect(corpsAppel(fetchSimule, 1).response_format).toEqual({ type: "json_object" });
+    expect(corpsAppel(fetchSimule, 1).messages[0].content).toContain(JSON.stringify(SCHEMA_CADRAGE));
+    expect(urlAppel(fetchSimule, 0)).toBe("https://api.mistral.ai/v1/chat/completions");
+    expect(urlAppel(fetchSimule, 1)).toBe("https://api.mistral.ai/v1/chat/completions");
+  });
+
+  it("400 puis encore 400 : on abandonne, message tronqué, pas de Gemini", async () => {
+    const message = `schéma refusé ${"x".repeat(400)}`;
+    const fetchSimule = vi.fn(async () => reponseJson({ message }, 400));
+    const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "cle-gemini" }), fetchSimule as unknown as typeof fetch)!;
+    await expect(f.appeler(appel)).rejects.toMatchObject({
+      code: "statut",
+      statut: 400,
+      messageFournisseur: message.slice(0, 300),
+    });
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
+    expect(urlAppel(fetchSimule, 1)).not.toContain("googleapis");
+  });
+
+  it("429 avec GEMINI_API_KEY : Gemini répond, le journal nomme les deux sans le texte saisi", async () => {
+    const fetchSimule = vi.fn()
+      .mockResolvedValueOnce(reponseJson({ message: "Rate limit exceeded" }, 429))
+      .mockResolvedValueOnce(reponseJson({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: '{"ok":1}' }] } }] }));
+    const erreurConsole = vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "cle-gemini", MA_CIBLE_MODELE: "mistral-autre" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async () => { throw new Error("pause inattendue"); },
+    })!;
+    const secret = "SECRET-SAISIE-MISTRAL";
+    expect(await f.appeler({ ...appel, utilisateur: secret })).toBe('{"ok":1}');
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
+    expect(urlAppel(fetchSimule, 0)).toBe("https://api.mistral.ai/v1/chat/completions");
+    expect(urlAppel(fetchSimule, 1)).toContain("/models/gemini-3.8-flash:");
+    expect(corpsAppel(fetchSimule, 0).model).toBe("mistral-autre");
+    const journal = JSON.stringify(erreurConsole.mock.calls);
+    expect(journal).toContain("messageFournisseur");
+    expect(journal).toContain("Rate limit exceeded");
+    expect(journal).toContain('"fournisseur":"mistral"');
+    expect(journal).toContain('"fournisseur":"gemini"');
+    expect(journal).toContain("mistral-autre");
+    expect(journal).toContain("gemini-3.8-flash");
+    expect(journal).not.toContain(secret);
+    expect(journal).not.toContain('{"ok":1}');
+    erreurConsole.mockRestore();
+  });
+
+  it("429 sans GEMINI_API_KEY : une seule tentative, l'erreur Mistral remonte", async () => {
+    const fetchSimule = vi.fn(async () => reponseJson({ message: "Rate limit exceeded" }, 429));
+    const f = creerFournisseur(envMistral(), fetchSimule as unknown as typeof fetch)!;
+    await expect(f.appeler(appel)).rejects.toMatchObject({ code: "statut", statut: 429, messageFournisseur: "Rate limit exceeded" });
+    expect(fetchSimule).toHaveBeenCalledTimes(1);
+  });
+
+  it("503 : le chemin Gemini relance le même modèle puis peut répondre", async () => {
+    const pauses: number[] = [];
+    const fetchSimule = vi.fn()
+      .mockResolvedValueOnce(reponseJson({ message: "surcharge" }, 503))
+      .mockResolvedValueOnce(reponseJson({ error: { message: "high demand" } }, 503))
+      .mockResolvedValueOnce(reponseJson({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: "{}" }] } }] }));
+    const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async (ms) => { pauses.push(ms); },
+    })!;
+    expect(await f.appeler({ ...appel, delaiMs: 20_000 })).toBe("{}");
+    expect(pauses).toEqual([PAUSE_REESSAI_GEMINI_MS]);
+    expect(fetchSimule.mock.calls.map((c) => (c as unknown as [string])[0])).toEqual([
+      "https://api.mistral.ai/v1/chat/completions",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+    ]);
+  });
+
+  it("délai : Mistral prend environ 60 %, puis Gemini et son secours se partagent le reste", async () => {
+    const pauses: number[] = [];
+    const durees: number[] = [];
+    const fetchSimule = vi.fn((_u: string, init: RequestInit) => new Promise((_r, rejet) => {
+      const debut = Date.now();
+      const signal = init.signal!;
+      const fin = () => {
+        durees.push(Date.now() - debut);
+        rejet(signal.reason);
+      };
+      if (signal.aborted) fin();
+      else signal.addEventListener("abort", fin, { once: true });
+    }));
+    const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async (ms) => { pauses.push(ms); },
+    })!;
+    expect(await code(f.appeler({ ...appel, delaiMs: 500 }))).toEqual({ code: "delai", statut: undefined });
+    expect(pauses).toEqual([]);
+    expect(fetchSimule).toHaveBeenCalledTimes(3);
+    expect(urlAppel(fetchSimule, 1)).toContain("/models/gemini-3.8-flash:");
+    expect(urlAppel(fetchSimule, 2)).toContain("/models/gemini-3.5-flash-lite:");
+    expect(durees[0]).toBeGreaterThanOrEqual(220);
+    expect(durees[0]).toBeLessThan(420);
+    expect(durees[1]).toBeGreaterThanOrEqual(70);
+    expect(durees[1]).toBeLessThan(190);
+    expect(durees[2]).toBeGreaterThanOrEqual(40);
+    expect(durees[2]).toBeLessThan(150);
+  });
+
+  it("401, 404 et panne réseau : pas de bascule Gemini", async () => {
+    for (const statut of [401, 404]) {
+      const fetchSimule = vi.fn(async () => reponseJson({ message: "refusé" }, statut));
+      const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!;
+      expect(await code(f.appeler(appel))).toEqual({ code: "statut", statut });
+      expect(fetchSimule).toHaveBeenCalledTimes(1);
+    }
+    const coupe = vi.fn(async () => { throw new TypeError("fetch failed"); });
+    const f = creerFournisseur(envMistral({ GEMINI_API_KEY: "k" }), coupe as unknown as typeof fetch)!;
+    expect(await code(f.appeler(appel))).toEqual({ code: "reseau", statut: undefined });
+    expect(coupe).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("creerFournisseur", () => {
   it("renvoie null sans clé", () => {
     expect(creerFournisseur(env({}))).toBeNull();
     expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "anthropic", OPENAI_API_KEY: "x" }))).toBeNull();
     expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini" }))).toBeNull();
     expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", ANTHROPIC_API_KEY: "k" }))).toBeNull();
+    expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", MISTRAL_API_KEY: "k" }))).toBeNull();
+    expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "mistral" }))).toBeNull();
+    expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "mistral", GEMINI_API_KEY: "k" }))).toBeNull();
   });
   it("openai sans MA_CIBLE_MODELE : null", () => {
     expect(creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "openai", OPENAI_API_KEY: "k" }))).toBeNull();
