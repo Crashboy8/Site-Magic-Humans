@@ -10,7 +10,7 @@ export interface Limites {
   globalResultat: number;
 }
 
-export const LIMITES_DEFAUT: Limites = { ipCadrage: 20, ipResultat: 10, globalCadrage: 2000, globalResultat: 500 };
+export const LIMITES_DEFAUT: Limites = { ipCadrage: 30, ipResultat: 15, globalCadrage: 2000, globalResultat: 500 };
 
 export interface DecisionQuota {
   ok: boolean;

@@ -155,13 +155,13 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` / `MISTRAL_API_KEY` | clé du fournisseur choisi (`GEMINI_API_KEY` sert aussi de secours quand le fournisseur est `mistral`) | |
 | `MA_CIBLE_SEL` | sel de l'empreinte du compteur, 32 caractères au moins (`openssl rand -hex 32`) | |
 | `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
-| `MA_CIBLE_MAX_IP_CADRAGE` | cadrages réussis par personne et par jour | 20 |
-| `MA_CIBLE_MAX_IP_RESULTAT` | résultats réussis par personne et par jour | 10 |
+| `MA_CIBLE_MAX_IP_CADRAGE` | cadrages réussis par personne et par jour | 30 |
+| `MA_CIBLE_MAX_IP_RESULTAT` | résultats réussis par personne et par jour | 15 |
 | `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 2000 / 500 |
 | `MA_CIBLE_EMAILS_ILLIMITES` | emails des comptes connectés qui ne consomment aucun quota, ni personnel ni global, séparés par des virgules | |
 | `MA_CIBLE_CLE_TEST` | secret (`openssl rand -hex 24`). Ouvrir `/ma-cible/?cle=` suivi de ce secret saute les deux plafonds pour l'onglet | |
 
-Si Vercel a encore `MA_CIBLE_MAX_IP_CADRAGE=8` et `MA_CIBLE_MAX_IP_RESULTAT=3`, les passer à 20 et 10, ou les retirer pour prendre les défauts. `MA_CIBLE_MAX_PAR_IP` n'est pas lue.
+Si Vercel a encore `MA_CIBLE_MAX_IP_CADRAGE` et `MA_CIBLE_MAX_IP_RESULTAT` (8 et 3, ou 20 et 10), les passer à 30 et 15, ou les retirer pour prendre les défauts. `MA_CIBLE_MAX_PAR_IP` n'est pas lue.
 
 En production, la route répond `503 config_manquante` si la clé du fournisseur choisi (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` ou `MISTRAL_API_KEY`) ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris. Seule une génération réussie incrémente le compteur. Un échec, un délai ou une connexion coupée avant la réponse ne comptent pas. Si le serveur a fini après que le navigateur a lâché, le résultat est gardé 20 minutes (mémoire de l'instance, et table `ma_cible_reprise` si la migration est appliquée) et « Réessayer » le rend sans nouvel appel.
 

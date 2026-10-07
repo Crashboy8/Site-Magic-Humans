@@ -162,15 +162,15 @@ describe("configuration et quota", () => {
     expect(r.headers.get("Retry-After")).toBe(String(12 * 3600));
     expect(fournisseur.appeler).toHaveBeenCalledTimes(3);
   });
-  it("le défaut autorise 10 résultats par adresse puis refuse", async () => {
-    preparer(Array(11).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
+  it("le défaut autorise 15 résultats par adresse puis refuse", async () => {
+    preparer(Array(16).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
       quota: quotaMemoire(limitesDepuisEnv({}), () => MAINTENANT),
     });
-    for (let i = 0; i < 10; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    for (let i = 0; i < 15; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
     const r = await traiterDemande(deps, requete(demandeResultat()));
     expect(r.status).toBe(429);
-    expect(await corpsDe(r)).toMatchObject({ code: "quota_ip", etape: "resultat", max: 10 });
-    expect(fournisseur.appeler).toHaveBeenCalledTimes(10);
+    expect(await corpsDe(r)).toMatchObject({ code: "quota_ip", etape: "resultat", max: 15 });
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(15);
   });
   it("un petit plafond global refuse avant le plafond personnel", async () => {
     const env = { ...ENV, MA_CIBLE_MAX_GLOBAL_RESULTAT: "2" };

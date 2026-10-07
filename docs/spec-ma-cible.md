@@ -889,8 +889,8 @@ Journalisation : `console.error("[ma-cible]", { code, etape, tour, statutFournis
 Valeurs par défaut (variables d'environnement, §11.3) :
 | Compteur | Défaut |
 |---|---|
-| Appels `cadrage` par personne et par jour | 20 |
-| Appels `resultat` par personne et par jour | 10 |
+| Appels `cadrage` par personne et par jour | 30 |
+| Appels `resultat` par personne et par jour | 15 |
 | Appels `cadrage` par jour, tous visiteurs | 2000 |
 | Appels `resultat` par jour, tous visiteurs | 500 |
 Jour = date civile à Paris. Le cadrage est plus large que le résultat (environ deux cadrages par résultat). Avec le coût indicatif du §1.3, le plafond global de 500 résultats borne la dépense autour de 50 € par jour au maximum.
@@ -982,8 +982,8 @@ ANTHROPIC_API_KEY=                    # si fournisseur anthropic
 OPENAI_API_KEY=                       # si fournisseur openai
 MA_CIBLE_SEL=                         # 32 caractères aléatoires au moins (openssl rand -hex 32)
 SUPABASE_SECRET_KEY=                  # clé secrète Supabase (Paramètres → API), pour le compteur anti-abus
-MA_CIBLE_MAX_IP_CADRAGE=20
-MA_CIBLE_MAX_IP_RESULTAT=10
+MA_CIBLE_MAX_IP_CADRAGE=30
+MA_CIBLE_MAX_IP_RESULTAT=15
 MA_CIBLE_MAX_GLOBAL_CADRAGE=2000
 MA_CIBLE_MAX_GLOBAL_RESULTAT=500
 ```
@@ -1687,7 +1687,7 @@ Plus : `npm run lint` et `npm run typecheck` verts. Le test SQL de sécurité (`
 - Génération de visuels, publications automatiques sur LinkedIn ou envoi d'emails.
 
 ## 21. Questions ouvertes pour Pierre
-1. **Clé et budget IA** : d'accord pour les plafonds par défaut (10 résultats par personne et par jour, 20 cadrages, 500 résultats par jour au total) ? Il faut créer la clé API sur ton compte et fixer un plafond mensuel dans la console.
+1. **Clé et budget IA** : d'accord pour les plafonds par défaut (15 résultats par personne et par jour, 30 cadrages, 500 résultats par jour au total) ? Il faut créer la clé API sur ton compte et fixer un plafond mensuel dans la console.
 2. **Visibilité** : `/outils/` dans le sitemap et dans le menu du site (lien « Mes outils » à côté du « Quiz Talent Unique ») ? Et Ma Cible indexée par Google, ou en `noindex` comme la Carte (réglage par défaut de cette spec) ?
 3. **Adresse** : l'adresse affichée sera `magichumans.com/boussole-decision/ma-cible/` (l'adresse courte `/ma-cible/` y redirige). Ça te va, ou veux-tu une adresse affichée `/ma-cible/` (il faudrait alors un projet Vercel dédié, plus de travail) ?
 

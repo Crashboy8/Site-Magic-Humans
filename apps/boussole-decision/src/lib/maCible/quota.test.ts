@@ -28,13 +28,13 @@ describe("quotaMemoire", () => {
     expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
   });
 
-  it("le défaut autorise 10 résultats et 20 cadrages par adresse", async () => {
+  it("le défaut autorise 15 résultats et 30 cadrages par adresse", async () => {
     const q = quotaMemoire(LIMITES_DEFAUT, () => new Date("2026-10-10T10:00:00Z"));
-    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 10 });
-    for (let i = 0; i < 10; i++) expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 15 });
+    for (let i = 0; i < 15; i++) expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
     expect(await q.consommer(cle("a"), "resultat")).toEqual({ ok: false, motif: "ip", restant: 0 });
     expect((await q.consommer(cle("b"), "resultat")).ok).toBe(true);
-    for (let i = 0; i < 20; i++) expect((await q.consommer(cle("a"), "cadrage")).ok).toBe(true);
+    for (let i = 0; i < 30; i++) expect((await q.consommer(cle("a"), "cadrage")).ok).toBe(true);
     expect(await q.consommer(cle("a"), "cadrage")).toMatchObject({ ok: false, motif: "ip" });
   });
 
@@ -82,19 +82,19 @@ describe("jours et limites", () => {
     expect(minuitSuivantParis(new Date("2026-10-10T10:00:00Z")).toISOString()).toBe("2026-10-10T22:00:00.000Z");
     expect(minuitSuivantParis(new Date("2026-12-10T10:00:00Z")).toISOString()).toBe("2026-12-10T23:00:00.000Z");
   });
-  it("limitesDepuisEnv : 10 résultats et 20 cadrages, surcharge possible", () => {
+  it("limitesDepuisEnv : 15 résultats et 30 cadrages, surcharge possible", () => {
     expect(limitesDepuisEnv({})).toEqual(LIMITES_DEFAUT);
-    expect(LIMITES_DEFAUT).toEqual({ ipCadrage: 20, ipResultat: 10, globalCadrage: 2000, globalResultat: 500 });
-    expect(limitesDepuisEnv({ MA_CIBLE_MAX_IP_CADRAGE: "30", MA_CIBLE_MAX_IP_RESULTAT: "12", MA_CIBLE_MAX_GLOBAL_RESULTAT: "abc" })).toEqual({
-      ipCadrage: 30,
+    expect(LIMITES_DEFAUT).toEqual({ ipCadrage: 30, ipResultat: 15, globalCadrage: 2000, globalResultat: 500 });
+    expect(limitesDepuisEnv({ MA_CIBLE_MAX_IP_CADRAGE: "40", MA_CIBLE_MAX_IP_RESULTAT: "12", MA_CIBLE_MAX_GLOBAL_RESULTAT: "abc" })).toEqual({
+      ipCadrage: 40,
       ipResultat: 12,
       globalCadrage: 2000,
       globalResultat: 500,
     });
     expect(limitesDepuisEnv({ MA_CIBLE_MAX_PAR_IP: "4", MA_CIBLE_MAX_IP_RESULTAT: "0", MA_CIBLE_MAX_IP_CADRAGE: "non" })).toEqual(LIMITES_DEFAUT);
     expect(limitesDepuisEnv({ MA_CIBLE_MAX_GLOBAL_CADRAGE: "40", MA_CIBLE_MAX_GLOBAL_RESULTAT: "120" })).toMatchObject({
-      ipCadrage: 20,
-      ipResultat: 10,
+      ipCadrage: 30,
+      ipResultat: 15,
       globalCadrage: 40,
       globalResultat: 120,
     });
