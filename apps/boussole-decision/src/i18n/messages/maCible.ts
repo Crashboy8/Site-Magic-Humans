@@ -2,13 +2,33 @@
 
 /** Nom affiché dans l'encart : neutre, le fournisseur réel dépend de la configuration. */
 export const LIBELLE_FOURNISSEUR_IA = "un modèle d'IA (Mistral, Google Gemini ou Anthropic Claude selon la configuration)";
+
+/**
+ * Nom public de l'outil, et sa phrase d'accroche.
+ * Seule source du bandeau, du titre de page et de l'introduction. L'adresse reste /ma-cible.
+ */
+export const NOM_OUTIL = {
+  fr: "Le Cibleur",
+  en: "The Targeter",
+  es: "El Buscador de Clientes",
+} as const;
+
+export const SOUS_TITRE_OUTIL = {
+  fr: "Trouve les clients avec qui tu réussis dans le plaisir",
+  en: "Find the clients you thrive with in Flow State Mastery",
+  es: "Encuentra los clientes con los que triunfas disfrutando",
+} as const;
+
+/** Titre d'onglet : le nom, puis la phrase d'accroche. */
+export const titreOutil = (nom: string, sousTitre: string) => `${nom} : ${sousTitre}`;
+
 const fr = {
   meta: {
-    titre: "Ma Cible : trouve les clients faits pour ton talent",
     description: "Outil gratuit Magic Humans : à partir de ton Talent Unique, une IA experte en marketing t'aide à affiner ton offre et à choisir tes trois cibles.",
   },
   commun: {
-    nomOutil: "Ma Cible",
+    nomOutil: NOM_OUTIL.fr as string,
+    sousTitre: SOUS_TITRE_OUTIL.fr as string,
     etape: (n: number) => `Étape ${n} sur 5`,
     tour: (n: number, total: number) => `Tour ${n} sur ${total}`,
     boucle: (tour: number, total: number) =>
@@ -24,7 +44,6 @@ const fr = {
   },
   accueil: {
     surtitre: "Gratuit · moins de 10 minutes",
-    titre: "Trouve les clients faits pour ton talent",
     intro:
       "Tu pars de ton Talent Unique. Une IA experte en marketing t'aide à affiner ton offre et à choisir tes trois cibles, en B2B ou en B2C. Pour chacune, tu repars avec une promesse, un prix indicatif, les endroits où la rencontrer et ton premier message prêt à envoyer.",
     etapesTitre: "Comment ça se passe",
@@ -368,7 +387,7 @@ const fr = {
 
 export type MaCibleMessages = typeof fr;
 // Le reste de l'interface reste en français. Seul le nom du bandeau est déjà traduit.
-const en: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: "My Target" } };
-const es: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: "Mi Objetivo" } };
+const en: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.en, sousTitre: SOUS_TITRE_OUTIL.en } };
+const es: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.es, sousTitre: SOUS_TITRE_OUTIL.es } };
 
 export const maCible = { fr, en, es };

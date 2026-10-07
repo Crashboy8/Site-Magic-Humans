@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { maCible } from "./maCible";
+import { NOM_OUTIL, SOUS_TITRE_OUTIL, maCible, titreOutil } from "./maCible";
 
 const TIRETS_LONGS = /[\u2013\u2014]/;
 
@@ -38,10 +38,14 @@ describe("textes de Ma Cible", () => {
       }
     }
   });
-  it("nomme l'outil dans le bandeau selon la langue", () => {
-    expect(maCible.fr.commun.nomOutil).toBe("Ma Cible");
-    expect(maCible.en.commun.nomOutil).toBe("My Target");
-    expect(maCible.es.commun.nomOutil).toBe("Mi Objetivo");
+  it("nomme l'outil depuis les constantes, dans les trois langues", () => {
+    for (const locale of ["fr", "en", "es"] as const) {
+      expect(maCible[locale].commun.nomOutil).toBe(NOM_OUTIL[locale]);
+      expect(maCible[locale].commun.sousTitre).toBe(SOUS_TITRE_OUTIL[locale]);
+    }
+    expect(titreOutil(NOM_OUTIL.fr, SOUS_TITRE_OUTIL.fr)).toBe("Le Cibleur : Trouve les clients avec qui tu réussis dans le plaisir");
+    expect(NOM_OUTIL.en).toBe("The Targeter");
+    expect(NOM_OUTIL.es).toBe("El Buscador de Clientes");
   });
   it("sont écrits au tutoiement", () => {
     const tout = chaines(maCible.fr).map((c) => c.texte).join(" ");

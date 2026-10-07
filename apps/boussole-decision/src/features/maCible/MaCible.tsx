@@ -191,8 +191,9 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
             </a>
           </p>
           <p className="font-script text-2xl text-accent-strong">{M.accueil.surtitre}</p>
+          <p className="font-serif text-3xl italic text-ink sm:text-4xl">{M.commun.nomOutil}</p>
           <h1 tabIndex={-1} data-titre-etape className="text-4xl italic focus:outline-none sm:text-5xl">
-            {M.accueil.titre}
+            {M.commun.sousTitre}
           </h1>
           <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{M.accueil.intro}</p>
         </header>

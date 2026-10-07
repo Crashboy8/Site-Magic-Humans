@@ -4,15 +4,18 @@ import { LanguageSwitch } from "@/i18n/LanguageSwitch";
 import { getI18n } from "@/i18n/server";
 
 /** Bandeau des pages publiques : marque à gauche, lien d'accueil et langues à droite. */
-export async function PublicFrame({ brand, mark, children }: { brand: string; mark: ReactNode; children: ReactNode }) {
+export async function PublicFrame({ brand, tagline, mark, children }: { brand: string; tagline?: string; mark: ReactNode; children: ReactNode }) {
   const { t } = await getI18n();
   return (
     <div className="flex min-h-dvh flex-col">
       <header data-chrome className="border-b border-line bg-cream/90">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex min-w-0 items-center gap-2.5">
             {mark}
-            <span className="font-serif text-xl italic leading-none sm:text-2xl">{brand}</span>
+            <span className="min-w-0">
+              <span className="block font-serif text-xl italic leading-none sm:text-2xl">{brand}</span>
+              {tagline && <span className="mt-1 block max-w-md text-xs leading-snug text-ink-soft sm:text-sm">{tagline}</span>}
+            </span>
           </Link>
           <div className="flex items-center gap-2">
             <Link href="/" className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">

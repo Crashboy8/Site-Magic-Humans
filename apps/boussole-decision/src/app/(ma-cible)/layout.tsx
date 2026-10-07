@@ -8,11 +8,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: { default: nom, template: `%s · ${nom}` } };
 }
 
-// Ma Cible a son propre bandeau : le nom de l'outil et une cible, pas ceux de la Boussole.
+// Bandeau propre à l'outil : son nom, sa phrase, une cible. Pas ceux de la Boussole.
 export default async function MaCibleLayout({ children }: { children: React.ReactNode }) {
-  const nom = (await getI18n()).t.maCible.commun.nomOutil;
+  const { nomOutil, sousTitre } = (await getI18n()).t.maCible.commun;
   return (
-    <PublicFrame brand={nom} mark={<TargetMark className="h-8 w-8 text-ink sm:h-9 sm:w-9" />}>
+    <PublicFrame brand={nomOutil} tagline={sousTitre} mark={<TargetMark className="h-8 w-8 shrink-0 text-ink sm:h-9 sm:w-9" />}>
       {children}
     </PublicFrame>
   );
