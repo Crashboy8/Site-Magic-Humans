@@ -31,6 +31,14 @@ export interface Fournisseur {
 export const MODELE_ANTHROPIC_DEFAUT = "claude-sonnet-5";
 /** Modèle Flash stable de l'offre gratuite (doc modèles Gemini). */
 export const MODELE_GEMINI_DEFAUT = "gemini-3.8-flash";
+/**
+ * Secours plus léger, stable, documenté (doc modèles : `gemini-3.5-flash-lite`, sorties texte et JSON).
+ * `gemini-3.8-flash-lite` n'y figure pas.
+ */
+export const MODELE_GEMINI_SECOURS = "gemini-3.5-flash-lite";
+/** Pause avant de relancer le même modèle (503, 429, 500 ou réseau). */
+export const PAUSE_REESSAI_GEMINI_MS = 3_000;
+const STATUTS_SURCHARGE = new Set([429, 500, 503]);
 const URL_ANTHROPIC = "https://api.anthropic.com/v1/messages";
 const URL_OPENAI = "https://api.openai.com/v1/responses";
 const LIMITE_MESSAGE_FOURNISSEUR = 300;
@@ -85,6 +93,40 @@ export function schemaPourGemini(schema: unknown): unknown {
 
 export function urlGemini(modele: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent`;
+}
+
+/** Le modèle principal dispose d'environ 60 % du délai, le secours du reste. */
+export function partagerDelaiGemini(delaiMs: number): { primaire: number; secours: number } {
+  const primaire = Math.round(delaiMs * 0.6);
+  return { primaire, secours: delaiMs - primaire };
+}
+
+const pause = (ms: number) => new Promise<void>((resoudre) => setTimeout(resoudre, ms));
+
+function surcharge(e: unknown): boolean {
+  return e instanceof ErreurFournisseur && (e.code === "reseau" || (e.code === "statut" && STATUTS_SURCHARGE.has(e.statut ?? -1)));
+}
+
+function delaiDepasse(e: unknown): boolean {
+  return e instanceof ErreurFournisseur && e.code === "delai";
+}
+
+/** Échec d'un essai : codes et message du fournisseur, jamais le texte saisi ni la réponse. */
+function journaliserEchecGemini(modele: string, e: unknown) {
+  if (!(e instanceof ErreurFournisseur)) return;
+  const messageFournisseur = e.messageFournisseur?.slice(0, LIMITE_MESSAGE_FOURNISSEUR);
+  console.error("[ma-cible]", {
+    code: "essai_gemini",
+    modele,
+    motif: e.code,
+    ...(e.statut !== undefined ? { statutFournisseur: e.statut } : {}),
+    ...(messageFournisseur ? { messageFournisseur } : {}),
+  });
+}
+
+/** Modèle qui a réellement répondu. Aucun contenu. */
+function journaliserModeleGemini(modele: string) {
+  console.error("[ma-cible]", { code: "modele", modele });
 }
 
 /**
@@ -206,7 +248,11 @@ async function messageStatut(reponse: Response): Promise<string | undefined> {
 }
 
 /** `null` si la clé du fournisseur choisi est absente (ou, pour OpenAI, si le modèle n'est pas précisé). */
-export function creerFournisseur(env: NodeJS.ProcessEnv, fetchImpl: typeof fetch = fetch): Fournisseur | null {
+export function creerFournisseur(
+  env: NodeJS.ProcessEnv,
+  fetchImpl: typeof fetch = fetch,
+  options?: { attendre?: (ms: number) => Promise<void> },
+): Fournisseur | null {
   const choix = (env.MA_CIBLE_FOURNISSEUR || "anthropic").trim().toLowerCase();
   const modele = env.MA_CIBLE_MODELE?.trim();
   if (choix === "openai") {
@@ -223,17 +269,56 @@ export function creerFournisseur(env: NodeJS.ProcessEnv, fetchImpl: typeof fetch
     const cle = env.GEMINI_API_KEY?.trim();
     if (!cle) return null;
     const modeleGemini = modele || MODELE_GEMINI_DEFAUT;
+    const modeleSecours = env.MA_CIBLE_MODELE_SECOURS?.trim() || MODELE_GEMINI_SECOURS;
+    const attendre = options?.attendre ?? pause;
     return {
       nom: "gemini",
       async appeler(a) {
-        const url = urlGemini(modeleGemini);
-        const headers = { "x-goog-api-key": cle };
+        const { primaire, secours } = partagerDelaiGemini(a.delaiMs);
+        const uneFois = async (modeleEssai: string, budgetMs: number) => {
+          const url = urlGemini(modeleEssai);
+          const headers = { "x-goog-api-key": cle };
+          try {
+            return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a), budgetMs));
+          } catch (e) {
+            journaliserEchecGemini(modeleEssai, e);
+            if (!(e instanceof ErreurFournisseur) || e.statut !== 400) throw e;
+            try {
+              return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a, false), budgetMs));
+            } catch (e2) {
+              journaliserEchecGemini(modeleEssai, e2);
+              throw e2;
+            }
+          }
+        };
+
+        const debut = Date.now();
+        let dernier: unknown;
         try {
-          return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a), a.delaiMs));
+          const texte = await uneFois(modeleGemini, primaire);
+          journaliserModeleGemini(modeleGemini);
+          return texte;
         } catch (e) {
-          if (!(e instanceof ErreurFournisseur) || e.statut !== 400) throw e;
-          return texteGemini(await envoyer(fetchImpl, url, headers, corpsGemini(a, false), a.delaiMs));
+          dernier = e;
+          const reste = primaire - (Date.now() - debut);
+          if (surcharge(e) && reste > PAUSE_REESSAI_GEMINI_MS) {
+            await attendre(PAUSE_REESSAI_GEMINI_MS);
+            try {
+              const texte = await uneFois(modeleGemini, reste - PAUSE_REESSAI_GEMINI_MS);
+              journaliserModeleGemini(modeleGemini);
+              return texte;
+            } catch (e2) {
+              dernier = e2;
+              if (!surcharge(e2) && !delaiDepasse(e2)) throw e2;
+            }
+          } else if (!surcharge(e) && !delaiDepasse(e)) {
+            throw e;
+          }
         }
+        if (modeleSecours === modeleGemini || secours < 1) throw dernier;
+        const texte = await uneFois(modeleSecours, secours);
+        journaliserModeleGemini(modeleSecours);
+        return texte;
       },
     };
   }
