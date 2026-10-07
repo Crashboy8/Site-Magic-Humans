@@ -101,6 +101,7 @@ describe("Gemini", () => {
     expect(corps.contents).toEqual([{ role: "user", parts: [{ text: "Bonjour" }] }]);
     expect(corps.generationConfig.responseMimeType).toBe("application/json");
     expect(corps.generationConfig.maxOutputTokens).toBe(1500);
+    expect(corps.generationConfig.thinkingConfig).toEqual({ thinkingLevel: "LOW" });
     expect(corps.generationConfig).not.toHaveProperty("responseFormat");
     const schema = corps.generationConfig.responseJsonSchema as { type: string; required: string[] };
     expect(schema.type).toBe("object");
@@ -169,6 +170,7 @@ describe("Gemini", () => {
     expect(corps.generationConfig.maxOutputTokens).toBe(1500);
     expect(corps.generationConfig.responseMimeType).toBe("application/json");
     expect(corps.generationConfig.responseJsonSchema).toBeDefined();
+    expect(corps.generationConfig.thinkingConfig).toEqual({ thinkingLevel: "LOW" });
     expect(corps.generationConfig).not.toHaveProperty("responseFormat");
   });
 
@@ -186,7 +188,7 @@ describe("Gemini", () => {
     await expect(f.appeler(appel)).rejects.toMatchObject({ messageFournisseur: "quota" });
   });
 
-  it("400 avec le schéma : un second appel sans responseJsonSchema", async () => {
+  it("400 : un second appel sans responseJsonSchema ni thinkingConfig", async () => {
     const fetchSimule = vi.fn()
       .mockResolvedValueOnce(reponseJson({ error: { message: "Unknown name \"additionalProperties\"" } }, 400))
       .mockResolvedValueOnce(reponseJson({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: "{}" }] } }] }));
@@ -195,8 +197,10 @@ describe("Gemini", () => {
     expect(fetchSimule).toHaveBeenCalledTimes(2);
     const corps = (i: number) => JSON.parse((fetchSimule.mock.calls[i] as unknown as [string, RequestInit])[1].body as string);
     expect(corps(0).generationConfig.responseJsonSchema).toBeDefined();
+    expect(corps(0).generationConfig.thinkingConfig).toEqual({ thinkingLevel: "LOW" });
     expect(corps(1).generationConfig).toEqual({ maxOutputTokens: 1500, responseMimeType: "application/json" });
     expect(corps(1).generationConfig).not.toHaveProperty("responseJsonSchema");
+    expect(corps(1).generationConfig).not.toHaveProperty("thinkingConfig");
   });
 
   it("400 puis encore 400 : on abandonne, message tronqué à 300 caractères", async () => {

@@ -87,14 +87,23 @@ export function urlGemini(modele: string): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modele)}:generateContent`;
 }
 
-/** Corps `generateContent`. `avecSchema` à faux : seulement `responseMimeType` (repli après un HTTP 400). */
+/**
+ * Corps `generateContent`.
+ * `thinkingLevel` vaut `LOW` : enum REST de ThinkingConfig, niveau le plus bas
+ * accepté par gemini-3.8-flash (guide Thinking : low, medium, high ; pas minimal).
+ * `avecSchema` à faux : repli après un HTTP 400, sans schéma ni thinkingConfig.
+ */
 export function corpsGemini(a: AppelModele, avecSchema = true) {
   const generationConfig: {
     maxOutputTokens: number;
     responseMimeType: "application/json";
     responseJsonSchema?: unknown;
+    thinkingConfig?: { thinkingLevel: "LOW" };
   } = { maxOutputTokens: a.maxTokens, responseMimeType: "application/json" };
-  if (avecSchema) generationConfig.responseJsonSchema = schemaPourGemini(a.schema);
+  if (avecSchema) {
+    generationConfig.responseJsonSchema = schemaPourGemini(a.schema);
+    generationConfig.thinkingConfig = { thinkingLevel: "LOW" };
+  }
   return {
     systemInstruction: { parts: [{ text: a.systeme }] },
     contents: [{ role: "user", parts: [{ text: a.utilisateur }] }],

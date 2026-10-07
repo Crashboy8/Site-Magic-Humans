@@ -197,7 +197,7 @@ describe("réponses réussies", () => {
     expect(appel.systeme).toContain("tour 2");
     expect(appel.systeme).toContain("il est interdit de poser des questions");
     expect(appel.maxTokens).toBe(1500);
-    expect(appel.delaiMs).toBe(30000);
+    expect(appel.delaiMs).toBe(60000);
     expect(appel.nomSchema).toBe("cadrage");
     expect(appel.utilisateur).toContain("<donnees>");
   });
