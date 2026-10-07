@@ -208,7 +208,11 @@ const fr = {
       "Elle écrit tes premiers messages…",
       "Elle prépare ton plan sur 30 jours…",
     ],
-    dureeResultat: "Ça prend en général moins d'une minute. Garde cette page ouverte.",
+    patienceCadrage: "Ton esquisse se prépare. Tu as le temps de souffler, ça revient dans une minute max.",
+    patienceResultat:
+      "Ta cible mûrit. Tu as le temps de prendre un café ou de répondre à un message, ça revient dans 2 à 3 minutes (4 minutes max).",
+    gardeOuverte: "Garde cette page ouverte.",
+    ecoule: (duree: string) => `Temps écoulé : ${duree}`,
   },
   resultat: {
     surtitre: "Ton résultat Ma Cible",

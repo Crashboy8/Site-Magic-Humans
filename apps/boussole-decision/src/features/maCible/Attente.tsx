@@ -4,12 +4,47 @@ import { useEffect, useState } from "react";
 import { Button, Notice, buttonClass } from "@/components/ui";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import type { CodeErreur } from "./api";
+import { formaterDureeEcoulee, patienceVisible } from "./attenteTemps";
 import { SANS_REESSAI, messageApi } from "./erreurs";
 import { urlAppel } from "./liens";
 
 export interface ErreurAppel {
   code: CodeErreur;
   max?: number;
+}
+
+/** Textes qui tournent, message après 5 s, et temps écoulé. Remonté à chaque attente : le compteur repart de zéro. */
+function AttenteEnCours({ type, M }: { type: "cadrage" | "resultat"; M: MaCibleMessages }) {
+  const [indice, setIndice] = useState(0);
+  const [ecouleMs, setEcouleMs] = useState(0);
+  useEffect(() => {
+    if (type !== "resultat") return;
+    const id = setInterval(() => setIndice((i) => Math.min(i + 1, M.attente.resultat.length - 1)), 8000);
+    return () => clearInterval(id);
+  }, [type, M.attente.resultat.length]);
+  useEffect(() => {
+    const debut = Date.now();
+    const id = setInterval(() => setEcouleMs(Date.now() - debut), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const texte = type === "cadrage" ? M.attente.cadrage : M.attente.resultat[indice];
+  const patience = type === "cadrage" ? M.attente.patienceCadrage : M.attente.patienceResultat;
+  return (
+    <div className="flex flex-col items-center gap-5 rounded-2xl border border-line bg-paper px-6 py-12 text-center">
+      <span aria-hidden="true" className="h-4 w-4 rounded-full bg-accent motion-safe:animate-pulse" />
+      <p className="text-[18px] text-ink" role="status" aria-live="polite">
+        {texte}
+      </p>
+      {patienceVisible(ecouleMs) && (
+        <div className="max-w-md space-y-2">
+          <p className="text-[15px] text-ink-soft">{patience}</p>
+          <p className="text-[15px] text-ink-soft">{M.attente.ecoule(formaterDureeEcoulee(ecouleMs))}</p>
+        </div>
+      )}
+      <p className="max-w-md text-[15px] text-ink-soft">{M.attente.gardeOuverte}</p>
+    </div>
+  );
 }
 
 /** Écran d'attente (cadrage court, résultat long avec textes qui changent toutes les 8 s) ou d'erreur. */
@@ -26,13 +61,6 @@ export function Attente({
   onReessayer: () => void;
   onRetour: () => void;
 }) {
-  const [indice, setIndice] = useState(0);
-  useEffect(() => {
-    if (type !== "resultat" || erreur) return;
-    const id = setInterval(() => setIndice((i) => Math.min(i + 1, M.attente.resultat.length - 1)), 8000);
-    return () => clearInterval(id);
-  }, [type, erreur, M.attente.resultat.length]);
-
   if (erreur) {
     return (
       <div className="space-y-5">
@@ -55,14 +83,5 @@ export function Attente({
     );
   }
 
-  const texte = type === "cadrage" ? M.attente.cadrage : M.attente.resultat[indice];
-  return (
-    <div className="flex flex-col items-center gap-5 rounded-2xl border border-line bg-paper px-6 py-12 text-center">
-      <span aria-hidden="true" className="h-4 w-4 rounded-full bg-accent motion-safe:animate-pulse" />
-      <p className="text-[18px] text-ink" role="status" aria-live="polite">
-        {texte}
-      </p>
-      {type === "resultat" && <p className="max-w-md text-[15px] text-ink-soft">{M.attente.dureeResultat}</p>}
-    </div>
-  );
+  return <AttenteEnCours key={type} type={type} M={M} />;
 }

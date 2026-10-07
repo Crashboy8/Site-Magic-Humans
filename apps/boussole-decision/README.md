@@ -151,6 +151,7 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 |---|---|---|
 | `MA_CIBLE_FOURNISSEUR` | `anthropic`, `openai` ou `gemini` | `anthropic` |
 | `MA_CIBLE_MODELE` | nom exact du modèle chez le fournisseur (obligatoire avec `openai` ; vide avec `gemini` : `gemini-3.8-flash`) | `claude-sonnet-5` |
+| `MA_CIBLE_MODELE_SECOURS` | modèle Gemini plus léger si le principal est en surcharge, en panne réseau ou trop lent | `gemini-3.5-flash-lite` |
 | `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` | clé du fournisseur choisi | |
 | `MA_CIBLE_SEL` | sel de l'empreinte du compteur, 32 caractères au moins (`openssl rand -hex 32`) | |
 | `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
@@ -163,13 +164,13 @@ En production, la route répond `503 config_manquante` si la clé du fournisseur
 
 1. Ouvrir [Google AI Studio](https://aistudio.google.com/apikey) et créer une clé API (« Create API key »).
 2. La coller dans `GEMINI_API_KEY`, avec `MA_CIBLE_FOURNISSEUR=gemini`.
-3. Laisser `MA_CIBLE_MODELE` vide pour `gemini-3.8-flash` (modèle Flash stable de l'offre gratuite).
+3. Laisser `MA_CIBLE_MODELE` vide pour `gemini-3.8-flash` (modèle Flash stable de l'offre gratuite). En cas de surcharge (503, 429, 500), de panne réseau ou de délai, le même modèle est relancé une fois, puis `gemini-3.5-flash-lite` (ou `MA_CIBLE_MODELE_SECOURS`).
 
 Avec l'offre gratuite, Google peut utiliser les textes envoyés (talent, terrain, réponses) pour améliorer ses produits. Ne pas y mettre de données sensibles. L'offre payante ne sert pas à cet entraînement : fixer alors un plafond de dépense dans la console Google.
 
 ### Ce qui est stocké
 
-Rien, à part un compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une date, l'étape et un nombre, effacés au bout de 2 jours. Ni les réponses de la personne, ni le résultat, ni l'adresse IP ne sont stockés ou journalisés. En cas d'échec, `console.error` n'écrit que des codes et des longueurs.
+Rien, à part un compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une date, l'étape et un nombre, effacés au bout de 2 jours. Ni les réponses de la personne, ni le résultat, ni l'adresse IP ne sont stockés ou journalisés. `console.error` n'écrit que des codes, des longueurs, le nom du modèle et le message d'erreur du fournisseur.
 
 ### Mise en place
 

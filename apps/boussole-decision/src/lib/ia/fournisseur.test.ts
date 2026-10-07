@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "@/domain/maCible/schemas";
-import { corpsAnthropic, corpsGemini, corpsOpenAI, creerFournisseur, ErreurFournisseur, texteAnthropic, texteGemini, texteOpenAI, type AppelModele } from "./fournisseur";
+import { corpsAnthropic, corpsGemini, corpsOpenAI, creerFournisseur, ErreurFournisseur, MODELE_GEMINI_SECOURS, PAUSE_REESSAI_GEMINI_MS, partagerDelaiGemini, texteAnthropic, texteGemini, texteOpenAI, type AppelModele } from "./fournisseur";
 
 const appel: AppelModele = { systeme: "Tu es utile.", utilisateur: "Bonjour", schema: SCHEMA_CADRAGE, nomSchema: "cadrage", maxTokens: 1500, delaiMs: 5000 };
 const reponseJson = (corps: unknown, status = 200) => new Response(JSON.stringify(corps), { status, headers: { "content-type": "application/json" } });
@@ -180,12 +180,113 @@ describe("Gemini", () => {
     expect((fetchSimule.mock.calls[0] as unknown as [string])[0]).toBe("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent");
   });
 
-  it("statut 429 : même erreur d'indisponibilité, sans second essai", async () => {
-    const fetchSimule = vi.fn(async () => reponseJson({ error: { message: "quota" } }, 429));
-    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch)!;
-    expect(await code(f.appeler(appel))).toEqual({ code: "statut", statut: 429 });
+  it("partage le délai : environ 60 % pour le modèle principal, le reste pour le secours", () => {
+    expect(partagerDelaiGemini(90_000)).toEqual({ primaire: 54_000, secours: 36_000 });
+    expect(partagerDelaiGemini(240_000)).toEqual({ primaire: 144_000, secours: 96_000 });
+    expect(MODELE_GEMINI_SECOURS).toBe("gemini-3.5-flash-lite");
+  });
+
+  it("503 : relance le même modèle après 3 s, puis le secours, et journalise chaque échec sans le texte saisi", async () => {
+    const pauses: number[] = [];
+    const fetchSimule = vi.fn(async () => reponseJson({ error: { message: "This model is currently experiencing high demand" } }, 503));
+    const erreurConsole = vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async (ms) => { pauses.push(ms); },
+    })!;
+    const secret = "SECRET-SAISIE-GEMINI";
+    await expect(f.appeler({ ...appel, utilisateur: secret, delaiMs: 20_000 })).rejects.toMatchObject({
+      code: "statut",
+      statut: 503,
+      messageFournisseur: "This model is currently experiencing high demand",
+    });
+    expect(pauses).toEqual([PAUSE_REESSAI_GEMINI_MS]);
+    expect(fetchSimule).toHaveBeenCalledTimes(3);
+    const urls = fetchSimule.mock.calls.map((c) => (c as unknown as [string])[0]);
+    expect(urls[0]).toContain("/models/gemini-3.8-flash:");
+    expect(urls[1]).toContain("/models/gemini-3.8-flash:");
+    expect(urls[2]).toContain("/models/gemini-3.5-flash-lite:");
+    const journal = JSON.stringify(erreurConsole.mock.calls);
+    expect(journal).toContain("messageFournisseur");
+    expect(journal).toContain("high demand");
+    expect(journal).toContain("gemini-3.8-flash");
+    expect(journal).toContain("gemini-3.5-flash-lite");
+    expect(journal).not.toContain(secret);
+    expect(journal).not.toContain("Tu es utile");
+    erreurConsole.mockRestore();
+  });
+
+  it("503 puis succès : le second essai du même modèle répond, sans appeler le secours", async () => {
+    const fetchSimule = vi.fn()
+      .mockResolvedValueOnce(reponseJson({ error: { message: "high demand" } }, 503))
+      .mockResolvedValueOnce(reponseJson({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: '{"ok":1}' }] } }] }));
+    const erreurConsole = vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async () => {},
+    })!;
+    expect(await f.appeler({ ...appel, delaiMs: 20_000 })).toBe('{"ok":1}');
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
+    const urls = fetchSimule.mock.calls.map((c) => (c as unknown as [string])[0]);
+    expect(urls.every((u) => u.includes("/models/gemini-3.8-flash:"))).toBe(true);
+    const journal = JSON.stringify(erreurConsole.mock.calls);
+    expect(journal).toContain("high demand");
+    expect(journal).toContain('"code":"modele"');
+    expect(journal).toContain("gemini-3.8-flash");
+    expect(journal).not.toContain('{"ok":1}');
+    erreurConsole.mockRestore();
+  });
+
+  it("réseau puis 500 : le secours nommé par MA_CIBLE_MODELE_SECOURS répond", async () => {
+    const fetchSimule = vi.fn()
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockResolvedValueOnce(reponseJson({ error: { message: "interne" } }, 500))
+      .mockResolvedValueOnce(reponseJson({ candidates: [{ finishReason: "STOP", content: { parts: [{ text: "{}" }] } }] }));
+    const f = creerFournisseur(
+      env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k", MA_CIBLE_MODELE_SECOURS: "gemini-secours-test" }),
+      fetchSimule as unknown as typeof fetch,
+      { attendre: async () => {} },
+    )!;
+    expect(await f.appeler({ ...appel, delaiMs: 20_000 })).toBe("{}");
+    const urls = fetchSimule.mock.calls.map((c) => (c as unknown as [string])[0]);
+    expect(urls).toEqual([
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-secours-test:generateContent",
+    ]);
+  });
+
+  it("délai du modèle principal : pas de seconde tentative identique, le secours reçoit le reste du temps", async () => {
+    const pauses: number[] = [];
+    const durees: number[] = [];
+    const fetchSimule = vi.fn((_u: string, init: RequestInit) => new Promise((_r, rejet) => {
+      const debut = Date.now();
+      const signal = init.signal!;
+      const fin = () => {
+        durees.push(Date.now() - debut);
+        rejet(signal.reason);
+      };
+      if (signal.aborted) fin();
+      else signal.addEventListener("abort", fin, { once: true });
+    }));
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async (ms) => { pauses.push(ms); },
+    })!;
+    expect(await code(f.appeler({ ...appel, delaiMs: 200 }))).toEqual({ code: "delai", statut: undefined });
+    expect(pauses).toEqual([]);
+    expect(fetchSimule).toHaveBeenCalledTimes(2);
+    expect((fetchSimule.mock.calls[1] as unknown as [string])[0]).toContain("/models/gemini-3.5-flash-lite:");
+    expect(durees[0]).toBeGreaterThanOrEqual(90);
+    expect(durees[0]).toBeLessThan(180);
+    expect(durees[1]).toBeGreaterThanOrEqual(50);
+    expect(durees[1]).toBeLessThan(150);
+  });
+
+  it("404 : ni relance ni secours", async () => {
+    const fetchSimule = vi.fn(async () => reponseJson({ error: { message: "introuvable" } }, 404));
+    const f = creerFournisseur(env({ MA_CIBLE_FOURNISSEUR: "gemini", GEMINI_API_KEY: "k" }), fetchSimule as unknown as typeof fetch, {
+      attendre: async () => { throw new Error("pause inattendue"); },
+    })!;
+    expect(await code(f.appeler(appel))).toEqual({ code: "statut", statut: 404 });
     expect(fetchSimule).toHaveBeenCalledTimes(1);
-    await expect(f.appeler(appel)).rejects.toMatchObject({ messageFournisseur: "quota" });
   });
 
   it("400 avec le schéma : un second appel sans responseJsonSchema", async () => {
