@@ -5,6 +5,7 @@ import { auth } from "./auth";
 import { coach } from "./coach";
 import { example } from "./example";
 import { common } from "./common";
+import { maCible } from "./maCible";
 import { profile } from "./profile";
 import { quiz } from "./quiz";
 import { results } from "./results";
@@ -21,6 +22,7 @@ const fr = {
   results: results.fr,
   example: example.fr,
   quiz: quiz.fr,
+  maCible: maCible.fr,
 };
 const en: typeof fr = {
   common: common.en,
@@ -32,6 +34,7 @@ const en: typeof fr = {
   results: results.en,
   example: example.en,
   quiz: quiz.en,
+  maCible: maCible.en,
 };
 
 const es: typeof fr = {
@@ -44,6 +47,7 @@ const es: typeof fr = {
   results: results.es,
   example: example.es,
   quiz: quiz.es,
+  maCible: maCible.es,
 };
 
 export type Messages = typeof fr;
