@@ -10,23 +10,36 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,700&display=swap">
 <style>
-:root{--bg:#F5F3F0;--ink:#2B2522;--muted:#6E645D;--line:#E4DED7;--accent:#D9661C}
+:root{--bg:#F7F4EF;--ink:#2B2522;--muted:#5C534C;--line:#E4DED7;--accent:#C4501F}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,sans-serif}
-.wrap{max-width:1100px;margin:0 auto;padding:28px 24px 48px}
-.eyebrow{font-size:.95rem;letter-spacing:.04em;color:var(--accent);font-weight:700}
-h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(2.6rem,6vw,4.4rem);line-height:1;margin:8px 0 12px}
-.total{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;margin:0 0 22px}
-.note{font-size:1.35rem;margin:0 0 18px}
-.row{display:grid;grid-template-columns:minmax(140px,220px) 1fr auto;gap:16px;align-items:center;margin:14px 0}
-.lab{font-weight:700;font-size:1.35rem;color:var(--bf)}
-.track{height:36px;background:var(--line);border-radius:999px;overflow:hidden}
-.track i{display:block;height:100%;width:0;background:var(--bf);border-radius:999px}
-.pct{font-weight:700;font-size:1.5rem;font-variant-numeric:tabular-nums;min-width:4.5ch;text-align:right}
+body{margin:0;background:
+  radial-gradient(520px 280px at 0% 0%, rgba(31,122,122,.16), transparent 70%),
+  radial-gradient(480px 260px at 100% 0%, rgba(194,65,122,.14), transparent 68%),
+  radial-gradient(420px 240px at 80% 18%, rgba(184,117,0,.12), transparent 70%),
+  var(--bg);color:var(--ink);font-family:"Nunito Sans",system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:36px 28px 56px}
+.eyebrow{font-size:1.05rem;letter-spacing:.04em;color:var(--accent);font-weight:700;margin:0}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(3rem,6.4vw,5rem);line-height:.95;margin:8px 0 12px}
+.parade{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px}
+.pip{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--bf);color:#fff;box-shadow:0 8px 16px rgba(43,37,34,.08)}
+.pip svg{width:28px;height:28px;display:block}
+.total{font-size:clamp(1.8rem,3.4vw,2.6rem);font-weight:700;margin:0 0 18px}
+.note{font-size:1.45rem;margin:0 0 18px}
+.row{display:grid;grid-template-columns:minmax(220px,320px) 1fr auto;gap:18px;align-items:center;margin:16px 0}
+.lab{display:flex;align-items:center;gap:12px;font-weight:700;font-size:1.55rem;color:var(--bi);min-width:0}
+.mark{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;flex:none;background:var(--bf);color:#fff}
+.mark svg{width:28px;height:28px;display:block}
+.track{height:42px;background:#E7E1DA;border-radius:999px;overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--bf);border-radius:999px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.pct{font-weight:700;font-size:1.7rem;font-variant-numeric:tabular-nums;min-width:5ch;text-align:right;color:var(--ink)}
 .quiet{color:var(--muted)}
 @media (max-width:640px){
   .row{grid-template-columns:1fr auto}
   .track{grid-column:1 / -1;order:3}
+}
+@media (prefers-reduced-motion: reduce){
+  .track i{transition:none}
+  .pip{animation:none}
 }
 </style>
 </head>
@@ -34,6 +47,7 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clam
 <main class="wrap">
   <p class="eyebrow" id="session"></p>
   <h1>Photo de la salle</h1>
+  <div class="parade" id="parade" aria-hidden="true"></div>
   <p class="total" id="total"></p>
   <p class="note" id="note"></p>
   <div id="bars"></div>
@@ -48,9 +62,11 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clam
   var total = document.getElementById("total");
   var bars = document.getElementById("bars");
   var eyebrow = document.getElementById("session");
+  var parade = document.getElementById("parade");
   var params = new URLSearchParams(location.search);
   var session = params.get("session") || "";
   var dernier = null;
+  var dernierTotal = 0;
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) {
@@ -58,8 +74,58 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clam
     });
   }
 
+  function svg(name) {
+    var inner = (D.profil.icons && D.profil.icons[name]) || "";
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + "</svg>";
+  }
+
+  function reduire() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function paradeHtml() {
+    return D.profil.order.map(function (id) {
+      var b = D.profil.besoins[id];
+      return '<span class="pip" style="--bf:' + esc(b.color) + '">' + svg(b.icon) + "</span>";
+    }).join("");
+  }
+
+  function animerTotal(n) {
+    var label = function (v) { return v + (v === 1 ? " participant" : " participants"); };
+    if (reduire()) {
+      total.textContent = label(n);
+      dernierTotal = n;
+      return;
+    }
+    var start = dernierTotal;
+    var t0 = performance.now();
+    function step(now) {
+      var p = Math.min(1, (now - t0) / 700);
+      var v = Math.round(start + (n - start) * (1 - Math.pow(1 - p, 3)));
+      total.textContent = label(v);
+      if (p < 1) requestAnimationFrame(step);
+      else dernierTotal = n;
+    }
+    requestAnimationFrame(step);
+  }
+
+  function animerBarres() {
+    var reduce = reduire();
+    bars.querySelectorAll(".track i").forEach(function (el) {
+      var w = el.getAttribute("data-w") || "0%";
+      el.style.width = "0%";
+      if (reduce) {
+        el.style.width = w;
+        return;
+      }
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { el.style.width = w; });
+      });
+    });
+  }
+
   function montrer(photo) {
-    total.textContent = photo.total + (photo.total === 1 ? " participant" : " participants");
+    animerTotal(photo.total);
     if (photo.total < 5) {
       bars.innerHTML = "";
       note.textContent = "La photo s'affiche dès 5 participants.";
@@ -67,8 +133,10 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clam
     }
     note.textContent = "";
     bars.innerHTML = photo.bars.map(function (bar) {
-      return '<div class="row" style="--bf:' + esc(bar.color) + '"><div class="lab">' + esc(bar.name) + '</div><div class="track"><i style="width:' + bar.pct + '%"></i></div><div class="pct">' + esc(String(bar.pct)) + " %</div></div>";
+      var b = D.profil.besoins[bar.id];
+      return '<div class="row" style="--bf:' + esc(b.color) + ";--bi:" + esc(b.ink) + '"><div class="lab"><span class="mark">' + svg(b.icon) + "</span><span>" + esc(bar.name) + '</span></div><div class="track"><i data-w="' + esc(String(bar.pct)) + '%"></i></div><div class="pct">' + esc(String(bar.pct)) + " %</div></div>";
     }).join("");
+    animerBarres();
   }
 
   function attendre(message) {
@@ -99,6 +167,7 @@ h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clam
     return;
   }
   eyebrow.textContent = session;
+  parade.innerHTML = paradeHtml();
   charger();
   setInterval(charger, 10000);
 })();
