@@ -4,7 +4,7 @@ import { traiterDemande } from "@/lib/maCible/traitement";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 // Compteur en mémoire de l'instance : développement local, et secours si la base ne répond pas.

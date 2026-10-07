@@ -21,7 +21,7 @@ export interface Dependances {
 }
 
 const MAX_TOKENS = { cadrage: 1_500, resultat: 9_000 } as const;
-const DELAI_MS = { cadrage: 60_000, resultat: 105_000 } as const;
+const DELAI_MS = { cadrage: 90_000, resultat: 240_000 } as const;
 /** En dessous de ce délai restant, une relance n'a plus aucune chance d'aboutir. */
 const DELAI_MIN_RELANCE_MS = 10_000;
 

@@ -3,8 +3,8 @@ import { BASE_PATH } from "@/lib/config";
 import type { Cadrage, Demande, ResultatClasse } from "@/domain/maCible/types";
 
 export const URL_API = `${BASE_PATH}/api/ma-cible/`;
-/** Délai côté client : au-delà, erreur `ia_indisponible`. */
-export const DELAI_CLIENT_MS = 130_000;
+/** Délai côté client : au-dessus du résultat (240 s), en dessous de `maxDuration` (300 s). */
+export const DELAI_CLIENT_MS = 270_000;
 
 export type CodeErreur =
   | "reseau"

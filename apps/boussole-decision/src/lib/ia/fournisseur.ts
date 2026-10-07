@@ -88,22 +88,19 @@ export function urlGemini(modele: string): string {
 }
 
 /**
- * Corps `generateContent`.
- * `thinkingLevel` vaut `LOW` : enum REST de ThinkingConfig, niveau le plus bas
- * accepté par gemini-3.8-flash (guide Thinking : low, medium, high ; pas minimal).
- * `avecSchema` à faux : repli après un HTTP 400, sans schéma ni thinkingConfig.
+ * Plafond de sortie de gemini-3.8-flash (doc modèle).
+ * La réflexion est décomptée dans `maxOutputTokens` : un budget calé sur le seul JSON tronque la réponse.
  */
+const PLAFOND_SORTIE_GEMINI = 65_536;
+
+/** Corps `generateContent`. `avecSchema` à faux : seulement `responseMimeType` (repli après un HTTP 400). */
 export function corpsGemini(a: AppelModele, avecSchema = true) {
   const generationConfig: {
     maxOutputTokens: number;
     responseMimeType: "application/json";
     responseJsonSchema?: unknown;
-    thinkingConfig?: { thinkingLevel: "LOW" };
-  } = { maxOutputTokens: a.maxTokens, responseMimeType: "application/json" };
-  if (avecSchema) {
-    generationConfig.responseJsonSchema = schemaPourGemini(a.schema);
-    generationConfig.thinkingConfig = { thinkingLevel: "LOW" };
-  }
+  } = { maxOutputTokens: PLAFOND_SORTIE_GEMINI, responseMimeType: "application/json" };
+  if (avecSchema) generationConfig.responseJsonSchema = schemaPourGemini(a.schema);
   return {
     systemInstruction: { parts: [{ text: a.systeme }] },
     contents: [{ role: "user", parts: [{ text: a.utilisateur }] }],
