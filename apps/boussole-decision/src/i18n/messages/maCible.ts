@@ -373,8 +373,7 @@ const fr = {
     entree_invalide: "Certaines réponses ne passent pas. Vérifie les champs signalés.",
     trop_long: "Tes réponses sont trop longues pour être envoyées. Raccourcis les plus longues.",
     origine_refusee: "Cette page ne peut pas joindre l'IA depuis cette adresse. Ouvre Ma Cible depuis magichumans.com.",
-    quota_ip: (max: number) =>
-      `Tu as atteint la limite du jour (${max} par jour). Ton travail est gardé : reviens demain, ou parles-en avec Pierre en attendant.`,
+    quota_ip: "Tu as atteint la limite du jour. Ton travail est gardé : reviens demain, ou parles-en avec Pierre en attendant.",
     quota_global: "Ma Cible a beaucoup servi aujourd'hui et fait une pause jusqu'à demain. Ton travail est gardé dans ce navigateur.",
     ia_invalide: "L'IA s'est emmêlée dans sa réponse. Réessaie, ça passe en général du premier coup.",
     ia_indisponible: "L'IA ne répond pas pour l'instant. Réessaie dans une minute. Un échec ne compte pas dans la limite du jour.",

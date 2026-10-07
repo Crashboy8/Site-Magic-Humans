@@ -155,10 +155,10 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` / `MISTRAL_API_KEY` | clé du fournisseur choisi (`GEMINI_API_KEY` sert aussi de secours quand le fournisseur est `mistral`) | |
 | `MA_CIBLE_SEL` | sel de l'empreinte du compteur, 32 caractères au moins (`openssl rand -hex 32`) | |
 | `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
-| `MA_CIBLE_MAX_IP_CADRAGE` / `MA_CIBLE_MAX_IP_RESULTAT` | appels par IP et par jour | 8 / 3 |
-| `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 600 / 200 |
-| `MA_CIBLE_EMAILS_ILLIMITES` | emails des comptes connectés qui ne consomment pas de quota, séparés par des virgules | |
-| `MA_CIBLE_CLE_TEST` | secret (`openssl rand -hex 24`). Ouvrir `/ma-cible/?cle=` suivi de ce secret saute le quota pour l'onglet | |
+| `MA_CIBLE_MAX_PAR_IP` | plafond personnel, pour le cadrage et le résultat. Vide, `0`, `illimite` ou `unlimited` : pas de plafond par personne. `MA_CIBLE_MAX_IP_CADRAGE` et `MA_CIBLE_MAX_IP_RESULTAT` ne sont plus lues | illimité |
+| `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 2000 / 500 |
+| `MA_CIBLE_EMAILS_ILLIMITES` | emails des comptes connectés qui ne consomment aucun quota, y compris le plafond global, séparés par des virgules. Inutile pour lever un plafond personnel déjà absent | |
+| `MA_CIBLE_CLE_TEST` | secret (`openssl rand -hex 24`). Ouvrir `/ma-cible/?cle=` suivi de ce secret saute aussi le plafond global pour l'onglet | |
 
 En production, la route répond `503 config_manquante` si la clé du fournisseur choisi (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` ou `MISTRAL_API_KEY`) ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris. Seule une génération réussie incrémente le compteur. Un échec, un délai ou une connexion coupée avant la réponse ne comptent pas. Si le serveur a fini après que le navigateur a lâché, le résultat est gardé 20 minutes (mémoire de l'instance, et table `ma_cible_reprise` si la migration est appliquée) et « Réessayer » le rend sans nouvel appel.
 

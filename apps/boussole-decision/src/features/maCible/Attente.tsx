@@ -10,7 +10,6 @@ import { urlAppel } from "./liens";
 
 export interface ErreurAppel {
   code: CodeErreur;
-  max?: number;
 }
 
 /** Textes qui tournent, message après 5 s, et temps écoulé. Remonté à chaque attente : le compteur repart de zéro. */
@@ -64,7 +63,7 @@ export function Attente({
   if (erreur) {
     return (
       <div className="space-y-5">
-        <Notice tone="error">{messageApi(erreur.code, M, erreur.max)}</Notice>
+        <Notice tone="error">{messageApi(erreur.code, M)}</Notice>
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
           <Button type="button" variant="secondary" onClick={onRetour}>
             {M.commun.retour}

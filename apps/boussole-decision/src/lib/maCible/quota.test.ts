@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { jourParis, LIMITES_DEFAUT, limitesDepuisEnv, minuitSuivantParis, quotaMemoire, quotaSupabase, type Limites } from "./quota";
+import { jourParis, LIMITES_DEFAUT, limitesDepuisEnv, MAX_IP_SQL, maxIpPourSql, minuitSuivantParis, quotaMemoire, quotaSupabase, type Limites } from "./quota";
 
 const limites: Limites = { ipCadrage: 2, ipResultat: 3, globalCadrage: 5, globalResultat: 4 };
 const cle = (c: string) => c.padEnd(64, "0");
@@ -26,6 +26,26 @@ describe("quotaMemoire", () => {
     await q.consommer(cle("a"), "cadrage");
     expect((await q.consommer(cle("a"), "cadrage")).ok).toBe(false);
     expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
+  });
+
+  it("sans plafond personnel, la même clé enchaîne et le restant suit le global", async () => {
+    const q = quotaMemoire(LIMITES_DEFAUT, () => new Date("2026-10-10T10:00:00Z"));
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 500 });
+    expect(await q.consommer(cle("a"), "resultat")).toEqual({ ok: true, restant: 499 });
+    for (let i = 0; i < 11; i++) expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
+    expect((await q.autoriser(cle("a"), "cadrage")).ok).toBe(true);
+  });
+
+  it("un petit plafond global refuse tout le monde même sans plafond personnel", async () => {
+    const q = quotaMemoire({ ...LIMITES_DEFAUT, globalResultat: 2 }, () => new Date("2026-10-10T10:00:00Z"));
+    expect((await q.consommer(cle("a"), "resultat")).ok).toBe(true);
+    expect((await q.consommer(cle("b"), "resultat")).ok).toBe(true);
+    expect(await q.consommer(cle("c"), "resultat")).toEqual({ ok: false, motif: "global", restant: 0 });
+  });
+
+  it("un plafond personnel à 0 refuse avant l'appel", async () => {
+    const q = quotaMemoire({ ...limites, ipResultat: 0, globalResultat: 50 }, () => new Date("2026-10-10T10:00:00Z"));
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: false, motif: "ip", restant: 0 });
   });
 
   it("autoriser lit le compteur sans l'incrémenter", async () => {
@@ -60,9 +80,22 @@ describe("jours et limites", () => {
     expect(minuitSuivantParis(new Date("2026-10-10T10:00:00Z")).toISOString()).toBe("2026-10-10T22:00:00.000Z");
     expect(minuitSuivantParis(new Date("2026-12-10T10:00:00Z")).toISOString()).toBe("2026-12-10T23:00:00.000Z");
   });
-  it("limitesDepuisEnv : valeurs par défaut et surcharge", () => {
+  it("limitesDepuisEnv : pas de plafond personnel par défaut, anciennes variables ignorées", () => {
     expect(limitesDepuisEnv({})).toEqual(LIMITES_DEFAUT);
-    expect(limitesDepuisEnv({ MA_CIBLE_MAX_IP_RESULTAT: "5", MA_CIBLE_MAX_GLOBAL_RESULTAT: "abc" })).toMatchObject({ ipResultat: 5, globalResultat: 200 });
+    expect(LIMITES_DEFAUT).toEqual({ ipCadrage: null, ipResultat: null, globalCadrage: 2000, globalResultat: 500 });
+    expect(limitesDepuisEnv({ MA_CIBLE_MAX_PAR_IP: "4" })).toMatchObject({ ipCadrage: 4, ipResultat: 4, globalResultat: 500 });
+    expect(limitesDepuisEnv({ MA_CIBLE_MAX_IP_CADRAGE: "8", MA_CIBLE_MAX_IP_RESULTAT: "3", MA_CIBLE_MAX_GLOBAL_RESULTAT: "abc" })).toEqual(LIMITES_DEFAUT);
+    for (const v of ["", "0", "illimite", "illimité", "unlimited", "non", "-2"]) {
+      expect(limitesDepuisEnv({ MA_CIBLE_MAX_PAR_IP: v }).ipResultat).toBeNull();
+    }
+    expect(limitesDepuisEnv({ MA_CIBLE_MAX_GLOBAL_CADRAGE: "40", MA_CIBLE_MAX_GLOBAL_RESULTAT: "120" })).toMatchObject({
+      ipCadrage: null,
+      ipResultat: null,
+      globalCadrage: 40,
+      globalResultat: 120,
+    });
+    expect(maxIpPourSql(LIMITES_DEFAUT, "resultat")).toBe(MAX_IP_SQL);
+    expect(maxIpPourSql({ ...LIMITES_DEFAUT, ipResultat: 4 }, "resultat")).toBe(4);
   });
 });
 
@@ -96,6 +129,13 @@ describe("quotaSupabase", () => {
     expect(await q.consommer(cle("a"), "cadrage")).toEqual({ ok: false, motif: "global", restant: 0 });
   });
 
+  it("sans plafond personnel, le SQL reçoit un entier très haut et le restant suit le global", async () => {
+    const rpc = vi.fn(async () => ({ data: [{ ok: true, motif: null, n_ip: 40, n_global: 7 }], error: null }));
+    const q = quotaSupabase({ rpc } as never, { ...LIMITES_DEFAUT, globalResultat: 10 }, secours());
+    expect(await q.consommer(cle("a"), "resultat")).toEqual({ ok: true, restant: 3 });
+    expect(rpc).toHaveBeenCalledWith("ma_cible_consommer", { p_cle: cle("a"), p_etape: "resultat", p_max_ip: MAX_IP_SQL, p_max_global: 10 });
+  });
+
   it("si la fonction de lecture manque, lit la table existante", async () => {
     const rpc = vi.fn(async () => { throw new Error("function ma_cible_autoriser does not exist"); });
     const from = vi.fn(() => ({
@@ -109,6 +149,21 @@ describe("quotaSupabase", () => {
     }));
     const q = quotaSupabase({ rpc, from } as never, limites, secours());
     expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: false, motif: "ip", restant: 0 });
+  });
+
+  it("sans plafond personnel, la lecture de table ne refuse pas le compteur de l'adresse", async () => {
+    const rpc = vi.fn(async () => { throw new Error("function ma_cible_autoriser does not exist"); });
+    const from = vi.fn(() => ({
+      select: () => ({
+        eq: () => ({
+          eq: () => ({
+            in: async () => ({ data: [{ cle: "global", n: 1 }, { cle: cle("a"), n: 99 }], error: null }),
+          }),
+        }),
+      }),
+    }));
+    const q = quotaSupabase({ rpc, from } as never, { ...LIMITES_DEFAUT, globalResultat: 4 }, secours());
+    expect(await q.autoriser(cle("a"), "resultat")).toEqual({ ok: true, restant: 3 });
   });
 
   it("erreur de la base ou exception : bascule sur le secours et le journalise sans contenu", async () => {

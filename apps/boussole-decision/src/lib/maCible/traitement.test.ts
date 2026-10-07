@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
-import { quotaMemoire } from "./quota";
+import { limitesDepuisEnv, quotaMemoire } from "./quota";
 import { repriseMemoire } from "./reprise";
 import { cleCompteur, extraireJson, reinitialiserGenerations, traiterDemande, type Dependances } from "./traitement";
 
@@ -154,13 +154,33 @@ describe("configuration et quota", () => {
     expect((await traiterDemande(deps, requete(demandeCadrage()))).status).toBe(200);
   });
   it("429 avec Retry-After quand la limite par IP est atteinte", async () => {
-    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)));
+    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)), { env: { ...ENV, MA_CIBLE_MAX_PAR_IP: "3" } });
     for (let i = 0; i < 3; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
     const r = await traiterDemande(deps, requete(demandeResultat()));
     expect(r.status).toBe(429);
     expect(await corpsDe(r)).toEqual({ ok: false, code: "quota_ip", etape: "resultat", max: 3, reessayerApres: "2026-10-10T22:00:00.000Z" });
     expect(r.headers.get("Retry-After")).toBe(String(12 * 3600));
     expect(fournisseur.appeler).toHaveBeenCalledTimes(3);
+  });
+  it("les défauts n'imposent pas de plafond par adresse", async () => {
+    preparer(Array(5).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
+      quota: quotaMemoire(limitesDepuisEnv({}), () => MAINTENANT),
+    });
+    for (let i = 0; i < 5; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(5);
+  });
+  it("un petit plafond global refuse même sans plafond par adresse", async () => {
+    const env = { ...ENV, MA_CIBLE_MAX_GLOBAL_RESULTAT: "2" };
+    preparer(Array(3).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
+      env,
+      quota: quotaMemoire(limitesDepuisEnv(env), () => MAINTENANT),
+    });
+    expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    expect((await traiterDemande(deps, requete(demandeResultat(), { "x-forwarded-for": "198.51.100.8" }))).status).toBe(200);
+    const r = await traiterDemande(deps, requete(demandeResultat(), { "x-forwarded-for": "198.51.100.9" }));
+    expect(r.status).toBe(429);
+    expect(await corpsDe(r)).toMatchObject({ code: "quota_global", max: 2 });
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
   });
   it("429 quota_global quand le plafond du jour est atteint", async () => {
     preparer([JSON.stringify(RESULTAT_EXEMPLE)], {

@@ -91,7 +91,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
     const r = await appelerApi(demande, c.signal);
     if (c.signal.aborted) return;
     if (!r.ok) {
-      setAttente({ type, demande, erreur: { code: r.code, max: r.max } });
+      setAttente({ type, demande, erreur: { code: r.code } });
       return;
     }
     if ("cadrage" in r && demande.etape === "cadrage") {
