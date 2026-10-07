@@ -490,7 +490,7 @@ test("v1.4 · 7 besoins complets, couleurs et icônes", () => {
   };
   const adjs = {
     securite: "Fidèle", profondeur: "Profond·e", admiration: "Brillant·e", liberte: "Libre",
-    harmonie: "Paisible", complicite: "Joueur·se", intensite: "Passionné·e",
+    harmonie: "Paisible", complicite: "Joueur·euse", intensite: "Passionné·e",
   };
   for (const id of P.order) {
     const b = P.besoins[id];
@@ -982,6 +982,94 @@ test("photo de la salle : session, profil anonyme, compatibilité déjà dans le
   assert.match(html, /noindex/);
   assert.match(html, /setInterval\(charger, 10000\)/);
   assert.match(html, /Photo de la salle/);
+});
+
+test("encyclopédie des familles : 7 cartes, 28 paires, sans changer le score", () => {
+  const enc = D.profil.encyclo;
+  const order = D.profil.order;
+  assert.equal(order.length, 7);
+  assert.deepEqual(Object.keys(enc.cards), order);
+  assert.equal(enc.openAll, "Découvrir tous les profils");
+  assert.equal(enc.couleLab, "Avec qui ça coule de source");
+  assert.equal(enc.attentionLab, "Ce qui demande de l'attention");
+  assert.match(enc.regle, /profil\.couples/);
+  assert.match(enc.regle, /frotte/);
+  assert.match(enc.regle, /On ne condamne jamais une rencontre/);
+  const sentences = (s) => s.split(/(?<=[.!?])\s+/).filter(Boolean);
+  for (const id of order) {
+    const card = enc.cards[id];
+    const n = sentences(card.portrait).length;
+    assert.ok(n >= 2 && n <= 3, id + " portrait " + n);
+    assert.ok(card.nourrit && card.vide);
+    const nuanceIds = Object.keys(card.nuances);
+    assert.deepEqual(nuanceIds.sort(), order.filter((x) => x !== id).sort());
+    for (const other of nuanceIds) {
+      assert.match(card.nuances[other], new RegExp("^" + D.profil.besoins[other].adj.replace("·", "·")));
+    }
+    const guide = E.familyGuide(D, id);
+    assert.equal(guide.noun, D.profil.besoins[id].noun);
+    assert.equal(guide.icon, D.profil.besoins[id].icon);
+    assert.equal(guide.nuances.length, 6);
+    assert.equal(guide.coule.length + guide.attention.length, 7);
+    for (const pair of guide.coule.concat(guide.attention)) {
+      assert.equal(pair.bucket, E.familyBucket(D.profil.couples[pair.key].type));
+      assert.ok(pair.text && pair.tip);
+    }
+  }
+  const coupleKeys = Object.keys(D.profil.couples).sort();
+  const pairKeys = Object.keys(enc.paires).sort();
+  assert.equal(coupleKeys.length, 28);
+  assert.deepEqual(pairKeys, coupleKeys);
+  const counts = { nourrit: 0, proche: 0, frotte: 0, miroir: 0 };
+  for (const key of coupleKeys) {
+    const type = D.profil.couples[key].type;
+    counts[type] += 1;
+    const bucket = E.familyBucket(type);
+    if (type === "frotte") assert.equal(bucket, "attention", key);
+    else assert.equal(bucket, "coule", key);
+    const [a, b] = key.split("+");
+    const left = E.familyGuide(D, a);
+    const bag = bucket === "coule" ? left.coule : left.attention;
+    assert.ok(bag.some((p) => p.key === key && p.text === enc.paires[key].text && p.tip === enc.paires[key].tip));
+  }
+  assert.deepEqual(counts, { nourrit: 7, proche: 7, frotte: 7, miroir: 7 });
+  const before = E.computeLoveProfile(firstAnswers(), D, "Léa").profil.scores;
+  const after = E.computeLoveProfile(firstAnswers(), D, "Léa").profil.scores;
+  assert.deepEqual(before, after);
+  const strings = allStrings(enc);
+  for (const s of strings) {
+    assert.equal(/[\u2013\u2014]/.test(s), false, s);
+    assert.equal(/\bvous\b/i.test(s.replace(/rendez-vous/gi, "")), false, s);
+    assert.equal(/sexuel/i.test(s), false, s);
+    assert.equal(/incompatible/i.test(s), false, s);
+  }
+  const md = fs.readFileSync(new URL("./profils-familles.md", import.meta.url), "utf8");
+  for (const id of order) {
+    const card = enc.cards[id];
+    assert.ok(md.includes(card.portrait), id);
+    assert.ok(md.includes(card.nourrit), id);
+    assert.ok(md.includes(card.vide), id);
+    for (const line of Object.values(card.nuances)) assert.ok(md.includes(line), line);
+  }
+  for (const key of coupleKeys) {
+    assert.ok(md.includes(enc.paires[key].text), key);
+    assert.ok(md.includes(enc.paires[key].tip), key);
+  }
+  assert.ok(md.includes(enc.regle));
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  assert.match(src, /id="am-fam-dialog"/);
+  assert.match(src, /id="sec-familles"/);
+  const foldSrc = src.slice(src.indexOf("function familyFold"), src.indexOf("function familyDialog"));
+  assert.match(foldSrc, /familyCardInner\(domId, true\)/);
+  assert.equal(foldSrc.includes(".map("), false);
+  assert.match(src, /familyFold\(pr\.dom\)/);
+  assert.match(src, /data-act="family-all"/);
+  assert.match(src, /data-act="family-close"/);
+  assert.match(src, /dialog\.am-fam\{display:none!important\}/);
+  assert.match(src, /JSON\.stringify\(\{ session: session, profil: profil \}\)/);
+  assert.equal(src.includes("showResults"), true);
+  const openBody = src.slice(src.indexOf("function openFamily"), src.indexOf("function profilReport"));
+  assert.equal(openBody.includes("showResults"), false);
 });
 
 test("encodage", () => {

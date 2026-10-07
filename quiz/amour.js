@@ -203,6 +203,31 @@
     "#screen-amour .am-petit label{font-weight:700}",
     "#screen-amour .am-petit textarea{width:100%;min-height:72px}",
     "#screen-amour .am-petit-print{display:none}",
+    "#screen-amour button.am-namebtn{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.14em}",
+    "#screen-amour button.am-namebtn.am-pill{text-decoration:none}",
+    "#screen-amour button.am-namebtn.am-pill{background:var(--bt);padding:6px 12px 6px 8px;margin:0 8px 8px 0}",
+    "#screen-amour button.am-namebtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}",
+    "#screen-amour .alloy .am-namebtn{font-weight:inherit;line-height:inherit}",
+    "#screen-amour .alloy em .am-namebtn{font-weight:500}",
+    "#screen-amour button.am-pill{font:inherit;border:0;cursor:pointer;text-align:left}",
+    "#screen-amour .pr-bar-n .am-namebtn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;font-weight:700}",
+    "#screen-amour .am-salle .salle-lab .am-namebtn{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;color:inherit;text-align:left}",
+    "#screen-amour .am-fam-open{align-self:flex-start}",
+    "#screen-amour dialog.am-fam{border:0;padding:0;margin:auto;max-width:700px;width:min(700px,calc(100vw - 24px));max-height:min(88vh,760px);border-radius:18px;background:var(--bg);color:var(--ink);box-shadow:0 18px 50px rgba(27,24,22,.22)}",
+    "#screen-amour dialog.am-fam::backdrop{background:rgba(27,24,22,.45)}",
+    "#screen-amour .am-fam-box{display:flex;flex-direction:column;max-height:min(88vh,760px)}",
+    "#screen-amour .am-fam-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--bg)}",
+    "#screen-amour .am-fam-kicker{margin:0;font-weight:700}",
+    "#screen-amour .am-fam-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 0}",
+    "#screen-amour .am-fam-body{overflow:auto;padding:4px 14px 18px;-webkit-overflow-scrolling:touch}",
+    "#screen-amour .am-fam-card{display:flex;flex-direction:column;gap:8px}",
+    "#screen-amour .am-fam-card h3{display:flex;align-items:center;gap:8px;margin:8px 0 0}",
+    "#screen-amour .am-fam-card h4{margin:12px 0 4px}",
+    "#screen-amour .am-pair{padding:8px 0;border-top:1px solid var(--line)}",
+    "#screen-amour .am-pair h4{margin:0 0 4px;font-size:1rem}",
+    "#screen-amour .am-fam-nu{margin:0;padding-left:1.1em}",
+    "#screen-amour .am-fam-nu li{margin:4px 0}",
+    "@media(max-width:420px){#screen-amour dialog.am-fam{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0}#screen-amour .am-fam-box{max-height:100dvh;height:100dvh}}",
     "#screen-amour .rule .quote{color:var(--ink);font-size:1.15rem}",
     "#screen-amour .rule .btn{align-self:flex-start;margin-top:4px}",
     "@media(max-width:420px){#screen-amour .am-nav-row .btn{padding:12px 10px;font-size:.92rem}}",
@@ -233,6 +258,7 @@
     "#screen-amour details.am-fold{display:block!important}",
     "#screen-amour details.am-fold > summary{display:block!important}",
     "#screen-amour details.am-fold > .am-fold-body{display:block!important}",
+    "#screen-amour dialog.am-fam{display:none!important}",
     "#screen-amour .pr-cols,#screen-amour .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}",
     "#screen-amour .fond li:nth-child(n+3){display:none}",
     "#screen-amour .am-pill{padding:3px 10px 3px 6px}",
@@ -1012,27 +1038,113 @@
     return it ? it.label : "";
   }
 
+  function familyNameBtn(id, label) {
+    return '<button type="button" class="am-namebtn" data-act="family" data-id="' + esc(id) + '">' + esc(label) + "</button>";
+  }
+
+  function familyPairsHtml(list, enc) {
+    return list.map(function (pair) {
+      const who = familyNameBtn(pair.id, pair.noun) + (pair.same ? " <small>" + esc(enc.sameLab) + "</small>" : "");
+      return '<article class="am-pair"><h4>' + who + "</h4><p>" + esc(pair.text) + "</p><p><strong>" + esc(enc.tipLab) + ".</strong> " + esc(pair.tip) + "</p></article>";
+    }).join("");
+  }
+
+  function familyCardInner(id, anchor) {
+    const enc = D.profil.encyclo;
+    const guide = E.familyGuide(D, id);
+    if (!guide) return "";
+    const nuances = '<ul class="am-fam-nu">' + guide.nuances.map(function (row) {
+      return "<li>" + esc(row.line) + "</li>";
+    }).join("") + "</ul>";
+    return '<div class="am-fam-card"' + (anchor ? ' id="fam-' + esc(id) + '"' : "") + ' style="' + needStyle(id) + '">' +
+      "<h3>" + profilSvg(guide.icon) + "<span>" + esc(guide.noun + " · " + guide.name) + "</span></h3>" +
+      "<p>" + esc(guide.portrait) + "</p>" +
+      "<p><strong>" + esc(enc.nourritLab) + ".</strong> " + esc(guide.nourrit) + "</p>" +
+      "<p><strong>" + esc(enc.videLab) + ".</strong> " + esc(guide.vide) + "</p>" +
+      "<h4>" + esc(enc.nuancesLab) + "</h4>" + nuances +
+      "<h4>" + esc(enc.couleLab) + "</h4>" + familyPairsHtml(guide.coule, enc) +
+      "<h4>" + esc(enc.attentionLab) + "</h4>" + familyPairsHtml(guide.attention, enc) +
+      "</div>";
+  }
+
+  function familyFold(domId) {
+    const enc = D.profil.encyclo;
+    const guide = E.familyGuide(D, domId);
+    const title = guide ? guide.noun + " · " + guide.name : enc.openAll;
+    return '<details class="am-fold" id="sec-familles"><summary><h2>' + esc(title) + "</h2></summary><div class=\"am-fold-body\">" + familyCardInner(domId, true) + "</div></details>";
+  }
+
+  function familyDialog() {
+    const enc = D.profil.encyclo;
+    const chips = D.profil.order.map(function (id) {
+      const b = D.profil.besoins[id];
+      return '<button type="button" class="chip" data-act="family" data-id="' + esc(id) + '" aria-pressed="false">' + esc(b.noun) + "</button>";
+    }).join("");
+    return '<dialog id="am-fam-dialog" class="am-fam"><div class="am-fam-box"><div class="am-fam-head"><p class="am-fam-kicker" id="am-fam-kicker">' + esc(enc.openAll) + '</p><button type="button" class="btn ghost small" data-act="family-close">' + esc(enc.close) + "</button></div>" +
+      '<div class="am-fam-chips" role="group" aria-label="' + esc(enc.openAll) + '">' + chips + '</div><div class="am-fam-body" id="am-fam-body"></div></div></dialog>';
+  }
+
+  function renderFamily(id) {
+    const body = document.getElementById("am-fam-body");
+    const dlg = document.getElementById("am-fam-dialog");
+    if (!body || !dlg) return;
+    const guide = E.familyGuide(D, id);
+    if (!guide) return;
+    body.innerHTML = familyCardInner(id);
+    const title = body.querySelector("h3");
+    if (title) {
+      title.id = "am-fam-title";
+      dlg.setAttribute("aria-labelledby", "am-fam-title");
+    }
+    dlg.querySelectorAll(".am-fam-chips [data-act=family]").forEach(function (chip) {
+      const on = chip.getAttribute("data-id") === id;
+      chip.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    body.scrollTop = 0;
+  }
+
+  let familyOpener = null;
+
+  function openFamily(id, opener) {
+    const dlg = document.getElementById("am-fam-dialog");
+    if (!dlg || !E.familyGuide(D, id)) return;
+    familyOpener = opener || document.activeElement;
+    renderFamily(id);
+    if (typeof dlg.showModal === "function") {
+      if (!dlg.open) dlg.showModal();
+      const closeBtn = dlg.querySelector("[data-act=family-close]");
+      if (closeBtn) closeBtn.focus();
+      return;
+    }
+    const fold = document.getElementById("sec-familles");
+    if (fold) fold.open = true;
+    const card = document.getElementById("fam-" + id);
+    if (card && card.scrollIntoView) card.scrollIntoView({ block: "start" });
+  }
+
   function profilReport(profile, pierreLine) {
     const pr = profile.profil;
     const U = D.profil.ui;
     const B = D.profil.besoins;
+    const enc = D.profil.encyclo;
     const dom = B[pr.dom];
     const sec = B[pr.sec];
     const headStyle = "--sc:" + sec.ink + ";--sc-dark:" + sec.dark + ";--dom-tint:" + dom.tint + ";--sec-tint:" + sec.tint + ";--dom-color:" + dom.color + ";--sec-color:" + sec.color;
     const pills =
-      '<div class="am-pills"><span class="am-pill" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + "<span><small>Dominante</small>" + esc(dom.name) + "</span></span>" +
-      '<span class="am-pill" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>Secondaire</small>" + esc(sec.name) + "</span></span></div>";
+      '<div class="am-pills"><button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.dom) + '" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + "<span><small>Dominante</small>" + esc(dom.name) + "</span></button>" +
+      '<button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.sec) + '" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>Secondaire</small>" + esc(sec.name) + "</span></button></div>";
     const bars = pr.bars.map(function (bar) {
       const b = B[bar.id];
-      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + "<span>" + esc(b.name) + '</span></span><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(Math.round(bar.score))) + "</span></div>";
+      return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + familyNameBtn(bar.id, b.name) + '</span><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(Math.round(bar.score))) + "</span></div>";
     }).join("");
     const why = '<details class="pr-hide"><summary>' + esc(U.whyLab) + "</summary><p>" + esc(fill(U.whyIntro, { domName: dom.name })) + "</p><ul class=\"clean\">" +
       pr.why.map(function (line) { return "<li>" + esc(line) + "</li>"; }).join("") +
       "</ul><p class=\"muted\">" + esc(U.whyNote) + "</p></details>";
     const header =
       '<div class="rhead" style="' + headStyle + '"><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
-      '<div class="alloy">' + esc(pr.name.noun) + " <em>" + esc(pr.name.adj) + "</em></div>" +
+      '<div class="alloy">' + familyNameBtn(pr.dom, pr.name.noun) + " <em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em></div>" +
       '<p class="pr-domsec">' + esc(pr.header.domSec) + "</p>" + pills +
+      '<button type="button" class="btn ghost small am-fam-open" data-act="family-all">' + esc(enc.openAll) + "</button>" +
       '<div class="panel"><span class="lab">' + esc(U.alliageLab) + '</span><p class="quote">' + esc(pr.header.alliage) + "</p></div>" +
       '<div class="panel pr-hide"><span class="lab">' + esc(U.barsLab) + '</span><div class="pr-bars">' + bars + "</div>" +
       (pr.header.marginLine ? "<p>" + esc(pr.header.marginLine) + "</p>" : "") + "</div>" + why + "</div>";
@@ -1073,13 +1185,13 @@
       if (secItem.rule) body += "<p>" + esc(secItem.rule) + "</p>";
       if (secItem.fond) body += '<ul class="clean fond">' + secItem.fond.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul>";
       if (secItem.nourrit) {
-        const pair = function (item) { return "<p><strong>" + esc(item.label) + "</strong> " + esc(item.text) + "</p>"; };
+        const pair = function (item) { return "<p><strong>" + familyNameBtn(item.id, item.label) + "</strong> " + esc(item.text) + "</p>"; };
         body += '<div class="grid2">';
         body += '<div class="panel ctx-good"><span class="lab">' + esc(U.s4nourrit) + "</span>" + secItem.nourrit.map(pair).join("") + "</div>";
         body += '<div class="panel"><span class="lab">' + esc(U.s4frotte) + "</span>" + secItem.frotte.map(pair).join("") + "</div>";
         body += "</div>";
         body += '<div class="panel pr-hide"><span class="lab">' + esc(U.s4proche) + "</span>" + secItem.proche.map(pair).join("") +
-          "<p><strong>" + esc(U.s4mirrorLab) + " :</strong> " + esc(secItem.mirror) + "</p></div>";
+          "<p><strong>" + familyNameBtn(pr.dom, U.s4mirrorLab) + " :</strong> " + esc(secItem.mirror) + "</p></div>";
         body += '<div class="panel ctx-bad"><span class="lab">' + esc(U.s4critical) + '</span><ul class="clean">' +
           secItem.critical.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div>";
       }
@@ -1107,7 +1219,7 @@
     });
     return header + '<div class="stack-lg" style="padding-top:8px">' + phrases + talentBlock + discoveryBlock("resultat-apres-profil", pierreLine) + salleSlot() + toc +
       '<div class="pr-cols">' + sections[0] + sections[1] + "</div>" +
-      sections.slice(2).join("") + "</div>";
+      sections.slice(2).join("") + familyFold(pr.dom) + "</div>";
   }
 
   function showResults(profile) {
@@ -1202,7 +1314,8 @@
       '<section class="rs"><h2>' + esc(R.matchingH) + '</h2><div class="panel"><p class="muted">' + matching + "</p></div></section>" +
       '<section class="rs"><h2>' + esc(R.ethicsH) + '</h2><div class="prose"><p>' + esc(R.ethicsP) + '</p><p><button type="button" class="link" data-act="restart">' + esc(R.restart) + "</button></p></div></section>" +
       "</div>" +
-      stickyBar();
+      stickyBar() +
+      familyDialog();
 
     delete root.dataset.tone;
     root.dataset.share = profile.shareText;
@@ -1274,12 +1387,12 @@
     if (photo.total < 5) {
       box.hidden = false;
       box.innerHTML =
-        '<section class="rs am-salle" aria-live="polite"><h2>' + esc(R.salleH) + "</h2><p>" + esc(R.salleWait) + '</p><button type="button" class="btn ghost small" data-act="salle-refresh">' + esc(R.salleRefresh) + "</button></section>";
+        '<section class="rs am-salle" aria-live="polite"><h2>' + esc(R.salleH) + "</h2><p>" + esc(R.salleWait) + '</p><button type="button" class="btn ghost small" data-act="family-all">' + esc(D.profil.encyclo.openAll) + '</button><button type="button" class="btn ghost small" data-act="salle-refresh">' + esc(R.salleRefresh) + "</button></section>";
       return;
     }
     const rows = photo.bars.map(function (bar) {
       const you = bar.id === dom ? ' <small class="salle-you">' + esc(R.salleYou) + "</small>" : "";
-      return '<div class="salle-row" style="--bf:' + esc(bar.color) + '"><div class="salle-lab"><span>' + esc(bar.name) + "</span>" + you + '</div><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="salle-pct">' + esc(String(bar.pct)) + " %</span></div>";
+      return '<div class="salle-row" style="--bf:' + esc(bar.color) + '"><div class="salle-lab">' + familyNameBtn(bar.id, bar.name) + you + '</div><span class="pr-track"><i style="width:' + bar.pct + '%"></i></span><span class="salle-pct">' + esc(String(bar.pct)) + " %</span></div>";
     }).join("");
     const compat = photo.compat
       ? "<p>" + esc(fill(R.salleCompat, { name: photo.compat.name, pct: photo.compat.pct })) + "</p>"
@@ -1287,7 +1400,7 @@
     box.hidden = false;
     box.innerHTML =
       '<section class="rs am-salle" aria-live="polite"><h2>' + esc(R.salleH) + "</h2><p class=\"muted\">" + esc(fill(R.salleTotal, { n: photo.total })) + "</p>" + rows + compat +
-      '<button type="button" class="btn ghost small" data-act="salle-refresh">' + esc(R.salleRefresh) + "</button></section>";
+      '<button type="button" class="btn ghost small" data-act="family-all">' + esc(D.profil.encyclo.openAll) + '</button><button type="button" class="btn ghost small" data-act="salle-refresh">' + esc(R.salleRefresh) + "</button></section>";
   }
 
   function chargerSalle(profile) {
@@ -1610,6 +1723,13 @@
     }
   });
 
+  root.addEventListener("close", function (ev) {
+    if (!ev.target || ev.target.id !== "am-fam-dialog") return;
+    const back = familyOpener;
+    familyOpener = null;
+    if (back && typeof back.focus === "function") back.focus();
+  }, true);
+
   root.addEventListener("click", function (ev) {
     const tocLink = ev.target.closest(".toc a");
     if (tocLink) {
@@ -1617,6 +1737,10 @@
       const foldTarget = foldId ? document.getElementById(foldId) : null;
       const fold = foldTarget && foldTarget.closest("details.am-fold");
       if (fold) fold.open = true;
+    }
+    if (ev.target && ev.target.id === "am-fam-dialog") {
+      ev.target.close();
+      return;
     }
     const btn = ev.target.closest("[data-act]");
     if (!btn || !root.contains(btn)) return;
@@ -1633,6 +1757,21 @@
     }
     if (act === "salle-refresh") {
       if (resultProfile) chargerSalle(resultProfile);
+      return;
+    }
+    if (act === "family" || act === "family-all") {
+      const dlg = document.getElementById("am-fam-dialog");
+      const picked = act === "family" ? btn.getAttribute("data-id") : (resultProfile && resultProfile.profil ? resultProfile.profil.dom : D.profil.order[0]);
+      if (dlg && dlg.open && dlg.contains(btn)) {
+        renderFamily(picked);
+        return;
+      }
+      openFamily(picked, btn);
+      return;
+    }
+    if (act === "family-close") {
+      const dlg = document.getElementById("am-fam-dialog");
+      if (dlg && dlg.open) dlg.close();
       return;
     }
     if (act === "dismiss-sticky") {
