@@ -1,7 +1,7 @@
 // Ma Cible : textes de l'interface. Le français fait foi ; l'anglais et l'espagnol suivront avec la même forme.
 
 /** Nom affiché dans l'encart : neutre, le fournisseur réel dépend de la configuration. */
-export const LIBELLE_FOURNISSEUR_IA = "un modèle d'IA (Google Gemini ou Anthropic Claude selon la configuration)";
+export const LIBELLE_FOURNISSEUR_IA = "un modèle d'IA (Mistral, Google Gemini ou Anthropic Claude selon la configuration)";
 const fr = {
   meta: {
     titre: "Ma Cible : trouve les clients faits pour ton talent",

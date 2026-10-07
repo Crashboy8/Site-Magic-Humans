@@ -137,7 +137,7 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | Quoi | Où |
 |---|---|
 | Domaine pur : types, limites, validation de l'entrée, ancres `#cible=` / `#q=` / `#b=`, schémas JSON, validation des réponses, nettoyage, grille et scores, **prompts** | `src/domain/maCible/` |
-| Appel au modèle par `fetch` (Anthropic, OpenAI ou Gemini, aucun SDK) | `src/lib/ia/fournisseur.ts` |
+| Appel au modèle par `fetch` (Anthropic, OpenAI, Gemini ou Mistral, aucun SDK) | `src/lib/ia/fournisseur.ts` |
 | Logique de la route (`traiterDemande`), quota, origines acceptées | `src/lib/maCible/` |
 | Route | `src/app/api/ma-cible/route.ts` |
 | Client Supabase serveur (clé secrète, compteur seulement) | `src/lib/supabase/admin.ts` |
@@ -149,16 +149,16 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 
 | Variable | Rôle | Défaut |
 |---|---|---|
-| `MA_CIBLE_FOURNISSEUR` | `anthropic`, `openai` ou `gemini` | `anthropic` |
-| `MA_CIBLE_MODELE` | nom exact du modèle chez le fournisseur (obligatoire avec `openai` ; vide avec `gemini` : `gemini-3.8-flash`) | `claude-sonnet-5` |
-| `MA_CIBLE_MODELE_SECOURS` | modèle Gemini plus léger si le principal est en surcharge, en panne réseau ou trop lent | `gemini-3.5-flash-lite` |
-| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` | clé du fournisseur choisi | |
+| `MA_CIBLE_FOURNISSEUR` | `anthropic`, `openai`, `gemini` ou `mistral` | `anthropic` |
+| `MA_CIBLE_MODELE` | nom exact du modèle (obligatoire avec `openai` ; vide et `gemini` : `gemini-3.8-flash` ; vide et `mistral` : `mistral-small-latest`) | `claude-sonnet-5` |
+| `MA_CIBLE_MODELE_SECOURS` | modèle Gemini plus léger si Gemini est en surcharge, en panne réseau ou trop lent | `gemini-3.5-flash-lite` |
+| `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY` / `MISTRAL_API_KEY` | clé du fournisseur choisi (`GEMINI_API_KEY` sert aussi de secours quand le fournisseur est `mistral`) | |
 | `MA_CIBLE_SEL` | sel de l'empreinte du compteur, 32 caractères au moins (`openssl rand -hex 32`) | |
 | `SUPABASE_SECRET_KEY` | clé secrète Supabase (Paramètres → API) pour le compteur partagé | |
 | `MA_CIBLE_MAX_IP_CADRAGE` / `MA_CIBLE_MAX_IP_RESULTAT` | appels par IP et par jour | 8 / 3 |
 | `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 600 / 200 |
 
-En production, la route répond `503 config_manquante` si la clé du fournisseur choisi (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY` ou `GEMINI_API_KEY`) ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris.
+En production, la route répond `503 config_manquante` si la clé du fournisseur choisi (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY` ou `MISTRAL_API_KEY`) ou `MA_CIBLE_SEL` manque. Sans `SUPABASE_SECRET_KEY` (développement local), le compteur reste en mémoire de l'instance. Le jour se compte à Paris.
 
 ### Clé Gemini (offre gratuite)
 
@@ -167,6 +167,13 @@ En production, la route répond `503 config_manquante` si la clé du fournisseur
 3. Laisser `MA_CIBLE_MODELE` vide pour `gemini-3.8-flash` (modèle Flash stable de l'offre gratuite). En cas de surcharge (503, 429, 500), de panne réseau ou de délai, le même modèle est relancé une fois, puis `gemini-3.5-flash-lite` (ou `MA_CIBLE_MODELE_SECOURS`).
 
 Avec l'offre gratuite, Google peut utiliser les textes envoyés (talent, terrain, réponses) pour améliorer ses produits. Ne pas y mettre de données sensibles. L'offre payante ne sert pas à cet entraînement : fixer alors un plafond de dépense dans la console Google.
+
+### Mistral en principal, Gemini en secours
+
+1. Créer une clé API dans le [Studio Mistral](https://console.mistral.ai/) (mode gratuit : pas de carte, limites de débit).
+2. La coller dans `MISTRAL_API_KEY`, avec `MA_CIBLE_FOURNISSEUR=mistral`.
+3. Laisser `MA_CIBLE_MODELE` vide pour `mistral-small-latest` (modèle du quickstart du mode gratuit, sortie JSON par `response_format` de type `json_schema`).
+4. Renseigner aussi `GEMINI_API_KEY`. Si Mistral répond 429, un code 5xx ou dépasse son délai, l'appel continue sur Gemini (`gemini-3.8-flash`, puis `gemini-3.5-flash-lite` ou `MA_CIBLE_MODELE_SECOURS`).
 
 ### Ce qui est stocké
 
@@ -177,7 +184,7 @@ Rien, à part un compteur anonyme : une empreinte `sha256(sel + jour + IP)`, une
 1. Dans le SQL Editor de Supabase, exécuter `supabase/migrations/20261010000000_ma_cible_quota.sql`.
 2. Créer la clé API chez le fournisseur et **fixer un plafond de dépense mensuel dans sa console** (les plafonds par jour bornent déjà la dépense, mais le plafond mensuel protège contre une erreur de réglage).
 3. Renseigner les variables ci-dessus dans Vercel, puis redéployer.
-4. Avant la première mise en ligne, vérifier dans la documentation du fournisseur le nom exact du modèle et la forme du schéma de sortie (`output_config` chez Anthropic, `responseMimeType` et `responseJsonSchema` chez Gemini : l'API évolue), puis suivre la recette PR 1 du cahier des charges (§17).
+4. Avant la première mise en ligne, vérifier dans la documentation du fournisseur le nom exact du modèle et la forme du schéma de sortie (`output_config` chez Anthropic, `responseMimeType` et `responseJsonSchema` chez Gemini, `response_format.json_schema` chez Mistral : l'API évolue), puis suivre la recette PR 1 du cahier des charges (§17).
 
 ### Tester
 
