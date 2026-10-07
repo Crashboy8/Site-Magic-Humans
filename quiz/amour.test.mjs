@@ -76,7 +76,8 @@ function randomAnswers(r) {
     if (s.type === "pick") {
       const bag = { picked: {}, other: {}, order: {} };
       for (const g of s.groups) {
-        const n = g.min + Math.floor(r() * (g.items.length - g.min + 1));
+        const cap = g.max ? Math.min(g.max, g.items.length) : g.items.length;
+        const n = g.min + Math.floor(r() * (Math.max(0, cap - g.min) + 1));
         let ids = shuffle(r, g.items.map((it) => it.id)).slice(0, n);
         if (s.exclusive) {
           for (const pair of s.exclusive) {
@@ -86,7 +87,7 @@ function randomAnswers(r) {
         }
         bag.picked[g.id] = ids;
         const texts = [];
-        if (g.other && r() < 0.25) texts.push("déjà vu · aimé·e <b> vraiment");
+        if (g.other && r() < 0.25 && (!g.max || ids.length < g.max)) texts.push("déjà vu · aimé·e <b> vraiment");
         bag.other[g.id] = texts;
         const chosen = ids.slice();
         if (texts[0] && texts[0].trim()) chosen.push("autre:0");
@@ -255,7 +256,11 @@ test("minimums", () => {
   const ids = group("valeurs", "valeurs").items.map((it) => it.id).filter((id) => id !== "sans_enfants");
   allValues.valeurs.picked.valeurs = ids;
   allValues.valeurs.order.valeurs = ids;
-  assert.doesNotThrow(() => E.computeLoveProfile(allValues, D, "Léa"));
+  assert.throws(() => E.computeLoveProfile(allValues, D, "Léa"));
+  const five = firstAnswers();
+  five.valeurs.picked.valeurs = ["honnetete", "fidelite", "respect", "humour", "aventure"];
+  five.valeurs.order.valeurs = ["honnetete", "fidelite", "respect"];
+  assert.doesNotThrow(() => E.computeLoveProfile(five, D, "Léa"));
 });
 
 test("rankingState", () => {
@@ -322,7 +327,16 @@ test("phrases", () => {
   assert.equal(p.profil.name.text, p.profil.name.noun + " " + p.profil.name.adj);
 });
 
-test("valeurs", () => {
+test("valeurs : 3 à 5, top 3 à 3 points, la suite à 1", () => {
+  const g = group("valeurs", "valeurs");
+  assert.equal(g.items.length, 15);
+  assert.equal(g.min, 3);
+  assert.equal(g.max, 5);
+  assert.equal(screen("valeurs").rank.mode, "tap");
+  assert.equal(screen("valeurs").rank.top, 3);
+  assert.equal(screen("valeurs").title, "Choisis 3 à 5 valeurs qui comptent le plus pour toi.");
+  assert.equal(screen("valeurs").rank.title, "Touche ton top 3, dans l'ordre.");
+  assert.deepEqual(D.profil.points.valeurs, [3, 3, 3, 1, 1, 1, 1, 1, 0]);
   const a = firstAnswers();
   a.valeurs.picked.valeurs = ["enfants", "honnetete", "fidelite", "humour"];
   a.valeurs.order.valeurs = ["enfants", "honnetete", "fidelite", "humour"];
@@ -330,6 +344,30 @@ test("valeurs", () => {
   assert.deepEqual(p.values.nonNegotiables.map((v) => v.id), ["enfants", "honnetete", "fidelite"]);
   assert.deepEqual(p.values.toDiscuss.map((v) => v.id), ["humour"]);
   assert.ok(p.partner.critical.includes("Un partenaire qui ne veut pas d'enfants."));
+  const top = firstAnswers();
+  const ids = ["honnetete", "fidelite", "respect", "humour", "aventure"];
+  top.valeurs.picked.valeurs = ids.slice();
+  top.valeurs.order.valeurs = ids.slice();
+  const swappedTop = firstAnswers();
+  swappedTop.valeurs.picked.valeurs = ids.slice();
+  swappedTop.valeurs.order.valeurs = ["fidelite", "honnetete", "respect", "humour", "aventure"];
+  const ranked = E.computeLoveProfile(top, D, "Léa");
+  const swapped = E.computeLoveProfile(swappedTop, D, "Léa");
+  assert.deepEqual(swapped.profil.raw, ranked.profil.raw);
+  assert.deepEqual(swapped.values.nonNegotiables.map((v) => v.id), ["fidelite", "honnetete", "respect"]);
+  const tailUp = firstAnswers();
+  tailUp.valeurs.picked.valeurs = ids.slice();
+  tailUp.valeurs.order.valeurs = ["honnetete", "fidelite", "humour", "respect", "aventure"];
+  const moved = E.computeLoveProfile(tailUp, D, "Léa");
+  assert.equal(moved.profil.raw.complicite - ranked.profil.raw.complicite, 2);
+  assert.equal(moved.profil.raw.harmonie - ranked.profil.raw.harmonie, -2);
+  const onlyTop = firstAnswers();
+  onlyTop.valeurs.picked.valeurs = ids.slice();
+  onlyTop.valeurs.order.valeurs = ["aventure", "humour", "respect"];
+  const fromTaps = E.computeLoveProfile(onlyTop, D, "Léa");
+  assert.deepEqual(fromTaps.values.order.map((v) => v.id), ["aventure", "humour", "respect", "honnetete", "fidelite"]);
+  assert.equal(fromTaps.profil.raw.intensite - ranked.profil.raw.intensite, 2);
+  assert.equal(fromTaps.profil.raw.profondeur - ranked.profil.raw.profondeur, -2);
 });
 
 test("sécurité", () => {
@@ -621,7 +659,7 @@ function memoryStore() {
 }
 
 test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
-  assert.equal(E.progressKey(), "quiz_amour_v15_progress");
+  assert.equal(E.progressKey(), "quiz_amour_v16_progress");
   const store = memoryStore();
   const answers = firstAnswers();
   answers.etape.safety = "passe";
@@ -644,7 +682,7 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
     stack,
   }), true);
   const back = E.readProgress(store);
-  assert.equal(back.v, 15);
+  assert.equal(back.v, 16);
   assert.equal(back.prenom, "Léa");
   assert.equal(back.qi, 8);
   assert.equal(back.view, "results");
@@ -665,6 +703,7 @@ test("persistance : réponses, étape, résultat, jamais la sécurité", () => {
   assert.equal(E.parseProgress("{"), null);
   assert.equal(E.parseProgress({ v: 13, view: "intro", answers: {} }), null);
   assert.equal(E.parseProgress({ v: 14, view: "intro", answers: {} }), null);
+  assert.equal(E.parseProgress({ v: 15, view: "intro", answers: {} }), null);
 });
 
 test("ce qui vide : jusqu'à 5 lignes perso, hors score, visibles, jamais autre:0", () => {

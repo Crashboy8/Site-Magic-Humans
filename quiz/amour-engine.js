@@ -56,6 +56,18 @@
     const ch = chosen(answers, screen, group);
     const bag = bagOf(answers, screen.id);
     const order = bag.order && Array.isArray(bag.order[group.id]) ? bag.order[group.id] : null;
+    if (screen.rank && screen.rank.mode === "tap" && order) {
+      const topN = screen.rank.top || 3;
+      const head = [];
+      order.forEach((id) => {
+        if (ch.indexOf(id) !== -1 && head.indexOf(id) === -1 && head.length < topN) head.push(id);
+      });
+      if (head.length >= Math.min(topN, ch.length)) {
+        const tail = order.slice(head.length).filter((id) => ch.indexOf(id) !== -1 && head.indexOf(id) === -1);
+        const missing = ch.filter((id) => head.indexOf(id) === -1 && tail.indexOf(id) === -1);
+        return head.concat(tail, missing);
+      }
+    }
     if (order && sameSet(order, ch)) return order.slice();
     return ch.slice();
   }
@@ -154,10 +166,22 @@
           const unknown = raw.some((id) => !group.items.some((it) => it.id === id));
           const dup = new Set(raw).size !== raw.length;
           const ch = chosen(src, screen, group);
-          if (!picked || unknown || dup || ch.length < group.min || !knownIds(group, ch)) bad.push(screen.id + "." + group.id);
-          if (screen.rank && screen.rank.mode === "step" && screen.rank.groups.indexOf(group.id) !== -1) {
+          if (!picked || unknown || dup || ch.length < group.min || (group.max && ch.length > group.max) || !knownIds(group, ch)) bad.push(screen.id + "." + group.id);
+          if (screen.rank && screen.rank.groups.indexOf(group.id) !== -1) {
             const order = bag.order && Array.isArray(bag.order[group.id]) ? bag.order[group.id] : null;
-            if (!order || !sameSet(order, ch)) bad.push(screen.id + "." + group.id);
+            if (screen.rank.mode === "tap") {
+              const topN = screen.rank.top || 3;
+              const ids = Array.isArray(order) ? order : [];
+              const known = ids.every((id) => ch.indexOf(id) !== -1);
+              const uniq = new Set(ids).size === ids.length;
+              const head = [];
+              ids.forEach((id) => {
+                if (ch.indexOf(id) !== -1 && head.indexOf(id) === -1 && head.length < topN) head.push(id);
+              });
+              if (!known || !uniq || head.length < Math.min(topN, ch.length)) bad.push(screen.id + "." + group.id);
+            } else if (screen.rank.mode === "step") {
+              if (!order || !sameSet(order, ch)) bad.push(screen.id + "." + group.id);
+            }
           }
         }
         if (screen.exclusive) {
@@ -771,7 +795,7 @@
   function boussoleBoost(profil, D) { return D.profil.boussoleBoost[profil.boussoleDom]; }
 
   function progressKey() {
-    return "quiz_amour_v15_progress";
+    return "quiz_amour_v16_progress";
   }
 
   function cloneJson(value, fallback) {
@@ -807,7 +831,7 @@
       };
     }).filter(Boolean);
     return {
-      v: 15,
+      v: 16,
       prenom: String(src.prenom || "").replace(/[<>]/g, "").trim().slice(0, 40),
       qi: Number.isInteger(qiNum) && qiNum >= 0 ? qiNum : 0,
       phase: src.phase === "rank" ? "rank" : "ask",
@@ -825,7 +849,7 @@
     if (typeof raw === "string") {
       try { data = JSON.parse(raw); } catch (e) { return null; }
     }
-    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 15) return null;
+    if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 16) return null;
     if (!data.answers || typeof data.answers !== "object" || Array.isArray(data.answers)) return null;
     if (data.view !== "intro" && data.view !== "question" && data.view !== "results") return null;
     return packProgress(data);

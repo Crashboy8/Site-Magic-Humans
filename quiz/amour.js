@@ -167,6 +167,8 @@
     "#screen-amour .am-handle{touch-action:none}",
     "#screen-amour .choice:disabled{opacity:.35;cursor:not-allowed}",
     "#screen-amour .am-divider{text-align:center;padding:4px 0}",
+    "#screen-amour .am-tap{display:flex;align-items:center;gap:12px;text-align:left}",
+    "#screen-amour .am-tap .snum{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--am);color:#fff;font-weight:700;flex:none;font-size:1rem}",
     "#screen-amour button.chip{font:inherit;cursor:pointer;color:var(--ink)}",
     "#screen-amour button.chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft)}",
     "#screen-amour .am-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}",
@@ -358,16 +360,19 @@
     if (sc.id === "nourrit") return "split";
     return SCREEN_TONE[sc.id] || "pink";
   }
+  function rankStep(s) {
+    return !!(s && s.rank && (s.rank.mode === "step" || s.rank.mode === "tap"));
+  }
   function subProgress(s) {
     if (s.type === "commit" && s.groups && s.groups.length) {
       return { parts: 2, index: groupStep > 0 ? 1 : 0 };
     }
     const split = !!(s.splitGroups && s.groups && s.groups.length > 1);
-    const rankStep = !!(s.rank && s.rank.mode === "step");
+    const ranked = rankStep(s);
     const base = split ? s.groups.length : 1;
-    const parts = base + (rankStep ? 1 : 0);
+    const parts = base + (ranked ? 1 : 0);
     let index = 0;
-    if (rankStep && phase === "rank") index = parts - 1;
+    if (ranked && phase === "rank") index = parts - 1;
     else if (split) index = Math.max(0, Math.min(groupStep, base - 1));
     return { parts: parts, index: index };
   }
@@ -452,12 +457,33 @@
     return s.groups;
   }
 
+  function groupGap(s, g) {
+    const x = chosenIds(s, g).length;
+    const under = Math.max(0, (g.min || 0) - x);
+    const over = g.max ? Math.max(0, x - g.max) : 0;
+    return under + over;
+  }
+  function tapState(s) {
+    const gid = s.rank.groups[0];
+    const g = s.groups.find(function (x) { return x.id === gid; });
+    const ch = chosenIds(s, g);
+    const top = s.rank.top || 3;
+    const head = [];
+    (ensure(s).order[gid] || []).forEach(function (id) {
+      if (ch.indexOf(id) !== -1 && head.indexOf(id) === -1 && head.length < top) head.push(id);
+    });
+    return { gid: gid, g: g, ch: ch, top: top, head: head, need: Math.min(top, ch.length) };
+  }
   function deficit(s) {
-    if (s.type === "pick" && !(s.rank && s.rank.mode === "step" && phase === "rank")) {
-      return activeGroups(s).reduce(function (sum, g) { return sum + Math.max(0, g.min - chosenIds(s, g).length); }, 0);
+    if (s.type === "pick" && !(rankStep(s) && phase === "rank")) {
+      return activeGroups(s).reduce(function (sum, g) { return sum + groupGap(s, g); }, 0);
     }
     if (s.type === "rank" || (s.rank && phase === "rank")) {
       if (s.type === "rank") return Math.max(0, s.minRanked - ensure(s).order.length);
+      if (s.rank.mode === "tap") {
+        const t = tapState(s);
+        return Math.max(0, t.need - t.head.length);
+      }
       return 0;
     }
     if (s.type === "commit") {
@@ -499,8 +525,10 @@
     return '<p class="hint am-more">' + esc(fill(Q.more, { k: cue.k })) + "</p>";
   }
 
-  function counterText(label, x, min, ok) {
-    const base = label ? fill(Q.counter, { label: label, x: x, min: min }) : fill(Q.counterBare, { x: x, min: min });
+  function counterText(label, x, min, ok, max) {
+    const base = max
+      ? fill(Q.counterMax, { label: label || "Choix", x: x, max: max, min: min })
+      : (label ? fill(Q.counter, { label: label, x: x, min: min }) : fill(Q.counterBare, { x: x, min: min }));
     return base + (ok ? " " + Q.counterOk : "");
   }
 
@@ -514,9 +542,9 @@
       activeGroups(s).forEach(function (g) {
         if (!g.min) return;
         const x = chosenIds(s, g).length;
-        const ok = x >= g.min;
+        const ok = x >= g.min && (!g.max || x <= g.max);
         const tone = GROUP_TONE[g.id] || "";
-        bits.push(counterSpan(counterText(g.counter, x, g.min, ok), tone));
+        bits.push(counterSpan(counterText(g.counter, x, g.min, ok, g.max), tone));
       });
     } else if (s.type === "rank") {
       const x = ensure(s).order.length;
@@ -527,6 +555,10 @@
       const wrote = String(bag.engagement || "").trim().length >= (s.engagement.minLength || 5);
       const both = wrote && !!bag.moment;
       bits.push(counterSpan(Q.engagementCounter + (both ? " " + Q.counterOk : ""), ""));
+    } else if (s.rank && s.rank.mode === "tap" && phase === "rank") {
+      const t = tapState(s);
+      const ok = t.head.length >= t.need;
+      bits.push(counterSpan(fill(Q.topCounter, { x: t.head.length, n: t.need }) + (ok ? " " + Q.counterOk : ""), ""));
     } else if (s.rank && phase === "rank") {
       s.rank.groups.forEach(function (gid) {
         const g = s.groups.find(function (x) { return x.id === gid; });
@@ -620,6 +652,19 @@
       }
       return html + "</section>";
     }).join("");
+  }
+
+  function tapPhaseHtml(s) {
+    const t = tapState(s);
+    const rest = t.ch.filter(function (id) { return t.head.indexOf(id) === -1; });
+    let html = '<div class="items">';
+    t.head.forEach(function (id, i) {
+      html += '<button type="button" class="rsrc-opt am-tap picked" data-act="tap-top" data-group="' + esc(t.gid) + '" data-id="' + esc(id) + '" aria-pressed="true"><span class="snum">' + (i + 1) + "</span><strong>" + esc(labelFor(s, t.gid, id)) + "</strong></button>";
+    });
+    rest.forEach(function (id) {
+      html += '<button type="button" class="rsrc-opt am-tap" data-act="tap-top" data-group="' + esc(t.gid) + '" data-id="' + esc(id) + '" aria-pressed="false"><strong>' + esc(labelFor(s, t.gid, id)) + "</strong></button>";
+    });
+    return html + "</div>";
   }
 
   function rankPhaseHtml(s) {
@@ -759,7 +804,7 @@
     const subNow = subProgress(s);
     let progressLabel = fill(Q.progress, { i: s.n, n: n });
     if (subNow.parts > 1) progressLabel += " · " + (subNow.index + 1) + "/" + subNow.parts;
-    const suffix = s.rank && s.rank.mode === "step" && phase === "rank" ? Q.rankSuffix : "";
+    const suffix = s.rank && phase === "rank" ? (s.rank.mode === "tap" ? Q.topSuffix : (s.rank.mode === "step" ? Q.rankSuffix : "")) : "";
     const skipBtn = s.optional && phase !== "rank" ? '<button type="button" class="btn ghost" data-act="skip">' + esc(Q.skip) + "</button>" : "";
     const pop = !scroll && ok && armed;
     armed = !ok;
@@ -831,8 +876,9 @@
     view = "question";
     const s = screenAt(qi);
     ensure(s);
-    if (s.type === "pick" && s.rank && s.rank.mode === "step" && phase === "rank") {
-      shell(s, s.rank.title, Q.rankHelp, rankPhaseHtml(s), Q.next, scroll);
+    if (s.type === "pick" && rankStep(s) && phase === "rank") {
+      if (s.rank.mode === "tap") shell(s, s.rank.title, s.rank.help || "", tapPhaseHtml(s), Q.next, scroll);
+      else shell(s, s.rank.title, Q.rankHelp, rankPhaseHtml(s), Q.next, scroll);
       return;
     }
     if (s.type === "rank") {
@@ -849,7 +895,7 @@
       return;
     }
     const onSplit = s.splitGroups && groupStep < s.groups.length - 1;
-    const button = onSplit ? Q.next : (s.rank && s.rank.mode === "step" ? s.rank.cta : (qi === D.screens.length - 1 ? Q.finish : Q.next));
+    const button = onSplit ? Q.next : (rankStep(s) && phase !== "rank" ? s.rank.cta : (qi === D.screens.length - 1 ? Q.finish : Q.next));
     const g = s.splitGroups ? activeGroups(s)[0] : null;
     const title = g && g.stepTitle ? g.stepTitle : s.title;
     let body = pickHtml(s);
@@ -1285,8 +1331,14 @@
           }
         });
       }
-    } else list = list.filter(function (x) { return x !== id; });
-    bag.picked[gid] = list;
+      bag.picked[gid] = list;
+      const g = (s.groups || []).find(function (x) { return x.id === gid; });
+      if (g && g.max && chosenIds(s, g).length > g.max) {
+        bag.picked[gid] = list.filter(function (x) { return x !== id; });
+        live(Q.maxValues);
+        return;
+      }
+    } else bag.picked[gid] = list.filter(function (x) { return x !== id; });
     if (s.rank && s.rank.mode === "inline") resync(s);
     if (dropped) live(fill(Q.unchecked, { label: dropped }));
   }
@@ -1456,10 +1508,19 @@
     const bag = ensure(s);
     const arr = (bag.other[g.id] || []).slice();
     while (arr.length <= i) arr.push("");
+    const before = arr[i] || "";
     const clean = String(el.value || "").replace(/[<>]/g, "").slice(0, g.other.maxLength);
     if (!composing && el.value !== clean) el.value = clean;
     arr[i] = composing ? el.value : clean;
     bag.other[g.id] = arr;
+    if (g.max && chosenIds(s, g).length > g.max) {
+      arr[i] = before;
+      bag.other[g.id] = arr;
+      if (!composing) el.value = before;
+      live(Q.maxValues);
+      paintAsk(s);
+      return;
+    }
     const card = el.closest(".rsrc-opt");
     if (card) card.classList.toggle("picked", String(arr[i] || "").trim().length > 0);
     if (s.rank && s.rank.mode === "inline") resync(s);
@@ -1585,6 +1646,25 @@
       return;
     }
     if (act === "check" || act === "safety") return;
+    if (act === "tap-top") {
+      if (!s || !s.rank || s.rank.mode !== "tap") return;
+      const id = btn.getAttribute("data-id");
+      const t = tapState(s);
+      if (t.ch.indexOf(id) === -1) return;
+      const head = t.head.slice();
+      const at = head.indexOf(id);
+      const label = labelFor(s, t.gid, id);
+      if (at !== -1) {
+        head.splice(at, 1);
+        pendingLive = fill(Q.untap, { label: label });
+      } else if (head.length < t.top) {
+        head.push(id);
+        pendingLive = fill(Q.placed, { label: label, pos: head.length, total: t.top });
+      }
+      ensure(s).order[t.gid] = head;
+      showQuestion(false);
+      return;
+    }
     if (act === "other-check") {
       const g = s.groups.find(function (x) { return x.id === btn.getAttribute("data-group"); });
       const i = Number(btn.getAttribute("data-index"));
@@ -1705,7 +1785,7 @@
         showQuestion(true);
         return;
       }
-      if (s && s.rank && s.rank.mode === "step" && phase === "rank") {
+      if (s && rankStep(s) && phase === "rank") {
         phase = "ask";
         groupStep = s.splitGroups ? s.groups.length - 1 : 0;
         showQuestion(true);
@@ -1714,7 +1794,7 @@
       if (qi <= 0) { showIntro(); return; }
       qi -= 1;
       const prev = screenAt(qi);
-      phase = prev.rank && prev.rank.mode === "step" && (ensure(prev).order[prev.rank.groups[0]] || []).length ? "rank" : "ask";
+      phase = rankStep(prev) && (ensure(prev).order[prev.rank.groups[0]] || []).length ? "rank" : "ask";
       groupStep = 0;
       showQuestion(true);
       return;
@@ -1736,13 +1816,19 @@
         showQuestion(true);
         return;
       }
-      if (s.rank && s.rank.mode === "step" && phase !== "rank") {
-        resync(s);
+      if (rankStep(s) && phase !== "rank") {
+        if (s.rank.mode === "tap") ensure(s).order[tapState(s).gid] = tapState(s).head.slice();
+        else resync(s);
         phase = "rank";
         view = "question";
         pushHist();
         showQuestion(true);
         return;
+      }
+      if (s.rank && s.rank.mode === "tap" && phase === "rank") {
+        const t = tapState(s);
+        const rest = t.ch.filter(function (id) { return t.head.indexOf(id) === -1; });
+        ensure(s).order[t.gid] = t.head.concat(rest);
       }
       if (qi < D.screens.length - 1) {
         track("question_validee", { index: s.n });

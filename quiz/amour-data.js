@@ -36,6 +36,11 @@ const AMOUR_DATA = {
       "rankSuffix": " · Classer",
       "counter": "{label} : {x}/{min} minimum",
       "counterBare": "{x}/{min} minimum",
+      "counterMax": "{label} : {x}/{max}, minimum {min}",
+      "maxValues": "5 valeurs maximum. Retire-en une pour en changer.",
+      "topCounter": "Top 3 : {x}/{n}",
+      "topSuffix": " · Top 3",
+      "untap": "« {label} » retirée du top 3.",
       "counterOk": "✓",
       "rankHelp": "Fais glisser les cartes, ou utilise les flèches ↑ ↓.",
       "rankTapHelp": "Touche les cartes dans l'ordre : la 1re touchée devient ton n° 1. Tu peux aussi les faire glisser.",
@@ -699,7 +704,7 @@ const AMOUR_DATA = {
       "type": "pick",
       "n": 5,
       "eyebrow": "Tes valeurs",
-      "title": "Coche au moins 3 valeurs qui comptent vraiment pour toi dans un couple.",
+      "title": "Choisis 3 à 5 valeurs qui comptent le plus pour toi.",
       "exclusive": [
         [
           "enfants",
@@ -709,28 +714,29 @@ const AMOUR_DATA = {
       "groups": [
         {
           "id": "valeurs",
-          "counter": "",
+          "counter": "Valeurs",
           "min": 3,
+          "max": 5,
           "items": [
             {
               "id": "honnetete",
               "label": "Honnêteté",
-              "hint": "Se dire la vérité, même quand elle dérange."
+              "hint": "Se dire la vérité, sans cacher ce qui compte."
             },
             {
               "id": "fidelite",
               "label": "Fidélité",
-              "hint": "Exclusivité et loyauté."
+              "hint": "Exclusivité, loyauté et engagement."
             },
             {
               "id": "respect",
               "label": "Respect",
-              "hint": "Pas de mépris, même en colère."
+              "hint": "Pas de mépris, et on ne compte pas tout."
             },
             {
               "id": "famille",
               "label": "Famille",
-              "hint": "Les proches tiennent une grande place."
+              "hint": "Les proches et tes racines tiennent une grande place."
             },
             {
               "id": "enfants",
@@ -745,7 +751,7 @@ const AMOUR_DATA = {
             {
               "id": "liberte",
               "label": "Liberté",
-              "hint": "Chacun garde sa vie et ses choix."
+              "hint": "Chacun garde sa vie, ses choix, son indépendance."
             },
             {
               "id": "ambition",
@@ -798,17 +804,14 @@ const AMOUR_DATA = {
         }
       ],
       "rank": {
-        "mode": "step",
+        "mode": "tap",
+        "top": 3,
         "groups": [
           "valeurs"
         ],
-        "title": "Classe toutes tes valeurs : la plus importante en haut.",
-        "cta": "Classer mes valeurs →",
-        "divider": {
-          "group": "valeurs",
-          "after": 3,
-          "text": "Au-dessus de cette ligne : tes non-négociables."
-        }
+        "title": "Touche ton top 3, dans l'ordre.",
+        "help": "La première touchée devient ta n° 1. Touche une valeur numérotée pour la retirer.",
+        "cta": "Choisir mon top 3 →"
       }
     },
     {
