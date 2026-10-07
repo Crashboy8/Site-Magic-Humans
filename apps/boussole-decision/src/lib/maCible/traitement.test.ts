@@ -154,7 +154,7 @@ describe("configuration et quota", () => {
     expect((await traiterDemande(deps, requete(demandeCadrage()))).status).toBe(200);
   });
   it("429 avec Retry-After quand la limite par IP est atteinte", async () => {
-    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)), { env: { ...ENV, MA_CIBLE_MAX_PAR_IP: "3" } });
+    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)), { env: { ...ENV, MA_CIBLE_MAX_IP_RESULTAT: "3" } });
     for (let i = 0; i < 3; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
     const r = await traiterDemande(deps, requete(demandeResultat()));
     expect(r.status).toBe(429);
@@ -162,14 +162,17 @@ describe("configuration et quota", () => {
     expect(r.headers.get("Retry-After")).toBe(String(12 * 3600));
     expect(fournisseur.appeler).toHaveBeenCalledTimes(3);
   });
-  it("les défauts n'imposent pas de plafond par adresse", async () => {
-    preparer(Array(5).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
+  it("le défaut autorise 10 résultats par adresse puis refuse", async () => {
+    preparer(Array(11).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
       quota: quotaMemoire(limitesDepuisEnv({}), () => MAINTENANT),
     });
-    for (let i = 0; i < 5; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
-    expect(fournisseur.appeler).toHaveBeenCalledTimes(5);
+    for (let i = 0; i < 10; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    const r = await traiterDemande(deps, requete(demandeResultat()));
+    expect(r.status).toBe(429);
+    expect(await corpsDe(r)).toMatchObject({ code: "quota_ip", etape: "resultat", max: 10 });
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(10);
   });
-  it("un petit plafond global refuse même sans plafond par adresse", async () => {
+  it("un petit plafond global refuse avant le plafond personnel", async () => {
     const env = { ...ENV, MA_CIBLE_MAX_GLOBAL_RESULTAT: "2" };
     preparer(Array(3).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
       env,

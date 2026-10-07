@@ -20,15 +20,16 @@ export function messagePresBouton(e: ErreurChamp, label: string, M: MaCibleMessa
   return M.validation.presBouton(label);
 }
 
-/** Texte d'erreur d'un appel API. */
-export function messageApi(code: CodeErreur, M: MaCibleMessages): string {
+/** Texte d'erreur d'un appel API. Le quota personnel cite le plafond du jour. */
+export function messageApi(code: CodeErreur, M: MaCibleMessages, max?: number): string {
   const E = M.erreurs;
   switch (code) {
+    case "quota_ip":
+      return E.quota_ip(max ?? 0);
     case "reseau":
     case "entree_invalide":
     case "trop_long":
     case "origine_refusee":
-    case "quota_ip":
     case "quota_global":
     case "ia_invalide":
     case "ia_indisponible":

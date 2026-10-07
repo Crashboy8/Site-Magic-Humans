@@ -15,7 +15,7 @@ Toutes les fonctions ci-dessous sont validées par Pierre. Ce document suffit po
 | F | Anti-cible reliée à l'Anti-Contexte | Écran 5 |
 | G | Plan 30 jours : 4 semaines × 3 actions à cocher (enregistré dans le navigateur) | Écran 5 |
 | H | Export (imprimer ou PDF), « En parler avec Pierre » (Calendly), lien vers la Boussole | Écran 5 |
-| I | Route API serveur : appel au modèle IA, JSON strict validé + 1 relance, plafond global par jour, rien n'est stocké | `/boussole-decision/api/ma-cible/` |
+| I | Route API serveur : appel au modèle IA, JSON strict validé + 1 relance, plafond par personne et plafond global par jour, rien n'est stocké | `/boussole-decision/api/ma-cible/` |
 | J | Page « Mes outils » : les 4 outils dans l'ordre du parcours + appel découverte | `/outils/` |
 | K | Boutons « Trouver ma cible » dans le QCM et dans la Carte du Talent (pré-remplissage par ancre) | `quiz/`, `carte-du-talent/` |
 
@@ -889,11 +889,11 @@ Journalisation : `console.error("[ma-cible]", { code, etape, tour, statutFournis
 Valeurs par défaut (variables d'environnement, §11.3) :
 | Compteur | Défaut |
 |---|---|
-| Appels `cadrage` par personne et par jour | aucun, sauf `MA_CIBLE_MAX_PAR_IP` (entier positif, commun aux deux étapes) |
-| Appels `resultat` par personne et par jour | aucun, sauf `MA_CIBLE_MAX_PAR_IP` |
+| Appels `cadrage` par personne et par jour | 20 |
+| Appels `resultat` par personne et par jour | 10 |
 | Appels `cadrage` par jour, tous visiteurs | 2000 |
 | Appels `resultat` par jour, tous visiteurs | 500 |
-Jour = date civile à Paris. `MA_CIBLE_MAX_IP_CADRAGE` et `MA_CIBLE_MAX_IP_RESULTAT` ne sont plus lues. Avec le coût indicatif du §1.3, le plafond global de 500 résultats borne la dépense autour de 50 € par jour au maximum.
+Jour = date civile à Paris. Le cadrage est plus large que le résultat (environ deux cadrages par résultat). Avec le coût indicatif du §1.3, le plafond global de 500 résultats borne la dépense autour de 50 € par jour au maximum.
 
 **Clé du compteur** : `sha256(MA_CIBLE_SEL + ":" + jour + ":" + ip)` en hexadécimal (64 caractères). IP = première valeur de `x-forwarded-for`, sinon `x-real-ip`, sinon `"inconnue"`. L'IP en clair n'est jamais stockée ni journalisée.
 
@@ -982,7 +982,8 @@ ANTHROPIC_API_KEY=                    # si fournisseur anthropic
 OPENAI_API_KEY=                       # si fournisseur openai
 MA_CIBLE_SEL=                         # 32 caractères aléatoires au moins (openssl rand -hex 32)
 SUPABASE_SECRET_KEY=                  # clé secrète Supabase (Paramètres → API), pour le compteur anti-abus
-MA_CIBLE_MAX_PAR_IP=                  # vide : pas de plafond par personne
+MA_CIBLE_MAX_IP_CADRAGE=20
+MA_CIBLE_MAX_IP_RESULTAT=10
 MA_CIBLE_MAX_GLOBAL_CADRAGE=2000
 MA_CIBLE_MAX_GLOBAL_RESULTAT=500
 ```
@@ -1411,7 +1412,8 @@ const fr = {
     entree_invalide: "Certaines réponses ne passent pas. Vérifie les champs signalés.",
     trop_long: "Tes réponses sont trop longues pour être envoyées. Raccourcis les plus longues.",
     origine_refusee: "Cette page ne peut pas joindre l'IA depuis cette adresse. Ouvre Ma Cible depuis magichumans.com.",
-    quota_ip: "Tu as atteint la limite du jour. Ton travail est gardé : reviens demain, ou parles-en avec Pierre en attendant.",
+    quota_ip: (max: number) =>
+      `Tu as atteint la limite du jour (${max} par jour). Ton travail est gardé : reviens demain, ou parles-en avec Pierre en attendant.`,
     quota_global: "Ma Cible a beaucoup servi aujourd'hui et fait une pause jusqu'à demain. Ton travail est gardé dans ce navigateur.",
     ia_invalide: "L'IA s'est emmêlée dans sa réponse. Réessaie, ça passe en général du premier coup.",
     ia_indisponible: "L'IA ne répond pas pour l'instant. Réessaie dans une minute.",
@@ -1685,7 +1687,7 @@ Plus : `npm run lint` et `npm run typecheck` verts. Le test SQL de sécurité (`
 - Génération de visuels, publications automatiques sur LinkedIn ou envoi d'emails.
 
 ## 21. Questions ouvertes pour Pierre
-1. **Clé et budget IA** : d'accord pour le plafond global par défaut (500 résultats par jour au total, pas de plafond par personne) ? Il faut créer la clé API sur ton compte et fixer un plafond mensuel dans la console.
+1. **Clé et budget IA** : d'accord pour les plafonds par défaut (10 résultats par personne et par jour, 20 cadrages, 500 résultats par jour au total) ? Il faut créer la clé API sur ton compte et fixer un plafond mensuel dans la console.
 2. **Visibilité** : `/outils/` dans le sitemap et dans le menu du site (lien « Mes outils » à côté du « Quiz Talent Unique ») ? Et Ma Cible indexée par Google, ou en `noindex` comme la Carte (réglage par défaut de cette spec) ?
 3. **Adresse** : l'adresse affichée sera `magichumans.com/boussole-decision/ma-cible/` (l'adresse courte `/ma-cible/` y redirige). Ça te va, ou veux-tu une adresse affichée `/ma-cible/` (il faudrait alors un projet Vercel dédié, plus de travail) ?
 

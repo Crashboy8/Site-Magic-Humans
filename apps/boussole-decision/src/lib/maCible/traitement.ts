@@ -214,7 +214,7 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
       const compte = await deps.quota.consommer(empreinte, etape);
       issue.corps.restant = compte.ok ? compte.restant : 0;
     } else if (issue.compte) {
-      issue.corps.restant = maxIp(limites, etape) ?? maxGlobal(limites, etape);
+      issue.corps.restant = maxIp(limites, etape);
     }
     if (issue.compte && cleGardee && deps.reprise) {
       try {
@@ -237,7 +237,7 @@ function refuserQuota(motif: "ip" | "global", etape: Demande["etape"], limites: 
       ok: false,
       code: motif === "global" ? "quota_global" : "quota_ip",
       etape,
-      max: motif === "global" ? maxGlobal(limites, etape) : (maxIp(limites, etape) ?? maxGlobal(limites, etape)),
+      max: motif === "global" ? maxGlobal(limites, etape) : maxIp(limites, etape),
       reessayerApres: apres.toISOString(),
     },
     429,

@@ -4,17 +4,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type EtapeQuota = "cadrage" | "resultat";
 
 export interface Limites {
-  /** `null` : pas de plafond personnel. Un entier positif s'applique à l'étape. */
-  ipCadrage: number | null;
-  ipResultat: number | null;
+  ipCadrage: number;
+  ipResultat: number;
   globalCadrage: number;
   globalResultat: number;
 }
 
-export const LIMITES_DEFAUT: Limites = { ipCadrage: null, ipResultat: null, globalCadrage: 2000, globalResultat: 500 };
-
-/** Entier passé au SQL à la place d'un plafond personnel absent. Tient dans un `integer` PostgreSQL. */
-export const MAX_IP_SQL = 2_000_000_000;
+export const LIMITES_DEFAUT: Limites = { ipCadrage: 20, ipResultat: 10, globalCadrage: 2000, globalResultat: 500 };
 
 export interface DecisionQuota {
   ok: boolean;
@@ -34,21 +30,10 @@ const entierPositif = (v: string | undefined, defaut: number) => {
   return Number.isFinite(n) && n > 0 ? n : defaut;
 };
 
-const MOTS_ILLIMITES = new Set(["", "0", "illimite", "illimité", "unlimited"]);
-
-/** `MA_CIBLE_MAX_PAR_IP` vide, nulle ou non numérique : pas de plafond. Les anciennes variables par étape sont ignorées. */
-function plafondPersonnel(v: string | undefined): number | null {
-  const brut = (v ?? "").trim().toLowerCase();
-  if (MOTS_ILLIMITES.has(brut)) return null;
-  const n = Number.parseInt(brut, 10);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
 export function limitesDepuisEnv(env: Record<string, string | undefined>): Limites {
-  const parIp = plafondPersonnel(env.MA_CIBLE_MAX_PAR_IP);
   return {
-    ipCadrage: parIp,
-    ipResultat: parIp,
+    ipCadrage: entierPositif(env.MA_CIBLE_MAX_IP_CADRAGE, LIMITES_DEFAUT.ipCadrage),
+    ipResultat: entierPositif(env.MA_CIBLE_MAX_IP_RESULTAT, LIMITES_DEFAUT.ipResultat),
     globalCadrage: entierPositif(env.MA_CIBLE_MAX_GLOBAL_CADRAGE, LIMITES_DEFAUT.globalCadrage),
     globalResultat: entierPositif(env.MA_CIBLE_MAX_GLOBAL_RESULTAT, LIMITES_DEFAUT.globalResultat),
   };
@@ -57,22 +42,12 @@ export function limitesDepuisEnv(env: Record<string, string | undefined>): Limit
 export const maxIp = (l: Limites, etape: EtapeQuota) => (etape === "cadrage" ? l.ipCadrage : l.ipResultat);
 export const maxGlobal = (l: Limites, etape: EtapeQuota) => (etape === "cadrage" ? l.globalCadrage : l.globalResultat);
 
-export function maxIpPourSql(l: Limites, etape: EtapeQuota): number {
-  const ip = maxIp(l, etape);
-  if (ip == null || ip > MAX_IP_SQL) return MAX_IP_SQL;
-  return ip;
-}
-
-/** `n >= null` en JavaScript vaut `n >= 0` : un plafond absent ne doit jamais être comparé tel quel. */
-function depasse(n: number, plafond: number | null, dejaCompte: boolean): boolean {
-  if (plafond == null) return false;
+function depasse(n: number, plafond: number, dejaCompte: boolean): boolean {
   return dejaCompte ? n > plafond : n >= plafond;
 }
 
-function restantDe(limites: Limites, etape: EtapeQuota, nIp: number, nGlobal: number): number {
-  const ip = maxIp(limites, etape);
-  const base = ip == null ? maxGlobal(limites, etape) - nGlobal : ip - nIp;
-  return Math.max(0, base);
+function restantDe(limites: Limites, etape: EtapeQuota, nIp: number): number {
+  return Math.max(0, maxIp(limites, etape) - nIp);
 }
 
 const formatParis = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -106,7 +81,7 @@ export function quotaMemoire(limites: Limites, maintenant: () => Date): Quota {
   const decider = (nGlobal: number, nIp: number, etape: EtapeQuota, dejaCompte: boolean): DecisionQuota => {
     if (depasse(nGlobal, maxGlobal(limites, etape), dejaCompte)) return { ok: false, motif: "global", restant: 0 };
     if (depasse(nIp, maxIp(limites, etape), dejaCompte)) return { ok: false, motif: "ip", restant: 0 };
-    return { ok: true, restant: restantDe(limites, etape, nIp, nGlobal) };
+    return { ok: true, restant: restantDe(limites, etape, nIp) };
   };
   return {
     async autoriser(cle, etape) {
@@ -142,7 +117,7 @@ async function autoriserParTable(
   const nIp = Number(lignes.find((l) => l.cle === cle)?.n ?? 0);
   if (depasse(nGlobal, maxGlobal(limites, etape), false)) return { ok: false, motif: "global", restant: 0 };
   if (depasse(nIp, maxIp(limites, etape), false)) return { ok: false, motif: "ip", restant: 0 };
-  return { ok: true, restant: restantDe(limites, etape, nIp, nGlobal) };
+  return { ok: true, restant: restantDe(limites, etape, nIp) };
 }
 
 /** Compteur partagé (fonctions SQL) ; en cas d'échec, bascule sur `secours`. */
@@ -151,12 +126,12 @@ export function quotaSupabase(client: Pick<SupabaseClient, "rpc"> & Partial<Pick
     const { data, error } = await client.rpc(nom, {
       p_cle: cle,
       p_etape: etape,
-      p_max_ip: maxIpPourSql(limites, etape),
+      p_max_ip: maxIp(limites, etape),
       p_max_global: maxGlobal(limites, etape),
     });
     const ligne = Array.isArray(data) ? data[0] : data;
     if (error || !ligne || typeof ligne.ok !== "boolean" || ligne.motif === "invalide") throw new Error("quota");
-    const restant = restantDe(limites, etape, Number(ligne.n_ip) || 0, Number(ligne.n_global) || 0);
+    const restant = restantDe(limites, etape, Number(ligne.n_ip) || 0);
     if (ligne.ok) return { ok: true, restant };
     return { ok: false, motif: ligne.motif === "global" ? "global" : "ip", restant: 0 };
   };
