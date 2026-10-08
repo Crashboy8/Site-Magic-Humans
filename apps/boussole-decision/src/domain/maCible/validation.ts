@@ -1,7 +1,7 @@
 // Validation des réponses du modèle (§8.4). Retourne toutes les erreurs, dans l'ordre du document.
 // Chaque erreur est une chaîne « chemin : problème ». Module pur.
-import { CANAUX } from "./schemas";
-import type { Cadrage, Resultat } from "./types";
+import { CANAUX, IDS_IDEES, IDS_PISTES } from "./schemas";
+import type { AutrePiste, Cadrage, Cible, Resultat } from "./types";
 
 export type Validation<T> = { ok: true; valeur: T; reparations: number } | { ok: false; erreurs: string[]; reparations: number };
 
@@ -103,6 +103,79 @@ function fini<T>(x: Verif, valeur: T): Validation<T> {
 const IDS_CIBLE = ["c1", "c2", "c3"] as const;
 const MARCHES_CIBLE = ["b2b", "b2c"] as const;
 
+/** Champ absent : tableau vide et une réparation. Présent : on ne garde que les identifiants d'idées connus, sans doublon. */
+function poserDepuisIdees(x: Verif, o: Obj, chemin: string) {
+  if (o.depuisIdees === undefined) {
+    o.depuisIdees = [];
+    x.reparations += 1;
+    return;
+  }
+  if (!Array.isArray(o.depuisIdees)) {
+    x.err(chemin, "tableau attendu");
+    return;
+  }
+  if (o.depuisIdees.length > 8) {
+    o.depuisIdees.splice(8);
+    x.reparations += 1;
+  }
+  const gardes: string[] = [];
+  for (const id of o.depuisIdees) {
+    if (typeof id === "string" && (IDS_IDEES as readonly string[]).includes(id) && !gardes.includes(id)) gardes.push(id);
+    else x.reparations += 1;
+  }
+  o.depuisIdees = gardes;
+}
+
+function poserVerbatims(x: Verif, o: Obj, chemin: string) {
+  if (o.verbatims === undefined) {
+    o.verbatims = [];
+    x.reparations += 1;
+    return;
+  }
+  const t = x.tableau(o.verbatims, chemin, 0, 3);
+  if (!t) return;
+  t.forEach((item, i) => {
+    if (typeof item !== "string") x.err(`${chemin}[${i}]`, "texte attendu");
+  });
+}
+
+function poserNotePressentie(x: Verif, o: Obj, cle: string, chemin: string) {
+  const v = o[cle];
+  if (typeof v !== "number" || !Number.isInteger(v)) {
+    x.err(chemin, "entier attendu");
+    return;
+  }
+  if (v < 1 || v > 5) {
+    o[cle] = v < 1 ? 1 : 5;
+    x.reparations += 1;
+  }
+}
+
+function verifierPiste(x: Verif, v: unknown, chemin: string, avecNotes: boolean) {
+  const o = x.objet(v, chemin);
+  if (!o) return;
+  x.enum(o.id, `${chemin}.id`, IDS_PISTES);
+  x.poser(o, "nom", `${chemin}.nom`, 5, 80);
+  x.enum(o.marche, `${chemin}.marche`, MARCHES_CIBLE);
+  x.poser(o, "enUneLigne", `${chemin}.enUneLigne`, 20, 200);
+  x.poser(o, "raison", `${chemin}.raison`, 20, 200);
+  poserDepuisIdees(x, o, `${chemin}.depuisIdees`);
+  if (!avecNotes) return;
+  const notes = x.objet(o.notes, `${chemin}.notes`);
+  if (!notes) return;
+  for (const cle of ["urgence", "paiement", "acces", "plaisir"]) poserNotePressentie(x, notes, cle, `${chemin}.notes.${cle}`);
+}
+
+function poserAutresPistes(x: Verif, o: Obj, chemin: string, avecNotes: boolean) {
+  if (o.autresPistes === undefined) {
+    o.autresPistes = [];
+    x.reparations += 1;
+    return;
+  }
+  const t = x.tableau(o.autresPistes, chemin, 0, 6);
+  t?.forEach((p, i) => verifierPiste(x, p, `${chemin}[${i}]`, avecNotes));
+}
+
 function verifierEsquisse(x: Verif, v: unknown, chemin: string) {
   const e = x.objet(v, chemin);
   if (!e) return;
@@ -120,11 +193,13 @@ function verifierEsquisse(x: Verif, v: unknown, chemin: string) {
       x.enum(o.marche, `${p}.marche`, MARCHES_CIBLE);
       x.poser(o, "enUneLigne", `${p}.enUneLigne`, 20, 200);
       x.poser(o, "pourquoi", `${p}.pourquoi`, 20, 240);
+      poserDepuisIdees(x, o, `${p}.depuisIdees`);
     });
     if (cibles.length === 3 && new Set(ids).size !== 3) x.err(`${chemin}.cibles`, "les identifiants doivent être c1, c2 et c3, chacun une fois");
   }
   x.poser(e, "antiCible", `${chemin}.antiCible`, 20, 240);
   x.textes(e.hypotheses, `${chemin}.hypotheses`, 0, 4, 1, 200);
+  poserAutresPistes(x, e, `${chemin}.autresPistes`, false);
 }
 
 function verifierQuestions(x: Verif, v: unknown) {
@@ -172,10 +247,10 @@ function verifierNote(x: Verif, v: unknown, chemin: string) {
   x.poser(o, "raison", `${chemin}.raison`, 10, 200);
 }
 
-function verifierCible(x: Verif, v: unknown, p: string, ids: string[]) {
+function verifierCible(x: Verif, v: unknown, p: string, ids: string[], idsAutorises: readonly string[]) {
   const c = x.objet(v, p);
   if (!c) return;
-  const id = x.enum(c.id, `${p}.id`, IDS_CIBLE);
+  const id = x.enum(c.id, `${p}.id`, idsAutorises);
   if (id) ids.push(id);
   x.poser(c, "nom", `${p}.nom`, 5, 80);
   const marche = x.enum(c.marche, `${p}.marche`, MARCHES_CIBLE);
@@ -266,6 +341,23 @@ function verifierCible(x: Verif, v: unknown, p: string, ids: string[]) {
     x.textes(t.signauxPositifs, `${p}.testTerrain.signauxPositifs`, 2, 3, 1, 200);
     x.textes(t.signauxNegatifs, `${p}.testTerrain.signauxNegatifs`, 2, 3, 1, 200);
   }
+  poserDepuisIdees(x, c, `${p}.depuisIdees`);
+  poserVerbatims(x, c, `${p}.verbatims`);
+}
+
+/** Une cible seule. `idAttendu`, s'il est donné, doit être celui de la cible. */
+export function validerCible(v: unknown, ids: readonly string[], idAttendu?: string): Validation<Cible> {
+  const x = new Verif();
+  const trouves: string[] = [];
+  verifierCible(x, v, "cible", trouves, ids);
+  if (idAttendu && trouves[0] !== idAttendu) x.err("cible.id", `${idAttendu} attendu`);
+  return fini(x, v as Cible);
+}
+
+export function validerAutrePiste(v: unknown): Validation<AutrePiste> {
+  const x = new Verif();
+  verifierPiste(x, v, "piste", true);
+  return fini(x, v as AutrePiste);
 }
 
 export function validerResultat(v: unknown): Validation<Resultat> {
@@ -284,9 +376,10 @@ export function validerResultat(v: unknown): Validation<Resultat> {
   const cibles = x.tableau(o.cibles, "cibles", 3, 3);
   if (cibles) {
     const ids: string[] = [];
-    cibles.forEach((c, i) => verifierCible(x, c, `cibles[${i}]`, ids));
+    cibles.forEach((c, i) => verifierCible(x, c, `cibles[${i}]`, ids, IDS_CIBLE));
     if (cibles.length === 3 && new Set(ids).size !== 3) x.err("cibles", "les identifiants doivent être c1, c2 et c3, chacun une fois");
   }
+  poserAutresPistes(x, o, "autresPistes", true);
 
   const anti = x.objet(o.antiCible, "antiCible");
   if (anti) {

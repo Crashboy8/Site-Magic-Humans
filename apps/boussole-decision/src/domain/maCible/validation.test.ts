@@ -136,6 +136,39 @@ describe("validerResultat", () => {
     expect(validerResultat(null).ok).toBe(false);
     expect(validerResultat({}).ok).toBe(false);
   });
+
+  it("relit un résultat V2a et pose des tableaux vides", () => {
+    const r = copie();
+    delete r.autresPistes;
+    for (const c of r.cibles) {
+      delete c.depuisIdees;
+      delete c.verbatims;
+    }
+    const v = validerResultat(r);
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(v.valeur.autresPistes).toEqual([]);
+    expect(v.valeur.cibles.every((c) => c.depuisIdees.length === 0 && c.verbatims.length === 0)).toBe(true);
+    expect(v.reparations).toBeGreaterThanOrEqual(1 + r.cibles.length * 2);
+  });
+
+  it("ramène 7 pistes à 6 et les notes 0 et 7 dans 1 à 5", () => {
+    const r = copie();
+    r.autresPistes = Array.from({ length: 7 }, (_, i) => ({
+      id: `p${Math.min(i + 1, 6)}`,
+      nom: `Piste distincte numéro ${i} ici`,
+      marche: "b2b",
+      enUneLigne: "Qui elle est, et dans quelle situation elle se trouve.",
+      raison: "Elle passe après les trois pour une raison claire.",
+      depuisIdees: [],
+      notes: { urgence: i === 0 ? 0 : 3, paiement: 3, acces: 3, plaisir: i === 0 ? 7 : 4 },
+    }));
+    const v = validerResultat(r);
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(v.valeur.autresPistes).toHaveLength(6);
+    expect(v.valeur.autresPistes[0].notes).toEqual({ urgence: 1, paiement: 3, acces: 3, plaisir: 5 });
+  });
 });
 
 describe("validerCadrage", () => {

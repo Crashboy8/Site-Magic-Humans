@@ -1,6 +1,6 @@
 // Historique des résultats du Cibleur, dans le navigateur. Au plus 10, du plus récent au plus ancien.
 import { classerCibles } from "@/domain/maCible/scores";
-import type { EntreeMaCible, ResultatClasse } from "@/domain/maCible/types";
+import { EXTRAS_VIDES, type EntreeMaCible, type Extras, type ResultatClasse } from "@/domain/maCible/types";
 import { validerResultat } from "@/domain/maCible/validation";
 import { NB_ACTIONS } from "./etat";
 
@@ -13,6 +13,7 @@ export interface EntreeHistorique {
   entree: EntreeMaCible;
   resultat: ResultatClasse;
   coches: boolean[];
+  extras?: Extras;
 }
 
 type Obj = Record<string, unknown>;
@@ -42,12 +43,15 @@ function lireUne(v: unknown): EntreeHistorique | null {
   const valide = validerResultat(sansClassement);
   if (!valide.ok) return null;
   if (!Array.isArray(o.coches) || o.coches.length !== NB_ACTIONS || o.coches.some((c) => typeof c !== "boolean")) return null;
+  const entreeBrut = entree as unknown as EntreeMaCible;
+  const terrainLu = { ...entreeBrut.terrain, ciblesEnTete: Array.isArray(entreeBrut.terrain?.ciblesEnTete) ? entreeBrut.terrain.ciblesEnTete : [] };
   return {
     id: o.id,
     faitLe: o.faitLe,
-    entree: entree as unknown as EntreeMaCible,
+    entree: { ...entreeBrut, terrain: terrainLu, synthese: entreeBrut.synthese ?? null },
     resultat: { ...valide.valeur, classement: classerCibles(valide.valeur.cibles) },
     coches: o.coches as boolean[],
+    extras: o.extras === undefined ? EXTRAS_VIDES : { portraits: {}, pistes: {} },
   };
 }
 

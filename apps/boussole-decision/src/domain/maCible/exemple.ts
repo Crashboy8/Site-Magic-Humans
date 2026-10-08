@@ -20,9 +20,11 @@ export const ENTREE_EXEMPLE: EntreeMaCible = {
     "formats": ["groupe", "presentiel", "individuel"],
     "zone": "Rennes et la Bretagne, à distance pour le reste de la France",
     "prixActuel": "600 € la demi-journée d'atelier",
-    "adresse": "vous", "style": "chaleureux"
+    "adresse": "vous", "style": "chaleureux",
+    "ciblesEnTete": []
   },
-  "reponses": []
+  "reponses": [],
+  "synthese": null
 };
 
 export const RESULTAT_EXEMPLE: Resultat = {
@@ -87,7 +89,9 @@ export const RESULTAT_EXEMPLE: Resultat = {
         "questions": ["Quelle est la dernière tension entre équipes qui vous a vraiment occupé ?", "Comment l'avez-vous gérée, concrètement ?", "Combien de temps cela a duré, et qu'est-ce que cela a coûté au site ?", "Avez-vous déjà fait appel à quelqu'un d'extérieur pour ce type de situation ?", "Qu'est-ce qui vous aurait aidé à ce moment-là ?"],
         "signauxPositifs": ["Ils racontent une situation récente sans que tu insistes", "Ils ont déjà payé un intervenant pour un sujet proche"],
         "signauxNegatifs": ["Ils disent que c'est le rôle du manager et que ça se règle tout seul", "Aucun budget ni aucune décision possible au niveau du site"]
-      }
+      },
+      "depuisIdees": [],
+      "verbatims": []
     },
     {
       "id": "c2",
@@ -141,7 +145,9 @@ export const RESULTAT_EXEMPLE: Resultat = {
         "questions": ["Comment se passe la dernière décision importante prise en comité ?", "Qu'est-ce qui a changé depuis que l'équipe de direction s'est agrandie ?", "Qui tranche quand vous n'êtes pas d'accord ?", "Avez-vous déjà organisé un séminaire de direction, et qu'en avez-vous retiré ?", "Qu'est-ce qui vous ferait gagner le plus de temps dans vos arbitrages ?"],
         "signauxPositifs": ["Ils décrivent des arbitrages solitaires qui les épuisent", "Ils ont déjà budgété un séminaire"],
         "signauxNegatifs": ["Le dirigeant pense que tout va bien et que le problème vient des autres", "L'entreprise est en difficulté financière"]
-      }
+      },
+      "depuisIdees": [],
+      "verbatims": []
     },
     {
       "id": "c3",
@@ -195,9 +201,12 @@ export const RESULTAT_EXEMPLE: Resultat = {
         "questions": ["Quelle est la dernière conversation difficile que vous avez repoussée ?", "Qu'est-ce qui vous a retenu de l'avoir ?", "À qui en avez-vous parlé ?", "Avez-vous déjà payé une formation ou un coaching de votre poche ?", "Qu'est-ce qui vous aurait aidé ce jour-là ?"],
         "signauxPositifs": ["Ils ont déjà cherché de l'aide en ligne", "Ils ont déjà payé une formation eux-mêmes"],
         "signauxNegatifs": ["Ils attendent que leur entreprise paie tout", "Ils ne voient pas de problème"]
-      }
+      },
+      "depuisIdees": [],
+      "verbatims": []
     }
   ],
+  "autresPistes": [],
   "antiCible": {
     "portrait": "Les grands groupes très hiérarchiques qui achètent un atelier de cohésion par les achats, comme une case à cocher, sans que la direction s'implique.",
     "signaux": ["Le premier contact passe par un acheteur et un appel d'offres", "La direction ne participera pas", "On te demande un programme figé validé à trois niveaux", "Le budget est négocié avant que le problème soit décrit"],
@@ -246,3 +255,44 @@ export const LIBELLES_FR = {
   styles: { chaleureux: "chaleureux", direct: "direct", expert: "expert", enjoue: "enjoué" },
   adresse: { tu: "tutoiement", vous: "vouvoiement" },
 } as const;
+
+/** Jeu d'essai de Pierre (§18.2), utilisé par les tests de couverture des idées. */
+export const ENTREE_PIERRE: EntreeMaCible = {
+  v: 1,
+  langue: "fr",
+  source: null,
+  talent: {
+    nom: "",
+    mecanisme: "je décode le talent unique d'une personne en écoutant son histoire, puis je le traduis en métier concret",
+    contexte: "quelqu'un de brillant est à un tournant et ne sait plus quoi faire de tout ce qu'il sait faire",
+    benefice: "la personne sait enfin ce qui la rend unique, choisit sa voie et avance avec plaisir",
+    antiContexte: "les grosses structures où tout passe par des process et des tableaux de bord, les gens qui veulent une recette toute faite sans se regarder",
+    reussite: "",
+    sousTalents: [],
+    pistes: [],
+    aDeleguer: [],
+  },
+  terrain: {
+    offre: "accompagnement Talent Unique en individuel, pour trouver sa voie et réussir dans le plaisir",
+    marche: "les_deux",
+    experience: "20 ans de recrutement et d'accompagnement de cadres et de créateurs d'entreprise",
+    clientsPasses: "",
+    formats: [],
+    zone: "Paris et à distance",
+    prixActuel: "",
+    adresse: "vous",
+    style: "chaleureux",
+    ciblesEnTete: [
+      "cadres de 35 à 55 ans en reconversion, multi-potentiels",
+      "futurs entrepreneurs bloqués avant de se lancer",
+      "repreneurs d'entreprise",
+      "anciens fondateurs qui rebondissent après une cession ou un échec",
+      "cadres à haut potentiel intellectuel (HPI)",
+      "seniors concernés par un plan social (PSE)",
+      "militaires en reconversion",
+      "athlètes de haut niveau en reconversion",
+    ],
+  },
+  reponses: [],
+  synthese: null,
+};

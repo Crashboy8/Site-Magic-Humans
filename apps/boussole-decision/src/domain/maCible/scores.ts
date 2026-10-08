@@ -1,5 +1,5 @@
 // Grille de notation et calcul du score des cibles (§9). Fonctions pures et déterministes.
-import type { Cible, IdCible } from "./types";
+import type { Cible, IdCible, NotesPressenties } from "./types";
 
 export type CleCritere = "urgence" | "paiement" | "acces" | "plaisir";
 
@@ -44,6 +44,20 @@ export const POIDS = { urgence: 0.30, paiement: 0.25, acces: 0.20, plaisir: 0.25
 export function scoreSur10(s: Cible["scores"]): number {
   const somme = POIDS.urgence * s.urgence.note + POIDS.paiement * s.paiement.note + POIDS.acces * s.acces.note + POIDS.plaisir * s.plaisir.note;
   return Math.round(somme * 20) / 10; // somme sur 5 → sur 10, arrondi au dixième
+}
+
+/** Score pressenti d'une autre piste, calculé à l'affichage, non stocké. */
+export function scorePressenti(notes: NotesPressenties): number {
+  return scoreSur10({
+    urgence: { note: notes.urgence, raison: "" },
+    paiement: { note: notes.paiement, raison: "" },
+    acces: { note: notes.acces, raison: "" },
+    plaisir: { note: notes.plaisir, raison: "" },
+  });
+}
+
+export function alertePlaisirPressenti(notes: NotesPressenties): boolean {
+  return notes.plaisir <= 2;
 }
 
 export type Rang = "prioritaire" | "secondaire" | "tertiaire";

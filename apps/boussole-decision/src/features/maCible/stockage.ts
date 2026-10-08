@@ -1,7 +1,8 @@
 // Stockage local de Ma Cible (§12.5). Clé `ma_cible_v1`. L'accès à `window.localStorage` est confiné à lire / ecrire / effacer.
 import { validerCorrections } from "@/domain/maCible/entree";
 import { classerCibles } from "@/domain/maCible/scores";
-import type { ResultatClasse } from "@/domain/maCible/types";
+import { LIMITES } from "@/domain/maCible/limites";
+import { EXTRAS_VIDES, type Extras, type ResultatClasse } from "@/domain/maCible/types";
 import { validerCadrage, validerResultat } from "@/domain/maCible/validation";
 import { ETAPES, NB_ACTIONS, TALENT_VIDE, TERRAIN_VIDE, etatInitial, type Etat } from "./etat";
 
@@ -44,6 +45,7 @@ function lireEntree(brut: Obj | null): Etat["entree"] | null {
       prixActuel: chaine(terrain.prixActuel),
       adresse: terrain.adresse === "tu" ? "tu" : "vous",
       style: (["chaleureux", "direct", "expert", "enjoue"].includes(chaine(terrain.style)) ? terrain.style : "chaleureux") as Etat["entree"]["terrain"]["style"],
+      ciblesEnTete: liste(terrain.ciblesEnTete).slice(0, LIMITES.ciblesEnTete.items).map((s) => s.slice(0, LIMITES.ciblesEnTete.max)),
     },
     reponses: Array.isArray(entree.reponses)
       ? entree.reponses.flatMap((r) => {
@@ -51,7 +53,15 @@ function lireEntree(brut: Obj | null): Etat["entree"] | null {
           return x ? [{ id: chaine(x.id), question: chaine(x.question), reponse: chaine(x.reponse) }] : [];
         })
       : [],
+    synthese: null,
   };
+}
+
+/** Portraits et pistes creusées : absents ou non validés en V2b (1/3) → vides. */
+function lireExtras(v: unknown): Extras {
+  const o = objet(v);
+  if (!o) return { portraits: {}, pistes: {} };
+  return { portraits: {}, pistes: {} };
 }
 
 export function serialiser(etat: Etat): string {
@@ -111,6 +121,7 @@ export function deserialiser(brut: string | null): Etat | null {
       plusLoin,
       resultatPerime: o.resultatPerime === true,
       entreeDuResultat: lireEntree(objet(o.entreeDuResultat)),
+      extras: o.extras === undefined ? EXTRAS_VIDES : lireExtras(o.extras),
     };
   } catch {
     return null;

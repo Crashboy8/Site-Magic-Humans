@@ -6,6 +6,7 @@ import { GRILLE, type CleCritere, type LigneClassement } from "@/domain/maCible/
 import type { Cible } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
+import { LiensLieu } from "./LiensLieu";
 import { texteCible } from "./export";
 import { remplacerPrenom } from "./liens";
 
@@ -139,6 +140,7 @@ export function CarteCible({
               {cible.nom}
             </h2>
             <Badge tone="neutral">{R.marche[cible.marche]}</Badge>
+            {cible.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{R.tonIdee}</span>}
           </div>
           <div className="text-right">
             <p className="text-sm text-ink-soft">{R.scoreTitre}</p>
@@ -236,12 +238,15 @@ export function CarteCible({
           <Detail id={`cible-${rang}-lieux`} titre={R.blocs.lieux} ouvert={ouvert(`cible-${rang}-lieux`)} onOuvert={onOuvert}>
             <ul className="space-y-3">
               {cible.lieux.map((l) => (
-                <li key={l.type} className="text-[16px]">
-                  <strong>{l.type}</strong>
-                  <br />
-                  <span className="text-ink-soft">{l.pourquoi}</span>
-                  <br />
-                  <span className="text-[15px]">{R.recherche(l.recherche)}</span>
+                <li key={l.type} className="flex flex-col gap-3 text-[16px] sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <strong>{l.type}</strong>
+                    <br />
+                    <span className="text-ink-soft">{l.pourquoi}</span>
+                    <br />
+                    <span className="text-[15px]">{R.recherche(l.recherche)}</span>
+                  </div>
+                  <LiensLieu recherche={l.recherche} M={M} />
                 </li>
               ))}
             </ul>

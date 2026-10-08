@@ -9,8 +9,10 @@ import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { AlerteSoumission, BarreBoutons, ChampTexte, Compteur, GroupeRadio } from "./Champs";
 import { RappelConfidentialite } from "./Confidentialite";
 import { defilerVersChamp } from "./defilement";
+import { idChamp } from "./erreurs";
 import { ecartEsquisse } from "./ecarts";
 import { peutNouvelleEsquisse } from "./etat";
+import { Icone } from "./Icones";
 
 interface Avis {
   verdict: Verdict | "";
@@ -116,6 +118,7 @@ export function EtapeEsquisse({
             <div className="flex flex-wrap items-center gap-3">
               <h3 className="text-[22px]">{c.nom}</h3>
               <Badge tone="neutral">{M.resultat.marche[c.marche]}</Badge>
+              {c.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{M.resultat.tonIdee}</span>}
             </div>
             <p className="text-[17px]">{c.enUneLigne}</p>
             <p className="text-[15px] text-ink-soft">{c.pourquoi}</p>
@@ -178,6 +181,43 @@ export function EtapeEsquisse({
           </div>
         )}
       </Card>
+
+      {esquisse.autresPistes.length > 0 && (
+        <section className="space-y-4 rounded-2xl border-l-4 border-miel bg-miel-soft p-5 sm:p-6">
+          <div className="flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-miel">
+              <Icone nom="couches" className="size-5" />
+            </span>
+            <h2 className="font-serif text-[22px] italic">{E.pistesTitre}</h2>
+          </div>
+          <p className="text-[16px] text-ink-soft">{E.pistesIntro}</p>
+          <ul className="space-y-3">
+            {esquisse.autresPistes.map((p) => (
+              <li key={p.id} className="space-y-2 rounded-xl bg-paper p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-medium">{p.nom}</p>
+                  <Badge tone="neutral">{M.resultat.marche[p.marche]}</Badge>
+                  {p.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{M.resultat.tonIdee}</span>}
+                </div>
+                <p className="text-[16px]">{p.enUneLigne}</p>
+                <p className="text-[16px]">
+                  <span className="font-medium">{E.pourquoiPas}</span> {p.raison}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setIdee(E.prefererTexte(p.nom));
+                    window.setTimeout(() => defilerVersChamp(idChamp("esquisse.idee")), 0);
+                  }}
+                >
+                  {E.preferer}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {esquisse.hypotheses.length > 0 && (
         <Card className="space-y-2 rounded-2xl p-6 sm:p-8">

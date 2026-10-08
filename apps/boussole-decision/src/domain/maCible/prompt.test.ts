@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "./exemple";
-import { GRILLE_TEXTE, PROMPT_COMMUN, PROMPT_RESULTAT, messageUtilisateur, promptCadrage, promptSysteme } from "./prompt";
+import { CONSIGNES_CIBLE, GRILLE_TEXTE, PROMPT_COMMUN, PROMPT_RESULTAT, messageUtilisateur, promptCadrage, promptSysteme } from "./prompt";
 import { GRILLE } from "./scores";
 import type { Demande } from "./types";
 
@@ -46,7 +46,13 @@ describe("prompts", () => {
   });
 
   it("ne contiennent aucun tiret cadratin ni demi-cadratin", () => {
-    for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
+    for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, CONSIGNES_CIBLE, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
+  });
+
+  it("réutilise les consignes de cible et cite la règle 14", () => {
+    expect(PROMPT_RESULTAT).toContain(CONSIGNES_CIBLE);
+    expect(PROMPT_COMMUN).toContain("14. Notes de terrain et idées");
+    expect(promptCadrage(1)).toContain("B bis. Idées de la personne");
   });
 
   it("interdisent les questions aux tours 2 et 3 seulement", () => {
@@ -127,5 +133,17 @@ describe("messageUtilisateur", () => {
     expect(m).toContain("esquisse_validee");
     expect(m).toContain("Pas mon réseau");
     expect(m).not.toContain("Camille");
+    expect(m).toContain('"idees_de_cibles": []');
+    expect(m).not.toContain("ce_que_dit_le_terrain");
+  });
+
+  it("numérote les idées de cibles i1, i2…", () => {
+    const d = demande();
+    d.entree.terrain.ciblesEnTete = ["militaires en reconversion", "repreneurs d'entreprise"];
+    const m = messageUtilisateur(d);
+    expect(m).toContain('"id": "i1"');
+    expect(m).toContain('"id": "i2"');
+    expect(m).toContain("militaires en reconversion");
+    expect(m).not.toContain("ce_que_dit_le_terrain");
   });
 });

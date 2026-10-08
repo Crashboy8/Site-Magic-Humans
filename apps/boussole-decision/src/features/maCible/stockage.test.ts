@@ -49,6 +49,16 @@ describe("stockage local", () => {
     expect(lu?.entreeDuResultat).toBeNull();
     expect(lu?.resultat?.cibles).toHaveLength(3);
   });
+  it("relit un état V2a avec des idées vides, une synthèse nulle et des extras vides", () => {
+    const brut = JSON.parse(serialiser(etatComplet())) as { entree: { terrain: Record<string, unknown>; synthese?: unknown }; extras?: unknown };
+    delete brut.entree.terrain.ciblesEnTete;
+    delete brut.entree.synthese;
+    delete brut.extras;
+    const lu = deserialiser(JSON.stringify(brut));
+    expect(lu?.entree.terrain.ciblesEnTete).toEqual([]);
+    expect(lu?.entree.synthese).toBeNull();
+    expect(lu?.extras).toEqual({ portraits: {}, pistes: {} });
+  });
   it("ne lève aucune erreur sans window", () => {
     expect(typeof window).toBe("undefined");
     expect(lire()).toBeNull();

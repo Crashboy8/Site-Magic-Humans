@@ -19,6 +19,16 @@
   --color-danger-soft: #f8e3dd;
   --color-sky-soft: #e8f5fc; /* bleu ciel, fonds uniquement */
   --color-sky-line: #bfe3f5; /* bleu ciel, bordures uniquement */
+  --color-lilas: #5f3f8f;
+  --color-lilas-soft: #f1eafa;
+  --color-corail: #a8431a;
+  --color-corail-soft: #fde8dc;
+  --color-framboise: #a3304f;
+  --color-framboise-soft: #fce6ec;
+  --color-eau: #0e6a60;
+  --color-eau-soft: #dff4f0;
+  --color-miel: #7a5200;
+  --color-miel-soft: #fdf0d2;
 
   --font-sans: var(--font-jost), system-ui, sans-serif;
   --font-serif: var(--font-cormorant), Georgia, serif;

@@ -32,4 +32,27 @@ describe("export du résultat", () => {
   it("nomme le fichier avec le jour de Paris", () => {
     expect(nomFichierExport("2026-10-07T10:00:00.000Z")).toBe("le-cibleur-2026-10-07.md");
   });
+
+  it("écrit la section D'AUTRES PISTES avec le score pressenti", () => {
+    const avecPiste = {
+      ...RESULTAT_EXEMPLE,
+      autresPistes: [
+        {
+          id: "p1" as const,
+          nom: "Militaires en reconversion",
+          marche: "b2c" as const,
+          enUneLigne: "Ton idée, pas encore étudiée en détail par l'IA.",
+          raison: "L'IA ne l'a pas commentée. Creuse-la pour en avoir le cœur net.",
+          depuisIdees: ["i1" as const],
+          notes: { urgence: 3 as const, paiement: 3 as const, acces: 3 as const, plaisir: 3 as const },
+        },
+      ],
+      classement: classerCibles(RESULTAT_EXEMPLE.cibles),
+    };
+    const { texte, markdown } = exporterResultat(avecPiste, "Camille");
+    expect(texte).toContain("D'AUTRES PISTES");
+    expect(texte).toContain("Militaires en reconversion");
+    expect(texte).toContain("B2C · 6/10");
+    expect(markdown).toContain("D'autres pistes");
+  });
 });

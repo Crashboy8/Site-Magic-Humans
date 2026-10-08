@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from "vitest";
 import { RESULTAT_EXEMPLE } from "./exemple";
-import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "./schemas";
+import { SCHEMA_CADRAGE, SCHEMA_RESULTAT, schemaCible } from "./schemas";
+import { schemaPourGemini } from "@/lib/ia/fournisseur";
 
 const INTERDITS = ["minLength", "maxLength", "minimum", "maximum", "minItems", "maxItems", "pattern"];
 
@@ -55,4 +56,24 @@ describe.each([
 describe("forme de RESULTAT_EXEMPLE", () => {
   it("respecte SCHEMA_RESULTAT", () => expect(forme(SCHEMA_RESULTAT, RESULTAT_EXEMPLE)).toEqual([]));
   it("le vérificateur détecte une clé en trop", () => expect(forme(SCHEMA_RESULTAT, { ...RESULTAT_EXEMPLE, en_trop: 1 }).length).toBeGreaterThan(0));
+});
+
+describe("schemaCible", () => {
+  it("ajoute depuisIdees et verbatims à l'item du résultat", () => {
+    const item = schemaCible(["c1", "c2", "c3"]) as { properties: Record<string, unknown> };
+    const itemResultat = (SCHEMA_RESULTAT as unknown as { properties: { cibles: { items: { properties: Record<string, unknown> } } } }).properties.cibles.items;
+    expect(Object.keys(item.properties).sort()).toEqual(Object.keys(itemResultat.properties).sort());
+    expect(item.properties.depuisIdees).toBeDefined();
+    expect(item.properties.verbatims).toBeDefined();
+    expect(item.properties.portrait).toBeDefined();
+    expect(item.properties.testTerrain).toBeDefined();
+  });
+
+  it("schemaPourGemini retire additionalProperties et pattern", () => {
+    for (const schema of [SCHEMA_CADRAGE, SCHEMA_RESULTAT, schemaCible(["c4", "c5", "c6"])]) {
+      const json = JSON.stringify(schemaPourGemini(schema));
+      expect(json).not.toContain("additionalProperties");
+      expect(json).not.toContain("pattern");
+    }
+  });
 });

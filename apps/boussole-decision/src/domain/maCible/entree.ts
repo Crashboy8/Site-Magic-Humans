@@ -1,6 +1,6 @@
 // Validation de l'entrée (§5.3) et indices de flou (§6.1). Module pur.
 import { LIMITES } from "./limites";
-import type { Adresse, Corrections, EntreeMaCible, Format, IdCible, Langue, Marche, Reponse, Source, Style, Talent, Terrain, Verdict } from "./types";
+import type { Adresse, Corrections, EntreeMaCible, Format, IdCiblePrincipale, Langue, Marche, Reponse, Source, Style, Talent, Terrain, Verdict } from "./types";
 
 export interface ErreurChamp {
   champ: string;
@@ -107,7 +107,9 @@ export function validerEntree(brut: unknown): ResultatEntree {
   const prixActuel = texte("terrain.prixActuel", r.prixActuel, LIMITES.prixActuel, false);
   const adresse = choix("terrain.adresse", r.adresse, ADRESSES, "vous") as Adresse;
   const style = choix("terrain.style", r.style, STYLES, "chaleureux") as Style;
-  const terrain: Terrain = { offre, marche, experience, clientsPasses, formats: formats.slice(0, LIMITES.formats.items), zone, prixActuel, adresse, style };
+  const ciblesEnTete = normaliserListe(r.ciblesEnTete, LIMITES.ciblesEnTete.items, LIMITES.ciblesEnTete.max);
+  if (racine.synthese !== undefined && racine.synthese !== null) erreurs.push({ champ: "synthese", code: "invalide" });
+  const terrain: Terrain = { offre, marche, experience, clientsPasses, formats: formats.slice(0, LIMITES.formats.items), zone, prixActuel, adresse, style, ciblesEnTete };
 
   const reponses: Reponse[] = [];
   (Array.isArray(racine.reponses) ? racine.reponses : []).slice(0, LIMITES.reponses.items).forEach((x, i) => {
@@ -120,7 +122,7 @@ export function validerEntree(brut: unknown): ResultatEntree {
   });
 
   if (erreurs.length) return { ok: false, erreurs };
-  return { ok: true, entree: { v: 1, langue, source, talent, terrain: terrain, reponses } };
+  return { ok: true, entree: { v: 1, langue, source, talent, terrain, reponses, synthese: null } };
 }
 
 const sansAccents = (s: string) =>
@@ -147,7 +149,7 @@ export function detecterFlou(champ: string, texte: string): boolean {
 }
 
 const VERDICTS: readonly Verdict[] = ["oui", "en_partie", "non"];
-const IDS: readonly IdCible[] = ["c1", "c2", "c3"];
+const IDS: readonly IdCiblePrincipale[] = ["c1", "c2", "c3"];
 
 /** Validation des corrections (§5.3) : offre 10 à 2 000, un verdict par cible, commentaire obligatoire pour « en partie » et « non ». */
 export function validerCorrections(brut: unknown): { ok: true; corrections: Corrections } | { ok: false; erreurs: ErreurChamp[] } {
@@ -178,7 +180,7 @@ export function validerCorrections(brut: unknown): { ok: true; corrections: Corr
     const id = objet(c).id;
     if (typeof id !== "string" || !(IDS as readonly string[]).includes(id) || cibles.some((x) => x.id === id)) erreurs.push({ champ: `corrections.cibles[${i}].id`, code: "invalide" });
     const { verdict, commentaire } = verdictEtCommentaire(`corrections.cibles[${i}]`, c, true);
-    cibles.push({ id: id as IdCible, verdict, commentaire });
+    cibles.push({ id: id as IdCiblePrincipale, verdict, commentaire });
   });
   const antiCible = verdictEtCommentaire("corrections.antiCible", o.antiCible, false);
   const idee = normaliser(o.idee);

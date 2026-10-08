@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, buttonClass } from "@/components/ui";
 import type { ResultatClasse } from "@/domain/maCible/types";
+import { alertePlaisirPressenti, scorePressenti } from "@/domain/maCible/scores";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
 import { CarteCible } from "./CarteCible";
 import { AvertissementIA } from "./Confidentialite";
 import { IndicateurEtapes } from "./IndicateurEtapes";
+import { Icone } from "./Icones";
 import { Plan30 } from "./Plan30";
 import { BarreSommaire, ColonneSommaire, type EntreeSommaire } from "./SommaireResultat";
 import type { EtapeBarre, Etat } from "./etat";
@@ -195,6 +197,7 @@ export function Resultat({
             : undefined,
       };
     }),
+    ...(resultat.autresPistes.length > 0 ? [{ id: "pistes", libelle: R.sommairePistes }] : []),
     { id: "anti-cible", libelle: R.sommaireAnti },
     { id: "plan", libelle: R.sommairePlan },
     { id: "hypotheses", libelle: R.sommaireHypotheses },
@@ -329,6 +332,55 @@ export function Resultat({
               )}
             </div>
           ))}
+
+          {resultat.autresPistes.length > 0 && (
+            <section id="pistes" data-ancre="" className="scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-miel bg-miel-soft p-5 sm:p-6">
+              <div className="flex items-center gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-miel">
+                  <Icone nom="couches" className="size-5" />
+                </span>
+                <h2 className="font-serif text-[26px] italic">{R.pistesTitre}</h2>
+              </div>
+              <p className="text-[16px] text-ink-soft">{R.pistesIntro}</p>
+              <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {[...resultat.autresPistes]
+                  .sort((a, b) => scorePressenti(b.notes) - scorePressenti(a.notes))
+                  .map((p) => (
+                    <li key={p.id} className="space-y-3 rounded-2xl border border-line bg-paper p-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-[18px] font-medium">{p.nom}</h3>
+                        <span className="inline-flex min-h-11 items-center rounded-full bg-sand px-3 text-xs font-medium">{R.marche[p.marche]}</span>
+                        {p.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{R.tonIdee}</span>}
+                      </div>
+                      <p className="text-[16px]">
+                        <span className="font-serif text-[28px] leading-none text-miel">{R.score(scorePressenti(p.notes))}</span>{" "}
+                        <span className="text-sm text-ink-soft">{R.scorePressenti}</span>{" "}
+                        <span className="inline-flex min-h-11 items-center rounded-full bg-sand px-3 text-xs font-medium">{R.pastilleEstimation}</span>
+                      </p>
+                      <p className="text-[16px]">{p.enUneLigne}</p>
+                      <p className="text-[16px]">
+                        <span className="font-medium">{M.esquisse.pourquoiPas}</span> {p.raison}
+                      </p>
+                      <ul className="space-y-2">
+                        {(["urgence", "paiement", "acces", "plaisir"] as const).map((cle) => {
+                          const couleur = { urgence: "bg-framboise", paiement: "bg-miel", acces: "bg-eau", plaisir: "bg-sage" }[cle];
+                          return (
+                            <li key={cle} className="flex items-center gap-2 text-[14px]">
+                              <span className="w-36 shrink-0">{R.criteres[cle]}</span>
+                              <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-sand">
+                                <span className={`block h-1.5 rounded-full ${couleur}`} style={{ width: `${(p.notes[cle] / 5) * 100}%` }} />
+                              </span>
+                              <span className="w-8 text-right tabular-nums">{p.notes[cle]}/5</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {alertePlaisirPressenti(p.notes) && <p className="rounded-xl border border-accent/30 bg-blush px-3 py-2 text-[15px]">{R.alertePlaisirPiste}</p>}
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          )}
 
           <section id="anti-cible" data-ancre="" aria-labelledby="anti-titre" className="scroll-mt-20 space-y-4 rounded-2xl border border-[#F3C1CF] bg-blush p-6 sm:p-8">
             <h2 id="anti-titre" className="text-[26px] italic">

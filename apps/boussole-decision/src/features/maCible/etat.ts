@@ -1,6 +1,6 @@
 // État de Ma Cible et réducteur des étapes (§6.5, §12.5). Module pur : aucun accès au navigateur.
 import type { AncreLue } from "@/domain/maCible/ancre";
-import type { Cadrage, Corrections, EntreeMaCible, Langue, Reponse, ResultatClasse, Talent, Terrain } from "@/domain/maCible/types";
+import { EXTRAS_VIDES, type Cadrage, type Corrections, type EntreeMaCible, type Extras, type Langue, type Reponse, type ResultatClasse, type Talent, type Terrain } from "@/domain/maCible/types";
 
 export const ETAPES = ["accueil", "talent", "terrain", "questions", "esquisse", "resultat"] as const;
 export type Etape = (typeof ETAPES)[number];
@@ -29,10 +29,12 @@ export interface Etat {
   resultatPerime: boolean;
   /** Réponses qui ont produit le résultat, figées au premier changement. */
   entreeDuResultat: EntreeMaCible | null;
+  /** Portraits et pistes creusées, vides tant que ces actions n'existent pas. */
+  extras: Extras;
 }
 
 export const TALENT_VIDE: Talent = { nom: "", mecanisme: "", contexte: "", benefice: "", antiContexte: "", reussite: "", sousTalents: [], pistes: [], aDeleguer: [] };
-export const TERRAIN_VIDE: Terrain = { offre: "", marche: "", experience: "", clientsPasses: "", formats: [], zone: "", prixActuel: "", adresse: "vous", style: "chaleureux" };
+export const TERRAIN_VIDE: Terrain = { offre: "", marche: "", experience: "", clientsPasses: "", formats: [], zone: "", prixActuel: "", adresse: "vous", style: "chaleureux", ciblesEnTete: [] };
 
 /** La langue envoyée à l'IA : celle de l'interface, si elle existe dans cette langue (en v1, seul le français). */
 const LANGUES_INTERFACE: readonly Langue[] = ["fr"];
@@ -43,7 +45,7 @@ export function etatInitial(locale = "fr", maintenant = new Date()): Etat {
     v: 1,
     maj: maintenant.toISOString(),
     etape: "accueil",
-    entree: { v: 1, langue: langueEntree(locale), source: null, talent: { ...TALENT_VIDE }, terrain: { ...TERRAIN_VIDE }, reponses: [] },
+    entree: { v: 1, langue: langueEntree(locale), source: null, talent: { ...TALENT_VIDE }, terrain: { ...TERRAIN_VIDE }, reponses: [], synthese: null },
     prenom: "",
     cadrage: null,
     tour: 1,
@@ -55,6 +57,7 @@ export function etatInitial(locale = "fr", maintenant = new Date()): Etat {
     plusLoin: "accueil",
     resultatPerime: false,
     entreeDuResultat: null,
+    extras: { portraits: {}, pistes: {} },
   };
 }
 
@@ -75,7 +78,7 @@ export type Action =
   | { type: "cadrage"; tour: 1 | 2 | 3; cadrage: Cadrage }
   | { type: "corrections"; corrections: Corrections }
   | { type: "resultat"; resultat: ResultatClasse; maintenant: string }
-  | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[] }
+  | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[]; extras?: Extras }
   | { type: "coche"; index: number }
   | { type: "recommencer"; locale?: string };
 
@@ -158,10 +161,12 @@ export function reducteur(e: Etat, a: Action): Etat {
         coches: Array<boolean>(NB_ACTIONS).fill(false),
         resultatPerime: false,
         entreeDuResultat: null,
+        extras: EXTRAS_VIDES,
       };
     case "reprendre":
       return {
         ...e,
+        extras: a.extras ?? EXTRAS_VIDES,
         entree: a.entree,
         resultat: a.resultat,
         resultatLe: a.faitLe,

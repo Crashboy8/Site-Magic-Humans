@@ -19,6 +19,12 @@ export const LIMITES = {
   correctionOffre: { min: 10, max: 2_000 },
   commentaire: { min: 3, max: 2_000 },
   idee: { max: 2_000 },
+  ciblesEnTete: { items: 8, max: 120 },
+  notes: { items: 5, titre: 60, texteMin: 50, texte: 8_000, total: 20_000, totalMin: 200 },
+  synthese: { resume: 400, profils: 4, douleurs: 6, verbatims: 12, citation: 240, declencheurs: 4, objections: 4, motsCles: 10, texte: 200, mot: 40 },
+  offreApprofondir: { max: 240 },
+  ciblesExistantes: { items: 6, max: 80 },
+  pistesCreuseesMax: 3,
 } as const;
 
 /**

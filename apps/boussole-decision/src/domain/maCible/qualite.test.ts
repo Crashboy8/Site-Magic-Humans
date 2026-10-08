@@ -25,7 +25,7 @@ const esquisse = (statut: Cadrage["statut"]): Cadrage => ({
   statut,
   message: "",
   questions: [],
-  esquisse: { offre: "x".repeat(20), cibles: [], antiCible: "y".repeat(20), hypotheses: [] },
+  esquisse: { offre: "x".repeat(20), cibles: [], antiCible: "y".repeat(20), hypotheses: [], autresPistes: [] },
 });
 
 describe("appliquerQualite", () => {

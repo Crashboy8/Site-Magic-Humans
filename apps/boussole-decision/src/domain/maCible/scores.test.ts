@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RESULTAT_EXEMPLE } from "./exemple";
-import { classerCibles, GRILLE, POIDS, scoreSur10 } from "./scores";
+import { alertePlaisirPressenti, classerCibles, GRILLE, POIDS, scorePressenti, scoreSur10 } from "./scores";
 import type { Cible, IdCible } from "./types";
 
 const note = (n: number) => ({ note: n as 1 | 2 | 3 | 4 | 5, raison: "raison" });
@@ -22,6 +22,18 @@ describe("scoreSur10", () => {
     expect(GRILLE.reduce((s, g) => s + g.poids, 0)).toBe(100);
     expect(Object.values(POIDS).reduce((s, p) => s + p, 0)).toBeCloseTo(1);
     for (const g of GRILLE) expect(POIDS[g.cle] * 100).toBeCloseTo(g.poids);
+  });
+});
+
+describe("scorePressenti", () => {
+  it("calcule 8,1 pour 4, 4, 3 et 5, et 6 pour quatre 3", () => {
+    expect(scorePressenti({ urgence: 4, paiement: 4, acces: 3, plaisir: 5 })).toBe(8.1);
+    expect(scorePressenti({ urgence: 3, paiement: 3, acces: 3, plaisir: 3 })).toBe(6);
+  });
+
+  it("signale un plaisir de 2 au plus", () => {
+    expect(alertePlaisirPressenti({ urgence: 5, paiement: 5, acces: 5, plaisir: 1 })).toBe(true);
+    expect(alertePlaisirPressenti({ urgence: 3, paiement: 3, acces: 3, plaisir: 3 })).toBe(false);
   });
 });
 

@@ -10,6 +10,7 @@ import { AlerteSoumission, BarreBoutons, ChampTexte, GroupePastilles, GroupeRadi
 import { defilerVersChamp } from "./defilement";
 import { idChamp, messageChamp, messagePresBouton } from "./erreurs";
 import { RappelConfidentialite } from "./Confidentialite";
+import { Icone } from "./Icones";
 
 const entrees = <T extends string>(o: Record<T, string>) => (Object.keys(o) as T[]).map((valeur) => ({ valeur, label: o[valeur] }));
 
@@ -150,6 +151,72 @@ export function EtapeTerrain({
           M={M}
         />
       </Card>
+
+      <section className="space-y-4 rounded-2xl border-l-4 border-miel bg-miel-soft p-5 sm:p-6">
+        <div className="flex items-center gap-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-miel">
+            <Icone nom="cible" className="size-5" />
+          </span>
+          <h2 className="font-serif text-[22px] italic">
+            {T.idees.titre} <span className="font-sans text-[15px] font-normal not-italic text-ink-soft">{M.commun.facultatif}</span>
+          </h2>
+        </div>
+        <p className="text-[16px] text-ink-soft">{T.idees.aide}</p>
+        <ul className="space-y-3">
+          {(terrain.ciblesEnTete.length === 0 ? [""] : terrain.ciblesEnTete).map((valeur, i) => (
+            <li key={i} className="space-y-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Input
+                  id={i === 0 ? idChamp("terrain.ciblesEnTete") : undefined}
+                  value={valeur}
+                  maxLength={LIMITES.ciblesEnTete.max}
+                  placeholder={T.idees.placeholder}
+                  aria-label={`${T.idees.titre} ${i + 1}`}
+                  onChange={(e) => {
+                    const base = terrain.ciblesEnTete.length === 0 ? [""] : [...terrain.ciblesEnTete];
+                    base[i] = e.target.value;
+                    onChange({ ciblesEnTete: base });
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="shrink-0 max-sm:w-full"
+                  aria-label={T.idees.retirerAide}
+                  onClick={() => {
+                    const base = terrain.ciblesEnTete.length === 0 ? [""] : terrain.ciblesEnTete;
+                    onChange({ ciblesEnTete: base.filter((_, j) => j !== i) });
+                  }}
+                >
+                  <Icone nom="croix" className="size-4 shrink-0" />
+                  {T.idees.retirer}
+                </Button>
+              </div>
+              {i === 0 && (
+                <p className="text-sm text-ink-soft">
+                  {M.commun.exemplePrefix}
+                  {T.idees.exemple}
+                </p>
+              )}
+              {valeur.length >= 100 && (
+                <p className={`text-right text-sm tabular-nums ${valeur.length >= LIMITES.ciblesEnTete.max ? "font-medium text-danger" : "text-ink-soft"}`}>
+                  {M.commun.compteur(valeur.length, LIMITES.ciblesEnTete.max)}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+        {terrain.ciblesEnTete.length < LIMITES.ciblesEnTete.items && (
+          <Button
+            type="button"
+            variant="secondary"
+            className="max-sm:w-full"
+            onClick={() => onChange({ ciblesEnTete: [...(terrain.ciblesEnTete.length === 0 ? [""] : terrain.ciblesEnTete), ""] })}
+          >
+            {T.idees.ajouter}
+          </Button>
+        )}
+      </section>
 
       <Card className="space-y-5 rounded-2xl p-6 sm:p-8">
         <h2 className="text-[22px] italic">{T.tonTitre}</h2>

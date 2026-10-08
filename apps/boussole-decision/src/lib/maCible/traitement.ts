@@ -3,6 +3,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { ENTETE_SESSION, ENTETE_TEST, emailAutorise, sessionValide } from "@/domain/maCible/acces";
 import { validerCorrections, validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
+import { couvrirIdees, filtrerVerbatimsCibles, qualitePistes } from "@/domain/maCible/idees";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { nettoyerTextes } from "@/domain/maCible/nettoyage";
 import { messageUtilisateur, promptSysteme } from "@/domain/maCible/prompt";
@@ -58,7 +59,7 @@ function reponseReussie(corps: unknown, etape: Demande["etape"]): corps is Recor
 }
 
 /** Jetons de sortie du modèle. L'entrée est bornée par `TAILLE_MAX_CORPS`, pas par ce plafond. */
-const MAX_TOKENS = { cadrage: 1_500, resultat: 9_000 } as const;
+const MAX_TOKENS = { cadrage: 2_500, resultat: 10_000 } as const;
 export const DELAI_MS = { cadrage: 90_000, resultat: 240_000 } as const;
 /** En dessous de ce délai restant, une relance n'a plus aucune chance d'aboutir. */
 const DELAI_MIN_RELANCE_MS = 10_000;
@@ -161,18 +162,32 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
     const manque = questionsManquantes(v.valeur, demande.tour, contexteQualite(demande));
     if (manque) return { ok: false, erreurs: [manque], reparations: v.reparations };
-    return { ok: true, cadrage: v.valeur, reparations: v.reparations };
+    let reparations = v.reparations;
+    if (v.valeur.statut === "esquisse") {
+      const idees = demande.entree.terrain.ciblesEnTete;
+      const marche = demande.entree.terrain.marche;
+      const couvert = couvrirIdees(v.valeur.esquisse, idees, marche, false);
+      const pistes = qualitePistes(couvert.sortie, idees, marche, false);
+      v.valeur = { ...v.valeur, esquisse: pistes.sortie };
+      reparations += couvert.ajoutees + pistes.reparations;
+    }
+    return { ok: true, cadrage: v.valeur, reparations };
   }
   const v = validerResultat(json);
   if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
-  const q = appliquerQualite(v.valeur, contexteQualite(demande));
-  if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations: v.reparations + q.reparations };
+  const idees = demande.entree.terrain.ciblesEnTete;
+  const marche = demande.entree.terrain.marche;
+  const couvert = couvrirIdees(v.valeur, idees, marche, true);
+  const pistes = qualitePistes(couvert.sortie, idees, marche, true);
+  const phrasesCibles = filtrerVerbatimsCibles(pistes.sortie, demande.entree.synthese);
+  const q = appliquerQualite(phrasesCibles.sortie, contexteQualite(demande));
+  if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations: v.reparations + couvert.ajoutees + pistes.reparations + phrasesCibles.retires + q.reparations };
   const classement = classerCibles(q.resultat.cibles);
   const phrases = ajouterPhrases(q.resultat.hypotheses, phrasesDepartage(q.resultat.cibles, classement));
   return {
     ok: true,
     resultat: { ...q.resultat, hypotheses: phrases.hypotheses, classement },
-    reparations: v.reparations + q.reparations + phrases.ajoutees,
+    reparations: v.reparations + couvert.ajoutees + pistes.reparations + phrasesCibles.retires + q.reparations + phrases.ajoutees,
   };
 }
 
