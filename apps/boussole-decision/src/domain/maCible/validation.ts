@@ -1,8 +1,8 @@
 // Validation des réponses du modèle (§8.4). Retourne toutes les erreurs, dans l'ordre du document.
 // Chaque erreur est une chaîne « chemin : problème ». Module pur.
-import { CANAUX, CATEGORIES_LIEU, IDS_IDEES, IDS_NOTES, IDS_PISTES } from "./schemas";
+import { CANAUX, CATEGORIES_LIEU, GENRES_APPROCHE, GENRES_LIEU_SALARIE, IDS_IDEES, IDS_NOTES, IDS_PISTES } from "./schemas";
 import type { SyntheseBrute } from "./terrain";
-import type { AutrePiste, Cadrage, Cible, Frequence, IdNote, Portrait, Resultat, ThemeVerbatim } from "./types";
+import type { AutrePiste, Cadrage, Cible, Frequence, IdNote, Portrait, Resultat, ResultatSalarie, ThemeVerbatim } from "./types";
 
 export type Validation<T> = { ok: true; valeur: T; reparations: number } | { ok: false; erreurs: string[]; reparations: number };
 
@@ -248,6 +248,57 @@ function verifierNote(x: Verif, v: unknown, chemin: string) {
   x.poser(o, "raison", `${chemin}.raison`, 10, 200);
 }
 
+function verifierLinkedin(x: Verif, v: unknown, p: string) {
+  const li = x.objet(v, p);
+  if (!li) return;
+  x.enum(li.pertinence, `${p}.pertinence`, ["forte", "moyenne", "faible"] as const);
+  x.poser(li, "motsCles", `${p}.motsCles`, 3, 200);
+  x.textes(li.intitules, `${p}.intitules`, 0, 6, 1, 60);
+  x.textes(li.secteurs, `${p}.secteurs`, 0, 6, 1, 80);
+  x.textes(li.tailles, `${p}.tailles`, 0, 4, 1, 60);
+  x.poser(li, "zone", `${p}.zone`, 0, 80);
+  x.textes(li.autres, `${p}.autres`, 0, 5, 1, 200);
+  x.poser(li, "astuce", `${p}.astuce`, 10, 240);
+}
+
+/** Questions ouvertes qui se terminent par « ? ». */
+function verifierQuestionsOuvertes(x: Verif, v: unknown, p: string, n: number, min: number, max: number) {
+  const qs = x.textes(v, p, n, n, min, max);
+  qs?.forEach((q, i) => {
+    if (q && !q.trim().endsWith("?")) x.err(`${p}[${i}]`, "doit se terminer par ?");
+  });
+}
+
+function verifierTestTerrain(x: Verif, v: unknown, p: string) {
+  const t = x.objet(v, p);
+  if (!t) return;
+  x.poser(t, "profils", `${p}.profils`, 20, 300);
+  verifierQuestionsOuvertes(x, t.questions, `${p}.questions`, 5, 10, 200);
+  x.textes(t.signauxPositifs, `${p}.signauxPositifs`, 2, 3, 1, 200);
+  x.textes(t.signauxNegatifs, `${p}.signauxNegatifs`, 2, 3, 1, 200);
+}
+
+function verifierPlan(x: Verif, v: unknown) {
+  const plan = x.tableau(v, "plan30", 4, 4);
+  plan?.forEach((s, i) => {
+    const p = `plan30[${i}]`;
+    const so = x.objet(s, p);
+    if (!so) return;
+    if (so.semaine !== i + 1) x.err(`${p}.semaine`, `semaine ${i + 1} attendue, dans l'ordre`);
+    x.poser(so, "titre", `${p}.titre`, 3, 80);
+    const actions = x.tableau(so.actions, `${p}.actions`, 3, 3);
+    actions?.forEach((a, j) => {
+      const q = `${p}.actions[${j}]`;
+      const ao = x.objet(a, q);
+      if (!ao) return;
+      x.poser(ao, "texte", `${q}.texte`, 10, 200);
+      x.enum(ao.cible, `${q}.cible`, ["c1", "c2", "c3", "toutes"] as const);
+      x.enum(ao.canal, `${q}.canal`, CANAUX);
+      x.entier(ao.minutes, `${q}.minutes`, 10, 180);
+    });
+  });
+}
+
 function verifierCible(x: Verif, v: unknown, p: string, ids: string[], idsAutorises: readonly string[]) {
   const c = x.objet(v, p);
   if (!c) return;
@@ -311,17 +362,7 @@ function verifierCible(x: Verif, v: unknown, p: string, ids: string[], idsAutori
     if (!prioriteUn) x.err(`${p}.canaux`, "au moins un canal de priorité 1 attendu");
   }
 
-  const li = x.objet(c.linkedin, `${p}.linkedin`);
-  if (li) {
-    x.enum(li.pertinence, `${p}.linkedin.pertinence`, ["forte", "moyenne", "faible"] as const);
-    x.poser(li, "motsCles", `${p}.linkedin.motsCles`, 3, 200);
-    x.textes(li.intitules, `${p}.linkedin.intitules`, 0, 6, 1, 60);
-    x.textes(li.secteurs, `${p}.linkedin.secteurs`, 0, 6, 1, 80);
-    x.textes(li.tailles, `${p}.linkedin.tailles`, 0, 4, 1, 60);
-    x.poser(li, "zone", `${p}.linkedin.zone`, 0, 80);
-    x.textes(li.autres, `${p}.linkedin.autres`, 0, 5, 1, 200);
-    x.poser(li, "astuce", `${p}.linkedin.astuce`, 10, 240);
-  }
+  verifierLinkedin(x, c.linkedin, `${p}.linkedin`);
 
   const m = x.objet(c.messages, `${p}.messages`);
   if (m) {
@@ -332,16 +373,7 @@ function verifierCible(x: Verif, v: unknown, p: string, ids: string[], idsAutori
     if (corps !== null && !corps.includes("{{prenom}}")) x.err(`${p}.messages.emailCorps`, "doit contenir {{prenom}}");
   }
 
-  const t = x.objet(c.testTerrain, `${p}.testTerrain`);
-  if (t) {
-    x.poser(t, "profils", `${p}.testTerrain.profils`, 20, 300);
-    const qs = x.textes(t.questions, `${p}.testTerrain.questions`, 5, 5, 10, 200);
-    qs?.forEach((q, i) => {
-      if (q && !q.trim().endsWith("?")) x.err(`${p}.testTerrain.questions[${i}]`, "doit se terminer par ?");
-    });
-    x.textes(t.signauxPositifs, `${p}.testTerrain.signauxPositifs`, 2, 3, 1, 200);
-    x.textes(t.signauxNegatifs, `${p}.testTerrain.signauxNegatifs`, 2, 3, 1, 200);
-  }
+  verifierTestTerrain(x, c.testTerrain, `${p}.testTerrain`);
   poserDepuisIdees(x, c, `${p}.depuisIdees`);
   poserVerbatims(x, c, `${p}.verbatims`);
 }
@@ -390,24 +422,7 @@ export function validerResultat(v: unknown): Validation<Resultat> {
     x.poser(anti, "commentDire", "antiCible.commentDire", 20, 400);
   }
 
-  const plan = x.tableau(o.plan30, "plan30", 4, 4);
-  plan?.forEach((s, i) => {
-    const p = `plan30[${i}]`;
-    const so = x.objet(s, p);
-    if (!so) return;
-    if (so.semaine !== i + 1) x.err(`${p}.semaine`, `semaine ${i + 1} attendue, dans l'ordre`);
-    x.poser(so, "titre", `${p}.titre`, 3, 80);
-    const actions = x.tableau(so.actions, `${p}.actions`, 3, 3);
-    actions?.forEach((a, j) => {
-      const q = `${p}.actions[${j}]`;
-      const ao = x.objet(a, q);
-      if (!ao) return;
-      x.poser(ao, "texte", `${q}.texte`, 10, 200);
-      x.enum(ao.cible, `${q}.cible`, ["c1", "c2", "c3", "toutes"] as const);
-      x.enum(ao.canal, `${q}.canal`, CANAUX);
-      x.entier(ao.minutes, `${q}.minutes`, 10, 180);
-    });
-  });
+  verifierPlan(x, o.plan30);
 
   x.textes(o.hypotheses, "hypotheses", 0, 4, 1, 200);
   x.poser(o, "motPourToi", "motPourToi", 20, 300);
@@ -523,4 +538,132 @@ export function validerPortrait(v: unknown, chemin = "portrait"): Validation<Por
     x.poser(item, "recherche", `${p}.recherche`, 3, 80);
   });
   return fini(x, o as unknown as Portrait);
+}
+
+function verifierPatron(x: Verif, v: unknown, p: string, ids: string[]) {
+  const c = x.objet(v, p);
+  if (!c) return;
+  const id = x.enum(c.id, `${p}.id`, IDS_CIBLE);
+  if (id) ids.push(id);
+  x.poser(c, "nom", `${p}.nom`, 5, 100);
+  const portrait = x.objet(c.portrait, `${p}.portrait`);
+  if (portrait) {
+    x.poser(portrait, "secteur", `${p}.portrait.secteur`, 3, 120);
+    x.poser(portrait, "taille", `${p}.portrait.taille`, 3, 80);
+    x.poser(portrait, "structure", `${p}.portrait.structure`, 3, 120);
+    x.poser(portrait, "moment", `${p}.portrait.moment`, 3, 160);
+  }
+  x.poser(c, "douleur", `${p}.douleur`, 30, 300);
+  x.poser(c, "pourquoiToi", `${p}.pourquoiToi`, 40, 400);
+  x.poser(c, "ancrage", `${p}.ancrage`, 30, 300);
+  const m = x.objet(c.management, `${p}.management`);
+  if (m) {
+    x.poser(m, "style", `${p}.management.style`, 20, 300);
+    x.poser(m, "colle", `${p}.management.colle`, 10, 240);
+    x.poser(m, "frotte", `${p}.management.frotte`, 0, 240);
+  }
+  const va = x.objet(c.valeurs, `${p}.valeurs`);
+  if (va) {
+    x.textes(va.probables, `${p}.valeurs.probables`, 2, 4, 3, 60);
+    x.poser(va, "colle", `${p}.valeurs.colle`, 10, 240);
+    x.poser(va, "frotte", `${p}.valeurs.frotte`, 0, 240);
+  }
+  verifierQuestionsOuvertes(x, c.questionsEntretien, `${p}.questionsEntretien`, 3, 15, 220);
+  const besoin = x.objet(c.besoin, `${p}.besoin`);
+  if (besoin) for (const k of ["urgence", "rarete", "paiement", "acces"]) x.entier(besoin[k], `${p}.besoin.${k}`, 1, 5);
+  const envie = x.objet(c.envie, `${p}.envie`);
+  if (envie) for (const k of ["management", "valeurs", "declencheur", "cadre"]) x.entier(envie[k], `${p}.envie.${k}`, 1, 5);
+  const lieux = x.tableau(c.lieux, `${p}.lieux`, 3, 6);
+  lieux?.forEach((l, i) => {
+    const q = `${p}.lieux[${i}]`;
+    const o = x.objet(l, q);
+    if (!o) return;
+    x.poser(o, "type", `${q}.type`, 5, 120);
+    x.poser(o, "pourquoi", `${q}.pourquoi`, 10, 200);
+    x.poser(o, "recherche", `${q}.recherche`, 3, 80);
+    x.enum(o.genre, `${q}.genre`, GENRES_LIEU_SALARIE);
+  });
+  const approches = x.tableau(c.approches, `${p}.approches`, 3, 3);
+  approches?.forEach((a, i) => {
+    const q = `${p}.approches[${i}]`;
+    const o = x.objet(a, q);
+    if (!o) return;
+    x.enum(o.genre, `${q}.genre`, GENRES_APPROCHE);
+    x.poser(o, "action", `${q}.action`, 20, 240);
+  });
+  verifierLinkedin(x, c.linkedin, `${p}.linkedin`);
+  const pi = x.objet(c.pitchs, `${p}.pitchs`);
+  if (pi) {
+    const note = x.poser(pi, "noteInvitation", `${p}.pitchs.noteInvitation`, 40, 200);
+    const message = x.poser(pi, "messageLinkedin", `${p}.pitchs.messageLinkedin`, 80, 600);
+    for (const [t, cle] of [[note, "noteInvitation"], [message, "messageLinkedin"]] as const) {
+      if (t !== null && t.includes("http")) x.err(`${p}.pitchs.${cle}`, "aucun lien attendu");
+    }
+    x.poser(pi, "emailObjet", `${p}.pitchs.emailObjet`, 6, 60);
+    const corps = x.poser(pi, "emailCorps", `${p}.pitchs.emailCorps`, 200, 900);
+    if (corps !== null && !corps.includes("{{prenom}}")) x.err(`${p}.pitchs.emailCorps`, "doit contenir {{prenom}}");
+    x.poser(pi, "oral30s", `${p}.pitchs.oral30s`, 200, 700);
+  }
+  x.poser(c, "exemple", `${p}.exemple`, 60, 500);
+  poserDepuisIdees(x, c, `${p}.depuisIdees`);
+}
+
+/**
+ * Résultat de la voie salarié (docs/cibleur-salarie-spec.md, §3 et §4).
+ * `reconversion` est exigée seulement si la personne change de métier ; sinon elle devient `null`.
+ */
+export function validerResultatSalarie(v: unknown, reconversionAttendue: boolean): Validation<ResultatSalarie> {
+  const x = new Verif();
+  const o = x.objet(v, "resultat");
+  if (!o) return { ok: false, erreurs: x.erreurs, reparations: x.reparations };
+  if (o.voie !== "salarie") {
+    o.voie = "salarie";
+    x.reparations += 1;
+  }
+  x.enum(o.langue, "langue", ["fr", "en", "es"] as const);
+  x.poser(o, "promesse", "promesse", 20, 240);
+  x.textes(o.regle, "regle", 3, 3, 10, 160);
+
+  const patrons = x.tableau(o.patrons, "patrons", 3, 3);
+  if (patrons) {
+    const ids: string[] = [];
+    patrons.forEach((c, i) => verifierPatron(x, c, `patrons[${i}]`, ids));
+    if (patrons.length === 3 && new Set(ids).size !== 3) x.err("patrons", "les identifiants doivent être c1, c2 et c3, chacun une fois");
+  }
+
+  const mi = x.objet(o.managerIdeal, "managerIdeal");
+  if (mi) {
+    x.poser(mi, "portrait", "managerIdeal.portrait", 60, 500);
+    x.poser(mi, "flow", "managerIdeal.flow", 30, 300);
+    x.poser(mi, "eteint", "managerIdeal.eteint", 30, 300);
+  }
+  const anti = x.objet(o.antiPatron, "antiPatron");
+  if (anti) {
+    x.poser(anti, "portrait", "antiPatron.portrait", 30, 400);
+    x.textes(anti.signaux, "antiPatron.signaux", 3, 3, 10, 160);
+  }
+
+  if (reconversionAttendue) {
+    const r = x.objet(o.reconversion, "reconversion");
+    if (r) {
+      const tr = x.tableau(r.transferables, "reconversion.transferables", 3, 5);
+      tr?.forEach((t, i) => {
+        const q = `reconversion.transferables[${i}]`;
+        const item = x.objet(t, q);
+        if (!item) return;
+        x.poser(item, "competence", `${q}.competence`, 3, 80);
+        x.poser(item, "preuve", `${q}.preuve`, 20, 240);
+      });
+      x.poser(r, "premiereMarche", "reconversion.premiereMarche", 20, 240);
+      x.textes(r.essais, "reconversion.essais", 3, 3, 20, 240);
+    }
+  } else {
+    o.reconversion = null;
+  }
+
+  verifierPlan(x, o.plan30);
+  verifierTestTerrain(x, o.testTerrain, "testTerrain");
+  x.textes(o.hypotheses, "hypotheses", 0, 4, 1, 200);
+  x.poser(o, "motPourToi", "motPourToi", 20, 300);
+  return fini(x, o as unknown as ResultatSalarie);
 }

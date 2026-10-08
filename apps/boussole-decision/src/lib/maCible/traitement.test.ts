@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { CIBLE_PISTE_EXEMPLE, PISTES_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
+import { ENTREE_SALARIE_EXEMPLE, RESULTAT_SALARIE_EXEMPLE } from "@/domain/maCible/exempleSalarie";
 import { scoreSur10 } from "@/domain/maCible/scores";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
@@ -601,6 +602,114 @@ describe("approfondir (§7, PR 3)", () => {
     preparer([JSON.stringify({ portrait: PORTRAIT_EXEMPLE })]);
     const r = await traiterDemande(deps, requete({ ...demandePortrait, entree }));
     expect((await corpsDe(r)).portrait.prenom).toBe("Nadia");
+  });
+});
+
+describe("voie salarié (PR S1)", () => {
+  const ESQUISSE_SALARIE = {
+    offre: "Je remets de l'ordre dans les flux qui débordent, sans casser l'équipe.",
+    cibles: [
+      { id: "c1", nom: "Directeur des opérations d'une PME agroalimentaire", marche: "b2b", enUneLigne: "PME de 50 à 250 salariés qui ouvre un deuxième site", pourquoi: "Ton talent remet de l'ordre dans un flux qui déborde.", depuisIdees: [] },
+      { id: "c2", nom: "Directrice d'une entreprise de réemploi", marche: "b2b", enUneLigne: "Entreprise de réemploi qui change d'échelle après un financement", pourquoi: "Une activité qui grandit plus vite que son organisation.", depuisIdees: ["i1"] },
+      { id: "c3", nom: "Directeur de site d'un logisticien racheté", marche: "b2b", enUneLigne: "Logisticien régional racheté par un groupe, en réorganisation", pourquoi: "Ton talent garde l'équipe pendant la réorganisation.", depuisIdees: ["i2"] },
+    ],
+    antiCible: "Un patron qui décide loin du terrain et veut des tableaux de bord pour rien.",
+    hypotheses: [],
+    autresPistes: [],
+  };
+  const demandeSalarie = (extra: object = {}) => ({ etape: "resultat", entree: ENTREE_SALARIE_EXEMPLE, esquisse: ESQUISSE_SALARIE, corrections: CORRECTIONS, ...extra });
+
+  it("résultat salarié : 200, double note calculée par le code, schéma et prompt salarié, compteur « resultat »", async () => {
+    const quota = quotaEspion(2);
+    preparer([JSON.stringify(RESULTAT_SALARIE_EXEMPLE)], { quota });
+    const r = await traiterDemande(deps, requete(demandeSalarie()));
+    expect(r.status).toBe(200);
+    const corps = await corpsDe(r);
+    expect(corps.ok).toBe(true);
+    expect(corps.etape).toBe("resultat");
+    expect(corps.resultat.voie).toBe("salarie");
+    expect(corps.resultat.reconversion.premiereMarche).toMatch(/réemploi/);
+    expect(corps.resultat.classement.map((l: any) => [l.id, l.correspondance, l.rang])).toEqual([
+      ["c1", 8.5, "prioritaire"],
+      ["c2", 7.5, "secondaire"],
+      ["c3", 6.5, "tertiaire"],
+    ]);
+    expect(corps.restant).toBe(2);
+    expect(quota.autoriser).toHaveBeenCalledWith(expect.any(String), "resultat");
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "resultat");
+    const appel = fournisseur.appeler.mock.calls[0][0] as any;
+    expect(appel.nomSchema).toBe("resultat_salarie");
+    expect(Object.keys(appel.schema.properties)).toContain("patrons");
+    expect(appel.systeme).toContain("# Ta tâche : le résultat complet, voie salarié");
+    expect(appel.utilisateur).toContain("terrain_salarie");
+  });
+
+  it("le Contexte Déclencheur est plafonné quand un patron ressemble à l'Anti-Contexte", async () => {
+    preparer([JSON.stringify(RESULTAT_SALARIE_EXEMPLE)]);
+    const entree = structuredClone(ENTREE_SALARIE_EXEMPLE);
+    entree.talent.antiContexte = "les filiales d'un groupe national où le siège impose chaque réorganisation";
+    const r = await traiterDemande(deps, requete(demandeSalarie({ entree })));
+    const corps = await corpsDe(r);
+    const c3 = corps.resultat.patrons.find((p: any) => p.id === "c3");
+    expect(c3.envie.declencheur).toBe(2);
+  });
+
+  it("hors reconversion, pas de bloc reconversion", async () => {
+    preparer([JSON.stringify(RESULTAT_SALARIE_EXEMPLE)]);
+    const entree = structuredClone(ENTREE_SALARIE_EXEMPLE);
+    entree.terrainSalarie!.situation = "en_poste";
+    const corps = await corpsDe(await traiterDemande(deps, requete(demandeSalarie({ entree }))));
+    expect(corps.resultat.reconversion).toBeNull();
+  });
+
+  it("une erreur de contrôle relance le modèle une fois avec la raison", async () => {
+    const mauvais = structuredClone(RESULTAT_SALARIE_EXEMPLE);
+    mauvais.patrons[0].pitchs.oral30s = "Trop court pour un pitch oral de trente secondes, il manque la preuve et la demande, vraiment beaucoup trop court.";
+    preparer([JSON.stringify(mauvais), JSON.stringify(RESULTAT_SALARIE_EXEMPLE)]);
+    const r = await traiterDemande(deps, requete(demandeSalarie()));
+    expect(r.status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
+    expect((fournisseur.appeler.mock.calls[1][0] as any).utilisateur).toContain("70 à 85 mots attendus");
+  });
+
+  it("cadrage salarié : prompt de cadrage salarié, patrons en tête couverts comme idées", async () => {
+    const esquisse = { ...ESQUISSE_SALARIE, cibles: ESQUISSE_SALARIE.cibles.map((c) => ({ ...c, depuisIdees: [] })) };
+    preparer([JSON.stringify({ statut: "esquisse", message: "", questions: [], esquisse })]);
+    const r = await traiterDemande(deps, requete({ etape: "cadrage", tour: 1, entree: ENTREE_SALARIE_EXEMPLE }));
+    expect(r.status).toBe(200);
+    const corps = await corpsDe(r);
+    // Les deux patrons en tête non repris deviennent des pistes, pour que la personne voie un verdict sur chacun.
+    expect(corps.cadrage.esquisse.autresPistes.map((p: any) => p.nom)).toEqual(["Une ressourcerie qui grandit", "Les entrepôts de la grande distribution"]);
+    const appel = fournisseur.appeler.mock.calls[0][0] as any;
+    expect(appel.systeme).toContain("# Ta tâche : le cadrage, voie salarié (tour 1)");
+    expect(appel.nomSchema).toBe("cadrage");
+  });
+
+  it("voie salarié sans Terrain salarié : 400", async () => {
+    preparer([]);
+    const r = await traiterDemande(deps, requete({ etape: "cadrage", tour: 1, entree: { ...ENTREE_SALARIE_EXEMPLE, terrainSalarie: null } }));
+    expect(r.status).toBe(400);
+    expect((await corpsDe(r)).champs).toEqual([{ champ: "terrainSalarie", code: "requis" }]);
+  });
+
+  it("portraits et pistes creusées ne sont pas encore ouverts à la voie salarié : 400", async () => {
+    preparer([]);
+    const r = await traiterDemande(
+      deps,
+      requete({ etape: "approfondir", mode: "portrait", entree: ENTREE_SALARIE_EXEMPLE, offre: "Je remets de l'ordre dans les flux.", cible: { id: "c1", nom: "Directeur des opérations", marche: "b2b", portrait: "Un directeur des opérations d'une PME qui grandit.", douleur: "Les retards s'accumulent.", ancrage: "Quinze ans de logistique.", promesse: "Des commandes à l'heure.", lieux: [] } }),
+    );
+    expect(r.status).toBe(400);
+    expect((await corpsDe(r)).champs).toContainEqual({ champ: "entree.voie", code: "invalide" });
+    expect(fournisseur.appeler).not.toHaveBeenCalled();
+  });
+
+  it("la voie indépendant garde son prompt et son schéma", async () => {
+    preparer([JSON.stringify(RESULTAT_EXEMPLE)]);
+    await traiterDemande(deps, requete(demandeResultat()));
+    const appel = fournisseur.appeler.mock.calls[0][0] as any;
+    expect(appel.nomSchema).toBe("resultat");
+    expect(appel.systeme).not.toContain("# Voie salarié");
+    expect(appel.utilisateur).not.toContain("terrain_salarie");
   });
 });
 

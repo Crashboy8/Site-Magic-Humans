@@ -10,10 +10,12 @@ import { nettoyerTextes } from "@/domain/maCible/nettoyage";
 import { messageUtilisateur, promptSysteme } from "@/domain/maCible/prompt";
 import { ajouterPhrases, appliquerQualite, phrasesDepartage, qualiteCible, qualitePortrait, questionsManquantes, type ContexteQualite } from "@/domain/maCible/qualite";
 import { classerCibles, scoreSur10 } from "@/domain/maCible/scores";
-import { SCHEMA_CADRAGE, SCHEMA_PISTE, SCHEMA_PORTRAIT, SCHEMA_RESULTAT, SCHEMA_SYNTHESE } from "@/domain/maCible/schemas";
+import { classerPatrons } from "@/domain/maCible/scoresSalarie";
+import { qualiteSalarie } from "@/domain/maCible/qualiteSalarie";
+import { SCHEMA_CADRAGE, SCHEMA_PISTE, SCHEMA_PORTRAIT, SCHEMA_RESULTAT, SCHEMA_RESULTAT_SALARIE, SCHEMA_SYNTHESE } from "@/domain/maCible/schemas";
 import { verifierVerbatims } from "@/domain/maCible/terrain";
-import type { Cadrage, Cible, Corrections, Demande, DemandeApprofondir, EntreeMaCible, Esquisse, LignePiste, Portrait, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
-import { validerCadrage, validerCible, validerPortrait, validerResultat, validerSynthese } from "@/domain/maCible/validation";
+import { voieDe, type Cadrage, type Cible, type Corrections, type Demande, type DemandeApprofondir, type EntreeMaCible, type Esquisse, type IdIdee, type LignePiste, type Portrait, type ResultatClasse, type ResultatSalarieClasse, type SyntheseTerrain } from "@/domain/maCible/types";
+import { validerCadrage, validerCible, validerPortrait, validerResultat, validerResultatSalarie, validerSynthese } from "@/domain/maCible/validation";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { jourParis, limitesDepuisEnv, maxGlobal, maxIp, minuitSuivantParis, type Quota } from "./quota";
 import { origineAcceptee } from "./origine";
@@ -156,11 +158,17 @@ type SyntheseReponse = Omit<SyntheseTerrain, "faitLe">;
 
 type Traite =
   | { ok: true; cadrage: Cadrage; reparations: number }
-  | { ok: true; resultat: ResultatClasse; reparations: number }
+  | { ok: true; resultat: ResultatClasse | ResultatSalarieClasse; reparations: number }
   | { ok: true; synthese: SyntheseReponse | null; statut: "ok" | "inutilisable"; message: string; reparations: number }
   | { ok: true; portrait: Portrait; reparations: number }
   | { ok: true; piste: { cible: Cible; ligne: LignePiste; portrait: Portrait }; reparations: number }
   | { ok: false; erreurs: string[]; reparations: number };
+
+/** Idées de la personne : cibles en tête (indépendant) ou patrons en tête (salarié). */
+function ideesDe(entree: EntreeMaCible): { idees: string[]; marche: EntreeMaCible["terrain"]["marche"] } {
+  if (voieDe(entree) === "salarie" && entree.terrainSalarie) return { idees: entree.terrainSalarie.patronsEnTete, marche: "b2b" };
+  return { idees: entree.terrain.ciblesEnTete, marche: entree.terrain.marche };
+}
 
 function contexteQualite(demande: Exclude<Demande, { etape: "synthese" }>): ContexteQualite {
   const { talent, terrain } = demande.entree;
@@ -209,8 +217,7 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     if (manque) return { ok: false, erreurs: [manque], reparations: v.reparations };
     let reparations = v.reparations;
     if (v.valeur.statut === "esquisse") {
-      const idees = demande.entree.terrain.ciblesEnTete;
-      const marche = demande.entree.terrain.marche;
+      const { idees, marche } = ideesDe(demande.entree);
       const couvert = couvrirIdees(v.valeur.esquisse, idees, marche, false);
       const pistes = qualitePistes(couvert.sortie, idees, marche, false);
       v.valeur = { ...v.valeur, esquisse: pistes.sortie };
@@ -218,6 +225,7 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     }
     return { ok: true, cadrage: v.valeur, reparations };
   }
+  if (voieDe(demande.entree) === "salarie") return traiterResultatSalarie(json, demande.entree);
   const v = validerResultat(json);
   if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
   const idees = demande.entree.terrain.ciblesEnTete;
@@ -234,6 +242,26 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     resultat: { ...q.resultat, hypotheses: phrases.hypotheses, classement },
     reparations: v.reparations + couvert.ajoutees + pistes.reparations + phrasesCibles.retires + q.reparations + phrases.ajoutees,
   };
+}
+
+/** Résultat de la voie salarié (docs/cibleur-salarie-spec.md, §3 et §4) : validation, contrôles, double note. */
+function traiterResultatSalarie(json: unknown, entree: EntreeMaCible): Traite {
+  const ts = entree.terrainSalarie;
+  if (!ts) return { ok: false, erreurs: ["terrain salarié absent"], reparations: 0 };
+  const v = validerResultatSalarie(json, ts.situation === "reconversion");
+  if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+  // Identifiants d'idées au-delà du nombre de patrons en tête : retirés.
+  let retires = 0;
+  const permis = new Set(ts.patronsEnTete.map((_, i) => `i${i + 1}`));
+  for (const p of v.valeur.patrons) {
+    const gardes = p.depuisIdees.filter((id): id is IdIdee => permis.has(id));
+    retires += p.depuisIdees.length - gardes.length;
+    p.depuisIdees = gardes;
+  }
+  const q = qualiteSalarie(v.valeur, { adresse: ts.adresse, aEviter: entree.talent.antiContexte });
+  const reparations = v.reparations + retires + q.reparations;
+  if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations };
+  return { ok: true, resultat: { ...q.resultat, classement: classerPatrons(q.resultat.patrons) }, reparations };
 }
 
 /** Données de la personne où un prénom ne doit pas apparaître (§9.6) : notes de la synthèse, talent, terrain. */
@@ -395,9 +423,15 @@ function demandePourModele(demande: Demande): { demande: Demande; masques: Compt
 
 function schemaPour(demande: Demande) {
   if (demande.etape === "cadrage") return SCHEMA_CADRAGE;
-  if (demande.etape === "resultat") return SCHEMA_RESULTAT;
+  if (demande.etape === "resultat") return voieDe(demande.entree) === "salarie" ? SCHEMA_RESULTAT_SALARIE : SCHEMA_RESULTAT;
   if (demande.etape === "synthese") return SCHEMA_SYNTHESE;
   return demande.mode === "piste" ? SCHEMA_PISTE : SCHEMA_PORTRAIT;
+}
+
+function nomSchemaPour(demande: Demande): string {
+  if (demande.etape === "approfondir") return demande.mode;
+  if (demande.etape === "resultat" && voieDe(demande.entree) === "salarie") return "resultat_salarie";
+  return demande.etape;
 }
 
 async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
@@ -419,10 +453,11 @@ async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
           etape,
           demandeModele.etape === "cadrage" ? demandeModele.tour : undefined,
           demandeModele.etape === "approfondir" ? demandeModele.mode : undefined,
+          demandeModele.etape === "synthese" ? "independant" : voieDe(demandeModele.entree),
         ),
         utilisateur: messageUtilisateur(demandeModele, erreurs),
         schema: schemaPour(demandeModele),
-        nomSchema: demandeModele.etape === "approfondir" ? demandeModele.mode : etape,
+        nomSchema: nomSchemaPour(demandeModele),
         maxTokens: MAX_TOKENS[etape],
         delaiMs: Math.min(delaiTotal, reste),
       });

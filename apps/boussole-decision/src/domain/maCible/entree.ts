@@ -2,7 +2,7 @@
 import { LIMITES } from "./limites";
 import { IDS_NOTES } from "./schemas";
 import { validerAutrePiste } from "./validation";
-import type { Adresse, AutrePiste, CibleAApprofondir, ContexteSynthese, DemandeApprofondir, IdCiblePiste, Corrections, EntreeMaCible, Format, Frequence, IdCiblePrincipale, IdNote, Langue, Marche, NoteTerrain, Reponse, Source, Style, SyntheseTerrain, Talent, Terrain, ThemeVerbatim, Verdict } from "./types";
+import type { Adresse, AutrePiste, Contrat, Experience, SituationSalarie, TailleEntreprise, TerrainSalarie, Valeur, Voie, CibleAApprofondir, ContexteSynthese, DemandeApprofondir, IdCiblePiste, Corrections, EntreeMaCible, Format, Frequence, IdCiblePrincipale, IdNote, Langue, Marche, NoteTerrain, Reponse, Source, Style, SyntheseTerrain, Talent, Terrain, ThemeVerbatim, Verdict } from "./types";
 
 export interface ErreurChamp {
   champ: string;
@@ -18,6 +18,25 @@ export const FORMATS: readonly Format[] = ["individuel", "groupe", "presentiel",
 export const ADRESSES: readonly Adresse[] = ["tu", "vous"];
 export const STYLES: readonly Style[] = ["chaleureux", "direct", "expert", "enjoue"];
 const SOURCES: readonly Exclude<Source, null>[] = ["quiz", "carte", "boussole"];
+export const VOIES: readonly Voie[] = ["independant", "salarie"];
+export const SITUATIONS: readonly SituationSalarie[] = ["en_poste", "recherche", "reconversion", "retour", "etudes"];
+export const EXPERIENCES: readonly Exclude<Experience, "">[] = ["moins3", "3a10", "10a20", "plus20"];
+export const CONTRATS: readonly Contrat[] = ["cdi", "cdd_mission", "temps_partiel", "portage_transition", "peu_importe"];
+export const TAILLES: readonly TailleEntreprise[] = ["tpe", "pme", "grande", "asso_public", "peu_importe"];
+export const VALEURS: readonly Valeur[] = [
+  "autonomie",
+  "sens",
+  "exigence",
+  "bienveillance",
+  "transparence",
+  "apprentissage",
+  "equilibre",
+  "reconnaissance",
+  "equipe",
+  "impact",
+  "creativite",
+  "stabilite",
+];
 
 /** String, sans caractères de contrôle (sauf saut de ligne), espaces multiples réduits à un, trim. */
 export function normaliser(v: unknown): string {
@@ -183,6 +202,13 @@ export function validerEntree(brut: unknown): ResultatEntree {
   }
 
   if (racine.v !== 1) erreurs.push({ champ: "v", code: "invalide" });
+  let voie: Voie = "independant";
+  if (racine.voie !== undefined && racine.voie !== null) {
+    if (typeof racine.voie === "string" && (VOIES as readonly string[]).includes(racine.voie)) voie = racine.voie as Voie;
+    else erreurs.push({ champ: "voie", code: "invalide" });
+  }
+  // Dans la voie salarié, le Terrain indépendant est gardé tel quel mais n'est plus obligatoire.
+  const exige = voie === "independant";
   const langue = (choix("langue", racine.langue, LANGUES, "fr") || "fr") as Langue;
   let source: Source = null;
   if (racine.source !== undefined && racine.source !== null) {
@@ -206,9 +232,9 @@ export function validerEntree(brut: unknown): ResultatEntree {
   const r = objet(racine.terrain);
   const offre = texte("terrain.offre", r.offre, LIMITES.offre, false);
   const clientsPasses = texte("terrain.clientsPasses", r.clientsPasses, LIMITES.clientsPasses, false);
-  if (!offre && !clientsPasses) erreurs.push({ champ: "terrain.offre", code: "requis" });
-  const marche = choix("terrain.marche", r.marche, MARCHES, undefined) as Marche | "";
-  const experience = texte("terrain.experience", r.experience, LIMITES.experience, true);
+  if (exige && !offre && !clientsPasses) erreurs.push({ champ: "terrain.offre", code: "requis" });
+  const marche = choix("terrain.marche", r.marche, MARCHES, exige ? undefined : ("" as Marche)) as Marche | "";
+  const experience = texte("terrain.experience", r.experience, LIMITES.experience, exige);
   const formatsBruts = Array.isArray(r.formats) ? r.formats : [];
   const formats: Format[] = [];
   for (const f of formatsBruts) {
@@ -216,7 +242,7 @@ export function validerEntree(brut: unknown): ResultatEntree {
       if (!formats.includes(f as Format)) formats.push(f as Format);
     } else erreurs.push({ champ: "terrain.formats", code: "invalide" });
   }
-  const zone = texte("terrain.zone", r.zone, LIMITES.zone, true);
+  const zone = texte("terrain.zone", r.zone, LIMITES.zone, exige);
   const prixActuel = texte("terrain.prixActuel", r.prixActuel, LIMITES.prixActuel, false);
   const adresse = choix("terrain.adresse", r.adresse, ADRESSES, "vous") as Adresse;
   const style = choix("terrain.style", r.style, STYLES, "chaleureux") as Style;
@@ -235,8 +261,135 @@ export function validerEntree(brut: unknown): ResultatEntree {
     reponses.push({ id, question, reponse });
   });
 
+  const terrainSalarie = voie === "salarie" ? validerTerrainSalarie(racine.terrainSalarie, erreurs) : null;
+
   if (erreurs.length) return { ok: false, erreurs };
-  return { ok: true, entree: { v: 1, langue, source, talent, terrain, reponses, synthese: syntheseLue.ok ? syntheseLue.synthese : null } };
+  const entree: EntreeMaCible = { v: 1, langue, source, talent, terrain, reponses, synthese: syntheseLue.ok ? syntheseLue.synthese : null };
+  // Voie indépendant : entrée identique à celle de la V2b (pas de champ `voie`).
+  if (voie === "salarie") Object.assign(entree, { voie, terrainSalarie });
+  return { ok: true, entree };
+}
+
+/** Plusieurs choix dans une liste fermée : doublons retirés, valeur inconnue = erreur. */
+function choixMultiples<T extends string>(champ: string, v: unknown, valeurs: readonly T[], erreurs: ErreurChamp[]): T[] {
+  if (v === undefined || v === null) return [];
+  if (!Array.isArray(v)) {
+    erreurs.push({ champ, code: "invalide" });
+    return [];
+  }
+  const sortie: T[] = [];
+  for (const x of v) {
+    if (typeof x !== "string" || !(valeurs as readonly string[]).includes(x)) {
+      erreurs.push({ champ, code: "invalide" });
+      return sortie;
+    }
+    if (!sortie.includes(x as T)) sortie.push(x as T);
+  }
+  return sortie;
+}
+
+/** Salaire brut annuel en euros : entier positif ou `null`. */
+function salaire(champ: string, v: unknown, erreurs: ErreurChamp[]): number | null {
+  if (v === undefined || v === null || v === "") return null;
+  if (typeof v !== "number" || !Number.isInteger(v) || v < 0) {
+    erreurs.push({ champ, code: "invalide" });
+    return null;
+  }
+  if (v > LIMITES.salarie.salaire.max) {
+    erreurs.push({ champ, code: "trop_long", max: LIMITES.salarie.salaire.max });
+    return null;
+  }
+  return v;
+}
+
+/** Terrain salarié (§2.3, §3) : situation, poste actuel, zone et une réponse sur le manager idéal sont obligatoires. */
+export function validerTerrainSalarie(brut: unknown, erreurs: ErreurChamp[]): TerrainSalarie | null {
+  if (typeof brut !== "object" || brut === null || Array.isArray(brut)) {
+    erreurs.push({ champ: "terrainSalarie", code: brut === undefined || brut === null ? "requis" : "invalide" });
+    return null;
+  }
+  const o = brut as Record<string, unknown>;
+  const L = LIMITES.salarie;
+  const avant = erreurs.length;
+  const texte = (champ: string, v: unknown, lim: { min?: number; max: number }, obligatoire: boolean): string => {
+    const t = normaliser(v);
+    if (!t) {
+      if (obligatoire) erreurs.push({ champ: `terrainSalarie.${champ}`, code: "requis" });
+      return t;
+    }
+    if (lim.min !== undefined && t.length < lim.min) erreurs.push({ champ: `terrainSalarie.${champ}`, code: "trop_court", min: lim.min });
+    else if (t.length > lim.max) erreurs.push({ champ: `terrainSalarie.${champ}`, code: "trop_long", max: lim.max });
+    return t;
+  };
+  const unChoix = <T extends string>(champ: string, v: unknown, valeurs: readonly T[], obligatoire: boolean): T | "" => {
+    if (v === undefined || v === null || v === "") {
+      if (obligatoire) erreurs.push({ champ: `terrainSalarie.${champ}`, code: "requis" });
+      return "";
+    }
+    if (typeof v === "string" && (valeurs as readonly string[]).includes(v)) return v as T;
+    erreurs.push({ champ: `terrainSalarie.${champ}`, code: "invalide" });
+    return "";
+  };
+
+  const situation = unChoix("situation", o.situation, SITUATIONS, true);
+  const posteActuel = texte("posteActuel", o.posteActuel, L.posteActuel, true);
+  const experience = unChoix("experience", o.experience, EXPERIENCES, false);
+  const secteursConnus = texte("secteursConnus", o.secteursConnus, L.secteursConnus, false);
+  const posteVise = texte("posteVise", o.posteVise, L.posteVise, false);
+  const contrats = choixMultiples("terrainSalarie.contrats", o.contrats, CONTRATS, erreurs);
+  const zone = texte("zone", o.zone, L.zone, true);
+  const salaireMin = salaire("terrainSalarie.salaireMin", o.salaireMin, erreurs);
+  const salaireMax = salaire("terrainSalarie.salaireMax", o.salaireMax, erreurs);
+  if (salaireMin !== null && salaireMax !== null && salaireMax < salaireMin) erreurs.push({ champ: "terrainSalarie.salaireMax", code: "invalide" });
+  const tailles = choixMultiples("terrainSalarie.tailles", o.tailles, TAILLES, erreurs);
+
+  const m = objet(o.manager);
+  const manager = {
+    mission: texte("manager.mission", m.mission, L.manager, false),
+    erreur: texte("manager.erreur", m.erreur, L.manager, false),
+    decider: texte("manager.decider", m.decider, L.manager, false),
+  };
+  if (!manager.mission && !manager.erreur && !manager.decider) erreurs.push({ champ: "terrainSalarie.manager", code: "requis" });
+
+  const valeurs = choixMultiples("terrainSalarie.valeurs", o.valeurs, VALEURS, erreurs);
+  if (valeurs.length > L.valeurs.items) erreurs.push({ champ: "terrainSalarie.valeurs", code: "trop_long", max: L.valeurs.items });
+  const valeurAutre = texte("valeurAutre", o.valeurAutre, L.valeurAutre, false);
+  const plusJamais = texte("plusJamais", o.plusJamais, L.plusJamais, false);
+
+  const rc = objet(o.reconversion);
+  const reconversion = {
+    metierVise: texte("reconversion.metierVise", rc.metierVise, L.metierVise, false),
+    transferables: texte("reconversion.transferables", rc.transferables, L.transferables, false),
+    manque: texte("reconversion.manque", rc.manque, L.manque, false),
+  };
+  const patronsEnTete = normaliserListe(o.patronsEnTete, L.patronsEnTete.items, L.patronsEnTete.max);
+
+  const adresse = o.adresse === undefined || o.adresse === null || o.adresse === "" ? "tu" : o.adresse;
+  if (!(ADRESSES as readonly unknown[]).includes(adresse)) erreurs.push({ champ: "terrainSalarie.adresse", code: "invalide" });
+  const style = o.style === undefined || o.style === null || o.style === "" ? "chaleureux" : o.style;
+  if (!(STYLES as readonly unknown[]).includes(style)) erreurs.push({ champ: "terrainSalarie.style", code: "invalide" });
+
+  if (erreurs.length > avant) return null;
+  return {
+    situation,
+    posteActuel,
+    experience,
+    secteursConnus,
+    posteVise,
+    contrats,
+    zone,
+    salaireMin,
+    salaireMax,
+    tailles,
+    manager,
+    valeurs,
+    valeurAutre,
+    plusJamais,
+    reconversion,
+    patronsEnTete,
+    adresse: adresse as Adresse,
+    style: style as Style,
+  };
 }
 
 const sansAccents = (s: string) =>
@@ -338,6 +491,8 @@ export function validerApprofondir(b: Record<string, unknown>): { ok: true; dema
   const erreurs: ErreurChamp[] = [];
   const e = validerEntree(b.entree);
   if (!e.ok) erreurs.push(...e.erreurs);
+  // Portraits et pistes creusées n'existent pas encore dans la voie salarié (PR S1 : données, prompts et API seulement).
+  if (e.ok && e.entree.voie === "salarie") erreurs.push({ champ: "entree.voie", code: "invalide" });
   const offre = couper(b.offre, LIMITES.offreApprofondir.max);
   if (!offre) erreurs.push({ champ: "offre", code: "requis" });
   if (mode === "portrait") {
