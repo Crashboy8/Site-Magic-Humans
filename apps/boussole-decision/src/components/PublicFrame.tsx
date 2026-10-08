@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AppBrand } from "@/components/AppBrand";
+import { LienQuizAmour } from "@/features/amour/LienQuizAmour";
 import { LanguageSwitch } from "@/i18n/LanguageSwitch";
 import { getI18n } from "@/i18n/server";
 
@@ -42,11 +43,7 @@ export async function PublicFrame({
             <Link href="/" data-edition={edition ? "pro" : undefined} className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">
               {t.common.home}
             </Link>
-            {edition && (
-              <a href="/quiz-amour/" data-edition="amour" className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">
-                ← Quiz Amour
-              </a>
-            )}
+            {edition && <LienQuizAmour />}
             {!sansLangues && <LanguageSwitch />}
           </div>
         </div>
