@@ -433,8 +433,8 @@ export function Resultat({
           <Plan30 resultat={resultat} coches={coches} onCoche={lecture ? () => {} : onCoche} M={M} lecture={lecture} />
 
           <Separateur />
-          <Card id="hypotheses" data-ancre="" className={`${CLASSE_CARTE} scroll-mt-20 space-y-2 rounded-2xl border-l-4 border-l-lilas p-6 sm:p-8`}>
-            <TitreIcone icone="ampoule" teinte="lilas" className="text-[22px] italic">
+          <Card id="hypotheses" data-ancre="" className={`${CLASSE_CARTE} scroll-mt-20 space-y-2 rounded-2xl border-l-4 border-l-sable p-6 sm:p-8`}>
+            <TitreIcone icone="ampoule" teinte="sable" className="text-[22px] italic">
               {R.hypothesesTitre}
             </TitreIcone>
             {resultat.hypotheses.length > 0 ? (

@@ -19,11 +19,17 @@ type Icone =
   | "journal"
   | "epingle"
   | "bulle"
+  | "bulles"
   | "badge"
   | "enveloppe"
   | "stylo"
   | "telephone"
-  | "etincelles";
+  | "etincelles"
+  | "in"
+  | "appareil"
+  | "note"
+  | "lecture"
+  | "lien";
 
 /** Icône d'une cible ou d'une piste, d'après les mots du nom et de la description. */
 export function iconeCible(nom: string, description = ""): Icone {
@@ -63,18 +69,18 @@ export function iconeLieu(type: string): Icone {
 }
 
 const ICONE_CANAL: Record<Canal, Icone> = {
-  bouche_a_oreille: "bulle",
-  linkedin: "groupe",
+  bouche_a_oreille: "bulles",
+  linkedin: "in",
   evenements: "badge",
   presentiel: "poignee",
   email: "enveloppe",
-  newsletter: "enveloppe",
+  newsletter: "journal",
   contenu: "stylo",
-  instagram: "ecran",
-  facebook: "ecran",
-  tiktok: "ecran",
-  youtube: "ecran",
-  partenariats: "poignee",
+  instagram: "appareil",
+  facebook: "groupe",
+  tiktok: "note",
+  youtube: "lecture",
+  partenariats: "lien",
   telephone: "telephone",
   autre: "etincelles",
 };

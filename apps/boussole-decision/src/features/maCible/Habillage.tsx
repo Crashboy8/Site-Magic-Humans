@@ -5,7 +5,7 @@ import { Icone, type NomIcone } from "./Icones";
 /** Trois accents vifs, un par cible. Pas de bleu foncé. */
 export const TEINTES_CIBLE = ["corail", "eau", "lilas"] as const;
 
-export type Teinte = (typeof TEINTES_CIBLE)[number] | "miel" | "framboise" | "sage";
+export type Teinte = (typeof TEINTES_CIBLE)[number] | "miel" | "framboise" | "sage" | "sable";
 
 export function teinteCible(index: number): Teinte {
   return TEINTES_CIBLE[index % TEINTES_CIBLE.length];
@@ -18,6 +18,7 @@ export const TEINTE: Record<Teinte, { pastille: string; fond: string; texte: str
   miel: { pastille: "bg-miel-soft text-miel", fond: "bg-[#f6d98a] text-miel", texte: "text-miel", bord: "border-l-miel", barre: "bg-miel", anneau: "#7a5200", bandeau: "from-miel-soft" },
   framboise: { pastille: "bg-framboise-soft text-framboise", fond: "bg-[#f6c4d0] text-framboise", texte: "text-framboise", bord: "border-l-framboise", barre: "bg-framboise", anneau: "#a3304f", bandeau: "from-framboise-soft" },
   sage: { pastille: "bg-sage-soft text-sage", fond: "bg-[#d5e3cf] text-sage", texte: "text-sage", bord: "border-l-sage", barre: "bg-sage", anneau: "#55704f", bandeau: "from-sage-soft" },
+  sable: { pastille: "bg-sable-soft text-sable", fond: "bg-[#e4d3bc] text-sable", texte: "text-sable", bord: "border-l-sable", barre: "bg-sable", anneau: "#5c4632", bandeau: "from-sable-soft" },
 };
 
 export const CLASSE_CARTE = "anim-entree shadow-[0_10px_28px_rgba(58,47,36,0.07)]";
@@ -27,6 +28,11 @@ const PRIORITE: Record<1 | 2 | 3, string> = {
   2: "bg-eau-soft text-eau",
   3: "bg-lilas-soft text-lilas",
 };
+
+/** Même teinte que la pastille Priorité : 1 corail, 2 vert d'eau, 3 lilas. */
+export function teintePriorite(niveau: 1 | 2 | 3): Teinte {
+  return niveau === 1 ? "corail" : niveau === 2 ? "eau" : "lilas";
+}
 
 export function PastilleIcone({ nom, teinte, taille = "md" }: { nom: NomIcone; teinte: Teinte; taille?: "sm" | "md" | "lg" }) {
   const dimension = taille === "lg" ? "size-12" : taille === "sm" ? "size-8" : "size-9";

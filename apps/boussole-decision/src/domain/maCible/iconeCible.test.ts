@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { iconeCanal, iconeCible, iconeLieu } from "./iconeCible";
+import type { Canal } from "./types";
 
 describe("iconeCible", () => {
   it("choisit selon les mots du nom", () => {
@@ -33,11 +34,30 @@ describe("iconeLieu", () => {
 });
 
 describe("iconeCanal", () => {
-  it("donne une icône à chaque canal", () => {
-    expect(iconeCanal("bouche_a_oreille")).toBe("bulle");
-    expect(iconeCanal("linkedin")).toBe("groupe");
+  it("donne une icône parlante et différente à chaque canal", () => {
+    expect(iconeCanal("bouche_a_oreille")).toBe("bulles");
+    expect(iconeCanal("linkedin")).toBe("in");
     expect(iconeCanal("evenements")).toBe("badge");
     expect(iconeCanal("email")).toBe("enveloppe");
     expect(iconeCanal("contenu")).toBe("stylo");
+    expect(iconeCanal("telephone")).toBe("telephone");
+    const canaux: Canal[] = [
+      "linkedin",
+      "email",
+      "instagram",
+      "facebook",
+      "tiktok",
+      "youtube",
+      "newsletter",
+      "contenu",
+      "presentiel",
+      "evenements",
+      "partenariats",
+      "bouche_a_oreille",
+      "telephone",
+      "autre",
+    ];
+    const icones = canaux.map((canal) => iconeCanal(canal));
+    expect(new Set(icones).size).toBe(icones.length);
   });
 });

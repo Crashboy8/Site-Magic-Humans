@@ -29,6 +29,8 @@
   --color-eau-soft: #dff4f0;
   --color-miel: #7a5200;
   --color-miel-soft: #fdf0d2;
+  --color-sable: #5c4632; /* texte sur sable-soft : 7,4:1 */
+  --color-sable-soft: #f3eadc;
 
   --font-sans: var(--font-jost), system-ui, sans-serif;
   --font-serif: var(--font-cormorant), Georgia, serif;

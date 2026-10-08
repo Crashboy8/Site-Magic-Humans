@@ -10,9 +10,9 @@ export function Plan30({ resultat, coches, onCoche, M, lecture = false }: { resu
   const faites = coches.filter(Boolean).length;
   const nomCible = (id: string) => resultat.cibles.find((c) => c.id === id)?.nom ?? P.cibleToutes;
   return (
-    <Card className={`${CLASSE_CARTE} space-y-5 rounded-2xl border-l-4 border-l-eau p-6 sm:p-8`}>
+    <Card className={`${CLASSE_CARTE} space-y-5 rounded-2xl border-l-4 border-l-sage p-6 sm:p-8`}>
       <section id="plan" data-ancre aria-labelledby="plan-titre" className="scroll-mt-20 space-y-5">
-        <TitreIcone as="h2" id="plan-titre" icone="calendrier" teinte="eau" className="rounded-xl bg-gradient-to-r from-eau-soft to-transparent px-3 py-2 text-[26px] italic">
+        <TitreIcone as="h2" id="plan-titre" icone="calendrier" teinte="sage" className="rounded-xl bg-gradient-to-r from-sage-soft to-transparent px-3 py-2 text-[26px] italic">
           {P.titre}
         </TitreIcone>
         <p className="text-[17px] font-semibold text-ink">{P.consigne}</p>
@@ -21,7 +21,7 @@ export function Plan30({ resultat, coches, onCoche, M, lecture = false }: { resu
             {P.progression(faites)}
           </p>
           <div className="h-2 overflow-hidden rounded-full bg-sand" aria-hidden="true">
-            <div className="h-full rounded-full bg-accent" style={{ width: `${(faites / 12) * 100}%` }} />
+            <div className="h-full rounded-full bg-sage" style={{ width: `${(faites / 12) * 100}%` }} />
           </div>
           {faites === 12 && <p className="text-[16px] font-medium text-ink">{P.fini}</p>}
         </div>

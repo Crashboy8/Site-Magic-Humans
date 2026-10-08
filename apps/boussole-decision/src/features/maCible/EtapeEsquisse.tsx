@@ -236,7 +236,7 @@ export function EtapeEsquisse({
 
       {esquisse.hypotheses.length > 0 && (
         <Card className={`${CLASSE_CARTE} space-y-2 rounded-2xl p-6 sm:p-8`}>
-          <TitreIcone icone="ampoule" teinte="lilas" className="text-[22px] italic">
+          <TitreIcone icone="ampoule" teinte="sable" className="text-[22px] italic">
             {E.hypothesesTitre}
           </TitreIcone>
           <ul className="list-disc space-y-1 pl-5 text-[16px]">
