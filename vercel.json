@@ -45,6 +45,26 @@
       "source": "/mon-espace/:path*",
       "destination": "/boussole-decision/mon-espace/",
       "permanent": false
+    },
+    {
+      "source": "/amour",
+      "destination": "/quiz-amour/",
+      "permanent": false
+    },
+    {
+      "source": "/amour/",
+      "destination": "/quiz-amour/",
+      "permanent": false
+    },
+    {
+      "source": "/boussole-amour",
+      "destination": "/boussole-decision/importer-quiz/?theme=amour",
+      "permanent": false
+    },
+    {
+      "source": "/boussole-amour/",
+      "destination": "/boussole-decision/importer-quiz/?theme=amour",
+      "permanent": false
     }
   ],
   "rewrites": [
