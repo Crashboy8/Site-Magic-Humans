@@ -122,7 +122,7 @@ export const OUTILS: readonly Outil[] = [
     "boussole",
     "pro",
     "Boussole de décision",
-    "Tu hésites entre plusieurs pistes ? Compare les avec tes propres critères.",
+    "Tu hésites entre plusieurs pistes ? Choisis selon ce qui compte vraiment pour toi.",
     "Ouvrir la Boussole",
     "/boussole-decision/",
     "#0E7490",

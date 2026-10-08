@@ -50,8 +50,9 @@ export default async function MonEspacePage() {
         </section>
       ))}
 
-      <aside className="rounded-[14px] border border-[#F0D2C6] bg-white p-4">
-        <p className="mb-3 font-serif text-[22px] italic leading-snug sm:text-[26px]">{ESPACE.appel.texte}</p>
+      <aside className="rounded-[14px] border border-[#F0D2C6] bg-white p-5 text-center">
+        <p className="font-serif text-[24px] italic leading-snug sm:text-[28px]">{ESPACE.appel.texte}</p>
+        <p className="mb-4 mt-1 text-base text-ink-soft">{ESPACE.appel.detail}</p>
         <a
           href={LIEN_APPEL}
           className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-accent-strong px-5 text-center text-base font-medium text-white sm:w-auto"

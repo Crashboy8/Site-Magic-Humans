@@ -24,7 +24,8 @@ export const ESPACE = {
     ficheSupprimee: "Ta fiche est supprimée.",
   },
   appel: {
-    texte: "Envie d'en parler ? Appel Découverte, 1 heure, offert.",
+    texte: "Envie d'en parler ?",
+    detail: "Appel Découverte, 1\u00a0heure, offert.",
     bouton: "En parler avec Pierre",
   },
   connexion: {
@@ -37,7 +38,7 @@ export const ESPACE = {
     titre: "Dépose ta fiche Talent Unique",
     intro: "Celle que tu as reçue après ton accompagnement avec Pierre. Ton fichier reste sur ton appareil : seules les infos que tu valides sont gardées dans ton espace.",
     coller: { titre: "Coller ma page Notion", texte: "Ouvre ta page, sélectionne tout, copie, puis colle ici.", zone: "Colle ta page ici", bouton: "Lire ma fiche" },
-    fichier: { titre: "Déposer un fichier", texte: "Word, PDF ou export Notion (.docx, .pdf, .md, .html, .zip).", bouton: "Choisir mon fichier", glisser: "ou glisse le ici" },
+    fichier: { titre: "Déposer un fichier", texte: "Word, PDF ou export Notion (.docx, .pdf, .md, .html, .zip).", bouton: "Choisir mon fichier", glisser: "ou glisse-le ici" },
     main: { titre: "Remplir à la main", texte: "Tu as ta fiche sous les yeux ? Recopie l'essentiel en 5 minutes." },
     aide: {
       titre: "Comment récupérer ma page Notion ?",
@@ -45,7 +46,7 @@ export const ESPACE = {
         "Ouvre ta page Talent Unique dans Notion et déplie tous les blocs repliés (les petites flèches).",
         "Sur ordinateur : clique dans la page, fais Ctrl + A deux fois (Cmd + A sur Mac), puis Ctrl + C. Reviens ici et colle avec Ctrl + V.",
         "Autre solution : menu ••• en haut à droite, Exporter, choisis Markdown ou HTML, puis dépose le fichier ici.",
-        "Tu n'as pas accès à ta page ? Demande la à Pierre, il te l'envoie.",
+        "Tu n'as pas accès à ta page ? Demande-la à Pierre, il te l'envoie.",
       ],
     },
     lecture: "Je lis ta fiche…",
