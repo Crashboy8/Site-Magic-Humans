@@ -383,6 +383,7 @@ const fr = {
     copierCible: "Copier cette cible",
     pastilleHypothese: "Hypothèse de l'IA",
     pastilleEstimation: "Estimation de l'IA",
+    estimationsIa: "Estimations de l'IA",
     pastilleAide: "Proposé par l'IA à partir de tes réponses. À vérifier sur le terrain.",
     historiqueLien: (n: number) => `Mes résultats précédents (${n})`,
     historiqueTitre: "Mes résultats précédents",

@@ -10,7 +10,8 @@ import { BoutonCopier } from "./BoutonCopier";
 import { CarteCible } from "./CarteCible";
 import { AvertissementIA } from "./Confidentialite";
 import { IndicateurEtapes } from "./IndicateurEtapes";
-import { AnneauScore, CLASSE_CARTE, PastilleIcone, Separateur, TEINTE, TitreIcone } from "./Habillage";
+import { AnneauScore, CLASSE_CARTE, PastilleFine, PastilleIcone, Separateur, TEINTE, TitreIcone } from "./Habillage";
+import { Icone } from "./Icones";
 import { Plan30 } from "./Plan30";
 import { BarreSommaire, ColonneSommaire, type EntreeSommaire } from "./SommaireResultat";
 import type { EtapeBarre, Etat } from "./etat";
@@ -270,28 +271,34 @@ export function Resultat({
 
           <AvertissementIA M={M} />
 
-          <div data-ecran-seul className="flex flex-wrap items-center gap-3">
-            <Button type="button" onClick={() => window.print()}>
+          <div data-ecran-seul className="flex flex-wrap items-center gap-2">
+            <Button type="button" className="w-fit px-4 py-2" onClick={() => window.print()}>
+              <Icone nom="imprimer" className="size-4 shrink-0" />
               {R.imprimer}
             </Button>
-            <BoutonCopier texte={exporte.texte} M={M} libelle={R.copierTout} />
-            <Button type="button" variant="secondary" onClick={telecharger}>
+            <BoutonCopier texte={exporte.texte} M={M} libelle={R.copierTout} compact />
+            <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={telecharger}>
+              <Icone nom="telecharger" className="size-4 shrink-0" />
               {R.telecharger}
             </Button>
-            <Button type="button" variant="secondary" onClick={() => basculerTout(true)}>
+            <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={() => basculerTout(true)}>
+              <Icone nom="deplier" className="size-4 shrink-0" />
               {R.toutDeplier}
             </Button>
-            <Button type="button" variant="secondary" onClick={() => basculerTout(false)}>
+            <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={() => basculerTout(false)}>
+              <Icone nom="replier" className="size-4 shrink-0" />
               {R.toutReplier}
             </Button>
             {!lecture && (
               <>
-                <Button type="button" variant="secondary" onClick={onModifier}>
+                <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={onModifier}>
+                  <Icone nom="crayon" className="size-4 shrink-0" />
                   {R.modifier}
                 </Button>
-                <button type="button" className="min-h-11 px-2 text-[15px] text-ink-soft underline" onClick={onEffacer}>
+                <Button type="button" variant="ghost" className="w-fit px-3 py-1.5 text-sm" onClick={onEffacer}>
+                  <Icone nom="poubelle" className="size-4 shrink-0" />
                   {R.effacer}
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -360,12 +367,12 @@ export function Resultat({
                           <PastilleIcone nom={iconeCible(p.nom, p.enUneLigne)} teinte="miel" taille="sm" />
                           <span className="min-w-0">{p.nom}</span>
                         </h3>
-                        <span className="inline-flex min-h-11 items-center rounded-full bg-sand px-3 text-xs font-medium">{R.marche[p.marche]}</span>
-                        {p.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{R.tonIdee}</span>}
+                        <PastilleFine ton="neutre">{R.marche[p.marche]}</PastilleFine>
+                        {p.depuisIdees.length > 0 && <PastilleFine ton="miel">{R.tonIdee}</PastilleFine>}
                       </div>
                       <div className="flex items-center gap-3">
                         <AnneauScore valeur={scorePressenti(p.notes)} affiche={R.score(scorePressenti(p.notes))} couleur={TEINTE.miel.anneau} libelle={R.scorePressenti} />
-                        <span className="inline-flex min-h-11 items-center rounded-full bg-sand px-3 text-xs font-medium">{R.pastilleEstimation}</span>
+                        <PastilleFine ton="neutre">{R.pastilleEstimation}</PastilleFine>
                       </div>
                       <p className="text-[16px]">{p.enUneLigne}</p>
                       <p className="text-[16px]">

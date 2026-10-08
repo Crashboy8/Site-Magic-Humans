@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, Card, Textarea } from "@/components/ui";
+import { Button, Card, Textarea } from "@/components/ui";
 import { validerCorrections } from "@/domain/maCible/entree";
 import { iconeCible } from "@/domain/maCible/iconeCible";
 import { LIMITES } from "@/domain/maCible/limites";
@@ -13,7 +13,7 @@ import { defilerVersChamp } from "./defilement";
 import { idChamp } from "./erreurs";
 import { ecartEsquisse } from "./ecarts";
 import { peutNouvelleEsquisse } from "./etat";
-import { CLASSE_CARTE, PastilleIcone, teinteCible, TEINTE, TitreIcone } from "./Habillage";
+import { CLASSE_CARTE, PastilleFine, PastilleIcone, teinteCible, TEINTE, TitreIcone } from "./Habillage";
 
 interface Avis {
   verdict: Verdict | "";
@@ -126,8 +126,10 @@ export function EtapeEsquisse({
                 <PastilleIcone nom={iconeCible(c.nom, c.enUneLigne)} teinte={teinte} />
                 <span className="min-w-0">{c.nom}</span>
               </h3>
-              <Badge tone="neutral">{M.resultat.marche[c.marche]}</Badge>
-              {c.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{M.resultat.tonIdee}</span>}
+              <span className="inline-flex items-center gap-1.5">
+                <PastilleFine ton="neutre">{M.resultat.marche[c.marche]}</PastilleFine>
+                {c.depuisIdees.length > 0 && <PastilleFine ton="miel">{M.resultat.tonIdee}</PastilleFine>}
+              </span>
             </div>
             <p className="text-[17px]">{c.enUneLigne}</p>
             <p className="text-[15px] text-ink-soft">{c.pourquoi}</p>
@@ -207,8 +209,10 @@ export function EtapeEsquisse({
                     <PastilleIcone nom={iconeCible(p.nom, p.enUneLigne)} teinte="miel" taille="sm" />
                     <span className="min-w-0">{p.nom}</span>
                   </p>
-                  <Badge tone="neutral">{M.resultat.marche[p.marche]}</Badge>
-                  {p.depuisIdees.length > 0 && <span className="inline-flex min-h-11 items-center rounded-full bg-miel px-3 text-xs font-medium text-white">{M.resultat.tonIdee}</span>}
+                  <span className="inline-flex items-center gap-1.5">
+                    <PastilleFine ton="neutre">{M.resultat.marche[p.marche]}</PastilleFine>
+                    {p.depuisIdees.length > 0 && <PastilleFine ton="miel">{M.resultat.tonIdee}</PastilleFine>}
+                  </span>
                 </div>
                 <p className="text-[16px]">{p.enUneLigne}</p>
                 <p className="text-[16px]">
