@@ -178,7 +178,53 @@ export const LOVE_TEXTS = {
     note: "Sans compte : ton travail est gardé 30 jours. Tu pourras le sauvegarder avec ton email.",
     backToQuiz: "Revenir au Quiz Amour",
     failed: "La Boussole Relation n'a pas pu être créée. Réessaye dans un instant.",
+    resume: "Reprendre ma Boussole Relation",
+    resumeIntro: "Tu as déjà une Boussole Relation : on la reprend, rien n'est écrasé.",
+    loading: "Je regarde si tu as déjà une Boussole Relation…",
   },
+  /** Choix des critères repris du Quiz Amour, avant l'import. */
+  quizPick: {
+    title: "Choisis ce que tu gardes de ton Quiz Amour",
+    intro: "Chaque résultat devient un critère de ta Boussole. Décoche ce qui ne te parle pas : tu pourras tout modifier ensuite.",
+    profil: (name: string) => `Ton profil amoureux : ${name}`,
+    groups: {
+      profil: "Ton profil",
+      besoins: "Ce qui te nourrit",
+      valeurs: "Tes valeurs",
+      eviter: "Ce que tu veux éviter",
+    },
+    nonNegotiable: "Non négociable",
+    avoid: "Risque à éviter",
+    already: "Déjà dans ta Boussole",
+    importance: {
+      critique: "Critique",
+      tres_important: "Très important",
+      important: "Important",
+      moyen: "Moyen",
+      bof: "Secondaire",
+      bonus: "Bonus",
+    },
+    families: {
+      fond: "Le fond",
+      direction: "La direction",
+      quotidien: "Le quotidien",
+      energie: "L'énergie",
+    } as Record<string, string>,
+    addButton: (n: number) => (n > 1 ? `Ajouter ces ${n} critères à ma Boussole` : n === 1 ? "Ajouter ce critère à ma Boussole" : "Reprendre ma Boussole Relation"),
+    nothingNew: "Tous les résultats de ton quiz sont déjà dans ta Boussole.",
+    saveButton: "Sauvegarder mes résultats",
+    saveIntro: "Dernière étape : coche ce que tu gardes, puis confirme ton adresse mail sur la page suivante.",
+  },
+  /** Encart du tableau : ce qui vient du Quiz Amour. */
+  repris: {
+    title: "Repris de ton Quiz Amour",
+    profil: (name: string) => `Profil « ${name} »`,
+    added: (n: number) => (n > 1 ? `${n} critères de ton quiz viennent d'être ajoutés.` : "1 critère de ton quiz vient d'être ajouté."),
+    backToQuiz: "Revoir mon Quiz Amour",
+    redoHint: "Tu refais le quiz ? Les nouveaux critères te seront proposés, sans rien écraser.",
+  },
+  /** Arrivée sur /sauvegarder/ depuis le bloc « Sauvegarder mes résultats » du quiz. */
+  saveFromQuiz: "Tes résultats du Quiz Amour sont dans ta Boussole Relation. Confirme ton prénom et ton adresse mail : tu recevras un lien pour les retrouver sur tous tes appareils.",
   tableNotice: "Mode amour : chaque colonne est une relation (renomme-la avec un prénom), chaque ligne un critère. Les critères marqués « Critique » déclenchent une alerte s'ils sont notés « À moitié » ou moins. Les résultats s'affichent dans l'onglet Résultats.",
   guideTitle: "Comment évaluer chaque critère",
 } as const;

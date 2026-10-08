@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
 import {
@@ -249,9 +249,29 @@ export function WelcomeChoices() {
   );
 }
 
-export function SaveGuestForm() {
+/** Prénom et adresse saisis dans le bloc « Sauvegarder mes résultats » du Quiz Amour (même onglet). */
+export const QUIZ_SAVE_KEY = "mh_sauver";
+
+export function SaveGuestForm({ fromQuiz = false }: { fromQuiz?: boolean }) {
   const [state, action, pending] = useActionState(saveGuestAction, initial);
   const [hasAccount, setHasAccount] = useState(false);
+  const [prefill, setPrefill] = useState<{ email: string; prenom: string } | null>(null);
+  useEffect(() => {
+    if (!fromQuiz) return;
+    let saved: { email?: unknown; prenom?: unknown } | null = null;
+    try {
+      saved = JSON.parse(sessionStorage.getItem(QUIZ_SAVE_KEY) ?? "null");
+    } catch {
+      saved = null;
+    }
+    if (!saved) return;
+    const value = {
+      email: typeof saved.email === "string" ? saved.email.slice(0, 200) : "",
+      prenom: typeof saved.prenom === "string" ? saved.prenom.slice(0, 60) : "",
+    };
+    const id = window.setTimeout(() => setPrefill(value), 0);
+    return () => window.clearTimeout(id);
+  }, [fromQuiz]);
   const fe = state.fieldErrors ?? {};
   const t = useI18n().t.auth;
   if (state.message) return <Notice tone="success">{state.message}</Notice>;
@@ -259,12 +279,12 @@ export function SaveGuestForm() {
   if (hasAccount) return <ExistingAccountSignIn onBack={() => setHasAccount(false)} />;
   return (
     <div className="space-y-5">
-      <form action={action} className="space-y-4" noValidate>
+      <form action={action} className="space-y-4" noValidate key={prefill ? "quiz" : "vide"}>
         <Field label={t.firstName} htmlFor="first_name" error={fe.first_name}>
-          <Input id="first_name" name="first_name" autoComplete="given-name" aria-invalid={Boolean(fe.first_name)} />
+          <Input id="first_name" name="first_name" autoComplete="given-name" defaultValue={prefill?.prenom} aria-invalid={Boolean(fe.first_name)} />
         </Field>
         <Field label={t.email} htmlFor="email" error={fe.email} hint={t.saveEmailHint}>
-          <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(fe.email)} />
+          <Input id="email" name="email" type="email" autoComplete="email" defaultValue={prefill?.email} aria-invalid={Boolean(fe.email)} />
         </Field>
         {state.error && <Notice tone="error">{state.error}</Notice>}
         <Button type="submit" disabled={pending}>

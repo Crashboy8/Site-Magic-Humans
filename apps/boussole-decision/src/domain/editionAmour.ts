@@ -4,10 +4,27 @@ import { isLoveProfile } from "@/content/amour";
 import type { Profile, Version } from "./types";
 
 /** Le tableau à ouvrir pour un profil : le brouillon le plus récent, sinon la dernière version. */
-export function tableauDuProfil(profileId: string, versions: Version[]): string | null {
+export function versionDuProfil(profileId: string, versions: Version[]): Version | null {
   const siennes = versions.filter((v) => v.profileId === profileId);
-  const current = [...siennes].reverse().find((v) => v.status === "brouillon") ?? siennes.at(-1);
+  return [...siennes].reverse().find((v) => v.status === "brouillon") ?? siennes.at(-1) ?? null;
+}
+
+export function tableauDuProfil(profileId: string, versions: Version[]): string | null {
+  const current = versionDuProfil(profileId, versions);
   return current ? `/versions/${current.id}/tableau/` : null;
+}
+
+/**
+ * La Boussole Relation à reprendre (profils triés du plus récent au plus ancien), ou null.
+ * C'est elle qu'on rouvre au lieu d'en créer une nouvelle à chaque « Commencer ».
+ */
+export function boussoleRelationExistante(profiles: Profile[], versions: Version[]): Version | null {
+  for (const profile of profiles) {
+    if (!isLoveProfile(profile)) continue;
+    const version = versionDuProfil(profile.id, versions);
+    if (version) return version;
+  }
+  return null;
 }
 
 /** Vrai si la personne n'a que des Boussoles Relation (et au moins une). */
