@@ -10,6 +10,7 @@ import { AlerteSoumission, BarreBoutons, ChampTexte, GroupePastilles, GroupeRadi
 import { defilerVersChamp } from "./defilement";
 import { idChamp, messageChamp, messagePresBouton } from "./erreurs";
 import { RappelConfidentialite } from "./Confidentialite";
+import { CLASSE_CARTE, PastilleIcone } from "./Habillage";
 import { Icone } from "./Icones";
 
 const entrees = <T extends string>(o: Record<T, string>) => (Object.keys(o) as T[]).map((valeur) => ({ valeur, label: o[valeur] }));
@@ -130,10 +131,12 @@ export function EtapeTerrain({
         </div>
       )}
       <ResumeErreurs erreurs={erreurs} M={M} libelles={libelles} />
-      <Card className="space-y-6 rounded-2xl p-6 sm:p-8">
+      <Card className={`${CLASSE_CARTE} space-y-6 rounded-2xl p-6 sm:p-8`}>
         <ChampTexte
           champ="terrain.offre"
           label={T.offre.label}
+          icone="cadeau"
+          teinte="corail"
           aide={T.offre.aide}
           exemple={T.offre.exemple}
           placeholder={T.offre.placeholder}
@@ -147,6 +150,8 @@ export function EtapeTerrain({
         <GroupeRadio<Marche>
           nom="marche"
           legende={T.marche.label}
+          icone="groupe"
+          teinte="eau"
           options={entrees(T.marche.options)}
           valeur={terrain.marche}
           onChange={(v) => onChange({ marche: v })}
@@ -157,6 +162,8 @@ export function EtapeTerrain({
         <ChampTexte
           champ="terrain.experience"
           label={T.experience.label}
+          icone="medaille"
+          teinte="miel"
           aide={T.experience.aide}
           exemple={T.experience.exemple}
           placeholder={T.experience.placeholder}
@@ -169,6 +176,8 @@ export function EtapeTerrain({
         <ChampTexte
           champ="terrain.clientsPasses"
           label={T.clientsPasses.label}
+          icone="personne"
+          teinte="lilas"
           aide={T.clientsPasses.aide}
           exemple={T.clientsPasses.exemple}
           placeholder={T.clientsPasses.placeholder}
@@ -179,10 +188,12 @@ export function EtapeTerrain({
           maxLength={LIMITES.clientsPasses.max}
           M={M}
         />
-        <GroupePastilles<Format> legende={T.formats.label} aide={T.formats.aide} options={entrees(T.formats.options)} valeurs={terrain.formats} onChange={(v) => onChange({ formats: v })} />
+        <GroupePastilles<Format> legende={T.formats.label} aide={T.formats.aide} icone="couches" teinte="eau" options={entrees(T.formats.options)} valeurs={terrain.formats} onChange={(v) => onChange({ formats: v })} />
         <ChampTexte
           champ="terrain.zone"
           label={T.zone.label}
+          icone="epingle"
+          teinte="framboise"
           aide={T.zone.aide}
           exemple={T.zone.exemple}
           placeholder={T.zone.placeholder}
@@ -196,6 +207,8 @@ export function EtapeTerrain({
         <ChampTexte
           champ="terrain.prixActuel"
           label={T.prix.label}
+          icone="etiquette"
+          teinte="miel"
           aide={T.prix.aide}
           exemple={T.prix.exemple}
           placeholder={T.prix.placeholder}
@@ -209,11 +222,9 @@ export function EtapeTerrain({
         />
       </Card>
 
-      <section className="space-y-4 rounded-2xl border-l-4 border-miel bg-miel-soft p-5 sm:p-6">
+      <section className={`${CLASSE_CARTE} space-y-4 rounded-2xl border-l-4 border-miel bg-gradient-to-br from-miel-soft to-paper p-5 sm:p-6`}>
         <div className="flex items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-miel">
-            <Icone nom="cible" className="size-5" />
-          </span>
+          <PastilleIcone nom="cible" teinte="miel" />
           <h2 className="font-serif text-[22px] italic">
             {T.idees.titre} <span className="font-sans text-[15px] font-normal not-italic text-ink-soft">{M.commun.facultatif}</span>
           </h2>
@@ -264,13 +275,19 @@ export function EtapeTerrain({
         )}
       </section>
 
-      <Card className="space-y-5 rounded-2xl p-6 sm:p-8">
-        <h2 className="text-[22px] italic">{T.tonTitre}</h2>
-        <GroupeRadio<Adresse> nom="adresse" legende={T.adresse.label} options={entrees(T.adresse.options)} valeur={terrain.adresse} onChange={(v) => onChange({ adresse: v })} />
-        <GroupeRadio<Style> nom="style" legende={T.style.label} options={entrees(T.style.options)} valeur={terrain.style} onChange={(v) => onChange({ style: v })} />
+      <Card className={`${CLASSE_CARTE} space-y-5 rounded-2xl p-6 sm:p-8`}>
+        <div className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-lilas-soft to-transparent px-3 py-2">
+          <PastilleIcone nom="bulle" teinte="lilas" />
+          <h2 className="text-[22px] italic">{T.tonTitre}</h2>
+        </div>
+        <GroupeRadio<Adresse> nom="adresse" legende={T.adresse.label} icone="personne" teinte="lilas" options={entrees(T.adresse.options)} valeur={terrain.adresse} onChange={(v) => onChange({ adresse: v })} />
+        <GroupeRadio<Style> nom="style" legende={T.style.label} icone="etincelles" teinte="corail" options={entrees(T.style.options)} valeur={terrain.style} onChange={(v) => onChange({ style: v })} />
         <div className="space-y-1.5">
-          <label htmlFor="champ-prenom" className="block text-[15px] font-medium text-ink">
-            {T.prenom.label} <span className="font-normal text-ink-soft">{M.commun.facultatif}</span>
+          <label htmlFor="champ-prenom" className="flex items-center gap-2 text-[15px] font-medium text-ink">
+            <PastilleIcone nom="personne" teinte="sage" taille="sm" />
+            <span>
+              {T.prenom.label} <span className="font-normal text-ink-soft">{M.commun.facultatif}</span>
+            </span>
           </label>
           <p id="champ-prenom-aide" className="text-sm text-ink-soft">
             {T.prenom.aide}

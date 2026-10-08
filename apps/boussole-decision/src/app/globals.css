@@ -60,6 +60,28 @@ h3 {
   outline-offset: 2px;
 }
 
+.anim-entree {
+  animation: apparaitre 420ms ease-out;
+}
+
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media print {
+  .anim-entree {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
