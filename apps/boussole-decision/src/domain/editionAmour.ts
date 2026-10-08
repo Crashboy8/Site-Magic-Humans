@@ -33,6 +33,20 @@ export function uniquementAmour(profiles: Pick<Profile, "description">[]): boole
 }
 
 /**
+ * Lien d'en-tête des pages amour, dont /sauvegarder/ : il remplace « ← Accueil ».
+ * Le mode pro ne l'affiche pas.
+ */
+export const RETOUR_QUIZ_AMOUR = { href: "/quiz-amour/", label: "← Quiz Amour" } as const;
+
+/**
+ * « Mes profils » en mode amour ouvre le tableau directement.
+ * Sinon, la liste des profils (accueil pro, inchangé).
+ */
+export function lienMesProfils(profiles: Profile[], versions: Version[]): string {
+  return accueilAmour(profiles, versions) ?? "/";
+}
+
+/**
  * Accueil de l'app pour une personne qui n'a que des Boussoles Relation :
  * le tableau de la plus récente, plutôt que la liste des profils pro. Null sinon.
  */
