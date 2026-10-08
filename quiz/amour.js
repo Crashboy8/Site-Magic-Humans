@@ -337,6 +337,7 @@
     "@media(min-width:720px){#screen-amour .am-pair-top{grid-template-columns:auto minmax(0,1fr) auto}#screen-amour .am-tag{grid-column:3;grid-row:1;justify-self:end}}",
     "#screen-amour .am-tag-coule{background:#E5F6EB;color:#146B3A}",
     "#screen-amour .am-tag-attention{background:#FFF3CC;color:#8A5A00}",
+    "#screen-amour h2.am-block>.am-ico,#screen-amour h4.am-block>.am-ico,#screen-amour .am-tag>.am-ico,#screen-amour .am-ico-print{display:none}",
     "#screen-amour .am-fam-chips .chip{display:inline-flex;align-items:center;gap:8px;border-color:var(--bf);color:var(--bc)}",
     "#screen-amour .am-fam-chips .chip[aria-pressed=true]{background:var(--bt);border-color:var(--bf);color:var(--bc)}",
     "#screen-amour .am-salle .salle-lab{display:flex;align-items:center;gap:10px;color:var(--bc)}",
@@ -382,14 +383,40 @@
     "#screen-amour .am-pair-top{grid-template-columns:auto minmax(0,1fr) auto;column-gap:8px}",
     "#screen-amour .am-tag{grid-column:3;grid-row:1;justify-self:end}",
     "#screen-amour .am-burst,#screen-amour .am-bit{display:none!important}",
-    "#screen-amour .am-badge{animation:none!important;box-shadow:none;background:var(--bt)!important;color:var(--bc)!important}",
+    "#screen-amour .am-badge{animation:none!important;box-shadow:none;background:var(--bf)!important;color:#fff!important}",
+    "#screen-amour .am-badge .am-ico{color:#fff!important}",
+    "#screen-amour .rhead{background:linear-gradient(120deg,color-mix(in srgb,var(--dom-color) 10%,#fff),color-mix(in srgb,var(--sec-color) 10%,#fff))!important}",
+    "#screen-amour .pr-sec .snum{background:color-mix(in srgb,var(--bf) 10%,#fff)!important;color:var(--bc)!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)}",
+    "#screen-amour h2.am-block,#screen-amour h4.am-block{display:flex;align-items:center;gap:6px}",
+    "#screen-amour h2.am-block>.am-ico,#screen-amour h4.am-block>.am-ico{display:inline-flex;color:var(--bc,#1B1816)}",
+    "#screen-amour h2.am-block>.am-ico svg{width:15px;height:15px}",
+    "#screen-amour h4.am-block>.am-ico svg{width:13px;height:13px}",
+    "#screen-amour #sec-phrases h2.am-block>.am-ico,#screen-amour #sec-now h2.am-block>.am-ico{color:#C4501F}",
     "#screen-amour .am-talent{background:#fff!important;box-shadow:none}",
     "#screen-amour .am-cta{background:#fff!important;box-shadow:none}",
     "#screen-amour .rs{box-shadow:none;background:#fff}",
     "#screen-amour .pr-sec{background:#fff!important;border-top:3px solid var(--bf)}",
-    "#screen-amour .am-fam-card{animation:none!important;display:block;overflow:visible;break-inside:auto}",
-    "#screen-amour .am-fam-pad{display:block}",
-    "#screen-amour .am-fam-band{background:var(--bt)!important;color:var(--bc)!important;break-inside:avoid;break-after:avoid}",
+    "#screen-amour .am-fam-card{animation:none!important;display:block;overflow:visible;break-inside:auto;background:#fff!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)!important}",
+    "#screen-amour .am-fam-pad{display:block;background:#fff}",
+    "#screen-amour .am-fam-band{background:var(--bc)!important;color:#fff!important;border-bottom:4px solid var(--bf)!important;break-inside:avoid;break-after:avoid}",
+    "#screen-amour .am-fam-mark{background:var(--bf)!important;color:#fff!important;box-shadow:none!important}",
+    "#screen-amour .am-fam-band .am-ico,#screen-amour .am-fam-mark .am-ico{color:#fff!important}",
+    "#screen-amour .am-fam-nu li{background:color-mix(in srgb,var(--bf) 10%,#fff)!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)!important;color:#1B1816!important}",
+    "#screen-amour .am-fact{display:block!important}",
+    "#screen-amour .am-fact-ico{display:inline-flex!important;width:auto;height:auto;margin:0 4px 0 0;padding:0;border-radius:0;background:none!important;color:var(--bc)!important;vertical-align:-3px}",
+    "#screen-amour .am-ico-screen{display:none!important}",
+    "#screen-amour .am-ico-print{display:inline-flex!important}",
+    "#screen-amour .am-fact-ico .am-ico svg{width:13px;height:13px}",
+    "#screen-amour .am-fact>span:last-child{display:inline}",
+    "#screen-amour .am-pair,#screen-amour .am-pair.am-coule,#screen-amour .am-pair.am-attention{background:color-mix(in srgb,var(--bf) 8%,#fff)!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)!important;border-left:3px solid var(--pair,var(--bf))!important}",
+    "#screen-amour .am-duo>.am-ico{color:var(--bc)!important}",
+    "#screen-amour .am-duo-b .am-ico{color:var(--bc)!important}",
+    "#screen-amour .am-duo .am-ico svg{width:14px;height:14px}",
+    "#screen-amour .am-tag{display:inline-flex;align-items:center;gap:4px;border-radius:999px}",
+    "#screen-amour .am-tag>.am-ico{display:inline-flex}",
+    "#screen-amour .am-tag .am-ico svg{width:11px;height:11px}",
+    "#screen-amour .am-tag-coule{background:#E7F6EC!important;color:#146B3A!important;border:1px solid #B7E0C4}",
+    "#screen-amour .am-tag-attention{background:#FDEEE4!important;color:#8A3E12!important;border:1px solid #F3CDB8}",
     "#screen-amour .am-fact,#screen-amour .am-fam-nu li,#screen-amour .am-pair{break-inside:avoid}",
     "#screen-amour .am-fam-pad>h4,#screen-amour details.am-fold>summary,#screen-amour .am-sec-head,#screen-amour .rs>h2,#screen-amour .am-talent-head{break-inside:avoid;break-after:avoid}",
     "#screen-amour #sec-now{break-inside:avoid}",
@@ -487,6 +514,8 @@
     flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3 1.5 1 3 2.5 3 4.5a2.5 2.5 0 0 0 5 0c0-4-3-7-3-10 4 2 6 6 6 10a6 6 0 0 1-12 0c0-1 .5-2.5 1.5-4"/>',
     zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
     shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    alert: '<path d="m10.29 3.86-8.4 14.5A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.71-3l-8.4-14.5a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
     flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
     phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
     battery: '<rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/>',
@@ -1187,7 +1216,7 @@
     return list.map(function (pair) {
       const other = D.profil.besoins[pair.id];
       const who = familyNameBtn(pair.id, pair.noun) + (pair.same ? " <small>" + esc(enc.sameLab) + "</small>" : "");
-      return '<article class="am-pair am-' + kind + '"><div class="am-pair-top"><span class="am-duo">' + profilSvg(selfIcon) + '<span class="am-duo-b" style="' + needStyle(pair.id) + '">' + profilSvg(other.icon) + '</span></span><h4>' + who + '</h4><span class="am-tag am-tag-' + kind + '">' + esc(tag) + "</span></div><p>" + esc(pair.text) + "</p><p><strong>" + esc(enc.tipLab) + ".</strong> " + esc(pair.tip) + "</p></article>";
+      return '<article class="am-pair am-' + kind + '" style="--pair:' + other.color + '"><div class="am-pair-top"><span class="am-duo">' + profilSvg(selfIcon) + '<span class="am-duo-b" style="' + needStyle(pair.id) + '">' + profilSvg(other.icon) + '</span></span><h4>' + who + '</h4><span class="am-tag am-tag-' + kind + '">' + ico(kind === "attention" ? "alert" : "check") + esc(tag) + "</span></div><p>" + esc(pair.text) + "</p><p><strong>" + esc(enc.tipLab) + ".</strong> " + esc(pair.tip) + "</p></article>";
     }).join("");
   }
 
@@ -1202,10 +1231,10 @@
       '<header class="am-fam-band"><span class="am-fam-mark">' + profilSvg(guide.icon) + "</span><h3><span>" + esc(guide.noun + " · " + guide.name) + "</span></h3></header>" +
       '<div class="am-fam-pad"><p>' + esc(guide.portrait) + "</p>" +
       '<p class="am-fact"><span class="am-fact-ico">' + ico("heart") + "</span><span><strong>" + esc(enc.nourritLab) + ".</strong> " + esc(guide.nourrit) + "</span></p>" +
-      '<p class="am-fact"><span class="am-fact-ico">' + ico("cloud") + "</span><span><strong>" + esc(enc.videLab) + ".</strong> " + esc(guide.vide) + "</span></p>" +
-      "<h4>" + esc(enc.nuancesLab) + "</h4>" + nuances +
-      "<h4>" + esc(enc.couleLab) + "</h4>" + familyPairsHtml(guide.coule, enc, "coule", guide.icon) +
-      "<h4>" + esc(enc.attentionLab) + "</h4>" + familyPairsHtml(guide.attention, enc, "attention", guide.icon) +
+      '<p class="am-fact"><span class="am-fact-ico"><span class="am-ico-screen">' + ico("cloud") + '</span><span class="am-ico-print">' + ico("shield") + "</span></span><span><strong>" + esc(enc.videLab) + ".</strong> " + esc(guide.vide) + "</span></p>" +
+      '<h4 class="am-block">' + ico("spark") + esc(enc.nuancesLab) + "</h4>" + nuances +
+      '<h4 class="am-block">' + ico("users") + esc(enc.couleLab) + "</h4>" + familyPairsHtml(guide.coule, enc, "coule", guide.icon) +
+      '<h4 class="am-block">' + ico("alert") + esc(enc.attentionLab) + "</h4>" + familyPairsHtml(guide.attention, enc, "attention", guide.icon) +
       "</div></div>";
   }
 
@@ -1213,7 +1242,7 @@
     const enc = D.profil.encyclo;
     const guide = E.familyGuide(D, domId);
     const title = guide ? guide.noun + " · " + guide.name : enc.openAll;
-    return '<details class="am-fold" id="sec-familles"><summary><h2>' + esc(title) + "</h2></summary><div class=\"am-fold-body\">" + familyCardInner(domId, true) + "</div></details>";
+    return '<details class="am-fold" id="sec-familles" style="' + needStyle(domId) + '"><summary><h2 class="am-block">' + (guide ? profilSvg(guide.icon) : "") + esc(title) + "</h2></summary><div class=\"am-fold-body\">" + familyCardInner(domId, true) + "</div></details>";
   }
 
   function familyDialog() {
@@ -1294,7 +1323,7 @@
     const marks = [dom.icon, "cloud-rain", "life-buoy"];
     const tones = [pr.dom, pr.dom, pr.dom];
     const phrases =
-      '<section class="rs" id="sec-phrases"><h2>' + esc(R.sentencesH) + "</h2>" +
+      '<section class="rs" id="sec-phrases"><h2 class="am-block">' + ico("message") + esc(R.sentencesH) + "</h2>" +
       '<div class="panel">' + profile.sentences.map(function (sentence, i) {
         return '<p class="am-sentence' + (i === 0 ? " quote" : "") + '" style="' + needStyle(tones[i]) + '">' + profilSvg(marks[i]) + "<span>" + esc(sentence) + "</span></p>";
       }).join("") + "</div>" +
@@ -1442,7 +1471,7 @@
       resumeHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       profilReport(profile, stressLine) +
-      '<section class="rs" id="sec-now"><h2>' + esc(R.nowH) + "</h2>" + petitPasHtml() + '<div class="stack">' +
+      '<section class="rs" id="sec-now"><h2 class="am-block">' + ico("compass") + esc(R.nowH) + "</h2>" + petitPasHtml() + '<div class="stack">' +
       '<article class="rule" data-tone="sky"><span class="k">1</span><strong>' + ico("compass", "sky") + '<span class="am-lab">' + esc(R.nowTest) + "</span></strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
       '<article class="rule" data-tone="pink"><span class="k">2</span><strong>' + ico("phone", "pink") + '<span class="am-lab">' + esc(R.nowPierre) + "</span></strong><p>" + esc(endLine) + "</p>" +
