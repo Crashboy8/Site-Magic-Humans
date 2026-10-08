@@ -506,7 +506,42 @@
     if (videNn) inco.push("Ce que tu ne veux plus vivre : " + videNn + ".");
     putNote(notes, "incompatibilite", inco.join(" "));
 
-    const boussole = { v: 2, imp, notes };
+    // Critères proposés à la Boussole Relation : uniquement des éléments du catalogue (jamais de texte libre).
+    // c = famille, i = importance, n = non négociable, a = à éviter (risque), s = déjà couvert par ce critère du modèle.
+    const crit = [];
+    // Les critères se lisent à la première personne, comme ceux du modèle (« Mes besoins essentiels… »).
+    const word = (w, by) => (t) => t.replace(new RegExp("(^|[^\\p{L}'])" + w + "(?![\\p{L}])", "gu"), "$1" + by);
+    const toMe = (t) => [word("te", "me"), word("tes", "mes"), word("ton", "mon"), word("ta", "ma"), word("toi", "moi")]
+      .reduce((acc, f) => f(acc), String(t || "").replace(/sans que tu aies/g, "sans que j'aie"))
+      .replace(/(^|[^\p{L}])t'/gu, "$1m'");
+    const addCrit = (id, g, c, l, i, extra) => {
+      const label = uc1(toMe(l).trim()).replace(/[.\s]+$/, "");
+      if (!label || label.length > 120) return;
+      if (crit.some((x) => x.l.toLowerCase() === label.toLowerCase())) return;
+      crit.push(Object.assign({ id, g, c, l: label, i }, extra || {}));
+    };
+    const NEED_WORD = { securite: "sécurité", liberte: "liberté", reconnaissance: "reconnaissance", profondeur: "profondeur", legerete: "légèreté", harmonie: "douceur" };
+    if (need1 && NEED_WORD[need1]) addCrit("besoin-" + need1, "profil", "fond", "Mon besoin de " + NEED_WORD[need1] + " est nourri (" + D.needs[need1].title + ")", "critique");
+    if (D.recharge[profile]) addCrit("recharge-" + profile, "profil", "energie", D.recharge[profile].fit, "important");
+    if (languages.lang1 && D.languages[languages.lang1]) addCrit("langage-" + languages.lang1, "profil", "energie", "Un partenaire qui " + D.languages[languages.lang1].partnerHint, "important");
+    // Déjà évalués par le modèle : le désir (« Attirance » et « Compatibilité sexuelle »), le respect (« Je me sens respecté·e »).
+    const COVERED = { desir: "attirance" };
+    nourritOrder.filter((id) => String(id).indexOf("autre:") !== 0).slice(0, 3).forEach((id, index) => {
+      const short = catalogShort(D, nourritScreen, "nourrit", id);
+      if (short) addCrit("nourrit-" + id, "besoins", "fond", "Ce qui me nourrit : " + short, index === 0 ? "tres_important" : "important", COVERED[id] ? { s: COVERED[id] } : null);
+    });
+    valueEntries.filter((v) => !v.own).slice(0, 5).forEach((v) => {
+      const top = nonNegotiables.indexOf(v) !== -1;
+      const label = v.direction ? "Projet de vie commun : " + v.short : "Nous partageons " + v.short;
+      const extra = Object.assign({}, top ? { n: 1 } : {}, v.id === "respect" ? { s: "respect" } : {});
+      addCrit("valeur-" + v.id, "valeurs", v.direction ? "direction" : "fond", label, top ? "critique" : "important", Object.keys(extra).length ? extra : null);
+    });
+    videOrder.filter((id) => String(id).indexOf("autre:") !== 0).slice(0, 3).forEach((id) => {
+      const short = catalogShort(D, nourritScreen, "vide", id);
+      if (short) addCrit("vide-" + id, "eviter", "quotidien", "À éviter : " + short, id === noMore ? "critique" : "important", { a: 1 });
+    });
+
+    const boussole = { v: 3, imp, notes, crit, p: profil && profil.name ? profil.name.text : "" };
 
     const glanceLines = [];
     const ol = (title, rows) => {
