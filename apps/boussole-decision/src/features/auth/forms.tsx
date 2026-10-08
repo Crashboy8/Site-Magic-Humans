@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
 import { useI18n } from "@/i18n/client";
+import { TitreIcone } from "@/features/maCible/Habillage";
+import { Icone } from "@/features/maCible/Icones";
 import {
   type AuthState,
   magicLinkAction,
@@ -216,19 +218,24 @@ export function WelcomeChoices() {
   const t = useI18n().t.auth;
   return (
     <div className="grid gap-4">
-      <Card className="space-y-3 border-accent/30 bg-blush/50">
-        <h2 className="font-serif text-2xl italic">{t.tryNowTitle}</h2>
+      <div className="space-y-3 rounded-2xl border p-6 shadow-[0_1px_2px_rgba(58,47,36,0.04)] border-accent/30 bg-blush/60">
+        <TitreIcone icone="eclair" teinte="corail" className="font-serif text-2xl text-balance italic">
+          {t.tryNowTitle}
+        </TitreIcone>
         <p className="text-[15px] text-ink-soft">{t.tryNowText}</p>
         <TrialButton />
         <Link
           href="/exemple/"
           className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent/40 bg-paper px-5 text-[15px] font-medium text-accent-deep hover:bg-blush"
         >
+          <Icone nom="oeil" className="size-5" />
           {t.seeExample}
         </Link>
-      </Card>
-      <Card className="space-y-3">
-        <h2 className="font-serif text-2xl italic">{t.accountTitle}</h2>
+      </div>
+      <div className="space-y-3 rounded-2xl border p-6 shadow-[0_1px_2px_rgba(58,47,36,0.04)] border-sky-line bg-sky-soft/60">
+        <TitreIcone icone="cadenas" teinte="eau" className="font-serif text-2xl text-balance italic">
+          {t.accountTitle}
+        </TitreIcone>
         <p className="text-[15px] text-ink-soft">{t.accountText}</p>
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
@@ -244,7 +251,7 @@ export function WelcomeChoices() {
             {t.createAccount}
           </Link>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
