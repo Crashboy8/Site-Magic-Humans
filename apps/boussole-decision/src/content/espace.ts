@@ -1,6 +1,6 @@
 // Mon espace : textes en français seulement. Copie du cahier des charges (E.6).
 
-export const IMPORT_ACTIF = false; // PR 2 : passer à true
+export const IMPORT_ACTIF = true;
 
 export const ESPACE = {
   meta: { titre: "Mon espace" },
@@ -40,12 +40,50 @@ export const ESPACE = {
     coller: { titre: "Coller ma page Notion", texte: "Ouvre ta page, sélectionne tout, copie, puis colle ici.", zone: "Colle ta page ici", bouton: "Lire ma fiche" },
     fichier: { titre: "Déposer un fichier", texte: "Word, PDF ou export Notion (.docx, .pdf, .md, .html, .zip).", bouton: "Choisir mon fichier", glisser: "ou glisse-le ici" },
     main: { titre: "Remplir à la main", texte: "Tu as ta fiche sous les yeux ? Recopie l'essentiel en 5 minutes." },
+    lien: {
+      titre: "Coller le lien de ma page Notion",
+      texte: "Ta page est publiée sur le web ? Colle son lien, je m'occupe du reste.",
+      champ: "Le lien de ta page Notion",
+      exemple: "https://ton-nom.notion.site/Talent-…",
+      bouton: "Lire ma page",
+      lecture: "Je lis ta page Notion…",
+      prive: "Je lis ta page une seule fois, sans la garder. Tu peux la dépublier juste après.",
+      pasPublique: {
+        titre: "Ta page n'est pas encore publique",
+        intro: "Pour que je puisse la lire, ouvre ta page dans Notion, puis :",
+        etapes: [
+          "Clique sur Partager, en haut à droite.",
+          "Va dans Publier, puis clique sur Publier sur le web.",
+          "Clique sur Copier le lien, puis colle-le ici.",
+        ],
+        apres: "Une fois ta fiche enregistrée ici, tu peux dépublier ta page : je ne la garde pas.",
+        pierre: "Ta page est dans le Notion de Pierre et tu ne peux pas la publier ? Demande-lui de la publier un moment, ou de t'envoyer son export.",
+        autres: "Tu préfères ne pas la publier ? Pas de souci, colle ta page ou dépose son export.",
+        coller: "Coller ma page à la place",
+        exporter: "Déposer un export",
+      },
+      erreurs: {
+        lien_invalide: "Ce lien ne ressemble pas à un lien de page Notion. Copie le lien complet, il commence par https://",
+        pas_notion: "Je ne lis que les liens Notion (notion.site ou notion.so).",
+        pas_publique: "Je n'arrive pas à ouvrir cette page : elle n'est sans doute pas publique.",
+        pas_une_page: "Ce lien mène à une base de données Notion. Ouvre ta fiche, puis copie le lien de cette page-là.",
+        page_trop_grosse: "Cette page est trop longue pour moi. Colle plutôt ta fiche, ou dépose son export.",
+        vide: "Je n'ai trouvé presque aucun texte sur cette page. Vérifie que c'est bien ta fiche.",
+        delai: "Notion met trop de temps à répondre. Réessaie dans un instant, ou colle ta page.",
+        quota: "Tu as lu beaucoup de pages aujourd'hui. Réessaie demain, ou colle ta page.",
+        non_connecte: "Ta session a expiré. Reconnecte-toi, puis recommence.",
+        desactive: "La lecture par lien ne marche pas en ce moment. Colle ta page ou dépose son export.",
+        indisponible: "La lecture par lien ne marche pas en ce moment. Colle ta page ou dépose son export.",
+        origine_refusee: "La lecture par lien ne marche pas en ce moment. Colle ta page ou dépose son export.",
+      },
+    },
     aide: {
       titre: "Comment récupérer ma page Notion ?",
       etapes: [
         "Ouvre ta page Talent Unique dans Notion et déplie tous les blocs repliés (les petites flèches).",
         "Sur ordinateur : clique dans la page, fais Ctrl + A deux fois (Cmd + A sur Mac), puis Ctrl + C. Reviens ici et colle avec Ctrl + V.",
         "Autre solution : menu ••• en haut à droite, Exporter, choisis Markdown ou HTML, puis dépose le fichier ici.",
+        "Ou bien : Partager, Publier, Publier sur le web, puis Copier le lien, et colle le lien ici. Tu pourras dépublier ta page juste après.",
         "Tu n'as pas accès à ta page ? Demande-la à Pierre, il te l'envoie.",
       ],
     },
