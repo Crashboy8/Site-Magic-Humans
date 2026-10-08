@@ -39,9 +39,14 @@ export async function PublicFrame({
             </Link>
           )}
           <div className="flex items-center gap-2">
-            <Link href="/" className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">
+            <Link href="/" data-edition={edition ? "pro" : undefined} className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">
               {t.common.home}
             </Link>
+            {edition && (
+              <a href="/quiz-amour/" data-edition="amour" className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">
+                ← Quiz Amour
+              </a>
+            )}
             {!sansLangues && <LanguageSwitch />}
           </div>
         </div>

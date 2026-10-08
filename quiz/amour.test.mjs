@@ -649,8 +649,19 @@ test("v1.4 · exemple Camille : Miroir Fidèle, Q4 sans effet, piège gelé", ()
     securite: 33.3, profondeur: 66.7, admiration: 2.8, liberte: 3.3, harmonie: 13.6, complicite: 7.5, intensite: 33.3,
   });
   assert.match(p.sentences[0], /^Camille, ton profil amoureux est Miroir Fidèle : /);
-  assert.equal(love.boussole.v, 2);
-  assert.deepEqual(Object.keys(love.boussole).sort(), ["imp", "notes", "v"]);
+  assert.equal(love.boussole.v, 3);
+  assert.deepEqual(Object.keys(love.boussole).sort(), ["crit", "imp", "notes", "p", "v"]);
+  assert.equal(love.boussole.p, "Miroir Fidèle");
+  const ids = love.boussole.crit.map((c) => c.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const c of love.boussole.crit) {
+    assert.ok(["fond", "direction", "quotidien", "energie"].includes(c.c));
+    assert.ok(["critique", "tres_important", "important", "moyen"].includes(c.i));
+    assert.ok(c.l.length <= 120 && !/[—–]/.test(c.l));
+  }
+  assert.ok(love.boussole.crit.some((c) => c.g === "valeurs" && c.n === 1));
+  assert.ok(love.boussole.crit.some((c) => c.g === "eviter" && c.a === 1));
+  assert.ok(E.encodePayload(love.boussole).length < 9000);
   const other = camilleAnswers();
   other.ennea = { picked: { types: ["t8"] }, other: { types: [] }, order: { types: ["t8"] } };
   const love2 = E.computeLoveProfile(other, D, "Camille");
@@ -1169,7 +1180,7 @@ test("encodage", () => {
     const p = E.computeLoveProfile(randomAnswers(r), D, "Léa");
     const encoded = E.encodePayload(p.boussole);
     assert.match(encoded, /^[A-Za-z0-9_-]+$/);
-    assert.ok(encoded.length < 4000);
+    assert.ok(encoded.length < 9000);
     const pad = encoded.length % 4 === 0 ? "" : "=".repeat(4 - (encoded.length % 4));
     const bin = Buffer.from(encoded.replace(/-/g, "+").replace(/_/g, "/") + pad, "base64");
     assert.equal(JSON.stringify(JSON.parse(bin.toString("utf8"))), JSON.stringify(p.boussole));

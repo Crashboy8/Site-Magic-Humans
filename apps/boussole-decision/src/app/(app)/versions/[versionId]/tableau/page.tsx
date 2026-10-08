@@ -5,6 +5,7 @@ import { isLoveProfile, LOVE_TABLE, LOVE_TEXTS } from "@/content/amour";
 import { LoveChrome } from "@/features/amour/LoveChrome";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
 import { LoveGuide } from "@/features/amour/LoveGuide";
+import { QuizRepris } from "@/features/amour/QuizRepris";
 import { getI18n } from "@/i18n/server";
 import { DecisionTable } from "@/features/table/DecisionTable";
 import { loadVersionContext } from "@/features/versions/context";
@@ -16,8 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getI18n()).t.table.titleTable };
 }
 
-export default async function TablePage({ params }: PageProps<"/versions/[versionId]/tableau">) {
+export default async function TablePage({ params, searchParams }: PageProps<"/versions/[versionId]/tableau">) {
   const { versionId } = await params;
+  const repris = Number((await searchParams).repris) || 0;
   const ctx = await loadVersionContext(versionId);
   const db = await supabaseServer();
   const [categories, criteria, opportunities, evaluations] = await Promise.all([
@@ -46,6 +48,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
         </p>
         {love ? (
           <>
+            <QuizRepris criteria={criteria} added={repris} />
             <Notice>{LOVE_TEXTS.tableNotice}</Notice>
             <LoveGuide criteria={criteria} />
           </>
