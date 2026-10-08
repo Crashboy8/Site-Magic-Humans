@@ -24,7 +24,8 @@
   --color-lilas-soft: #f1eafa;
   --color-corail: #a8431a;
   --color-corail-soft: #fde8dc;
-  --color-framboise: #a3304f;
+  --color-framboise: #a3304f; /* boutons amour, texte blanc : 6,8:1 */
+  --color-framboise-deep: #7a2340; /* survol, texte blanc : 9,8:1 */
   --color-framboise-soft: #fce6ec;
   --color-eau: #0e6a60;
   --color-eau-soft: #dff4f0;
@@ -111,6 +112,17 @@ html[data-seance] [data-chrome] {
 /* Boussole Relation : le sélecteur FR · EN · ES disparaît, le français reste. Le mode pro ne pose pas la marque. */
 body:has([data-amour-langue]) [data-lang-switch] {
   display: none;
+}
+
+/* Boutons principaux en rose. Le mode pro garde le marron : il ne pose pas la marque. */
+body:has([data-amour-langue]) :is(a, button).bg-accent-strong {
+  background-color: var(--color-framboise);
+}
+body:has([data-amour-langue]) :is(a, button).bg-accent-strong:hover {
+  background-color: var(--color-framboise-deep);
+}
+body:has([data-amour-langue]) :focus-visible {
+  outline-color: var(--color-framboise);
 }
 
 /* Le même thème choisit le mot du titre et sa destination. */

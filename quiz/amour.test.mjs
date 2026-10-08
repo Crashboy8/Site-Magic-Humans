@@ -905,8 +905,22 @@ test("textes du webinaire et page de partage", () => {
   assert.equal(html.includes("Love & Connexion"), false);
   assert.equal(html.includes("Talent Unique"), false);
   assert.equal(/[\u2014\u2013]/.test(html), false);
-  const vercel = fs.readFileSync(new URL("../vercel.json", import.meta.url), "utf8");
-  assert.equal(vercel.includes("/quiz-amour"), false);
+});
+
+test("adresses courtes du webinaire, temporaires, sans toucher à /quiz-amour/", () => {
+  const conf = JSON.parse(fs.readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const regles = [...(conf.redirects || []), ...(conf.rewrites || [])];
+  assert.equal(regles.some((r) => String(r.source).includes("quiz-amour")), false);
+  for (const source of ["/amour", "/amour/"]) {
+    const r = conf.redirects.find((x) => x.source === source);
+    assert.equal(r && r.destination, "/quiz-amour/");
+    assert.equal(r && r.permanent, false);
+  }
+  for (const source of ["/boussole-amour", "/boussole-amour/"]) {
+    const r = conf.redirects.find((x) => x.source === source);
+    assert.equal(r && r.destination, "/boussole-decision/importer-quiz/?theme=amour");
+    assert.equal(r && r.permanent, false);
+  }
 });
 
 test("stress fort hors du score, toujours dans le piège", () => {
