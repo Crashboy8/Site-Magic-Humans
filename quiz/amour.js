@@ -349,12 +349,12 @@
     "#screen-amour .am-salle .salle-row{grid-template-columns:minmax(0,132px) 1fr auto}",
     "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item,#screen-amour .am-benefit,#screen-amour .am-hero .eyebrow .am-ico,#screen-amour .am-badge,#screen-amour .am-just,#screen-amour .rsrc-opt,#screen-amour .pr-track i,#screen-amour .am-fam-card,#screen-amour .progress span.is-now::after{animation:none!important;transition:none!important}#screen-amour .am-pop,#screen-amour .am-burst{display:none}#screen-amour .pr-track i{width:var(--w,0%)}}",
     "#screen-amour .rs.am-meet{gap:6px;margin:12px 0;padding:12px 12px 10px;background:#fff;color:#1B1816;border:1px solid #E8E2DB;box-shadow:none}",
-    "#screen-amour .rs.am-meet h2,#screen-amour .rs.am-meet h3,#screen-amour .rs.am-meet p,#screen-amour .rs.am-meet li,#screen-amour .rs.am-meet summary{color:#1B1816}",
-    "#screen-amour .am-meet h2,#screen-amour .am-meet h3,#screen-amour .am-meet summary{display:flex;align-items:flex-start;gap:6px}",
+    "#screen-amour .rs.am-meet h2,#screen-amour .rs.am-meet h3,#screen-amour .rs.am-meet p,#screen-amour .rs.am-meet li{color:#1B1816}",
+    "#screen-amour .am-meet h2,#screen-amour .am-meet h3{display:flex;align-items:flex-start;gap:6px}",
     "#screen-amour .am-meet h2{margin:0;font-size:1.45rem;line-height:1.15}",
     "#screen-amour .am-meet h2 .am-ico svg{width:20px;height:20px}",
     "#screen-amour .am-meet h3{margin:0 0 4px;font-size:1.15rem;line-height:1.2;font-weight:600}",
-    "#screen-amour .am-meet h2>span:last-child,#screen-amour .am-meet h3>span:last-child,#screen-amour .am-meet summary>span:last-child,#screen-amour .am-meet-line>span:last-child,#screen-amour .am-meet-talent>span:last-child,#screen-amour .am-meet-list li>span:last-child{min-width:0;flex:1}",
+    "#screen-amour .am-meet h2>span:last-child,#screen-amour .am-meet h3>span:last-child,#screen-amour .am-meet-avoid-h>span:last-child,#screen-amour .am-meet-line>span:last-child,#screen-amour .am-meet-talent>span:last-child,#screen-amour .am-meet-list li>span:last-child{min-width:0;flex:1}",
     "#screen-amour .am-meet-grid{display:grid;gap:8px}",
     "@media(min-width:720px){#screen-amour .am-meet-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}}",
     "#screen-amour .am-meet-card{background:#fff;border:1px solid #EFEAE4;border-radius:14px;border-top-width:3px;padding:8px 10px;margin:0}",
@@ -370,13 +370,9 @@
     "#screen-amour .am-meet .am-ico[data-ico-tone=eau]{color:#1E7A6E}",
     "#screen-amour .am-meet .am-ico[data-ico-tone=lilas]{color:#6E568F}",
     "#screen-amour .am-meet .am-ico[data-ico-tone=sauge]{color:#4E7A4A}",
-    "#screen-amour details.am-meet-more{margin:0;border:1px solid #E6E0EE;border-top:3px solid #6E568F;border-radius:14px;background:#fff;padding:0}",
-    "#screen-amour details.am-meet-more>summary{align-items:center;cursor:pointer;list-style:none;padding:8px 10px;font-weight:700;font-size:.98rem;line-height:1.3}",
-    "#screen-amour details.am-meet-more>summary::-webkit-details-marker{display:none}",
-    "#screen-amour details.am-meet-more>summary::marker{content:\"\"}",
-    "#screen-amour details.am-meet-more>summary::after{content:\"\\25B6\";margin-left:auto;flex:none;font-size:.72rem;line-height:1.4;color:#6E568F}",
-    "#screen-amour details.am-meet-more[open]>summary::after{transform:rotate(90deg)}",
-    "#screen-amour details.am-meet-more .am-meet-line{padding:0 10px 8px}",
+    "#screen-amour .am-meet-avoid{margin:0;border:1px solid #E6E0EE;border-top:3px solid #6E568F;border-radius:14px;background:#fff;padding:8px 10px}",
+    "#screen-amour .am-meet-avoid-h{display:flex;align-items:center;gap:6px;margin:0 0 4px;font-weight:700;font-size:.98rem;line-height:1.3}",
+    "#screen-amour .am-meet-avoid .am-meet-line{margin:0}",
     "#screen-amour .am-meet-talent{margin:0}",
     "@media print{",
     "@page{size:A4;margin:9mm}",
@@ -1468,9 +1464,9 @@
     const grid = '<div class="am-meet-grid">' + cards.map(function (card) {
       return '<article class="am-meet-card" data-accent="' + card.accent + '"><h3>' + meetLine(card.icon, card.title, card.accent) + "</h3>" + card.body + "</article>";
     }).join("") + "</div>";
-    const more = '<details class="am-meet-more"><summary>' + meetLine(icons.eviter, R.meetAvoid, "lilas") + '</summary><p class="am-meet-line">' + meetLine(rec.eviter.icon, rec.eviter.texte, "lilas") + "</p></details>";
+    const avoid = '<div class="am-meet-avoid"><p class="am-meet-avoid-h">' + meetLine(icons.eviter, R.meetAvoid, "lilas") + '</p><p class="am-meet-line">' + meetLine(rec.eviter.icon, rec.eviter.texte, "lilas") + "</p></div>";
     const talent = '<p class="am-meet-talent">' + meetLine(icons.talent, rec.talent, "sauge") + "</p>";
-    return '<section class="rs am-meet am-screen-only" id="sec-meet"><h2>' + meetLine(icons.section, R.meetH, "coral") + "</h2>" + grid + more + talent + "</section>";
+    return '<section class="rs am-meet am-screen-only" id="sec-meet"><h2>' + meetLine(icons.section, R.meetH, "coral") + "</h2>" + grid + avoid + talent + "</section>";
   }
 
   function showResults(profile) {

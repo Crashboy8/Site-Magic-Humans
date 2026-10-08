@@ -1143,7 +1143,13 @@ test("rencontre : chaque profil a des lieux, des activités, un contexte et le l
   const fn = src.slice(src.indexOf("function rencontreHtml"), src.indexOf("function showResults"));
   assert.match(fn, /am-meet am-screen-only/);
   assert.match(fn, /id="sec-meet"/);
-  assert.match(fn, /am-meet-more/);
+  assert.match(fn, /class="am-meet-avoid"/);
+  assert.match(fn, /am-meet-avoid-h/);
+  assert.equal(fn.includes("<details"), false);
+  assert.equal(fn.includes("summary"), false);
+  assert.equal(fn.includes("am-meet-more"), false);
+  assert.equal(src.includes("details.am-meet-more"), false);
+  assert.equal(src.includes("am-meet-avoid::after"), false);
   assert.equal(fn.includes("club de randonnée"), false);
   const printAt = src.indexOf("@media print{");
   const printChunk = src.slice(printAt, printAt + 800);
