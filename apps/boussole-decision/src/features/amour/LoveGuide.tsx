@@ -1,6 +1,6 @@
 import { LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
 
-/** Questions guides des 10 critères. La description réelle (note du quiz comprise) remplace le guide du modèle. */
+/** Questions guides des critères. La description réelle (note du quiz comprise) remplace le guide du modèle. */
 export function LoveGuide({ criteria }: { criteria: { id: string; label: string; description: string }[] }) {
   return (
     <details className="max-w-3xl rounded-xl bg-blush/70 px-5 py-3">

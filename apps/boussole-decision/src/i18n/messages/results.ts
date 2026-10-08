@@ -76,9 +76,12 @@ const fr = {
     paye: { label: "Ce pour quoi je peux être payé·e", short: "Payé·e", missing: "plaisir et plénitude, mais sans assez gagner sa vie" },
   } as CircleTexts,
 
-  radarTitle: "Le radar de tes opportunités",
+  radarTitle: "Tes opportunités en un coup d'œil",
   radarIntro:
-    "Le score de chaque opportunité, catégorie par catégorie : plus la forme est grande, plus l'opportunité te correspond. Sur l'axe Anti-Contexte, un score élevé veut dire que le risque est évité.",
+    "Ton score pour chaque opportunité, catégorie par catégorie. Sur l'axe Anti-Contexte, un score élevé veut dire que le risque est évité.",
+  viewRadars: "Radars",
+  viewFiches: "Fiches",
+  globalWord: "Global",
   legend: "Légende",
   radarAria: "Radar des scores par catégorie",
   radarCaption: "Score de chaque opportunité, catégorie par catégorie",
@@ -213,9 +216,12 @@ const en: typeof fr = {
     paye: { label: "What I can be paid for", short: "Paid for it", missing: "delight and fullness, but not enough to make a living" },
   },
 
-  radarTitle: "The radar of your opportunities",
+  radarTitle: "Your opportunities at a glance",
   radarIntro:
-    "Each opportunity's score, category by category: the bigger the shape, the better the opportunity fits you. On the Anti-Context axis, a high score means the risk is avoided.",
+    "Your score for each opportunity, category by category. On the Anti-Context axis, a high score means the risk is avoided.",
+  viewRadars: "Radars",
+  viewFiches: "Cards",
+  globalWord: "Overall",
   legend: "Legend",
   radarAria: "Radar of scores by category",
   radarCaption: "Each opportunity's score, category by category",
@@ -359,9 +365,12 @@ const es: typeof fr = {
     },
   },
 
-  radarTitle: "El radar de tus oportunidades",
+  radarTitle: "Tus oportunidades de un vistazo",
   radarIntro:
-    "La puntuación de cada oportunidad, categoría por categoría: cuanto más grande es la forma, mejor te encaja la oportunidad. En el eje del Anti-Contexto, una puntuación alta significa que el riesgo se evita.",
+    "Tu puntuación para cada oportunidad, categoría por categoría. En el eje del Anti-Contexto, una puntuación alta significa que el riesgo se evita.",
+  viewRadars: "Radares",
+  viewFiches: "Fichas",
+  globalWord: "Global",
   legend: "Leyenda",
   radarAria: "Radar de las puntuaciones por categoría",
   radarCaption: "La puntuación de cada oportunidad, categoría por categoría",

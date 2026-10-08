@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { LOVE_RESULTS, LOVE_TABLE, LOVE_TEXTS } from "@/content/amour";
+import { LOVE_RESULTS, LOVE_TABLE, LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
+import { AIDE_POURCENTAGE } from "@/domain/pourcentage";
 import { results } from "@/i18n/messages/results";
 
 /** Aplatit les textes affichés (chaînes et fonctions appelées avec un exemple). */
@@ -23,6 +24,24 @@ describe("textes amour", () => {
     const vus = [...textes(LOVE_RESULTS), ...textes(LOVE_TABLE), ...textes(LOVE_TEXTS)];
     expect(vus.filter((t) => /opportunit/i.test(t))).toEqual([]);
     expect(vus.some((t) => t.includes("—") || t.includes("–"))).toBe(false);
+  });
+
+  it("ajoute attirance et sexualité dans L'énergie et l'amour, en très important", () => {
+    expect(LOVE_TEMPLATE.categories).toHaveLength(4);
+    expect(LOVE_TEMPLATE.criteria).toHaveLength(12);
+    const energie = LOVE_TEMPLATE.criteria.filter((c) => c.category === "energie");
+    expect(energie.map((c) => c.key)).toEqual(["energie", "langage", "attirance", "sexualite"]);
+    for (const key of ["attirance", "sexualite"] as const) {
+      const critere = LOVE_TEMPLATE.criteria.find((c) => c.key === key)!;
+      expect(critere.importance).toBe("tres_important");
+      expect(critere.nonNegotiable).toBe(false);
+      expect(critere.critical).toBe(false);
+      expect(critere.guide).toContain(AIDE_POURCENTAGE);
+    }
+    expect(LOVE_TEXTS.energyAlert).toContain("te vide");
+    expect(LOVE_TEXTS.energyAlert).not.toContain("Attirance");
+    expect(LOVE_TEXTS.bands.base.text).toContain("le fond");
+    expect(LOVE_TEXTS.bands.base.questions[0]).toContain("de fond ou de forme");
   });
 
   it("les textes pro de la synthèse restent inchangés", () => {

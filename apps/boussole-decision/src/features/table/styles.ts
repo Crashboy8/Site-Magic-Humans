@@ -1,3 +1,4 @@
+import { tonJauge } from "@/domain/relationApparence";
 import type { CriterionDirection, EvaluationValue, Importance } from "@/domain/types";
 
 /** Couleur des pastilles d'importance (contraste AA). */
@@ -26,4 +27,12 @@ export function evaluationClass(value: EvaluationValue | null, direction: Criter
   if (!value) return "bg-cream text-ink-soft";
   const key = direction === "AWAY_FROM" ? (FLIP[value] ?? value) : value;
   return SATISFACTION_CLASS[key];
+}
+
+/** Case en pourcentage : sauge dès 70, miel de 45 à 69, corail en dessous. Même seuils que les jauges. */
+export function classePourcentage(pourcent: number): string {
+  const ton = tonJauge(pourcent);
+  if (ton === "sauge") return "bg-[#e4f0df] text-[#24381f]";
+  if (ton === "miel") return "bg-[#fdf0d2] text-[#6b5418]";
+  return "bg-[#fde4dc] text-[#7a2414]";
 }

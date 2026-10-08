@@ -4,6 +4,11 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
 import { LOVE_TABLE } from "@/content/amour";
+import { AIDE_POURCENTAGE, appliquerPourcentageLocal, clePourcentage, pourcentageValide, valeurProche } from "@/domain/pourcentage";
+import { COULEUR_RELATION, apparenceParDefaut, type RelationLook } from "@/domain/relationApparence";
+import { enregistrerApparence, useApparenceRelations } from "@/features/amour/apparenceLocale";
+import { BoutonApparence } from "@/features/amour/ChoixApparence";
+import { IconeRelation } from "@/features/amour/IconeRelation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import {
   createCategory,
@@ -33,7 +38,9 @@ import type {
   Opportunity,
 } from "@/domain/types";
 import { InlineComments, type CommentViewer } from "@/features/comments/CommentThread";
-import { IMPORTANCE_CLASS, evaluationClass } from "./styles";
+import { MenuNotation } from "./MenuNotation";
+import { memoriserPourcentage, oublierPourcentage, usePourcentagesLocaux } from "./pourcentageLocale";
+import { IMPORTANCE_CLASS } from "./styles";
 
 interface Props {
   versionId: string;
@@ -72,8 +79,9 @@ function useTableTexts() {
   return { ...base, ...LOVE_TABLE };
 }
 
-const EVAL_ORDER: EvaluationValue[] = ["oui", "p75", "p50", "p25", "non", "inconnu"];
 const key = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
+
+type Saisie = { value: EvaluationValue; percent?: number };
 
 function Table({
   versionId,
@@ -91,24 +99,60 @@ function Table({
   const [categories, setCategories] = useState(initial.categories);
   const [criteria, setCriteria] = useState(initial.criteria);
   const [opportunities, setOpportunities] = useState(initial.opportunities);
-  const [cells, setCells] = useState(() => new Map(initial.evaluations.map((e) => [key(e.criterionId, e.opportunityId), e.value])));
+  const love = useContext(LoveTableContext);
+  const relations = useApparenceRelations(opportunities, love, love && !readOnly);
+  const locaux = usePourcentagesLocaux();
+  const touches = useRef(new Set<string>());
+  const [cells, setCells] = useState(() => {
+    const map = new Map<string, Saisie>();
+    for (const e of initial.evaluations) {
+      map.set(key(e.criterionId, e.opportunityId), {
+        value: e.value,
+        ...(pourcentageValide(e.percent) ? { percent: e.percent } : {}),
+      });
+    }
+    return map;
+  });
   const [weights, setWeights] = useState(initialWeights);
   const scrollRef = useRef<HTMLDivElement>(null);
   const theadRef = useRef<HTMLTableSectionElement>(null);
   const [mobileIndex, setMobileIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setCells((m) => {
+      let change = false;
+      const next = new Map(m);
+      for (const e of initial.evaluations) {
+        const k = key(e.criterionId, e.opportunityId);
+        if (touches.current.has(k)) continue;
+        const fusion = appliquerPourcentageLocal(e, locaux[clePourcentage(e.criterionId, e.opportunityId)]);
+        if (!pourcentageValide(fusion.percent)) continue;
+        const actuel = next.get(k);
+        if (!actuel || actuel.percent !== undefined) continue;
+        next.set(k, { value: actuel.value, percent: fusion.percent });
+        change = true;
+      }
+      return change ? next : m;
+    });
+  }, [locaux, initial.evaluations]);
+
   const evaluations = useMemo<Evaluation[]>(
     () =>
-      [...cells.entries()].map(([k, value]) => {
+      [...cells.entries()].map(([k, cell]) => {
         const [criterionId, opportunityId] = k.split(":");
-        return { criterionId, opportunityId, value };
+        return {
+          criterionId,
+          opportunityId,
+          value: cell.percent !== undefined ? valeurProche(cell.percent) : cell.value,
+          ...(cell.percent !== undefined ? { percent: cell.percent } : {}),
+        };
       }),
     [cells],
   );
   const ranking = useMemo(
-    () => rankOpportunities(opportunities, criteria, evaluations, weights),
-    [opportunities, criteria, evaluations, weights],
+    () => rankOpportunities(relations, criteria, evaluations, weights),
+    [relations, criteria, evaluations, weights],
   );
   const resultById = new Map(ranking.map((r, i) => [r.opportunity.id, { result: r, rank: i + 1 }]));
 
@@ -118,7 +162,7 @@ function Table({
     return map;
   }, [categories, criteria]);
 
-  const sortedOpps = [...opportunities].sort((a, b) => a.position - b.position);
+  const sortedOpps = [...relations].sort((a, b) => a.position - b.position);
   const activeOpp = sortedOpps[Math.min(mobileIndex, sortedOpps.length - 1)];
   const colClass = (o: Opportunity) => (o.id === activeOpp?.id ? "" : "hidden sm:table-cell");
 
@@ -178,7 +222,10 @@ function Table({
     const position = opportunities.length ? Math.max(...opportunities.map((o) => o.position)) + 1 : 0;
     const created = await guarded(createOpportunity(db, versionId, T.newOpportunityName(opportunities.length + 1), position));
     if (created) {
-      setOpportunities((os) => [...os, created]);
+      const look = love ? apparenceParDefaut(relations.flatMap((o) => (o.icon && o.color ? [{ icon: o.icon, color: o.color }] : []))) : null;
+      const avec = look ? { ...created, ...look } : created;
+      if (look) void enregistrerApparence(created, look);
+      setOpportunities((os) => [...os, avec]);
       setMobileIndex(opportunities.length);
     }
   }
@@ -191,14 +238,19 @@ function Table({
   }
 
   // --- Cases --------------------------------------------------------------------------
-  async function setCell(criterionId: string, opportunityId: string, value: EvaluationValue | null) {
+  async function setCell(criterionId: string, opportunityId: string, saisie: Saisie | null) {
+    const k = key(criterionId, opportunityId);
+    touches.current.add(k);
     setCells((m) => {
       const next = new Map(m);
-      if (value === null) next.delete(key(criterionId, opportunityId));
-      else next.set(key(criterionId, opportunityId), value);
+      if (saisie === null) next.delete(k);
+      else if (saisie.percent !== undefined) next.set(k, { value: valeurProche(saisie.percent), percent: saisie.percent });
+      else next.set(k, { value: saisie.value });
       return next;
     });
-    await guarded(setEvaluation(db, versionId, criterionId, opportunityId, value));
+    if (saisie?.percent !== undefined) memoriserPourcentage(k, saisie.percent);
+    else oublierPourcentage(k);
+    await guarded(setEvaluation(db, versionId, criterionId, opportunityId, saisie));
   }
 
   // --- Catégories ---------------------------------------------------------------------
@@ -241,11 +293,12 @@ function Table({
                   aria-selected={o.id === activeOpp?.id}
                   onClick={() => setMobileIndex(i)}
                   className={cx(
-                    "shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold",
                     o.id === activeOpp?.id ? "bg-ink text-cream" : "bg-paper text-ink-soft border border-line",
                   )}
                 >
-                  {o.name.length > 22 ? `${o.name.slice(0, 22)}…` : o.name}
+                  {love && o.icon && o.color && <IconeRelation icone={o.icon} couleur={o.color} taille={16} />}
+                  <span>{o.name.length > 22 ? `${o.name.slice(0, 22)}…` : o.name}</span>
                 </button>
               ))}
             </div>
@@ -267,13 +320,20 @@ function Table({
                       key={o.id}
                       scope="col"
                       className={cx("min-w-[150px] border-b border-l border-line px-3 py-3 text-center align-top font-normal", colClass(o))}
+                      style={love && o.color ? { boxShadow: `inset 0 3px 0 ${COULEUR_RELATION[o.color]}` } : undefined}
                     >
                       <OpportunityHeader
                         opportunity={o}
                         readOnly={readOnly}
+                        look={love && o.icon && o.color ? { icon: o.icon, color: o.color } : null}
                         onRename={(name) => {
                           setOpportunities((os) => os.map((x) => (x.id === o.id ? { ...x, name } : x)));
                           return updateOpportunity(db, o.id, { name });
+                        }}
+                        onLook={(look) => {
+                          setOpportunities((os) => os.map((x) => (x.id === o.id ? { ...x, ...look } : x)));
+                          const source = opportunities.find((x) => x.id === o.id) ?? o;
+                          void enregistrerApparence(source, look);
                         }}
                         onDelete={() => removeOpportunity(o)}
                       />
@@ -316,7 +376,7 @@ function Table({
                   <tbody key={category.id}>
                     <tr>
                       <th scope="rowgroup" colSpan={colSpan} className="border-b border-line bg-sand px-3 py-2.5 text-left">
-                        <span className="sticky left-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <span className="sticky left-3 block w-[min(28rem,calc(100vw-4.5rem))] whitespace-normal">
                           {definition || readOnly ? (
                             <span className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">
                               {definition?.label ?? category.label}
@@ -335,7 +395,7 @@ function Table({
                               }}
                             />
                           )}
-                          {definition && <span className="text-[13px] font-normal text-ink-soft">{definition.subtitle}</span>}
+                          {definition && <span className="ml-3 text-[13px] font-normal normal-case tracking-normal text-ink-soft">{definition.subtitle}</span>}
                         </span>
                       </th>
                     </tr>
@@ -367,17 +427,19 @@ function Table({
                           )}
                         </th>
                         {sortedOpps.map((o) => {
-                          const value = cells.get(key(c.id, o.id)) ?? null;
+                          const cell = cells.get(key(c.id, o.id));
                           return (
                             <td
                               key={o.id}
                               className={cx("border-b border-l border-line px-2 py-2.5 text-center align-middle", colClass(o))}
                             >
-                              <EvaluationSelect
-                                value={value}
+                              <MenuNotation
+                                value={cell?.value ?? null}
+                                percent={cell?.percent}
                                 direction={c.direction}
                                 readOnly={readOnly}
-                                label={`${o.name} — ${c.label}`}
+                                label={`${o.name}, ${c.label}`}
+                                texts={T}
                                 onChange={(v) => setCell(c.id, o.id, v)}
                               />
                             </td>
@@ -464,32 +526,42 @@ function Table({
 function OpportunityHeader({
   opportunity,
   readOnly,
+  look,
   onRename,
+  onLook,
   onDelete,
 }: {
   opportunity: Opportunity;
   readOnly: boolean;
+  look: RelationLook | null;
   onRename: (name: string) => Promise<void>;
+  onLook: (look: RelationLook) => void;
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
   const T = useTableTexts();
   if (readOnly)
     return (
-      <span data-opp-name className="block text-center text-[16px] font-semibold leading-snug">
-        {opportunity.name}
+      <span className="flex items-center justify-center gap-1.5 text-center">
+        {look && <IconeRelation icone={look.icon} couleur={look.color} />}
+        <span data-opp-name className="text-balance text-[16px] font-semibold leading-snug">
+          {opportunity.name}
+        </span>
       </span>
     );
   return (
     <div className="relative">
-      <textarea
-        aria-label={T.opportunityName}
-        value={name}
-        rows={1}
-        maxLength={120}
-        onChange={(e) => setName(e.target.value)}
-        className="field-sizing-content w-full min-w-0 resize-none rounded-md bg-transparent px-6 text-center text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
-      />
+      <div className="flex items-center gap-1 pr-6">
+        {look && <BoutonApparence nom={opportunity.name} look={look} onChange={onLook} />}
+        <textarea
+          aria-label={T.opportunityName}
+          value={name}
+          rows={1}
+          maxLength={120}
+          onChange={(e) => setName(e.target.value)}
+          className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent text-center text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
+        />
+      </div>
       <button
         type="button"
         onClick={onDelete}
@@ -532,6 +604,7 @@ function CriterionCell({
     return (
       <div className="space-y-1.5">
         <p className="leading-snug">{criterion.label}</p>
+        {criterion.description.includes(AIDE_POURCENTAGE) && <p className="text-xs leading-snug text-ink-soft">{AIDE_POURCENTAGE}</p>}
         <div className="flex flex-wrap gap-1.5">
           <span className={cx("rounded-full px-2.5 py-0.5 text-xs font-medium", IMPORTANCE_CLASS[criterion.importance])}>
             {importance.label}
@@ -575,6 +648,7 @@ function CriterionCell({
           ))}
         </select>
       </div>
+      {criterion.description.includes(AIDE_POURCENTAGE) && <p className="px-1.5 text-xs leading-snug text-ink-soft">{AIDE_POURCENTAGE}</p>}
       <div className="flex flex-wrap items-center gap-1.5 pl-1">
         <Toggle
           on={criterion.nonNegotiable}
@@ -661,39 +735,6 @@ function IconButton({
     >
       {children}
     </button>
-  );
-}
-
-function EvaluationSelect({
-  value,
-  direction,
-  readOnly,
-  label,
-  onChange,
-}: {
-  value: EvaluationValue | null;
-  direction: Criterion["direction"];
-  readOnly: boolean;
-  label: string;
-  onChange: (v: EvaluationValue | null) => void;
-}) {
-  const labels = useI18n().m.evaluationLabels[direction];
-  const cls = cx("w-full max-w-[130px] rounded-[10px] px-2 py-2 text-center text-sm font-medium", evaluationClass(value, direction));
-  if (readOnly) return <span className={cx("inline-block", cls)}>{value ? labels[value] : "—"}</span>;
-  return (
-    <select
-      aria-label={label}
-      value={value ?? ""}
-      onChange={(e) => onChange((e.target.value || null) as EvaluationValue | null)}
-      className={cx("cursor-pointer appearance-none", cls)}
-    >
-      <option value="">—</option>
-      {EVAL_ORDER.map((v) => (
-        <option key={v} value={v}>
-          {labels[v]}
-        </option>
-      ))}
-    </select>
   );
 }
 
@@ -808,16 +849,25 @@ function CustomCategoryName({
   onDelete: () => void;
 }) {
   const [label, setLabel] = useState(category.label);
+  const champ = useRef<HTMLTextAreaElement>(null);
   const T = useI18n().t.table;
+  useEffect(() => {
+    const el = champ.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [label]);
   return (
-    <span className="flex items-center gap-2">
-      <input
+    <span className="flex w-full min-w-0 items-start gap-2">
+      <textarea
+        ref={champ}
         aria-label={T.categoryName}
         value={label}
+        rows={1}
         maxLength={60}
         onChange={(e) => setLabel(e.target.value)}
         onBlur={() => label.trim() && label.trim() !== category.label && onRename(label.trim())}
-        className="rounded bg-transparent px-1 text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft hover:bg-paper focus:bg-paper focus:outline-none"
+        className="w-full min-w-0 resize-none overflow-hidden bg-transparent px-1 text-[13px] font-medium uppercase leading-snug tracking-[0.08em] text-ink-soft hover:bg-paper focus:bg-paper focus:outline-none"
       />
       {canDelete && (
         <button type="button" onClick={onDelete} className="text-xs font-normal normal-case text-danger hover:underline">

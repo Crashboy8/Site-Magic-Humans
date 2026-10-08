@@ -159,3 +159,120 @@ html[data-seance] .sticky {
 [data-impression-seule] {
   display: none;
 }
+
+.coup-oeil-radars[data-actif="non"],
+.coup-oeil-fiches[data-actif="non"] {
+  display: none;
+}
+
+/* Curseur de pourcentage : piste large, pouce assez gros pour le doigt. */
+.curseur-pourcentage {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 44px;
+  background: transparent;
+  accent-color: #e2683a;
+}
+
+.curseur-pourcentage::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 99px;
+  background: #f1e9dc;
+}
+
+.curseur-pourcentage::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px;
+  height: 32px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: #e2683a;
+  border: 3px solid #fffdf9;
+  box-shadow: 0 1px 4px rgb(58 46 38 / 0.28);
+}
+
+.curseur-pourcentage::-moz-range-track {
+  height: 10px;
+  border-radius: 99px;
+  background: #f1e9dc;
+  border: none;
+}
+
+.curseur-pourcentage::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2683a;
+  border: 3px solid #fffdf9;
+  box-shadow: 0 1px 4px rgb(58 46 38 / 0.28);
+}
+
+/* Boussole Relation : pied de page d'impression, caché à l'écran. */
+.pied-boussole {
+  display: none;
+}
+
+@media print {
+  @page boussole {
+    size: A4;
+    margin: 14mm 14mm 20mm;
+
+    @bottom-center {
+      content: "Magic Humans · www.magichumans.com";
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 10pt;
+      color: #6b5d4e;
+    }
+  }
+
+  html:has(.boussole-relation) {
+    background: #fff !important;
+  }
+
+  html:has(.boussole-relation) body {
+    page: boussole;
+    background: #fff !important;
+  }
+
+  body:has(.boussole-relation) [data-chrome],
+  body:has(.boussole-relation) nav,
+  body:has(.boussole-relation) .mb-6.flex > button {
+    display: none !important;
+  }
+
+  .boussole-relation,
+  .boussole-relation .bg-paper,
+  .boussole-relation .bg-cream {
+    background: #fff;
+  }
+
+  .boussole-relation .titre-section,
+  .boussole-relation h1,
+  .boussole-relation h2,
+  .boussole-relation h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .boussole-relation .titre-section,
+  .boussole-relation .carte-resultat,
+  .boussole-relation .eviter-coupure {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Le texte du pied est dans la marge de page, pour ne pas recouvrir la dernière ligne. */
+  .pied-boussole {
+    display: none !important;
+  }
+
+  .coup-oeil-bascule,
+  .coup-oeil-radars {
+    display: none !important;
+  }
+
+  .coup-oeil-fiches {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -5,6 +5,13 @@ import { useMemo, useState } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Card, Notice, Textarea, cx } from "@/components/ui";
 import { LOVE_RESULTS, LOVE_TABLE } from "@/content/amour";
+import { coupureTitreCoupOeil } from "@/domain/coupOeil";
+import { appliquerPourcentageLocal, clePourcentage } from "@/domain/pourcentage";
+import { COULEUR_RELATION, espacesFins, type RelationLook } from "@/domain/relationApparence";
+import { useApparenceRelations } from "@/features/amour/apparenceLocale";
+import { IconeTelecharger, NomRelation } from "@/features/amour/IconeRelation";
+import { JaugeScore } from "@/features/amour/JaugeScore";
+import { usePourcentagesLocaux } from "@/features/table/pourcentageLocale";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { updateVersion } from "@/data/repository";
 import { useI18n } from "@/i18n/client";
@@ -23,7 +30,7 @@ import type {
 import { LoveReading } from "@/features/amour/LoveReading";
 import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
 import { IkigaiChart } from "./IkigaiChart";
-import { Radar } from "./Radar";
+import { CoupOeil } from "./CoupOeil";
 
 interface Props {
   version: Version;
@@ -40,6 +47,20 @@ interface Props {
   theme?: "amour";
 }
 
+function TitreCoupOeil({ titre }: { titre: string }) {
+  const parties = coupureTitreCoupOeil(titre);
+  if (!parties) return titre;
+  const [debut, fin] = parties;
+  return (
+    <>
+      {debut}
+      <br className="sm:hidden" />
+      <span className="hidden sm:inline"> </span>
+      {fin}
+    </>
+  );
+}
+
 export function ResultsView(props: Props) {
   return (
     <SaveStatusProvider>
@@ -50,21 +71,35 @@ export function ResultsView(props: Props) {
 
 function Results({ version, profileId, talent, categories, criteria, opportunities, evaluations, readOnly, isOwner, theme }: Props) {
   const love = theme === "amour";
+  const locaux = usePourcentagesLocaux();
+  const notes = useMemo(
+    () => evaluations.map((e) => appliquerPourcentageLocal(e, locaux[clePourcentage(e.criterionId, e.opportunityId)])),
+    [evaluations, locaux],
+  );
+  const relations = useApparenceRelations(opportunities, love, love && !readOnly);
   const weights = version.importanceWeights;
   const ranking = useMemo(
-    () => rankOpportunities(opportunities, criteria, evaluations, weights),
-    [opportunities, criteria, evaluations, weights],
+    () => rankOpportunities(relations, criteria, notes, weights),
+    [relations, criteria, notes, weights],
   );
   const verdict = verdictOf(ranking);
   const insights = useMemo(() => ranking.map((r) => insightOf(r, categories, weights)), [ranking, categories, weights]);
   const stability = useMemo(
-    () => rankingStability(opportunities, criteria, evaluations, categories, weights),
-    [opportunities, criteria, evaluations, categories, weights],
+    () => rankingStability(opportunities, criteria, notes, categories, weights),
+    [opportunities, criteria, notes, categories, weights],
   );
   const tableHref = `/versions/${version.id}/tableau/`;
   const { t, m, locale } = useI18n();
   const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
-  const fmt = (s: number | null) => formatScore(s, locale);
+  const fmt = (s: number | null) => {
+    const texte = formatScore(s, love ? "fr" : locale);
+    return love ? espacesFins(texte) : texte;
+  };
+  const lookDe = (id: string): RelationLook => {
+    const o = relations.find((r) => r.id === id);
+    if (o?.icon && o.color) return { icon: o.icon, color: o.color };
+    return { icon: "coeur", color: "corail" };
+  };
   // Nom d'une catégorie : le libellé de la méthode pour les catégories par défaut, sinon celui saisi.
   const categoryName = (id: string) => {
     const c = categories.find((x) => x.id === id);
@@ -74,8 +109,9 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
   if (verdict.kind === "vide") {
     if (love) {
       return (
-        <div className="space-y-12">
-          <LoveReading ranking={ranking} />
+        <div className="boussole-relation space-y-12">
+          <LoveReading ranking={ranking} lookDe={lookDe} />
+          <PiedImpression />
         </div>
       );
     }
@@ -94,9 +130,9 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
   const allFail = ranking.every((r) => r.score === null || r.status === "non_conforme");
 
   return (
-    <div className="space-y-12">
+    <div className={love ? "boussole-relation space-y-12" : "space-y-12"}>
       {!readOnly && (
-        <div className="flex justify-end">
+        <div className="flex justify-end" {...(love ? { "data-ecran-seul": "" } : {})}>
           <SaveIndicator />
         </div>
       )}
@@ -106,39 +142,63 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
         <h2 id="verdict" className="sr-only">
           {R.verdict}
         </h2>
-        <Card className="space-y-4 border-accent/30 bg-blush/50">
-          <p className="font-serif text-2xl italic leading-snug sm:text-3xl">
+        <Card className={cx("space-y-4 border-accent/30 bg-blush/50", love && "text-center")}>
+          <p className={cx("font-serif text-2xl italic leading-snug sm:text-3xl", love && "text-balance")}>
             {verdict.kind === "seule" && (
               <>
-                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
-                {R.onlyOne(fmt(leader.score))}
+                {love ? (
+                  <NomRelation nom={leader.opportunity.name} look={lookDe(leader.opportunity.id)} className="font-sans font-semibold not-italic" />
+                ) : (
+                  <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                )}
+                {love ? espacesFins(R.onlyOne(fmt(leader.score))) : R.onlyOne(fmt(leader.score))}
               </>
             )}
             {verdict.kind === "en_tete" && (
               <>
-                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
-                {R.leads(fmt(leader.score))}
-                <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b>
-                {R.leadsEnd(fmt(verdict.runnerUp.score))}
+                {love ? (
+                  <NomRelation nom={leader.opportunity.name} look={lookDe(leader.opportunity.id)} className="font-sans font-semibold not-italic" />
+                ) : (
+                  <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                )}
+                {love ? espacesFins(R.leads(fmt(leader.score))) : R.leads(fmt(leader.score))}
+                {love ? (
+                  <NomRelation nom={verdict.runnerUp.opportunity.name} look={lookDe(verdict.runnerUp.opportunity.id)} className="font-sans font-semibold not-italic" />
+                ) : (
+                  <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b>
+                )}
+                {love ? espacesFins(R.leadsEnd(fmt(verdict.runnerUp.score))) : R.leadsEnd(fmt(verdict.runnerUp.score))}
               </>
             )}
             {verdict.kind === "coude_a_coude" && (
               <>
-                <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                {love ? (
+                  <NomRelation nom={leader.opportunity.name} look={lookDe(leader.opportunity.id)} className="font-sans font-semibold not-italic" />
+                ) : (
+                  <b className="font-sans font-semibold not-italic">{leader.opportunity.name}</b>
+                )}
                 {R.and}
-                <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b>
-                {R.tie(fmt(leader.score), fmt(verdict.runnerUp.score))}
+                {love ? (
+                  <NomRelation nom={verdict.runnerUp.opportunity.name} look={lookDe(verdict.runnerUp.opportunity.id)} className="font-sans font-semibold not-italic" />
+                ) : (
+                  <b className="font-sans font-semibold not-italic">{verdict.runnerUp.opportunity.name}</b>
+                )}
+                {love ? espacesFins(R.tie(fmt(leader.score), fmt(verdict.runnerUp.score))) : R.tie(fmt(leader.score), fmt(verdict.runnerUp.score))}
               </>
             )}
           </p>
           {allFail && <Notice tone="error">{R.allFail}</Notice>}
-          <p className="text-sm text-ink-soft">{R.compassNote}</p>
+          <p className={cx("text-sm text-ink-soft", love && "text-pretty")}>{love ? espacesFins(R.compassNote) : R.compassNote}</p>
         </Card>
 
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {ranking.map((r, i) => (
-            <li key={r.opportunity.id} className="rounded-2xl border border-line bg-paper p-4">
-              <div className="flex items-baseline justify-between gap-3">
+        <ol id="cartes-resultats" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {ranking.map((r, i) =>
+            love ? (
+              <li
+                key={r.opportunity.id}
+                className="carte-resultat rounded-2xl border border-line bg-paper p-4 text-center"
+                style={{ borderTop: `3px solid ${COULEUR_RELATION[lookDe(r.opportunity.id).color]}` }}
+              >
                 <span
                   className={cx(
                     "rounded-full px-2 py-0.5 text-xs",
@@ -147,16 +207,37 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
                 >
                   {r.score === null ? R.notRated : t.table.rank(i + 1)}
                 </span>
-                <span className="font-serif text-3xl italic">{fmt(r.score)}</span>
-              </div>
-              <p className="mt-1 font-semibold leading-snug">{r.opportunity.name}</p>
-              <StatusBadges result={r} love={love} />
-            </li>
-          ))}
+                <p className="mt-2 flex items-center justify-center gap-1.5 text-balance font-semibold leading-snug">
+                  <NomRelation nom={r.opportunity.name} look={lookDe(r.opportunity.id)} />
+                </p>
+                <p className="mt-1 font-serif text-3xl italic tabular-nums">{fmt(r.score)}</p>
+                {r.score !== null && <JaugeScore valeur={r.score} />}
+                <div className="flex justify-center">
+                  <StatusBadges result={r} love={love} />
+                </div>
+              </li>
+            ) : (
+              <li key={r.opportunity.id} className="rounded-2xl border border-line bg-paper p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span
+                    className={cx(
+                      "rounded-full px-2 py-0.5 text-xs",
+                      i === 0 && r.score !== null ? "bg-sage-soft text-sage" : "bg-sand text-ink-soft",
+                    )}
+                  >
+                    {r.score === null ? R.notRated : t.table.rank(i + 1)}
+                  </span>
+                  <span className="font-serif text-3xl italic">{fmt(r.score)}</span>
+                </div>
+                <p className="mt-1 font-semibold leading-snug">{r.opportunity.name}</p>
+                <StatusBadges result={r} love={love} />
+              </li>
+            ),
+          )}
         </ol>
       </section>
 
-      {love && <LoveReading ranking={ranking} />}
+      {love && <LoveReading ranking={ranking} lookDe={lookDe} />}
 
       {/* 2. Contexte de réussite / contexte d'échec ----------------------------------------- */}
       {!love && <section aria-labelledby="contextes" className="space-y-4">
@@ -202,19 +283,29 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
         </div>
       </section>}
 
-      {/* 4. Radar ------------------------------------------------------------------------------ */}
-      <section aria-labelledby="radar" className="space-y-4">
-        <SectionTitle id="radar" title={R.radarTitle}>
-          {R.radarIntro}
-        </SectionTitle>
-        <Card>
-          <Radar
+      {/* 4. Coup d'œil ----------------------------------------------------------------------- */}
+      <section aria-labelledby="coup-oeil" className="space-y-4">
+        <div className={love ? "space-y-4" : "contents"}>
+          <div className="titre-section text-center">
+            <h2 id="coup-oeil" className="text-center text-[34px] italic leading-tight sm:text-[44px]">
+              <TitreCoupOeil titre={R.radarTitle} />
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-center text-ink-soft">{love ? espacesFins(R.radarIntro) : R.radarIntro}</p>
+          </div>
+          <CoupOeil
             categories={categories}
-            opportunities={opportunities}
+            opportunities={relations}
             results={ranking}
-            caption={love ? R.radarCaption : undefined}
+            love={love}
+            labels={{
+              radars: R.viewRadars,
+              fiches: R.viewFiches,
+              caption: R.radarCaption,
+              category: R.category,
+              global: R.globalWord,
+            }}
           />
-        </Card>
+        </div>
       </section>
 
       {/* 5. Questions à poser ------------------------------------------------------------------ */}
@@ -264,13 +355,33 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
 
       {/* 9. Pour aller plus loin : la Carte du Talent -------------------------------------- */}
       {!love && !readOnly && <CarteDuTalentLink talent={talent} />}
+
+      {love && (
+        <>
+          <div data-ecran-seul className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 rounded-full border border-corail/40 bg-paper px-5 py-2.5 text-[15px] font-medium text-corail hover:bg-corail-soft"
+            >
+              <IconeTelecharger />
+              {LOVE_RESULTS.downloadPdf}
+            </button>
+          </div>
+          <PiedImpression />
+        </>
+      )}
     </div>
   );
 }
 
+function PiedImpression() {
+  return <p className="pied-boussole">{LOVE_RESULTS.printFooter}</p>;
+}
+
 function SectionTitle({ id, title, children }: { id: string; title: string; children?: React.ReactNode }) {
   return (
-    <div>
+    <div className="titre-section">
       <h2 id={id} className="text-3xl italic">
         {title}
       </h2>
@@ -302,8 +413,11 @@ function StatusBadges({ result, love }: { result: OpportunityResult; love: boole
 
 /** Libellé de la valeur évaluée, dans la langue choisie. */
 function useValueLabel() {
-  const { m } = useI18n();
-  return (d: CriterionResult) => (d.value ? m.evaluationLabels[d.criterion.direction][d.value] : "");
+  const { m, locale } = useI18n();
+  return (d: CriterionResult) => {
+    if (typeof d.percent === "number") return formatScore(d.percent, locale);
+    return d.value ? m.evaluationLabels[d.criterion.direction][d.value] : "";
+  };
 }
 
 function ItemList({ items, empty }: { items: CriterionResult[]; empty?: string }) {
@@ -552,7 +666,7 @@ function Feelings({
   const [note, setNote] = useAutosavedValue(version.projectionNote, (projectionNote) => updateVersion(db, version.id, { projectionNote }));
 
   return (
-    <section aria-labelledby="ressenti" className="space-y-4">
+    <section aria-labelledby="ressenti" className={cx("space-y-4", love && "eviter-coupure")}>
       <SectionTitle id="ressenti" title={R.feelingsTitle}>
         {R.feelingsIntro}
       </SectionTitle>
