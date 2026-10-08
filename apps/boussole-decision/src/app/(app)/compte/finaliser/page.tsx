@@ -3,8 +3,8 @@ import { getI18n } from "@/i18n/server";
 import Link from "next/link";
 import { Card, Notice, PageTitle } from "@/components/ui";
 import { NewPasswordForm } from "@/features/auth/forms";
-import { listProfiles } from "@/data/repository";
-import { uniquementAmour } from "@/domain/editionAmour";
+import { listProfiles, listVersionsForUser } from "@/data/repository";
+import { lienMesProfils, uniquementAmour } from "@/domain/editionAmour";
 import { LoveChrome } from "@/features/amour/LoveChrome";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
@@ -16,7 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function FinalizeAccountPage() {
   const user = await requireUser();
   const a = (await getI18n()).t.auth;
-  const amour = uniquementAmour(await listProfiles(await supabaseServer(), user.id));
+  const db = await supabaseServer();
+  const [profiles, versions] = await Promise.all([listProfiles(db, user.id), listVersionsForUser(db, user.id)]);
+  const amour = uniquementAmour(profiles);
   return (
     <>
       {amour && <LoveChrome />}
@@ -30,7 +32,7 @@ export default async function FinalizeAccountPage() {
           <p className="text-[15px] text-ink-soft">{a.orMagicLink}</p>
           <NewPasswordForm />
         </Card>
-        <Link href="/" className="text-link underline underline-offset-4">
+        <Link href={lienMesProfils(profiles, versions)} className="text-link underline underline-offset-4">
           {a.findMyCompasses}
         </Link>
       </div>
