@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { Button, Card, Input } from "@/components/ui";
 import type { ErreurChamp } from "@/domain/maCible/entree";
 import { LIMITES } from "@/domain/maCible/limites";
@@ -13,6 +13,63 @@ import { RappelConfidentialite } from "./Confidentialite";
 import { Icone } from "./Icones";
 
 const entrees = <T extends string>(o: Record<T, string>) => (Object.keys(o) as T[]).map((valeur) => ({ valeur, label: o[valeur] }));
+
+function hauteurZone(el: HTMLTextAreaElement) {
+  el.style.height = "auto";
+  const bordure = el.offsetHeight - el.clientHeight;
+  el.style.height = `${el.scrollHeight + bordure}px`;
+}
+
+function ZoneIdee({
+  id,
+  valeur,
+  placeholder,
+  label,
+  retirerLabel,
+  onValeur,
+  onRetirer,
+}: {
+  id?: string;
+  valeur: string;
+  placeholder: string;
+  label: string;
+  retirerLabel: string;
+  onValeur: (v: string) => void;
+  onRetirer: () => void;
+}) {
+  const zone = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = zone.current;
+    if (!el) return;
+    hauteurZone(el);
+  }, [valeur]);
+  return (
+    <div className="flex items-start gap-2">
+      <textarea
+        ref={zone}
+        id={id}
+        rows={2}
+        value={valeur}
+        maxLength={LIMITES.ciblesEnTete.max}
+        placeholder={placeholder}
+        aria-label={label}
+        onChange={(e) => {
+          hauteurZone(e.target);
+          onValeur(e.target.value);
+        }}
+        className="min-h-[4.5rem] w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl border border-ink/20 bg-paper px-4 py-2.5 text-[16px] leading-relaxed text-ink placeholder:text-ink-soft/70 focus:border-accent-strong focus:outline-none focus:ring-2 focus:ring-accent/25"
+      />
+      <button
+        type="button"
+        aria-label={retirerLabel}
+        onClick={onRetirer}
+        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-sand hover:text-ink"
+      >
+        <Icone nom="croix" className="size-5" />
+      </button>
+    </div>
+  );
+}
 
 export function EtapeTerrain({
   terrain,
@@ -165,33 +222,22 @@ export function EtapeTerrain({
         <ul className="space-y-3">
           {(terrain.ciblesEnTete.length === 0 ? [""] : terrain.ciblesEnTete).map((valeur, i) => (
             <li key={i} className="space-y-1">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <Input
-                  id={i === 0 ? idChamp("terrain.ciblesEnTete") : undefined}
-                  value={valeur}
-                  maxLength={LIMITES.ciblesEnTete.max}
-                  placeholder={T.idees.placeholder}
-                  aria-label={`${T.idees.titre} ${i + 1}`}
-                  onChange={(e) => {
-                    const base = terrain.ciblesEnTete.length === 0 ? [""] : [...terrain.ciblesEnTete];
-                    base[i] = e.target.value;
-                    onChange({ ciblesEnTete: base });
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="shrink-0 max-sm:w-full"
-                  aria-label={T.idees.retirerAide}
-                  onClick={() => {
-                    const base = terrain.ciblesEnTete.length === 0 ? [""] : terrain.ciblesEnTete;
-                    onChange({ ciblesEnTete: base.filter((_, j) => j !== i) });
-                  }}
-                >
-                  <Icone nom="croix" className="size-4 shrink-0" />
-                  {T.idees.retirer}
-                </Button>
-              </div>
+              <ZoneIdee
+                id={i === 0 ? idChamp("terrain.ciblesEnTete") : undefined}
+                valeur={valeur}
+                placeholder={T.idees.placeholder}
+                label={`${T.idees.titre} ${i + 1}`}
+                retirerLabel={T.idees.retirerAide}
+                onValeur={(v) => {
+                  const base = terrain.ciblesEnTete.length === 0 ? [""] : [...terrain.ciblesEnTete];
+                  base[i] = v;
+                  onChange({ ciblesEnTete: base });
+                }}
+                onRetirer={() => {
+                  const base = terrain.ciblesEnTete.length === 0 ? [""] : terrain.ciblesEnTete;
+                  onChange({ ciblesEnTete: base.filter((_, j) => j !== i) });
+                }}
+              />
               {i === 0 && (
                 <p className="text-sm text-ink-soft">
                   {M.commun.exemplePrefix}

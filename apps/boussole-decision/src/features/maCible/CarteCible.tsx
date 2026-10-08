@@ -6,7 +6,7 @@ import { GRILLE, type CleCritere, type LigneClassement } from "@/domain/maCible/
 import type { Cible } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
-import { LiensLieu } from "./LiensLieu";
+import { EncartAnnuaires, LiensLieu } from "./LiensLieu";
 import { texteCible } from "./export";
 import { remplacerPrenom } from "./liens";
 
@@ -238,7 +238,7 @@ export function CarteCible({
           <Detail id={`cible-${rang}-lieux`} titre={R.blocs.lieux} ouvert={ouvert(`cible-${rang}-lieux`)} onOuvert={onOuvert}>
             <ul className="space-y-3">
               {cible.lieux.map((l) => (
-                <li key={l.type} className="flex flex-col gap-3 text-[16px] sm:flex-row sm:items-start sm:justify-between">
+                <li key={l.type} className="flex flex-col items-start gap-2 text-[16px] sm:flex-row sm:justify-between">
                   <div>
                     <strong>{l.type}</strong>
                     <br />
@@ -263,6 +263,7 @@ export function CarteCible({
               ))}
             </ul>
             <p className="text-sm italic text-ink-soft">{R.lieuxNote}</p>
+            <EncartAnnuaires M={M} />
           </Detail>
 
           <Detail id={`cible-${rang}-linkedin`} titre={R.blocs.linkedin} ouvert={ouvert(`cible-${rang}-linkedin`)} onOuvert={onOuvert}>

@@ -17,7 +17,9 @@ describe("annuaires de salons", () => {
     expect(src).toContain('rel="noopener noreferrer"');
     expect(src).not.toContain("salonsenfrance");
     expect(src).not.toContain("eventseye.com");
+    expect(maCible.fr.resultat.annuairesIntro).toBe("Pour voir tous les salons à venir :");
     expect(maCible.fr.resultat.annuaireSalons).toBe("Voir l'annuaire des salons");
+    expect(maCible.fr.esquisse.pourquoiPas).toBe("Pourquoi pas dans tes 3 cibles :");
     expect(maCible.fr.resultat.salonsInternational).toBe("Salons à l'international");
     expect(maCible.fr.resultat.chercherGoogle).toBe("Chercher sur Google");
   });

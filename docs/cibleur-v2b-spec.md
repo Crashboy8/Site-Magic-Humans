@@ -91,7 +91,7 @@ Ordre final de l'écran : offre, marché, expérience, clients passés, formats,
 #### Bloc A « Tes idées de cibles » (couleur miel, icône `cible`)
 - Titre : « Tu as déjà des cibles en tête ? » + « (facultatif) ».
 - Aide : « Écris-les, une par ligne. L'IA les étudie toutes et te dit lesquelles creuser en premier. »
-- 1 champ texte au départ, bouton « Ajouter une idée » jusqu'à 8. Chaque champ a un bouton « Retirer » (icône croix, `aria-label="Retirer cette idée"`).
+- 1 zone de texte au départ, bouton « Ajouter une idée » jusqu'à 8. Chaque zone grandit avec le contenu (2 lignes visibles au minimum, le texte n'est jamais coupé). À sa droite, sur la même ligne, un bouton icône × de 44 px (`aria-label="Retirer cette idée"`).
 - Placeholder : « Par exemple : les militaires qui quittent l'armée ». Exemple sous le premier champ : « Exemple : les cadres de 35 à 55 ans qui veulent changer de métier. »
 - Limites : 8 idées, 120 caractères chacune (compteur affiché à partir de 100). Les champs vides sont ignorés à l'envoi. Doublons (casse ignorée) retirés par `normaliserListe`.
 - Une modification d'idée est une modification du terrain (invalide le cadrage, marque le résultat périmé).
@@ -132,7 +132,7 @@ Seul le prompt change (§8.3) : l'IA pose moins de questions quand la synthèse 
 ### 4.4 Étape 4 « Ça te ressemble ? »
 - Sur chaque cible issue d'une idée (`depuisIdees` non vide) : pastille miel « Ton idée ».
 - Nouvelle section après « Qui éviter » et avant « Ce que l'IA a supposé » : « Tes autres pistes » (icône `couches`, couleur miel). Intro : « L'IA les garde sous le coude. Tu pourras les creuser une fois ton résultat prêt. »
-- Chaque piste : nom, pastille B2B ou B2C, pastille « Ton idée » si besoin, `enUneLigne`, puis « Pourquoi pas dans les trois : » + `raison`. Bouton tertiaire « Je la préfère » : remplit le champ « Une cible à laquelle tu penses et qui manque ? » avec « Je préfère cette piste : [nom]. », fait défiler jusqu'à ce champ et y place le focus. Le reste du mécanisme (verdicts, nouvelle esquisse) ne change pas.
+- Chaque piste : nom, pastille B2B ou B2C, pastille « Ton idée » si besoin, `enUneLigne`, puis « Pourquoi pas dans tes 3 cibles : » + `raison`. Bouton tertiaire « Je la préfère » : remplit le champ « Une cible à laquelle tu penses et qui manque ? » avec « Je préfère cette piste : [nom]. », fait défiler jusqu'à ce champ et y place le focus. Le reste du mécanisme (verdicts, nouvelle esquisse) ne change pas.
 - Section masquée si `autresPistes` est vide.
 
 ### 4.5 Écran d'attente du résultat : un message de plus
@@ -145,7 +145,7 @@ Ordre des sections (nouveautés en gras) :
 3. Les 3 cartes cibles. Dans chaque carte, ordre des blocs : Qui c'est, Sa douleur probable, **Ce que disent tes clients**, Ce que ton talent lui apporte, Ta promesse, Ton offre pour elle, Ton pitch, Pourquoi cette cible, Un cas imaginé, Où la rencontrer, Ta recherche LinkedIn, Ton premier message, Ton test terrain, **Son portrait complet**.
    - Pastille miel « Ton idée » dans l'en-tête si `depuisIdees` n'est pas vide.
    - **Ce que disent tes clients** (ancre `#cible-1-clients`, icône `bulle`, couleur lilas) : seulement si `verbatims` n'est pas vide. Citations reprises de la synthèse par leur identifiant, pastille « Tiré de tes notes ». Un identifiant qui n'existe plus (phrase retirée depuis) n'est pas affiché.
-   - **Où la rencontrer** : chaque lieu gagne un bouton « Chercher sur Google » (icône `loupe`) qui ouvre `https://www.google.com/search?q=` + `encodeURIComponent(recherche)` dans un nouvel onglet (`target="_blank" rel="noopener noreferrer"`). À côté, un deuxième lien « Voir l'annuaire des salons » vers l'annuaire français, et un lien secondaire « Salons à l'international ». Les trois ont une icône sur la même ligne que le texte, le même style de bouton (le lien international est plus petit), `target="_blank" rel="noopener noreferrer"`, et sont masqués à l'impression (`data-ecran-seul`). Les deux adresses d'annuaires vivent dans une seule constante, `ANNUAIRES_SALONS` (`src/domain/maCible/annuaires.ts`) : `france` = `https://salonsenfrance.fr/` (recherche par secteur, ville et date ; le site répond 403 aux robots, il s'ouvre dans un navigateur) et `international` = `https://www.eventseye.com/fairs/c1_trade-shows_france.html`. On ne recopie pas ces adresses ailleurs. La note existante « Ce sont des types de lieux… » reste.
+   - **Où la rencontrer** : chaque lieu a un seul bouton compact « Chercher sur Google » (icône `loupe` sur la même ligne que le texte) qui ouvre `https://www.google.com/search?q=` + `encodeURIComponent(recherche)` dans un nouvel onglet (`target="_blank" rel="noopener noreferrer"`). Les annuaires ne se répètent pas sous chaque lieu : un petit encart en bas de la section, « Pour voir tous les salons à venir : », montre une seule fois « Voir l'annuaire des salons » et « Salons à l'international », côte à côte à partir de 640 px, empilés sur mobile, icône sur la même ligne. Ces liens et le bouton Google sont masqués à l'impression (`data-ecran-seul`). Les deux adresses vivent dans une seule constante, `ANNUAIRES_SALONS` (`src/domain/maCible/annuaires.ts`) : `france` = `https://salonsenfrance.fr/` (recherche par secteur, ville et date ; le site répond 403 aux robots, il s'ouvre dans un navigateur) et `international` = `https://www.eventseye.com/fairs/c1_trade-shows_france.html`. On ne recopie pas ces adresses ailleurs. La note existante « Ce sont des types de lieux… » reste.
    - **Son portrait complet** (ancre `#cible-1-portrait`) : §4.7.
 4. **« D'autres pistes »** (ancre `#pistes`, couleur miel, icône `couches`) : §4.8.
 5. **« Pistes creusées »** (ancres `#piste-p1`, `#piste-p2`…) : une carte cible complète par piste creusée, même composant `CarteCible`, avec le rang affiché « Piste creusée » au lieu de « Cible prioritaire ». Repliée par défaut, sauf celle qui vient d'arriver. Le portrait y est déjà affiché.
@@ -184,7 +184,7 @@ Le portrait reste attaché au résultat (stockage §14). Pas de bouton « Refair
 
 ### 4.8 Section « D'autres pistes »
 - Titre « D'autres pistes », intro : « Moins prioritaires d'après l'IA, mais à garder en tête. Creuse celles qui t'attirent : l'IA en fait une cible complète, avec son portrait. »
-- Une carte par piste, triées par score pressenti décroissant : nom, pastille B2B ou B2C, pastille « Ton idée » si besoin, score pressenti « 6,1/10 » avec la pastille « Estimation de l'IA », `enUneLigne`, « Pourquoi pas dans les trois : » + `raison`, mini-barres des 4 notes (§15.3).
+- Une carte par piste, triées par score pressenti décroissant : nom, pastille B2B ou B2C, pastille « Ton idée » si besoin, score pressenti « 6,1/10 » avec la pastille « Estimation de l'IA », `enUneLigne`, « Pourquoi pas dans tes 3 cibles : » + `raison`, mini-barres des 4 notes (§15.3).
 - Si plaisir ≤ 2 : « Attention : ton talent risque de s'y user. »
 - Bouton « Creuser cette piste » ; dessous : « Environ 1 minute. Compte pour 1 approfondissement. »
 - Après 3 pistes creusées, les autres boutons sont désactivés avec : « Tu as creusé 3 pistes, c'est le maximum pour un résultat. »
@@ -897,7 +897,7 @@ Textes de la page Boussole (`src/content/depuisCibleur.ts`) :
 - échec : « La création n'a pas marché. Réessaie dans un instant. »
 - retour : « Retourner au Cibleur »
 
-Libellés nouveaux, récapitulatif (tous déjà cités plus haut) : « Ton idée », « Tes autres pistes », « D'autres pistes », « Pistes creusées », « Piste creusée », « Pourquoi pas dans les trois : », « Je la préfère », « Creuser cette piste », « Voir la piste creusée », « Score pressenti », « Ce que disent tes clients », « Tiré de tes notes », « Imaginé par l'IA », « Son portrait complet », « Faire son portrait complet », « Copier ce portrait », « Chercher sur Google », « Voir l'annuaire des salons », « Salons à l'international », « Comparer dans la Boussole », « Comparer mes cibles dans la Boussole ». Entrées du sommaire : « Ce que disent tes clients », « Son portrait », « D'autres pistes ».
+Libellés nouveaux, récapitulatif (tous déjà cités plus haut) : « Ton idée », « Tes autres pistes », « D'autres pistes », « Pistes creusées », « Piste creusée », « Pourquoi pas dans tes 3 cibles : », « Pour voir tous les salons à venir : », « Je la préfère », « Creuser cette piste », « Voir la piste creusée », « Score pressenti », « Ce que disent tes clients », « Tiré de tes notes », « Imaginé par l'IA », « Son portrait complet », « Faire son portrait complet », « Copier ce portrait », « Chercher sur Google », « Voir l'annuaire des salons », « Salons à l'international », « Comparer dans la Boussole », « Comparer mes cibles dans la Boussole ». Entrées du sommaire : « Ce que disent tes clients », « Son portrait », « D'autres pistes ».
 
 ---
 
