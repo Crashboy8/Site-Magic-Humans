@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
+import { ESPACE } from "@/content/espace";
 import { useI18n } from "@/i18n/client";
 import {
   type AuthState,
@@ -17,17 +18,31 @@ import {
 
 const initial: AuthState = {};
 
-export function SignInForm({ linkError }: { linkError?: boolean }) {
+function avecSuite(chemin: string, suite?: string) {
+  return suite ? `${chemin}?suite=${encodeURIComponent(suite)}` : chemin;
+}
+
+function ChampSuite({ suite }: { suite?: string }) {
+  if (!suite) return null;
+  return <input type="hidden" name="suite" value={suite} />;
+}
+
+function varianteEspace(suite?: string) {
+  return Boolean(suite?.startsWith("/mon-espace"));
+}
+
+export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: string }) {
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
   const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
   const t = useI18n().t.auth;
+  const espace = varianteEspace(suite);
 
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">{t.welcomeBack}</h1>
-        <p className="mt-1 text-ink-soft">{t.signInIntro}</p>
+        <h1 className="text-3xl italic">{espace ? ESPACE.connexion.titre : t.welcomeBack}</h1>
+        <p className="mt-1 text-ink-soft">{espace ? ESPACE.connexion.texte : t.signInIntro}</p>
       </div>
 
       {linkError && <Notice tone="error">{t.linkInvalid}</Notice>}
@@ -54,6 +69,7 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
 
       {mode === "password" ? (
         <form action={pwAction} className="space-y-4">
+          <ChampSuite suite={suite} />
           <Field label={t.email} htmlFor="email">
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </Field>
@@ -72,6 +88,7 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
         </form>
       ) : (
         <form action={mlAction} className="space-y-4">
+          <ChampSuite suite={suite} />
           <Field label={t.email} htmlFor="ml-email" hint={t.magicHint}>
             <Input id="ml-email" name="email" type="email" autoComplete="email" required />
           </Field>
@@ -85,18 +102,19 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
 
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         {t.noAccountYet}{" "}
-        <Link href="/inscription/" className="font-medium text-link underline underline-offset-4">
-          {t.createAccount}
+        <Link href={avecSuite("/inscription/", suite)} className="font-medium text-link underline underline-offset-4">
+          {espace ? ESPACE.connexion.creer : t.createAccount}
         </Link>
       </p>
     </Card>
   );
 }
 
-export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
+export function SignUpForm({ initialCode = "", suite }: { initialCode?: string; suite?: string }) {
   const [state, action, pending] = useActionState(signUpAction, initial);
   const fe = state.fieldErrors ?? {};
   const t = useI18n().t.auth;
+  const espace = varianteEspace(suite);
 
   if (state.message) {
     return (
@@ -111,10 +129,11 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">{t.signUpTitle}</h1>
-        <p className="mt-1 text-ink-soft">{t.signUpIntro}</p>
+        <h1 className="text-3xl italic">{espace ? ESPACE.connexion.titre : t.signUpTitle}</h1>
+        <p className="mt-1 text-ink-soft">{espace ? ESPACE.connexion.texte : t.signUpIntro}</p>
       </div>
       <form action={action} className="space-y-4" noValidate>
+        <ChampSuite suite={suite} />
         <Field label={t.inviteCode} htmlFor="code" error={fe.code}>
           <Input
             id="code"
@@ -144,8 +163,8 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
       </form>
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         {t.alreadyRegistered}{" "}
-        <Link href="/connexion/" className="font-medium text-link underline underline-offset-4">
-          {t.signIn}
+        <Link href={avecSuite("/connexion/", suite)} className="font-medium text-link underline underline-offset-4">
+          {espace ? ESPACE.connexion.connecter : t.signIn}
         </Link>
       </p>
     </Card>

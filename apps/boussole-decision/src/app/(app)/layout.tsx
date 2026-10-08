@@ -27,6 +27,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <span className="font-serif text-xl italic leading-none sm:text-2xl">{c.appName}</span>
           </Link>
           <nav aria-label={c.mainNav} className="-mx-2 flex flex-wrap items-center gap-0.5 text-sm sm:mx-0 sm:gap-1 sm:text-[15px]">
+            <Link href="/mon-espace/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
+              {c.mySpace}
+            </Link>
             <Link href="/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
               {c.myProfiles}
             </Link>

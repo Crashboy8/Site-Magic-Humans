@@ -30,6 +30,21 @@
       "source": "/ma-cible/:path*",
       "destination": "/boussole-decision/ma-cible/",
       "permanent": false
+    },
+    {
+      "source": "/mon-espace",
+      "destination": "/boussole-decision/mon-espace/",
+      "permanent": false
+    },
+    {
+      "source": "/mon-espace/",
+      "destination": "/boussole-decision/mon-espace/",
+      "permanent": false
+    },
+    {
+      "source": "/mon-espace/:path*",
+      "destination": "/boussole-decision/mon-espace/",
+      "permanent": false
     }
   ],
   "rewrites": [
