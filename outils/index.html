@@ -53,8 +53,9 @@
   .outils-btn:hover{filter:brightness(.94)}
   .outils-carte--miel .outils-btn{color:var(--ink)}
   .outils-carte--miel .outils-btn:hover{filter:brightness(.97)}
-  .outils-appel{margin-top:14px;background:#fff;border:1px solid #F0D2C6;border-radius:14px;padding:16px}
-  .outils-appel p{margin:0 0 12px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(22px,4vw,28px);line-height:1.25;color:var(--ink)}
+  .outils-appel{margin-top:14px;background:#fff;border:1px solid #F0D2C6;border-radius:14px;padding:16px;text-align:center}
+  .outils-appel p{margin:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(22px,4vw,28px);line-height:1.25;color:var(--ink)}
+  .outils-appel-detail{margin:4px 0 14px !important;font-family:inherit !important;font-style:normal !important;font-size:16.5px !important;line-height:1.4 !important;color:var(--ink-soft) !important}
   .outils-appel .btn{min-height:44px}
   @media (max-width:480px){
     body.page-outils .wrap{padding-left:16px;padding-right:16px}
@@ -131,7 +132,7 @@
           <span class="outils-pastille" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m14.8 9.2-1.1 3.4-3.4 1.1 1.1-3.4z"/></svg></span>
           <h2 data-en="Decision Compass">Boussole de décision</h2>
         </div>
-        <p data-en="Hesitating between several paths? Compare them with your own criteria.">Tu hésites entre plusieurs pistes ? Compare les avec tes propres critères.</p>
+        <p data-en="Hesitating between several paths? Compare them with your own criteria.">Tu hésites entre plusieurs pistes ? Choisis selon ce qui compte vraiment pour toi.</p>
         <a class="outils-btn" href="/boussole-decision/" data-en="Open the Compass">Ouvrir la Boussole</a>
       </li>
       <li class="outils-carte" style="--accent:#4F7A52;--accent-fond:#E7F3E8;--accent-bord:#D3E6D4;">
@@ -144,7 +145,8 @@
       </li>
     </ol>
     <aside class="outils-appel">
-      <p data-en="Want to talk it over? Discovery call, 1 hour, free.">Envie d'en parler ? Appel Découverte, 1 heure, offert.</p>
+      <p data-en="Want to talk it over?">Envie d'en parler ?</p>
+      <p class="outils-appel-detail" data-en="Discovery call, 1 hour, free.">Appel Découverte, 1&nbsp;heure, offert.</p>
       <a class="btn btn-orange" href="https://calendly.com/pierre-j-sarazin?utm_source=site&amp;utm_medium=outils&amp;utm_campaign=outils" data-en="Talk it over with Pierre" data-cta-place="outils">En parler avec Pierre</a>
     </aside>
   </div>
