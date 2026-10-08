@@ -523,8 +523,9 @@ function CriterionCell({
     criterion.label,
     (v) => onPatch({ label: v.trim() || criterion.label }, true) as Promise<void>,
   );
-  const { t, m } = useI18n();
-  const T = t.table;
+  const { m } = useI18n();
+  const T = useTableTexts();
+  const love = useContext(LoveTableContext);
   const importance = m.importanceByValue[criterion.importance];
 
   if (readOnly) {
@@ -579,7 +580,7 @@ function CriterionCell({
           on={criterion.nonNegotiable}
           onClick={() => onPatch({ nonNegotiable: !criterion.nonNegotiable })}
           onClass="bg-danger-soft text-danger border-transparent"
-          title={m.nonNegotiableHint}
+          title={love ? LOVE_TABLE.nonNegotiableHint : m.nonNegotiableHint}
         >
           {T.nonNegotiable}
         </Toggle>

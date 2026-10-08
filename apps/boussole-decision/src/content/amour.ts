@@ -190,6 +190,7 @@ export const LOVE_TABLE = {
   failsNonNegotiables: "À regarder : un non-négociable n'est pas pleinement respecté",
   redLine: "Signal d'incompatibilité à clarifier",
   legendNonNegotiableText: " : s'il n'est pas pleinement respecté, la relation est signalée et classée après les autres",
+  nonNegotiableHint: "Non négociable : si ce n'est pas pleinement le cas, la relation est signalée et classée après les autres.",
 } as const;
 
 /**
@@ -199,6 +200,7 @@ export const LOVE_TABLE = {
 export const LOVE_RESULTS = {
   intro:
     "Ta lecture, tes alertes et ton score d'alignement pour chaque relation. Tout se met à jour quand tu modifies ton tableau.",
+  badgeNonNegotiable: "🔒 Un besoin essentiel à regarder",
   radarTitle: "Le radar de tes relations",
   radarIntro:
     "Le score de chaque relation, famille de critères par famille : plus la forme est grande, plus la relation te correspond.",
@@ -207,4 +209,7 @@ export const LOVE_RESULTS = {
   disappointmentHint:
     "Ton intuition te dit peut-être quelque chose que tes critères ne disent pas encore. Vers quelle autre relation ton cœur est-il parti ?",
   forWhich: "Pour quelle relation ?",
+  onlyOne: (score: string) => ` est la seule relation évaluée pour l'instant : ${score} d'alignement.`,
+  allFail:
+    "Aucune relation ne respecte pour l'instant tous tes besoins essentiels. Prends le temps de regarder lesquels comptent vraiment pour toi, et si l'un d'eux peut s'assouplir.",
 } as const;

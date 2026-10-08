@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Notice } from "@/components/ui";
 import { isLoveProfile, LOVE_TABLE, LOVE_TEXTS } from "@/content/amour";
+import { LoveChrome } from "@/features/amour/LoveChrome";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
 import { LoveGuide } from "@/features/amour/LoveGuide";
 import { getI18n } from "@/i18n/server";
@@ -32,6 +33,7 @@ export default async function TablePage({ params }: PageProps<"/versions/[versio
 
   return (
     <>
+      {love && <LoveChrome />}
       <VersionHeader ctx={ctx} />
       <StepsNav versionId={versionId} current="tableau" />
 

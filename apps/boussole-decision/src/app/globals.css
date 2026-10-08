@@ -19,6 +19,7 @@
   --color-danger-soft: #f8e3dd;
   --color-sky-soft: #e8f5fc; /* bleu ciel, fonds uniquement */
   --color-sky-line: #bfe3f5; /* bleu ciel, bordures uniquement */
+  --color-ciel: #147086; /* bleu ciel, texte sur crème : 5,3:1 */
   --color-lilas: #5f3f8f;
   --color-lilas-soft: #f1eafa;
   --color-corail: #a8431a;
@@ -95,6 +96,19 @@ h3 {
 
 /* Mode « séance » : plein écran, sans menus, lisible sur grand écran. */
 html[data-seance] [data-chrome] {
+  display: none;
+}
+
+/* Boussole Relation : le sélecteur FR · EN · ES disparaît, le français reste. Le mode pro ne pose pas la marque. */
+body:has([data-amour-langue]) [data-lang-switch] {
+  display: none;
+}
+
+/* Le même thème choisit le mot du titre et sa destination. */
+body:has([data-amour-langue]) [data-edition="pro"] {
+  display: none;
+}
+body:not(:has([data-amour-langue])) [data-edition="amour"] {
   display: none;
 }
 html[data-seance] main {
