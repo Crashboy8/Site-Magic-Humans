@@ -90,6 +90,15 @@
     "#screen-amour .progress span.is-now.is-partial[data-tone=split] i{background:linear-gradient(90deg,var(--sage),var(--coral))}",
     "#screen-amour .am-resume{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}",
     "#screen-amour .am-resume p{margin:0;font-weight:700}",
+    "#screen-amour .am-save{margin:0 0 22px;padding:20px 18px;border:2px solid var(--pink);border-radius:18px;background:linear-gradient(135deg,var(--pink-soft),var(--gold-soft));text-align:center}",
+    "#screen-amour .am-save h2{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px;color:var(--pink);font-size:1.45rem}",
+    "#screen-amour .am-save p{margin:0 0 12px}",
+    "#screen-amour .am-save form{display:flex;flex-direction:column;align-items:stretch;gap:10px;max-width:420px;margin:0 auto}",
+    "#screen-amour .am-save input{width:100%;padding:12px 14px;border:1px solid var(--pink-track);border-radius:12px;background:#fff;font:inherit;text-align:center}",
+    "#screen-amour .am-save .btn{justify-content:center;align-items:center;gap:8px;background:var(--pink);color:#fff;border:0;cursor:pointer;font:inherit;font-weight:700}",
+    "#screen-amour .am-save .am-save-note{margin:10px 0 0;font-size:.9rem;color:var(--muted)}",
+    "#screen-amour .am-save .am-save-err{margin:0;color:var(--coral);font-weight:700}",
+    "#screen-amour .am-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
     "#screen-amour .am-cta{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px}",
     "#screen-amour .am-cta .btn{align-self:flex-start}",
     "#screen-amour .am-sticky{display:none}",
@@ -1544,6 +1553,7 @@
     root.classList.toggle("has-sticky", !stickyOff);
     root.innerHTML =
       resumeHtml() +
+      saveHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       profilReport(profile, stressLine) +
       rencontreHtml(profile) +
@@ -1571,6 +1581,37 @@
     scrollTop();
     saveProgress();
     startSalle(profile);
+  }
+
+  // Bloc « Sauvegarder mes résultats » : il réutilise la sauvegarde de la Boussole (lien de confirmation par mail).
+  function saveHtml() {
+    return '<section class="am-save am-screen-only" id="sec-save" aria-labelledby="am-save-h">' +
+      '<h2 id="am-save-h">' + ico("heart", "pink") + esc(R.saveH) + "</h2>" +
+      "<p>" + esc(R.saveP) + "</p>" +
+      '<form data-save-form novalidate>' +
+      '<label class="am-sr" for="am-save-email">' + esc(R.saveLabel) + "</label>" +
+      '<input id="am-save-email" type="email" autocomplete="email" inputmode="email" placeholder="' + esc(R.savePlaceholder) + '">' +
+      '<p class="am-save-err" id="am-save-err" role="alert" hidden>' + esc(R.saveError) + "</p>" +
+      '<button type="submit" class="btn">' + esc(R.saveBtn) + "</button>" +
+      "</form>" +
+      '<p class="am-save-note">' + esc(R.saveNote) + "</p></section>";
+  }
+
+  function saveResults(form) {
+    const input = form.querySelector("#am-save-email");
+    const err = form.querySelector("#am-save-err");
+    const email = String((input && input.value) || "").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200) {
+      if (err) err.hidden = false;
+      if (input) input.focus();
+      return;
+    }
+    if (err) err.hidden = true;
+    if (!resultProfile) return;
+    try { sessionStorage.setItem("mh_sauver", JSON.stringify({ email: email, prenom: prenom })); } catch (e) { /* privé */ }
+    rememberTheme();
+    const url = D.config.boussoleUrl + "&sauver=1#amour=" + E.encodePayload(resultProfile.boussole);
+    location.assign(url);
   }
 
   function salleSlot() {
@@ -1979,6 +2020,13 @@
     familyOpener = null;
     if (back && typeof back.focus === "function") back.focus();
   }, true);
+
+  root.addEventListener("submit", function (ev) {
+    const form = ev.target;
+    if (!form || !form.hasAttribute || !form.hasAttribute("data-save-form")) return;
+    ev.preventDefault();
+    saveResults(form);
+  });
 
   root.addEventListener("click", function (ev) {
     const tocLink = ev.target.closest(".toc a");

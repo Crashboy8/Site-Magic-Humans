@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Card, Notice, PageTitle } from "@/components/ui";
 import { listProfiles, listVersionsForUser } from "@/data/repository";
+import { accueilAmour } from "@/domain/editionAmour";
 import { CreateProfile } from "@/features/profiles/CreateProfile";
 import { ProfileCard } from "@/features/profiles/ProfileCard";
 import { PendingQuizImport } from "@/features/quiz/PendingQuizImport";
@@ -14,6 +16,9 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const p = t.profile;
   const db = await supabaseServer();
   const [profiles, versions] = await Promise.all([listProfiles(db, user.id), listVersionsForUser(db, user.id)]);
+  // Venu du Quiz Amour, sans Boussole pro : on reste dans la Boussole Relation.
+  const amour = accueilAmour(profiles, versions);
+  if (amour) redirect(amour);
 
   return (
     <>

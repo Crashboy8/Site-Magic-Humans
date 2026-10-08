@@ -3,7 +3,10 @@ import { getI18n } from "@/i18n/server";
 import Link from "next/link";
 import { Card, Notice, PageTitle } from "@/components/ui";
 import { NewPasswordForm } from "@/features/auth/forms";
-import { requireUser } from "@/lib/supabase/server";
+import { listProfiles } from "@/data/repository";
+import { uniquementAmour } from "@/domain/editionAmour";
+import { LoveChrome } from "@/features/amour/LoveChrome";
+import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getI18n()).t.auth.titleAccountCreated };
@@ -13,8 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function FinalizeAccountPage() {
   const user = await requireUser();
   const a = (await getI18n()).t.auth;
+  const amour = uniquementAmour(await listProfiles(await supabaseServer(), user.id));
   return (
     <>
+      {amour && <LoveChrome />}
       <PageTitle eyebrow={a.thanks(user.firstName)} title={a.workSaved}>
         {a.accountCreatedWith(user.email)}
       </PageTitle>

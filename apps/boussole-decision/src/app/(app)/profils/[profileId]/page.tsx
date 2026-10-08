@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ReadOnlyBanner } from "@/components/ReadOnlyBanner";
 import { ButtonLink, Card, Notice } from "@/components/ui";
+import { isLoveProfile } from "@/content/amour";
 import { getAppUser, getProfile, listVersions } from "@/data/repository";
 import { ProfileHeader } from "@/features/profiles/ProfileHeader";
 import { ShareWithCoach } from "@/features/profiles/ShareWithCoach";
@@ -29,6 +30,8 @@ export default async function ProfilePage({ params, searchParams }: PageProps<"/
   // Le tableau à ouvrir : le brouillon le plus récent, sinon la dernière version.
   const current = [...versions].reverse().find((v) => v.status === "brouillon") ?? versions.at(-1);
   const tableHref = current ? `/versions/${current.id}/tableau/` : null;
+  // Une Boussole Relation n'a pas de page profil pro (Talent Unique, opportunités) : on ouvre son tableau.
+  if (!readOnly && tableHref && isLoveProfile(profile)) redirect(tableHref);
   const tableLink = tableHref && (
     <ButtonLink href={tableHref} className="w-full sm:w-auto">
       {readOnly ? p.viewTable : p.openTable}
