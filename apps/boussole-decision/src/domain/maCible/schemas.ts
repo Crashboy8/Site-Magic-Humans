@@ -9,6 +9,7 @@ export const CANAUX = ["linkedin","email","instagram","facebook","tiktok","youtu
 export const IDS_IDEES = ["i1","i2","i3","i4","i5","i6","i7","i8"] as const;
 export const IDS_PISTES = ["p1","p2","p3","p4","p5","p6"] as const;
 export const IDS_NOTES = ["n1","n2","n3","n4","n5"] as const;
+export const CATEGORIES_LIEU = ["salon","evenement","club","en_ligne","lieu","media"] as const;
 const NOTE = O({ note: N, raison: S });
 
 const PISTE_ESQUISSE = O({ id: E(IDS_PISTES), nom: S, marche: E(["b2b","b2c"]), enUneLigne: S, raison: S, depuisIdees: A(E(IDS_IDEES)) });
@@ -62,3 +63,14 @@ export const SCHEMA_SYNTHESE = O({
   verbatims: A(O({ id: S, note: E(IDS_NOTES), citation: S, theme: E(["douleur","declencheur","objection","resultat","autre"]) })),
   declencheurs: A(S), objections: A(S), motsCles: A(S),
 });
+
+const PORTRAIT = O({
+  prenom: S, age: S, situation: S, journee: S, declencheur: S, pourToi: S,
+  dejaEssaye: A(S),
+  douleurs: A(O({ titre: S, detail: S, intensite: N, sesMots: S, verbatim: S })),
+  objections: A(O({ objection: S, reponse: S })),
+  criteresChoix: A(S), sInforme: A(S),
+  lieux: A(O({ categorie: E(CATEGORIES_LIEU), type: S, pourquoi: S, recherche: S })),
+});
+export const SCHEMA_PORTRAIT = O({ portrait: PORTRAIT });
+export const SCHEMA_PISTE = O({ cible: schemaCible(["c4","c5","c6"]), portrait: PORTRAIT });

@@ -2,7 +2,8 @@
 import { validerCorrections, validerSyntheseEntree } from "@/domain/maCible/entree";
 import { classerCibles } from "@/domain/maCible/scores";
 import { LIMITES } from "@/domain/maCible/limites";
-import { EXTRAS_VIDES, type Extras, type ResultatClasse } from "@/domain/maCible/types";
+import { lireExtras } from "@/domain/maCible/extras";
+import { EXTRAS_VIDES, type ResultatClasse } from "@/domain/maCible/types";
 import { validerCadrage, validerResultat } from "@/domain/maCible/validation";
 import { ETAPES, NB_ACTIONS, TALENT_VIDE, TERRAIN_VIDE, etatInitial, type Etat } from "./etat";
 
@@ -58,13 +59,6 @@ function lireEntree(brut: Obj | null): Etat["entree"] | null {
       return lue.ok ? lue.synthese : null;
     })(),
   };
-}
-
-/** Portraits et pistes creusées : absents ou non validés en V2b (1/3) → vides. */
-function lireExtras(v: unknown): Extras {
-  const o = objet(v);
-  if (!o) return { portraits: {}, pistes: {} };
-  return { portraits: {}, pistes: {} };
 }
 
 export function serialiser(etat: Etat): string {

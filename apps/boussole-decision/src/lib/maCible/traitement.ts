@@ -2,18 +2,18 @@
 // Rien n'est stocké ni journalisé : seuls des codes et des longueurs sont écrits en cas d'échec.
 import { createHash, timingSafeEqual } from "node:crypto";
 import { ENTETE_SESSION, ENTETE_TEST, emailAutorise, sessionValide } from "@/domain/maCible/acces";
-import { validerContexteSynthese, validerCorrections, validerEntree, validerNotes, type ErreurChamp } from "@/domain/maCible/entree";
-import { couvrirIdees, filtrerVerbatimsCibles, qualitePistes } from "@/domain/maCible/idees";
+import { validerApprofondir, validerContexteSynthese, validerCorrections, validerEntree, validerNotes, type ErreurChamp } from "@/domain/maCible/entree";
+import { couvrirIdees, filtrerVerbatimsCibles, filtrerVerbatimsPortrait, qualitePistes } from "@/domain/maCible/idees";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { type CompteMasques, masquerDonnees } from "@/domain/maCible/masquage";
 import { nettoyerTextes } from "@/domain/maCible/nettoyage";
 import { messageUtilisateur, promptSysteme } from "@/domain/maCible/prompt";
-import { ajouterPhrases, appliquerQualite, phrasesDepartage, questionsManquantes, type ContexteQualite } from "@/domain/maCible/qualite";
-import { classerCibles } from "@/domain/maCible/scores";
-import { SCHEMA_CADRAGE, SCHEMA_RESULTAT, SCHEMA_SYNTHESE } from "@/domain/maCible/schemas";
+import { ajouterPhrases, appliquerQualite, phrasesDepartage, qualiteCible, qualitePortrait, questionsManquantes, type ContexteQualite } from "@/domain/maCible/qualite";
+import { classerCibles, scoreSur10 } from "@/domain/maCible/scores";
+import { SCHEMA_CADRAGE, SCHEMA_PISTE, SCHEMA_PORTRAIT, SCHEMA_RESULTAT, SCHEMA_SYNTHESE } from "@/domain/maCible/schemas";
 import { verifierVerbatims } from "@/domain/maCible/terrain";
-import type { Cadrage, Corrections, Demande, Esquisse, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
-import { validerCadrage, validerResultat, validerSynthese } from "@/domain/maCible/validation";
+import type { Cadrage, Cible, Corrections, Demande, DemandeApprofondir, EntreeMaCible, Esquisse, LignePiste, Portrait, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
+import { validerCadrage, validerCible, validerPortrait, validerResultat, validerSynthese } from "@/domain/maCible/validation";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { jourParis, limitesDepuisEnv, maxGlobal, maxIp, minuitSuivantParis, type Quota } from "./quota";
 import { origineAcceptee } from "./origine";
@@ -65,6 +65,7 @@ function reponseReussie(corps: unknown, etape: Demande["etape"]): corps is Recor
   if (o.ok !== true || o.etape !== etape) return false;
   if (etape === "cadrage") return o.cadrage != null;
   if (etape === "resultat") return o.resultat != null;
+  if (etape === "approfondir") return o.portrait != null;
   return "statut" in o;
 }
 
@@ -105,7 +106,11 @@ function lireDemande(corps: unknown): { ok: true; demande: Demande } | { ok: fal
   if (typeof corps !== "object" || corps === null || Array.isArray(corps)) return { ok: false, champs: [{ champ: "corps", code: "invalide" }] };
   const b = corps as Record<string, unknown>;
   const etape = b.etape;
-  if (etape !== "cadrage" && etape !== "resultat" && etape !== "synthese") return { ok: false, champs: [{ champ: "etape", code: "invalide" }] };
+  if (etape !== "cadrage" && etape !== "resultat" && etape !== "synthese" && etape !== "approfondir") return { ok: false, champs: [{ champ: "etape", code: "invalide" }] };
+  if (etape === "approfondir") {
+    const a = validerApprofondir(b);
+    return a.ok ? { ok: true, demande: a.demande } : { ok: false, champs: a.erreurs };
+  }
   if (etape === "synthese") {
     const langue = b.langue;
     if (langue !== "fr" && langue !== "en" && langue !== "es") return { ok: false, champs: [{ champ: "langue", code: "invalide" }] };
@@ -153,6 +158,8 @@ type Traite =
   | { ok: true; cadrage: Cadrage; reparations: number }
   | { ok: true; resultat: ResultatClasse; reparations: number }
   | { ok: true; synthese: SyntheseReponse | null; statut: "ok" | "inutilisable"; message: string; reparations: number }
+  | { ok: true; portrait: Portrait; reparations: number }
+  | { ok: true; piste: { cible: Cible; ligne: LignePiste; portrait: Portrait }; reparations: number }
   | { ok: false; erreurs: string[]; reparations: number };
 
 function contexteQualite(demande: Exclude<Demande, { etape: "synthese" }>): ContexteQualite {
@@ -194,6 +201,7 @@ function traiterTexte(brut: string, demande: Demande): Traite {
       reparations: v.reparations + verifie.retires,
     };
   }
+  if (demande.etape === "approfondir") return traiterApprofondir(json, demande);
   if (demande.etape === "cadrage") {
     const v = validerCadrage(json, demande.tour);
     if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
@@ -226,6 +234,43 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     resultat: { ...q.resultat, hypotheses: phrases.hypotheses, classement },
     reparations: v.reparations + couvert.ajoutees + pistes.reparations + phrasesCibles.retires + q.reparations + phrases.ajoutees,
   };
+}
+
+/** Données de la personne où un prénom ne doit pas apparaître (§9.6) : notes de la synthèse, talent, terrain. */
+function donneesPourPrenom(entree: EntreeMaCible): string {
+  const { talent, terrain, synthese } = entree;
+  const parties: unknown[] = [talent, terrain, synthese?.verbatims.map((v) => v.citation), synthese?.resume, synthese?.profils];
+  return parties.map((p) => (p === undefined || p === null ? "" : JSON.stringify(p))).join("\n");
+}
+
+function portraitPropre(brut: unknown, entree: EntreeMaCible, chemin: string): { ok: true; portrait: Portrait; reparations: number } | { ok: false; erreurs: string[]; reparations: number } {
+  const v = validerPortrait(brut, chemin);
+  if (!v.ok) return v;
+  const q = qualitePortrait(v.valeur, donneesPourPrenom(entree));
+  const f = filtrerVerbatimsPortrait(q.portrait, entree.synthese);
+  return { ok: true, portrait: f.sortie, reparations: v.reparations + q.reparations + f.retires };
+}
+
+/** Portrait seul, ou piste creusée (cible + portrait) (§7.5). */
+function traiterApprofondir(json: unknown, demande: DemandeApprofondir): Traite {
+  const o = typeof json === "object" && json !== null && !Array.isArray(json) ? (json as Record<string, unknown>) : {};
+  if (demande.mode === "portrait") {
+    const p = portraitPropre(o.portrait, demande.entree, "portrait");
+    if (!p.ok) return p;
+    return { ok: true, portrait: p.portrait, reparations: p.reparations };
+  }
+  const c = validerCible(o.cible, ["c4", "c5", "c6"], demande.idCible);
+  const p = portraitPropre(o.portrait, demande.entree, "portrait");
+  if (!c.ok || !p.ok) {
+    return { ok: false, erreurs: [...(c.ok ? [] : c.erreurs), ...(p.ok ? [] : p.erreurs)], reparations: c.reparations + p.reparations };
+  }
+  const phrases = filtrerVerbatimsCibles({ cibles: [c.valeur] }, demande.entree.synthese);
+  const q = qualiteCible(phrases.sortie.cibles[0], contexteQualite(demande));
+  const reparations = c.reparations + p.reparations + phrases.retires + q.reparations;
+  if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations };
+  const cible = q.cible;
+  const ligne: LignePiste = { id: cible.id, score: scoreSur10(cible.scores), alertePlaisir: cible.scores.plaisir.note <= 2 };
+  return { ok: true, piste: { cible, ligne, portrait: p.portrait }, reparations };
 }
 
 function echec(code: string, demande: Demande, extra: Record<string, unknown> = {}) {
@@ -348,6 +393,13 @@ function demandePourModele(demande: Demande): { demande: Demande; masques: Compt
   return { demande: { ...demande, notes }, masques };
 }
 
+function schemaPour(demande: Demande) {
+  if (demande.etape === "cadrage") return SCHEMA_CADRAGE;
+  if (demande.etape === "resultat") return SCHEMA_RESULTAT;
+  if (demande.etape === "synthese") return SCHEMA_SYNTHESE;
+  return demande.mode === "piste" ? SCHEMA_PISTE : SCHEMA_PORTRAIT;
+}
+
 async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
   const etape = demande.etape;
   const pourModele = demandePourModele(demande);
@@ -363,10 +415,14 @@ async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
     let brut: string;
     try {
       brut = await deps.fournisseur!.appeler({
-        systeme: promptSysteme(etape, demandeModele.etape === "cadrage" ? demandeModele.tour : undefined),
+        systeme: promptSysteme(
+          etape,
+          demandeModele.etape === "cadrage" ? demandeModele.tour : undefined,
+          demandeModele.etape === "approfondir" ? demandeModele.mode : undefined,
+        ),
         utilisateur: messageUtilisateur(demandeModele, erreurs),
-        schema: etape === "cadrage" ? SCHEMA_CADRAGE : etape === "resultat" ? SCHEMA_RESULTAT : SCHEMA_SYNTHESE,
-        nomSchema: etape,
+        schema: schemaPour(demandeModele),
+        nomSchema: demandeModele.etape === "approfondir" ? demandeModele.mode : etape,
         maxTokens: MAX_TOKENS[etape],
         delaiMs: Math.min(delaiTotal, reste),
       });
@@ -393,7 +449,16 @@ async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
           ? { ok: true, etape: "cadrage" as const, cadrage: traite.cadrage, restant: 0 }
           : "resultat" in traite
             ? { ok: true, etape: "resultat" as const, resultat: traite.resultat, restant: 0 }
-            : { ok: true, etape: "synthese" as const, statut: traite.statut, message: traite.message, synthese: traite.synthese, masques, restant: 0 };
+            : "portrait" in traite && demande.etape === "approfondir" && demande.mode === "portrait"
+              ? { ok: true, etape: "approfondir" as const, mode: "portrait" as const, id: demande.cible.id, portrait: traite.portrait, restant: 0 }
+              : "piste" in traite && demande.etape === "approfondir" && demande.mode === "piste"
+                ? { ok: true, etape: "approfondir" as const, mode: "piste" as const, pisteId: demande.piste.id, ...traite.piste, restant: 0 }
+                : "synthese" in traite ? { ok: true, etape: "synthese" as const, statut: traite.statut, message: traite.message, synthese: traite.synthese, masques, restant: 0 }
+                : null;
+      if (!corps) {
+        echec("ia_invalide", demande, { longueurReponse: derniereLongueur });
+        return { status: 502, corps: { ok: false, code: "ia_invalide" }, compte: false };
+      }
       return { status: 200, corps, compte: true };
     }
     erreurs = traite.erreurs;

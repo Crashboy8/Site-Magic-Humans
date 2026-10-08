@@ -1,7 +1,8 @@
 // Validation de l'entrée (§5.3) et indices de flou (§6.1). Module pur.
 import { LIMITES } from "./limites";
 import { IDS_NOTES } from "./schemas";
-import type { Adresse, ContexteSynthese, Corrections, EntreeMaCible, Format, Frequence, IdCiblePrincipale, IdNote, Langue, Marche, NoteTerrain, Reponse, Source, Style, SyntheseTerrain, Talent, Terrain, ThemeVerbatim, Verdict } from "./types";
+import { validerAutrePiste } from "./validation";
+import type { Adresse, AutrePiste, CibleAApprofondir, ContexteSynthese, DemandeApprofondir, IdCiblePiste, Corrections, EntreeMaCible, Format, Frequence, IdCiblePrincipale, IdNote, Langue, Marche, NoteTerrain, Reponse, Source, Style, SyntheseTerrain, Talent, Terrain, ThemeVerbatim, Verdict } from "./types";
 
 export interface ErreurChamp {
   champ: string;
@@ -301,4 +302,58 @@ export function validerCorrections(brut: unknown): { ok: true; corrections: Corr
 
   if (erreurs.length) return { ok: false, erreurs };
   return { ok: true, corrections: { offre, cibles, antiCible, idee } };
+}
+
+const IDS_CIBLE_TOUTES = ["c1", "c2", "c3", "c4", "c5", "c6"] as const;
+const IDS_CIBLE_PISTE: readonly IdCiblePiste[] = ["c4", "c5", "c6"];
+
+/** Cible envoyée pour un portrait (§5.4) : textes non vides, coupés aux limites du résultat. */
+function lireCibleAApprofondir(brut: unknown, erreurs: ErreurChamp[]): CibleAApprofondir | null {
+  if (typeof brut !== "object" || brut === null || Array.isArray(brut)) {
+    erreurs.push({ champ: "cible", code: brut === undefined ? "requis" : "invalide" });
+    return null;
+  }
+  const o = brut as Record<string, unknown>;
+  const id = o.id;
+  if (typeof id !== "string" || !(IDS_CIBLE_TOUTES as readonly string[]).includes(id)) erreurs.push({ champ: "cible.id", code: "invalide" });
+  const marche = o.marche;
+  if (marche !== "b2b" && marche !== "b2c") erreurs.push({ champ: "cible.marche", code: "invalide" });
+  const textes = { nom: 80, portrait: 500, douleur: 300, ancrage: 300, promesse: 180 } as const;
+  const lus: Partial<Record<keyof typeof textes, string>> = {};
+  for (const [cle, max] of Object.entries(textes) as [keyof typeof textes, number][]) {
+    const t = couper(o[cle], max);
+    if (!t) erreurs.push({ champ: `cible.${cle}`, code: "requis" });
+    else lus[cle] = t;
+  }
+  const lieux = o.lieux === undefined ? [] : couperListe(o.lieux, 4, 120);
+  if (lieux === null) erreurs.push({ champ: "cible.lieux", code: "invalide" });
+  if (erreurs.length) return null;
+  return { id: id as CibleAApprofondir["id"], marche: marche as "b2b" | "b2c", ...(lus as Record<keyof typeof textes, string>), lieux: lieux ?? [] };
+}
+
+/** Demande `approfondir` (§5.4, §7.2). L'entrée doit passer `validerEntree`. */
+export function validerApprofondir(b: Record<string, unknown>): { ok: true; demande: DemandeApprofondir } | { ok: false; erreurs: ErreurChamp[] } {
+  const mode = b.mode;
+  if (mode !== "portrait" && mode !== "piste") return { ok: false, erreurs: [{ champ: "mode", code: "invalide" }] };
+  const erreurs: ErreurChamp[] = [];
+  const e = validerEntree(b.entree);
+  if (!e.ok) erreurs.push(...e.erreurs);
+  const offre = couper(b.offre, LIMITES.offreApprofondir.max);
+  if (!offre) erreurs.push({ champ: "offre", code: "requis" });
+  if (mode === "portrait") {
+    const cible = lireCibleAApprofondir(b.cible, erreurs);
+    if (erreurs.length || !e.ok || !cible || !offre) return { ok: false, erreurs };
+    return { ok: true, demande: { etape: "approfondir", mode, entree: e.entree, offre, cible } };
+  }
+  const brutePiste = typeof b.piste === "object" && b.piste !== null ? structuredClone(b.piste) : b.piste;
+  const piste = validerAutrePiste(brutePiste);
+  if (!piste.ok) erreurs.push({ champ: "piste", code: b.piste === undefined ? "requis" : "invalide" });
+  const idCible = b.idCible;
+  if (typeof idCible !== "string" || !(IDS_CIBLE_PISTE as readonly string[]).includes(idCible)) erreurs.push({ champ: "idCible", code: "invalide" });
+  const ciblesExistantes = normaliserListe(b.ciblesExistantes, LIMITES.ciblesExistantes.items, LIMITES.ciblesExistantes.max);
+  if (erreurs.length || !e.ok || !piste.ok || !offre) return { ok: false, erreurs };
+  return {
+    ok: true,
+    demande: { etape: "approfondir", mode, entree: e.entree, offre, piste: piste.valeur as AutrePiste, idCible: idCible as IdCiblePiste, ciblesExistantes },
+  };
 }

@@ -1,8 +1,8 @@
 // Validation des réponses du modèle (§8.4). Retourne toutes les erreurs, dans l'ordre du document.
 // Chaque erreur est une chaîne « chemin : problème ». Module pur.
-import { CANAUX, IDS_IDEES, IDS_NOTES, IDS_PISTES } from "./schemas";
+import { CANAUX, CATEGORIES_LIEU, IDS_IDEES, IDS_NOTES, IDS_PISTES } from "./schemas";
 import type { SyntheseBrute } from "./terrain";
-import type { AutrePiste, Cadrage, Cible, Frequence, IdNote, Resultat, ThemeVerbatim } from "./types";
+import type { AutrePiste, Cadrage, Cible, Frequence, IdNote, Portrait, Resultat, ThemeVerbatim } from "./types";
 
 export type Validation<T> = { ok: true; valeur: T; reparations: number } | { ok: false; erreurs: string[]; reparations: number };
 
@@ -468,4 +468,59 @@ export function validerSynthese(v: unknown): Validation<SyntheseValidee> {
     motsCles: (o.motsCles as string[]) ?? [],
   };
   return { ok: true, valeur: { statut, message: String(o.message ?? ""), corps }, reparations: x.reparations };
+}
+
+/**
+ * Portrait d'une cible (§8.6). Trop d'éléments : tronqué (réparation). Trop peu : erreur (relance),
+ * sauf `criteresChoix` et `sInforme` où un seul élément est accepté (§9.6).
+ */
+export function validerPortrait(v: unknown, chemin = "portrait"): Validation<Portrait> {
+  const x = new Verif();
+  const o = x.objet(v, chemin);
+  if (!o) return { ok: false, erreurs: x.erreurs, reparations: x.reparations };
+  x.poser(o, "prenom", `${chemin}.prenom`, 2, 30);
+  x.poser(o, "age", `${chemin}.age`, 3, 30);
+  x.poser(o, "situation", `${chemin}.situation`, 60, 400);
+  x.poser(o, "journee", `${chemin}.journee`, 60, 400);
+  x.poser(o, "declencheur", `${chemin}.declencheur`, 30, 240);
+  x.poser(o, "pourToi", `${chemin}.pourToi`, 30, 240);
+  x.textes(o.dejaEssaye, `${chemin}.dejaEssaye`, 1, 4, 1, 160);
+  const douleurs = x.tableau(o.douleurs, `${chemin}.douleurs`, 3, 5);
+  douleurs?.forEach((d, i) => {
+    const p = `${chemin}.douleurs[${i}]`;
+    const item = x.objet(d, p);
+    if (!item) return;
+    x.poser(item, "titre", `${p}.titre`, 5, 80);
+    x.poser(item, "detail", `${p}.detail`, 20, 240);
+    const n = item.intensite;
+    if (typeof n !== "number" || !Number.isInteger(n)) x.err(`${p}.intensite`, "entier attendu");
+    else if (n < 1 || n > 5) {
+      item.intensite = n < 1 ? 1 : 5;
+      x.reparations += 1;
+    }
+    x.poser(item, "sesMots", `${p}.sesMots`, 10, 200);
+    if (item.verbatim === undefined) item.verbatim = "";
+    else if (typeof item.verbatim !== "string") x.err(`${p}.verbatim`, "texte attendu");
+  });
+  const objections = x.tableau(o.objections, `${chemin}.objections`, 2, 3);
+  objections?.forEach((ob, i) => {
+    const p = `${chemin}.objections[${i}]`;
+    const item = x.objet(ob, p);
+    if (!item) return;
+    x.poser(item, "objection", `${p}.objection`, 10, 160);
+    x.poser(item, "reponse", `${p}.reponse`, 20, 240);
+  });
+  x.textes(o.criteresChoix, `${chemin}.criteresChoix`, 1, 4, 1, 160);
+  x.textes(o.sInforme, `${chemin}.sInforme`, 1, 5, 1, 120);
+  const lieux = x.tableau(o.lieux, `${chemin}.lieux`, 3, 6);
+  lieux?.forEach((l, i) => {
+    const p = `${chemin}.lieux[${i}]`;
+    const item = x.objet(l, p);
+    if (!item) return;
+    x.enum(item.categorie, `${p}.categorie`, CATEGORIES_LIEU);
+    x.poser(item, "type", `${p}.type`, 5, 120);
+    x.poser(item, "pourquoi", `${p}.pourquoi`, 10, 200);
+    x.poser(item, "recherche", `${p}.recherche`, 3, 80);
+  });
+  return fini(x, o as unknown as Portrait);
 }

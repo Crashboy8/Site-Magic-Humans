@@ -1,6 +1,6 @@
 // Export du résultat : texte brut et Markdown. Le prénom est remplacé, jamais laissé en jeton.
-import { scorePressenti } from "@/domain/maCible/scores";
-import type { Cible, ResultatClasse } from "@/domain/maCible/types";
+import { scorePressenti, scoreSur10 } from "@/domain/maCible/scores";
+import { EXTRAS_VIDES, type Cible, type Extras, type Portrait, type ResultatClasse, type SyntheseTerrain } from "@/domain/maCible/types";
 import { remplacerPrenom } from "./liens";
 
 const puces = (items: string[]) => items.map((item) => `- ${item}`).join("\n");
@@ -14,7 +14,78 @@ function bloc(libelle: string, corps: string[], markdown: boolean, niveau: 1 | 2
   return [titre(libelle, markdown, niveau), ...corps.filter((l) => l.length > 0)].join("\n");
 }
 
-export function texteCible(cible: Cible, prenom: string, score: string, markdown: boolean): string {
+const CATEGORIES: Record<Portrait["lieux"][number]["categorie"], string> = {
+  salon: "Salon",
+  evenement: "Événement",
+  club: "Club ou réseau",
+  en_ligne: "En ligne",
+  lieu: "Lieu",
+  media: "Média",
+};
+const FREQUENCES: Record<SyntheseTerrain["douleurs"][number]["frequence"], string> = { souvent: "souvent", parfois: "parfois", une_fois: "une fois" };
+
+const virgule = (n: number) => String(n).replace(".", ",");
+
+/** Portrait complet d'une cible (§14). Les phrases de clients sont reprises de la synthèse par leur identifiant. */
+export function textePortrait(p: Portrait, synthese: SyntheseTerrain | null, markdown = false, niveau: 2 | 3 = 3): string {
+  const citation = (id: string) => synthese?.verbatims.find((v) => v.id === id)?.citation;
+  const sous = (niveau + 1) as 3 | 4;
+  const h = (texte: string) => (markdown ? `${"#".repeat(Math.min(sous, 6))} ${texte}` : texte);
+  return [
+    titre("Son portrait", markdown, niveau),
+    `${p.prenom}, ${p.age} (imaginé par l'IA)`,
+    h("Sa situation"),
+    p.situation,
+    h("Sa journée"),
+    p.journee,
+    h("Le jour où elle cherche de l'aide"),
+    p.declencheur,
+    h("Ce qui allume ton talent chez elle"),
+    p.pourToi,
+    h("Ce qu'elle a déjà essayé"),
+    puces(p.dejaEssaye),
+    h("Ce qui lui pèse"),
+    ...p.douleurs.map((d) => {
+      const vraie = d.verbatim ? citation(d.verbatim) : undefined;
+      return [`- ${d.titre} (intensité ${d.intensite} sur 5)`, `  ${d.detail}`, `  Comme elle le dirait : ${d.sesMots}`, vraie ? `  Ce qu'un client t'a vraiment dit : « ${vraie} »` : ""]
+        .filter(Boolean)
+        .join("\n");
+    }),
+    h("Ce qui la fait hésiter, et quoi répondre"),
+    ...p.objections.map((o) => `- ${o.objection}\n  Tu peux répondre : ${o.reponse}`),
+    h("Ce qui la fera choisir"),
+    puces(p.criteresChoix),
+    h("Où elle s'informe"),
+    puces(p.sInforme),
+    h("Où la croiser"),
+    ...p.lieux.map((l) => `- ${CATEGORIES[l.categorie]} : ${l.type}\n  ${l.pourquoi}\n  À chercher : ${l.recherche}`),
+  ].join("\n");
+}
+
+function texteClients(cible: Cible, synthese: SyntheseTerrain | null, markdown: boolean): string {
+  const phrases = (synthese?.verbatims ?? []).filter((v) => cible.verbatims.includes(v.id));
+  if (phrases.length === 0) return "";
+  return bloc("Ce que disent tes clients", phrases.map((v) => `- « ${v.citation} »`), markdown, 3);
+}
+
+function texteSynthese(s: SyntheseTerrain, markdown: boolean): string {
+  return bloc(
+    "Ce que disent tes notes",
+    [
+      s.resume,
+      s.profils.length ? `Qui sont ces personnes\n${puces(s.profils)}` : "",
+      s.douleurs.length ? `Ce qui leur pèse\n${puces(s.douleurs.map((d) => `${d.texte} (${FREQUENCES[d.frequence]})`))}` : "",
+      s.verbatims.length ? `Leurs mots exacts\n${puces(s.verbatims.map((v) => `« ${v.citation} »`))}` : "",
+      s.declencheurs.length ? `Ce qui les a poussées à chercher de l'aide\n${puces(s.declencheurs)}` : "",
+      s.objections.length ? `Ce qui les fait hésiter\n${puces(s.objections)}` : "",
+      s.motsCles.length ? `Les mots qu'elles emploient\n${s.motsCles.join(", ")}` : "",
+    ],
+    markdown,
+    2,
+  );
+}
+
+export function texteCible(cible: Cible, prenom: string, score: string, markdown: boolean, portrait?: Portrait, synthese: SyntheseTerrain | null = null): string {
   const t = (s: string) => remplacerPrenom(s, prenom);
   const parties = [
     bloc("Cible", [cible.nom, `${cible.marche.toUpperCase()} · ${score}`], markdown, 2),
@@ -57,26 +128,39 @@ export function texteCible(cible: Cible, prenom: string, score: string, markdown
       "Mauvais signe si",
       puces(cible.testTerrain.signauxNegatifs.map(t)),
     ], markdown, 3),
+    texteClients(cible, synthese, markdown),
+    portrait ? textePortrait(portrait, synthese, markdown, 3) : "",
   ];
-  return parties.join("\n\n");
+  return parties.filter(Boolean).join("\n\n");
 }
 
-export function exporterResultat(resultat: ResultatClasse, prenom: string): { texte: string; markdown: string } {
+export function exporterResultat(
+  resultat: ResultatClasse,
+  prenom: string,
+  options: { synthese?: SyntheseTerrain | null; extras?: Extras } = {},
+): { texte: string; markdown: string } {
+  const synthese = options.synthese ?? null;
+  const extras = options.extras ?? EXTRAS_VIDES;
   const rendre = (markdown: boolean) => {
     const t = (s: string) => remplacerPrenom(s, prenom);
     const parId = new Map(resultat.classement.map((l) => [l.id, l]));
     const ordre = resultat.classement.map((l) => resultat.cibles.find((c) => c.id === l.id)).filter((c): c is Cible => c !== undefined);
     const cibles = ordre.map((c) => {
       const ligne = parId.get(c.id);
-      const score = ligne ? `${String(ligne.score).replace(".", ",")}/10` : "";
-      return texteCible(c, prenom, score, markdown);
+      const score = ligne ? `${virgule(ligne.score)}/10` : "";
+      return texteCible(c, prenom, score, markdown, extras.portraits[c.id], synthese);
     });
+    const creusees = Object.values(extras.pistes)
+      .flatMap((p) => (p ? [p.cible] : []))
+      .sort((a, b) => scoreSur10(b.scores) - scoreSur10(a.scores))
+      .map((c) => texteCible(c, prenom, `${virgule(scoreSur10(c.scores))}/10`, markdown, extras.portraits[c.id], synthese));
     const plan = resultat.plan30.flatMap((s) => [
       markdown ? `### Semaine ${s.semaine} : ${t(s.titre)}` : `SEMAINE ${s.semaine} : ${t(s.titre).toUpperCase()}`,
       ...s.actions.map((a) => `- ${t(a.texte)}`),
     ]);
     return [
       bloc("Ton offre", [t(resultat.offre.phrase), "", "Avant toi", t(resultat.offre.avant), "", "Après toi", t(resultat.offre.apres)], markdown, 1),
+      synthese ? texteSynthese(synthese, markdown) : "",
       ...cibles,
       resultat.autresPistes.length
         ? bloc(
@@ -89,6 +173,7 @@ export function exporterResultat(resultat: ResultatClasse, prenom: string): { te
             2,
           )
         : "",
+      creusees.length ? [titre("Pistes creusées", markdown, 2), ...creusees].join("\n\n") : "",
       bloc("Anti-cible", [t(resultat.antiCible.portrait), puces(resultat.antiCible.signaux.map(t)), t(resultat.antiCible.lienAntiContexte), t(resultat.antiCible.commentDire)], markdown, 2),
       bloc("Plan 30 jours", plan, markdown, 2),
       resultat.hypotheses.length ? bloc("Ce que l'IA a supposé", [puces(resultat.hypotheses.map(t))], markdown, 2) : "",

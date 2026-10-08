@@ -112,8 +112,39 @@ La personne te confie des notes prises pendant de vrais échanges avec des clien
 8. motsCles (0 à 10, 40 au plus) : des mots ou de courtes expressions qu'elles emploient vraiment, présents tels quels dans les notes.
 N'invente rien : tout vient des notes. Un champ sans matière reste vide. Les crochets comme [téléphone], [adresse mail] ou [lien] sont des données masquées : ne les reprends jamais.`;
 
-export function promptSysteme(etape: "cadrage" | "resultat" | "synthese", tour?: 1 | 2 | 3): string {
+export const CONSIGNES_PORTRAIT = `- prenom (2 à 30) : un prénom fictif courant en France, cohérent avec l'âge. Jamais un prénom présent dans les données.
+- age (3 à 30) : une tranche, par exemple « 40 à 50 ans ».
+- situation (60 à 400) : son métier ou son rôle, sa situation, ce qui se passe pour elle en ce moment.
+- journee (60 à 400) : une journée type, avec des détails concrets (horaires, outils, personnes autour).
+- declencheur (30 à 240) : le jour précis où elle se dit qu'il lui faut de l'aide.
+- pourToi (30 à 240) : ce qui, chez elle, allume le talent de la personne (son Contexte Déclencheur), et le piège à surveiller (son Anti-Contexte).
+- dejaEssaye (1 à 4, 160 au plus chacun) : ce qu'elle a déjà tenté, seule ou avec d'autres.
+- douleurs (3 à 5) : titre (5 à 80), detail (20 à 240), intensite (entier de 1 à 5, 5 = elle n'en dort plus), sesMots (10 à 200 : comment elle le dirait, sans guillemets), verbatim (l'identifiant d'une phrase de « ce_que_dit_le_terrain.verbatims » qui dit la même chose, sinon chaîne vide ; n'invente jamais d'identifiant).
+- objections (2 ou 3) : objection (10 à 160, ce qu'elle se dit pour ne pas acheter) et reponse (20 à 240, ce que la personne peut répondre, honnêtement, sans forcer la main).
+- criteresChoix (2 à 4, 160 au plus) : ce qui la fera choisir quelqu'un plutôt qu'un autre.
+- sInforme (2 à 5, 120 au plus) : les types de médias, de comptes, d'émissions ou de groupes qu'elle suit. Jamais de nom réel.
+- lieux (3 à 6) : où la croiser, en vrai ou en ligne. categorie (salon, evenement, club, en_ligne, lieu, media), type (5 à 120, par exemple « salons de la création et de la reprise d'entreprise »), pourquoi (10 à 200), recherche (3 à 80 : ce que la personne tapera dans un moteur de recherche, avec la ville ou la région si la zone compte ; jamais d'année, jamais de nom d'événement). Au moins un salon ou un événement si cette cible en fréquente. Ne répète pas « lieux_deja_donnes » : propose d'autres pistes.`;
+
+export const PROMPT_PORTRAIT = `# Ta tâche : le portrait complet d'une cible
+La personne a déjà son résultat. Elle veut mieux connaître une de ses cibles (« cible_a_approfondir »). Fais-en un portrait vivant et concret, qui l'aide à la reconnaître, à lui parler et à la croiser. Si des notes de terrain existent, appuie-toi d'abord sur elles. Respecte les longueurs (en caractères) :
+${CONSIGNES_PORTRAIT}
+Réponds avec un objet { "portrait": { … } }.`;
+
+export const PROMPT_PISTE = `# Ta tâche : creuser une piste
+La personne a déjà ses cibles (« cibles_existantes ») et son offre affinée (« offre_affinee »). Elle veut creuser une autre piste (« piste_a_creuser »). Fais-en une cible complète, vraiment différente des cibles existantes, puis son portrait. Garde l'esprit de la piste ; tu peux préciser son nom. Les notes suivent la grille, avec une raison concrète chacune ; elles peuvent s'écarter des notes pressenties de la piste si tu le justifies.
+1. cible : identifiant « identifiant_cible », puis, en respectant les longueurs (en caractères) :
+${CONSIGNES_CIBLE}
+- depuisIdees : reprends ceux de la piste.
+- verbatims : 0 à 3 identifiants de « ce_que_dit_le_terrain.verbatims », tableau vide sinon.
+2. portrait :
+${CONSIGNES_PORTRAIT}
+Réponds avec un objet { "cible": { … }, "portrait": { … } }.`;
+
+export type EtapePrompt = "cadrage" | "resultat" | "synthese" | "approfondir";
+
+export function promptSysteme(etape: EtapePrompt, tour?: 1 | 2 | 3, mode?: "portrait" | "piste"): string {
   if (etape === "synthese") return [PROMPT_COMMUN, PROMPT_SYNTHESE].join("\n\n");
+  if (etape === "approfondir") return [PROMPT_COMMUN, GRILLE_TEXTE, mode === "piste" ? PROMPT_PISTE : PROMPT_PORTRAIT].join("\n\n");
   const fin = etape === "cadrage" ? promptCadrage(tour ?? 1) : PROMPT_RESULTAT;
   return [PROMPT_COMMUN, GRILLE_TEXTE, fin].join("\n\n");
 }
@@ -145,30 +176,10 @@ function syntheseModele(s: SyntheseTerrain) {
   };
 }
 
-function donneesModele(demande: Demande) {
-  if (demande.etape === "synthese") {
-    const { contexte } = demande;
-    return {
-      langue_reponse: demande.langue,
-      etape: "synthese" as const,
-      contexte: {
-        mecanisme: assainir(contexte.mecanisme),
-        contexte_declencheur: assainir(contexte.contexte),
-        super_benefice: assainir(contexte.benefice),
-        offre: assainir(contexte.offre),
-      },
-      notes_terrain: demande.notes.map((n) => ({ id: n.id, titre: assainir(n.titre), texte: assainir(n.texte) })),
-    };
-  }
-  const entree: EntreeMaCible = demande.entree;
+/** Talent, terrain, idées et synthèse : communs au cadrage, au résultat et aux approfondissements (§8.8). */
+function donneesPersonne(entree: EntreeMaCible) {
   const { talent, terrain } = entree;
-  const esquisse: Esquisse | undefined = demande.etape === "resultat" ? demande.esquisse : demande.esquissePrecedente;
-  const corrections: Corrections | undefined = demande.corrections;
-  const tour3 = demande.etape === "cadrage" && demande.tour === 3;
   return {
-    langue_reponse: entree.langue,
-    etape: demande.etape,
-    tour: demande.etape === "cadrage" ? demande.tour : undefined,
     talent_unique: {
       nom: champ(talent.nom),
       mecanisme: champ(talent.mecanisme),
@@ -190,8 +201,73 @@ function donneesModele(demande: Demande) {
       prix_actuel: champ(terrain.prixActuel),
       ton_des_messages: { adresse: LIBELLES_FR.adresse[terrain.adresse], style: LIBELLES_FR.styles[terrain.style] },
     },
-    idees_de_cibles: entree.terrain.ciblesEnTete.map((t, i) => ({ id: `i${i + 1}`, texte: assainir(t) })),
+    idees_de_cibles: terrain.ciblesEnTete.map((t, i) => ({ id: `i${i + 1}`, texte: assainir(t) })),
     ce_que_dit_le_terrain: entree.synthese ? syntheseModele(entree.synthese) : undefined,
+  };
+}
+
+function donneesModele(demande: Demande) {
+  if (demande.etape === "synthese") {
+    const { contexte } = demande;
+    return {
+      langue_reponse: demande.langue,
+      etape: "synthese" as const,
+      contexte: {
+        mecanisme: assainir(contexte.mecanisme),
+        contexte_declencheur: assainir(contexte.contexte),
+        super_benefice: assainir(contexte.benefice),
+        offre: assainir(contexte.offre),
+      },
+      notes_terrain: demande.notes.map((n) => ({ id: n.id, titre: assainir(n.titre), texte: assainir(n.texte) })),
+    };
+  }
+  if (demande.etape === "approfondir") {
+    const base = donneesPersonne(demande.entree);
+    if (demande.mode === "portrait") {
+      const c = demande.cible;
+      return {
+        langue_reponse: demande.entree.langue,
+        etape: "approfondir" as const,
+        ...base,
+        offre_affinee: assainir(demande.offre),
+        cible_a_approfondir: {
+          nom: assainir(c.nom),
+          marche: c.marche,
+          portrait: assainir(c.portrait),
+          douleur: assainir(c.douleur),
+          ancrage: assainir(c.ancrage),
+          promesse: assainir(c.promesse),
+        },
+        lieux_deja_donnes: c.lieux.map(assainir),
+      };
+    }
+    const pi = demande.piste;
+    return {
+      langue_reponse: demande.entree.langue,
+      etape: "approfondir" as const,
+      ...base,
+      offre_affinee: assainir(demande.offre),
+      piste_a_creuser: {
+        nom: assainir(pi.nom),
+        marche: pi.marche,
+        enUneLigne: assainir(pi.enUneLigne),
+        raison: assainir(pi.raison),
+        depuisIdees: pi.depuisIdees,
+        notes_pressenties: pi.notes,
+      },
+      cibles_existantes: demande.ciblesExistantes.map(assainir),
+      identifiant_cible: demande.idCible,
+    };
+  }
+  const entree: EntreeMaCible = demande.entree;
+  const esquisse: Esquisse | undefined = demande.etape === "resultat" ? demande.esquisse : demande.esquissePrecedente;
+  const corrections: Corrections | undefined = demande.corrections;
+  const tour3 = demande.etape === "cadrage" && demande.tour === 3;
+  return {
+    langue_reponse: entree.langue,
+    etape: demande.etape,
+    tour: demande.etape === "cadrage" ? demande.tour : undefined,
+    ...donneesPersonne(entree),
     reponses_aux_questions: entree.reponses.map((r) => ({ question: assainir(r.question), reponse: assainir(r.reponse) })),
     esquisse_precedente: tour3 && esquisse ? assainirTout(esquisse) : undefined,
     esquisse_validee: demande.etape === "resultat" ? assainirTout(demande.esquisse) : undefined,

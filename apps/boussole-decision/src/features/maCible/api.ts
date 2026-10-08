@@ -1,7 +1,7 @@
 // Appel de la route API (§3.6, §10.1). Aucune clé ici : la clé du fournisseur reste sur le serveur.
 import { CLE_SESSION_NAVIGATEUR, CLE_TEST_NAVIGATEUR, ENTETE_SESSION, ENTETE_TEST, PARAM_TEST, sessionValide } from "@/domain/maCible/acces";
 import type { CompteMasques } from "@/domain/maCible/masquage";
-import type { Cadrage, Demande, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
+import type { Cadrage, Cible, Demande, IdCible, IdPiste, LignePiste, Portrait, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
 import { BASE_PATH } from "@/lib/config";
 
 export const URL_API = `${BASE_PATH}/api/ma-cible/`;
@@ -36,6 +36,8 @@ export type ReponseApi =
       masques: CompteMasques;
       restant: number;
     }
+  | { ok: true; portrait: Portrait; id: IdCible; restant: number }
+  | { ok: true; portrait: Portrait; cible: Cible; ligne: LignePiste; pisteId: IdPiste; restant: number }
   | { ok: false; code: CodeErreur; max?: number };
 
 const CODES: readonly CodeErreur[] = ["entree_invalide", "trop_long", "origine_refusee", "quota_ip", "quota_global", "ia_invalide", "ia_indisponible", "config_manquante"];
@@ -117,6 +119,13 @@ export async function appelerApi(demande: Demande, signal?: AbortSignal, fetchIm
           },
           restant: typeof o.restant === "number" ? o.restant : 0,
         };
+      }
+      if (o.etape === "approfondir" && o.portrait) {
+        const restant = typeof o.restant === "number" ? o.restant : 0;
+        if (o.mode === "portrait" && typeof o.id === "string") return { ok: true, portrait: o.portrait as Portrait, id: o.id as IdCible, restant };
+        if (o.mode === "piste" && o.cible && o.ligne && typeof o.pisteId === "string") {
+          return { ok: true, portrait: o.portrait as Portrait, cible: o.cible as Cible, ligne: o.ligne as LignePiste, pisteId: o.pisteId as IdPiste, restant };
+        }
       }
       return { ok: false, code: "inconnue" };
     }
