@@ -91,6 +91,46 @@ describe("critères non négociables", () => {
   });
 });
 
+describe("pourcentage libre", () => {
+  const note = (id: string, percent: number) => ({ criterionId: id, opportunityId: "o", value: "p50" as const, percent });
+
+  it("devient la note telle quelle, sans changer les notes en mots", () => {
+    expect(satisfactionOf(c("x"), { value: "p75", percent: 65 })).toBe(65);
+    expect(satisfactionOf(c("x"), "p75")).toBe(75);
+    expect(satisfactionOf(c("x"), { value: "p75" })).toBe(75);
+    expect(scoreOpportunity(opp, [c("a")], [note("a", 65)]).score).toBe(65);
+    expect(scoreOpportunity(opp, [c("a")], [ev("a", "p75")]).score).toBe(75);
+  });
+
+  it("à éviter : le pourcentage est la présence, la satisfaction s'inverse", () => {
+    expect(satisfactionOf(c("x", { direction: "AWAY_FROM" }), { value: "p25", percent: 20 })).toBe(80);
+  });
+
+  it("non négociable pour aller vers : respecté seulement à 100 %", () => {
+    const plancher = c("plancher", { nonNegotiable: true });
+    const score = (percent: number) => scoreOpportunity(opp, [plancher], [note("plancher", percent)]);
+    expect(score(50).status).toBe("non_conforme");
+    expect(score(65).status).toBe("non_conforme");
+    expect(score(100).status).toBe("conforme");
+  });
+
+  it("anti-contexte : 45 % n'alerte pas, 50 % alerte", () => {
+    const anti = c("anti", { direction: "AWAY_FROM" });
+    const score = (percent: number) => scoreOpportunity(opp, [anti], [note("anti", percent)]);
+    expect(score(45).antiContextAlerts).toHaveLength(0);
+    expect(score(50).antiContextAlerts[0]).toMatchObject({ severity: "alerte", presence: 50 });
+  });
+
+  it("non négociable à éviter : 0 % conforme, 50 % est une ligne rouge", () => {
+    const rouge = c("rouge", { nonNegotiable: true, direction: "AWAY_FROM" });
+    const score = (percent: number) => scoreOpportunity(opp, [rouge], [note("rouge", percent)]);
+    expect(score(0).status).toBe("conforme");
+    const mid = score(50);
+    expect(mid.status).toBe("non_conforme");
+    expect(mid.antiContextAlerts[0]).toMatchObject({ severity: "ligne_rouge", presence: 50 });
+  });
+});
+
 describe("alertes Anti-Contexte", () => {
   const anti = c("anti", { direction: "AWAY_FROM", importance: "tres_important" });
   it("alerte à partir de 50 % de présence", () => {

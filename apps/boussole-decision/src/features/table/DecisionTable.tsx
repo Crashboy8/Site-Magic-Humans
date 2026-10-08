@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
 import { LOVE_TABLE } from "@/content/amour";
+import { AIDE_POURCENTAGE, appliquerPourcentageLocal, clePourcentage, pourcentageValide, valeurProche } from "@/domain/pourcentage";
 import { COULEUR_RELATION, apparenceParDefaut, type RelationLook } from "@/domain/relationApparence";
 import { enregistrerApparence, useApparenceRelations } from "@/features/amour/apparenceLocale";
 import { BoutonApparence } from "@/features/amour/ChoixApparence";
@@ -37,7 +38,9 @@ import type {
   Opportunity,
 } from "@/domain/types";
 import { InlineComments, type CommentViewer } from "@/features/comments/CommentThread";
-import { IMPORTANCE_CLASS, evaluationClass } from "./styles";
+import { MenuNotation } from "./MenuNotation";
+import { memoriserPourcentage, oublierPourcentage, usePourcentagesLocaux } from "./pourcentageLocale";
+import { IMPORTANCE_CLASS } from "./styles";
 
 interface Props {
   versionId: string;
@@ -76,8 +79,9 @@ function useTableTexts() {
   return { ...base, ...LOVE_TABLE };
 }
 
-const EVAL_ORDER: EvaluationValue[] = ["oui", "p75", "p50", "p25", "non", "inconnu"];
 const key = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
+
+type Saisie = { value: EvaluationValue; percent?: number };
 
 function Table({
   versionId,
@@ -97,18 +101,52 @@ function Table({
   const [opportunities, setOpportunities] = useState(initial.opportunities);
   const love = useContext(LoveTableContext);
   const relations = useApparenceRelations(opportunities, love, love && !readOnly);
-  const [cells, setCells] = useState(() => new Map(initial.evaluations.map((e) => [key(e.criterionId, e.opportunityId), e.value])));
+  const locaux = usePourcentagesLocaux();
+  const touches = useRef(new Set<string>());
+  const [cells, setCells] = useState(() => {
+    const map = new Map<string, Saisie>();
+    for (const e of initial.evaluations) {
+      map.set(key(e.criterionId, e.opportunityId), {
+        value: e.value,
+        ...(pourcentageValide(e.percent) ? { percent: e.percent } : {}),
+      });
+    }
+    return map;
+  });
   const [weights, setWeights] = useState(initialWeights);
   const scrollRef = useRef<HTMLDivElement>(null);
   const theadRef = useRef<HTMLTableSectionElement>(null);
   const [mobileIndex, setMobileIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setCells((m) => {
+      let change = false;
+      const next = new Map(m);
+      for (const e of initial.evaluations) {
+        const k = key(e.criterionId, e.opportunityId);
+        if (touches.current.has(k)) continue;
+        const fusion = appliquerPourcentageLocal(e, locaux[clePourcentage(e.criterionId, e.opportunityId)]);
+        if (!pourcentageValide(fusion.percent)) continue;
+        const actuel = next.get(k);
+        if (!actuel || actuel.percent !== undefined) continue;
+        next.set(k, { value: actuel.value, percent: fusion.percent });
+        change = true;
+      }
+      return change ? next : m;
+    });
+  }, [locaux, initial.evaluations]);
+
   const evaluations = useMemo<Evaluation[]>(
     () =>
-      [...cells.entries()].map(([k, value]) => {
+      [...cells.entries()].map(([k, cell]) => {
         const [criterionId, opportunityId] = k.split(":");
-        return { criterionId, opportunityId, value };
+        return {
+          criterionId,
+          opportunityId,
+          value: cell.percent !== undefined ? valeurProche(cell.percent) : cell.value,
+          ...(cell.percent !== undefined ? { percent: cell.percent } : {}),
+        };
       }),
     [cells],
   );
@@ -200,14 +238,19 @@ function Table({
   }
 
   // --- Cases --------------------------------------------------------------------------
-  async function setCell(criterionId: string, opportunityId: string, value: EvaluationValue | null) {
+  async function setCell(criterionId: string, opportunityId: string, saisie: Saisie | null) {
+    const k = key(criterionId, opportunityId);
+    touches.current.add(k);
     setCells((m) => {
       const next = new Map(m);
-      if (value === null) next.delete(key(criterionId, opportunityId));
-      else next.set(key(criterionId, opportunityId), value);
+      if (saisie === null) next.delete(k);
+      else if (saisie.percent !== undefined) next.set(k, { value: valeurProche(saisie.percent), percent: saisie.percent });
+      else next.set(k, { value: saisie.value });
       return next;
     });
-    await guarded(setEvaluation(db, versionId, criterionId, opportunityId, value));
+    if (saisie?.percent !== undefined) memoriserPourcentage(k, saisie.percent);
+    else oublierPourcentage(k);
+    await guarded(setEvaluation(db, versionId, criterionId, opportunityId, saisie));
   }
 
   // --- Catégories ---------------------------------------------------------------------
@@ -384,17 +427,19 @@ function Table({
                           )}
                         </th>
                         {sortedOpps.map((o) => {
-                          const value = cells.get(key(c.id, o.id)) ?? null;
+                          const cell = cells.get(key(c.id, o.id));
                           return (
                             <td
                               key={o.id}
                               className={cx("border-b border-l border-line px-2 py-2.5 text-center align-middle", colClass(o))}
                             >
-                              <EvaluationSelect
-                                value={value}
+                              <MenuNotation
+                                value={cell?.value ?? null}
+                                percent={cell?.percent}
                                 direction={c.direction}
                                 readOnly={readOnly}
-                                label={`${o.name} — ${c.label}`}
+                                label={`${o.name}, ${c.label}`}
+                                texts={T}
                                 onChange={(v) => setCell(c.id, o.id, v)}
                               />
                             </td>
@@ -559,6 +604,7 @@ function CriterionCell({
     return (
       <div className="space-y-1.5">
         <p className="leading-snug">{criterion.label}</p>
+        {criterion.description.includes(AIDE_POURCENTAGE) && <p className="text-xs leading-snug text-ink-soft">{AIDE_POURCENTAGE}</p>}
         <div className="flex flex-wrap gap-1.5">
           <span className={cx("rounded-full px-2.5 py-0.5 text-xs font-medium", IMPORTANCE_CLASS[criterion.importance])}>
             {importance.label}
@@ -602,6 +648,7 @@ function CriterionCell({
           ))}
         </select>
       </div>
+      {criterion.description.includes(AIDE_POURCENTAGE) && <p className="px-1.5 text-xs leading-snug text-ink-soft">{AIDE_POURCENTAGE}</p>}
       <div className="flex flex-wrap items-center gap-1.5 pl-1">
         <Toggle
           on={criterion.nonNegotiable}
@@ -688,39 +735,6 @@ function IconButton({
     >
       {children}
     </button>
-  );
-}
-
-function EvaluationSelect({
-  value,
-  direction,
-  readOnly,
-  label,
-  onChange,
-}: {
-  value: EvaluationValue | null;
-  direction: Criterion["direction"];
-  readOnly: boolean;
-  label: string;
-  onChange: (v: EvaluationValue | null) => void;
-}) {
-  const labels = useI18n().m.evaluationLabels[direction];
-  const cls = cx("w-full max-w-[130px] rounded-[10px] px-2 py-2 text-center text-sm font-medium", evaluationClass(value, direction));
-  if (readOnly) return <span className={cx("inline-block", cls)}>{value ? labels[value] : "—"}</span>;
-  return (
-    <select
-      aria-label={label}
-      value={value ?? ""}
-      onChange={(e) => onChange((e.target.value || null) as EvaluationValue | null)}
-      className={cx("cursor-pointer appearance-none", cls)}
-    >
-      <option value="">—</option>
-      {EVAL_ORDER.map((v) => (
-        <option key={v} value={v}>
-          {labels[v]}
-        </option>
-      ))}
-    </select>
   );
 }
 

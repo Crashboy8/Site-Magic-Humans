@@ -160,6 +160,53 @@ html[data-seance] .sticky {
   display: none;
 }
 
+.coup-oeil-radars[data-actif="non"],
+.coup-oeil-fiches[data-actif="non"] {
+  display: none;
+}
+
+/* Curseur de pourcentage : piste large, pouce assez gros pour le doigt. */
+.curseur-pourcentage {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 44px;
+  background: transparent;
+  accent-color: #e2683a;
+}
+
+.curseur-pourcentage::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 99px;
+  background: #f1e9dc;
+}
+
+.curseur-pourcentage::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px;
+  height: 32px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: #e2683a;
+  border: 3px solid #fffdf9;
+  box-shadow: 0 1px 4px rgb(58 46 38 / 0.28);
+}
+
+.curseur-pourcentage::-moz-range-track {
+  height: 10px;
+  border-radius: 99px;
+  background: #f1e9dc;
+  border: none;
+}
+
+.curseur-pourcentage::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2683a;
+  border: 3px solid #fffdf9;
+  box-shadow: 0 1px 4px rgb(58 46 38 / 0.28);
+}
+
 /* Boussole Relation : pied de page d'impression, caché à l'écran. */
 .pied-boussole {
   display: none;
@@ -217,5 +264,15 @@ html[data-seance] .sticky {
   /* Le texte du pied est dans la marge de page, pour ne pas recouvrir la dernière ligne. */
   .pied-boussole {
     display: none !important;
+  }
+
+  .coup-oeil-bascule,
+  .coup-oeil-radars {
+    display: none !important;
+  }
+
+  .coup-oeil-fiches {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
   }
 }

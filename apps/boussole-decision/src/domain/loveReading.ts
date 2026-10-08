@@ -1,7 +1,10 @@
 // Lecture « mode amour » d'une opportunité (ici : une relation). Module pur, couvert par loveReading.test.ts.
 // Règles :
 // - Tranche selon le score d'alignement arrondi : 80+ solide, 65-79 base, 50-64 tension, moins de 50 désalignement.
-// - Alerte critique : tout critère « pour aller vers » d'importance Critique noté 50 % ou moins (À moitié, Plutôt non, Non).
+// - Alerte critique : tout critère « pour aller vers » d'importance Critique noté 50 % ou moins
+//   (À moitié, Plutôt non, Non, ou un pourcentage libre ≤ 50). 55 % ne déclenche pas l'alerte.
+//   Un non négociable « pour aller vers » n'est respecté qu'à 100 % : un pourcentage ≤ 50 le manque,
+//   comme « À moitié ». Voir pourcentage.ts.
 // - Ligne rouge : critère « à éviter » non négociable présent (déjà calculé par scoring.ts, severity « ligne_rouge »).
 //   Texte : présence ≤ 50 % → ligneRougeLow ; au-dessus → ligneRougeHigh.
 // - Sécurité : critère « respect » (libellé du modèle) noté 25 % ou moins : texte d'aide affiché en premier.

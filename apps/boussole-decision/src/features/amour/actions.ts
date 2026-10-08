@@ -18,7 +18,7 @@ import { getI18n } from "@/i18n/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
 /**
- * Crée une Boussole Relation : un profil marqué « mode amour », ses 4 catégories, ses 10 critères
+ * Crée une Boussole Relation : un profil marqué « mode amour », ses 4 catégories, ses 12 critères
  * et une première colonne « Ma relation ». Sans session, ouvre d'abord un essai sans compte (comme importQuizAction).
  */
 export async function startLoveCompassAction(rawPrefill?: unknown): Promise<{ error?: string }> {

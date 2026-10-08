@@ -12,6 +12,7 @@ import type {
   Version,
 } from "@/domain/types";
 
+import { pourcentageValide } from "@/domain/pourcentage";
 import { estCouleur, estIcone, lireApparenceNotes } from "@/domain/relationApparence";
 import { normalizeWeights } from "@/domain/scoring";
 
@@ -138,8 +139,13 @@ export const mapOpportunity = (r: Row): Opportunity => {
   };
 };
 
-export const mapEvaluation = (r: Row): Evaluation => ({
-  criterionId: r.criterion_id,
-  opportunityId: r.opportunity_id,
-  value: r.value,
-});
+export const mapEvaluation = (r: Row): Evaluation => {
+  const base = {
+    criterionId: r.criterion_id,
+    opportunityId: r.opportunity_id,
+    value: r.value,
+  };
+  // Pas de migration obligatoire : sans colonne, on ne pose pas `percent` (repli localStorage).
+  if (!Object.prototype.hasOwnProperty.call(r, "percent")) return base;
+  return { ...base, percent: pourcentageValide(r.percent) ? r.percent : null };
+};

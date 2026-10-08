@@ -133,6 +133,11 @@ export interface Evaluation {
   criterionId: string;
   opportunityId: string;
   value: EvaluationValue;
+  /**
+   * Pourcentage libre (0 à 100, pas de 5). Absent : pas de colonne, repli localStorage.
+   * null : la colonne existe et la case est une note en mots. Un nombre remplace la note en mots dans le score.
+   */
+  percent?: number | null;
 }
 
 export interface InvitationCode {

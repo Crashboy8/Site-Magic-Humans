@@ -85,6 +85,18 @@ export const LOVE_TEMPLATE = {
       alert: "",
     },
     {
+      key: "attirance", category: "energie", label: "Attirance physique et désir pour l'autre",
+      guide: "L'attirance et le désir sont là la plupart du temps, pas seulement au début. Tu peux mettre un pourcentage, de 0 à 100.",
+      importance: "tres_important", nonNegotiable: false, direction: "TOWARDS", critical: false,
+      alert: "",
+    },
+    {
+      key: "sexualite", category: "energie", label: "Compatibilité sexuelle (nos envies et notre façon de vivre la sexualité)",
+      guide: "Vos envies et votre façon de vivre la sexualité vous conviennent à tous les deux. Tu peux mettre un pourcentage, de 0 à 100.",
+      importance: "tres_important", nonNegotiable: false, direction: "TOWARDS", critical: false,
+      alert: "",
+    },
+    {
       key: "complementarite", category: "quotidien", label: "Nos différences me complètent plus qu'elles ne m'usent",
       guide: "Vos différences (de rythme, de sociabilité, de façon de vivre le couple) t'enrichissent-elles, ou te fatiguent-elles ?",
       importance: "moyen", nonNegotiable: false, direction: "TOWARDS", critical: false,
@@ -159,7 +171,7 @@ export const LOVE_TEXTS = {
   start: {
     eyebrow: "Sommet Love & Connexion",
     heading: "Boussole Relation : cette relation me correspond-elle ?",
-    intro: "Évalue une relation (actuelle, ou qui commence) avec dix critères qui comptent vraiment. Tu peux ajuster les poids, ajouter une colonne pour comparer, et tout reste privé. Une alerte s'affiche si un point essentiel est touché, quel que soit le score total.",
+    intro: "Évalue une relation (actuelle, ou qui commence) avec douze critères qui comptent vraiment. Tu peux ajuster les poids, ajouter une colonne pour comparer, et tout reste privé. Une alerte s'affiche si un point essentiel est touché, quel que soit le score total.",
     button: "Commencer ma Boussole Relation",
     creating: "Je prépare ta Boussole… (une dizaine de secondes)",
     prefilled: "Ta Boussole sera préréglée avec les résultats de ton Quiz Amour : ce qui te nourrit, ce qui te vide, tes valeurs et tes non-négociables. Ta réponse sur la sécurité et tes textes libres ne sont jamais transmis.",
@@ -219,6 +231,9 @@ export const LOVE_TABLE = {
     lilas: "Lilas",
     ciel: "Bleu ciel",
   },
+  percentOption: "Mettre un pourcentage",
+  percentLegend: "Pourcentage",
+  percentValidate: "Valider",
 } as const;
 
 /**
@@ -229,10 +244,12 @@ export const LOVE_RESULTS = {
   intro:
     "Ta lecture, tes alertes et ton score d'alignement pour chaque relation. Tout se met à jour quand tu modifies ton tableau.",
   badgeNonNegotiable: "🔒 Un besoin essentiel à regarder",
-  radarTitle: "Le radar de tes relations",
-  radarIntro:
-    "Le score de chaque relation, famille de critères par famille : plus la forme est grande, plus la relation te correspond.",
-  radarCaption: "Score de chaque relation, famille de critères par famille",
+  radarTitle: "Tes relations en un coup d'œil",
+  radarIntro: "Ton score pour chaque relation, famille par famille.",
+  radarCaption: "Score de chaque relation, famille par famille",
+  viewRadars: "Radars",
+  viewFiches: "Fiches",
+  globalWord: "Global",
   projectionStart: "Imagine : demain, tu choisis vraiment",
   disappointmentHint:
     "Ton intuition te dit peut-être quelque chose que tes critères ne disent pas encore. Vers quelle autre relation ton cœur est-il parti ?",

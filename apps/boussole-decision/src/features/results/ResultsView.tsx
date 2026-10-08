@@ -5,10 +5,12 @@ import { useMemo, useState } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Card, Notice, Textarea, cx } from "@/components/ui";
 import { LOVE_RESULTS, LOVE_TABLE } from "@/content/amour";
+import { appliquerPourcentageLocal, clePourcentage } from "@/domain/pourcentage";
 import { COULEUR_RELATION, espacesFins, type RelationLook } from "@/domain/relationApparence";
 import { useApparenceRelations } from "@/features/amour/apparenceLocale";
 import { IconeTelecharger, NomRelation } from "@/features/amour/IconeRelation";
 import { JaugeScore } from "@/features/amour/JaugeScore";
+import { usePourcentagesLocaux } from "@/features/table/pourcentageLocale";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { updateVersion } from "@/data/repository";
 import { useI18n } from "@/i18n/client";
@@ -27,7 +29,7 @@ import type {
 import { LoveReading } from "@/features/amour/LoveReading";
 import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
 import { IkigaiChart } from "./IkigaiChart";
-import { Radar } from "./Radar";
+import { CoupOeil } from "./CoupOeil";
 
 interface Props {
   version: Version;
@@ -54,17 +56,22 @@ export function ResultsView(props: Props) {
 
 function Results({ version, profileId, talent, categories, criteria, opportunities, evaluations, readOnly, isOwner, theme }: Props) {
   const love = theme === "amour";
+  const locaux = usePourcentagesLocaux();
+  const notes = useMemo(
+    () => evaluations.map((e) => appliquerPourcentageLocal(e, locaux[clePourcentage(e.criterionId, e.opportunityId)])),
+    [evaluations, locaux],
+  );
   const relations = useApparenceRelations(opportunities, love, love && !readOnly);
   const weights = version.importanceWeights;
   const ranking = useMemo(
-    () => rankOpportunities(relations, criteria, evaluations, weights),
-    [relations, criteria, evaluations, weights],
+    () => rankOpportunities(relations, criteria, notes, weights),
+    [relations, criteria, notes, weights],
   );
   const verdict = verdictOf(ranking);
   const insights = useMemo(() => ranking.map((r) => insightOf(r, categories, weights)), [ranking, categories, weights]);
   const stability = useMemo(
-    () => rankingStability(opportunities, criteria, evaluations, categories, weights),
-    [opportunities, criteria, evaluations, categories, weights],
+    () => rankingStability(opportunities, criteria, notes, categories, weights),
+    [opportunities, criteria, notes, categories, weights],
   );
   const tableHref = `/versions/${version.id}/tableau/`;
   const { t, m, locale } = useI18n();
@@ -261,21 +268,28 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
         </div>
       </section>}
 
-      {/* 4. Radar ------------------------------------------------------------------------------ */}
-      <section aria-labelledby="radar" className="space-y-4">
-        <div className={love ? "eviter-coupure space-y-4" : "contents"}>
-          <SectionTitle id="radar" title={R.radarTitle}>
-            {R.radarIntro}
-          </SectionTitle>
-          <Card>
-            <Radar
-              categories={categories}
-              opportunities={relations}
-              results={ranking}
-              caption={love ? R.radarCaption : undefined}
-              teintesRelation={love}
-            />
-          </Card>
+      {/* 4. Coup d'œil ----------------------------------------------------------------------- */}
+      <section aria-labelledby="coup-oeil" className="space-y-4">
+        <div className={love ? "space-y-4" : "contents"}>
+          <div className="titre-section text-center">
+            <h2 id="coup-oeil" className="text-[34px] italic leading-tight sm:text-[44px]">
+              {R.radarTitle}
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-ink-soft">{love ? espacesFins(R.radarIntro) : R.radarIntro}</p>
+          </div>
+          <CoupOeil
+            categories={categories}
+            opportunities={relations}
+            results={ranking}
+            love={love}
+            labels={{
+              radars: R.viewRadars,
+              fiches: R.viewFiches,
+              caption: R.radarCaption,
+              category: R.category,
+              global: R.globalWord,
+            }}
+          />
         </div>
       </section>
 
@@ -384,8 +398,11 @@ function StatusBadges({ result, love }: { result: OpportunityResult; love: boole
 
 /** Libellé de la valeur évaluée, dans la langue choisie. */
 function useValueLabel() {
-  const { m } = useI18n();
-  return (d: CriterionResult) => (d.value ? m.evaluationLabels[d.criterion.direction][d.value] : "");
+  const { m, locale } = useI18n();
+  return (d: CriterionResult) => {
+    if (typeof d.percent === "number") return formatScore(d.percent, locale);
+    return d.value ? m.evaluationLabels[d.criterion.direction][d.value] : "";
+  };
 }
 
 function ItemList({ items, empty }: { items: CriterionResult[]; empty?: string }) {

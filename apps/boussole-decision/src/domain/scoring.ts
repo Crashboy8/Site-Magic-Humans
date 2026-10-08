@@ -9,10 +9,15 @@
 //   sur les critères évalués. Un critère Bonus n'entre pas au dénominateur : il ajoute
 //   jusqu'à son poids (1 par défaut) s'il est satisfait, et n'en retire jamais. Le score est plafonné à 100.
 // - « ? À vérifier » et les cases vides sont exclus du calcul et listés « à vérifier ».
-// - Non négociable : respecté seulement à 100 % de satisfaction (« Oui », ou « Absent » pour un risque).
-//   Un échec rend l'opportunité « non conforme » : elle garde son score mais passe après les autres.
+// - Un pourcentage libre (0 à 100, pas de 5) devient directement la valeur de la note, de 0 à 1.
+//   Les notes en mots ne changent pas. Un pourcentage ≤ 50 compte comme « À moitié ou moins »
+//   pour les alertes Critique et non négociable : même seuil qu'aujourd'hui (voir pourcentage.ts).
+// - Non négociable : respecté seulement à 100 % de satisfaction (« Oui », ou « Absent » pour un risque,
+//   ou un pourcentage de 100). Un échec rend l'opportunité « non conforme » : elle garde son score
+//   mais passe après les autres.
 // - Anti-Contexte : un critère « à éviter » présent à 50 % ou plus déclenche une alerte ;
 //   un « à éviter » non négociable franchi, même un peu, est une ligne rouge.
+import { pourcentageValide } from "./pourcentage";
 import type { Criterion, Evaluation, EvaluationValue, Importance, ImportanceWeights, Opportunity } from "./types";
 
 export const EVALUATION_PERCENT: Record<EvaluationValue, number | null> = {
@@ -72,6 +77,8 @@ export interface CriterionResult {
   criterion: ScoringCriterion;
   /** Valeur saisie, ou null si la case est vide. */
   value: EvaluationValue | null;
+  /** Pourcentage libre, s'il a été saisi. Il prime sur la note en mots. */
+  percent?: number;
   /** Satisfaction 0-100, ou null si non évalué (vide ou « à vérifier »). */
   satisfaction: number | null;
 }
@@ -100,9 +107,22 @@ export interface OpportunityResult {
   details: CriterionResult[];
 }
 
-export function satisfactionOf(criterion: Pick<Criterion, "direction">, value: EvaluationValue | null | undefined): number | null {
-  if (!value) return null;
-  const pct = EVALUATION_PERCENT[value];
+/**
+ * Présence saisie, de 0 à 100 (0 à 1 dans le score).
+ * Un pourcentage libre est pris tel quel. Sans lui, la note en mots garde son barème.
+ */
+export function presenceDe(note: EvaluationValue | Pick<Evaluation, "value" | "percent"> | null | undefined): number | null {
+  if (!note) return null;
+  if (typeof note !== "string" && pourcentageValide(note.percent)) return note.percent;
+  const value = typeof note === "string" ? note : note.value;
+  return EVALUATION_PERCENT[value];
+}
+
+export function satisfactionOf(
+  criterion: Pick<Criterion, "direction">,
+  value: EvaluationValue | Pick<Evaluation, "value" | "percent"> | null | undefined,
+): number | null {
+  const pct = presenceDe(value);
   if (pct === null) return null;
   return criterion.direction === "AWAY_FROM" ? 100 - pct : pct;
 }
@@ -129,23 +149,25 @@ export function alignmentScore(results: CriterionResult[], weights: ImportanceWe
 
 const evaluationKey = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
 
-export function indexEvaluations(evaluations: Evaluation[]): Map<string, EvaluationValue> {
-  return new Map(evaluations.map((e) => [evaluationKey(e.criterionId, e.opportunityId), e.value]));
+export function indexEvaluations(evaluations: Evaluation[]): Map<string, Pick<Evaluation, "value" | "percent">> {
+  return new Map(evaluations.map((e) => [evaluationKey(e.criterionId, e.opportunityId), { value: e.value, percent: e.percent }]));
 }
 
 /** Teste une opportunité face à l'ensemble des critères. */
 export function scoreOpportunity(
   opportunity: ScoringOpportunity,
   criteria: ScoringCriterion[],
-  evaluations: Map<string, EvaluationValue> | Evaluation[],
+  evaluations: Map<string, Pick<Evaluation, "value" | "percent">> | Evaluation[],
   weights: ImportanceWeights = DEFAULT_WEIGHTS,
   factor?: WeightFactor,
 ): OpportunityResult {
   const index = evaluations instanceof Map ? evaluations : indexEvaluations(evaluations);
 
   const details: CriterionResult[] = criteria.map((criterion) => {
-    const value = index.get(evaluationKey(criterion.id, opportunity.id)) ?? null;
-    return { criterion, value, satisfaction: satisfactionOf(criterion, value) };
+    const note = index.get(evaluationKey(criterion.id, opportunity.id)) ?? null;
+    const value = note?.value ?? null;
+    const percent = note && pourcentageValide(note.percent) ? note.percent : undefined;
+    return { criterion, value, ...(percent !== undefined ? { percent } : {}), satisfaction: satisfactionOf(criterion, note) };
   });
 
   const nonNegotiables = details.filter((d) => d.criterion.nonNegotiable);
