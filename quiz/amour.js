@@ -348,6 +348,36 @@
     "#screen-amour .am-salle .salle-lab .am-namebtn{flex:1;min-width:0}",
     "#screen-amour .am-salle .salle-row{grid-template-columns:minmax(0,132px) 1fr auto}",
     "@media(prefers-reduced-motion:reduce){#screen-amour .am-in,#screen-amour .am-rank-item,#screen-amour .am-benefit,#screen-amour .am-hero .eyebrow .am-ico,#screen-amour .am-badge,#screen-amour .am-just,#screen-amour .rsrc-opt,#screen-amour .pr-track i,#screen-amour .am-fam-card,#screen-amour .progress span.is-now::after{animation:none!important;transition:none!important}#screen-amour .am-pop,#screen-amour .am-burst{display:none}#screen-amour .pr-track i{width:var(--w,0%)}}",
+    "#screen-amour .rs.am-meet{gap:6px;margin:12px 0;padding:12px 12px 10px;background:#fff;color:#1B1816;border:1px solid #E8E2DB;box-shadow:none}",
+    "#screen-amour .rs.am-meet h2,#screen-amour .rs.am-meet h3,#screen-amour .rs.am-meet p,#screen-amour .rs.am-meet li,#screen-amour .rs.am-meet summary{color:#1B1816}",
+    "#screen-amour .am-meet h2,#screen-amour .am-meet h3,#screen-amour .am-meet summary{display:flex;align-items:flex-start;gap:6px}",
+    "#screen-amour .am-meet h2{margin:0;font-size:1.45rem;line-height:1.15}",
+    "#screen-amour .am-meet h2 .am-ico svg{width:20px;height:20px}",
+    "#screen-amour .am-meet h3{margin:0 0 4px;font-size:1.15rem;line-height:1.2;font-weight:600}",
+    "#screen-amour .am-meet h2>span:last-child,#screen-amour .am-meet h3>span:last-child,#screen-amour .am-meet summary>span:last-child,#screen-amour .am-meet-line>span:last-child,#screen-amour .am-meet-talent>span:last-child,#screen-amour .am-meet-list li>span:last-child{min-width:0;flex:1}",
+    "#screen-amour .am-meet-grid{display:grid;gap:8px}",
+    "@media(min-width:720px){#screen-amour .am-meet-grid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}}",
+    "#screen-amour .am-meet-card{background:#fff;border:1px solid #EFEAE4;border-radius:14px;border-top-width:3px;padding:8px 10px;margin:0}",
+    "#screen-amour .am-meet-card[data-accent=coral]{border-top-color:#C4533A}",
+    "#screen-amour .am-meet-card[data-accent=miel]{border-top-color:#8F5D00}",
+    "#screen-amour .am-meet-card[data-accent=eau]{border-top-color:#1E7A6E}",
+    "#screen-amour .am-meet-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}",
+    "#screen-amour .am-meet-list li,#screen-amour .am-meet-line,#screen-amour .am-meet-talent{display:flex;align-items:flex-start;gap:6px;margin:0;font-size:.95rem;line-height:1.35}",
+    "#screen-amour .am-meet .am-ico{flex:none;margin-top:.12em}",
+    "#screen-amour .am-meet .am-ico svg{width:16px;height:16px}",
+    "#screen-amour .am-meet .am-ico[data-ico-tone=coral]{color:#C4533A}",
+    "#screen-amour .am-meet .am-ico[data-ico-tone=miel]{color:#8F5D00}",
+    "#screen-amour .am-meet .am-ico[data-ico-tone=eau]{color:#1E7A6E}",
+    "#screen-amour .am-meet .am-ico[data-ico-tone=lilas]{color:#6E568F}",
+    "#screen-amour .am-meet .am-ico[data-ico-tone=sauge]{color:#4E7A4A}",
+    "#screen-amour details.am-meet-more{margin:0;border:1px solid #E6E0EE;border-top:3px solid #6E568F;border-radius:14px;background:#fff;padding:0}",
+    "#screen-amour details.am-meet-more>summary{align-items:center;cursor:pointer;list-style:none;padding:8px 10px;font-weight:700;font-size:.98rem;line-height:1.3}",
+    "#screen-amour details.am-meet-more>summary::-webkit-details-marker{display:none}",
+    "#screen-amour details.am-meet-more>summary::marker{content:\"\"}",
+    "#screen-amour details.am-meet-more>summary::after{content:\"\\25B6\";margin-left:auto;flex:none;font-size:.72rem;line-height:1.4;color:#6E568F}",
+    "#screen-amour details.am-meet-more[open]>summary::after{transform:rotate(90deg)}",
+    "#screen-amour details.am-meet-more .am-meet-line{padding:0 10px 8px}",
+    "#screen-amour .am-meet-talent{margin:0}",
     "@media print{",
     "@page{size:A4;margin:9mm}",
     "html,body{background:#fff!important;color:#1B1816!important;font-size:8.6pt!important;line-height:1.3!important}",
@@ -516,6 +546,7 @@
     gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
     hand: '<path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 14"/>',
     compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+    feather: '<path d="M14.086 18.412A2 2 0 0112.67 19H5v-7.672a2 2 0 01.586-1.414L11.75 3.75a6 6 0 118.49 8.49z"/><path d="M16 8 2 22"/><path d="M17.488 15H9"/>',
     gem: '<path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
     home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
     users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -1414,6 +1445,34 @@
       sections.slice(2).join("") + familyFold(pr.dom) + "</div>";
   }
 
+  function meetLine(icon, text, tone) {
+    return ico(icon, tone) + "<span>" + esc(text) + "</span>";
+  }
+
+  function rencontreHtml(profile) {
+    const domId = profile && profile.profil ? profile.profil.dom : "";
+    const besoin = D.profil.besoins[domId];
+    const rec = besoin && besoin.rencontre;
+    const icons = R.meetIcons;
+    if (!rec || !rec.lieux || !rec.activites || !rec.brilles || !rec.eviter || !rec.talent || !icons) return "";
+    function list(rows, tone) {
+      return '<ul class="am-meet-list">' + rows.map(function (row) {
+        return "<li>" + meetLine(row.icon, row.texte, tone) + "</li>";
+      }).join("") + "</ul>";
+    }
+    const cards = [
+      { accent: "coral", icon: icons.lieux, title: R.meetLieux, body: list(rec.lieux, "coral") },
+      { accent: "miel", icon: icons.activites, title: R.meetAct, body: list(rec.activites, "miel") },
+      { accent: "eau", icon: icons.brilles, title: R.meetShine, body: '<p class="am-meet-line">' + meetLine(rec.brilles.icon, rec.brilles.texte, "eau") + "</p>" }
+    ];
+    const grid = '<div class="am-meet-grid">' + cards.map(function (card) {
+      return '<article class="am-meet-card" data-accent="' + card.accent + '"><h3>' + meetLine(card.icon, card.title, card.accent) + "</h3>" + card.body + "</article>";
+    }).join("") + "</div>";
+    const more = '<details class="am-meet-more"><summary>' + meetLine(icons.eviter, R.meetAvoid, "lilas") + '</summary><p class="am-meet-line">' + meetLine(rec.eviter.icon, rec.eviter.texte, "lilas") + "</p></details>";
+    const talent = '<p class="am-meet-talent">' + meetLine(icons.talent, rec.talent, "sauge") + "</p>";
+    return '<section class="rs am-meet am-screen-only" id="sec-meet"><h2>' + meetLine(icons.section, R.meetH, "coral") + "</h2>" + grid + more + talent + "</section>";
+  }
+
   function showResults(profile) {
     view = "results";
     resultProfile = profile;
@@ -1491,6 +1550,7 @@
       resumeHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       profilReport(profile, stressLine) +
+      rencontreHtml(profile) +
       '<section class="rs" id="sec-now"><h2 class="am-block">' + ico("compass") + esc(R.nowH) + "</h2>" + petitPasHtml() + '<div class="stack">' +
       '<article class="rule" data-tone="sky"><span class="k">1</span><strong>' + ico("compass", "sky") + '<span class="am-lab">' + esc(R.nowTest) + "</span></strong><p>" + esc(R.nowTestP) + "</p>" +
       '<a class="btn" data-act="boussole" href="' + esc(boussoleHref) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowBoussole) + "</a></article>" +
