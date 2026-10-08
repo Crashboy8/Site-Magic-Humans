@@ -199,6 +199,7 @@ export const LOVE_TABLE = {
 export const LOVE_RESULTS = {
   intro:
     "Ta lecture, tes alertes et ton score d'alignement pour chaque relation. Tout se met à jour quand tu modifies ton tableau.",
+  badgeNonNegotiable: "🔒 Un besoin essentiel à regarder",
   radarTitle: "Le radar de tes relations",
   radarIntro:
     "Le score de chaque relation, famille de critères par famille : plus la forme est grande, plus la relation te correspond.",

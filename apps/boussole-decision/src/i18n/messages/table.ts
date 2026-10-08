@@ -73,7 +73,7 @@ const fr = {
   legendNonNegotiable: "🔒 Non négociable",
   legendNonNegotiableText: " : s'il n'est pas pleinement respecté, l'opportunité est signalée et classée après les autres",
   legendAvoid: "↩ À éviter",
-  legendAvoidText: ": on évalue la présence du risque",
+  legendAvoidText: " : on évalue la présence du risque",
 };
 
 const en: typeof fr = {

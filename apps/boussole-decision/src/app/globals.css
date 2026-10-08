@@ -97,6 +97,11 @@ h3 {
 html[data-seance] [data-chrome] {
   display: none;
 }
+
+/* Boussole Relation : le sélecteur FR · EN · ES disparaît, le français reste. Le mode pro ne pose pas la marque. */
+body:has([data-amour-langue]) [data-lang-switch] {
+  display: none;
+}
 html[data-seance] main {
   zoom: 1.2;
   max-width: none;

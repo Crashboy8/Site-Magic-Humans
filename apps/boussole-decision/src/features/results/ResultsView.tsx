@@ -281,7 +281,8 @@ function SectionTitle({ id, title, children }: { id: string; title: string; chil
 
 function StatusBadges({ result, love }: { result: OpportunityResult; love: boolean }) {
   const redLine = result.antiContextAlerts.some((a) => a.severity === "ligne_rouge");
-  const R = useI18n().t.results;
+  const { t } = useI18n();
+  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
   return (
     <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
       {result.status === "non_conforme" && (
