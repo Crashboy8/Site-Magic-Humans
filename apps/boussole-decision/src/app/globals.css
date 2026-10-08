@@ -19,6 +19,7 @@
   --color-danger-soft: #f8e3dd;
   --color-sky-soft: #e8f5fc; /* bleu ciel, fonds uniquement */
   --color-sky-line: #bfe3f5; /* bleu ciel, bordures uniquement */
+  --color-ciel: #1a6578; /* icône de l'avertissement, sur fond ciel : environ 6:1 */
   --color-lilas: #5f3f8f;
   --color-lilas-soft: #f1eafa;
   --color-corail: #a8431a;
@@ -64,6 +65,15 @@ h3 {
 
 .anim-entree {
   animation: apparaitre 420ms ease-out;
+}
+
+@keyframes glisse {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(360%);
+  }
 }
 
 @keyframes apparaitre {

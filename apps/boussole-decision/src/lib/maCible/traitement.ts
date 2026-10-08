@@ -2,16 +2,18 @@
 // Rien n'est stocké ni journalisé : seuls des codes et des longueurs sont écrits en cas d'échec.
 import { createHash, timingSafeEqual } from "node:crypto";
 import { ENTETE_SESSION, ENTETE_TEST, emailAutorise, sessionValide } from "@/domain/maCible/acces";
-import { validerCorrections, validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
+import { validerContexteSynthese, validerCorrections, validerEntree, validerNotes, type ErreurChamp } from "@/domain/maCible/entree";
 import { couvrirIdees, filtrerVerbatimsCibles, qualitePistes } from "@/domain/maCible/idees";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
+import { type CompteMasques, masquerDonnees } from "@/domain/maCible/masquage";
 import { nettoyerTextes } from "@/domain/maCible/nettoyage";
 import { messageUtilisateur, promptSysteme } from "@/domain/maCible/prompt";
 import { ajouterPhrases, appliquerQualite, phrasesDepartage, questionsManquantes, type ContexteQualite } from "@/domain/maCible/qualite";
 import { classerCibles } from "@/domain/maCible/scores";
-import { SCHEMA_CADRAGE, SCHEMA_RESULTAT } from "@/domain/maCible/schemas";
-import type { Cadrage, Corrections, Demande, Esquisse, ResultatClasse } from "@/domain/maCible/types";
-import { validerCadrage, validerResultat } from "@/domain/maCible/validation";
+import { SCHEMA_CADRAGE, SCHEMA_RESULTAT, SCHEMA_SYNTHESE } from "@/domain/maCible/schemas";
+import { verifierVerbatims } from "@/domain/maCible/terrain";
+import type { Cadrage, Corrections, Demande, Esquisse, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
+import { validerCadrage, validerResultat, validerSynthese } from "@/domain/maCible/validation";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { jourParis, limitesDepuisEnv, maxGlobal, maxIp, minuitSuivantParis, type Quota } from "./quota";
 import { origineAcceptee } from "./origine";
@@ -26,6 +28,11 @@ export interface Dependances {
   emailConnecte?: string | null;
   /** Résultat réussi gardé quelques minutes pour un nouvel essai après une connexion coupée. */
   reprise?: Reprise;
+  /**
+   * Reprise en mémoire de l'instance seule. Utilisée à la place de `reprise` pour `synthese`,
+   * afin qu'aucune phrase de client ne soit écrite dans `ma_cible_reprise`.
+   */
+  repriseSensible?: Reprise;
 }
 
 interface Issue {
@@ -55,12 +62,15 @@ function cleRepriseDe(sel: string, session: string, demande: Demande): string {
 function reponseReussie(corps: unknown, etape: Demande["etape"]): corps is Record<string, unknown> {
   if (typeof corps !== "object" || corps === null) return false;
   const o = corps as Record<string, unknown>;
-  return o.ok === true && o.etape === etape && (etape === "cadrage" ? o.cadrage != null : o.resultat != null);
+  if (o.ok !== true || o.etape !== etape) return false;
+  if (etape === "cadrage") return o.cadrage != null;
+  if (etape === "resultat") return o.resultat != null;
+  return "statut" in o;
 }
 
 /** Jetons de sortie du modèle. L'entrée est bornée par `TAILLE_MAX_CORPS`, pas par ce plafond. */
-const MAX_TOKENS = { cadrage: 2_500, resultat: 10_000 } as const;
-export const DELAI_MS = { cadrage: 90_000, resultat: 240_000 } as const;
+const MAX_TOKENS = { cadrage: 2_500, resultat: 10_000, synthese: 3_000, approfondir: 6_000 } as const;
+export const DELAI_MS = { cadrage: 90_000, resultat: 240_000, synthese: 90_000, approfondir: 150_000 } as const;
 /** En dessous de ce délai restant, une relance n'a plus aucune chance d'aboutir. */
 const DELAI_MIN_RELANCE_MS = 10_000;
 
@@ -95,7 +105,16 @@ function lireDemande(corps: unknown): { ok: true; demande: Demande } | { ok: fal
   if (typeof corps !== "object" || corps === null || Array.isArray(corps)) return { ok: false, champs: [{ champ: "corps", code: "invalide" }] };
   const b = corps as Record<string, unknown>;
   const etape = b.etape;
-  if (etape !== "cadrage" && etape !== "resultat") return { ok: false, champs: [{ champ: "etape", code: "invalide" }] };
+  if (etape !== "cadrage" && etape !== "resultat" && etape !== "synthese") return { ok: false, champs: [{ champ: "etape", code: "invalide" }] };
+  if (etape === "synthese") {
+    const langue = b.langue;
+    if (langue !== "fr" && langue !== "en" && langue !== "es") return { ok: false, champs: [{ champ: "langue", code: "invalide" }] };
+    const notes = validerNotes(b.notes);
+    const contexte = validerContexteSynthese(b.contexte);
+    const champs = [...(notes.ok ? [] : notes.erreurs), ...(contexte.ok ? [] : contexte.erreurs)];
+    if (!notes.ok || !contexte.ok) return { ok: false, champs };
+    return { ok: true, demande: { etape, langue, contexte: contexte.contexte, notes: notes.notes } };
+  }
   const tour = b.tour;
   if (etape === "cadrage" && tour !== 1 && tour !== 2 && tour !== 3) return { ok: false, champs: [{ champ: "tour", code: "invalide" }] };
 
@@ -128,12 +147,15 @@ function lireDemande(corps: unknown): { ok: true; demande: Demande } | { ok: fal
   return { ok: true, demande: { etape, tour: tour as 1 | 2, entree: e.entree } };
 }
 
+type SyntheseReponse = Omit<SyntheseTerrain, "faitLe">;
+
 type Traite =
   | { ok: true; cadrage: Cadrage; reparations: number }
   | { ok: true; resultat: ResultatClasse; reparations: number }
+  | { ok: true; synthese: SyntheseReponse | null; statut: "ok" | "inutilisable"; message: string; reparations: number }
   | { ok: false; erreurs: string[]; reparations: number };
 
-function contexteQualite(demande: Demande): ContexteQualite {
+function contexteQualite(demande: Exclude<Demande, { etape: "synthese" }>): ContexteQualite {
   const { talent, terrain } = demande.entree;
   const idee = "corrections" in demande && demande.corrections ? demande.corrections.idee : "";
   return {
@@ -157,6 +179,21 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     return { ok: false, erreurs: ["JSON illisible : la réponse doit être un objet JSON seul"], reparations: 0 };
   }
   json = nettoyerTextes(json);
+  if (demande.etape === "synthese") {
+    const v = validerSynthese(json);
+    if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
+    if (v.valeur.statut === "inutilisable") {
+      return { ok: true, synthese: null, statut: "inutilisable", message: v.valeur.message.slice(0, 300), reparations: v.reparations };
+    }
+    const verifie = verifierVerbatims(v.valeur.corps, demande.notes);
+    return {
+      ok: true,
+      synthese: { ...verifie.synthese, nbNotes: demande.notes.length },
+      statut: "ok",
+      message: "",
+      reparations: v.reparations + verifie.retires,
+    };
+  }
   if (demande.etape === "cadrage") {
     const v = validerCadrage(json, demande.tour);
     if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
@@ -236,7 +273,8 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
     secretEgal(env.MA_CIBLE_CLE_TEST?.trim() ?? "", request.headers.get(ENTETE_TEST)?.trim() ?? "") ||
     emailAutorise(env.MA_CIBLE_EMAILS_ILLIMITES, deps.emailConnecte);
 
-  const deja = cleGardee && deps.reprise ? await deps.reprise.lire(cleGardee) : null;
+  const garde = etape === "synthese" ? deps.repriseSensible : deps.reprise;
+  const deja = cleGardee && garde ? await garde.lire(cleGardee) : null;
   if (reponseReussie(deja, etape)) return repondre(deja);
   const enCours = cleGardee ? generations.get(cleGardee) : undefined;
   if (enCours) return repondreIssue(await enCours);
@@ -246,7 +284,7 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
     if (!autorisation.ok) return refuserQuota(autorisation.motif ?? "ip", etape, limites, maintenant);
   }
 
-  const repriseApresAttente = cleGardee && deps.reprise ? await deps.reprise.lire(cleGardee) : null;
+  const repriseApresAttente = cleGardee && garde ? await garde.lire(cleGardee) : null;
   if (reponseReussie(repriseApresAttente, etape)) return repondre(repriseApresAttente);
   const demarree = cleGardee ? generations.get(cleGardee) : undefined;
   if (demarree) return repondreIssue(await demarree);
@@ -261,9 +299,9 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
     } else if (issue.compte) {
       issue.corps.restant = maxIp(limites, etape);
     }
-    if (issue.compte && cleGardee && deps.reprise) {
+    if (issue.compte && cleGardee && garde) {
       try {
-        await deps.reprise.garder(cleGardee, issue.corps);
+        await garde.garder(cleGardee, issue.corps);
       } catch {
         console.error("[ma-cible]", { code: "reprise_secours" });
       }
@@ -295,22 +333,40 @@ function repondreIssue(issue: Issue): Response {
 }
 
 /** Appel au modèle, avec une seule relance. N'incrémente pas le quota. */
+/** Masque une copie des notes. La demande d'origine, utilisée pour l'empreinte de reprise, n'est pas modifiée. */
+function demandePourModele(demande: Demande): { demande: Demande; masques: CompteMasques } {
+  if (demande.etape !== "synthese") return { demande, masques: { mails: 0, telephones: 0, liens: 0 } };
+  const masques: CompteMasques = { mails: 0, telephones: 0, liens: 0 };
+  const notes = demande.notes.map((n) => {
+    const titre = masquerDonnees(n.titre);
+    const texte = masquerDonnees(n.texte);
+    masques.mails += titre.mails + texte.mails;
+    masques.telephones += titre.telephones + texte.telephones;
+    masques.liens += titre.liens + texte.liens;
+    return { ...n, titre: titre.texte, texte: texte.texte };
+  });
+  return { demande: { ...demande, notes }, masques };
+}
+
 async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
   const etape = demande.etape;
+  const pourModele = demandePourModele(demande);
+  const demandeModele = pourModele.demande;
+  const masques = pourModele.masques;
   const debut = Date.now();
   const delaiTotal = DELAI_MS[etape];
   let erreurs: string[] | undefined;
   let derniereLongueur = 0;
   for (let essai = 1; essai <= 2; essai++) {
-    const reste = etape === "resultat" ? delaiTotal - (Date.now() - debut) : delaiTotal;
+    const reste = delaiTotal - (Date.now() - debut);
     if (essai === 2 && reste < DELAI_MIN_RELANCE_MS) break;
     let brut: string;
     try {
       brut = await deps.fournisseur!.appeler({
-        systeme: promptSysteme(etape, demande.etape === "cadrage" ? demande.tour : undefined),
-        utilisateur: messageUtilisateur(demande, erreurs),
-        schema: etape === "cadrage" ? SCHEMA_CADRAGE : SCHEMA_RESULTAT,
-        nomSchema: etape === "cadrage" ? "cadrage" : "resultat",
+        systeme: promptSysteme(etape, demandeModele.etape === "cadrage" ? demandeModele.tour : undefined),
+        utilisateur: messageUtilisateur(demandeModele, erreurs),
+        schema: etape === "cadrage" ? SCHEMA_CADRAGE : etape === "resultat" ? SCHEMA_RESULTAT : SCHEMA_SYNTHESE,
+        nomSchema: etape,
         maxTokens: MAX_TOKENS[etape],
         delaiMs: Math.min(delaiTotal, reste),
       });
@@ -329,13 +385,15 @@ async function generer(deps: Dependances, demande: Demande): Promise<Issue> {
       }
     }
     derniereLongueur = brut.length;
-    const traite = traiterTexte(brut, demande);
+    const traite = traiterTexte(brut, demandeModele);
     if (traite.ok) {
       if (traite.reparations > 0) echec("reparations", demande, { reparations: traite.reparations });
       const corps =
         "cadrage" in traite
-          ? { ok: true, etape: "cadrage", cadrage: traite.cadrage, restant: 0 }
-          : { ok: true, etape: "resultat", resultat: traite.resultat, restant: 0 };
+          ? { ok: true, etape: "cadrage" as const, cadrage: traite.cadrage, restant: 0 }
+          : "resultat" in traite
+            ? { ok: true, etape: "resultat" as const, resultat: traite.resultat, restant: 0 }
+            : { ok: true, etape: "synthese" as const, statut: traite.statut, message: traite.message, synthese: traite.synthese, masques, restant: 0 };
       return { status: 200, corps, compte: true };
     }
     erreurs = traite.erreurs;

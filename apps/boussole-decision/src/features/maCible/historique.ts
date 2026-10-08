@@ -1,4 +1,5 @@
 // Historique des résultats du Cibleur, dans le navigateur. Au plus 10, du plus récent au plus ancien.
+import { validerSyntheseEntree } from "@/domain/maCible/entree";
 import { classerCibles } from "@/domain/maCible/scores";
 import { EXTRAS_VIDES, type EntreeMaCible, type Extras, type ResultatClasse } from "@/domain/maCible/types";
 import { validerResultat } from "@/domain/maCible/validation";
@@ -48,7 +49,14 @@ function lireUne(v: unknown): EntreeHistorique | null {
   return {
     id: o.id,
     faitLe: o.faitLe,
-    entree: { ...entreeBrut, terrain: terrainLu, synthese: entreeBrut.synthese ?? null },
+    entree: {
+      ...entreeBrut,
+      terrain: terrainLu,
+      synthese: (() => {
+        const lue = validerSyntheseEntree(entreeBrut.synthese);
+        return lue.ok ? lue.synthese : null;
+      })(),
+    },
     resultat: { ...valide.valeur, classement: classerCibles(valide.valeur.cibles) },
     coches: o.coches as boolean[],
     extras: o.extras === undefined ? EXTRAS_VIDES : { portraits: {}, pistes: {} },

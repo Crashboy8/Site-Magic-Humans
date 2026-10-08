@@ -1,6 +1,7 @@
 // Appel de la route API (§3.6, §10.1). Aucune clé ici : la clé du fournisseur reste sur le serveur.
 import { CLE_SESSION_NAVIGATEUR, CLE_TEST_NAVIGATEUR, ENTETE_SESSION, ENTETE_TEST, PARAM_TEST, sessionValide } from "@/domain/maCible/acces";
-import type { Cadrage, Demande, ResultatClasse } from "@/domain/maCible/types";
+import type { CompteMasques } from "@/domain/maCible/masquage";
+import type { Cadrage, Demande, ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
 import { BASE_PATH } from "@/lib/config";
 
 export const URL_API = `${BASE_PATH}/api/ma-cible/`;
@@ -27,6 +28,14 @@ export type CodeErreur =
 export type ReponseApi =
   | { ok: true; cadrage: Cadrage }
   | { ok: true; resultat: ResultatClasse }
+  | {
+      ok: true;
+      synthese: Omit<SyntheseTerrain, "faitLe"> | null;
+      statut: "ok" | "inutilisable";
+      message: string;
+      masques: CompteMasques;
+      restant: number;
+    }
   | { ok: false; code: CodeErreur; max?: number };
 
 const CODES: readonly CodeErreur[] = ["entree_invalide", "trop_long", "origine_refusee", "quota_ip", "quota_global", "ia_invalide", "ia_indisponible", "config_manquante"];
@@ -94,6 +103,21 @@ export async function appelerApi(demande: Demande, signal?: AbortSignal, fetchIm
     if (r.ok && o.ok === true) {
       if (o.etape === "cadrage" && o.cadrage) return { ok: true, cadrage: o.cadrage as Cadrage };
       if (o.etape === "resultat" && o.resultat) return { ok: true, resultat: o.resultat as ResultatClasse };
+      if (o.etape === "synthese" && (o.statut === "ok" || o.statut === "inutilisable")) {
+        const m = (typeof o.masques === "object" && o.masques !== null ? o.masques : {}) as Record<string, unknown>;
+        return {
+          ok: true,
+          synthese: (o.synthese ?? null) as Omit<SyntheseTerrain, "faitLe"> | null,
+          statut: o.statut,
+          message: typeof o.message === "string" ? o.message : "",
+          masques: {
+            mails: typeof m.mails === "number" ? m.mails : 0,
+            telephones: typeof m.telephones === "number" ? m.telephones : 0,
+            liens: typeof m.liens === "number" ? m.liens : 0,
+          },
+          restant: typeof o.restant === "number" ? o.restant : 0,
+        };
+      }
       return { ok: false, code: "inconnue" };
     }
     const code = (CODES as readonly unknown[]).includes(o.code) ? (o.code as CodeErreur) : "inconnue";

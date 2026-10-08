@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { Button, Card, Input } from "@/components/ui";
 import type { ErreurChamp } from "@/domain/maCible/entree";
 import { LIMITES } from "@/domain/maCible/limites";
-import type { Adresse, Format, Marche, Style, Terrain } from "@/domain/maCible/types";
+import type { FournisseurNotes } from "@/domain/maCible/fournisseurNotes";
+import type { Adresse, Format, Marche, NoteTerrain, Style, SyntheseTerrain, Terrain } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { AlerteSoumission, BarreBoutons, ChampTexte, GroupePastilles, GroupeRadio, ResumeErreurs } from "./Champs";
 import { defilerVersChamp } from "./defilement";
@@ -12,6 +13,7 @@ import { idChamp, messageChamp, messagePresBouton } from "./erreurs";
 import { RappelConfidentialite } from "./Confidentialite";
 import { CLASSE_CARTE, PastilleIcone } from "./Habillage";
 import { Icone } from "./Icones";
+import { NotesTerrain, type LectureNotes } from "./NotesTerrain";
 
 const entrees = <T extends string>(o: Record<T, string>) => (Object.keys(o) as T[]).map((valeur) => ({ valeur, label: o[valeur] }));
 
@@ -78,22 +80,36 @@ export function EtapeTerrain({
   erreurs,
   horsSujet,
   fournisseur,
+  synthese,
+  fournisseurNotes,
+  maxSynthese,
+  appelEnCours,
   M,
   onChange,
   onPrenom,
   onRetour,
   onContinuer,
+  onLireNotes,
+  onRetirerVerbatim,
+  onEffacerSynthese,
 }: {
   terrain: Terrain;
   prenom: string;
   erreurs: ErreurChamp[];
   horsSujet: string | null;
   fournisseur: string;
+  synthese: SyntheseTerrain | null;
+  fournisseurNotes: FournisseurNotes;
+  maxSynthese: number;
+  appelEnCours: boolean;
   M: MaCibleMessages;
   onChange: (patch: Partial<Terrain>) => void;
   onPrenom: (v: string) => void;
   onRetour: () => void;
   onContinuer: () => void;
+  onLireNotes: (notes: NoteTerrain[]) => Promise<LectureNotes>;
+  onRetirerVerbatim: (id: string) => void;
+  onEffacerSynthese: () => void;
 }) {
   const T = M.terrain;
   const erreurDe = (c: string) => erreurs.find((e) => e.champ === `terrain.${c}`);
@@ -275,6 +291,17 @@ export function EtapeTerrain({
         )}
       </section>
 
+      <NotesTerrain
+        synthese={synthese}
+        fournisseurNotes={fournisseurNotes}
+        maxSynthese={maxSynthese}
+        autreAppel={appelEnCours}
+        M={M}
+        onLire={onLireNotes}
+        onRetirerVerbatim={onRetirerVerbatim}
+        onEffacer={onEffacerSynthese}
+      />
+
       <Card className={`${CLASSE_CARTE} space-y-5 rounded-2xl p-6 sm:p-8`}>
         <div className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-lilas-soft to-transparent px-3 py-2">
           <PastilleIcone nom="bulle" teinte="lilas" />
@@ -303,7 +330,7 @@ export function EtapeTerrain({
         </Button>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
           <AlerteSoumission message={messageBouton} />
-          <Button type="submit" className="max-sm:w-full">
+          <Button type="submit" className="max-sm:w-full" disabled={appelEnCours}>
             {T.continuer}
           </Button>
         </div>

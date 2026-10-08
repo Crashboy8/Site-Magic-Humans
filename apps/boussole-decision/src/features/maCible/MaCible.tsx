@@ -4,9 +4,11 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { Button, Notice } from "@/components/ui";
 import { lireAncre, type AncreLue } from "@/domain/maCible/ancre";
 import { validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
-import type { Corrections, Demande } from "@/domain/maCible/types";
+import type { FournisseurNotes } from "@/domain/maCible/fournisseurNotes";
+import type { Corrections, Demande, NoteTerrain, SyntheseTerrain } from "@/domain/maCible/types";
 import { useI18n } from "@/i18n/client";
 import { appelerApi, preparerAccesTest } from "./api";
+import type { LectureNotes } from "./NotesTerrain";
 import { Attente, type ErreurAppel } from "./Attente";
 import { AvertissementIA, EncartConfidentialite } from "./Confidentialite";
 import { EtapeEsquisse } from "./EtapeEsquisse";
@@ -23,11 +25,21 @@ import { effacer, ecrire, lire } from "./stockage";
 
 interface Attendre {
   type: "cadrage" | "resultat";
-  demande: Demande;
+  demande: Exclude<Demande, { etape: "synthese" }>;
   erreur: ErreurAppel | null;
 }
 
-export function MaCible({ fournisseur }: { fournisseur: string }) {
+export function MaCible({
+  fournisseur,
+  fournisseurNotes,
+  maxSynthese,
+  maxApprofondir,
+}: {
+  fournisseur: string;
+  fournisseurNotes: FournisseurNotes;
+  maxSynthese: number;
+  maxApprofondir: number;
+}) {
   const { locale, t, m } = useI18n();
   const M = t.maCible;
   const methode = methodeAlignee(M, m);
@@ -39,6 +51,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   const [erreurs, setErreurs] = useState<ErreurChamp[]>([]);
   const [historique, setHistorique] = useState<EntreeHistorique[]>([]);
   const [vue, setVue] = useState<null | { type: "liste" } | { type: "lecture"; entree: EntreeHistorique }>(null);
+  const [appelEnCours, setAppelEnCours] = useState<null | "synthese">(null);
   const controleur = useRef<AbortController | null>(null);
   const premier = useRef(true);
 
@@ -78,12 +91,40 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
     document.querySelector<HTMLElement>("[data-titre-etape]")?.focus();
   }, [etat.etape, pret]);
 
+  async function lireNotes(notes: NoteTerrain[]): Promise<LectureNotes> {
+    if (appelEnCours) return { ok: false, code: "inconnue" };
+    setAppelEnCours("synthese");
+    try {
+      const r = await appelerApi({
+        etape: "synthese",
+        langue: langueEntree(locale),
+        contexte: {
+          mecanisme: etat.entree.talent.mecanisme,
+          contexte: etat.entree.talent.contexte,
+          benefice: etat.entree.talent.benefice,
+          offre: etat.entree.terrain.offre,
+        },
+        notes,
+      });
+      if (!r.ok) return { ok: false, code: r.code, max: r.max };
+      if (!("statut" in r)) return { ok: false, code: "inconnue" };
+      if (r.statut === "ok" && r.synthese) {
+        const synthese: SyntheseTerrain = { ...r.synthese, faitLe: new Date().toISOString() };
+        dispatch({ type: "synthese", synthese });
+        return { ok: true, statut: "ok", masques: r.masques };
+      }
+      return { ok: true, statut: "inutilisable", message: r.message, masques: r.masques };
+    } finally {
+      setAppelEnCours(null);
+    }
+  }
+
   const talentOuTerrain = (champs: "talent." | "terrain.") => {
     const v = validerEntree(etat.entree);
     return v.ok ? [] : v.erreurs.filter((e) => e.champ.startsWith(champs));
   };
 
-  async function lancer(demande: Demande) {
+  async function lancer(demande: Exclude<Demande, { etape: "synthese" }>) {
     const type = demande.etape;
     setHorsSujet(null);
     setAttente({ type, demande, erreur: null });
@@ -195,7 +236,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   const dateHistorique = (faitLe: string) =>
     new Date(faitLe).toLocaleDateString(locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-  if (!pret) return <div className="mx-auto max-w-3xl" aria-busy="true" />;
+  if (!pret) return <div className="mx-auto max-w-3xl" aria-busy="true" data-max-approfondir={maxApprofondir} />;
 
   const etape = etat.etape;
   const accueilVisible = etape === "accueil" || ancre !== null;
@@ -252,6 +293,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           locale={locale}
           M={M}
           nbHistorique={historique.length}
+          synthese={vue.entree.entree.synthese}
           lecture
           bandeauLecture={M.resultat.bandeauDate(dateHistorique(vue.entree.faitLe))}
           onCoche={() => {}}
@@ -279,6 +321,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           locale={locale}
           M={M}
           nbHistorique={historique.length}
+          synthese={etat.entree.synthese}
           onCoche={(index) => dispatch({ type: "coche", index })}
           onModifier={() => aller("terrain")}
           onEffacer={() => toutEffacer(M.resultat.confirmEffacer)}
@@ -423,11 +466,18 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
               erreurs={erreurs}
               horsSujet={horsSujet}
               fournisseur={fournisseur}
+              synthese={etat.entree.synthese}
+              fournisseurNotes={fournisseurNotes}
+              maxSynthese={maxSynthese}
+              appelEnCours={appelEnCours !== null}
               M={M}
               onChange={(patch) => dispatch({ type: "terrain", patch })}
               onPrenom={(prenom) => dispatch({ type: "prenom", prenom })}
               onRetour={() => aller("talent")}
               onContinuer={continuerTerrain}
+              onLireNotes={lireNotes}
+              onRetirerVerbatim={(id) => dispatch({ type: "retirerVerbatim", id })}
+              onEffacerSynthese={() => dispatch({ type: "synthese", synthese: null })}
             />
           )}
           {etape === "questions" && etat.cadrage?.statut !== "questions" && (

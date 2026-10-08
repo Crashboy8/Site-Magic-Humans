@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cx } from "@/components/ui";
 import { iconeCanal, iconeCible, iconeLieu } from "@/domain/maCible/iconeCible";
 import { GRILLE, type CleCritere, type LigneClassement } from "@/domain/maCible/scores";
-import type { Cible } from "@/domain/maCible/types";
+import type { Cible, SyntheseTerrain } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
 import { AnneauScore, CLASSE_CARTE, PastilleFine, PastilleIcone, PastillePriorite, TEINTE, teinteCible, teintePriorite, type Teinte } from "./Habillage";
@@ -108,11 +108,45 @@ function Liste({ items }: { items: string[] }) {
   );
 }
 
+function ClientsCible({
+  rang,
+  cible,
+  synthese,
+  libelle,
+  tire,
+}: {
+  rang: number;
+  cible: Cible;
+  synthese: SyntheseTerrain | null;
+  libelle: string;
+  tire: string;
+}) {
+  const phrases = (synthese?.verbatims ?? []).filter((v) => cible.verbatims.includes(v.id));
+  if (phrases.length === 0) return null;
+  return (
+    <section id={`cible-${rang}-clients`} className="scroll-mt-20 space-y-3 rounded-2xl border border-line border-l-4 border-l-lilas bg-paper p-4">
+      <h3 className="flex items-start gap-3 font-serif text-[20px] italic">
+        <PastilleIcone nom="bulle" teinte="lilas" taille="sm" />
+        <span>{libelle}</span>
+      </h3>
+      <ul className="space-y-3">
+        {phrases.map((v) => (
+          <li key={v.id} className="space-y-2">
+            <blockquote className="text-[17px] italic leading-relaxed">« {v.citation} »</blockquote>
+            <span className="inline-flex rounded-full bg-lilas-soft px-2 py-1 text-xs font-medium text-lilas">{tire}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function CarteCible({
   cible,
   ligne,
   rang,
   prenom,
+  synthese,
   M,
   corpsOuvert,
   ouvert,
@@ -122,6 +156,7 @@ export function CarteCible({
   ligne: LigneClassement;
   rang: number;
   prenom: string;
+  synthese: SyntheseTerrain | null;
   M: MaCibleMessages;
   corpsOuvert: boolean;
   ouvert: (id: string) => boolean;
@@ -229,6 +264,7 @@ export function CarteCible({
           <Bloc id={`cible-${rang}-douleur`} titre={R.blocs.douleur} icone="eclair" teinte="framboise" pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
             <p className="text-[17px] leading-relaxed">{voir(cible.douleur)}</p>
           </Bloc>
+          <ClientsCible rang={rang} cible={cible} synthese={synthese} libelle={R.blocs.clients} tire={M.notes.tire} />
           <Bloc titre={R.blocs.ancrage} icone="boussole" teinte="sage">
             <p className="text-[17px] leading-relaxed">{cible.ancrage}</p>
           </Bloc>

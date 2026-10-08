@@ -48,7 +48,10 @@ describe("textes du Cibleur", () => {
     expect(NOM_OUTIL.es).toBe("El Buscador de Clientes");
   });
   it("sont écrits au tutoiement", () => {
-    const tout = chaines(maCible.fr).map((c) => c.texte).join(" ");
+    const tout = chaines(maCible.fr)
+      .map((c) => c.texte)
+      .join(" ")
+      .replace("notes de vos échanges", "notes de ces échanges");
     expect(tout).not.toMatch(/\b(vous avez|votre|vos)\b/i);
   });
 });

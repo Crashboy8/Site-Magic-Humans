@@ -1,5 +1,5 @@
 // Stockage local de Ma Cible (§12.5). Clé `ma_cible_v1`. L'accès à `window.localStorage` est confiné à lire / ecrire / effacer.
-import { validerCorrections } from "@/domain/maCible/entree";
+import { validerCorrections, validerSyntheseEntree } from "@/domain/maCible/entree";
 import { classerCibles } from "@/domain/maCible/scores";
 import { LIMITES } from "@/domain/maCible/limites";
 import { EXTRAS_VIDES, type Extras, type ResultatClasse } from "@/domain/maCible/types";
@@ -53,7 +53,10 @@ function lireEntree(brut: Obj | null): Etat["entree"] | null {
           return x ? [{ id: chaine(x.id), question: chaine(x.question), reponse: chaine(x.reponse) }] : [];
         })
       : [],
-    synthese: null,
+    synthese: (() => {
+      const lue = validerSyntheseEntree(entree.synthese);
+      return lue.ok ? lue.synthese : null;
+    })(),
   };
 }
 

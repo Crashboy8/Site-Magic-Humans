@@ -1,6 +1,6 @@
 // Prompts de l'IA (§7). Les textes sont copiés tels quels du cahier des charges.
 import { LIBELLES_FR } from "./exemple";
-import type { Corrections, Demande, Esquisse, EntreeMaCible } from "./types";
+import type { Corrections, Demande, EntreeMaCible, Esquisse, SyntheseTerrain } from "./types";
 
 export const PROMPT_COMMUN = `Tu es l'experte marketing du Cibleur, l'outil gratuit de Magic Humans (Pierre Sarazin, Profileur de talent, coach pour réussir dans le Plaisir).
 
@@ -30,7 +30,7 @@ Principe central, « Réussir dans le Plaisir » : une bonne cible paie ET place
 1. Ancrage : chaque cible, promesse et offre découle d'éléments précis des données. Le champ « ancrage » cite l'élément utilisé. Si tu ne peux pas relier une proposition au talent, ne la propose pas.
 2. Spécificité : une cible = un rôle ou une situation observable + un moment déclencheur + un problème. Interdit tel quel : « les entrepreneurs », « les PME », « les femmes », « les managers », « les personnes qui veulent aller mieux », « tout le monde ».
 3. Trois cibles vraiment différentes, pas trois variantes du même profil. Si le marché est « les deux » ou « je ne sais pas », propose au moins une cible B2B et une cible B2C. Si tu ne le fais pas, écris dans « hypotheses » la raison explicite (pourquoi pas de B2B, ou pourquoi pas de B2C). Si le marché est « B2B » ou « B2C », reste dans ce marché.
-4. Zéro fait inventé : aucun nom d'événement, de salon, d'entreprise, d'association, de groupe, de média ou de personne réelle, aucune date, aucune année, aucune statistique, aucun chiffre de marché, aucun faux témoignage ni faux client. N'écris jamais une phrase entre guillemets comme si un vrai client l'avait dite. Pour les lieux, donne des types de lieux (« salons professionnels des ressources humaines », « clubs d'entrepreneurs de ta ville ») et une recherche que la personne tapera elle-même (« salon RH Rennes »), sans année.
+4. Zéro fait inventé : aucun nom d'événement, de salon, d'entreprise, d'association, de groupe, de média ou de personne réelle, aucune date, aucune année, aucune statistique, aucun chiffre de marché, aucun faux témoignage ni faux client. N'écris jamais une phrase entre guillemets comme si un vrai client l'avait dite. Pour les lieux, donne des types de lieux (« salons professionnels des ressources humaines », « clubs d'entrepreneurs de ta ville ») et une recherche que la personne tapera elle-même (« salon RH Rennes »), sans année. Seule exception : les phrases de « ce_que_dit_le_terrain.verbatims » sont de vrais propos de clients. Tu ne les recopies jamais : tu les désignes par leur identifiant (v1, v2…) dans les champs prévus.
 5. Prix : le prix vient de la valeur du problème résolu pour cette cible et de sa capacité à payer, avec une justification d'une phrase. Ne recopie jamais le prix actuel comme fourchette. Si un prix actuel est donné, dis seulement pourquoi tu montes ou tu baisses. HT en B2B, TTC en B2C, unité claire. Le minimum n'est jamais dérisoire.
 6. Plaisir : une cible dont le nom, le portrait ou l'offre reprend l'Anti-Contexte (par exemple un grand groupe et des processus RH lourds) reçoit une note de plaisir de 2 au plus, et ce n'est pas une cible prioritaire. Ne donne jamais une note de plaisir supérieure à 2 à une cible qui ressemble à l'Anti-Contexte.
 7. Notes honnêtes : chaque note de 1 à 5 suit la grille ci-dessous et sa raison tient en une phrase concrète. Pas de 5 partout. La note acces vaut 5 seulement si la personne a déjà cette cible dans son réseau proche (expérience, clients passés, anciens collègues) ; sinon 4 au plus. Ne donne pas les mêmes quatre notes à deux cibles : distingue-les d'un point et dis pourquoi dans la raison.
@@ -100,7 +100,20 @@ ${CONSIGNES_CIBLE}
 7. langue : la langue dans laquelle tu as écrit (fr, en ou es).
 8. autresPistes : 2 à 6 pistes (p1 à p6) en plus des 3 cibles. Reprends celles de l'esquisse validée (tu peux les préciser) et ajoute toute idée de la personne qui n'est ni dans les cibles ni dans l'esquisse. Chacune : nom (5 à 80), marche, enUneLigne (20 à 200), raison (20 à 200, pourquoi elle passe après les trois), depuisIdees, et notes (urgence, paiement, acces, plaisir : entiers de 1 à 5 selon la grille, sans raison). Ne donne pas les mêmes quatre notes à deux pistes.`;
 
-export function promptSysteme(etape: "cadrage" | "resultat", tour?: 1 | 2 | 3): string {
+export const PROMPT_SYNTHESE = `# Ta tâche : lire les notes de terrain
+La personne te confie des notes prises pendant de vrais échanges avec des clients ou des prospects (« notes_terrain », identifiants n1 à n5). « contexte » rappelle son talent et son offre. Ton travail : faire ressortir ce que vivent ces personnes, avec leurs mots, pour qu'elle choisisse mieux ses cibles. Tu ne proposes encore aucune cible.
+1. statut : « ok » si les notes contiennent des propos ou des situations de clients ou de prospects. « inutilisable » sinon (texte sans rapport, notes vides de sens, contenu illégal ou dangereux) ; « message » dit alors en une ou deux phrases quoi coller à la place, et tous les autres champs restent vides. Avec « ok », « message » est vide.
+2. resume (40 à 400) : ce qui ressort, en deux ou trois phrases simples.
+3. profils (0 à 4, 160 au plus chacun) : qui sont ces personnes (rôle, situation, moment de vie), sans nom ni détail qui permettrait de les reconnaître.
+4. douleurs (0 à 6) : texte (10 à 200), le problème tel qu'elles le vivent ; frequence : « souvent » (dans plusieurs notes), « parfois », « une_fois ».
+5. verbatims (0 à 12) : des phrases recopiées mot pour mot dans les notes, sans rien changer, ni l'orthographe ni la ponctuation (8 à 240 caractères). Un seul morceau continu par phrase. id : v1, v2… ; note : l'identifiant de la note d'où vient la phrase ; theme : douleur, declencheur (ce qui l'a poussée à chercher de l'aide), objection (ce qui la freine), resultat (ce qu'elle a obtenu ou espère), autre. Choisis les phrases les plus parlantes, pas les plus longues. Écarte toute phrase qui contient un nom, une entreprise ou un détail reconnaissable.
+6. declencheurs (0 à 4, 200 au plus) : les moments où ces personnes ont cherché de l'aide.
+7. objections (0 à 4, 200 au plus) : ce qui les a fait hésiter ou dire non.
+8. motsCles (0 à 10, 40 au plus) : des mots ou de courtes expressions qu'elles emploient vraiment, présents tels quels dans les notes.
+N'invente rien : tout vient des notes. Un champ sans matière reste vide. Les crochets comme [téléphone], [adresse mail] ou [lien] sont des données masquées : ne les reprends jamais.`;
+
+export function promptSysteme(etape: "cadrage" | "resultat" | "synthese", tour?: 1 | 2 | 3): string {
+  if (etape === "synthese") return [PROMPT_COMMUN, PROMPT_SYNTHESE].join("\n\n");
   const fin = etape === "cadrage" ? promptCadrage(tour ?? 1) : PROMPT_RESULTAT;
   return [PROMPT_COMMUN, GRILLE_TEXTE, fin].join("\n\n");
 }
@@ -120,7 +133,33 @@ function assainirTout<T>(v: T): T {
 const NON_RENSEIGNE = "(non renseigné)";
 const champ = (t: string) => assainir(t) || NON_RENSEIGNE;
 
+function syntheseModele(s: SyntheseTerrain) {
+  return {
+    resume: assainir(s.resume),
+    profils: s.profils.map(assainir),
+    douleurs: s.douleurs.map((d) => ({ texte: assainir(d.texte), frequence: d.frequence })),
+    verbatims: s.verbatims.map((v) => ({ id: v.id, citation: assainir(v.citation), theme: v.theme })),
+    declencheurs: s.declencheurs.map(assainir),
+    objections: s.objections.map(assainir),
+    mots_cles: s.motsCles.map(assainir),
+  };
+}
+
 function donneesModele(demande: Demande) {
+  if (demande.etape === "synthese") {
+    const { contexte } = demande;
+    return {
+      langue_reponse: demande.langue,
+      etape: "synthese" as const,
+      contexte: {
+        mecanisme: assainir(contexte.mecanisme),
+        contexte_declencheur: assainir(contexte.contexte),
+        super_benefice: assainir(contexte.benefice),
+        offre: assainir(contexte.offre),
+      },
+      notes_terrain: demande.notes.map((n) => ({ id: n.id, titre: assainir(n.titre), texte: assainir(n.texte) })),
+    };
+  }
   const entree: EntreeMaCible = demande.entree;
   const { talent, terrain } = entree;
   const esquisse: Esquisse | undefined = demande.etape === "resultat" ? demande.esquisse : demande.esquissePrecedente;
@@ -152,6 +191,7 @@ function donneesModele(demande: Demande) {
       ton_des_messages: { adresse: LIBELLES_FR.adresse[terrain.adresse], style: LIBELLES_FR.styles[terrain.style] },
     },
     idees_de_cibles: entree.terrain.ciblesEnTete.map((t, i) => ({ id: `i${i + 1}`, texte: assainir(t) })),
+    ce_que_dit_le_terrain: entree.synthese ? syntheseModele(entree.synthese) : undefined,
     reponses_aux_questions: entree.reponses.map((r) => ({ question: assainir(r.question), reponse: assainir(r.reponse) })),
     esquisse_precedente: tour3 && esquisse ? assainirTout(esquisse) : undefined,
     esquisse_validee: demande.etape === "resultat" ? assainirTout(demande.esquisse) : undefined,

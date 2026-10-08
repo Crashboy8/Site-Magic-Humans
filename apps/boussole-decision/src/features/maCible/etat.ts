@@ -1,6 +1,6 @@
 // État de Ma Cible et réducteur des étapes (§6.5, §12.5). Module pur : aucun accès au navigateur.
 import type { AncreLue } from "@/domain/maCible/ancre";
-import { EXTRAS_VIDES, type Cadrage, type Corrections, type EntreeMaCible, type Extras, type Langue, type Reponse, type ResultatClasse, type Talent, type Terrain } from "@/domain/maCible/types";
+import { EXTRAS_VIDES, type Cadrage, type Corrections, type EntreeMaCible, type Extras, type Langue, type Reponse, type ResultatClasse, type SyntheseTerrain, type Talent, type Terrain } from "@/domain/maCible/types";
 
 export const ETAPES = ["accueil", "talent", "terrain", "questions", "esquisse", "resultat"] as const;
 export type Etape = (typeof ETAPES)[number];
@@ -78,6 +78,8 @@ export type Action =
   | { type: "cadrage"; tour: 1 | 2 | 3; cadrage: Cadrage }
   | { type: "corrections"; corrections: Corrections }
   | { type: "resultat"; resultat: ResultatClasse; maintenant: string }
+  | { type: "synthese"; synthese: SyntheseTerrain | null }
+  | { type: "retirerVerbatim"; id: string }
   | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[]; extras?: Extras }
   | { type: "coche"; index: number }
   | { type: "recommencer"; locale?: string };
@@ -153,6 +155,16 @@ export function reducteur(e: Etat, a: Action): Etat {
     }
     case "corrections":
       return { ...e, corrections: a.corrections };
+    case "synthese": {
+      if (memes(a.synthese, e.entree.synthese)) return e;
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, synthese: a.synthese } }));
+    }
+    case "retirerVerbatim": {
+      const actuelle = e.entree.synthese;
+      if (!actuelle || !actuelle.verbatims.some((v) => v.id === a.id)) return e;
+      const synthese = { ...actuelle, verbatims: actuelle.verbatims.filter((v) => v.id !== a.id) };
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, synthese } }));
+    }
     case "resultat":
       return {
         ...avancer(e, "resultat"),
