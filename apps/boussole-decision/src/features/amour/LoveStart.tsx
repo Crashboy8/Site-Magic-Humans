@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, Card, Notice } from "@/components/ui";
 import { LOVE_TEXTS } from "@/content/amour";
 import { decodeLoveHash, parseLovePrefill } from "@/domain/lovePrefill";
-import { setLocaleAction } from "@/i18n/actions";
-import { useI18n } from "@/i18n/client";
 import { startLoveCompassAction } from "./actions";
+import { LoveChrome } from "./LoveChrome";
 
 function clearThemeHint() {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
@@ -22,12 +20,9 @@ function clearThemeHint() {
 /** Accueil de la Boussole Relation. Le mode normal de l'import quiz n'utilise pas ce composant. */
 export function LoveStart() {
   const S = LOVE_TEXTS.start;
-  const { locale } = useI18n();
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
   const [pending, startTransition] = useTransition();
-  const langApplied = useRef(false);
   const rawRef = useRef<unknown>(undefined);
 
   useEffect(() => {
@@ -42,14 +37,9 @@ export function LoveStart() {
     return () => window.clearTimeout(id);
   }, []);
 
-  useEffect(() => {
-    if (langApplied.current) return;
-    langApplied.current = true;
-    if (locale !== "fr") void setLocaleAction("fr").then(() => router.refresh());
-  }, [locale, router]);
-
   return (
     <div className="space-y-6">
+      <LoveChrome />
       <header className="space-y-3">
         <p className="font-script text-2xl text-accent-strong">{S.eyebrow}</p>
         <h1 className="text-4xl italic sm:text-5xl">{S.heading}</h1>

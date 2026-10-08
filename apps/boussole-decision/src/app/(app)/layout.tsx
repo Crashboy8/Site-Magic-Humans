@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CompassMark } from "@/components/ui";
+import { AppBrand } from "@/components/AppBrand";
 import { countUnreadComments } from "@/data/repository";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 import { SignOutButton } from "@/features/auth/SignOutButton";
@@ -22,10 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </a>
       <header data-chrome className="z-30 border-b border-line bg-cream/90 backdrop-blur sm:sticky sm:top-0">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
-          <Link href="/" className="flex items-center gap-2.5">
-            <CompassMark className="h-8 w-8 text-ink sm:h-9 sm:w-9" />
-            <span className="font-serif text-xl italic leading-none sm:text-2xl">{c.appName}</span>
-          </Link>
+          <AppBrand name={c.appName} />
           <nav aria-label={c.mainNav} className="-mx-2 flex flex-wrap items-center gap-0.5 text-sm sm:mx-0 sm:gap-1 sm:text-[15px]">
             <Link href="/mon-espace/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
               {c.mySpace}

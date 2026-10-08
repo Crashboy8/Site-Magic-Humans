@@ -50,7 +50,7 @@ describe("lovePrefill", () => {
     }
   });
 
-  it("laisse les critères critiques fixes et un total de 42", () => {
+  it("laisse les critères critiques fixes et un total de 50", () => {
     const parsed = parseLovePrefill({
       v: 2,
       imp: { energie: "moyen", frictions: "tres_important", langage: "important", complementarite: "important", besoins: "moyen" },
@@ -60,8 +60,8 @@ describe("lovePrefill", () => {
     for (const criterion of LOVE_TEMPLATE.criteria.filter((item) => item.importance === "critique")) {
       expect(rows.find((row) => row.key === criterion.key)?.importance).toBe("critique");
     }
-    expect(weightOf(rows)).toBe(42);
-    expect(weightOf(applyLovePrefill(null))).toBe(42);
+    expect(weightOf(rows)).toBe(50);
+    expect(weightOf(applyLovePrefill(null))).toBe(50);
   });
 
   it("nettoie les notes", () => {
@@ -92,8 +92,8 @@ describe("lovePrefill", () => {
     expect(parsed?.notes.valeurs).toContain("l'honnêteté");
     expect(parsed?.notes.incompatibilite).toContain("devoir te justifier de tout");
     const rows = applyLovePrefill(parsed);
-    expect(weightOf(rows)).toBe(42);
-    expect(rows).toHaveLength(10);
+    expect(weightOf(rows)).toBe(50);
+    expect(rows).toHaveLength(12);
     const byKey = Object.fromEntries(rows.map((row) => [row.key, row]));
     expect(byKey.energie.importance).toBe("tres_important");
     expect(byKey.incompatibilite.description).toContain(LOVE_TEXTS.quizNoteLabel);
