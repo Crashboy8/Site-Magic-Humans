@@ -17,6 +17,26 @@ const CENTER = SIZE / 2;
 const RADIUS = 112;
 const RINGS = [25, 50, 75, 100];
 
+/** Coupe un libellé d'axe en deux lignes, sans jamais le tronquer. */
+function deuxLignes(label: string): string[] {
+  const separe = label.split(" : ");
+  if (separe.length === 2 && separe[0] && separe[1]) return [separe[0], separe[1]];
+  const mots = label.split(" ").filter(Boolean);
+  if (mots.length < 2) return [label];
+  let coupe = 1;
+  let ecart = Number.POSITIVE_INFINITY;
+  for (let i = 1; i < mots.length; i++) {
+    const gauche = mots.slice(0, i).join(" ").length;
+    const droite = mots.slice(i).join(" ").length;
+    const delta = Math.abs(gauche - droite);
+    if (delta < ecart) {
+      ecart = delta;
+      coupe = i;
+    }
+  }
+  return [mots.slice(0, coupe).join(" "), mots.slice(coupe).join(" ")];
+}
+
 function point(index: number, count: number, value: number) {
   const angle = -Math.PI / 2 + (index * 2 * Math.PI) / count;
   const r = (RADIUS * value) / 100;
@@ -96,7 +116,12 @@ export function Radar({
 
       {axes.length >= 3 && (
         <div className="relative mx-auto max-w-[560px]">
-          <svg viewBox={`-60 -10 ${SIZE + 120} ${SIZE + 20}`} role="img" aria-label={R.radarAria} className="w-full">
+          <svg
+            viewBox={teintesRelation ? `-110 -46 ${SIZE + 220} ${SIZE + 96}` : `-60 -10 ${SIZE + 120} ${SIZE + 20}`}
+            role="img"
+            aria-label={R.radarAria}
+            className={cx("w-full", teintesRelation && "overflow-visible")}
+          >
             {RINGS.map((ring) => (
               <polygon
                 key={ring}
@@ -111,13 +136,27 @@ export function Radar({
             ))}
             {axes.map((axis, i) => {
               const end = point(i, axes.length, 100);
-              const label = point(i, axes.length, 122);
+              const label = point(i, axes.length, teintesRelation ? 128 : 122);
               const anchor = Math.abs(Math.cos(label.angle)) < 0.2 ? "middle" : Math.cos(label.angle) > 0 ? "start" : "end";
+              const lignes = teintesRelation ? deuxLignes(axisLabel(axis)) : [axisLabel(axis)];
               return (
                 <g key={axis.id}>
                   <line x1={CENTER} y1={CENTER} x2={end.x} y2={end.y} stroke="rgb(58 47 36 / 0.12)" strokeWidth={1} />
-                  <text x={label.x} y={label.y} textAnchor={anchor} dominantBaseline="middle" className="fill-ink-soft text-[12px]">
-                    {axisLabel(axis)}
+                  <text
+                    x={label.x}
+                    y={label.y}
+                    textAnchor={anchor}
+                    dominantBaseline="middle"
+                    fontSize={teintesRelation ? 15 : undefined}
+                    className={teintesRelation ? "fill-ink-soft" : "fill-ink-soft text-[12px]"}
+                  >
+                    {teintesRelation
+                      ? lignes.map((ligne, index) => (
+                          <tspan key={`${axis.id}-${index}`} x={label.x} dy={index === 0 ? (lignes.length > 1 ? -9 : 0) : 18}>
+                            {ligne}
+                          </tspan>
+                        ))
+                      : axisLabel(axis)}
                   </text>
                 </g>
               );
@@ -173,7 +212,10 @@ export function Radar({
             <p
               role="tooltip"
               className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-lg bg-ink px-2.5 py-1.5 text-xs text-cream shadow"
-              style={{ left: `${((tip.x + 60) / (SIZE + 120)) * 100}%`, top: `calc(${((tip.y + 10) / (SIZE + 20)) * 100}% - 10px)` }}
+              style={{
+                left: `${((tip.x + (teintesRelation ? 110 : 60)) / (SIZE + (teintesRelation ? 220 : 120))) * 100}%`,
+                top: `calc(${((tip.y + (teintesRelation ? 46 : 10)) / (SIZE + (teintesRelation ? 96 : 20))) * 100}% - 10px)`,
+              }}
             >
               {tip.text}
             </p>

@@ -97,6 +97,24 @@ export function IconeTelecharger({ className }: { className?: string }) {
   );
 }
 
+export function IconeCrayon() {
+  return (
+    <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden className="inline-block shrink-0 text-ink-soft">
+      <path d="M12 20h9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function IconeFermer() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden className="inline-block shrink-0">
+      <path d="M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="m6 6 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function IconeCalendrier() {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden className="inline-block shrink-0">

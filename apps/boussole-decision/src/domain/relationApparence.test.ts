@@ -13,9 +13,12 @@ import {
   ecrireApparenceNotes,
   espacesFins,
   etatBesoinEssentiel,
+  etatRisque,
   lignesBesoins,
   lireApparenceNotes,
+  notesSansMarqueur,
   phraseBesoin,
+  phraseRisque,
   tonJauge,
 } from "./relationApparence";
 import type { RelationColor, RelationIcon } from "./types";
@@ -82,8 +85,8 @@ describe("phrases par besoin essentiel", () => {
     expect(phraseBesoin("nourri", "Camille", "Mes besoins essentiels sont respectés")).toBe(
       "Avec Camille, ton besoin « Mes besoins essentiels sont respectés » est bien nourri.",
     );
-    expect(phraseBesoin("partiel", "Sam", "Une incompatibilité critique existe entre nous")).toBe(
-      "Avec Sam, ton besoin « Une incompatibilité critique existe entre nous » l'est en partie, ça vaut une vraie conversation.",
+    expect(phraseBesoin("partiel", "Sam", "Je me sens respecté·e et en sécurité émotionnelle")).toBe(
+      "Avec Sam, ton besoin « Je me sens respecté·e et en sécurité émotionnelle » l'est en partie, ça vaut une vraie conversation.",
     );
     expect(phraseBesoin("absent", "Lina", "Je me sens respecté·e et en sécurité émotionnelle")).toBe(
       "Avec Lina, ton besoin « Je me sens respecté·e et en sécurité émotionnelle » n'est pas nourri pour l'instant. Regarde ce que ça te coûte.",
@@ -109,6 +112,44 @@ describe("phrases par besoin essentiel", () => {
       ],
     });
     expect(lignes.map((l) => l.phrase)).toEqual([LOVE_RESULTS.needNourri("Camille", "Mes besoins essentiels sont respectés")]);
+    expect(lignes.every((l) => l.genre === "besoin")).toBe(true);
+  });
+
+  it("formule un risque à éviter à part, et jamais comme un besoin", () => {
+    const detail = (
+      id: string,
+      label: string,
+      direction: "TOWARDS" | "AWAY_FROM",
+      nonNegotiable: boolean,
+      satisfaction: number | null,
+    ): CriterionResult => ({
+      criterion: { id, categoryId: "c", label, importance: "critique", nonNegotiable, direction },
+      value: satisfaction === null ? null : "oui",
+      satisfaction,
+    });
+    const risque = "Une incompatibilité critique existe entre nous";
+    const lignes = lignesBesoins({
+      opportunity: { id: "o", name: "Camille" },
+      details: [
+        detail("besoins", "Mes besoins essentiels sont respectés", "TOWARDS", true, 100),
+        detail("incompatibilite", risque, "AWAY_FROM", true, 100),
+        detail("partiel", risque, "AWAY_FROM", true, 50),
+        detail("present", risque, "AWAY_FROM", true, 0),
+        detail("friction", "Frictions", "AWAY_FROM", false, 0),
+      ],
+    });
+    expect(lignes.map((l) => l.genre)).toEqual(["besoin", "risque", "risque", "risque"]);
+    expect(lignes.map((l) => l.phrase)).toEqual([
+      "Avec Camille, ton besoin « Mes besoins essentiels sont respectés » est bien nourri.",
+      "Avec Camille, le risque « Une incompatibilité critique existe entre nous » ne se présente pas.",
+      "Avec Camille, le risque « Une incompatibilité critique existe entre nous » se présente un peu, ça mérite d'en parler.",
+      "Avec Camille, le risque « Une incompatibilité critique existe entre nous » est bien là. Prends le temps de regarder ce qu'il te coûte.",
+    ]);
+    expect(lignes.some((l) => l.phrase.includes("ton besoin « Une incompatibilité"))).toBe(false);
+    expect(etatRisque(100)).toBe("absent");
+    expect(etatRisque(40)).toBe("partiel");
+    expect(etatRisque(0)).toBe("present");
+    expect(phraseRisque("present", "Lina", risque)).toContain("est bien là");
   });
 
   it("colle la ponctuation au mot qui précède", () => {
@@ -147,6 +188,25 @@ describe("stockage dans la même ligne que le nom", () => {
     expect(o.icon).toBe("soleil");
     expect(o.color).toBe("ciel");
     expect(o.notes).toBe("");
+  });
+
+  it("n'affiche jamais le marqueur, même au milieu, en double, à l'export ou en mode pro", () => {
+    const visible = "une note personnelle";
+    const brut = ecrireApparenceNotes(visible, { icon: "coeur", color: "corail" });
+    const doublé = `${brut} suite ${brut}`;
+    const auMilieu = `avant ${brut} après`;
+    for (const notes of [brut, doublé, auMilieu]) {
+      const affiche = mapOpportunity({ id: "1", version_id: "v", name: "Camille", summary: "", url: "", notes, position: 0 }).notes;
+      expect(affiche).not.toMatch(/BR1/);
+      expect(affiche).not.toContain("\u2060");
+      const exportEtPdf = [`Nom : Camille`, `Notes : ${affiche}`, `Résumé : ${notesSansMarqueur(notes)}`].join("\n");
+      expect(exportEtPdf).not.toMatch(/BR1|\u2060/);
+    }
+    expect(lireApparenceNotes(brut).notes).toBe(visible);
+    expect(lireApparenceNotes(auMilieu).notes).toBe(`avant ${visible} après`);
+    const pro = "Référence interne BR1, sans teinte.";
+    expect(notesSansMarqueur(pro)).toBe(pro);
+    expect(mapOpportunity({ id: "1", version_id: "v", name: "Poste", summary: pro, url: "", notes: pro, position: 0 }).notes).toBe(pro);
   });
 
   it("reconnaît une colonne absente", () => {

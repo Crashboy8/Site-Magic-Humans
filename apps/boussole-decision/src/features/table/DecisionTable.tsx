@@ -6,7 +6,7 @@ import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
 import { LOVE_TABLE } from "@/content/amour";
 import { COULEUR_RELATION, apparenceParDefaut, type RelationLook } from "@/domain/relationApparence";
 import { enregistrerApparence, useApparenceRelations } from "@/features/amour/apparenceLocale";
-import { ChoixApparence } from "@/features/amour/ChoixApparence";
+import { BoutonApparence } from "@/features/amour/ChoixApparence";
 import { IconeRelation } from "@/features/amour/IconeRelation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import {
@@ -333,7 +333,7 @@ function Table({
                   <tbody key={category.id}>
                     <tr>
                       <th scope="rowgroup" colSpan={colSpan} className="border-b border-line bg-sand px-3 py-2.5 text-left">
-                        <span className="sticky left-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <span className="sticky left-3 block w-[min(28rem,calc(100vw-4.5rem))] whitespace-normal">
                           {definition || readOnly ? (
                             <span className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft">
                               {definition?.label ?? category.label}
@@ -352,7 +352,7 @@ function Table({
                               }}
                             />
                           )}
-                          {definition && <span className="text-[13px] font-normal text-ink-soft">{definition.subtitle}</span>}
+                          {definition && <span className="ml-3 text-[13px] font-normal normal-case tracking-normal text-ink-soft">{definition.subtitle}</span>}
                         </span>
                       </th>
                     </tr>
@@ -494,7 +494,6 @@ function OpportunityHeader({
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
-  const [ouvert, setOuvert] = useState(false);
   const T = useTableTexts();
   if (readOnly)
     return (
@@ -508,17 +507,7 @@ function OpportunityHeader({
   return (
     <div className="relative">
       <div className="flex items-center gap-1 pr-6">
-        {look && (
-          <button
-            type="button"
-            aria-expanded={ouvert}
-            aria-label={LOVE_TABLE.changeLook(opportunity.name)}
-            onClick={() => setOuvert((v) => !v)}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-sand"
-          >
-            <IconeRelation icone={look.icon} couleur={look.color} />
-          </button>
-        )}
+        {look && <BoutonApparence nom={opportunity.name} look={look} onChange={onLook} />}
         <textarea
           aria-label={T.opportunityName}
           value={name}
@@ -528,7 +517,6 @@ function OpportunityHeader({
           className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent text-center text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
         />
       </div>
-      {look && ouvert && <ChoixApparence look={look} onChange={onLook} />}
       <button
         type="button"
         onClick={onDelete}
@@ -847,16 +835,25 @@ function CustomCategoryName({
   onDelete: () => void;
 }) {
   const [label, setLabel] = useState(category.label);
+  const champ = useRef<HTMLTextAreaElement>(null);
   const T = useI18n().t.table;
+  useEffect(() => {
+    const el = champ.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [label]);
   return (
-    <span className="flex items-center gap-2">
-      <input
+    <span className="flex w-full min-w-0 items-start gap-2">
+      <textarea
+        ref={champ}
         aria-label={T.categoryName}
         value={label}
+        rows={1}
         maxLength={60}
         onChange={(e) => setLabel(e.target.value)}
         onBlur={() => label.trim() && label.trim() !== category.label && onRename(label.trim())}
-        className="rounded bg-transparent px-1 text-[13px] font-medium uppercase tracking-[0.08em] text-ink-soft hover:bg-paper focus:bg-paper focus:outline-none"
+        className="w-full min-w-0 resize-none overflow-hidden bg-transparent px-1 text-[13px] font-medium uppercase leading-snug tracking-[0.08em] text-ink-soft hover:bg-paper focus:bg-paper focus:outline-none"
       />
       {canDelete && (
         <button type="button" onClick={onDelete} className="text-xs font-normal normal-case text-danger hover:underline">

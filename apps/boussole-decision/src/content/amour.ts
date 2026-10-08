@@ -196,6 +196,7 @@ export const LOVE_TABLE = {
   iconLegend: "Icône",
   colorLegend: "Couleur",
   changeLook: (name: string) => `Icône et couleur de ${name}`,
+  closeLook: "Fermer",
   icons: {
     coeur: "Cœur",
     etoile: "Étoile",
@@ -245,8 +246,12 @@ export const LOVE_RESULTS = {
     `Avec ${nom}, ton besoin « ${critere} » l'est en partie, ça vaut une vraie conversation.`,
   needAbsent: (nom: string, critere: string) =>
     `Avec ${nom}, ton besoin « ${critere} » n'est pas nourri pour l'instant. Regarde ce que ça te coûte.`,
+  riskAbsent: (nom: string, critere: string) => `Avec ${nom}, le risque « ${critere} » ne se présente pas.`,
+  riskPartiel: (nom: string, critere: string) => `Avec ${nom}, le risque « ${critere} » se présente un peu, ça mérite d'en parler.`,
+  riskPresent: (nom: string, critere: string) =>
+    `Avec ${nom}, le risque « ${critere} » est bien là. Prends le temps de regarder ce qu'il te coûte.`,
   downloadPdf: "Télécharger ma Boussole en PDF",
   printFooter: "Magic Humans · www.magichumans.com",
-  discoveryCta: "Envie d'y voir plus clair sur ce que tu cherches vraiment en amour ? On en parle 30 minutes, c'est offert.",
+  discoveryCta: "Envie d'y voir plus clair sur ce que tu cherches vraiment en amour ? On en parle pendant une heure, c'est offert.",
   discoveryUrl: "https://calendly.com/pierre-j-sarazin?utm_source=boussole-relation",
 } as const;

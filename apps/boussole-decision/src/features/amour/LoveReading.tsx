@@ -32,7 +32,9 @@ export function LoveReading({ ranking, lookDe }: { ranking: OpportunityResult[];
         const band = T.bands[lr.band];
         const score = Math.round(lr.score);
         const look = lookDe(r.opportunity.id);
-        const besoins = lignesBesoins(r);
+        const lignes = lignesBesoins(r);
+        const besoins = lignes.filter((l) => l.genre === "besoin");
+        const risques = lignes.filter((l) => l.genre === "risque");
         return (
           <div key={r.opportunity.id} className="space-y-4">
             <div className="eviter-coupure space-y-2">
@@ -52,6 +54,16 @@ export function LoveReading({ ranking, lookDe }: { ranking: OpportunityResult[];
                     ))}
                   </ul>
                 </>
+              )}
+              {risques.length > 0 && (
+                <ul className="mx-auto max-w-3xl space-y-2">
+                  {risques.map((ligne) => (
+                    <li key={ligne.criterionId} className="flex items-start gap-2 text-pretty text-[16px] leading-snug">
+                      <IconeEtat etat={ligne.etat} />
+                      <span>{ligne.phrase}</span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
             {lr.alerts.length > 0 && (

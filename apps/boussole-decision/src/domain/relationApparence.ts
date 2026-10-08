@@ -122,30 +122,59 @@ export function etatBesoinEssentiel(satisfaction: number): EtatBesoin {
   return "partiel";
 }
 
+/** Pour un risque, 100 % de satisfaction veut dire qu'il est absent. 0 % : il est bien là. */
+export type EtatRisque = "absent" | "partiel" | "present";
+
+export function etatRisque(satisfaction: number): EtatRisque {
+  if (satisfaction >= 100) return "absent";
+  if (satisfaction <= 0) return "present";
+  return "partiel";
+}
+
 export function phraseBesoin(etat: EtatBesoin, nom: string, critere: string): string {
   if (etat === "nourri") return LOVE_RESULTS.needNourri(nom, critere);
   if (etat === "partiel") return LOVE_RESULTS.needPartiel(nom, critere);
   return LOVE_RESULTS.needAbsent(nom, critere);
 }
 
+export function phraseRisque(etat: EtatRisque, nom: string, critere: string): string {
+  if (etat === "absent") return LOVE_RESULTS.riskAbsent(nom, critere);
+  if (etat === "partiel") return LOVE_RESULTS.riskPartiel(nom, critere);
+  return LOVE_RESULTS.riskPresent(nom, critere);
+}
+
 export interface LigneBesoin {
   criterionId: string;
+  /** besoin : non négociable à aller vers. risque : critère « à éviter ». */
+  genre: "besoin" | "risque";
+  /** Couleur de l'icône : vert, miel ou corail. Pour un risque absent, le vert dit que ça va. */
   etat: EtatBesoin;
   critere: string;
   nom: string;
   phrase: string;
 }
 
-/** Une phrase par besoin essentiel (non négociable) évalué, pour cette relation. */
+/**
+ * Phrases de lecture.
+ * Besoin : seulement les non négociables qui ne sont pas « à éviter ».
+ * Risque : les non négociables « à éviter », avec une formule à part.
+ */
 export function lignesBesoins(result: Pick<OpportunityResult, "opportunity" | "details">): LigneBesoin[] {
-  return result.details
-    .filter((d) => d.criterion.nonNegotiable && d.satisfaction !== null)
-    .map((d) => {
-      const etat = etatBesoinEssentiel(d.satisfaction as number);
-      const critere = d.criterion.label;
-      const nom = result.opportunity.name;
-      return { criterionId: d.criterion.id, etat, critere, nom, phrase: phraseBesoin(etat, nom, critere) };
-    });
+  const nom = result.opportunity.name;
+  const lignes: LigneBesoin[] = [];
+  for (const d of result.details) {
+    if (!d.criterion.nonNegotiable || d.satisfaction === null) continue;
+    const critere = d.criterion.label;
+    if (d.criterion.direction === "AWAY_FROM") {
+      const risque = etatRisque(d.satisfaction);
+      const etat: EtatBesoin = risque === "absent" ? "nourri" : risque === "present" ? "absent" : "partiel";
+      lignes.push({ criterionId: d.criterion.id, genre: "risque", etat, critere, nom, phrase: phraseRisque(risque, nom, critere) });
+      continue;
+    }
+    const etat = etatBesoinEssentiel(d.satisfaction);
+    lignes.push({ criterionId: d.criterion.id, genre: "besoin", etat, critere, nom, phrase: phraseBesoin(etat, nom, critere) });
+  }
+  return lignes;
 }
 
 /** Espace insécable avant % : ; ? ! pour que la ponctuation ne passe pas seule à la ligne. */
@@ -153,24 +182,29 @@ export function espacesFins(texte: string): string {
   return texte.replace(/ ([%:;?!])/g, "\u00a0$1");
 }
 
-const MARQUE = /^\u2060BR1:([a-z]+):([a-z]+)\u2060/;
+function motifMarqueur(global: boolean): RegExp {
+  return new RegExp(`\\u2060?BR1:(${RELATION_ICONS.join("|")}):(${RELATION_COLORS.join("|")})\\u2060?`, global ? "g" : "");
+}
+
+/** Retire chaque marqueur, où qu'il soit, pour l'affichage, l'export, le PDF et le mode pro. */
+export function notesSansMarqueur(notes: string): string {
+  return notes.replace(motifMarqueur(true), "");
+}
 
 /**
- * Lit l'apparence cachée au début des notes. Les notes du mode pro, sans marqueur, restent intactes.
- * Le marqueur (U+2060) n'est pas affiché.
+ * Lit l'apparence cachée dans les notes. Le texte rendu ne contient jamais le marqueur.
+ * Les notes du mode pro, sans marqueur, restent intactes.
  */
 export function lireApparenceNotes(notes: string): { look: RelationLook | null; notes: string } {
-  const m = notes.match(MARQUE);
-  if (!m) return { look: null, notes };
-  const icon = estIcone(m[1]) ? m[1] : null;
-  const color = estCouleur(m[2]) ? m[2] : null;
-  const reste = notes.slice(m[0].length);
-  return { look: icon && color ? { icon, color } : null, notes: reste };
+  const trouve = motifMarqueur(false).exec(notes);
+  const icon = trouve && estIcone(trouve[1]) ? trouve[1] : null;
+  const color = trouve && estCouleur(trouve[2]) ? trouve[2] : null;
+  return { look: icon && color ? { icon, color } : null, notes: notesSansMarqueur(notes) };
 }
 
 /** Replace le marqueur sans toucher au texte de notes qui suit. */
 export function ecrireApparenceNotes(notes: string, look: RelationLook): string {
-  const propre = lireApparenceNotes(notes).notes;
+  const propre = notesSansMarqueur(notes);
   return `\u2060BR1:${look.icon}:${look.color}\u2060${propre}`;
 }
 
