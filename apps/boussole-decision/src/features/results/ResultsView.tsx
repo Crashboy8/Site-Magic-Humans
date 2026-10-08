@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Card, Notice, Textarea, cx } from "@/components/ui";
 import { LOVE_RESULTS, LOVE_TABLE } from "@/content/amour";
+import { coupureTitreCoupOeil } from "@/domain/coupOeil";
 import { appliquerPourcentageLocal, clePourcentage } from "@/domain/pourcentage";
 import { COULEUR_RELATION, espacesFins, type RelationLook } from "@/domain/relationApparence";
 import { useApparenceRelations } from "@/features/amour/apparenceLocale";
@@ -44,6 +45,20 @@ interface Props {
   isOwner: boolean;
   /** Boussole Relation : masque les sections carrière et affiche la lecture amour. */
   theme?: "amour";
+}
+
+function TitreCoupOeil({ titre }: { titre: string }) {
+  const parties = coupureTitreCoupOeil(titre);
+  if (!parties) return titre;
+  const [debut, fin] = parties;
+  return (
+    <>
+      {debut}
+      <br className="sm:hidden" />
+      <span className="hidden sm:inline"> </span>
+      {fin}
+    </>
+  );
 }
 
 export function ResultsView(props: Props) {
@@ -272,10 +287,10 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       <section aria-labelledby="coup-oeil" className="space-y-4">
         <div className={love ? "space-y-4" : "contents"}>
           <div className="titre-section text-center">
-            <h2 id="coup-oeil" className="text-[34px] italic leading-tight sm:text-[44px]">
-              {R.radarTitle}
+            <h2 id="coup-oeil" className="text-center text-[34px] italic leading-tight sm:text-[44px]">
+              <TitreCoupOeil titre={R.radarTitle} />
             </h2>
-            <p className="mx-auto mt-2 max-w-xl text-ink-soft">{love ? espacesFins(R.radarIntro) : R.radarIntro}</p>
+            <p className="mx-auto mt-2 max-w-xl text-center text-ink-soft">{love ? espacesFins(R.radarIntro) : R.radarIntro}</p>
           </div>
           <CoupOeil
             categories={categories}

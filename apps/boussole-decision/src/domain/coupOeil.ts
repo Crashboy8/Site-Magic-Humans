@@ -23,6 +23,20 @@ export function normaliserVue(valeur: unknown): VueCoupOeil {
   return valeur === "fiches" ? "fiches" : VUE_DEFAUT;
 }
 
+const FIN_TITRE = " en un coup d'œil";
+
+/**
+ * Coupe le titre français après « Tes relations » ou « Tes opportunités »,
+ * pour qu'à 375 px « d'œil » ne reste pas seul sur la ligne.
+ * Les autres langues restent d'un seul tenant.
+ */
+export function coupureTitreCoupOeil(titre: string): [string, string] | null {
+  if (!titre.endsWith(FIN_TITRE)) return null;
+  const debut = titre.slice(0, -FIN_TITRE.length);
+  if (debut !== "Tes relations" && debut !== "Tes opportunités") return null;
+  return [debut, FIN_TITRE.trim()];
+}
+
 function canalLineaire(hex: string, index: number): number {
   const c = parseInt(hex.slice(1 + index * 2, 3 + index * 2), 16) / 255;
   return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contraste, habillageBandeau, libellesFamille, normaliserVue, COULEUR_ACCENT, TEXTE_BANDEAU_SOMBRE } from "./coupOeil";
+import { contraste, coupureTitreCoupOeil, habillageBandeau, libellesFamille, normaliserVue, COULEUR_ACCENT, TEXTE_BANDEAU_SOMBRE } from "./coupOeil";
 import { COULEUR_RELATION } from "./relationApparence";
 
 describe("coup d'œil", () => {
@@ -20,6 +20,13 @@ describe("coup d'œil", () => {
         expect(habillage.fond).toBe(hex);
       }
     }
+  });
+
+  it("coupe les titres français pour le mobile", () => {
+    expect(coupureTitreCoupOeil("Tes relations en un coup d'œil")).toEqual(["Tes relations", "en un coup d'œil"]);
+    expect(coupureTitreCoupOeil("Tes opportunités en un coup d'œil")).toEqual(["Tes opportunités", "en un coup d'œil"]);
+    expect(coupureTitreCoupOeil("Your opportunities at a glance")).toBeNull();
+    expect(coupureTitreCoupOeil("Tus oportunidades de un vistazo")).toBeNull();
   });
 
   it("nomme les quatre familles amour, dont L'énergie et l'amour", () => {
