@@ -19,6 +19,18 @@
   --color-danger-soft: #f8e3dd;
   --color-sky-soft: #e8f5fc; /* bleu ciel, fonds uniquement */
   --color-sky-line: #bfe3f5; /* bleu ciel, bordures uniquement */
+  --color-lilas: #5f3f8f;
+  --color-lilas-soft: #f1eafa;
+  --color-corail: #a8431a;
+  --color-corail-soft: #fde8dc;
+  --color-framboise: #a3304f;
+  --color-framboise-soft: #fce6ec;
+  --color-eau: #0e6a60;
+  --color-eau-soft: #dff4f0;
+  --color-miel: #7a5200;
+  --color-miel-soft: #fdf0d2;
+  --color-sable: #5c4632; /* texte sur sable-soft : 7,4:1 */
+  --color-sable-soft: #f3eadc;
 
   --font-sans: var(--font-jost), system-ui, sans-serif;
   --font-serif: var(--font-cormorant), Georgia, serif;
@@ -48,6 +60,28 @@ h3 {
 :focus-visible {
   outline: 2px solid var(--color-accent-strong);
   outline-offset: 2px;
+}
+
+.anim-entree {
+  animation: apparaitre 420ms ease-out;
+}
+
+@keyframes apparaitre {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media print {
+  .anim-entree {
+    animation: none !important;
+    opacity: 1 !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

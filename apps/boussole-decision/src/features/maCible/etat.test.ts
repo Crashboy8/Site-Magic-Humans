@@ -11,19 +11,20 @@ const esquisse: Cadrage = {
   esquisse: {
     offre: "Je remets les équipes autour de la table.",
     cibles: [
-      { id: "c1", nom: "Directeurs de site", marche: "b2b", enUneLigne: "Directeurs d'usine en Bretagne après une réorganisation.", pourquoi: "Ton réseau et ton Contexte Déclencheur." },
-      { id: "c2", nom: "Dirigeants de PME", marche: "b2b", enUneLigne: "Fondateurs dont le comité de direction ne décide plus.", pourquoi: "Tu poses les questions que personne n'ose poser." },
-      { id: "c3", nom: "Managers promus", marche: "b2c", enUneLigne: "Managers promus depuis moins d'un an avec une équipe divisée.", pourquoi: "Tu les aides à préparer les conversations difficiles." },
+      { id: "c1", nom: "Directeurs de site", marche: "b2b", enUneLigne: "Directeurs d'usine en Bretagne après une réorganisation.", pourquoi: "Ton réseau et ton Contexte Déclencheur.", depuisIdees: [] },
+      { id: "c2", nom: "Dirigeants de PME", marche: "b2b", enUneLigne: "Fondateurs dont le comité de direction ne décide plus.", pourquoi: "Tu poses les questions que personne n'ose poser.", depuisIdees: [] },
+      { id: "c3", nom: "Managers promus", marche: "b2c", enUneLigne: "Managers promus depuis moins d'un an avec une équipe divisée.", pourquoi: "Tu les aides à préparer les conversations difficiles.", depuisIdees: [] },
     ],
     antiCible: "Les grands groupes qui achètent un atelier par appel d'offres.",
     hypotheses: [],
+    autresPistes: [],
   },
 };
 const questions: Cadrage = {
   statut: "questions",
   message: "",
   questions: [{ id: "q1", question: "Tu interviens où exactement ?", pourquoi: "Pour choisir les cibles proches.", type: "texte", options: [], exemple: "À Rennes" }],
-  esquisse: { offre: "", cibles: [], antiCible: "", hypotheses: [] },
+  esquisse: { offre: "", cibles: [], antiCible: "", hypotheses: [], autresPistes: [] },
 };
 const avecEsquisse = (): Etat => reducteur(reducteur(etatInitial(), { type: "cadrage", tour: 1, cadrage: esquisse }), { type: "aller", etape: "esquisse" });
 

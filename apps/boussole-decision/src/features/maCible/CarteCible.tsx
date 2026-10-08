@@ -1,15 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, cx } from "@/components/ui";
+import { cx } from "@/components/ui";
+import { iconeCanal, iconeCible, iconeLieu } from "@/domain/maCible/iconeCible";
 import { GRILLE, type CleCritere, type LigneClassement } from "@/domain/maCible/scores";
 import type { Cible } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
+import { AnneauScore, CLASSE_CARTE, PastilleFine, PastilleIcone, PastillePriorite, TEINTE, teinteCible, teintePriorite, type Teinte } from "./Habillage";
+import { Icone, type NomIcone } from "./Icones";
+import { EncartAnnuaires, LiensLieu } from "./LiensLieu";
 import { texteCible } from "./export";
 import { remplacerPrenom } from "./liens";
 
 const CRITERES: CleCritere[] = ["urgence", "paiement", "acces", "plaisir"];
+const ICONE_CRITERE: Record<CleCritere, NomIcone> = {
+  urgence: "eclair",
+  paiement: "euro",
+  acces: "porte",
+  plaisir: "coeur",
+};
 const RANG_STYLE = {
   prioritaire: "bg-accent-strong text-white",
   secondaire: "bg-sand text-ink",
@@ -39,11 +49,12 @@ function Pastille({ libelle, aide }: { libelle: string; aide: string }) {
   );
 }
 
-function Bloc({ id, titre, pastille, children }: { id?: string; titre: string; pastille?: { libelle: string; aide: string }; children: React.ReactNode }) {
+function Bloc({ id, titre, pastille, icone, teinte, children }: { id?: string; titre: string; pastille?: { libelle: string; aide: string }; icone?: NomIcone; teinte: Teinte; children: React.ReactNode }) {
   return (
     <div id={id} data-ancre={id ? "" : undefined} className="scroll-mt-20 space-y-1.5">
-      <h3 className="flex flex-wrap items-center gap-2 text-[19px] italic">
-        {titre}
+      <h3 className="flex items-center gap-2 text-[19px] italic">
+        {icone && <PastilleIcone nom={icone} teinte={teinte} taille="sm" />}
+        <span className="min-w-0">{titre}</span>
         {pastille && <Pastille libelle={pastille.libelle} aide={pastille.aide} />}
       </h3>
       {children}
@@ -56,12 +67,16 @@ function Detail({
   titre,
   ouvert,
   onOuvert,
+  icone,
+  teinte,
   children,
 }: {
   id: string;
   titre: string;
   ouvert: boolean;
   onOuvert: (id: string, ouvert: boolean) => void;
+  icone: NomIcone;
+  teinte: Teinte;
   children: React.ReactNode;
 }) {
   return (
@@ -72,7 +87,12 @@ function Detail({
       onToggle={(e) => onOuvert(id, e.currentTarget.open)}
       className="scroll-mt-20 rounded-xl border border-line px-4 py-2"
     >
-      <summary className="min-h-11 cursor-pointer py-2.5 font-serif text-[19px] italic">{titre}</summary>
+      <summary className="min-h-11 cursor-pointer py-2.5 font-serif text-[19px] italic">
+        <span className="inline-flex items-center gap-2">
+          <PastilleIcone nom={icone} teinte={teinte} taille="sm" />
+          <span>{titre}</span>
+        </span>
+      </summary>
       <div className="space-y-4 pb-3 pt-1">{children}</div>
     </details>
   );
@@ -116,6 +136,8 @@ export function CarteCible({
   const lin = cible.linkedin;
   const canaux = cible.canaux.slice().sort((a, b) => a.priorite - b.priorite);
   const estimation = { libelle: R.pastilleEstimation, aide: R.pastilleAide };
+  const teinte = teinteCible(rang - 1);
+  const accent = TEINTE[teinte];
   const filtres: [string, string[]][] = [
     [R.intitules, lin.intitules],
     [R.secteurs, lin.secteurs],
@@ -129,25 +151,27 @@ export function CarteCible({
       id={cleCorps}
       data-ancre=""
       aria-labelledby={idTitre}
-      className="carte-cible scroll-mt-20 space-y-4 rounded-2xl border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(58,47,36,0.04)] sm:p-8"
+      className={cx("carte-cible scroll-mt-20 space-y-4 rounded-2xl border border-line border-l-4 bg-paper p-6 sm:p-8", CLASSE_CARTE, accent.bord)}
     >
       <header className="space-y-3">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
+        <div className={cx("flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gradient-to-r to-transparent px-3 py-3", accent.bandeau)}>
+          <div className="min-w-0 space-y-2">
             <span className={cx("inline-flex rounded-full px-3 py-1 text-sm font-medium", RANG_STYLE[ligne.rang])}>{R.rangs[ligne.rang]}</span>
-            <h2 id={idTitre} className="text-[28px] leading-tight">
-              {cible.nom}
+            <h2 id={idTitre} className="flex items-start gap-3 text-[22px] leading-tight sm:text-[28px]">
+              <PastilleIcone nom={iconeCible(cible.nom, `${cible.portrait} ${cible.promesse}`)} teinte={teinte} taille="lg" />
+              <span className="min-w-0 pt-2 sm:pt-1.5">{cible.nom}</span>
             </h2>
-            <Badge tone="neutral">{R.marche[cible.marche]}</Badge>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-ink-soft">{R.scoreTitre}</p>
-            <p className="font-serif text-[40px] leading-none text-accent-strong" aria-label={`${R.scoreTitre} ${R.score(ligne.score)}`}>
-              {R.score(ligne.score)}
+            <p className="flex flex-wrap items-center gap-1.5">
+              <PastilleFine ton="neutre">{R.marche[cible.marche]}</PastilleFine>
+              {cible.depuisIdees.length > 0 && <PastilleFine ton="miel">{R.tonIdee}</PastilleFine>}
             </p>
           </div>
+          <AnneauScore valeur={ligne.score} affiche={R.score(ligne.score)} couleur={accent.anneau} libelle={R.scoreTitre} />
         </div>
-        <p className="font-serif text-[22px] italic leading-snug">{voir(cible.promesse)}</p>
+        <p className="flex items-start gap-2 font-serif text-[22px] italic leading-snug">
+          <PastilleIcone nom="etincelles" teinte={teinte} taille="sm" />
+          <span className="min-w-0">{voir(cible.promesse)}</span>
+        </p>
         {ligne.alertePlaisir && <p className="rounded-xl border border-accent/30 bg-blush px-4 py-3 text-[15px]">{R.alertePlaisir}</p>}
         <div data-ecran-seul>
           <BoutonCopier texte={texteCible(cible, prenom, R.score(ligne.score), false)} M={M} libelle={R.copierCible} />
@@ -157,26 +181,29 @@ export function CarteCible({
       <details open={corpsOuvert} onToggle={(e) => onOuvert(cleCorps, e.currentTarget.open)} className="space-y-6">
         <summary className="min-h-11 cursor-pointer py-2 text-[15px] text-link underline">{R.detail}</summary>
         <div className="space-y-6 pt-2">
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {CRITERES.map((k) => {
-              const n = cible.scores[k];
-              return (
-                <li key={k} className="space-y-1">
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-[15px]">
-                    <span className="inline-flex flex-wrap items-center gap-2 font-medium">
-                      {R.criteres[k]}
-                      <Pastille libelle={R.pastilleEstimation} aide={R.pastilleAide} />
-                    </span>
-                    <span className="text-ink-soft">{R.noteSur5(n.note)}</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-sand" aria-hidden="true">
-                    <div className="h-full rounded-full bg-accent" style={{ width: `${n.note * 20}%` }} />
-                  </div>
-                  <p className="text-sm text-ink-soft">{n.raison}</p>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="space-y-2">
+            <p className="text-[13px] text-ink-soft">{R.estimationsIa}</p>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {CRITERES.map((k) => {
+                const n = cible.scores[k];
+                return (
+                  <li key={k} className="space-y-1">
+                    <div className="flex items-start justify-between gap-2 text-[15px]">
+                      <span className="inline-flex min-w-0 items-center gap-1.5 font-medium">
+                        <Icone nom={ICONE_CRITERE[k]} className={cx("size-4 shrink-0", accent.texte)} />
+                        <span className="min-w-0">{R.criteres[k]}</span>
+                      </span>
+                      <span className="shrink-0 tabular-nums font-semibold">{n.note}/5</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-sand" aria-hidden="true">
+                      <div className={cx("h-full rounded-full", accent.barre)} style={{ width: `${n.note * 20}%` }} />
+                    </div>
+                    <p className="text-sm text-ink-soft">{n.raison}</p>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <details className="text-[15px]" open={ouvert(`cible-${rang}-grille`)} onToggle={(e) => onOuvert(`cible-${rang}-grille`, e.currentTarget.open)}>
             <summary className="min-h-11 cursor-pointer py-2 text-link underline">{R.grilleLien}</summary>
             <div className="space-y-2 pb-2">
@@ -196,16 +223,16 @@ export function CarteCible({
             </div>
           </details>
 
-          <Bloc titre={R.blocs.portrait}>
+          <Bloc titre={R.blocs.portrait} icone="personne" teinte="lilas">
             <p className="text-[17px] leading-relaxed">{voir(cible.portrait)}</p>
           </Bloc>
-          <Bloc id={`cible-${rang}-douleur`} titre={R.blocs.douleur} pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
+          <Bloc id={`cible-${rang}-douleur`} titre={R.blocs.douleur} icone="eclair" teinte="framboise" pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
             <p className="text-[17px] leading-relaxed">{voir(cible.douleur)}</p>
           </Bloc>
-          <Bloc titre={R.blocs.ancrage}>
+          <Bloc titre={R.blocs.ancrage} icone="boussole" teinte="sage">
             <p className="text-[17px] leading-relaxed">{cible.ancrage}</p>
           </Bloc>
-          <Bloc id={`cible-${rang}-offre`} titre={R.blocs.offre}>
+          <Bloc id={`cible-${rang}-offre`} titre={R.blocs.offre} icone="cadeau" teinte="corail">
             <p className="text-[17px] font-semibold">{cible.offre.nom}</p>
             <p className="text-[16px]">
               <span className="font-medium">{R.format}</span> : {cible.offre.format}
@@ -216,51 +243,71 @@ export function CarteCible({
             <p className="text-[16px] font-medium">{R.contenu}</p>
             <Liste items={cible.offre.contenu} />
             <p className="flex flex-wrap items-center gap-2 text-[16px]">
-              <span>
-                <span className="font-medium">{R.prix}</span> : {R.prixValeur(nombre(cible.prix.min), nombre(cible.prix.max), cible.prix.base, cible.prix.unite)}
+              <span className="inline-flex items-center gap-2">
+                <PastilleIcone nom="etiquette" teinte="corail" taille="sm" />
+                <span>
+                  <span className="font-medium">{R.prix}</span> : {R.prixValeur(nombre(cible.prix.min), nombre(cible.prix.max), cible.prix.base, cible.prix.unite)}
+                </span>
               </span>
               <Pastille libelle={estimation.libelle} aide={estimation.aide} />
             </p>
             <p className="text-[15px] text-ink-soft">{cible.prix.justification}</p>
             <p className="text-sm italic text-ink-soft">{R.prixNote}</p>
           </Bloc>
-          <Bloc titre={R.blocs.pitch}>
+          <Bloc titre={R.blocs.pitch} icone="micro" teinte="miel">
             <p className="text-[17px] leading-relaxed">{voir(cible.pitch)}</p>
           </Bloc>
-          <Bloc titre={R.blocs.pourquoi}>
+          <Bloc titre={R.blocs.pourquoi} icone="etoile" teinte="sable">
             <p className="text-[17px] leading-relaxed">{cible.pourquoi}</p>
-            <h4 className="pt-2 font-serif text-[17px] italic">{R.blocs.exemple}</h4>
+            <h4 className="flex items-center gap-2 pt-2 font-serif text-[17px] italic">
+              <PastilleIcone nom="ampoule" teinte="sable" taille="sm" />
+              <span>{R.blocs.exemple}</span>
+            </h4>
             <p className="text-[16px] leading-relaxed text-ink-soft">{cible.exemple}</p>
           </Bloc>
 
-          <Detail id={`cible-${rang}-lieux`} titre={R.blocs.lieux} ouvert={ouvert(`cible-${rang}-lieux`)} onOuvert={onOuvert}>
+          <Detail id={`cible-${rang}-lieux`} titre={R.blocs.lieux} icone="epingle" teinte="eau" ouvert={ouvert(`cible-${rang}-lieux`)} onOuvert={onOuvert}>
             <ul className="space-y-3">
               {cible.lieux.map((l) => (
-                <li key={l.type} className="text-[16px]">
-                  <strong>{l.type}</strong>
-                  <br />
-                  <span className="text-ink-soft">{l.pourquoi}</span>
-                  <br />
-                  <span className="text-[15px]">{R.recherche(l.recherche)}</span>
+                <li key={l.type} className="flex flex-col items-start gap-2 text-[16px] sm:flex-row sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2">
+                      <PastilleIcone nom={iconeLieu(l.type)} teinte="eau" taille="sm" />
+                      <strong className="min-w-0">{l.type}</strong>
+                    </p>
+                    <p className="mt-1 text-ink-soft">{l.pourquoi}</p>
+                    <p className="mt-1 text-[15px]">{R.recherche(l.recherche)}</p>
+                  </div>
+                  <LiensLieu recherche={l.recherche} M={M} />
                 </li>
               ))}
             </ul>
-            <p className="text-[16px] font-medium">{R.canaux}</p>
+            <p className="flex items-center gap-2 text-[16px] font-medium">
+              <PastilleIcone nom="megaphone" teinte="lilas" taille="sm" />
+              <span>{R.canaux}</span>
+            </p>
             <ul className="space-y-3">
               {canaux.map((c) => (
-                <li key={c.canal + c.action} className="text-[16px]">
-                  <strong>{M.canaux[c.canal]}</strong> <span className="text-sm text-ink-soft">({R.priorite(c.priorite)})</span>
-                  <br />
-                  {c.action}
-                  <br />
-                  <span className="text-ink-soft">{c.pourquoi}</span>
+                <li key={c.canal + c.action} className="flex items-start gap-2 text-[16px]">
+                      <PastilleIcone nom={iconeCanal(c.canal)} teinte={teintePriorite(c.priorite)} taille="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="flex items-start gap-2">
+                      <span className="min-w-0 pt-1 font-medium">{M.canaux[c.canal]}</span>
+                      <span className="mt-1.5">
+                        <PastillePriorite niveau={c.priorite} libelle={R.priorite(c.priorite)} />
+                      </span>
+                    </p>
+                    <p className="mt-1">{c.action}</p>
+                    <p className="mt-1 text-ink-soft">{c.pourquoi}</p>
+                  </div>
                 </li>
               ))}
             </ul>
             <p className="text-sm italic text-ink-soft">{R.lieuxNote}</p>
+            <EncartAnnuaires M={M} />
           </Detail>
 
-          <Detail id={`cible-${rang}-linkedin`} titre={R.blocs.linkedin} ouvert={ouvert(`cible-${rang}-linkedin`)} onOuvert={onOuvert}>
+          <Detail id={`cible-${rang}-linkedin`} titre={R.blocs.linkedin} icone="in" teinte="miel" ouvert={ouvert(`cible-${rang}-linkedin`)} onOuvert={onOuvert}>
             <p className="text-[16px]">{R.pertinence[lin.pertinence]}</p>
             <p className="text-[15px] font-medium">{R.motsCles}</p>
             <div className="overflow-x-auto rounded-xl bg-sand p-3">
@@ -280,7 +327,7 @@ export function CarteCible({
             </p>
           </Detail>
 
-          <Detail id={`cible-${rang}-messages`} titre={R.blocs.messages} ouvert={ouvert(`cible-${rang}-messages`)} onOuvert={onOuvert}>
+          <Detail id={`cible-${rang}-messages`} titre={R.blocs.messages} icone="enveloppe" teinte="corail" ouvert={ouvert(`cible-${rang}-messages`)} onOuvert={onOuvert}>
             <div className="space-y-2">
               <p className="text-[15px] font-medium">{R.messageLinkedin}</p>
               <p className="whitespace-pre-line rounded-xl bg-sand p-3 text-[16px] leading-relaxed">{voir(cible.messages.linkedin)}</p>
@@ -296,7 +343,7 @@ export function CarteCible({
             <p className="text-sm italic text-ink-soft">{R.messagesNote}</p>
           </Detail>
 
-          <Detail id={`cible-${rang}-test`} titre={R.blocs.test} ouvert={ouvert(`cible-${rang}-test`)} onOuvert={onOuvert}>
+          <Detail id={`cible-${rang}-test`} titre={R.blocs.test} icone="calendrier" teinte="sage" ouvert={ouvert(`cible-${rang}-test`)} onOuvert={onOuvert}>
             <p className="text-[17px] font-semibold">{R.testConsigne}</p>
             <p className="text-[16px]">
               <span className="font-medium">{R.aQui}</span> : {cible.testTerrain.profils}

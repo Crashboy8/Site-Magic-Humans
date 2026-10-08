@@ -6,6 +6,8 @@ import { detecterFlou, type ErreurChamp } from "@/domain/maCible/entree";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { compteurVisible } from "./compteur";
 import { idChamp, messageChamp } from "./erreurs";
+import { PastilleIcone, type Teinte } from "./Habillage";
+import type { NomIcone } from "./Icones";
 
 /** Pied d'étape : bouton principal à droite, « Retour » à gauche. Collant en bas de l'écran sous 640 px. */
 export function BarreBoutons({ children }: { children: ReactNode }) {
@@ -58,6 +60,8 @@ interface ChampTexteProps {
   multiligne?: boolean;
   rows?: number;
   maxLength?: number;
+  icone?: NomIcone;
+  teinte?: Teinte;
 }
 
 /** Compteur vivant, visible seulement près du plafond. */
@@ -78,7 +82,7 @@ export function AlerteSoumission({ message }: { message: string | null }) {
 }
 
 /** Libellé, aide, exemple en gris, champ, compteur près de la limite, indice de flou et message d'erreur. */
-export function ChampTexte({ champ, label, aide, exemple, placeholder, value, onChange, erreur, M, flou, facultatif, multiligne = true, rows = 3, maxLength }: ChampTexteProps) {
+export function ChampTexte({ champ, label, aide, exemple, placeholder, value, onChange, erreur, M, flou, facultatif, multiligne = true, rows = 3, maxLength, icone, teinte = "corail" }: ChampTexteProps) {
   const id = idChamp(champ);
   const [flouVisible, setFlouVisible] = useState(false);
   const compteur = maxLength !== undefined && compteurVisible(value.length, maxLength);
@@ -94,8 +98,11 @@ export function ChampTexte({ champ, label, aide, exemple, placeholder, value, on
   };
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="block text-[15px] font-medium text-ink">
-        {label} {facultatif && <span className="font-normal text-ink-soft">{M.commun.facultatif}</span>}
+      <label htmlFor={id} className="flex items-center gap-2 text-[15px] font-medium text-ink">
+        {icone && <PastilleIcone nom={icone} teinte={teinte} taille="sm" />}
+        <span>
+          {label} {facultatif && <span className="font-normal text-ink-soft">{M.commun.facultatif}</span>}
+        </span>
       </label>
       {aide && (
         <p id={`${id}-aide`} className="text-sm text-ink-soft">
@@ -143,13 +150,18 @@ interface GroupeProps<T extends string> {
   /** Cible du défilement quand ce groupe est le premier invalide. */
   id?: string;
   colonnes?: boolean;
+  icone?: NomIcone;
+  teinte?: Teinte;
 }
 
 /** Boutons radio en cartes cliquables, dans un `fieldset`. Le vrai `input` reste visible. */
-export function GroupeRadio<T extends string>({ nom, legende, aide, options, valeur, onChange, erreur, idErreur, id, colonnes = true }: GroupeProps<T>) {
+export function GroupeRadio<T extends string>({ nom, legende, aide, options, valeur, onChange, erreur, idErreur, id, colonnes = true, icone, teinte = "corail" }: GroupeProps<T>) {
   return (
     <fieldset id={id} className="space-y-2 scroll-mt-6" aria-describedby={idErreur && erreur ? idErreur : undefined}>
-      <legend className="text-[15px] font-medium text-ink">{legende}</legend>
+      <legend className="flex items-center gap-2 text-[15px] font-medium text-ink">
+        {icone && <PastilleIcone nom={icone} teinte={teinte} taille="sm" />}
+        <span>{legende}</span>
+      </legend>
       {aide && <p className="text-sm text-ink-soft">{aide}</p>}
       <div className={cx("grid gap-2", colonnes && "sm:grid-cols-2")}>
         {options.map((o) => (
@@ -175,16 +187,23 @@ export function GroupePastilles<T extends string>({
   options,
   valeurs,
   onChange,
+  icone,
+  teinte = "corail",
 }: {
   legende: string;
   aide?: string;
   options: { valeur: T; label: string }[];
   valeurs: T[];
   onChange: (v: T[]) => void;
+  icone?: NomIcone;
+  teinte?: Teinte;
 }) {
   return (
     <fieldset className="space-y-2">
-      <legend className="text-[15px] font-medium text-ink">{legende}</legend>
+      <legend className="flex items-center gap-2 text-[15px] font-medium text-ink">
+        {icone && <PastilleIcone nom={icone} teinte={teinte} taille="sm" />}
+        <span>{legende}</span>
+      </legend>
       {aide && <p className="text-sm text-ink-soft">{aide}</p>}
       <div className="flex flex-wrap gap-2">
         {options.map((o) => {

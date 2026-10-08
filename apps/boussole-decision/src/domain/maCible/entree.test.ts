@@ -16,6 +16,26 @@ describe("validerEntree", () => {
     if (r.ok) expect(r.entree.terrain.zone).toBe(ENTREE_EXEMPLE.terrain.zone);
   });
 
+  it("pose des idées vides et une synthèse nulle quand elles sont absentes", () => {
+    const e = clone();
+    delete e.terrain.ciblesEnTete;
+    delete e.synthese;
+    const r = validerEntree(e);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.entree.terrain.ciblesEnTete).toEqual([]);
+    expect(r.entree.synthese).toBeNull();
+  });
+
+  it("garde 8 idées, retire les doublons et coupe à 120 caractères", () => {
+    const e = clone();
+    e.terrain.ciblesEnTete = ["Cadres", "cadres", "x".repeat(130), ...Array.from({ length: 8 }, (_, i) => `idée ${i}`)];
+    const r = validerEntree(e);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.entree.terrain.ciblesEnTete).toEqual(["Cadres", "x".repeat(120), "idée 0", "idée 1", "idée 2", "idée 3", "idée 4", "idée 5"]);
+  });
+
   it.each(["talent.mecanisme", "talent.contexte", "talent.benefice", "talent.antiContexte", "terrain.experience", "terrain.zone"])("%s vide : requis", (champ) => {
     const e = clone();
     const [a, b] = champ.split(".");

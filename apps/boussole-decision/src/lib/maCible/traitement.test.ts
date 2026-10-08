@@ -11,19 +11,20 @@ const ORIGINE = "https://www.magichumans.com";
 const ESQUISSE = {
   offre: "Je remets les équipes qui ne se parlent plus autour de la table.",
   cibles: [
-    { id: "c1", nom: "Directeurs de sites", marche: "b2b", enUneLigne: "Directeurs de site après une réorganisation tendue", pourquoi: "Ton Contexte Déclencheur est leur situation." },
-    { id: "c2", nom: "Dirigeants de PME", marche: "b2b", enUneLigne: "Fondateurs dont le comité de direction ne décide plus", pourquoi: "Tu poses les questions que personne n'ose poser." },
-    { id: "c3", nom: "Managers promus", marche: "b2c", enUneLigne: "Managers promus qui héritent d'une équipe divisée", pourquoi: "Tu aides à préparer les conversations difficiles." },
+    { id: "c1", nom: "Directeurs de sites", marche: "b2b", enUneLigne: "Directeurs de site après une réorganisation tendue", pourquoi: "Ton Contexte Déclencheur est leur situation.", depuisIdees: [] },
+    { id: "c2", nom: "Dirigeants de PME", marche: "b2b", enUneLigne: "Fondateurs dont le comité de direction ne décide plus", pourquoi: "Tu poses les questions que personne n'ose poser.", depuisIdees: [] },
+    { id: "c3", nom: "Managers promus", marche: "b2c", enUneLigne: "Managers promus qui héritent d'une équipe divisée", pourquoi: "Tu aides à préparer les conversations difficiles.", depuisIdees: [] },
   ],
   antiCible: "Les grands groupes qui achètent un atelier comme une case à cocher.",
   hypotheses: [],
+  autresPistes: [],
 };
 const CADRAGE_ESQUISSE = { statut: "esquisse", message: "", questions: [], esquisse: ESQUISSE };
 const CADRAGE_QUESTIONS = {
   statut: "questions",
   message: "",
   questions: [{ id: "q1", question: "Interviens-tu surtout en groupe ?", pourquoi: "Cela change les cibles proposées.", type: "choix", options: ["En groupe", "En individuel"], exemple: "" }],
-  esquisse: { offre: "", cibles: [], antiCible: "", hypotheses: [] },
+  esquisse: { offre: "", cibles: [], antiCible: "", hypotheses: [], autresPistes: [] },
 };
 const CORRECTIONS = {
   offre: "J'accompagne des dirigeants et des équipes.",
@@ -231,7 +232,7 @@ describe("réponses réussies", () => {
     const appel = fournisseur.appeler.mock.calls[0][0] as any;
     expect(appel.systeme).toContain("tour 2");
     expect(appel.systeme).toContain("il est interdit de poser des questions");
-    expect(appel.maxTokens).toBe(1500);
+    expect(appel.maxTokens).toBe(2500);
     expect(appel.delaiMs).toBe(90000);
     expect(appel.nomSchema).toBe("cadrage");
     expect(appel.utilisateur).toContain("<donnees>");
@@ -248,7 +249,7 @@ describe("réponses réussies", () => {
       ["c3", 5.5, "tertiaire"],
     ]);
     const appel = fournisseur.appeler.mock.calls[0][0] as any;
-    expect(appel.maxTokens).toBe(9000);
+    expect(appel.maxTokens).toBe(10000);
     expect(appel.delaiMs).toBeLessThanOrEqual(240000);
     expect(appel.nomSchema).toBe("resultat");
   });

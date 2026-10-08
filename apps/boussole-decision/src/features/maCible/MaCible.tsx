@@ -107,6 +107,7 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           entree: etat.entreeDuResultat ?? etat.entree,
           resultat: etat.resultat,
           coches: etat.coches,
+          extras: etat.extras,
         });
         ecrireHistorique(liste);
         setHistorique(liste);
@@ -176,12 +177,13 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           entree: etat.entreeDuResultat ?? etat.entree,
           resultat: etat.resultat,
           coches: etat.coches,
+          extras: etat.extras,
         }
       : null;
     const liste = reprendreDansHistorique(lireHistorique(), choisi.id, courant);
     ecrireHistorique(liste);
     setHistorique(liste);
-    dispatch({ type: "reprendre", entree: choisi.entree, resultat: choisi.resultat, faitLe: choisi.faitLe, coches: choisi.coches });
+    dispatch({ type: "reprendre", entree: choisi.entree, resultat: choisi.resultat, faitLe: choisi.faitLe, coches: choisi.coches, extras: choisi.extras });
     setVue(null);
   }
   function supprimerHistorique(id: string) {

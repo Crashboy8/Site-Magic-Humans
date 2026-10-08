@@ -1,4 +1,5 @@
 // Export du résultat : texte brut et Markdown. Le prénom est remplacé, jamais laissé en jeton.
+import { scorePressenti } from "@/domain/maCible/scores";
 import type { Cible, ResultatClasse } from "@/domain/maCible/types";
 import { remplacerPrenom } from "./liens";
 
@@ -77,6 +78,17 @@ export function exporterResultat(resultat: ResultatClasse, prenom: string): { te
     return [
       bloc("Ton offre", [t(resultat.offre.phrase), "", "Avant toi", t(resultat.offre.avant), "", "Après toi", t(resultat.offre.apres)], markdown, 1),
       ...cibles,
+      resultat.autresPistes.length
+        ? bloc(
+            "D'autres pistes",
+            resultat.autresPistes.map((p) => {
+              const score = String(scorePressenti(p.notes)).replace(".", ",");
+              return [`${p.nom} (${p.marche.toUpperCase()} · ${score}/10)`, t(p.enUneLigne), t(p.raison)].join("\n");
+            }),
+            markdown,
+            2,
+          )
+        : "",
       bloc("Anti-cible", [t(resultat.antiCible.portrait), puces(resultat.antiCible.signaux.map(t)), t(resultat.antiCible.lienAntiContexte), t(resultat.antiCible.commentDire)], markdown, 2),
       bloc("Plan 30 jours", plan, markdown, 2),
       resultat.hypotheses.length ? bloc("Ce que l'IA a supposé", [puces(resultat.hypotheses.map(t))], markdown, 2) : "",

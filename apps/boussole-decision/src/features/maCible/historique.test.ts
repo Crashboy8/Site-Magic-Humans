@@ -33,6 +33,28 @@ describe("historique", () => {
     expect(normaliser(JSON.stringify([fabrique("ok")]))[0].resultat.cibles[0].nom).toBe(RESULTAT_EXEMPLE.cibles[0].nom);
   });
 
+  it("relit une entrée V2a sans perte, avec idées, synthèse et extras par défaut", () => {
+    const brut = fabrique("v2a") as unknown as {
+      entree: { terrain: Record<string, unknown>; synthese?: unknown };
+      extras?: unknown;
+      resultat: { autresPistes?: unknown; cibles: Record<string, unknown>[] };
+    };
+    delete brut.entree.terrain.ciblesEnTete;
+    delete brut.entree.synthese;
+    delete brut.extras;
+    delete brut.resultat.autresPistes;
+    for (const c of brut.resultat.cibles) {
+      delete c.depuisIdees;
+      delete c.verbatims;
+    }
+    const lu = normaliser(JSON.stringify([brut]))[0];
+    expect(lu.entree.terrain.ciblesEnTete).toEqual([]);
+    expect(lu.entree.synthese).toBeNull();
+    expect(lu.extras).toEqual({ portraits: {}, pistes: {} });
+    expect(lu.resultat.cibles).toHaveLength(3);
+    expect(lu.resultat.autresPistes).toEqual([]);
+  });
+
   it("range l'ancien résultat quand le nouveau arrive, et réessaie sans le plus ancien si le stockage est plein", () => {
     const ancien = fabrique("ancien");
     const liste = archiverCourant([], ancien);
