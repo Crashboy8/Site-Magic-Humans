@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { cx } from "@/components/ui";
+import { COULEUR_RELATION, espacesFins } from "@/domain/relationApparence";
 import { formatScore, type OpportunityResult } from "@/domain/scoring";
 import { useI18n } from "@/i18n/client";
 import type { Category, Opportunity } from "@/domain/types";
+import { IconeRelation } from "@/features/amour/IconeRelation";
 
 // Palette catégorielle validée (contraste, daltonisme) sur le fond « paper » : une couleur par opportunité,
 // dans l'ordre des colonnes du tableau (la couleur suit l'opportunité, jamais son rang).
@@ -30,12 +32,15 @@ export function Radar({
   opportunities,
   results,
   caption,
+  teintesRelation = false,
 }: {
   categories: Category[];
   opportunities: Opportunity[];
   results: OpportunityResult[];
   /** Légende du tableau des chiffres. En mode amour, remplace « opportunité » sans toucher au mode pro. */
   caption?: string;
+  /** Boussole Relation : le tracé et la légende prennent la couleur de chaque relation. */
+  teintesRelation?: boolean;
 }) {
   const [focus, setFocus] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
@@ -49,7 +54,9 @@ export function Radar({
   };
 
   const ordered = [...opportunities].sort((a, b) => a.position - b.position).slice(0, SERIES_COLORS.length);
-  const colorOf = new Map(ordered.map((o, i) => [o.id, SERIES_COLORS[i]]));
+  const colorOf = new Map(
+    ordered.map((o, i) => [o.id, teintesRelation && o.color ? COULEUR_RELATION[o.color] : SERIES_COLORS[i]]),
+  );
   const resultOf = new Map(results.map((r) => [r.opportunity.id, r]));
   const scoreOf = (opportunityId: string, categoryId: string) =>
     resultOf.get(opportunityId)?.byCategory.find((c) => c.categoryId === categoryId)?.score ?? null;
@@ -75,8 +82,12 @@ export function Radar({
                   focus === o.id ? "border-ink/40 bg-sand" : "border-line bg-paper",
                 )}
               >
-                <span aria-hidden className="h-3 w-3 rounded-full" style={{ background: colorOf.get(o.id) }} />
-                {o.name}
+                {teintesRelation && o.icon && o.color ? (
+                  <IconeRelation icone={o.icon} couleur={o.color} taille={16} />
+                ) : (
+                  <span aria-hidden className="h-3 w-3 rounded-full" style={{ background: colorOf.get(o.id) }} />
+                )}
+                {teintesRelation ? <span className="text-balance">{o.name}</span> : o.name}
               </button>
             </li>
           ))}
@@ -112,7 +123,7 @@ export function Radar({
               );
             })}
             <text x={CENTER + 4} y={CENTER - RADIUS - 4} className="fill-ink-soft text-[10px]">
-              100 %
+              {teintesRelation ? "100\u00a0%" : "100 %"}
             </text>
             {series.map((o) => {
               const color = colorOf.get(o.id);
@@ -129,7 +140,8 @@ export function Radar({
                     strokeLinejoin="round"
                   />
                   {pts.map((p) => {
-                    const text = `${o.name} · ${axisLabel(p.axis)} : ${fmt(scoreOf(o.id, p.axis.id))}`;
+                    const brut = `${o.name} · ${axisLabel(p.axis)} : ${fmt(scoreOf(o.id, p.axis.id))}`;
+                    const text = teintesRelation ? espacesFins(brut) : brut;
                     return (
                       <g key={p.axis.id}>
                         <circle cx={p.x} cy={p.y} r={4} fill={color} stroke="#fffdf9" strokeWidth={2} />
@@ -181,7 +193,11 @@ export function Radar({
               {series.map((o) => (
                 <th key={o.id} scope="col" className="px-3 py-2 text-right font-semibold">
                   <span className="inline-flex items-center gap-1.5">
-                    <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf.get(o.id) }} />
+                    {teintesRelation && o.icon && o.color ? (
+                      <IconeRelation icone={o.icon} couleur={o.color} taille={14} />
+                    ) : (
+                      <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf.get(o.id) }} />
+                    )}
                     {o.name}
                   </span>
                 </th>
@@ -196,7 +212,7 @@ export function Radar({
                 </th>
                 {series.map((o) => (
                   <td key={o.id} className="px-3 py-2 text-right tabular-nums">
-                    {fmt(scoreOf(o.id, a.id))}
+                    {teintesRelation ? espacesFins(fmt(scoreOf(o.id, a.id))) : fmt(scoreOf(o.id, a.id))}
                   </td>
                 ))}
               </tr>

@@ -2,6 +2,7 @@
 // les règles de sécurité de la base décident de ce que l'utilisateur peut voir et modifier.
 // Pour une intégration dans une autre application, c'est ce fichier qu'on remplace.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { ecrireApparenceNotes, type RelationLook } from "@/domain/relationApparence";
 import type {
   AppUser,
   Category,
@@ -368,6 +369,23 @@ export async function updateOpportunity(
 
 export async function deleteOpportunity(db: Db, id: string) {
   check(await db.from("opportunities").delete().eq("id", id));
+}
+
+/**
+ * Icône et couleur d'une relation, sur la même ligne que le nom.
+ * On tente les colonnes optionnelles icon et color. Si elles manquent (pas de migration),
+ * on écrit un marqueur invisible au début de notes, qui voyage avec la copie de version.
+ */
+export async function saveOpportunityAppearance(
+  db: Db,
+  opportunity: Pick<Opportunity, "id" | "notes">,
+  look: RelationLook,
+): Promise<"colonnes" | "notes"> {
+  const colonnes = await db.from("opportunities").update({ icon: look.icon, color: look.color }).eq("id", opportunity.id);
+  const notes = ecrireApparenceNotes(opportunity.notes, look);
+  const noteResult = await db.from("opportunities").update({ notes }).eq("id", opportunity.id);
+  if (noteResult.error) throw new Error(noteResult.error.message);
+  return colonnes.error ? "notes" : "colonnes";
 }
 
 export async function listEvaluations(db: Db, versionId: string): Promise<Evaluation[]> {

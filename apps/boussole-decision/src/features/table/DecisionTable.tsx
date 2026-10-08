@@ -4,6 +4,10 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
 import { LOVE_TABLE } from "@/content/amour";
+import { COULEUR_RELATION, apparenceParDefaut, type RelationLook } from "@/domain/relationApparence";
+import { enregistrerApparence, useApparenceRelations } from "@/features/amour/apparenceLocale";
+import { ChoixApparence } from "@/features/amour/ChoixApparence";
+import { IconeRelation } from "@/features/amour/IconeRelation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import {
   createCategory,
@@ -91,6 +95,8 @@ function Table({
   const [categories, setCategories] = useState(initial.categories);
   const [criteria, setCriteria] = useState(initial.criteria);
   const [opportunities, setOpportunities] = useState(initial.opportunities);
+  const love = useContext(LoveTableContext);
+  const relations = useApparenceRelations(opportunities, love, love && !readOnly);
   const [cells, setCells] = useState(() => new Map(initial.evaluations.map((e) => [key(e.criterionId, e.opportunityId), e.value])));
   const [weights, setWeights] = useState(initialWeights);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -107,8 +113,8 @@ function Table({
     [cells],
   );
   const ranking = useMemo(
-    () => rankOpportunities(opportunities, criteria, evaluations, weights),
-    [opportunities, criteria, evaluations, weights],
+    () => rankOpportunities(relations, criteria, evaluations, weights),
+    [relations, criteria, evaluations, weights],
   );
   const resultById = new Map(ranking.map((r, i) => [r.opportunity.id, { result: r, rank: i + 1 }]));
 
@@ -118,7 +124,7 @@ function Table({
     return map;
   }, [categories, criteria]);
 
-  const sortedOpps = [...opportunities].sort((a, b) => a.position - b.position);
+  const sortedOpps = [...relations].sort((a, b) => a.position - b.position);
   const activeOpp = sortedOpps[Math.min(mobileIndex, sortedOpps.length - 1)];
   const colClass = (o: Opportunity) => (o.id === activeOpp?.id ? "" : "hidden sm:table-cell");
 
@@ -178,7 +184,10 @@ function Table({
     const position = opportunities.length ? Math.max(...opportunities.map((o) => o.position)) + 1 : 0;
     const created = await guarded(createOpportunity(db, versionId, T.newOpportunityName(opportunities.length + 1), position));
     if (created) {
-      setOpportunities((os) => [...os, created]);
+      const look = love ? apparenceParDefaut(relations.flatMap((o) => (o.icon && o.color ? [{ icon: o.icon, color: o.color }] : []))) : null;
+      const avec = look ? { ...created, ...look } : created;
+      if (look) void enregistrerApparence(created, look);
+      setOpportunities((os) => [...os, avec]);
       setMobileIndex(opportunities.length);
     }
   }
@@ -241,11 +250,12 @@ function Table({
                   aria-selected={o.id === activeOpp?.id}
                   onClick={() => setMobileIndex(i)}
                   className={cx(
-                    "shrink-0 rounded-full px-4 py-2 text-sm font-semibold",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold",
                     o.id === activeOpp?.id ? "bg-ink text-cream" : "bg-paper text-ink-soft border border-line",
                   )}
                 >
-                  {o.name.length > 22 ? `${o.name.slice(0, 22)}…` : o.name}
+                  {love && o.icon && o.color && <IconeRelation icone={o.icon} couleur={o.color} taille={16} />}
+                  <span>{o.name.length > 22 ? `${o.name.slice(0, 22)}…` : o.name}</span>
                 </button>
               ))}
             </div>
@@ -267,13 +277,20 @@ function Table({
                       key={o.id}
                       scope="col"
                       className={cx("min-w-[150px] border-b border-l border-line px-3 py-3 text-center align-top font-normal", colClass(o))}
+                      style={love && o.color ? { boxShadow: `inset 0 3px 0 ${COULEUR_RELATION[o.color]}` } : undefined}
                     >
                       <OpportunityHeader
                         opportunity={o}
                         readOnly={readOnly}
+                        look={love && o.icon && o.color ? { icon: o.icon, color: o.color } : null}
                         onRename={(name) => {
                           setOpportunities((os) => os.map((x) => (x.id === o.id ? { ...x, name } : x)));
                           return updateOpportunity(db, o.id, { name });
+                        }}
+                        onLook={(look) => {
+                          setOpportunities((os) => os.map((x) => (x.id === o.id ? { ...x, ...look } : x)));
+                          const source = opportunities.find((x) => x.id === o.id) ?? o;
+                          void enregistrerApparence(source, look);
                         }}
                         onDelete={() => removeOpportunity(o)}
                       />
@@ -464,32 +481,54 @@ function Table({
 function OpportunityHeader({
   opportunity,
   readOnly,
+  look,
   onRename,
+  onLook,
   onDelete,
 }: {
   opportunity: Opportunity;
   readOnly: boolean;
+  look: RelationLook | null;
   onRename: (name: string) => Promise<void>;
+  onLook: (look: RelationLook) => void;
   onDelete: () => void;
 }) {
   const [name, setName] = useAutosavedValue(opportunity.name, (v) => onRename(v.trim() || opportunity.name));
+  const [ouvert, setOuvert] = useState(false);
   const T = useTableTexts();
   if (readOnly)
     return (
-      <span data-opp-name className="block text-center text-[16px] font-semibold leading-snug">
-        {opportunity.name}
+      <span className="flex items-center justify-center gap-1.5 text-center">
+        {look && <IconeRelation icone={look.icon} couleur={look.color} />}
+        <span data-opp-name className="text-balance text-[16px] font-semibold leading-snug">
+          {opportunity.name}
+        </span>
       </span>
     );
   return (
     <div className="relative">
-      <textarea
-        aria-label={T.opportunityName}
-        value={name}
-        rows={1}
-        maxLength={120}
-        onChange={(e) => setName(e.target.value)}
-        className="field-sizing-content w-full min-w-0 resize-none rounded-md bg-transparent px-6 text-center text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
-      />
+      <div className="flex items-center gap-1 pr-6">
+        {look && (
+          <button
+            type="button"
+            aria-expanded={ouvert}
+            aria-label={LOVE_TABLE.changeLook(opportunity.name)}
+            onClick={() => setOuvert((v) => !v)}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-sand"
+          >
+            <IconeRelation icone={look.icon} couleur={look.color} />
+          </button>
+        )}
+        <textarea
+          aria-label={T.opportunityName}
+          value={name}
+          rows={1}
+          maxLength={120}
+          onChange={(e) => setName(e.target.value)}
+          className="field-sizing-content w-full min-w-0 flex-1 resize-none rounded-md bg-transparent text-center text-[16px] font-semibold leading-snug hover:bg-sand focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent/40"
+        />
+      </div>
+      {look && ouvert && <ChoixApparence look={look} onChange={onLook} />}
       <button
         type="button"
         onClick={onDelete}

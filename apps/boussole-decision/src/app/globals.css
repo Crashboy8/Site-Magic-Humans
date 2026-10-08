@@ -159,3 +159,63 @@ html[data-seance] .sticky {
 [data-impression-seule] {
   display: none;
 }
+
+/* Boussole Relation : pied de page d'impression, caché à l'écran. */
+.pied-boussole {
+  display: none;
+}
+
+@media print {
+  @page boussole {
+    size: A4;
+    margin: 14mm 14mm 20mm;
+
+    @bottom-center {
+      content: "Magic Humans · www.magichumans.com";
+      font-family: "Source Sans 3", sans-serif;
+      font-size: 10pt;
+      color: #6b5d4e;
+    }
+  }
+
+  html:has(.boussole-relation) {
+    background: #fff !important;
+  }
+
+  html:has(.boussole-relation) body {
+    page: boussole;
+    background: #fff !important;
+  }
+
+  body:has(.boussole-relation) [data-chrome],
+  body:has(.boussole-relation) nav,
+  body:has(.boussole-relation) .mb-6.flex > button {
+    display: none !important;
+  }
+
+  .boussole-relation,
+  .boussole-relation .bg-paper,
+  .boussole-relation .bg-cream {
+    background: #fff;
+  }
+
+  .boussole-relation .titre-section,
+  .boussole-relation h1,
+  .boussole-relation h2,
+  .boussole-relation h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .boussole-relation .titre-section,
+  .boussole-relation .carte-resultat,
+  .boussole-relation .eviter-coupure {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Le texte du pied est dans la marge de page, pour ne pas recouvrir la dernière ligne. */
+  .pied-boussole {
+    display: none !important;
+  }
+}

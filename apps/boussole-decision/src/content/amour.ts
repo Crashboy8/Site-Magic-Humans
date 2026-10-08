@@ -191,6 +191,33 @@ export const LOVE_TABLE = {
   redLine: "Signal d'incompatibilité à clarifier",
   legendNonNegotiableText: " : s'il n'est pas pleinement respecté, la relation est signalée et classée après les autres",
   nonNegotiableHint: "Non négociable : si ce n'est pas pleinement le cas, la relation est signalée et classée après les autres.",
+  chooseIcon: "Choisir une icône",
+  chooseColor: "Choisir une couleur",
+  iconLegend: "Icône",
+  colorLegend: "Couleur",
+  changeLook: (name: string) => `Icône et couleur de ${name}`,
+  icons: {
+    coeur: "Cœur",
+    etoile: "Étoile",
+    soleil: "Soleil",
+    lune: "Lune",
+    montagne: "Montagne",
+    vague: "Vague",
+    fleur: "Fleur",
+    feuille: "Feuille",
+    flamme: "Flamme",
+    maison: "Maison",
+  },
+  colors: {
+    corail: "Corail",
+    framboise: "Framboise",
+    miel: "Miel",
+    abricot: "Abricot",
+    eau: "Vert d'eau",
+    sauge: "Sauge",
+    lilas: "Lilas",
+    ciel: "Bleu ciel",
+  },
 } as const;
 
 /**
@@ -212,4 +239,14 @@ export const LOVE_RESULTS = {
   onlyOne: (score: string) => ` est la seule relation évaluée pour l'instant : ${score} d'alignement.`,
   allFail:
     "Aucune relation ne respecte pour l'instant tous tes besoins essentiels. Prends le temps de regarder lesquels comptent vraiment pour toi, et si l'un d'eux peut s'assouplir.",
+  needsTitle: "Tes besoins essentiels",
+  needNourri: (nom: string, critere: string) => `Avec ${nom}, ton besoin « ${critere} » est bien nourri.`,
+  needPartiel: (nom: string, critere: string) =>
+    `Avec ${nom}, ton besoin « ${critere} » l'est en partie, ça vaut une vraie conversation.`,
+  needAbsent: (nom: string, critere: string) =>
+    `Avec ${nom}, ton besoin « ${critere} » n'est pas nourri pour l'instant. Regarde ce que ça te coûte.`,
+  downloadPdf: "Télécharger ma Boussole en PDF",
+  printFooter: "Magic Humans · www.magichumans.com",
+  discoveryCta: "Envie d'y voir plus clair sur ce que tu cherches vraiment en amour ? On en parle 30 minutes, c'est offert.",
+  discoveryUrl: "https://calendly.com/pierre-j-sarazin?utm_source=boussole-relation",
 } as const;
