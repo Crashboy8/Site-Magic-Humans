@@ -66,12 +66,12 @@ const fr = {
   lower: (label: string) => `Baisser le poids de « ${label} »`,
   raise: (label: string) => `Augmenter le poids de « ${label} »`,
   bonus: "Bonus",
-  bonusHint: ": ajoute jusqu'à ce nombre de points si c'est là, n'en enlève jamais. Un niveau à 0 ne compte pas.",
+  bonusHint: " : ajoute jusqu'à ce nombre de points si c'est là, n'en enlève jamais. Un niveau à 0 ne compte pas.",
   resetWeights: "Revenir au barème conseillé",
 
   // Légende
   legendNonNegotiable: "🔒 Non négociable",
-  legendNonNegotiableText: ": s'il n'est pas pleinement respecté, l'opportunité est signalée et classée après les autres",
+  legendNonNegotiableText: " : s'il n'est pas pleinement respecté, l'opportunité est signalée et classée après les autres",
   legendAvoid: "↩ À éviter",
   legendAvoidText: ": on évalue la présence du risque",
 };

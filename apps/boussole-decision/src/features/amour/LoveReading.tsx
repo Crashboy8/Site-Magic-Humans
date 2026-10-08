@@ -6,7 +6,7 @@ import type { OpportunityResult } from "@/domain/scoring";
 const fill = (tpl: string, vars: Record<string, string | number>) =>
   tpl.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));
 
-/** Lecture mode amour : alertes d'abord, puis le score, la tranche et l'appel à l'action. */
+/** Lecture mode amour : le titre de la relation, puis ses alertes, la tranche et l'appel à l'action. */
 export function LoveReading({ ranking }: { ranking: OpportunityResult[] }) {
   const T = LOVE_TEXTS;
   return (
@@ -27,6 +27,7 @@ export function LoveReading({ ranking }: { ranking: OpportunityResult[] }) {
         const score = Math.round(lr.score);
         return (
           <div key={r.opportunity.id} className="space-y-4">
+            <p className="font-serif text-2xl italic">{fill(T.scoreLine, { name: r.opportunity.name, score })}</p>
             {lr.alerts.length > 0 && (
               <Notice tone="error">
                 <p className="font-semibold">{T.alertsTitle}</p>
@@ -38,7 +39,6 @@ export function LoveReading({ ranking }: { ranking: OpportunityResult[] }) {
                 ))}
               </Notice>
             )}
-            <p className="font-serif text-2xl italic">{fill(T.scoreLine, { name: r.opportunity.name, score })}</p>
             {lr.provisional && <Notice>{fill(T.provisional, { n: lr.missing })}</Notice>}
             <Card className="space-y-3">
               <h3 className="font-serif text-2xl italic">{band.title}</h3>
