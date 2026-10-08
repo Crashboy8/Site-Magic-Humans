@@ -151,6 +151,20 @@ em.serif{font-family:var(--display);font-style:italic;font-size:1.15em}
 .toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem}
 .toc a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
 .toc a:hover{color:var(--accent)}
+/* Rapport : une couleur et une icône par section, dans le sommaire et en tête de section. */
+#screen-report .toc{gap:8px}
+#screen-report .toc a{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-radius:999px;background:color-mix(in srgb,var(--c) 9%,var(--surface));color:var(--ink);font-weight:600;line-height:1.25}
+#screen-report .toc a:hover{background:color-mix(in srgb,var(--c) 18%,var(--surface));color:var(--ink)}
+#screen-report section.rs>.snum{display:inline-flex;align-items:center;gap:8px;color:var(--c)}
+#screen-report .ico-sec{width:16px;height:16px;flex:none;fill:none;stroke:var(--c);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#screen-report section.rs>.snum .ico-sec{width:20px;height:20px}
+#screen-report .toc a:nth-child(1),#screen-report #s1{--c:#D9661C}
+#screen-report .toc a:nth-child(2),#screen-report #s2{--c:#B83A5E}
+#screen-report .toc a:nth-child(3),#screen-report #s3{--c:#3B9AD9}
+#screen-report .toc a:nth-child(4),#screen-report #s4{--c:#3C8A5A}
+#screen-report .toc a:nth-child(5),#screen-report #s5{--c:#C08A12}
+#screen-report .toc a:nth-child(6),#screen-report #s6{--c:#7D5BC6}
+#screen-report .toc a:nth-child(7),#screen-report #s7{--c:#23908A}
 section.rs{border-top:1px solid var(--line);padding-top:30px;display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
 .snum{font-family:var(--display);font-style:italic;color:var(--accent);font-size:1.15rem}
 .prose{max-width:64ch;display:flex;flex-direction:column;gap:12px}
@@ -2444,6 +2458,20 @@ function quizData(p, lg, d, s, W, moi, fertile, toxic){
   };
 }
 
+/* Icônes des 7 sections du rapport (boussole, voilier, rouages, éclair, diamant, livre, cible). */
+const ICO_SECTIONS = [
+  '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  '<path d="M12 3v13M12 4l7 12h-7"/><path d="M3 18h18l-2.5 3h-13z"/>',
+  '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  '<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 21L8 9l4-6 4 6z"/>',
+  '<path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/>',
+  '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'
+];
+function icoSection(i){
+  return `<svg class="ico-sec" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICO_SECTIONS[i] || ""}</svg>`;
+}
+
 function renderReport(p, ctx){
   lastReport = {p, ctx};
   const {A, X} = C(), R = T().r, d=A[p.D], s=A[p.S], ax=A[p.axis], r=X.parts(p);
@@ -2476,13 +2504,13 @@ function renderReport(p, ctx){
   </details>` : ""}`}
 
   <nav class="toc" aria-label="${R.titles.join(", ")}" style="padding-top:16px">
-    ${R.toc.map((t,i)=>`<a href="${ctx.locked && i>3 ? "#unlock" : "#s"+(i+1)}">${t}</a>`).join("")}
+    ${R.toc.map((t,i)=>`<a href="${ctx.locked && i>3 ? "#unlock" : "#s"+(i+1)}">${icoSection(i)}${t}</a>`).join("")}
   </nav>
 
   <div class="stack-lg" style="padding-top:20px">
 
   <section class="rs" id="s1">
-    <span class="snum">${R.section(1)}</span><h2>${R.titles[0]}</h2>
+    <span class="snum">${icoSection(0)}${R.section(1)}</span><h2>${R.titles[0]}</h2>
     <div class="prose"><p>${R.s1p1}</p><p>${R.s1p2}</p></div>
     <div class="equation"><div class="formula">${R.formula}</div><p>${R.equation}</p></div>
     <div class="panel"><span class="lab">${R.scores}</span>${chartHTML(p)}</div>
@@ -2490,7 +2518,7 @@ function renderReport(p, ctx){
   </section>
 
   <section class="rs" id="s2">
-    <span class="snum">${R.section(2)}</span><h2>${R.titles[1]}</h2>
+    <span class="snum">${icoSection(1)}${R.section(2)}</span><h2>${R.titles[1]}</h2>
     <p class="prose">${R.shipIntro}</p>
     <div class="ship">
       <div class="panel"><span class="lab">${R.hullLab}</span><h3>${R.hullH}</h3><p><strong>${d.name} × ${s.name}</strong></p><p>${esc(r.core)}</p></div>
@@ -2501,7 +2529,7 @@ function renderReport(p, ctx){
   </section>
 
   <section class="rs" id="s3">
-    <span class="snum">${R.section(3)}</span><h2>${R.titles[2]}</h2>
+    <span class="snum">${icoSection(2)}${R.section(3)}</span><h2>${R.titles[2]}</h2>
     <div class="stack">
       <div class="panel"><span class="lab">${R.giftLab}</span><p class="quote">${r.gift}</p><p>${r.giftColor}</p></div>
       <div class="panel"><span class="lab">${R.vulnLab}</span><p>${r.vuln}</p><p>${r.fracture}</p></div>
@@ -2511,7 +2539,7 @@ function renderReport(p, ctx){
   </section>
 
   <section class="rs" id="s4">
-    <span class="snum">${R.section(4)}</span><h2>${R.titles[3]}</h2>
+    <span class="snum">${icoSection(3)}${R.section(4)}</span><h2>${R.titles[3]}</h2>
     <div class="grid2">
       <div class="panel ctx-good"><span class="lab"><span class="dot g"></span>${R.fertileLab}</span><ul class="clean">${li(r.fertile)}</ul></div>
       <div class="panel ctx-bad"><span class="lab"><span class="dot r"></span>${R.toxicLab}</span><ul class="clean">${li(r.toxic)}</ul><p>${R.alert(d.survival.mode)}</p></div>
@@ -2541,7 +2569,7 @@ function renderReport(p, ctx){
     <div id="gate-slot"></div>
   </section>` : `
   <section class="rs" id="s5">
-    <span class="snum">${R.section(5)}</span><h2>${R.titles[4]}</h2>
+    <span class="snum">${icoSection(4)}${R.section(5)}</span><h2>${R.titles[4]}</h2>
     <div class="grid3">
       <div class="panel"><span class="lab">${R.bossLab}</span><p>${d.targets.boss}.</p></div>
       <div class="panel"><span class="lab">${R.partnerLab}</span><p>${d.targets.associe}.</p></div>
@@ -2562,7 +2590,7 @@ function renderReport(p, ctx){
   </section>
 
   <section class="rs" id="s6">
-    <span class="snum">${R.section(6)}</span><h2>${R.titles[5]}</h2>
+    <span class="snum">${icoSection(5)}${R.section(6)}</span><h2>${R.titles[5]}</h2>
     <p class="prose">${R.manualIntro}</p>
     <div class="manual">
       <span class="eyebrow">${R.manualLab}</span>
@@ -2574,7 +2602,7 @@ function renderReport(p, ctx){
   </section>
 
   <section class="rs" id="s7">
-    <span class="snum">${R.section(7)}</span><h2>${R.titles[6]}</h2>
+    <span class="snum">${icoSection(6)}${R.section(7)}</span><h2>${R.titles[6]}</h2>
     <p class="prose">${R.alignIntro}</p>
     <div class="panel stack">
       ${["ctx","exp","fin"].map((k,i)=>`<div class="slider"><label for="sl-${k}">${R.sliders[i]} <output id="o-${k}">5</output></label><input type="range" id="sl-${k}" min="0" max="10" value="5"></div>`).join("")}
