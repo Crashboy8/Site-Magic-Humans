@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getI18n } from "@/i18n/server";
+import { isLoveProfile } from "@/content/amour";
 import { listVersions } from "@/data/repository";
 import { nextVersionName } from "@/domain/versions";
 import { loadVersionContext } from "@/features/versions/context";
@@ -14,6 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function VersionPage({ params }: PageProps<"/versions/[versionId]">) {
   const { versionId } = await params;
   const ctx = await loadVersionContext(versionId);
+  // Boussole Relation : la page de version est celle du mode pro, on ouvre le tableau amour.
+  if (ctx.isOwner && isLoveProfile(ctx.profile)) redirect(`/versions/${versionId}/tableau/`);
   const siblings = await listVersions(await supabaseServer(), ctx.version.profileId);
 
   return (
