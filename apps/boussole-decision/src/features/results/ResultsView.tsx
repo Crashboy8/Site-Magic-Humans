@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Card, Notice, Textarea, cx } from "@/components/ui";
-import { LOVE_TABLE } from "@/content/amour";
+import { LOVE_RESULTS, LOVE_TABLE } from "@/content/amour";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { updateVersion } from "@/data/repository";
 import { useI18n } from "@/i18n/client";
@@ -63,7 +63,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
   );
   const tableHref = `/versions/${version.id}/tableau/`;
   const { t, m, locale } = useI18n();
-  const R = t.results;
+  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
   const fmt = (s: number | null) => formatScore(s, locale);
   // Nom d'une catégorie : le libellé de la méthode pour les catégories par défaut, sinon celui saisi.
   const categoryName = (id: string) => {
@@ -208,7 +208,12 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
           {R.radarIntro}
         </SectionTitle>
         <Card>
-          <Radar categories={categories} opportunities={opportunities} results={ranking} />
+          <Radar
+            categories={categories}
+            opportunities={opportunities}
+            results={ranking}
+            caption={love ? R.radarCaption : undefined}
+          />
         </Card>
       </section>
 
@@ -252,10 +257,10 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
       )}
 
       {/* 7. Le ressenti ------------------------------------------------------------------------- */}
-      <Feelings version={version} leader={leader} readOnly={readOnly} tableHref={tableHref} />
+      <Feelings version={version} leader={leader} readOnly={readOnly} tableHref={tableHref} love={love} />
 
       {/* 8. Prochains pas --------------------------------------------------------------------- */}
-      <NextSteps version={version} ranking={ranking} readOnly={readOnly} />
+      <NextSteps version={version} ranking={ranking} readOnly={readOnly} love={love} />
 
       {/* 9. Pour aller plus loin : la Carte du Talent -------------------------------------- */}
       {!love && !readOnly && <CarteDuTalentLink talent={talent} />}
@@ -526,11 +531,13 @@ function Feelings({
   leader,
   readOnly,
   tableHref,
+  love,
 }: {
   version: Version;
   leader: OpportunityResult;
   readOnly: boolean;
   tableHref: string;
+  love: boolean;
 }) {
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
@@ -539,7 +546,8 @@ function Feelings({
   const [feedback, setFeedback] = useAutosavedValue(version.rankingFeedback, (rankingFeedback) =>
     updateVersion(db, version.id, { rankingFeedback }),
   );
-  const R = useI18n().t.results;
+  const { t } = useI18n();
+  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
   const [note, setNote] = useAutosavedValue(version.projectionNote, (projectionNote) => updateVersion(db, version.id, { projectionNote }));
 
   return (
@@ -628,7 +636,17 @@ function Feelings({
   );
 }
 
-function NextSteps({ version, ranking, readOnly }: { version: Version; ranking: OpportunityResult[]; readOnly: boolean }) {
+function NextSteps({
+  version,
+  ranking,
+  readOnly,
+  love,
+}: {
+  version: Version;
+  ranking: OpportunityResult[];
+  readOnly: boolean;
+  love: boolean;
+}) {
   const db = supabaseBrowser();
   const { track } = useSaveTracker();
   const leaderId = ranking.find((r) => r.score !== null)?.opportunity.id ?? null;
@@ -638,7 +656,8 @@ function NextSteps({ version, ranking, readOnly }: { version: Version; ranking: 
     (nextSteps) => updateVersion(db, version.id, { nextSteps: nextSteps.map((s) => s.trim()).filter(Boolean) }),
   );
   const chosenName = ranking.find((r) => r.opportunity.id === chosen)?.opportunity.name;
-  const R = useI18n().t.results;
+  const { t } = useI18n();
+  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
   const placeholders = R.stepPlaceholders;
 
   if (readOnly && !version.nextSteps.length) return null;

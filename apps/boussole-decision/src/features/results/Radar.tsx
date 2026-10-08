@@ -29,10 +29,13 @@ export function Radar({
   categories,
   opportunities,
   results,
+  caption,
 }: {
   categories: Category[];
   opportunities: Opportunity[];
   results: OpportunityResult[];
+  /** Légende du tableau des chiffres. En mode amour, remplace « opportunité » sans toucher au mode pro. */
+  caption?: string;
 }) {
   const [focus, setFocus] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
@@ -167,9 +170,9 @@ export function Radar({
       )}
 
       {/* Zone défilante sur petit écran : atteignable au clavier pour pouvoir la faire défiler. */}
-      <div className="overflow-x-auto rounded-xl border border-line" tabIndex={0} role="region" aria-label={R.radarCaption}>
+      <div className="overflow-x-auto rounded-xl border border-line" tabIndex={0} role="region" aria-label={caption ?? R.radarCaption}>
         <table className="w-full text-sm">
-          <caption className="sr-only">{R.radarCaption}</caption>
+          <caption className="sr-only">{caption ?? R.radarCaption}</caption>
           <thead>
             <tr className="bg-sand/60">
               <th scope="col" className="px-3 py-2 text-left font-medium">

@@ -71,7 +71,7 @@ export function LoveStart() {
           }
           className="w-full sm:w-auto"
         >
-          {S.button}
+          {pending ? S.creating : S.button}
         </Button>
         <p className="text-sm text-ink-soft">{S.note}</p>
         <p className="text-sm">

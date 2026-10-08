@@ -27,7 +27,7 @@ export const LOVE_TEMPLATE = {
   profileName: "Boussole Relation",
   profileDescription: LOVE_PROFILE_MARKER,
   versionName: "Ma relation, première lecture",
-  opportunityName: "Ma relation (remplace par son prénom)",
+  opportunityName: "Ma relation",
   decision: "Cette relation me correspond-elle ?",
   categories: [
     { key: "fond", label: "Le fond : besoins, respect, valeurs" },
@@ -152,7 +152,7 @@ export const LOVE_TEXTS = {
   questionsTitle: "Deux questions à te poser",
   cta: {
     title: "En parler avec Pierre",
-    text: "Un regard extérieur aide souvent à séparer l'émotion de ce qui compte vraiment. Pendant un Appel Découverte offert, nous relisons ensemble ta Boussole et ce que tu veux construire. Sans engagement.",
+    text: "Un regard extérieur aide souvent à séparer l'émotion de ce qui compte vraiment. Pendant un Appel Découverte offert, on relit ensemble ta Boussole et on la relie à ton Talent Unique : ce qui te fait réussir dans le plaisir au travail compte aussi dans ta vie à deux. Sans engagement.",
     button: "Réserver mon Appel Découverte offert",
     url: "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=boussole-relation&utm_campaign=sommet-amour",
   },
@@ -161,6 +161,7 @@ export const LOVE_TEXTS = {
     heading: "Boussole Relation : cette relation me correspond-elle ?",
     intro: "Évalue une relation (actuelle, ou qui commence) avec dix critères qui comptent vraiment. Tu peux ajuster les poids, ajouter une colonne pour comparer, et tout reste privé. Une alerte s'affiche si un point essentiel est touché, quel que soit le score total.",
     button: "Commencer ma Boussole Relation",
+    creating: "Je prépare ta Boussole… (une dizaine de secondes)",
     prefilled: "Ta Boussole sera préréglée avec les résultats de ton Quiz Amour : ce qui te nourrit, ce qui te vide, tes valeurs et tes non-négociables. Ta réponse sur la sécurité et tes textes libres ne sont jamais transmis.",
     note: "Sans compte : ton travail est gardé 30 jours. Tu pourras le sauvegarder avec ton email.",
     backToQuiz: "Revenir au Quiz Amour",
@@ -188,5 +189,22 @@ export const LOVE_TABLE = {
   deleteOpportunity: (name: string) => `Supprimer la relation « ${name} »`,
   failsNonNegotiables: "À regarder : un non-négociable n'est pas pleinement respecté",
   redLine: "Signal d'incompatibilité à clarifier",
-  legendNonNegotiableText: ": s'il n'est pas pleinement respecté, la relation est signalée et classée après les autres",
+  legendNonNegotiableText: " : s'il n'est pas pleinement respecté, la relation est signalée et classée après les autres",
+} as const;
+
+/**
+ * Surcharge française des Résultats, uniquement en mode amour.
+ * Les libellés pro (« opportunité ») restent dans l'i18n globale.
+ */
+export const LOVE_RESULTS = {
+  intro:
+    "Ta lecture, tes alertes et ton score d'alignement pour chaque relation. Tout se met à jour quand tu modifies ton tableau.",
+  radarTitle: "Le radar de tes relations",
+  radarIntro:
+    "Le score de chaque relation, famille de critères par famille : plus la forme est grande, plus la relation te correspond.",
+  radarCaption: "Score de chaque relation, famille de critères par famille",
+  projectionStart: "Imagine : demain, tu choisis vraiment",
+  disappointmentHint:
+    "Ton intuition te dit peut-être quelque chose que tes critères ne disent pas encore. Vers quelle autre relation ton cœur est-il parti ?",
+  forWhich: "Pour quelle relation ?",
 } as const;
