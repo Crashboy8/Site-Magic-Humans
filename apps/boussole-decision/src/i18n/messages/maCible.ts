@@ -225,6 +225,7 @@ const fr = {
     point4: "Si tes clients ne savent pas que tu as gardé des notes de vos échanges, demande-leur d'abord leur accord.",
     point5: "Tes notes ne sont pas enregistrées sur nos serveurs. Une fois lues, elles sont effacées de la page : seule la synthèse reste, dans ton navigateur.",
     point6: "Une version payante, où tes données ne servent pas à entraîner l'IA, arrivera plus tard.",
+    lireSuite: "Lire la suite",
     titreNote: "Titre (facultatif)",
     titrePlaceholder: "Entretien avec une ancienne cliente",
     textePlaceholder: "Colle ici tes notes ou ce que t'a dit la personne…",

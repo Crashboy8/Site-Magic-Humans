@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui";
+import { Button, cx } from "@/components/ui";
 import { normaliser, validerNotes } from "@/domain/maCible/entree";
 import { LIMITES } from "@/domain/maCible/limites";
 import { additionnerMasques, decrireMasques, masquerDonnees, MASQUES_VIDES, type CompteMasques } from "@/domain/maCible/masquage";
@@ -13,11 +13,22 @@ import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import type { CodeErreur } from "./api";
 import { formaterDureeEcoulee } from "./attenteTemps";
 import { messageApi, SANS_REESSAI } from "./erreurs";
-import { CLASSE_CARTE, PastilleIcone } from "./Habillage";
-import { Icone } from "./Icones";
+import { CLASSE_CARTE, PastilleIcone, TEINTE, type Teinte } from "./Habillage";
+import { Icone, type NomIcone } from "./Icones";
 
 type Brouillon = { titre: string; texte: string };
 const vide = (): Brouillon => ({ titre: "", texte: "" });
+const TEINTES_CITATION: Teinte[] = ["lilas", "corail", "eau", "miel"];
+const TEINTES_MOTS: Teinte[] = ["corail", "miel", "eau", "lilas", "sage", "framboise", "sable"];
+
+function TitreRubrique({ icone, teinte, children }: { icone: NomIcone; teinte: Teinte; children: string }) {
+  return (
+    <h3 className="flex items-start gap-3 text-[17px] font-medium leading-snug">
+      <PastilleIcone nom={icone} teinte={teinte} taille="sm" />
+      <span className="min-w-0 pt-1">{children}</span>
+    </h3>
+  );
+}
 
 export type LectureNotes =
   | { ok: true; statut: "ok"; masques: CompteMasques }
@@ -31,11 +42,18 @@ function fichierTexte(f: File): boolean {
   return f.type.startsWith("text/") || f.type === "application/csv";
 }
 
-function pointsAvertissement(N: MaCibleMessages["notes"], fournisseur: FournisseurNotes): string[] {
+function pointsAvertissement(N: MaCibleMessages["notes"], fournisseur: FournisseurNotes): { texte: string; icone: NomIcone; teinte: Teinte }[] {
   const nom = N.noms[fournisseur];
-  const milieu = [N.point2, N.point3, N.point4, N.point5];
-  if (fournisseurGratuit(fournisseur)) return [N.pointGratuit1(nom), ...milieu, N.point6];
-  return [N.pointPayant(nom), ...milieu];
+  const milieu: { texte: string; icone: NomIcone; teinte: Teinte }[] = [
+    { texte: N.point2, icone: "gomme", teinte: "eau" },
+    { texte: N.point3, icone: "coeurBarre", teinte: "framboise" },
+    { texte: N.point4, icone: "poignee", teinte: "sage" },
+    { texte: N.point5, icone: "poubelle", teinte: "sable" },
+  ];
+  const ia = fournisseurGratuit(fournisseur) ? N.pointGratuit1(nom) : N.pointPayant(nom);
+  const points: { texte: string; icone: NomIcone; teinte: Teinte }[] = [{ texte: ia, icone: "etincelles", teinte: "corail" }, ...milieu];
+  if (fournisseurGratuit(fournisseur)) points.push({ texte: N.point6, icone: "etoile", teinte: "miel" });
+  return points;
 }
 
 export function NotesTerrain({
@@ -69,6 +87,7 @@ export function NotesTerrain({
   const [depart, setDepart] = useState(0);
   const [maintenant, setMaintenant] = useState(0);
   const [vientDeLire, setVientDeLire] = useState(false);
+  const [suiteAvertissement, setSuiteAvertissement] = useState(false);
   const fichier = useRef<HTMLInputElement>(null);
   const total = notes.reduce((n, note) => n + normaliser(note.texte).length, 0);
   const ligneMasques = decrireMasques(masques);
@@ -232,16 +251,25 @@ export function NotesTerrain({
         </h2>
       </div>
 
-      <div className="space-y-3 rounded-2xl border border-sky-line border-l-4 border-l-ciel bg-paper p-4">
+      <div className="space-y-4 rounded-2xl border border-sky-line border-l-4 border-l-ciel bg-paper p-4 sm:p-5">
         <h3 className="flex items-start gap-3 font-serif text-[20px] italic">
           <PastilleIcone nom="cadenas" teinte="ciel" taille="sm" />
           <span>{N.avertissementTitre}</span>
         </h3>
-        <ol className="list-decimal space-y-2 pl-5 text-[15px] leading-relaxed text-ink">
-          {pointsAvertissement(N, fournisseurNotes).map((point) => (
-            <li key={point}>{point}</li>
+        <ul className="space-y-4">
+          {pointsAvertissement(N, fournisseurNotes).map((point, i) => (
+            <li key={point.texte} className={cx("flex items-start gap-3", i >= 3 && !suiteAvertissement && "max-sm:hidden")}>
+              <PastilleIcone nom={point.icone} teinte={point.teinte} taille="sm" />
+              <p className="min-w-0 pt-1 text-[15px] leading-relaxed text-ink">{point.texte}</p>
+            </li>
           ))}
-        </ol>
+        </ul>
+        {!suiteAvertissement && (
+          <button type="button" className="inline-flex min-h-11 items-center gap-2 text-[15px] font-medium sm:hidden" aria-expanded={false} onClick={() => setSuiteAvertissement(true)}>
+            <PastilleIcone nom="deplier" teinte="miel" taille="sm" />
+            {N.lireSuite}
+          </button>
+        )}
       </div>
 
       <ul className="space-y-4">
@@ -362,7 +390,7 @@ function SyntheseNotes({
   const N = M.notes;
   const date = new Date(synthese.faitLe).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
   return (
-    <section className={`${CLASSE_CARTE} motion-safe:animate-[apparaitre_300ms_ease-out] space-y-4 rounded-2xl border-l-4 border-lilas bg-paper p-5 sm:p-6`}>
+    <section className={`${CLASSE_CARTE} space-y-5 rounded-2xl border-l-4 border-lilas bg-paper p-5 sm:p-6`}>
       <div className="flex items-start gap-3">
         <PastilleIcone nom="carnet" teinte="lilas" />
         <div>
@@ -375,14 +403,14 @@ function SyntheseNotes({
       {vientDeLire && <p className="text-[16px]">{N.succes}</p>}
       {ligneMasques && <p className="text-[15px]">{ligneMasques}</p>}
       {synthese.resume.trim() && (
-        <div className="space-y-1">
-          <h3 className="text-[17px] font-medium">{N.enBref}</h3>
+        <div className="space-y-2">
+          <TitreRubrique icone="journal" teinte="corail">{N.enBref}</TitreRubrique>
           <p className="text-[16px] leading-relaxed">{synthese.resume}</p>
         </div>
       )}
       {synthese.profils.length > 0 && (
-        <div className="space-y-1">
-          <h3 className="text-[17px] font-medium">{N.profils}</h3>
+        <div className="space-y-2">
+          <TitreRubrique icone="groupe" teinte="miel">{N.profils}</TitreRubrique>
           <ul className="list-disc space-y-1 pl-5 text-[16px]">
             {synthese.profils.map((p) => (
               <li key={p}>{p}</li>
@@ -392,7 +420,7 @@ function SyntheseNotes({
       )}
       {synthese.douleurs.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-[17px] font-medium">{N.douleurs}</h3>
+          <TitreRubrique icone="eclair" teinte="eau">{N.douleurs}</TitreRubrique>
           <ul className="space-y-2">
             {synthese.douleurs.map((d) => (
               <li key={`${d.frequence}-${d.texte}`} className="space-y-1">
@@ -405,11 +433,13 @@ function SyntheseNotes({
       )}
       {synthese.verbatims.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-[17px] font-medium">{N.mots}</h3>
+          <TitreRubrique icone="bulle" teinte="lilas">{N.mots}</TitreRubrique>
           <ul className="space-y-3">
-            {synthese.verbatims.map((v) => (
+            {synthese.verbatims.map((v, i) => (
               <li key={v.id} className="space-y-2">
-                <blockquote className="text-[17px] italic leading-relaxed">« {v.citation} »</blockquote>
+                <blockquote className={cx("rounded-r-xl border-l-4 bg-paper py-2 pl-3 text-[17px] italic leading-relaxed", TEINTE[TEINTES_CITATION[i % TEINTES_CITATION.length]].bord)}>
+                  « {v.citation} »
+                </blockquote>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex rounded-full bg-lilas-soft px-2 py-1 text-xs font-medium text-lilas">{N.tire}</span>
                   <button type="button" aria-label={N.retirerPhraseAide} onClick={() => onRetirer(v.id)} className="inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-[15px] text-ink-soft hover:bg-sand">
@@ -423,8 +453,8 @@ function SyntheseNotes({
         </div>
       )}
       {synthese.declencheurs.length > 0 && (
-        <div className="space-y-1">
-          <h3 className="text-[17px] font-medium">{N.declencheurs}</h3>
+        <div className="space-y-2">
+          <TitreRubrique icone="fusee" teinte="sage">{N.declencheurs}</TitreRubrique>
           <ul className="list-disc space-y-1 pl-5 text-[16px]">
             {synthese.declencheurs.map((t) => (
               <li key={t}>{t}</li>
@@ -433,8 +463,8 @@ function SyntheseNotes({
         </div>
       )}
       {synthese.objections.length > 0 && (
-        <div className="space-y-1">
-          <h3 className="text-[17px] font-medium">{N.objections}</h3>
+        <div className="space-y-2">
+          <TitreRubrique icone="bouclier" teinte="framboise">{N.objections}</TitreRubrique>
           <ul className="list-disc space-y-1 pl-5 text-[16px]">
             {synthese.objections.map((t) => (
               <li key={t}>{t}</li>
@@ -444,10 +474,10 @@ function SyntheseNotes({
       )}
       {synthese.motsCles.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-[17px] font-medium">{N.motsCles}</h3>
+          <TitreRubrique icone="etiquette" teinte="sable">{N.motsCles}</TitreRubrique>
           <ul className="flex flex-wrap gap-2">
-            {synthese.motsCles.map((mot) => (
-              <li key={mot} className="rounded-full bg-lilas-soft px-3 py-1 text-sm text-lilas">
+            {synthese.motsCles.map((mot, i) => (
+              <li key={mot} className={cx("rounded-full px-3 py-1 text-sm font-medium", TEINTE[TEINTES_MOTS[i % TEINTES_MOTS.length]].pastille)}>
                 {mot}
               </li>
             ))}
