@@ -324,7 +324,11 @@
     "#screen-amour .am-fact-ico{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--bt);color:var(--bc)}",
     "#screen-amour .am-fact-ico .am-ico svg{width:18px;height:18px}",
     "#screen-amour .am-fam-nu{display:flex;flex-direction:column;gap:8px;list-style:none;margin:0;padding:0}",
-    "#screen-amour .am-fam-nu li{margin:0;padding:8px 12px;border-radius:16px;background:color-mix(in srgb, var(--bt) 75%, var(--surface));border:1px solid color-mix(in srgb, var(--bf) 28%, var(--line))}",
+    "#screen-amour .am-fam-nu li{display:flex;align-items:flex-start;gap:8px;margin:0;padding:8px 12px 8px 10px;border-radius:12px;background:color-mix(in srgb,var(--bf) 7%,#fff);border:1px solid color-mix(in srgb,var(--bf) 22%,#fff);border-left:4px solid var(--bf);color:#1B1816}",
+    "#screen-amour .am-fam-nu li>.am-ico{flex:none;margin-top:2px;color:var(--bc)}",
+    "#screen-amour .am-fam-nu li>.am-ico svg{width:16px;height:16px}",
+    "#screen-amour .am-fam-nu li>span{min-width:0;flex:1}",
+    "#screen-amour .am-fam-nu li strong{color:var(--bc);font-weight:700}",
     "#screen-amour .am-pair{border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0 0;background:var(--surface)}",
     "#screen-amour .am-pair.am-coule{border-color:color-mix(in srgb, #146B3A 34%, var(--line));background:linear-gradient(180deg, #F4FBF6, var(--surface) 46%)}",
     "#screen-amour .am-pair.am-attention{border-color:color-mix(in srgb, #8A5A00 34%, var(--line));background:linear-gradient(180deg, #FFF9EC, var(--surface) 46%)}",
@@ -396,19 +400,24 @@
     "#screen-amour .am-cta{background:#fff!important;box-shadow:none}",
     "#screen-amour .rs{box-shadow:none;background:#fff}",
     "#screen-amour .pr-sec{background:#fff!important;border-top:3px solid var(--bf)}",
-    "#screen-amour .am-fam-card{animation:none!important;display:block;overflow:visible;break-inside:auto;background:#fff!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)!important}",
+    "#screen-amour .am-fam-card{animation:none!important;display:block;overflow:visible;break-inside:auto;background:#fff!important;border:1px solid color-mix(in srgb,var(--bf) 30%,#fff)!important;border-top:3px solid var(--bf)!important}",
     "#screen-amour .am-fam-pad{display:block;background:#fff}",
-    "#screen-amour .am-fam-band{background:var(--bc)!important;color:#fff!important;border-bottom:4px solid var(--bf)!important;break-inside:avoid;break-after:avoid}",
-    "#screen-amour .am-fam-mark{background:var(--bf)!important;color:#fff!important;box-shadow:none!important}",
-    "#screen-amour .am-fam-band .am-ico,#screen-amour .am-fam-mark .am-ico{color:#fff!important}",
-    "#screen-amour .am-fam-nu li{background:color-mix(in srgb,var(--bf) 10%,#fff)!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)!important;color:#1B1816!important}",
+    "#screen-amour .am-fam-band{background:#fff!important;color:var(--bc)!important;border-bottom:none!important;break-inside:avoid;break-after:avoid;padding:8px 10px}",
+    "#screen-amour .am-fam-band h3,#screen-amour .am-fam-band h3 span{color:var(--bc)!important}",
+    "#screen-amour .am-fam-mark{width:40px;height:40px;border-radius:14px;background:var(--bf)!important;color:#fff!important;box-shadow:none!important}",
+    "#screen-amour .am-fam-mark .am-ico svg{width:22px;height:22px}",
+    "#screen-amour .am-fam-mark .am-ico{color:#fff!important}",
+    "#screen-amour .am-fam-nu li{background:color-mix(in srgb,var(--bf) 7%,#fff)!important;border:1px solid color-mix(in srgb,var(--bf) 22%,#fff)!important;border-left:4px solid var(--bf)!important;color:#1B1816!important}",
+    "#screen-amour .am-fam-nu li>.am-ico{color:var(--bc)!important}",
+    "#screen-amour .am-fam-nu li>.am-ico svg{width:14px;height:14px}",
+    "#screen-amour .am-fam-nu li strong{color:var(--bc)!important}",
     "#screen-amour .am-fact{display:block!important}",
     "#screen-amour .am-fact-ico{display:inline-flex!important;width:auto;height:auto;margin:0 4px 0 0;padding:0;border-radius:0;background:none!important;color:var(--bc)!important;vertical-align:-3px}",
     "#screen-amour .am-ico-screen{display:none!important}",
     "#screen-amour .am-ico-print{display:inline-flex!important}",
     "#screen-amour .am-fact-ico .am-ico svg{width:13px;height:13px}",
     "#screen-amour .am-fact>span:last-child{display:inline}",
-    "#screen-amour .am-pair,#screen-amour .am-pair.am-coule,#screen-amour .am-pair.am-attention{background:color-mix(in srgb,var(--bf) 8%,#fff)!important;border:1px solid color-mix(in srgb,var(--bf) 28%,#fff)!important;border-left:3px solid var(--pair,var(--bf))!important}",
+    "#screen-amour .am-pair,#screen-amour .am-pair.am-coule,#screen-amour .am-pair.am-attention{background:#fff!important;border:1px solid #E8E2DB!important;border-left:4px solid var(--pair,var(--bf))!important;margin:12px 0 0!important}",
     "#screen-amour .am-duo>.am-ico{color:var(--bc)!important}",
     "#screen-amour .am-duo-b .am-ico{color:var(--bc)!important}",
     "#screen-amour .am-duo .am-ico svg{width:14px;height:14px}",
@@ -1225,7 +1234,18 @@
     const guide = E.familyGuide(D, id);
     if (!guide) return "";
     const nuances = '<ul class="am-fam-nu">' + guide.nuances.map(function (row) {
-      return "<li>" + esc(row.line) + "</li>";
+      const other = D.profil.besoins[row.id];
+      const line = String(row.line || "");
+      const name = row.adj || "";
+      let label = "";
+      let rest = line;
+      if (name && line.indexOf(name) === 0) {
+        rest = line.slice(name.length);
+        if (rest.indexOf(" :") === 0) { label = name + " :"; rest = rest.slice(2); }
+        else if (rest.charAt(0) === ":") { label = name + " :"; rest = rest.slice(1).replace(/^ /, ""); }
+        else label = name;
+      }
+      return '<li style="' + needStyle(row.id) + '">' + profilSvg(other.icon) + "<span>" + (label ? "<strong>" + esc(label) + "</strong>" : "") + esc(rest) + "</span></li>";
     }).join("") + "</ul>";
     return '<div class="am-fam-card"' + (anchor ? ' id="fam-' + esc(id) + '"' : "") + ' style="' + needStyle(id) + '">' +
       '<header class="am-fam-band"><span class="am-fam-mark">' + profilSvg(guide.icon) + "</span><h3><span>" + esc(guide.noun + " · " + guide.name) + "</span></h3></header>" +
