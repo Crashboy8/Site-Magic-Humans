@@ -30,6 +30,26 @@
       "source": "/ma-cible/:path*",
       "destination": "/boussole-decision/ma-cible/",
       "permanent": false
+    },
+    {
+      "source": "/amour",
+      "destination": "/quiz-amour/",
+      "permanent": false
+    },
+    {
+      "source": "/amour/",
+      "destination": "/quiz-amour/",
+      "permanent": false
+    },
+    {
+      "source": "/boussole-amour",
+      "destination": "/boussole-decision/importer-quiz/?theme=amour",
+      "permanent": false
+    },
+    {
+      "source": "/boussole-amour/",
+      "destination": "/boussole-decision/importer-quiz/?theme=amour",
+      "permanent": false
     }
   ],
   "rewrites": [
