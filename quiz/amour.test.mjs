@@ -1083,6 +1083,86 @@ test("encyclopédie des familles : 7 cartes, 28 paires, sans changer le score", 
   assert.equal(openBody.includes("showResults"), false);
 });
 
+test("rencontre : chaque profil a des lieux, des activités, un contexte et le lien au Talent Unique", () => {
+  const order = D.profil.order;
+  const ui = D.ui.results;
+  assert.equal(ui.meetH, "Où rencontrer quelqu'un qui te correspond");
+  assert.equal(ui.meetLieux, "Les lieux où tu te sens toi-même");
+  assert.equal(ui.meetAct, "Les activités qui te révèlent");
+  assert.equal(ui.meetShine, "Le contexte où tu brilles");
+  assert.equal(ui.meetAvoid, "À éviter");
+  assert.deepEqual(Object.keys(ui.meetIcons).sort(), ["activites", "brilles", "eviter", "lieux", "section", "talent"]);
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  const pathBlock = src.slice(src.indexOf("const PATHS = {"), src.indexOf("const SCREEN_TONE"));
+  const pathNames = new Set([...pathBlock.matchAll(/^\s{4}(\w+):/gm)].map((m) => m[1]));
+  for (const name of Object.values(ui.meetIcons)) assert.ok(pathNames.has(name), name);
+  const seen = new Set();
+  const banned = /dating|crush|coworking|hobby|networking|afterwork|dragu|sédui|sedui|manipul|pickup|charmer/i;
+  function checkFrench(s, label) {
+    assert.equal(typeof s, "string", label);
+    assert.ok(s.trim().length > 0, label);
+    assert.equal(/[\u2014\u2013]/.test(s), false, label + " : " + s);
+    assert.equal(/[^\s][:;?!]/.test(s), false, label + " ponctuation : " + s);
+    assert.equal(banned.test(s), false, label + " : " + s);
+    assert.equal(seen.has(s), false, "doublon : " + s);
+    seen.add(s);
+  }
+  for (const id of order) {
+    const rec = D.profil.besoins[id].rencontre;
+    assert.equal(rec.lieux.length, 3, id);
+    assert.equal(rec.activites.length, 3, id);
+    assert.equal(new Set(rec.lieux.map((row) => row.icon)).size, 3, id + " lieux");
+    assert.equal(new Set(rec.activites.map((row) => row.icon)).size, 3, id + " activités");
+    for (const row of rec.lieux.concat(rec.activites)) {
+      assert.ok(pathNames.has(row.icon), id + " " + row.icon);
+      checkFrench(row.texte, id);
+      assert.ok(row.texte.length >= 12, row.texte);
+    }
+    for (const key of ["brilles", "eviter"]) {
+      assert.ok(pathNames.has(rec[key].icon), id + " " + rec[key].icon);
+      checkFrench(rec[key].texte, id + " " + key);
+      assert.ok(rec[key].texte.length >= 20, rec[key].texte);
+    }
+    checkFrench(rec.talent, id + " talent");
+    assert.match(rec.talent, /Talent Unique/);
+    assert.match(rec.talent, /plaisir/);
+    assert.match(rec.talent, /ressembl/);
+  }
+  assert.equal(seen.size, order.length * 9);
+  const engine = fs.readFileSync(new URL("./amour-engine.js", import.meta.url), "utf8");
+  assert.equal(engine.includes("rencontre"), false);
+  assert.equal(engine.includes("meetH"), false);
+  const show = src.slice(src.indexOf("function showResults"), src.indexOf("function salleSlot"));
+  const meetAt = show.indexOf("rencontreHtml(profile)");
+  const nowAt = show.indexOf('id="sec-now"');
+  assert.ok(meetAt > 0 && nowAt > meetAt);
+  assert.match(show, /boussoleUrl \+ "#amour=" \+ E\.encodePayload\(profile\.boussole\)/);
+  assert.match(show, /data-act="boussole"/);
+  assert.match(show, /calendlyHref\("resultat-fin"\)/);
+  assert.match(show, /data-cta-place="quiz_amour_resultat-fin"/);
+  const fn = src.slice(src.indexOf("function rencontreHtml"), src.indexOf("function showResults"));
+  assert.match(fn, /am-meet am-screen-only/);
+  assert.match(fn, /id="sec-meet"/);
+  assert.match(fn, /class="am-meet-avoid"/);
+  assert.match(fn, /am-meet-avoid-h/);
+  assert.equal(fn.includes("<details"), false);
+  assert.equal(fn.includes("summary"), false);
+  assert.equal(fn.includes("am-meet-more"), false);
+  assert.equal(src.includes("details.am-meet-more"), false);
+  assert.equal(src.includes("am-meet-avoid::after"), false);
+  assert.equal(fn.includes("club de randonnée"), false);
+  const printAt = src.indexOf("@media print{");
+  const printChunk = src.slice(printAt, printAt + 800);
+  assert.match(printChunk, /\.am-screen-only/);
+  assert.match(printChunk, /display:none!important/);
+  assert.equal(printChunk.includes("am-meet"), false);
+  const profile = E.computeLoveProfile(firstAnswers(), D, "Léa");
+  assert.ok(D.profil.besoins[profile.profil.dom].rencontre);
+  assert.equal(profile.exportText.includes(ui.meetH), false);
+  assert.equal(profile.exportText.includes(D.profil.besoins[profile.profil.dom].rencontre.talent), false);
+  assert.equal(profile.shareText.includes(ui.meetH), false);
+});
+
 test("encodage", () => {
   const r = rnd(7);
   for (let i = 0; i < 2000; i++) {

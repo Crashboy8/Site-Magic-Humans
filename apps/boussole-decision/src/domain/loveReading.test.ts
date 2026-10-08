@@ -7,8 +7,16 @@ import type { EvaluationValue } from "./types";
 const criteria: ScoringCriterion[] = LOVE_TEMPLATE.criteria.map((c) => ({
   id: c.key, categoryId: c.category, label: c.label, importance: c.importance, nonNegotiable: c.nonNegotiable, direction: c.direction,
 }));
-const read = (values: Partial<Record<string, EvaluationValue>>) => {
-  const evaluations = Object.entries(values).map(([criterionId, value]) => ({ criterionId, opportunityId: "o", value: value as EvaluationValue }));
+type Note = EvaluationValue | { value: EvaluationValue; percent: number };
+const read = (values: Partial<Record<string, Note>>) => {
+  const evaluations = Object.entries(values).flatMap(([criterionId, note]) => {
+    if (!note) return [];
+    return [
+      typeof note === "string"
+        ? { criterionId, opportunityId: "o", value: note }
+        : { criterionId, opportunityId: "o", value: note.value, percent: note.percent },
+    ];
+  });
   return loveReadingOf(scoreOpportunity({ id: "o", name: "Ma relation" }, criteria, evaluations, DEFAULT_WEIGHTS));
 };
 const all = (v: EvaluationValue) => ({
@@ -51,6 +59,18 @@ describe("loveReading", () => {
   });
   it("aucune évaluation : pas de tranche", () => {
     expect(read({}).band).toBeNull();
+  });
+  it("un pourcentage de 50 % sur un critère critique alerte, 55 % non", () => {
+    expect(read({ ...all("oui"), defauts: { value: "p50", percent: 50 } }).alerts.map((a) => a.criterionId)).toContain("defauts");
+    expect(read({ ...all("oui"), defauts: { value: "p50", percent: 55 } }).alerts.map((a) => a.criterionId)).not.toContain("defauts");
+  });
+  it("attirance et sexualité à 0 % ne déclenchent pas l'alerte énergie", () => {
+    const r = read({ ...all("oui"), attirance: { value: "non", percent: 0 }, sexualite: { value: "non", percent: 0 } });
+    expect(r.alerts.map((a) => a.kind)).not.toContain("energie");
+  });
+  it("incompatibilité à 50 % reste une ligne rouge douce", () => {
+    const r = read({ ...all("oui"), incompatibilite: { value: "p50", percent: 50 } });
+    expect(r.alerts.find((a) => a.kind === "ligne_rouge")?.text).toBe(LOVE_TEXTS.ligneRougeLow);
   });
   it("énergie à 25 % : alerte après sécurité, ligne rouge et critique ; à 50 %, pas d'alerte", () => {
     const low = read({ ...all("oui"), respect: "p25", incompatibilite: "p25", energie: "p25" });

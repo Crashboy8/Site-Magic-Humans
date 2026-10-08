@@ -2,6 +2,8 @@
 // les règles de sécurité de la base décident de ce que l'utilisateur peut voir et modifier.
 // Pour une intégration dans une autre application, c'est ce fichier qu'on remplace.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { colonneAbsente, ecrireApparenceNotes, type RelationLook } from "@/domain/relationApparence";
+import { pourcentageValide, valeurProche } from "@/domain/pourcentage";
 import type {
   AppUser,
   Category,
@@ -370,29 +372,56 @@ export async function deleteOpportunity(db: Db, id: string) {
   check(await db.from("opportunities").delete().eq("id", id));
 }
 
+/**
+ * Icône et couleur d'une relation, sur la même ligne que le nom.
+ * On tente les colonnes optionnelles icon et color. Si elles manquent (pas de migration),
+ * on écrit un marqueur invisible au début de notes, qui voyage avec la copie de version.
+ */
+export async function saveOpportunityAppearance(
+  db: Db,
+  opportunity: Pick<Opportunity, "id" | "notes">,
+  look: RelationLook,
+): Promise<"colonnes" | "notes"> {
+  const colonnes = await db.from("opportunities").update({ icon: look.icon, color: look.color }).eq("id", opportunity.id);
+  const notes = ecrireApparenceNotes(opportunity.notes, look);
+  const noteResult = await db.from("opportunities").update({ notes }).eq("id", opportunity.id);
+  if (noteResult.error) throw new Error(noteResult.error.message);
+  return colonnes.error ? "notes" : "colonnes";
+}
+
 export async function listEvaluations(db: Db, versionId: string): Promise<Evaluation[]> {
   const list = rows(await db.from("evaluations").select("*").eq("version_id", versionId));
   return list.map(mapEvaluation);
 }
 
-/** Enregistre la valeur d'une case du tableau (null : vider la case). */
+/**
+ * Enregistre une case (null : la vider).
+ * Un pourcentage libre est écrit dans la colonne optionnelle `percent`.
+ * Si elle n'existe pas encore, on garde la note en mots la plus proche dans `value` :
+ * le navigateur conserve le pourcentage exact (voir pourcentageLocale).
+ */
 export async function setEvaluation(
   db: Db,
   versionId: string,
   criterionId: string,
   opportunityId: string,
-  value: EvaluationValue | null,
+  saisie: { value: EvaluationValue; percent?: number } | null,
 ) {
-  if (value === null) {
+  if (saisie === null) {
     check(await db.from("evaluations").delete().eq("criterion_id", criterionId).eq("opportunity_id", opportunityId));
     return;
   }
-  check(
-    await db
-      .from("evaluations")
-      .upsert(
-        { version_id: versionId, criterion_id: criterionId, opportunity_id: opportunityId, value, updated_at: new Date().toISOString() },
-        { onConflict: "criterion_id,opportunity_id" },
-      ),
-  );
+  const percent = pourcentageValide(saisie.percent) ? saisie.percent : null;
+  const value = percent === null ? saisie.value : valeurProche(percent);
+  const base = {
+    version_id: versionId,
+    criterion_id: criterionId,
+    opportunity_id: opportunityId,
+    value,
+    updated_at: new Date().toISOString(),
+  };
+  const avec = await db.from("evaluations").upsert({ ...base, percent }, { onConflict: "criterion_id,opportunity_id" });
+  if (!avec.error) return;
+  if (!colonneAbsente(avec.error)) throw new Error(avec.error.message);
+  check(await db.from("evaluations").upsert(base, { onConflict: "criterion_id,opportunity_id" }));
 }
