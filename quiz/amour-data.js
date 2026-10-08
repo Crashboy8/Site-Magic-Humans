@@ -182,6 +182,19 @@ const AMOUR_DATA = {
         "harmonie": "Tu as besoin d'un climat doux pour aimer pleinement. Ça dit quelque chose de ton talent : tu sais apaiser, relier, faire que les gens se sentent bien ensemble. Ton Contexte Déclencheur, un cadre serein où l'on se parle avant que ça coince. Ton Anti-Contexte, les tensions qui traînent sans jamais se régler.",
         "complicite": "Pour toi, aimer, c'est faire équipe. Et tu fonctionnes sûrement pareil au boulot : seul·e, tu t'ennuies, à plusieurs, tu décolles. Ton Contexte Déclencheur, c'est un projet concret qu'on porte ensemble, dans la bonne humeur. Ton Anti-Contexte, c'est de tout porter seul·e, trop longtemps.",
         "intensite": "Tu as besoin que ça vibre. En amour comme ailleurs, la routine plate t'éteint, alors qu'un défi te réveille. C'est une vraie piste pour ton Talent Unique : tu donnes le meilleur quand il y a de l'enjeu et de la nouveauté, c'est ton Contexte Déclencheur. Ton Anti-Contexte, c'est le train-train sans surprise."
+      },
+      "meetH": "Où rencontrer quelqu'un qui te correspond",
+      "meetLieux": "Les lieux où tu te sens toi-même",
+      "meetAct": "Les activités qui te révèlent",
+      "meetShine": "Le contexte où tu brilles",
+      "meetAvoid": "À éviter",
+      "meetIcons": {
+        "section": "hearts",
+        "lieux": "pin",
+        "activites": "spark",
+        "brilles": "sun",
+        "eviter": "alert",
+        "talent": "heart"
       }
     }
   },
@@ -1689,7 +1702,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « Qu'est-ce qui compte le plus pour toi dans une relation qui dure ? »"
         ],
         "trigger": "tu sens que le lien n'est plus sûr : un silence, un doute, une promesse oubliée",
-        "calm": "une phrase qui te rassure sur vous deux, avant de chercher une solution"
+        "calm": "une phrase qui te rassure sur vous deux, avant de chercher une solution",
+        "rencontre": {
+          "lieux": [
+            { "icon": "coffee", "texte": "Un café de quartier où l'on te reconnaît" },
+            { "icon": "tree", "texte": "Un club de randonnée qui se retrouve chaque semaine" },
+            { "icon": "home", "texte": "Une association de quartier, avec des rendez-vous qui reviennent" }
+          ],
+          "activites": [
+            { "icon": "hand", "texte": "Cuisiner pour un petit groupe, le même soir chaque semaine" },
+            { "icon": "pen", "texte": "Un atelier manuel où le projet avance pas à pas" },
+            { "icon": "users", "texte": "Du bénévolat dans une équipe stable" }
+          ],
+          "brilles": { "icon": "users", "texte": "Tu te montres sous ton meilleur jour dans un petit groupe fidèle, où chacun sait à quoi s'en tenir." },
+          "eviter": { "icon": "cloud", "texte": "Les soirées où personne ne se connaît, et où tout se décide au dernier moment." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. Ton Talent Unique est là, dans ce plaisir : en amour, c'est la même chose."
+        }
       },
       "profondeur": {
         "name": "Profondeur",
@@ -1741,7 +1769,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « Qu'est-ce qui t'a le plus fait grandir ces dernières années ? »"
         ],
         "trigger": "tu te sens incompris·e, ou quand l'autre se ferme au lieu de parler",
-        "calm": "être écouté·e sans être corrigé·e, même deux minutes"
+        "calm": "être écouté·e sans être corrigé·e, même deux minutes",
+        "rencontre": {
+          "lieux": [
+            { "icon": "coffee", "texte": "Un café calme, où la conversation peut durer" },
+            { "icon": "gem", "texte": "Un cercle de lecture où l'on parle vraiment des livres" },
+            { "icon": "tree", "texte": "Un chemin tranquille, en marchant à deux" }
+          ],
+          "activites": [
+            { "icon": "pen", "texte": "Un atelier d'écriture, où l'on ose lire ce qu'on a écrit" },
+            { "icon": "moon", "texte": "Une longue balade sans téléphone" },
+            { "icon": "message", "texte": "Un cercle d'écoute, où chacun va au bout de sa phrase" }
+          ],
+          "brilles": { "icon": "user", "texte": "Tu brilles en tête-à-tête, quand on peut aller au fond sans se presser ni changer de sujet." },
+          "eviter": { "icon": "users", "texte": "Les grands groupes où l'on reste en surface, et où personne n'écoute jusqu'au bout." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. C'est souvent là que se cache ton Talent Unique : réussir dans le plaisir, en amour aussi."
+        }
       },
       "admiration": {
         "name": "Admiration",
@@ -1793,7 +1836,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « De quoi es-tu le plus fier ou la plus fière en ce moment ? »"
         ],
         "trigger": "tu te sens critiqué·e, comparé·e ou oublié·e",
-        "calm": "entendre ce qui a de la valeur en toi, avant d'entendre ce qui ne va pas"
+        "calm": "entendre ce qui a de la valeur en toi, avant d'entendre ce qui ne va pas",
+        "rencontre": {
+          "lieux": [
+            { "icon": "mic", "texte": "Une petite scène, où l'on montre ce qu'on a préparé" },
+            { "icon": "star", "texte": "Un vernissage ou un atelier où chacun présente son travail" },
+            { "icon": "smile", "texte": "Un cours où l'on dit bravo aux progrès, à voix haute" }
+          ],
+          "activites": [
+            { "icon": "spark", "texte": "Préparer une expo, un texte ou un projet que les autres peuvent voir" },
+            { "icon": "heart", "texte": "Chanter, jouer ou créer avec une troupe bienveillante" },
+            { "icon": "hand", "texte": "Encourager les autres, et recevoir la même chaleur en retour" }
+          ],
+          "brilles": { "icon": "eye", "texte": "Tu brilles quand on te voit faire ce que tu aimes, devant quelques personnes qui savent dire merci." },
+          "eviter": { "icon": "userx", "texte": "Les endroits où tes efforts passent inaperçus, sans un mot de reconnaissance." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. Ton Talent Unique se voit dans ce plaisir : en amour, ça compte autant."
+        }
       },
       "liberte": {
         "name": "Liberté",
@@ -1845,7 +1903,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « Qu'est-ce que tu fais quand tu as une journée rien qu'à toi ? »"
         ],
         "trigger": "tu te sens coincé·e, contrôlé·e ou pressé·e de répondre",
-        "calm": "un peu d'espace, et la certitude qu'on en reparlera plus tard"
+        "calm": "un peu d'espace, et la certitude qu'on en reparlera plus tard",
+        "rencontre": {
+          "lieux": [
+            { "icon": "tree", "texte": "Un sentier ou un lieu de plein air, où chacun arrive à son rythme" },
+            { "icon": "compass", "texte": "Un atelier ouvert, sans horaire figé" },
+            { "icon": "pin", "texte": "Un voyage en petit groupe, avec du temps libre pour toi" }
+          ],
+          "activites": [
+            { "icon": "sun", "texte": "Une sortie décidée le jour même, sans programme trop serré" },
+            { "icon": "pulse", "texte": "Un sport que tu fais seul·e, puis que tu racontes si tu en as envie" },
+            { "icon": "pen", "texte": "Un projet à toi, que tu montres quand tu es prêt·e" }
+          ],
+          "brilles": { "icon": "feather", "texte": "Tu brilles dans un cadre souple, où l'on se retrouve parce qu'on en a envie, pas parce qu'il le faut." },
+          "eviter": { "icon": "box", "texte": "Les groupes où il faut tout faire ensemble, et justifier chaque heure de ton agenda." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. Ton Talent Unique respire dans ce plaisir : en amour, c'est le même élan."
+        }
       },
       "harmonie": {
         "name": "Harmonie",
@@ -1897,7 +1970,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « Comment fais-tu quand tu n'es pas d'accord avec quelqu'un que tu aimes ? »"
         ],
         "trigger": "le ton monte, ou quand tu sens une tension que personne ne nomme",
-        "calm": "une voix calme et un geste doux, avant toute discussion"
+        "calm": "une voix calme et un geste doux, avant toute discussion",
+        "rencontre": {
+          "lieux": [
+            { "icon": "leaf", "texte": "Un jardin partagé, dans le calme" },
+            { "icon": "moon", "texte": "Un cours de yoga ou de méditation douce" },
+            { "icon": "coffee", "texte": "Un salon de thé tranquille, en petit comité" }
+          ],
+          "activites": [
+            { "icon": "hand", "texte": "Cuisiner sans se presser, avec des gestes tranquilles" },
+            { "icon": "tree", "texte": "Une balade lente, sans chercher à aller vite" },
+            { "icon": "pen", "texte": "De la poterie, du dessin ou de la couture, dans un silence complice" }
+          ],
+          "brilles": { "icon": "heart", "texte": "Tu brilles dans une ambiance douce, à deux ou en tout petit groupe, où l'on se parle sans hausser le ton." },
+          "eviter": { "icon": "zap", "texte": "Les soirées bruyantes, et les débats où l'on se coupe la parole." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. Ton Talent Unique s'y sent bien : réussir dans le plaisir, en amour aussi."
+        }
       },
       "complicite": {
         "name": "Complicité",
@@ -1949,7 +2037,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « Quel est ton plus beau fou rire ? »"
         ],
         "trigger": "tu te sens seul·e face aux problèmes, ou quand la bonne humeur disparaît",
-        "calm": "un geste d'équipe : « on regarde ça ensemble »"
+        "calm": "un geste d'équipe : « on regarde ça ensemble »",
+        "rencontre": {
+          "lieux": [
+            { "icon": "home", "texte": "Une cuisine partagée, pour préparer un repas à plusieurs" },
+            { "icon": "smile", "texte": "Un club de jeux, où l'on rit autour de la table" },
+            { "icon": "users", "texte": "Un chantier participatif ou un projet associatif concret" }
+          ],
+          "activites": [
+            { "icon": "box", "texte": "Monter quelque chose à plusieurs : une recette, un meuble, un week-end" },
+            { "icon": "pulse", "texte": "Un sport d'équipe léger, sans pression de résultat" },
+            { "icon": "spark", "texte": "Un jeu qui finit souvent en fou rire" }
+          ],
+          "brilles": { "icon": "smile", "texte": "Tu brilles dans un projet commun, quand on rit en faisant les choses ensemble." },
+          "eviter": { "icon": "moon", "texte": "Les ambiances trop graves, où chacun reste dans son coin sans proposer un coup de main." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. Ton Talent Unique aime ce plaisir partagé : en amour, c'est pareil."
+        }
       },
       "intensite": {
         "name": "Intensité",
@@ -2001,7 +2104,22 @@ AMOUR_DATA.profil = {
           "Une question à poser : « Quelle est la chose la plus folle que tu aies faite sur un coup de tête ? »"
         ],
         "trigger": "tu sens l'autre s'éloigner, ou quand la relation devient tiède",
-        "calm": "un vrai contact, un regard, une main tenue, plutôt qu'un long discours"
+        "calm": "un vrai contact, un regard, une main tenue, plutôt qu'un long discours",
+        "rencontre": {
+          "lieux": [
+            { "icon": "flame", "texte": "Un cours de danse, où l'on ose bouger" },
+            { "icon": "compass", "texte": "Un départ de randonnée ou de voyage un peu improvisé" },
+            { "icon": "mic", "texte": "Un concert en petit lieu, où l'énergie circule" }
+          ],
+          "activites": [
+            { "icon": "spark", "texte": "Essayer une activité nouvelle, pour le plaisir de découvrir" },
+            { "icon": "zap", "texte": "L'escalade, la scène ou un sport qui te réveille vraiment" },
+            { "icon": "sun", "texte": "Préparer une surprise collective, un peu folle et généreuse" }
+          ],
+          "brilles": { "icon": "flame", "texte": "Tu brilles quand il se passe quelque chose de vivant, dans un projet un peu fou porté avec d'autres." },
+          "eviter": { "icon": "repeat", "texte": "Les groupes où l'on refait toujours la même chose, sans surprise et sans élan." },
+          "talent": "Quand tu fais ce qui te plaît vraiment, tu rencontres des gens qui te ressemblent. Ton Talent Unique s'allume dans le plaisir : en amour, c'est aussi ça."
+        }
       }
     },
     "alliages": {

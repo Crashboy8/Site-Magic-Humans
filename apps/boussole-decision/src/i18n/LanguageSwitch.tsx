@@ -14,6 +14,7 @@ export function LanguageSwitch({ className }: { className?: string }) {
   const [pending, startTransition] = useTransition();
   return (
     <div
+      data-lang-switch
       role="group"
       aria-label={t.common.language}
       className={cx("flex items-center rounded-full border border-line bg-paper p-0.5 text-xs", className)}

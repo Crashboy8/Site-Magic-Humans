@@ -107,6 +107,12 @@ export interface Criterion {
   position: number;
 }
 
+/** Icônes proposées pour une relation (Boussole Relation). Le mode pro ne les utilise pas. */
+export type RelationIcon = "coeur" | "etoile" | "soleil" | "lune" | "montagne" | "vague" | "fleur" | "feuille" | "flamme" | "maison";
+
+/** Teintes vives et douces d'une relation. Jamais de bleu foncé : « ciel » est un bleu ciel. */
+export type RelationColor = "corail" | "framboise" | "miel" | "abricot" | "eau" | "sauge" | "lilas" | "ciel";
+
 export interface Opportunity {
   id: string;
   versionId: string;
@@ -115,6 +121,10 @@ export interface Opportunity {
   url: string;
   notes: string;
   position: number;
+  /** Boussole Relation. Absent en mode pro, et tant que la personne n'a rien enregistré. */
+  icon?: RelationIcon;
+  /** Boussole Relation. Absent en mode pro, et tant que la personne n'a rien enregistré. */
+  color?: RelationColor;
 }
 
 export type EvaluationValue = "non" | "p25" | "p50" | "p75" | "oui" | "inconnu";
@@ -123,6 +133,11 @@ export interface Evaluation {
   criterionId: string;
   opportunityId: string;
   value: EvaluationValue;
+  /**
+   * Pourcentage libre (0 à 100, pas de 5). Absent : pas de colonne, repli localStorage.
+   * null : la colonne existe et la case est une note en mots. Un nombre remplace la note en mots dans le score.
+   */
+  percent?: number | null;
 }
 
 export interface InvitationCode {

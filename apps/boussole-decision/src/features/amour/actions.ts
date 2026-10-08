@@ -9,14 +9,16 @@ import {
   deleteCategory,
   listCategories,
   listVersions,
+  saveOpportunityAppearance,
 } from "@/data/repository";
 import { LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
+import { apparenceParDefaut } from "@/domain/relationApparence";
 import { applyLovePrefill, parseLovePrefill } from "@/domain/lovePrefill";
 import { getI18n } from "@/i18n/server";
 import { supabaseServer } from "@/lib/supabase/server";
 
 /**
- * Crée une Boussole Relation : un profil marqué « mode amour », ses 4 catégories, ses 10 critères
+ * Crée une Boussole Relation : un profil marqué « mode amour », ses 4 catégories, ses 12 critères
  * et une première colonne « Ma relation ». Sans session, ouvre d'abord un essai sans compte (comme importQuizAction).
  */
 export async function startLoveCompassAction(rawPrefill?: unknown): Promise<{ error?: string }> {
@@ -51,7 +53,12 @@ export async function startLoveCompassAction(rawPrefill?: unknown): Promise<{ er
         position: i,
       });
     }
-    await createOpportunity(supabase, versionId, LOVE_TEMPLATE.opportunityName, 0);
+    const relation = await createOpportunity(supabase, versionId, LOVE_TEMPLATE.opportunityName, 0);
+    try {
+      await saveOpportunityAppearance(supabase, relation, apparenceParDefaut([]));
+    } catch {
+      // Sans colonne dédiée et si les notes refusent l'écriture, l'écran recalcule la valeur par défaut.
+    }
   } catch {
     return { error: LOVE_TEXTS.start.failed };
   }

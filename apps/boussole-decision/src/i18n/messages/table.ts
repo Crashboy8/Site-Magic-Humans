@@ -66,14 +66,17 @@ const fr = {
   lower: (label: string) => `Baisser le poids de « ${label} »`,
   raise: (label: string) => `Augmenter le poids de « ${label} »`,
   bonus: "Bonus",
-  bonusHint: ": ajoute jusqu'à ce nombre de points si c'est là, n'en enlève jamais. Un niveau à 0 ne compte pas.",
+  bonusHint: " : ajoute jusqu'à ce nombre de points si c'est là, n'en enlève jamais. Un niveau à 0 ne compte pas.",
   resetWeights: "Revenir au barème conseillé",
 
   // Légende
   legendNonNegotiable: "🔒 Non négociable",
-  legendNonNegotiableText: ": s'il n'est pas pleinement respecté, l'opportunité est signalée et classée après les autres",
+  legendNonNegotiableText: " : s'il n'est pas pleinement respecté, l'opportunité est signalée et classée après les autres",
   legendAvoid: "↩ À éviter",
-  legendAvoidText: ": on évalue la présence du risque",
+  legendAvoidText: " : on évalue la présence du risque",
+  percentOption: "Mettre un pourcentage",
+  percentLegend: "Pourcentage",
+  percentValidate: "Valider",
 };
 
 const en: typeof fr = {
@@ -149,6 +152,9 @@ const en: typeof fr = {
   legendNonNegotiableText: ": if it isn't fully met, the opportunity is flagged and ranked after the others",
   legendAvoid: "↩ To avoid",
   legendAvoidText: ": we rate how present the risk is",
+  percentOption: "Enter a percentage",
+  percentLegend: "Percentage",
+  percentValidate: "Save",
 };
 
 const es: typeof fr = {
@@ -224,6 +230,9 @@ const es: typeof fr = {
   legendNonNegotiableText: ": si no se cumple del todo, la oportunidad queda señalada y clasificada detrás de las demás",
   legendAvoid: "↩ A evitar",
   legendAvoidText: ": se evalúa la presencia del riesgo",
+  percentOption: "Poner un porcentaje",
+  percentLegend: "Porcentaje",
+  percentValidate: "Validar",
 };
 
 export const table = { fr, en, es };

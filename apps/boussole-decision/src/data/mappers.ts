@@ -12,6 +12,8 @@ import type {
   Version,
 } from "@/domain/types";
 
+import { pourcentageValide } from "@/domain/pourcentage";
+import { estCouleur, estIcone, lireApparenceNotes } from "@/domain/relationApparence";
 import { normalizeWeights } from "@/domain/scoring";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -120,18 +122,30 @@ export const mapCoacheeSummary = (r: Row): CoacheeSummary => ({
   sharedProfiles: r.shared_profiles,
 });
 
-export const mapOpportunity = (r: Row): Opportunity => ({
-  id: r.id,
-  versionId: r.version_id,
-  name: r.name,
-  summary: r.summary,
-  url: r.url,
-  notes: r.notes,
-  position: r.position,
-});
+export const mapOpportunity = (r: Row): Opportunity => {
+  // Pas de migration obligatoire : icon/color en colonnes si elles existent, sinon marqueur dans notes.
+  const cache = lireApparenceNotes(r.notes ?? "");
+  const icon = estIcone(r.icon) ? r.icon : cache.look?.icon;
+  const color = estCouleur(r.color) ? r.color : cache.look?.color;
+  return {
+    id: r.id,
+    versionId: r.version_id,
+    name: r.name,
+    summary: r.summary,
+    url: r.url,
+    notes: cache.notes,
+    position: r.position,
+    ...(icon && color ? { icon, color } : {}),
+  };
+};
 
-export const mapEvaluation = (r: Row): Evaluation => ({
-  criterionId: r.criterion_id,
-  opportunityId: r.opportunity_id,
-  value: r.value,
-});
+export const mapEvaluation = (r: Row): Evaluation => {
+  const base = {
+    criterionId: r.criterion_id,
+    opportunityId: r.opportunity_id,
+    value: r.value,
+  };
+  // Pas de migration obligatoire : sans colonne, on ne pose pas `percent` (repli localStorage).
+  if (!Object.prototype.hasOwnProperty.call(r, "percent")) return base;
+  return { ...base, percent: pourcentageValide(r.percent) ? r.percent : null };
+};
