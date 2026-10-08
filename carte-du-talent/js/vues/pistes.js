@@ -127,6 +127,23 @@
       '</section>';
   }
 
+  function nomsVises(carte, pistes) {
+    const parId = {};
+    (pistes || []).forEach((e) => { if (e && e.piste && e.piste.id) parId[e.piste.id] = e.piste.nom; });
+    const ids = (carte && carte.pistesVisees) || [];
+    if (ids.length) {
+      return ids.map((id) => parId[id] || ((CT.pistes.trouver(id) || {}).nom) || '').filter(Boolean);
+    }
+    return (pistes || []).filter((e) => e && e.visee && e.piste).map((e) => e.piste.nom);
+  }
+
+  function cibleur(carte, pistes) {
+    const url = CT.cibleur.url(carte, nomsVises(carte, pistes));
+    return '<section class="carte-progres carte-large"><h3><i data-lucide="crosshair"></i> ' + T('Qui va te payer pour ça ?') + '</h3>' +
+      '<p>' + T('Le Cibleur reprend ton talent, ton fil rouge et tes pistes, et te propose trois cibles de clients, ton offre et tes premiers messages.') + '</p>' +
+      '<a class="bouton bouton-principal" href="' + O.echapper(url) + '" target="_blank" rel="noopener">' + T('Trouver mes clients avec Le Cibleur') + '</a></section>';
+  }
+
   function appel() {
     return '<section class="carte-progres carte-large cta-appel"><h3><i data-lucide="calendar-check"></i> ' + T('Envie d\'en parler ?') + '</h3>' +
       '<p><strong>' + T('Appel découverte · 1 heure · offert') + '</strong></p>' +
@@ -162,7 +179,7 @@
     const pistes = P.proposer(carte);
     const plan = OR.etatPlan(carte, Date.now());
     return entetes + '<div class="progres-corps">' + (plan ? sectionPlan(carte, plan) : sectionProchaine(carte, ecartees)) +
-      sectionPriorites(carte) + pistes.map((e) => carteDePiste(carte, e)).join('') + appel() +
+      sectionPriorites(carte) + pistes.map((e) => carteDePiste(carte, e)).join('') + cibleur(carte, pistes) + appel() +
       '<p class="note-source">* ' + O.echapper(T(CT.orientationDonnees.SOURCE_REVENU)) + '</p></div>';
   }
 

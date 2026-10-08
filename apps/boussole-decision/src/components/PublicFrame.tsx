@@ -4,7 +4,20 @@ import { LanguageSwitch } from "@/i18n/LanguageSwitch";
 import { getI18n } from "@/i18n/server";
 
 /** Bandeau des pages publiques : marque à gauche, lien d'accueil et langues à droite. */
-export async function PublicFrame({ brand, tagline, mark, children }: { brand: string; tagline?: string; mark: ReactNode; children: ReactNode }) {
+export async function PublicFrame({
+  brand,
+  tagline,
+  mark,
+  sansLangues = false,
+  children,
+}: {
+  brand: string;
+  tagline?: string;
+  mark: ReactNode;
+  /** Masque Français / English / Español. Rien ne change pour la Boussole tant que ce paramètre reste faux. */
+  sansLangues?: boolean;
+  children: ReactNode;
+}) {
   const { t } = await getI18n();
   return (
     <div className="flex min-h-dvh flex-col">
@@ -21,7 +34,7 @@ export async function PublicFrame({ brand, tagline, mark, children }: { brand: s
             <Link href="/" className="rounded-full px-3 py-2 text-sm text-ink-soft hover:bg-sand hover:text-ink sm:text-[15px]">
               {t.common.home}
             </Link>
-            <LanguageSwitch />
+            {!sansLangues && <LanguageSwitch />}
           </div>
         </div>
       </header>

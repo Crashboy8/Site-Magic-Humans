@@ -420,6 +420,9 @@
     "Appel découverte · 1 heure · offert": "Discovery call · 1 hour · free",
     "Tu arrives avec ta carte et tes pistes. On regarde ensemble celle qui te met vraiment dans le flow, et par où commencer.": "Bring your map and your paths. Together we'll look at the one that truly puts you in flow, and where to start.",
     "En parler avec Pierre": "Talk it over with Pierre",
+    "Qui va te payer pour ça ?": "Who will pay you for this?",
+    "Le Cibleur reprend ton talent, ton fil rouge et tes pistes, et te propose trois cibles de clients, ton offre et tes premiers messages.": "The Targeter takes your talent, your common thread and your paths, and suggests three client targets, your offer and your first messages (in French for now).",
+    "Trouver mes clients avec Le Cibleur": "Find my clients with The Targeter",
     // Écran Bilan d'acquis
     "Bilan d'acquis": "Skills inventory",
     "Ce que tu sais déjà faire": "What you already know how to do",

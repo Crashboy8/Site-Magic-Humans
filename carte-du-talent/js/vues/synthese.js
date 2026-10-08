@@ -44,6 +44,7 @@
       '<p><strong>' + T('Appel découverte · 1 heure · offert') + '</strong></p>' +
       '<p>' + T('Tu arrives avec ta carte et tes pistes. On regarde ensemble celle qui te met vraiment dans le flow, et par où commencer.') + '</p>' +
       '<a class="bouton bouton-principal ecran-seul" href="' + O.echapper(OR.urlAppel('synthese')) + '" target="_blank" rel="noopener"><i data-lucide="calendar-check"></i>' + T('En parler avec Pierre') + '</a>' +
+      '<a class="bouton bouton-secondaire ecran-seul" href="' + O.echapper(CT.cibleur.url(carte, ((carte && carte.pistesVisees) || []).map((id) => { const p = CT.pistes.trouver(id); return p ? p.nom : ''; }).filter(Boolean))) + '" target="_blank" rel="noopener">' + T('Trouver mes clients avec Le Cibleur') + '</a>' +
       '<p class="impression-seule">' + O.echapper(T('Réserve ton appel découverte : {url}', { url: 'calendly.com/pierre-j-sarazin' })) + '</p></aside>' +
       '<p class="note-source">* ' + O.echapper(s.source) + '</p>' +
       '<footer>' + T('Carte du Talent · Magic Humans · magichumans.com') + '</footer></article>';

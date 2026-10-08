@@ -7,6 +7,7 @@ import { updateTalent } from "@/data/repository";
 import { useI18n } from "@/i18n/client";
 import type { TalentUnique } from "@/domain/types";
 import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
+import { CibleurLink } from "@/features/carte/CibleurLink";
 
 type EditorProps = {
   profileId: string;
@@ -190,6 +191,7 @@ function Editor({ profileId, talent, readOnly, withCarteLink }: EditorProps) {
         </div>
       </section>
       {withCarteLink && <CarteDuTalentLink talent={current} />}
+      {withCarteLink && <CibleurLink talent={current} />}
     </>
   );
 }
