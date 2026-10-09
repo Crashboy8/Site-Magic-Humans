@@ -20,6 +20,8 @@
    * Passe un texte du catalogue à la première personne, pour qu'un critère se lise comme ceux du modèle.
    * Français : te, tes, ton, ta, toi, t' deviennent me, mes, mon, ma, moi, m'.
    * Anglais : your, yours, yourself, you're, you've, you deviennent my, mine, myself, I'm, I've, me.
+   * Espagnol : te, tu, tus, tuyo, ti, contigo, tú deviennent me, mi, mis, mío, mí, conmigo, yo. Les textes du catalogue
+   * qui passent par là n'ont pas de verbe à la 2e personne (« te dice », jamais « tienes »), sinon le verbe resterait à « tú ».
    */
   function firstPerson(text, lang) {
     const t = String(text || "");
@@ -32,9 +34,27 @@
         word("Yourself", "Myself"), word("Your", "My"), word("You", "I"),
       ].reduce((acc, f) => f(acc), t);
     }
+    if (lang === "es") {
+      return [
+        word("tuyos", "míos"), word("tuyas", "mías"), word("tuyo", "mío"), word("tuya", "mía"),
+        word("tus", "mis"), word("tu", "mi"), word("Tus", "Mis"), word("Tu", "Mi"),
+        word("contigo", "conmigo"), word("Contigo", "Conmigo"),
+        word("ti", "mí"), word("Ti", "Mí"), word("te", "me"), word("Te", "Me"), word("tú", "yo"), word("Tú", "Yo"),
+      ].reduce((acc, f) => f(acc), t);
+    }
     return [word("te", "me"), word("tes", "mes"), word("ton", "mon"), word("ta", "ma"), word("toi", "moi")]
       .reduce((acc, f) => f(acc), t.replace(/sans que tu aies/g, "sans que j'aie"))
       .replace(/(^|[^\p{L}])t'/gu, "$1m'");
+  }
+
+  /**
+   * Accord de l'adjectif du nom de profil avec le nom qu'il suit (espagnol : « Ancla Serena », « Espejo Sereno »).
+   * Les noms des familles qui finissent par « a » sont féminins (Ancla, Estrella) ; l'adjectif en « o » prend alors « a ».
+   * Les autres langues ne changent rien.
+   */
+  function agreeAdj(adj, noun, lang) {
+    if (lang !== "es") return adj;
+    return /a$/.test(noun) && /o$/.test(adj) ? adj.slice(0, -1) + "a" : adj;
   }
 
   /**
@@ -674,7 +694,7 @@
     if (!P || !B || !B[familyId] || !card || !Array.isArray(P.order)) return null;
     const nuances = P.order.filter((id) => id !== familyId).map((id) => ({
       id: id,
-      adj: B[id].adj,
+      adj: agreeAdj(B[id].adj, B[familyId].noun, D.lang),
       noun: B[id].noun,
       line: card.nuances ? card.nuances[id] : "",
     }));
@@ -806,8 +826,9 @@
     const s = B[sec];
     // En français le nom vient d'abord (« Ancre Fidèle ») ; en anglais l'adjectif le précède (« Loyal Anchor »).
     const adjFirst = D.engine && D.engine.nameOrder === "adj-noun";
-    const name = { noun: d.noun, adj: s.adj, adjFirst, text: adjFirst ? s.adj + " " + d.noun : d.noun + " " + s.adj };
-    const inverse = adjFirst ? d.adj + " " + s.noun : s.noun + " " + d.adj;
+    const adjOfSec = adjFirst ? s.adj : agreeAdj(s.adj, d.noun, D.lang);
+    const name = { noun: d.noun, adj: adjOfSec, adjFirst, text: adjFirst ? s.adj + " " + d.noun : d.noun + " " + adjOfSec };
+    const inverse = adjFirst ? d.adj + " " + s.noun : s.noun + " " + agreeAdj(d.adj, s.noun, D.lang);
     const margin = scores[sec] >= 0.95 * scores[dom] ? "mixte" : scores[sec] < 0.6 * scores[dom] ? "net" : null;
     const max = Math.max(1, scores[dom]);
     const bars = ranking.map((id) => ({ id, score: scores[id], pct: Math.round((scores[id] / max) * 100) }));
@@ -1106,7 +1127,7 @@
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
     familyBucket, familyGuide,
     progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
-    exportWithPetitPas, petitPasStored, calendlyLink, answerLabel, firstPerson, withLanguage,
+    exportWithPetitPas, petitPasStored, calendlyLink, answerLabel, firstPerson, agreeAdj, withLanguage,
     salleSession, salleSessionOk, salleIds, salleNourrit, sallePhoto,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
