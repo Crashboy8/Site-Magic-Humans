@@ -14,7 +14,7 @@ import {
   listVersionsForUser,
   saveOpportunityAppearance,
 } from "@/data/repository";
-import { LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
+import { amourPour, cleCategorieAmour } from "@/content/amourLangue";
 import { boussoleRelationExistante } from "@/domain/editionAmour";
 import { apparenceParDefaut } from "@/domain/relationApparence";
 import { applyLovePrefill, parseLovePrefill, proposalsToCreate, type LoveCriterionToCreate } from "@/domain/lovePrefill";
@@ -68,6 +68,8 @@ export async function startLoveCompassAction(
     guest = true;
   }
 
+  // Modèle et textes dans la langue de l'interface ; le repère technique du profil reste le même.
+  const { template: LOVE_TEMPLATE, texts: LOVE_TEXTS } = amourPour(locale);
   const prefill = parseLovePrefill(rawPrefill);
   let versionId: string;
   let added = 0;
@@ -76,12 +78,13 @@ export async function startLoveCompassAction(
     if (existing) {
       versionId = existing.id;
       const [criteria, categories] = await Promise.all([listCriteria(supabase, versionId), listCategories(supabase, versionId)]);
-      const toAdd = proposalsToCreate(prefill, chosenIds, criteria.map((c) => c.label));
+      const toAdd = proposalsToCreate(prefill, chosenIds, criteria.map((c) => c.label), locale);
       const categoryIds: Record<string, string> = {};
       let nextCategory = categories.length;
-      for (const c of LOVE_TEMPLATE.categories) {
-        const found = categories.find((cat) => cat.label === c.label);
-        if (found) categoryIds[c.key] = found.id;
+      // Catégories reconnues quelle que soit leur langue de création (une Boussole commencée en français reste utilisable en anglais).
+      for (const cat of categories) {
+        const key = cleCategorieAmour(cat.label);
+        if (key && !categoryIds[key]) categoryIds[key] = cat.id;
       }
       let position = criteria.reduce((max, c) => Math.max(max, c.position), -1) + 1;
       for (const c of toAdd) {
@@ -102,8 +105,8 @@ export async function startLoveCompassAction(
       for (const [i, c] of LOVE_TEMPLATE.categories.entries()) {
         categoryIds[c.key] = (await createCategory(supabase, versionId, c.label, i)).id;
       }
-      const base = applyLovePrefill(prefill);
-      const fromQuiz = proposalsToCreate(prefill, chosenIds, base.map((c) => c.label));
+      const base = applyLovePrefill(prefill, locale);
+      const fromQuiz = proposalsToCreate(prefill, chosenIds, base.map((c) => c.label), locale);
       for (const [i, c] of [...base, ...fromQuiz].entries()) {
         await addCriterion(supabase, versionId, categoryIds[c.category], c, i);
       }

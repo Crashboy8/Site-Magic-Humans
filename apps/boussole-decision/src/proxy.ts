@@ -1,9 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { LOCALE_COOKIE, isLocale } from "@/i18n/config";
 import { SUPABASE_KEY, SUPABASE_URL, isPublicPath, redirectUrl, suiteSure } from "@/lib/config";
 
 // Rafraîchit la session Supabase à chaque requête et réserve l'outil aux personnes connectées.
 export async function proxy(request: NextRequest) {
+  // ?lang=fr|en|es (lien du Quiz Amour ou du site) : la langue choisie dans le quiz devient celle de la Boussole.
+  // Elle est posée sur la requête (la page la lit tout de suite) et gardée dans le cookie habituel.
+  const langue = request.nextUrl.searchParams.get("lang");
+  const nouvelleLangue = isLocale(langue) && request.cookies.get(LOCALE_COOKIE)?.value !== langue ? langue : null;
+  if (nouvelleLangue) request.cookies.set(LOCALE_COOKIE, nouvelleLangue);
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_KEY, {
@@ -19,6 +25,7 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
+  if (nouvelleLangue) response.cookies.set(LOCALE_COOKIE, nouvelleLangue, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
   const signedIn = Boolean(data?.claims?.sub);
   const path = request.nextUrl.pathname.replace(/\/$/, "") || "/";
 

@@ -1,6 +1,8 @@
 // Préréglage de la Boussole Relation depuis l'ancre #amour= du Quiz Amour.
 // Module pur : pas de React, pas de Supabase. Le serveur revalide toujours le contenu.
-import { LOVE_TEMPLATE, LOVE_TEXTS } from "@/content/amour";
+import { LOVE_TEMPLATE } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
+import type { Locale } from "@/i18n/config";
 import type { CriterionDirection, Importance } from "./types";
 
 export const LOVE_ADJUSTABLE_KEYS = ["energie", "frictions", "langage", "complementarite"] as const;
@@ -10,6 +12,14 @@ export const LOVE_HASH_MAX = 9000;
 export const LOVE_PROPOSALS_MAX = 20;
 /** Repère posé dans la description d'un critère importé : c'est lui qui alimente l'encart « Repris de ton Quiz Amour ». */
 export const QUIZ_MARK = "Repris de ton Quiz Amour";
+/** Le même repère en anglais, pour une Boussole créée en anglais. Les deux sont reconnus. */
+export const QUIZ_MARK_EN = "From your Love Quiz";
+const QUIZ_MARKS = [QUIZ_MARK, QUIZ_MARK_EN];
+
+/** Vrai si la description vient du Quiz Amour, quelle que soit la langue. */
+export function estRepriseQuiz(description: string): boolean {
+  return QUIZ_MARKS.some((mark) => description.startsWith(mark));
+}
 
 type AdjustableKey = (typeof LOVE_ADJUSTABLE_KEYS)[number];
 
@@ -168,7 +178,12 @@ export function proposalStatus(proposal: LoveProposal, existingLabels: string[])
 }
 
 /** Critères importés à créer : ceux cochés, nouveaux, sans doublon, avec le repère de l'encart. */
-export function proposalsToCreate(prefill: LovePrefill | null, chosenIds: unknown, existingLabels: string[]): LoveCriterionToCreate[] {
+export function proposalsToCreate(
+  prefill: LovePrefill | null,
+  chosenIds: unknown,
+  existingLabels: string[],
+  locale: Locale = "fr",
+): LoveCriterionToCreate[] {
   if (!prefill || !Array.isArray(chosenIds)) return [];
   const chosen = new Set(chosenIds.filter((id): id is string => typeof id === "string"));
   const seen = [...existingLabels];
@@ -180,7 +195,7 @@ export function proposalsToCreate(prefill: LovePrefill | null, chosenIds: unknow
       key: `quiz-${p.id}`,
       category: p.category,
       label: p.label,
-      description: quizMarkLine(prefill.profil, p.group),
+      description: quizMarkLine(prefill.profil, p.group, locale),
       importance: p.importance,
       nonNegotiable: p.nonNegotiable,
       direction: p.direction,
@@ -196,27 +211,36 @@ const GROUP_WORDS: Record<LoveProposalGroup, string> = {
   eviter: "ce que tu veux éviter",
 };
 
-export function quizMarkLine(profil: string, group: LoveProposalGroup): string {
+const GROUP_WORDS_EN: Record<LoveProposalGroup, string> = {
+  profil: "your profile",
+  besoins: "what feeds you",
+  valeurs: "your values",
+  eviter: "what you want to avoid",
+};
+
+export function quizMarkLine(profil: string, group: LoveProposalGroup, locale: Locale = "fr"): string {
+  if (locale === "en") return `${QUIZ_MARK_EN} (${GROUP_WORDS_EN[group]}${profil ? `, profile “${profil}”` : ""}).`;
   return `${QUIZ_MARK} (${GROUP_WORDS[group]}${profil ? `, profil « ${profil} »` : ""}).`;
 }
 
-/** Nom du profil amoureux retrouvé dans les critères importés, s'il y en a. */
+/** Nom du profil amoureux retrouvé dans les critères importés, s'il y en a (repère français ou anglais). */
 export function quizProfilFrom(descriptions: string[]): string | null {
   for (const d of descriptions) {
-    const m = d.match(/profil « ([^»]{1,60}) »/);
-    if (d.startsWith(QUIZ_MARK) && m) return m[1];
+    const m = d.startsWith(QUIZ_MARK) ? d.match(/profil « ([^»]{1,60}) »/) : d.startsWith(QUIZ_MARK_EN) ? d.match(/profile “([^”]{1,60})”/) : null;
+    if (m) return m[1];
   }
   return null;
 }
 
-/** Critères à créer : le modèle, plus les poids et les notes acceptés. */
-export function applyLovePrefill(prefill: LovePrefill | null): LoveCriterionToCreate[] {
+/** Critères à créer : le modèle (dans la langue de l'interface), plus les poids et les notes acceptés. */
+export function applyLovePrefill(prefill: LovePrefill | null, locale: Locale = "fr"): LoveCriterionToCreate[] {
+  const { template, texts } = amourPour(locale);
   const impReady = Boolean(prefill && LOVE_ADJUSTABLE_KEYS.every((key) => prefill.imp[key]));
-  return LOVE_TEMPLATE.criteria.map((criterion) => {
+  return template.criteria.map((criterion) => {
     const adjustable = (LOVE_ADJUSTABLE_KEYS as readonly string[]).includes(criterion.key);
     const importance = impReady && adjustable ? prefill!.imp[criterion.key as AdjustableKey]! : criterion.importance;
     const note = prefill?.notes[criterion.key];
-    const description = criterion.guide + (note ? "\n\n" + LOVE_TEXTS.quizNoteLabel + note : "");
+    const description = criterion.guide + (note ? "\n\n" + texts.quizNoteLabel + note : "");
     return {
       key: criterion.key,
       category: criterion.category,

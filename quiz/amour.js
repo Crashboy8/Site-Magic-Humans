@@ -1,15 +1,27 @@
-/* Quiz Amour v1.4 · 8 questions, classement, résultats.
+/* Quiz Amour v1.5 · 8 questions, classement, résultats, en français et en anglais.
    Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
    Aucune réponse n'est envoyée. La progression reste dans ce navigateur
-   pour pouvoir reprendre. */
+   pour pouvoir reprendre. La langue suit le sélecteur FR · EN · ES du quiz (l'espagnol reste en français). */
 (function () {
-  const D = window.AMOUR_DATA;
+  const DATA_FR = window.AMOUR_DATA;
   const E = window.AmourEngine;
-  if (!D || !E || !document.getElementById("screen-amour")) return;
+  if (!DATA_FR || !E || !document.getElementById("screen-amour")) return;
 
-  const U = D.ui;
-  const Q = U.quiz;
-  const R = U.results;
+  /** Même mémoire que le quiz Talent Unique : ?lang=, puis le choix du quiz, puis celui du site. */
+  function readLang() {
+    try { const q = new URLSearchParams(location.search).get("lang"); if (q === "en" || q === "fr" || q === "es") return q; } catch (e) { /* adresse illisible */ }
+    try { const v = localStorage.getItem("mh-quiz-lang"); if (v === "en" || v === "fr" || v === "es") return v; } catch (e) { /* stockage indisponible */ }
+    try { const v = localStorage.getItem("mh-lang"); if (v === "en" || v === "fr") return v; } catch (e) { /* stockage indisponible */ }
+    return "fr";
+  }
+  function dataFor(l) {
+    return l === "en" && window.AMOUR_DATA_EN ? E.withLanguage(DATA_FR, window.AMOUR_DATA_EN) : DATA_FR;
+  }
+  let lang = readLang();
+  let D = dataFor(lang);
+  let U = D.ui;
+  let Q = U.quiz;
+  let R = U.results;
   const root = document.getElementById("screen-amour");
 
   const style = document.createElement("style");
@@ -273,6 +285,7 @@
     "#screen-amour .progress span.is-now[data-tone=gold]{color:var(--gold)}",
     "#screen-amour .progress span.is-now[data-tone=sky]{color:var(--sky)}",
     "#screen-amour .progress span.is-now[data-tone=split]{color:var(--coral)}",
+    "#screen-amour h1,#screen-amour h2,#screen-amour h3,#screen-amour h4,#screen-amour .alloy{text-wrap:balance}#screen-amour p,#screen-amour li,#screen-amour label{text-wrap:pretty}",
     "#screen-amour .progress span.is-now::after{content:\"\";position:absolute;right:-8px;top:50%;width:16px;height:16px;transform:translateY(-50%);background:currentColor;z-index:2;pointer-events:none;-webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E\") center/contain no-repeat;mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E\") center/contain no-repeat;animation:am-spark 1.5s ease-in-out infinite}",
     "@keyframes am-spark{50%{transform:translateY(-50%) scale(1.18)}}",
     "#screen-amour .rsrc-opt{position:relative;border-radius:16px;padding-right:28px;transition:transform .16s ease, border-color .15s, background .15s, box-shadow .16s}",
@@ -490,13 +503,21 @@
   });
   root.hidden = false;
   const langSwitch = document.querySelector(".qlang");
-  if (langSwitch) langSwitch.hidden = true;
-  const brand = document.querySelector(".brand span");
-  if (brand) brand.textContent = U.brand;
-  const footer = document.querySelector("footer");
-  if (footer) footer.textContent = E.salleSession(location.search || "") ? U.footerSalle : U.footer;
-  document.title = U.pageTitle + " | Magic Humans";
-  document.documentElement.lang = "fr";
+  if (langSwitch) langSwitch.hidden = false;
+  function applyChrome() {
+    const brand = document.querySelector(".brand span");
+    if (brand) brand.textContent = U.brand;
+    const footer = document.querySelector("footer");
+    if (footer) footer.textContent = E.salleSession(location.search || "") ? U.footerSalle : U.footer;
+    document.title = U.pageTitle + " | Magic Humans";
+    document.documentElement.lang = D.lang || "fr";
+    document.querySelectorAll("[data-setlang]").forEach(function (b) {
+      const on = b.getAttribute("data-setlang") === lang;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+  applyChrome();
 
   let prenom = "";
   let qi = 0;
@@ -878,10 +899,10 @@
     return '<li class="item am-rank-item' + (removable ? " has-remove" : "") + '" data-id="' + esc(id) + '"' + (tone ? ' data-item-tone="' + tone + '"' : "") + ">" +
       '<div class="txt"><span class="snum">' + (index + 1) + "</span>" + (mark ? ico(mark, tone) : "") + '<span class="am-lab">' + esc(label) + "</span></div>" +
       '<div class="choices">' +
-      '<button type="button" class="choice am-handle" id="' + esc(handleId) + '" aria-label="' + esc("Déplacer « " + label + " »") + '" aria-describedby="am-rank-help">⠿</button>' +
-      '<button type="button" class="choice am-up" data-act="up" data-group="' + esc(gid || "") + '" data-index="' + index + '" aria-label="' + esc(Q.up + " « " + label + " »") + '"' + (index === 0 ? " disabled" : "") + ">↑</button>" +
-      '<button type="button" class="choice am-down" data-act="down" data-group="' + esc(gid || "") + '" data-index="' + index + '" aria-label="' + esc(Q.down + " « " + label + " »") + '"' + (index === total - 1 ? " disabled" : "") + ">↓</button>" +
-      (removable ? '<button type="button" class="choice am-remove" data-act="remove" data-id="' + esc(id) + '" aria-label="' + esc(Q.remove.replace("du classement", "« " + label + " » du classement")) + '">×</button>' : "") +
+      '<button type="button" class="choice am-handle" id="' + esc(handleId) + '" aria-label="' + esc(fill(D.engine.moveAria, { label: label })) + '" aria-describedby="am-rank-help">⠿</button>' +
+      '<button type="button" class="choice am-up" data-act="up" data-group="' + esc(gid || "") + '" data-index="' + index + '" aria-label="' + esc(Q.up + " " + fill(D.engine.quote, { t: label })) + '"' + (index === 0 ? " disabled" : "") + ">↑</button>" +
+      '<button type="button" class="choice am-down" data-act="down" data-group="' + esc(gid || "") + '" data-index="' + index + '" aria-label="' + esc(Q.down + " " + fill(D.engine.quote, { t: label })) + '"' + (index === total - 1 ? " disabled" : "") + ">↓</button>" +
+      (removable ? '<button type="button" class="choice am-remove" data-act="remove" data-id="' + esc(id) + '" aria-label="' + esc(fill(D.engine.removeAria, { label: label })) + '">×</button>' : "") +
       "</div></li>";
   }
 
@@ -1292,8 +1313,8 @@
       let rest = line;
       if (name && line.indexOf(name) === 0) {
         rest = line.slice(name.length);
-        if (rest.indexOf(" :") === 0) { label = name + " :"; rest = rest.slice(2); }
-        else if (rest.charAt(0) === ":") { label = name + " :"; rest = rest.slice(1).replace(/^ /, ""); }
+        if (rest.indexOf(" :") === 0) { label = name + D.engine.colon; rest = rest.slice(2); }
+        else if (rest.charAt(0) === ":") { label = name + D.engine.colon; rest = rest.slice(1); }
         else label = name;
       }
       return '<li style="' + needStyle(row.id) + '">' + profilSvg(other.icon) + "<span>" + (label ? "<strong>" + esc(label) + "</strong>" : "") + esc(rest) + "</span></li>";
@@ -1373,8 +1394,8 @@
     const sec = B[pr.sec];
     const headStyle = "--sc:" + sec.ink + ";--sc-dark:" + sec.dark + ";--dom-tint:" + dom.tint + ";--sec-tint:" + sec.tint + ";--dom-color:" + dom.color + ";--sec-color:" + sec.color;
     const pills =
-      '<div class="am-pills"><button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.dom) + '" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + "<span><small>Dominante</small>" + esc(dom.name) + "</span></button>" +
-      '<button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.sec) + '" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>Secondaire</small>" + esc(sec.name) + "</span></button></div>";
+      '<div class="am-pills"><button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.dom) + '" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + "<span><small>" + esc(U.pillDom) + "</small>" + esc(dom.name) + "</span></button>" +
+      '<button type="button" class="am-pill am-namebtn" data-act="family" data-id="' + esc(pr.sec) + '" style="' + needStyle(pr.sec) + '">' + profilSvg(sec.icon) + "<span><small>" + esc(U.pillSec) + "</small>" + esc(sec.name) + "</span></button></div>";
     const bars = pr.bars.map(function (bar) {
       const b = B[bar.id];
       return '<div class="pr-bar" style="' + needStyle(bar.id) + '"><span class="pr-bar-n">' + profilSvg(b.icon) + familyNameBtn(bar.id, b.name) + '</span><span class="pr-track"><i style="--w:' + bar.pct + '%"></i></span><span class="pr-score">' + esc(String(Math.round(bar.score))) + "</span></div>";
@@ -1385,7 +1406,9 @@
     const burst = '<span class="am-burst" aria-hidden="true">' + [0, 1, 2, 3, 4, 5, 6].map(function () { return '<i class="am-bit">' + ico("heart") + "</i>"; }).join("") + "</span>";
     const header =
       '<div class="rhead" style="' + headStyle + '"><div class="am-hero-row"><div class="am-reveal"><div class="am-badge" style="' + needStyle(pr.dom) + '">' + profilSvg(dom.icon) + burst + '</div></div><span class="eyebrow">' + esc(pr.header.eyebrow) + "</span>" +
-      '<div class="alloy">' + familyNameBtn(pr.dom, pr.name.noun) + " <em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em></div></div>" +
+      '<div class="alloy">' + (pr.name.adjFirst
+        ? "<em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em> " + familyNameBtn(pr.dom, pr.name.noun)
+        : familyNameBtn(pr.dom, pr.name.noun) + " <em>" + familyNameBtn(pr.sec, pr.name.adj) + "</em>") + "</div></div>" +
       '<p class="pr-domsec">' + esc(pr.header.domSec) + "</p>" + pills +
       '<button type="button" class="btn ghost small am-fam-open" data-act="family-all">' + esc(enc.openAll) + "</button>" +
       '<div class="panel"><span class="lab">' + esc(U.alliageLab) + '</span><p class="quote">' + esc(pr.header.alliage) + "</p></div>" +
@@ -1402,7 +1425,7 @@
     const talentText = (R.talent && R.talent[pr.dom]) || "";
     const talentBlock = '<section class="rs am-talent" id="sec-talent" style="' + needStyle(pr.dom) + '"><div class="am-talent-head"><div class="am-talent-mark">' + profilSvg(dom.icon) + "</div><h2>" + esc(R.talentH) + "</h2></div><p>" + esc(talentText) + "</p></section>";
     const hrefs = ["#am-s1", "#am-s2", "#am-s3", "#am-s4", "#am-s5", "#am-s6", "#sec-now"];
-    const toc = '<nav class="toc" aria-label="Sommaire">' + U.toc.map(function (label, i) {
+    const toc = '<nav class="toc" aria-label="' + esc(D.engine.toc) + '">' + U.toc.map(function (label, i) {
       return '<a href="' + hrefs[i] + '">' + esc(label) + "</a>";
     }).join("") + "</nav>";
     const sections = pr.sections.map(function (secItem, i) {
@@ -1411,9 +1434,9 @@
       if (secItem.trap) body += "<h3>" + esc(secItem.trap) + "</h3>";
       if (secItem.lead) body += "<p>" + esc(secItem.lead) + "</p>";
       if (secItem.list) {
-        body += '<div class="panel ' + (i === 0 ? "ctx-good" : "ctx-bad") + '"><span class="lab">' + esc(i === 0 ? "Tes contextes fertiles" : "Tes contextes toxiques") + "</span><ul class=\"clean\">" +
+        body += '<div class="panel ' + (i === 0 ? "ctx-good" : "ctx-bad") + '"><span class="lab">' + esc(i === 0 ? D.engine.ctxGood : D.engine.ctxBad) + "</span><ul class=\"clean\">" +
           secItem.list.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul>" +
-          (secItem.alarm ? "<p><strong>" + esc(U.s2alarmLab) + " :</strong> " + esc(secItem.alarm) + "</p>" : "") +
+          (secItem.alarm ? "<p><strong>" + esc(U.s2alarmLab + D.engine.colon) + "</strong> " + esc(secItem.alarm) + "</p>" : "") +
           "</div>";
       }
       if (secItem.ownDrains && secItem.ownDrains.length) {
@@ -1434,7 +1457,7 @@
         body += '<div class="panel"><span class="lab">' + esc(U.s4frotte) + "</span>" + secItem.frotte.map(pair).join("") + "</div>";
         body += "</div>";
         body += '<div class="panel pr-hide"><span class="lab">' + esc(U.s4proche) + "</span>" + secItem.proche.map(pair).join("") +
-          "<p><strong>" + familyNameBtn(pr.dom, U.s4mirrorLab) + " :</strong> " + esc(secItem.mirror) + "</p></div>";
+          "<p><strong>" + familyNameBtn(pr.dom, U.s4mirrorLab) + esc(D.engine.colon) + "</strong> " + esc(secItem.mirror) + "</p></div>";
         body += '<div class="panel ctx-bad"><span class="lab">' + esc(U.s4critical) + '</span><ul class="clean">' +
           secItem.critical.map(function (item) { return "<li>" + esc(item) + "</li>"; }).join("") + "</ul></div>";
       }
@@ -1496,7 +1519,7 @@
   function showResults(profile) {
     view = "results";
     resultProfile = profile;
-    const boussoleHref = D.config.boussoleUrl + "#amour=" + E.encodePayload(profile.boussole);
+    const boussoleHref = boussoleBase() + "#amour=" + E.encodePayload(profile.boussole);
     const fortId = (profile.stress.fort || [])[0];
     const stressLine = (R.nowStress && R.nowStress[fortId]) || "";
     const endLine = stressLine ? stressLine + " " + R.nowGeneric : R.nowGeneric;
@@ -1522,9 +1545,9 @@
             if (it && it.recharge === profile.recharge.profile) shorts.push(it.short);
           });
         });
-        return shorts.length ? " : " + shorts.slice(0, 2).join(", ") : "";
+        return shorts.length ? D.engine.dp + shorts.slice(0, 2).join(", ") : "";
       })()) + "</p></div>" +
-      '<div class="panel"><span class="lab">' + esc(R.stressLab) + "</span><p>" + esc("modéré → " + profile.stress.modere.map(function (id) { return D.stress.modere[id].short; }).join(", ") + " · fort → " + profile.stress.fort.map(function (id) { return D.stress.fort[id].short; }).join(", ")) + "</p></div>" +
+      '<div class="panel"><span class="lab">' + esc(R.stressLab) + "</span><p>" + esc(fill(D.engine.stressGlance, { modere: profile.stress.modere.map(function (id) { return D.stress.modere[id].short; }).join(", "), fort: profile.stress.fort.map(function (id) { return D.stress.fort[id].short; }).join(", ") })) + "</p></div>" +
       '<div class="panel"><span class="lab">' + esc(R.brakeLab) + "</span><p>" + esc(brakeTitle(profile.brakes.first, false) + " " + profile.brakes.antidote) + "</p></div>";
 
     const type = profile.ennea.type ? D.ennea.types[profile.ennea.type] : null;
@@ -1627,7 +1650,7 @@
     if (!resultProfile) return;
     try { sessionStorage.setItem("mh_sauver", JSON.stringify({ email: email, prenom: prenom })); } catch (e) { /* privé */ }
     rememberTheme();
-    const url = D.config.boussoleUrl + "&sauver=1#amour=" + E.encodePayload(resultProfile.boussole);
+    const url = boussoleBase() + "&sauver=1#amour=" + E.encodePayload(resultProfile.boussole);
     location.assign(url);
   }
 
@@ -2467,6 +2490,42 @@
     applySnap(stack[st.i]);
   }
 
+  /** La Boussole Relation s'ouvre dans la langue du quiz (?lang=, lu par la Boussole). */
+  function boussoleBase() {
+    return D.config.boussoleUrl + "&lang=" + lang;
+  }
+
+  /**
+   * Changer de langue sans perdre sa place : les réponses sont des identifiants, seuls les textes changent.
+   * Le résultat est recalculé dans la nouvelle langue. Le gestionnaire du quiz Talent Unique n'est pas appelé.
+   */
+  function setLang(next) {
+    if (next !== "fr" && next !== "en" && next !== "es") return;
+    lang = next;
+    try {
+      localStorage.setItem("mh-quiz-lang", lang);
+      if (lang !== "es") localStorage.setItem("mh-lang", lang);
+    } catch (e) { /* stockage indisponible */ }
+    D = dataFor(lang);
+    U = D.ui;
+    Q = U.quiz;
+    R = U.results;
+    if (resultProfile) {
+      try { resultProfile = E.computeLoveProfile(answers, D, prenom); } catch (err) { /* réponses incomplètes : on garde l'ancien */ }
+    }
+    resumeNote = false;
+    applyChrome();
+    saveProgress();
+    applySnap(currentSnap());
+  }
+  document.addEventListener("click", function (ev) {
+    const btn = ev.target && ev.target.closest ? ev.target.closest("[data-setlang]") : null;
+    if (!btn) return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    setLang(btn.getAttribute("data-setlang"));
+  }, true);
+
   function boot() {
     const saved = E.readProgress(browserStore());
     if (saved && (saved.view === "question" || saved.view === "results")) {
@@ -2480,7 +2539,10 @@
         lastPrefix = saved.lastPrefix || "";
         petitPas = saved.petitPas || "";
         view = saved.view === "results" && saved.profile ? "results" : "question";
-        if (view === "results") resultProfile = saved.profile;
+        if (view === "results") {
+          // Le profil gardé est dans la langue du jour où il a été calculé : on le recalcule dans la langue actuelle.
+          try { resultProfile = E.computeLoveProfile(answers, D, prenom); } catch (err) { resultProfile = saved.profile; }
+        }
         if (Array.isArray(saved.stack) && saved.stack.length) {
           stack = saved.stack.map(function (step) {
             return {

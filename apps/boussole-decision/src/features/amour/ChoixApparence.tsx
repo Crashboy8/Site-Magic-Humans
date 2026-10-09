@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useId, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { cx } from "@/components/ui";
-import { LOVE_TABLE } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
+import { useI18n } from "@/i18n/client";
 import { COULEUR_RELATION, RELATION_COLORS, RELATION_ICONS, type RelationLook } from "@/domain/relationApparence";
 import type { RelationColor, RelationIcon } from "@/domain/types";
 import { IconeCrayon, IconeFermer, IconeRelation } from "./IconeRelation";
@@ -18,10 +19,12 @@ export function BoutonApparence({
   look: RelationLook;
   onChange: (look: RelationLook) => void;
 }) {
+  const { locale } = useI18n();
+  const LOVE_TABLE = amourPour(locale).table;
   const [ouvert, setOuvert] = useState(false);
   const bouton = useRef<HTMLButtonElement>(null);
   const id = useId();
-  const fermer = useCallback(() => setOuvert(false), []);
+  const fermer = useCallback(() => setOuvert(false), [setOuvert]);
   return (
     <>
       <button
@@ -59,6 +62,8 @@ function PanneauChoix({
   onChange: (look: RelationLook) => void;
   onClose: () => void;
 }) {
+  const { locale } = useI18n();
+  const LOVE_TABLE = amourPour(locale).table;
   const panneau = useRef<HTMLDivElement>(null);
   const [place, setPlace] = useState<{ top: number; left: number } | null>(null);
 
@@ -146,7 +151,8 @@ function PanneauChoix({
 
 /** Grille d'icônes et de teintes. */
 export function ChoixApparence({ look, onChange }: { look: RelationLook; onChange: (look: RelationLook) => void }) {
-  const T = LOVE_TABLE;
+  const { locale } = useI18n();
+  const T = amourPour(locale).table;
   return (
     <div className="space-y-3">
       <div>
@@ -181,6 +187,8 @@ function ChoixIcone({
   look: RelationLook;
   onChange: (look: RelationLook) => void;
 }) {
+  const { locale } = useI18n();
+  const LOVE_TABLE = amourPour(locale).table;
   const actif = look.icon === icone;
   return (
     <button
@@ -207,6 +215,8 @@ function ChoixCouleur({
   look: RelationLook;
   onChange: (look: RelationLook) => void;
 }) {
+  const { locale } = useI18n();
+  const LOVE_TABLE = amourPour(locale).table;
   const actif = look.color === couleur;
   return (
     <button

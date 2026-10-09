@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Button, ButtonLink, Input, Notice, cx } from "@/components/ui";
-import { LOVE_TABLE } from "@/content/amour";
-import { AIDE_POURCENTAGE, appliquerPourcentageLocal, clePourcentage, pourcentageValide, valeurProche } from "@/domain/pourcentage";
+import { amourPour } from "@/content/amourLangue";
+import { aidePourcentage, appliquerPourcentageLocal, proposePourcentage, clePourcentage, pourcentageValide, valeurProche } from "@/domain/pourcentage";
 import { COULEUR_RELATION, apparenceParDefaut, type RelationLook } from "@/domain/relationApparence";
 import { enregistrerApparence, useApparenceRelations } from "@/features/amour/apparenceLocale";
 import { BoutonApparence } from "@/features/amour/ChoixApparence";
@@ -71,12 +71,12 @@ export function DecisionTable(props: Props) {
   );
 }
 
-/** Textes du tableau : en mode amour, surcharge française sans toucher à l'i18n pro. */
+/** Textes du tableau : en mode amour, surcharge dans la langue de l'interface, sans toucher à l'i18n pro. */
 function useTableTexts() {
-  const base = useI18n().t.table;
+  const { t, locale } = useI18n();
   const love = useContext(LoveTableContext);
-  if (!love) return base;
-  return { ...base, ...LOVE_TABLE };
+  if (!love) return t.table;
+  return { ...t.table, ...amourPour(locale).table };
 }
 
 const key = (criterionId: string, opportunityId: string) => `${criterionId}:${opportunityId}`;
@@ -595,7 +595,7 @@ function CriterionCell({
     criterion.label,
     (v) => onPatch({ label: v.trim() || criterion.label }, true) as Promise<void>,
   );
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
   const T = useTableTexts();
   const love = useContext(LoveTableContext);
   const importance = m.importanceByValue[criterion.importance];
@@ -604,7 +604,7 @@ function CriterionCell({
     return (
       <div className="space-y-1.5">
         <p className="leading-snug">{criterion.label}</p>
-        {criterion.description.includes(AIDE_POURCENTAGE) && <p className="text-xs leading-snug text-ink-soft">{AIDE_POURCENTAGE}</p>}
+        {proposePourcentage(criterion.description) && <p className="text-xs leading-snug text-ink-soft">{aidePourcentage(locale)}</p>}
         <div className="flex flex-wrap gap-1.5">
           <span className={cx("rounded-full px-2.5 py-0.5 text-xs font-medium", IMPORTANCE_CLASS[criterion.importance])}>
             {importance.label}
@@ -648,13 +648,13 @@ function CriterionCell({
           ))}
         </select>
       </div>
-      {criterion.description.includes(AIDE_POURCENTAGE) && <p className="px-1.5 text-xs leading-snug text-ink-soft">{AIDE_POURCENTAGE}</p>}
+      {proposePourcentage(criterion.description) && <p className="px-1.5 text-xs leading-snug text-ink-soft">{aidePourcentage(locale)}</p>}
       <div className="flex flex-wrap items-center gap-1.5 pl-1">
         <Toggle
           on={criterion.nonNegotiable}
           onClick={() => onPatch({ nonNegotiable: !criterion.nonNegotiable })}
           onClass="bg-danger-soft text-danger border-transparent"
-          title={love ? LOVE_TABLE.nonNegotiableHint : m.nonNegotiableHint}
+          title={love ? amourPour(locale).table.nonNegotiableHint : m.nonNegotiableHint}
         >
           {T.nonNegotiable}
         </Toggle>

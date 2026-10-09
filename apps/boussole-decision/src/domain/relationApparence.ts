@@ -5,7 +5,8 @@
 // et on n'exige pas de migration. Les champs icon et color sont lus s'ils existent.
 // Sinon l'apparence est glissée dans notes (même ligne que le nom) derrière un marqueur
 // invisible, et recopiée dans le navigateur (localStorage) si l'écriture en base échoue.
-import { LOVE_RESULTS } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
+import type { Locale } from "@/i18n/config";
 import type { OpportunityResult } from "./scoring";
 import type { RelationColor, RelationIcon } from "./types";
 
@@ -131,13 +132,15 @@ export function etatRisque(satisfaction: number): EtatRisque {
   return "partiel";
 }
 
-export function phraseBesoin(etat: EtatBesoin, nom: string, critere: string): string {
+export function phraseBesoin(etat: EtatBesoin, nom: string, critere: string, locale: Locale = "fr"): string {
+  const LOVE_RESULTS = amourPour(locale).results;
   if (etat === "nourri") return LOVE_RESULTS.needNourri(nom, critere);
   if (etat === "partiel") return LOVE_RESULTS.needPartiel(nom, critere);
   return LOVE_RESULTS.needAbsent(nom, critere);
 }
 
-export function phraseRisque(etat: EtatRisque, nom: string, critere: string): string {
+export function phraseRisque(etat: EtatRisque, nom: string, critere: string, locale: Locale = "fr"): string {
+  const LOVE_RESULTS = amourPour(locale).results;
   if (etat === "absent") return LOVE_RESULTS.riskAbsent(nom, critere);
   if (etat === "partiel") return LOVE_RESULTS.riskPartiel(nom, critere);
   return LOVE_RESULTS.riskPresent(nom, critere);
@@ -159,7 +162,7 @@ export interface LigneBesoin {
  * Besoin : seulement les non négociables qui ne sont pas « à éviter ».
  * Risque : les non négociables « à éviter », avec une formule à part.
  */
-export function lignesBesoins(result: Pick<OpportunityResult, "opportunity" | "details">): LigneBesoin[] {
+export function lignesBesoins(result: Pick<OpportunityResult, "opportunity" | "details">, locale: Locale = "fr"): LigneBesoin[] {
   const nom = result.opportunity.name;
   const lignes: LigneBesoin[] = [];
   for (const d of result.details) {
@@ -168,11 +171,11 @@ export function lignesBesoins(result: Pick<OpportunityResult, "opportunity" | "d
     if (d.criterion.direction === "AWAY_FROM") {
       const risque = etatRisque(d.satisfaction);
       const etat: EtatBesoin = risque === "absent" ? "nourri" : risque === "present" ? "absent" : "partiel";
-      lignes.push({ criterionId: d.criterion.id, genre: "risque", etat, critere, nom, phrase: phraseRisque(risque, nom, critere) });
+      lignes.push({ criterionId: d.criterion.id, genre: "risque", etat, critere, nom, phrase: phraseRisque(risque, nom, critere, locale) });
       continue;
     }
     const etat = etatBesoinEssentiel(d.satisfaction);
-    lignes.push({ criterionId: d.criterion.id, genre: "besoin", etat, critere, nom, phrase: phraseBesoin(etat, nom, critere) });
+    lignes.push({ criterionId: d.criterion.id, genre: "besoin", etat, critere, nom, phrase: phraseBesoin(etat, nom, critere, locale) });
   }
   return lignes;
 }

@@ -109,34 +109,30 @@ html[data-seance] [data-chrome] {
   display: none;
 }
 
-/* Boussole Relation : le sélecteur FR · EN · ES disparaît, le français reste. Le mode pro ne pose pas la marque. */
-body:has([data-amour-langue]) [data-lang-switch] {
-  display: none;
-}
-
+/* Boussole Relation : marque posée par LoveChrome ou l'en-tête. Le sélecteur de langue reste visible. Le mode pro ne pose pas la marque. */
 /* Boutons principaux en rose. Le mode pro garde le marron : il ne pose pas la marque. */
-body:has([data-amour-langue]) :is(a, button).bg-accent-strong {
+body:has([data-mode-amour]) :is(a, button).bg-accent-strong {
   background-color: var(--color-framboise);
 }
-body:has([data-amour-langue]) :is(a, button).bg-accent-strong:hover {
+body:has([data-mode-amour]) :is(a, button).bg-accent-strong:hover {
   background-color: var(--color-framboise-deep);
 }
 /* Onglet d'étape actif (Mon tableau, Résultats) en rose, comme les boutons. */
-body:has([data-amour-langue]) [data-etape-active] {
+body:has([data-mode-amour]) [data-etape-active] {
   background-color: var(--color-framboise);
 }
-body:has([data-amour-langue]) [data-etape-numero] {
+body:has([data-mode-amour]) [data-etape-numero] {
   color: var(--color-framboise);
 }
-body:has([data-amour-langue]) :focus-visible {
+body:has([data-mode-amour]) :focus-visible {
   outline-color: var(--color-framboise);
 }
 
 /* Le même thème choisit le mot du titre et sa destination. */
-body:has([data-amour-langue]) [data-edition="pro"] {
+body:has([data-mode-amour]) [data-edition="pro"] {
   display: none;
 }
-body:not(:has([data-amour-langue])) [data-edition="amour"] {
+body:not(:has([data-mode-amour])) [data-edition="amour"] {
   display: none;
 }
 html[data-seance] main {

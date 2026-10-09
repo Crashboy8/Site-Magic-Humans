@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Button, ButtonLink, Card, Notice } from "@/components/ui";
-import { LOVE_TEXTS } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
+import { lienQuizAmour } from "@/domain/editionAmour";
 import { decodeLoveHash, parseLovePrefill, proposalStatus, type LovePrefill } from "@/domain/lovePrefill";
+import { useI18n } from "@/i18n/client";
 import { loveStatusAction, startLoveCompassAction } from "./actions";
 import { LoveChrome } from "./LoveChrome";
 import { QuizPick } from "./QuizPick";
@@ -40,8 +42,9 @@ type Status = { tableau: string | null; labels: string[] };
 
 /** Accueil de la Boussole Relation. Le mode normal de l'import quiz n'utilise pas ce composant. */
 export function LoveStart() {
-  const S = LOVE_TEXTS.start;
-  const P = LOVE_TEXTS.quizPick;
+  const { locale } = useI18n();
+  const S = amourPour(locale).texts.start;
+  const P = amourPour(locale).texts.quizPick;
   const [error, setError] = useState<string | null>(null);
   const [prefill, setPrefill] = useState<LovePrefill | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
@@ -137,7 +140,7 @@ export function LoveStart() {
         )}
         {!existing && <p className="text-sm text-ink-soft">{S.note}</p>}
         <p className="text-sm">
-          <a href="/quiz-amour/" className="font-medium text-link underline underline-offset-4">
+          <a href={lienQuizAmour(locale)} className="font-medium text-link underline underline-offset-4">
             {S.backToQuiz}
           </a>
         </p>

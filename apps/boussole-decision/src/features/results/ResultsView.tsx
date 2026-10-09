@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { SaveIndicator, SaveStatusProvider, useAutosavedValue, useSaveTracker } from "@/components/autosave";
 import { Card, Notice, Textarea, cx } from "@/components/ui";
-import { LOVE_RESULTS, LOVE_TABLE } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
 import { coupureTitreCoupOeil } from "@/domain/coupOeil";
 import { appliquerPourcentageLocal, clePourcentage } from "@/domain/pourcentage";
 import { COULEUR_RELATION, espacesFins, type RelationLook } from "@/domain/relationApparence";
@@ -91,9 +91,10 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
   );
   const tableHref = `/versions/${version.id}/tableau/`;
   const { t, m, locale } = useI18n();
+  const LOVE_RESULTS = amourPour(locale).results;
   const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
   const fmt = (s: number | null) => {
-    const texte = formatScore(s, love ? "fr" : locale);
+    const texte = formatScore(s, locale);
     return love ? espacesFins(texte) : texte;
   };
   const lookDe = (id: string): RelationLook => {
@@ -104,15 +105,15 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
   // Nom d'une catégorie : le libellé de la méthode pour les catégories par défaut, sinon celui saisi.
   const categoryName = (id: string) => {
     const c = categories.find((x) => x.id === id);
-    return c?.key ? m.categoryByKey[c.key].label : (c?.label ?? "");
+    return c?.key ? (m.categoryByKey[c.key]?.label ?? c.label) : (c?.label ?? "");
   };
 
   if (verdict.kind === "vide") {
     if (love) {
       return (
         <div className="boussole-relation space-y-12">
-          <LoveReading ranking={ranking} lookDe={lookDe} />
-          <PiedImpression />
+          <LoveReading ranking={ranking} lookDe={lookDe} locale={locale} />
+          <PiedImpression texte={LOVE_RESULTS.printFooter} />
         </div>
       );
     }
@@ -212,7 +213,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
                   <NomRelation nom={r.opportunity.name} look={lookDe(r.opportunity.id)} />
                 </p>
                 <p className="mt-1 font-serif text-3xl italic tabular-nums">{fmt(r.score)}</p>
-                {r.score !== null && <JaugeScore valeur={r.score} />}
+                {r.score !== null && <JaugeScore valeur={r.score} locale={locale} />}
                 <div className="flex justify-center">
                   <StatusBadges result={r} love={love} />
                 </div>
@@ -238,7 +239,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
         </ol>
       </section>
 
-      {love && <LoveReading ranking={ranking} lookDe={lookDe} />}
+      {love && <LoveReading ranking={ranking} lookDe={lookDe} locale={locale} />}
 
       {/* 2. Contexte de réussite / contexte d'échec ----------------------------------------- */}
       {!love && <section aria-labelledby="contextes" className="space-y-4">
@@ -370,15 +371,15 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
               {LOVE_RESULTS.downloadPdf}
             </button>
           </div>
-          <PiedImpression />
+          <PiedImpression texte={LOVE_RESULTS.printFooter} />
         </>
       )}
     </div>
   );
 }
 
-function PiedImpression() {
-  return <p className="pied-boussole">{LOVE_RESULTS.printFooter}</p>;
+function PiedImpression({ texte }: { texte: string }) {
+  return <p className="pied-boussole">{texte}</p>;
 }
 
 function SectionTitle({ id, title, children }: { id: string; title: string; children?: React.ReactNode }) {
@@ -394,8 +395,9 @@ function SectionTitle({ id, title, children }: { id: string; title: string; chil
 
 function StatusBadges({ result, love }: { result: OpportunityResult; love: boolean }) {
   const redLine = result.antiContextAlerts.some((a) => a.severity === "ligne_rouge");
-  const { t } = useI18n();
-  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
+  const { t, locale } = useI18n();
+  const LOVE = amourPour(locale);
+  const R = love ? { ...t.results, ...LOVE.results } : t.results;
   return (
     <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
       {result.status === "non_conforme" && (
@@ -403,7 +405,7 @@ function StatusBadges({ result, love }: { result: OpportunityResult; love: boole
       )}
       {result.antiContextAlerts.length > 0 && (
         <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">
-          ⚡ {redLine ? (love ? LOVE_TABLE.redLine : R.badgeRedLine) : R.badgeAnti}
+          ⚡ {redLine ? (love ? LOVE.table.redLine : R.badgeRedLine) : R.badgeAnti}
         </span>
       )}
       {result.toVerify.length > 0 && (
@@ -663,8 +665,9 @@ function Feelings({
   const [feedback, setFeedback] = useAutosavedValue(version.rankingFeedback, (rankingFeedback) =>
     updateVersion(db, version.id, { rankingFeedback }),
   );
-  const { t } = useI18n();
-  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
+  const { t, locale } = useI18n();
+  const LOVE = amourPour(locale);
+  const R = love ? { ...t.results, ...LOVE.results } : t.results;
   const [note, setNote] = useAutosavedValue(version.projectionNote, (projectionNote) => updateVersion(db, version.id, { projectionNote }));
 
   return (
@@ -773,8 +776,9 @@ function NextSteps({
     (nextSteps) => updateVersion(db, version.id, { nextSteps: nextSteps.map((s) => s.trim()).filter(Boolean) }),
   );
   const chosenName = ranking.find((r) => r.opportunity.id === chosen)?.opportunity.name;
-  const { t } = useI18n();
-  const R = love ? { ...t.results, ...LOVE_RESULTS } : t.results;
+  const { t, locale } = useI18n();
+  const LOVE = amourPour(locale);
+  const R = love ? { ...t.results, ...LOVE.results } : t.results;
   const placeholders = R.stepPlaceholders;
 
   if (readOnly && !version.nextSteps.length) return null;

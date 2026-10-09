@@ -18,11 +18,11 @@
 <script src="/js/consent.js" defer></script>
 <script src="/js/tracking.js" defer></script>
 <script>
-  /* Mode amour : ?theme=amour remplace le quiz Talent Unique par le Quiz Amour (fichiers quiz/amour-*.js). */
+  /* Mode amour : ?theme=amour remplace le quiz Talent Unique par le Quiz Amour (fichiers quiz/amour-*.js). Le sélecteur de langue reste visible. */
   window.MH_THEME = new URLSearchParams(location.search).get("theme") === "amour" ? "amour" : "";
   if (window.MH_THEME === "amour") {
     var st = document.createElement("style");
-    st.textContent = "main[id^=screen-]:not(#screen-amour){display:none!important}.qlang{display:none!important}";
+    st.textContent = "main[id^=screen-]:not(#screen-amour){display:none!important}";
     document.head.appendChild(st);
   }
 </script>
@@ -2746,7 +2746,7 @@ function renderReport(p, ctx){
 </script>
 <script>
   if (window.MH_THEME === "amour") {
-    ["/quiz/amour-data.js", "/quiz/amour-engine.js", "/quiz/amour.js"].forEach(function (src) {
+    ["/quiz/amour-data.js", "/quiz/amour-data-en.js", "/quiz/amour-engine.js", "/quiz/amour.js"].forEach(function (src) {
       var s = document.createElement("script"); s.src = src; s.async = false; document.body.appendChild(s);
     });
   }

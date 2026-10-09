@@ -63,12 +63,11 @@ export function CoupOeil({
 }) {
   const vue = useVue();
   const { m, locale } = useI18n();
-  const langue = love ? "fr" : locale;
   const fmt = (score: number | null) => {
-    const texte = formatScore(score, langue);
+    const texte = formatScore(score, locale);
     return love ? espacesFins(texte) : texte;
   };
-  const nomCategorie = (category: Category) => (category.key ? m.categoryByKey[category.key].label : category.label);
+  const nomCategorie = (category: Category) => (category.key ? (m.categoryByKey[category.key]?.label ?? category.label) : category.label);
 
   const ordered = [...opportunities].sort((a, b) => a.position - b.position);
   const resultOf = new Map(results.map((r) => [r.opportunity.id, r]));

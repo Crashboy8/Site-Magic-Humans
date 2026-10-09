@@ -38,8 +38,9 @@ function zoneFiche(lecture: LectureFiche | null, F: EspaceMessages["fiche"]) {
 
 export default async function MonEspacePage({ searchParams }: PageProps<"/mon-espace">) {
   const user = await requireUser();
-  const ESPACE = (await getI18n()).t.espace;
-  const outils = outilsPour(ESPACE.outils);
+  const { t, locale } = await getI18n();
+  const ESPACE = t.espace;
+  const outils = outilsPour(ESPACE.outils, locale);
   const lecture = IMPORT_ACTIF ? await lireFiche(user.id) : null;
   const fichePrenom = lecture && !lecture.absente ? (lecture.fiche?.fiche.prenom ?? "") : "";
   const prenom = user.firstName.trim() || fichePrenom;

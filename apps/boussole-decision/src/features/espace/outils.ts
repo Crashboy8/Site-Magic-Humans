@@ -69,10 +69,19 @@ const VISUELS: readonly Visuel[] = [
   visuel("relation", "coeur", "/boussole-decision/importer-quiz/?theme=amour", "#C8333A", "#F8CFCF", "#FDECEC", "boussole"),
 ];
 
+/** Les quiz du site lisent ?lang= : hors français, ils s'ouvrent dans la langue de l'interface. */
+const AVEC_LANGUE: readonly CleOutil[] = ["qcm", "amour"];
+
+function lienDansLaLangue(v: Visuel, locale: "fr" | "en" | "es"): string {
+  if (locale === "fr" || !AVEC_LANGUE.includes(v.cle)) return v.lien;
+  return `${v.lien}?lang=${locale}`;
+}
+
 /** Les cartes dans la langue de l'interface. */
-export function outilsPour(textes: EspaceMessages["outils"]): Outil[] {
+export function outilsPour(textes: EspaceMessages["outils"], locale: "fr" | "en" | "es" = "fr"): Outil[] {
   return VISUELS.map((v) => ({
     ...v,
+    lien: lienDansLaLangue(v, locale),
     ...textes[v.cle],
     couleurBouton: couleurBouton(v.cle, v.forte),
     encre: v.cle === "carte",

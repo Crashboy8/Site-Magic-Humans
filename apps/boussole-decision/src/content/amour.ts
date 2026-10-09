@@ -1,8 +1,10 @@
-// Boussole Relation (mode amour, ?theme=amour) : modèle de décision et textes, en français uniquement.
+// Boussole Relation (mode amour, ?theme=amour) : modèle de décision et textes en français, la référence.
+// L'anglais est dans amourEn.ts (même forme) ; amourLangue.ts choisit la langue. L'espagnol reste le français.
 // Données pures, lues par src/features/amour/ et src/domain/loveReading.ts.
 import type { CriterionDirection, Importance } from "@/domain/types";
 
-/** Repère posé dans la description du profil : c'est lui qui active l'affichage « mode amour ». */
+/** Repère technique posé dans la description du profil : c'est lui qui active l'affichage « mode amour ».
+ *  Il ne se traduit jamais : une Boussole créée en anglais porte le même repère. */
 export const LOVE_PROFILE_MARKER = "Boussole Relation (mode amour)";
 
 /** Vrai si le profil a été créé par la Boussole Relation. */
@@ -22,6 +24,27 @@ export interface LoveCriterionTemplate {
   /** Texte de l'alerte si ce critère est bas (satisfaction de 50 % ou moins). */
   alert: string;
 }
+
+export interface LoveTemplate {
+  profileName: string;
+  profileDescription: string;
+  versionName: string;
+  opportunityName: string;
+  decision: string;
+  categories: readonly { key: string; label: string }[];
+  criteria: readonly LoveCriterionTemplate[];
+}
+
+/** Même forme, chaînes quelconques : le type que doit respecter chaque langue. */
+type Elargir<T> = T extends string
+  ? string
+  : T extends (...a: infer A) => infer R
+    ? (...a: A) => Elargir<R>
+    : T extends readonly (infer U)[]
+      ? readonly Elargir<U>[]
+      : T extends object
+        ? { readonly [K in keyof T]: Elargir<T[K]> }
+        : T;
 
 export const LOVE_TEMPLATE = {
   profileName: "Boussole Relation",
@@ -118,6 +141,10 @@ export const LOVE_TEXTS = {
   readingIntro: "Le score résume tes réponses, il ne décide pas à ta place. Lis d'abord les alertes : un point essentiel touché compte plus que n'importe quel total.",
   provisional: "Lecture provisoire : {n} critère(s) sont encore vides ou « à vérifier ». Complète-les pour une lecture fiable.",
   noScore: "Évalue au moins un critère pour obtenir une lecture.",
+  /** Après le nom de la relation, dans la lecture. */
+  alignement: (score: number) => ` : ${score} % d'alignement`,
+  /** Nom lu par les lecteurs d'écran sur la jauge. */
+  jaugeAria: (score: number) => `Alignement : ${score} %`,
   scoreLine: "{name} : {score} % d'alignement",
   alertsTitle: "Alertes, quel que soit le score",
   alertIntro: "Ton score est de {score} %, mais un ou plusieurs points essentiels sont touchés. Un bon total peut cacher l'essentiel : lis ceci en premier.",
@@ -229,6 +256,8 @@ export const LOVE_TEXTS = {
   guideTitle: "Comment évaluer chaque critère",
 } as const;
 
+export type LoveTexts = Elargir<typeof LOVE_TEXTS>;
+
 /**
  * Surcharge française du tableau, uniquement en mode amour.
  * Les libellés pro (« opportunité ») restent dans l'i18n globale.
@@ -282,6 +311,8 @@ export const LOVE_TABLE = {
   percentValidate: "Valider",
 } as const;
 
+export type LoveTable = Elargir<typeof LOVE_TABLE>;
+
 /**
  * Surcharge française des Résultats, uniquement en mode amour.
  * Les libellés pro (« opportunité ») restent dans l'i18n globale.
@@ -318,3 +349,5 @@ export const LOVE_RESULTS = {
   discoveryCta: "Envie d'y voir plus clair sur ce que tu cherches vraiment en amour ? On en parle pendant une heure, c'est offert.",
   discoveryUrl: "https://calendly.com/pierre-j-sarazin?utm_source=boussole-relation",
 } as const;
+
+export type LoveResults = Elargir<typeof LOVE_RESULTS>;

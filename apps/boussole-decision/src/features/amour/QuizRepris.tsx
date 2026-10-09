@@ -1,12 +1,14 @@
-import { LOVE_TEXTS } from "@/content/amour";
-import { QUIZ_MARK, quizProfilFrom } from "@/domain/lovePrefill";
+import { amourPour } from "@/content/amourLangue";
+import { lienQuizAmour } from "@/domain/editionAmour";
+import { estRepriseQuiz, quizProfilFrom } from "@/domain/lovePrefill";
 import type { Criterion } from "@/domain/types";
+import type { Locale } from "@/i18n/config";
 import { IconeRelation } from "./IconeRelation";
 
 /** Encart coloré du tableau : les critères repris du Quiz Amour, et le chemin de retour vers le quiz. */
-export function QuizRepris({ criteria, added }: { criteria: Criterion[]; added: number }) {
-  const R = LOVE_TEXTS.repris;
-  const repris = criteria.filter((c) => c.description.startsWith(QUIZ_MARK));
+export function QuizRepris({ criteria, added, locale }: { criteria: Criterion[]; added: number; locale: Locale }) {
+  const R = amourPour(locale).texts.repris;
+  const repris = criteria.filter((c) => estRepriseQuiz(c.description));
   if (repris.length === 0) return null;
   const profil = quizProfilFrom(repris.map((c) => c.description));
   return (
@@ -31,7 +33,7 @@ export function QuizRepris({ criteria, added }: { criteria: Criterion[]; added: 
       </ul>
       <p className="text-sm text-ink-soft">{R.redoHint}</p>
       <p>
-        <a href="/quiz-amour/" className="text-sm font-medium text-link underline underline-offset-4">
+        <a href={lienQuizAmour(locale)} className="text-sm font-medium text-link underline underline-offset-4">
           {R.backToQuiz}
         </a>
       </p>
