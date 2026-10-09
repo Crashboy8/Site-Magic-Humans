@@ -39,7 +39,9 @@ export function StepsNav({ versionId, current }: { versionId: string; current?: 
           const active = s.key === current;
           const content = (
             <>
-              <span className={cx("font-script text-xl", active ? "text-white" : "text-accent")}>{s.n}</span>
+              <span className={cx("font-script text-xl", active ? "text-white" : "text-accent")} data-etape-numero={!active || undefined}>
+                {s.n}
+              </span>
               <span>{s.title}</span>
               {!s.available && <span className="text-xs opacity-70">{v.soon}</span>}
             </>
@@ -55,7 +57,7 @@ export function StepsNav({ versionId, current }: { versionId: string; current?: 
                   {content}
                 </Link>
               ) : (
-                <span className={cls} aria-current={active ? "step" : undefined}>
+                <span className={cls} aria-current={active ? "step" : undefined} data-etape-active={active || undefined}>
                   {content}
                 </span>
               )}

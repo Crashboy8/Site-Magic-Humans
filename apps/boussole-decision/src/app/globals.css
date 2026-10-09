@@ -121,6 +121,13 @@ body:has([data-amour-langue]) :is(a, button).bg-accent-strong {
 body:has([data-amour-langue]) :is(a, button).bg-accent-strong:hover {
   background-color: var(--color-framboise-deep);
 }
+/* Onglet d'étape actif (Mon tableau, Résultats) en rose, comme les boutons. */
+body:has([data-amour-langue]) [data-etape-active] {
+  background-color: var(--color-framboise);
+}
+body:has([data-amour-langue]) [data-etape-numero] {
+  color: var(--color-framboise);
+}
 body:has([data-amour-langue]) :focus-visible {
   outline-color: var(--color-framboise);
 }
