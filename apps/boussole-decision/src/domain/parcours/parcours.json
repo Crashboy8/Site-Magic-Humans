@@ -2278,7 +2278,7 @@
             "titre": "Niveau 5A · Vendre cher, devenir expert"
           }
         ],
-        "note": "Côté salarié, l'équivalent de la première vente est d'être recruté grâce à ton talent (Lukas et son stage à Barcelone, niveau 3 de la vidéo) ; ensuite tu vises 4, puis 5A. Le 5B se joue dans « Ton Ikigai ».",
+        "note": "Côté salarié, l'équivalent de la première vente est d'être recruté grâce à ton talent (niveau 3) ; ensuite tu vises 4, puis 5A. Le 5B se joue dans « Ton Ikigai ».",
         "statut": "proposition"
       },
       "branche_nom": "Branche Salarié",
@@ -2461,7 +2461,7 @@
       ],
       "seance_detail": "Le Diagnostic Talent & Cap s'appuie sur l'approche paradoxale du talent de Hugues Boulenger (« votre plus grand talent est aussi votre plus grand défaut ») et cartographie verrous et angles morts.",
       "livrables": [
-        "Ta carte qualité et défaut miroir (comme l'exemple de Lukas dans la vidéo de l'échelle)",
+        "Ta carte qualité et défaut miroir",
         "Tes garde-fous"
       ],
       "blocages": [
@@ -2676,7 +2676,7 @@
           "duree": "non indiquée"
         }
       ],
-      "seance_detail": "Proposition. La Carte du Talent pose déjà la question de tes envies et garde des territoires à conquérir. « Teste de nouveaux contextes » est aussi le conseil du niveau 0 de la vidéo de l'échelle. Côté relations, le Diagnostic Talent & Amour du deck du webinaire.",
+      "seance_detail": "Proposition. La Carte du Talent pose déjà la question de tes envies et garde des territoires à conquérir. « Teste de nouveaux contextes » est aussi le conseil du niveau 0. Côté relations, le Diagnostic Talent & Amour du deck du webinaire.",
       "livrables": [
         "Ta liste d'activités à tester (arts, sports, bénévolat, projets)",
         "Tes valeurs, dans l'ordre, et tes non-négociables",
@@ -2915,7 +2915,7 @@
           "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
         }
       ],
-      "seance_detail": "La méthode Magic Humans s'appuie sur l'Ikigaï (site). La Boussole de décision donne un ikigai par option. Exemple réel du niveau 5B dans la vidéo : Raphaël, qui a changé de cible pour rester fidèle à ses valeurs (closing x4).",
+      "seance_detail": "La méthode Magic Humans s'appuie sur l'Ikigaï (site). La Boussole de décision donne un ikigai par option.",
       "livrables": [
         "Ton Ikigai en une page, avec tes valeurs",
         "Le résultat de ta Boussole sur ta prochaine décision"
@@ -3096,7 +3096,7 @@
     }
   ],
   "niveaux_reussir_dans_le_plaisir": {
-    "source": "/workspace/pptx-work/Video-Echelle-Talent-Unique-V6.pptx (slides 11 et 13 à 21), libellés exacts. L'échelle va de 0 à 7 avec deux niveaux 5 (5A et 5B).",
+    "source": "Libellés exacts de l'échelle. L'échelle va de 0 à 7 avec deux niveaux 5 (5A et 5B).",
     "niveaux": [
       {
         "code": "0",
