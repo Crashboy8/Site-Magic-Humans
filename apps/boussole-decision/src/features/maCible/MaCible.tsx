@@ -10,7 +10,9 @@ import { useI18n } from "@/i18n/client";
 import { appelerApi, preparerAccesTest } from "./api";
 import type { LectureNotes } from "./NotesTerrain";
 import { Attente, type ErreurAppel } from "./Attente";
-import { AvertissementIA, EncartConfidentialite } from "./Confidentialite";
+import { AvertissementIA, EncartConfidentialiteReplie } from "./Confidentialite";
+import { PastilleIcone, type Teinte } from "./Habillage";
+import type { NomIcone } from "./Icones";
 import { EtapeEsquisse } from "./EtapeEsquisse";
 import { EtapeQuestions } from "./EtapeQuestions";
 import { EtapeTalent } from "./EtapeTalent";
@@ -448,14 +450,21 @@ export function MaCible({
           <h2 id="comment-titre" className="text-[22px] italic">
             {M.accueil.etapesTitre}
           </h2>
-          <ol className="mt-3 list-decimal space-y-2 pl-5 text-[17px] leading-relaxed">
-            {M.accueil.etapes.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
+          <ol className="mt-4 space-y-3 text-[17px] leading-relaxed">
+            {M.accueil.etapes.map((e, i) => {
+              const pas = ETAPES_ACCUEIL[i % ETAPES_ACCUEIL.length];
+              return (
+                <li key={e} className="flex items-start gap-3">
+                  <PastilleIcone nom={pas.icone} teinte={pas.teinte} taille="sm" />
+                  <span className="pt-0.5">
+                    <span className="sr-only">{i + 1}. </span>
+                    {e}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
         </section>
-        <EncartConfidentialite M={M} fournisseur={fournisseur} />
-        <AvertissementIA M={M} />
         <div className="space-y-3">
           <p>
             <button type="button" className="min-h-11 text-link underline" onClick={() => setVue({ type: "liste" })}>
@@ -504,6 +513,8 @@ export function MaCible({
             </p>
           )}
         </div>
+        <EncartConfidentialiteReplie M={M} fournisseur={fournisseur} />
+        <AvertissementIA M={M} />
       </div>
     );
   }
@@ -612,3 +623,12 @@ export function MaCible({
     </div>
   );
 }
+
+/** Une icône et une couleur par étape de « Comment ça se passe » : talent, terrain, questions, esquisse, résultat. */
+const ETAPES_ACCUEIL: readonly { icone: NomIcone; teinte: Teinte }[] = [
+  { icone: "etoile", teinte: "lilas" },
+  { icone: "epingle", teinte: "corail" },
+  { icone: "bulle", teinte: "eau" },
+  { icone: "stylo", teinte: "miel" },
+  { icone: "cible", teinte: "framboise" },
+];

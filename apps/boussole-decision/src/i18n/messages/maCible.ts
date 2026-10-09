@@ -80,6 +80,8 @@ const fr = {
   },
   confidentialite: {
     titre: "Ce que l'IA reçoit, et ce qu'on garde",
+    resume: "Tes réponses partent vers une IA seulement quand tu le demandes, pour préparer ton résultat. N'y écris rien de sensible.",
+    voirDetail: "Voir le détail",
     points: (fournisseur: string) => [
       `Quand tu cliques sur « Continuer » aux étapes 2 à 4, tes réponses (ton talent et ton terrain, sans ton prénom) sont envoyées à ${fournisseur} pour préparer ton résultat.`,
       "Si tu ajoutes des notes d'entretiens, elles sont envoyées une seule fois à l'IA pour en tirer une synthèse, puis effacées de la page. Seule la synthèse reste, dans ton navigateur.",

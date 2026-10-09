@@ -1,5 +1,6 @@
 import { Notice } from "@/components/ui";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
+import { TitreIcone } from "./Habillage";
 
 /** Encart complet (accueil) : fond et bordure bleu ciel, jamais du texte bleu. */
 export function EncartConfidentialite({ M, fournisseur }: { M: MaCibleMessages; fournisseur: string }) {
@@ -19,6 +20,32 @@ export function EncartConfidentialite({ M, fournisseur }: { M: MaCibleMessages; 
         </a>
       </p>
     </section>
+  );
+}
+
+/** Accueil : le même encart, replié derrière une phrase qui dit l'essentiel. Le bouton « Commencer » remonte. */
+export function EncartConfidentialiteReplie({ M, fournisseur }: { M: MaCibleMessages; fournisseur: string }) {
+  return (
+    <details className="group rounded-2xl border border-sky-line bg-sky-soft p-5 sm:p-6">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <TitreIcone as="h2" icone="bouclier" teinte="eau" className="text-[20px] italic sm:text-[22px]">
+          {M.confidentialite.titre}
+        </TitreIcone>
+        <p className="mt-2 text-[16px] leading-relaxed">
+          {M.confidentialite.resume} <span className="whitespace-nowrap text-link underline group-open:hidden">{M.confidentialite.voirDetail}</span>
+        </p>
+      </summary>
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-[16px] leading-relaxed">
+        {M.confidentialite.points(fournisseur).map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[15px]">
+        <a className="text-link underline" href="/confidentialite/">
+          {M.confidentialite.lienPolitique}
+        </a>
+      </p>
+    </details>
   );
 }
 
