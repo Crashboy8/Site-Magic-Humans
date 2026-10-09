@@ -67,6 +67,16 @@
       "permanent": false
     },
     {
+      "source": "/ou-j-en-suis",
+      "destination": "/boussole-decision/ou-j-en-suis/",
+      "permanent": false
+    },
+    {
+      "source": "/ou-j-en-suis/",
+      "destination": "/boussole-decision/ou-j-en-suis/",
+      "permanent": false
+    },
+    {
       "source": "/amour",
       "destination": "/quiz-amour/",
       "permanent": false

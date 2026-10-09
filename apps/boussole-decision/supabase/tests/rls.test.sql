@@ -440,6 +440,29 @@ insert into talent_fiches (fiche, source, methode) values ('{"v":1,"prenom":"Inv
 select pg_temp.check((select count(*) from talent_fiches) = 1, 'fiche : un invité enregistre sa fiche');
 reset role;
 
+-- Où j'en suis ? : la position de chacun sur son parcours ----------------------------
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+insert into parcours_positions (voie, argent, parallele, reponses) values ('E', 2, true, '{"connaitre.quiz":"oui"}'::jsonb);
+select pg_temp.check((select count(*) from parcours_positions) = 1, 'parcours : Alice enregistre sa position');
+update parcours_positions set voie = 'A', raccourci = true;
+select pg_temp.check((select voie = 'A' and raccourci from parcours_positions), 'parcours : Alice modifie sa position');
+select pg_temp.expect_error($$insert into parcours_positions (user_id, voie) values ('00000000-0000-0000-0000-0000000000b2', 'B')$$, 'row-level security');
+select pg_temp.expect_error($$update parcours_positions set voie = 'Z'$$, 'parcours_positions_voie_check');
+select pg_temp.expect_error($$update parcours_positions set argent = 6$$, 'parcours_positions_argent_check');
+select pg_temp.expect_error($$update parcours_positions set reponses = '[]'::jsonb$$, 'parcours_positions_reponses_check');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.check((select count(*) from parcours_positions) = 0, 'parcours : Bob ne voit pas la position d''Alice');
+with u as (update parcours_positions set voie = 'K' returning 1) select count(*) as n_maj from u \gset
+select pg_temp.check(:'n_maj' = '0', 'parcours : Bob ne modifie pas la position d''Alice');
+with d as (delete from parcours_positions returning 1) select count(*) as n_suppr from d \gset
+select pg_temp.check(:'n_suppr' = '0', 'parcours : Bob ne supprime pas la position d''Alice');
+reset role;
+select pg_temp.check((select voie from parcours_positions where user_id = '00000000-0000-0000-0000-0000000000a1') = 'A', 'parcours : la position d''Alice est intacte');
+set role anon;
+select pg_temp.expect_error($$select count(*) from parcours_positions$$, 'permission denied');
+reset role;
+
 -- Suppression de compte : tout part, le voisin reste.
 set role authenticated;
 set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
@@ -447,6 +470,7 @@ select public.supprimer_mon_compte();
 reset role;
 select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : le compte d''Alice est effacé');
 select pg_temp.check((select count(*) from talent_fiches where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : la fiche d''Alice est effacée');
+select pg_temp.check((select count(*) from parcours_positions where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : la position d''Alice sur son parcours est effacée');
 select pg_temp.check((select count(*) from profiles where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : les profils d''Alice sont effacés');
 select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000b2') = 1, 'suppression : le compte de Bob est intact');
 

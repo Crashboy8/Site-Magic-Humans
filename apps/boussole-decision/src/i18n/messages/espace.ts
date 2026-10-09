@@ -9,7 +9,7 @@ const fr = {
   entete: { nom: "Mon espace", compte: "Mon compte", coach: "Espace coach" },
   bonjour: (prenom: string) => (prenom ? `Bonjour ${prenom}` : "Bonjour"),
   intro: "Tous tes outils Magic Humans au même endroit. Tu cliques, c'est parti.",
-  sections: { pro: "Côté pro", coeur: "Côté cœur" },
+  sections: { pro: "Vie professionnelle", coeur: "Vie perso et amour" },
   fiche: {
     videTitre: "Tu as déjà fait ton accompagnement Talent Unique ?",
     videTexte: "Dépose ta fiche (page Notion, Word ou PDF). Tes outils se remplissent tout seuls, sans refaire le quiz.",
@@ -181,9 +181,9 @@ const fr = {
     qcm: { titre: "Quiz Talent Unique", phrase: "Découvre ton Talent Unique en 6 minutes.", bouton: "Faire le quiz" },
     carte: { titre: "Carte du Talent", phrase: "Dessine ton talent comme un territoire, trouve les métiers qui te vont et ta prochaine compétence.", bouton: "Dessiner ma carte" },
     cibleur: { titre: "Le Cibleur", phrase: "Trouve les clients avec qui tu réussis dans le plaisir : trois cibles, ton offre et tes premiers messages.", bouton: "Trouver mes clients" },
-    boussole: { titre: "Boussole de décision", phrase: "Tu hésites entre plusieurs pistes ? Choisis selon ce qui compte vraiment pour toi.", bouton: "Ouvrir la Boussole" },
+    boussole: { titre: "Boussole de décision pro", phrase: "Tu hésites entre plusieurs pistes ? Choisis selon ce qui compte vraiment pour toi.", bouton: "Ouvrir la Boussole" },
     amour: { titre: "Quiz Amour", phrase: "Ton profil amoureux et où rencontrer quelqu'un qui te correspond.", bouton: "Faire le Quiz Amour" },
-    relation: { titre: "Boussole Relation", phrase: "Fais le point sur une relation avec tes propres critères.", bouton: "Ouvrir la Boussole Relation" },
+    relation: { titre: "Boussole de décision perso", phrase: "Fais le point sur une relation avec tes propres critères.", bouton: "Ouvrir la Boussole Relation" },
   },
   depuisCibleur: {
     surtitre: "Depuis Le Cibleur",

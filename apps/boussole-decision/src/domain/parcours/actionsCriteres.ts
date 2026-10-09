@@ -1,0 +1,86 @@
+// Quelle action type aide à passer quel critère à « Oui ».
+// parcours.json ne le dit pas, alors que la règle des 3 prochaines actions en a besoin
+// (« d'abord celles liées à un critère essentiel à Pas encore »). Table écrite d'après le texte des actions,
+// à relire par Pierre. Une action absente ici reste proposée, simplement après les autres.
+// Si une prochaine version du fichier porte ce lien (actions[].debloque), le fichier passe avant cette table.
+
+export const ACTIONS_CRITERES: Readonly<Record<string, readonly string[]>> = {
+  // 1 · Connaître ton talent
+  "connaitre.a1": ["connaitre.quiz"],
+  "connaitre.a2": ["connaitre.flow"],
+  "connaitre.a3": ["connaitre.dominante"],
+  // 2 · Accepter et nommer ton talent
+  "nommer.a1": ["nommer.phrase"],
+  "nommer.a2": ["nommer.ressource"],
+  "nommer.a3": ["nommer.contextes"],
+  // 3 · Choisir ton cap et ta voie
+  "cap.a1": ["cap.pistes"],
+  "cap.a2": ["cap.compare", "cap.voie"],
+  "cap.a3": ["cap.valeurs", "cap.choix", "cap.voie"],
+  "cap.a4": ["cap.valeurs"],
+  // C · Sécuriser ta transition
+  "transition.a1": ["transition.filet"],
+  "transition.a2": ["transition.cadre", "transition.timing"],
+  "transition.a3": ["transition.timing"],
+  // D · Valoriser ton expérience d'entrepreneur
+  "valoriser.a1": ["valoriser.traduction"],
+  "valoriser.a2": ["valoriser.traduction"],
+  "valoriser.a3": ["valoriser.objections", "valoriser.choix"],
+  // E1 à E6 · Branche Entrepreneur
+  "e_cible.a1": ["e_cible.phrase", "e_cible.plaisir", "e_cible.paie", "e_cible.anti"],
+  "e_cible.a2": ["e_cible.phrase"],
+  "e_cible.a3": ["e_cible.plaisir", "e_cible.valeurs"],
+  "e_terrain.a1": ["e_terrain.rencontres"],
+  "e_terrain.a2": ["e_terrain.rencontres", "e_terrain.habitudes"],
+  "e_terrain.a3": ["e_terrain.verbatim", "e_terrain.besoin"],
+  "e_offre.a1": ["e_offre.phrase", "e_offre.prix"],
+  "e_offre.a2": ["e_offre.format", "e_offre.phrase"],
+  "e_offre.a3": ["e_offre.prix"],
+  "e_offre.a4": ["e_offre.gagner"],
+  "e_offre.a5": ["e_offre.valeurs", "e_offre.alignee"],
+  "e_reseau.a1": ["e_reseau.prescripteurs", "e_reseau.lieux"],
+  "e_reseau.a2": ["e_reseau.lieux"],
+  "e_reseau.a3": ["e_reseau.nouvelles"],
+  "e_vendre.a1": ["e_vendre.pitch"],
+  "e_vendre.a2": ["e_vendre.pitch", "e_vendre.dite"],
+  "e_vendre.a3": ["e_vendre.messages", "e_vendre.dite"],
+  "e_vivre.a1": ["e_vivre.plan", "e_vivre.premier"],
+  "e_vivre.a2": ["e_vivre.flow"],
+  // S1 à S6 · Branche Salarié
+  "s_cible.a1": ["s_cible.poste"],
+  "s_cible.a2": ["s_cible.entreprises", "s_cible.deux_sens"],
+  "s_cible.a3": ["s_cible.manager"],
+  "s_cible.a4": ["s_cible.valeurs"],
+  "s_cible.a5": ["s_cible.salaire"],
+  "s_terrain.a1": ["s_terrain.entretiens"],
+  "s_terrain.a2": ["s_terrain.entretiens", "s_terrain.vocabulaire", "s_terrain.equipes"],
+  "s_terrain.a3": ["s_terrain.ajuste"],
+  "s_reseau.a1": ["s_reseau.recommandeurs"],
+  "s_reseau.a2": ["s_reseau.lieux"],
+  "s_reseau.a3": ["s_reseau.nouvelles"],
+  "s_supports.a1": ["s_supports.linkedin", "s_supports.cv"],
+  "s_supports.a2": ["s_supports.linkedin"],
+  "s_supports.a3": ["s_supports.histoires", "s_supports.portfolio"],
+  "s_strategie.a1": ["s_strategie.ciblees", "s_strategie.reco"],
+  "s_strategie.a2": ["s_strategie.variee"],
+  "s_strategie.a3": ["s_strategie.entretien"],
+  "s_strategie.a4": ["s_strategie.negociation"],
+  "s_epanouir.a1": ["s_epanouir.flow"],
+  "s_epanouir.a2": ["s_epanouir.cadre", "s_epanouir.suite"],
+  // K1 à K4 · Connaissance de soi
+  "k_connaitre.a1": ["k_connaitre.profils"],
+  "k_connaitre.a2": ["k_connaitre.profils"],
+  "k_connaitre.a3": ["k_connaitre.besoins", "k_connaitre.ressource"],
+  "k_defauts.a1": ["k_defauts.miroir", "k_defauts.signaux"],
+  "k_defauts.a2": ["k_defauts.parade"],
+  "k_defauts.a3": ["k_defauts.relation"],
+  "k_qualites.a1": ["k_qualites.nommer"],
+  "k_qualites.a2": ["k_qualites.nommer"],
+  "k_qualites.a3": ["k_qualites.recevoir"],
+  "k_explorer.a1": ["k_explorer.talents", "k_explorer.medias"],
+  "k_explorer.a2": ["k_explorer.valeurs"],
+  "k_explorer.a3": ["k_explorer.medias"],
+  // IK · Ton Ikigai
+  "ikigai.a1": ["ikigai.quatre", "ikigai.valeurs"],
+  "ikigai.a3": ["ikigai.reglage"],
+};

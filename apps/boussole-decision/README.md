@@ -230,6 +230,31 @@ curl -X POST http://localhost:3000/boussole-decision/api/ma-cible/ \
   -d '{"etape":"cadrage","tour":1,"entree":{ ... }}'   # entree : voir ENTREE_EXEMPLE dans src/domain/maCible/exemple.ts
 ```
 
+## Où j'en suis ?
+
+Outil gratuit : il situe chaque personne sur le parcours accompagné (version 3.3) et lui donne son étape, son niveau Réussir dans le Plaisir, ses points et ses trois prochaines actions. Le parcours se joue comme un jeu : une quête par étape, des points à chaque réponse (Oui 2, En partie 1, Pas encore 0), une médaille à chaque étape franchie, l'échelle des niveaux de 0 à 7.
+
+- **Page publique** : `https://www.magichumans.com/boussole-decision/ou-j-en-suis/`, sans compte, réponses gardées dans le navigateur (clé `ou_j_en_suis_v1`). Lien court `/ou-j-en-suis/` (redirection dans le `vercel.json` du site), carte en haut de `/outils/`.
+- **Mon espace** : deux colonnes sur ordinateur (les outils à gauche, « Ta voie, tu es ici » à droite), une colonne sur téléphone (le parcours d'abord). Même moteur que la page publique.
+
+### Où est le code
+
+| Quoi | Où |
+|---|---|
+| Le parcours (sans `exemples_internes`, `trous_connus`, `sources` ni `statut`) | `src/domain/parcours/parcours.json` |
+| Types, projection publique (seuls les champs affichés partent vers le navigateur) | `src/domain/parcours/types.ts`, `contenu.ts` |
+| Moteur pur et testé : bilan d'une étape, position, voie hybride, niveau, module Argent, valeurs, 3 actions | `src/domain/parcours/position.ts` |
+| Déroulé des écrans (voie, argent, parallèle, étapes, résultat) | `src/domain/parcours/flux.ts` |
+| Lien entre chaque action type et les critères qu'elle aide à passer à Oui (absent du JSON, à relire) | `src/domain/parcours/actionsCriteres.ts` |
+| Écrans (client), thème, animations | `src/features/parcours/` |
+| Position gardée dans le compte, repli silencieux sur le navigateur si la table n'existe pas | `src/data/parcours.ts`, `src/features/parcours/actions.ts` |
+| Table `parcours_positions` (RLS propriétaire) | `supabase/migrations/20261015000000_parcours_positions.sql` |
+| Textes de l'interface (français ; anglais et espagnol à venir, même forme) | `src/i18n/messages/parcours.ts` |
+
+### Mettre à jour le parcours
+
+Remplacer `parcours.json` par la nouvelle version, en retirant `exemples_internes`, `trous_connus`, `sources` et `statut`, puis lancer `npm test` : un test échoue si ces clés reviennent, et un autre si une note de travail (nom d'accompagné, « Proposition », « à valider », source interne) se glisse dans un texte affiché. Le moteur lit les identifiants des étapes et des critères : si un identifiant change, mettre à jour `actionsCriteres.ts` (le test le signale).
+
 ## Mise en production
 
 ### 1. Supabase

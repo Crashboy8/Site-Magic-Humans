@@ -66,7 +66,7 @@ const VISUELS: readonly Visuel[] = [
   visuel("cibleur", "pro", "/boussole-decision/ma-cible/", "#1F7A6E", "#C9E6E1", "#E5F6F3", "cibleur"),
   visuel("boussole", "pro", "/boussole-decision/", "#0E7490", "#BFE3F5", "#E8F5FC", "boussole"),
   visuel("amour", "coeur", "/quiz-amour/", "#C8333A", "#F8CFCF", "#FDECEC", "amour"),
-  visuel("relation", "coeur", "/boussole-decision/importer-quiz/?theme=amour", "#C8333A", "#F8CFCF", "#FDECEC", "boussole"),
+  visuel("relation", "coeur", "/boussole-decision/importer-quiz/?theme=amour", "#B4235A", "#F3CCDB", "#FCE7EF", "boussole"),
 ];
 
 /** Les quiz du site lisent ?lang= : hors français, ils s'ouvrent dans la langue de l'interface. */
