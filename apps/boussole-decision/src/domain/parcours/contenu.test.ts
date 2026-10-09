@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { textesParcours } from "@/i18n/messages/parcours";
 import { ACTIONS_CRITERES } from "./actionsCriteres";
 import { contenuParcours } from "./contenu";
 import type { ParcoursBrut } from "./types";
@@ -26,6 +27,12 @@ describe("parcours.json dans le site", () => {
 
   it("ne contient pas non plus les trous connus, les sources ni le statut de travail", () => {
     for (const cle of ["trous_connus", "sources", "statut"]) expect(brut, cle).not.toHaveProperty(cle);
+  });
+
+  it("ne cite ni Lukas (accompagné, données privées) ni la vidéo de l'échelle, qui n'existe pas encore", () => {
+    const interdits = [/Lukas/, /Barcelon/, /vid[ée]o de l'[ée]chelle/i, /Video-Echelle/i, /repris de la vid[ée]o/i];
+    const textes = [...chaines(brut), ...chaines(data), ...chaines(textesParcours("fr"))];
+    for (const motif of interdits) expect(textes.filter(({ texte }) => motif.test(texte)), String(motif)).toEqual([]);
   });
 
   it("garde la version 3.3 et sa structure", () => {
