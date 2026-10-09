@@ -4,8 +4,10 @@ import { maCible } from "@/i18n/messages/maCible";
 import { methodeAlignee } from "./methode";
 
 describe("termes de la méthode sur le Cibleur", () => {
-  it("reste en français tant que l'interface n'est pas traduite (espagnol)", () => {
-    expect(methodeAlignee(maCible.es, getMethodology("es")).terms.mecanisme).toBe("Mécanisme");
+  it("passe aux termes validés en espagnol, l'interface étant traduite", () => {
+    const t = methodeAlignee(maCible.es, getMethodology("es")).terms;
+    expect(t.mecanisme).toBe("Mecanismo");
+    expect(Object.values(t)).toEqual(expect.arrayContaining(["Talento Único", "Contexto Desencadenante", "Súper Beneficio", "Anti-Contexto"]));
   });
 
   it("passe aux termes validés en anglais, l'interface étant traduite", () => {

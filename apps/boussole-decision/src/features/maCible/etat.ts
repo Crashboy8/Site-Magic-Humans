@@ -37,10 +37,9 @@ export const TALENT_VIDE: Talent = { nom: "", mecanisme: "", contexte: "", benef
 export const TERRAIN_VIDE: Terrain = { offre: "", marche: "", experience: "", clientsPasses: "", formats: [], zone: "", prixActuel: "", adresse: "vous", style: "chaleureux", ciblesEnTete: [] };
 
 /**
- * La langue envoyée à l'IA : celle de l'interface, si l'interface existe dans cette langue (français et anglais).
- * L'espagnol attend sa traduction : d'ici là, l'interface est en français et l'IA aussi, jamais un mélange.
+ * La langue envoyée à l'IA : celle de l'interface, si l'interface existe dans cette langue (français, anglais, espagnol).
  */
-export const LANGUES_INTERFACE: readonly Langue[] = ["fr", "en"];
+export const LANGUES_INTERFACE: readonly Langue[] = ["fr", "en", "es"];
 export const langueEntree = (locale: string): Langue => (LANGUES_INTERFACE as readonly string[]).includes(locale) ? (locale as Langue) : "fr";
 
 export function etatInitial(locale = "fr", maintenant = new Date()): Etat {

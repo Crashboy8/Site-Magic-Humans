@@ -172,10 +172,10 @@ describe("réducteur du Cibleur", () => {
     expect(retire.entree.synthese?.verbatims).toEqual([]);
     expect(reducteur(retire, { type: "retirerVerbatim", id: "v1" })).toBe(retire);
   });
-  it("envoie à l'IA la langue de l'interface : français et anglais, l'espagnol reste en français tant qu'il n'est pas traduit", () => {
+  it("envoie à l'IA la langue de l'interface : français, anglais ou espagnol", () => {
     expect(langueEntree("fr")).toBe("fr");
     expect(langueEntree("en")).toBe("en");
-    expect(langueEntree("es")).toBe("fr");
+    expect(langueEntree("es")).toBe("es");
   });
 });
 
