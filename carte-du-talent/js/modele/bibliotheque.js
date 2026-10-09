@@ -11,16 +11,23 @@
 
   const N = (t) => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-  // En anglais, les liens et alias (écrits en français, sans accents) reçoivent aussi leur traduction,
-  // pour rapprocher les suggestions d'une carte en anglais. Le nom français reste un alias.
-  let versAnglais = null;
+  // En anglais ou en espagnol, les liens et alias (écrits en français, sans accents) reçoivent aussi leur traduction,
+  // pour rapprocher les suggestions d'une carte dans cette langue. Le nom français reste un alias.
+  let versLangue = null;
   function traduits(liste) {
-    if (CT.i18n.langue !== 'en' || !CT.EN) return [];
-    if (!versAnglais) {
-      versAnglais = new Map();
-      Object.keys(CT.EN).forEach((fr) => versAnglais.set(N(fr), N(CT.EN[fr])));
+    const dico = CT.i18n.dictionnaire();
+    if (!dico) return [];
+    if (!versLangue) {
+      versLangue = new Map();
+      Object.keys(dico).forEach((fr) => versLangue.set(N(fr), N(dico[fr])));
     }
-    return liste.map((l) => versAnglais.get(l)).filter(Boolean);
+    return liste.map((l) => versLangue.get(l)).filter(Boolean);
+  }
+
+  // Les traductions d'un libellé français, dans toutes les langues (une compétence enregistrée dans une langue
+  // se retrouve dans l'autre).
+  function traductions(nomFr) {
+    return [CT.EN, CT.ES].map((dico) => dico && dico[CT.i18n.cle(nomFr)]).filter(Boolean);
   }
 
   function e(id, nom, icone, domaine, liens, alias) {
@@ -286,8 +293,7 @@
       if (!entree.nomFr) return;
       poser(N(entree.nomFr), entree);
       poser(N(entree.nom), entree);
-      const en = CT.EN && CT.EN[CT.i18n.cle(entree.nomFr)];
-      if (en) poser(N(en), entree);
+      traductions(entree.nomFr).forEach((t) => poser(N(t), entree));
     });
     return indexLibelles;
   }
@@ -295,8 +301,7 @@
   function estLibelle(n, entree) {
     if (!entree || !entree.nomFr) return false;
     if (n === N(entree.nomFr) || n === N(entree.nom)) return true;
-    const en = CT.EN && CT.EN[CT.i18n.cle(entree.nomFr)];
-    return Boolean(en && n === N(en));
+    return traductions(entree.nomFr).some((t) => n === N(t));
   }
 
   /*

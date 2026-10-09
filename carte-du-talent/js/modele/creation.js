@@ -33,6 +33,16 @@
     ['scene', ['theater', 'theatre', 'stage', 'singing', 'music', 'clown']],
     ['pedagogie', ['teach', 'training', 'course', 'lesson']],
     ['communication', ['writing', 'social media', 'speaking']]
+  ] : []).concat(CT.i18n.langue === 'es' ? [
+    // Mots espagnols (sans accents) : seulement pour une carte en espagnol.
+    ['numerique', ['ia', 'software', 'digital', 'informatica', 'programacion', 'codigo', 'hoja de calculo', 'sitio web', 'pagina web']],
+    ['langues', ['ingles', 'espanol', 'aleman', 'italiano', 'portugues', 'chino', 'arabe', 'idioma', 'lengua']],
+    ['organisation', ['contabilidad', 'administrativ', 'factura', 'papeleo', 'agenda', 'gestion']],
+    ['corps', ['deporte', 'baile', 'bailar', 'correr', 'malabar', 'escalada', 'natacion', 'ciclismo', 'artes marciales', 'gimnasio']],
+    ['business', ['ventas', 'vender', 'negociacion', 'prospeccion', 'comercial', 'negocio']],
+    ['scene', ['teatro', 'escena', 'cantar', 'canto', 'musica', 'payaso']],
+    ['pedagogie', ['formar', 'formacion', 'ensenar', 'pedagogia', 'curso', 'clase']],
+    ['communication', ['escribir', 'redaccion', 'redes sociales', 'podcast', 'video', 'hablar']]
   ] : []);
 
   // Icône devinée d'après un début de mot (le premier qui correspond l'emporte).
@@ -54,6 +64,14 @@
     ['speak', 'mic'], ['writ', 'pen-line'], ['social', 'share-2'], ['ai', 'bot'], ['website', 'globe'], ['english', 'languages'], ['spanish', 'languages'],
     ['german', 'languages'], ['language', 'languages'], ['sell', 'handshake'], ['sales', 'handshake'], ['negotiat', 'scale'], ['accounting', 'calculator'],
     ['invoic', 'receipt'], ['project', 'kanban'], ['reveal', 'gem'], ['advice', 'message-circle'], ['conversation', 'messages-square']
+  ] : []).concat(CT.i18n.langue === 'es' ? [
+    ['escuch', 'ear'], ['acog', 'hand-heart'], ['sonri', 'smile'], ['risa', 'laugh'], ['humor', 'laugh'], ['dinamiz', 'party-popper'],
+    ['animaci', 'party-popper'], ['equipo', 'users'], ['comunidad', 'users-round'], ['escena', 'clapperboard'], ['cant', 'mic-vocal'],
+    ['rima', 'feather'], ['baila', 'footprints'], ['danza', 'footprints'], ['malabar', 'orbit'], ['camin', 'footprints'], ['corre', 'person-standing'],
+    ['ensen', 'graduation-cap'], ['formar', 'clipboard-list'], ['formaci', 'clipboard-list'], ['taller', 'lightbulb'], ['hablar', 'mic'],
+    ['escrib', 'pen-line'], ['redac', 'pen-line'], ['redes', 'share-2'], ['ingles', 'languages'], ['espanol', 'languages'], ['aleman', 'languages'],
+    ['idioma', 'languages'], ['vender', 'handshake'], ['ventas', 'handshake'], ['negocia', 'scale'], ['contabilidad', 'calculator'],
+    ['factura', 'receipt'], ['proyecto', 'kanban'], ['consejo', 'message-circle'], ['conversaci', 'messages-square']
   ] : []);
 
   const N = (s) => CT.regles.normaliserTexte(s);

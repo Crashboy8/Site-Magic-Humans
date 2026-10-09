@@ -29,7 +29,7 @@
 
   function contenu(carte, maintenant) {
     const s = OR.synthese(carte, maintenant);
-    const date = s.date.toLocaleDateString(CT.i18n.langue === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const date = s.date.toLocaleDateString(CT.i18n.locale, { day: 'numeric', month: 'long', year: 'numeric' });
     return '<header class="progres-tete synthese-actions"><div><p class="surtitre"><i data-lucide="file-text"></i> ' + T('Ma synthèse') + '</p></div>' +
       '<button type="button" class="bouton bouton-principal bouton-compact" data-action="imprimer"><i data-lucide="printer"></i>' + T('Imprimer ou enregistrer en PDF') + '</button>' +
       '<button type="button" class="fermer" data-action="fermer" aria-label="' + O.echapper(T('Fermer')) + '"><i data-lucide="x"></i></button></header>' +

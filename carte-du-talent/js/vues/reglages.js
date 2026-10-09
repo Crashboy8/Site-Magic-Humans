@@ -12,7 +12,7 @@
   function choixLangue() {
     return '<div class="choix-langue" role="group" aria-label="' + O.echapper(T('Langue')) + '">' +
       CT.i18n.LANGUES.map((l) => '<button type="button" data-langue="' + l + '" lang="' + l + '" aria-pressed="' + (CT.i18n.langue === l) + '">' +
-        (l === 'fr' ? 'Français' : 'English') + '</button>').join('') + '</div>';
+        ({ fr: 'Français', en: 'English', es: 'Español' }[l]) + '</button>').join('') + '</div>';
   }
 
   function creer(racine, rappels) {

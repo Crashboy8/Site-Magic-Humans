@@ -299,7 +299,7 @@ export function CarteCible({
                 {GRILLE.map((g) => (
                   <div key={g.cle}>
                     <dt className="font-medium">
-                      {R.criteres[g.cle]} ({g.poids}{M.commun.locale === "fr-FR" ? " %" : "%"})
+                      {R.criteres[g.cle]} ({g.poids}{M.commun.locale === "en-GB" ? "%" : " %"})
                     </dt>
                     <dd className="text-ink-soft">
                       1{M.commun.dp}{R.grille[g.cle].un} / 3{M.commun.dp}{R.grille[g.cle].trois} / 5{M.commun.dp}{R.grille[g.cle].cinq}
