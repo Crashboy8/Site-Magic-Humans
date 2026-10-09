@@ -63,6 +63,15 @@
   .outils-appel p{margin:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(22px,4vw,28px);line-height:1.25;color:var(--ink)}
   .outils-appel-detail{margin:4px 0 14px !important;font-family:inherit !important;font-style:normal !important;font-size:16.5px !important;line-height:1.4 !important;color:var(--ink-soft) !important}
   .outils-appel .btn{min-height:44px}
+  .outils-parcours{--accent:#B8441F;position:relative;overflow:hidden;margin:0 0 18px;padding:18px 16px;border-radius:20px;border:1px solid #F5E1AE;background:radial-gradient(70% 90% at 100% 0%,#EEF8FE 0%,rgba(238,248,254,0) 60%),radial-gradient(60% 80% at 0% 100%,#E5F6F3 0%,rgba(229,246,243,0) 60%),linear-gradient(135deg,#FFF5D9 0%,#FFFFFF 72%);box-shadow:0 18px 40px -30px rgba(58,47,36,.55)}
+  .outils-parcours-entete{display:flex;align-items:center;gap:12px}
+  .outils-parcours-marque{flex:0 0 52px;width:52px;height:52px}
+  .outils-parcours-marque svg{width:52px;height:52px;display:block}
+  .outils-parcours-surtitre{margin:0;font-size:13px;font-weight:600;letter-spacing:.12em;line-height:1.3;text-transform:uppercase;color:#7A5200}
+  .outils-parcours-titre{margin:2px 0 0;font-size:clamp(30px,6vw,40px);font-style:italic;line-height:1.05}
+  .outils-parcours-phrase{margin:12px 0 10px;color:var(--ink);font-size:17px;line-height:1.45}
+  .outils-parcours-puces{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .outils-parcours-puces li{background:rgba(255,255,255,.92);border-radius:999px;padding:4px 11px;font-size:14.5px;font-weight:500;line-height:1.5;color:var(--ink);box-shadow:0 1px 2px rgba(58,47,36,.08)}
   @media (max-width:480px){
     body.page-outils .wrap{padding-left:16px;padding-right:16px}
     .outils{padding-top:18px}
@@ -109,6 +118,22 @@
   <div class="wrap">
     <h1 data-en="Your tools" data-es="Tus herramientas">Tes outils</h1>
     <p class="outils-intro" data-en="Six tools for your work life and your personal life. Start with a quiz, then move at your own pace." data-es="Seis herramientas para tu vida profesional y para tu vida personal. Empieza por un test y luego avanza a tu ritmo.">Six outils pour ta vie pro et pour ta vie perso. Commence par un quiz, puis avance à ton rythme.</p>
+    <section class="outils-parcours" aria-labelledby="carte-parcours">
+      <div class="outils-parcours-entete">
+        <span class="outils-parcours-marque" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#FFFFFF"/><path d="M6.5 30 C 11 23, 16 31, 21.5 24 S 29 15, 31 13" fill="none" stroke="#3A2F24" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="0.4 3.4"/><circle cx="7" cy="29.5" r="2.8" fill="#D4532C"/><circle cx="21.5" cy="24" r="2.8" fill="#1F9E8C"/><path d="M31 5.5v11" stroke="#3A2F24" stroke-width="1.7" stroke-linecap="round"/><path d="M31.4 6.2h6.4l-2 2.8 2 2.8h-6.4z" fill="#E0A526"/></svg></span>
+        <div>
+          <p class="outils-parcours-surtitre" data-en="Your Unique Talent journey" data-es="Tu recorrido Talento Único">Ton parcours Talent Unique</p>
+          <h2 class="outils-parcours-titre" id="carte-parcours" data-en="Where am I?" data-es="¿Dónde estoy?">Où j'en suis&nbsp;?</h2>
+        </div>
+      </div>
+      <p class="outils-parcours-phrase" data-en="See where you stand on your journey, from your talent to your Ikigai: your stage, your level, your points and your next three actions." data-es="Sitúate en tu recorrido, de tu talento a tu Ikigai: tu etapa, tu nivel, tus puntos y tus 3&nbsp;próximas acciones.">Situe-toi sur ton parcours, de ton talent à ton Ikigai&nbsp;: ton étape, ton niveau, tes points et tes trois prochaines actions.</p>
+      <ul class="outils-parcours-puces">
+        <li data-en="No account needed" data-es="Sin cuenta">Sans compte</li>
+        <li data-en="A few questions" data-es="Unas pocas preguntas">Quelques questions</li>
+        <li data-en="Instant result" data-es="Resultado al instante">Résultat tout de suite</li>
+      </ul>
+      <a class="outils-btn outils-parcours-btn" href="/boussole-decision/ou-j-en-suis/" data-en="Take stock" data-es="Hacer balance">Faire le point</a>
+    </section>
     <section class="outils-rubrique outils-rubrique--pro" aria-labelledby="rubrique-pro">
       <h2 class="outils-rubrique-titre" id="rubrique-pro"><span class="outils-rubrique-icone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="12" rx="2.2"/><path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5"/><path d="M3.5 12.5h17"/></svg></span><span data-en="Work life" data-es="Vida profesional">Vie professionnelle</span></h2>
       <ol class="outils-liste">

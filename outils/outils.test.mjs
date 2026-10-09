@@ -1,7 +1,7 @@
-// Page « Tes outils » : deux rubriques, ordre des outils, pas de jeu vidéo.
+// Page « Tes outils » : carte « Où j'en suis ? », deux rubriques, ordre des outils, pas de jeu vidéo.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -35,6 +35,26 @@ test("six outils en tout, chaque rubrique a son icône, pas de jeu vidéo", () =
   assert.equal(liens(html).length, 6);
   assert.equal((html.match(/class="outils-rubrique-icone"/g) || []).length, 2);
   assert.doesNotMatch(html, /talent-game/);
+});
+
+test("carte « Où j'en suis ? » en tête de page, avant les rubriques, hors du compte des six outils", () => {
+  const m = html.match(/<section class="outils-parcours"[\s\S]*?<\/section>/);
+  assert.ok(m, "carte absente");
+  const carte = m[0];
+  assert.ok(html.indexOf('<section class="outils-parcours"') < html.indexOf('<section class="outils-rubrique outils-rubrique--pro"'));
+  assert.match(carte, /<h2 class="outils-parcours-titre" id="carte-parcours" data-en="Where am I\?" data-es="¿Dónde estoy\?">Où j'en suis&nbsp;\?<\/h2>/);
+  assert.match(carte, /<a class="outils-btn outils-parcours-btn" href="\/boussole-decision\/ou-j-en-suis\/" data-en="Take stock" data-es="Hacer balance">Faire le point<\/a>/);
+  assert.deepEqual(liens(carte), []);
+  assert.ok(existsSync(new URL("../apps/boussole-decision/src/app/(ou-j-en-suis)/ou-j-en-suis/page.tsx", import.meta.url)), "page de l'outil absente");
+});
+
+test("adresse courte /ou-j-en-suis/ vers l'outil, temporaire", () => {
+  const conf = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  for (const source of ["/ou-j-en-suis", "/ou-j-en-suis/"]) {
+    const r = conf.redirects.find((x) => x.source === source);
+    assert.equal(r && r.destination, "/boussole-decision/ou-j-en-suis/");
+    assert.equal(r && r.permanent, false);
+  }
 });
 
 test("pas de tiret long ni moyen, pied de page conservé", () => {

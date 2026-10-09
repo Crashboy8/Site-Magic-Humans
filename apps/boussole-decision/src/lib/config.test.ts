@@ -5,6 +5,11 @@ describe("isPublicPath", () => {
   it("laisse la photo de la salle accessible sans connexion", () => {
     expect(isPublicPath("/api/quiz-salle")).toBe(true);
   });
+  it("ouvre « Où j'en suis ? » sans compte", () => {
+    expect(isPublicPath("/ou-j-en-suis")).toBe(true);
+    expect(isPublicPath("/ou-j-en-suis/")).toBe(true);
+    expect(isPublicPath("/ou-j-en-suis-x")).toBe(false);
+  });
   it("ouvre la page d'arrivée depuis Le Cibleur sans compte", () => {
     expect(isPublicPath("/depuis-cibleur")).toBe(true);
     expect(isPublicPath("/depuis-cibleur/")).toBe(true);

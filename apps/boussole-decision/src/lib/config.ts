@@ -28,6 +28,7 @@ export const PUBLIC_PATHS = [
   "/api/fiche",
   "/depuis-cibleur",
   "/client",
+  "/ou-j-en-suis",
 ];
 
 export function isPublicPath(pathname: string): boolean {

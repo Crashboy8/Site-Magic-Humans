@@ -1,0 +1,3216 @@
+{
+  "schema": "magic-humans.parcours-accompagne",
+  "version": "3.3-proposition",
+  "date": "2026-10-09",
+  "promesse": "Connaître, assumer et incarner son Talent Unique, pour réussir dans le Plaisir.",
+  "ton": "tutoiement côté accompagné, français naturel, pas de tiret long",
+  "structure": {
+    "tronc_commun": [
+      "connaitre",
+      "nommer",
+      "cap"
+    ],
+    "branches": {
+      "entrepreneur": [
+        "e_cible",
+        "e_terrain",
+        "e_offre",
+        "e_reseau",
+        "e_vendre",
+        "e_vivre"
+      ],
+      "salarie": [
+        "s_cible",
+        "s_terrain",
+        "s_reseau",
+        "s_supports",
+        "s_strategie",
+        "s_epanouir"
+      ]
+    },
+    "modules_transversaux": [
+      {
+        "etape": "argent",
+        "nom": "Argent, estime de soi et savoir te vendre",
+        "accessible_depuis": [
+          "entrepreneur",
+          "salarie"
+        ],
+        "conseille_avant": [
+          "e_vendre",
+          "s_strategie"
+        ],
+        "bloquant": false,
+        "format": "en séance avec Pierre, pas d'outil",
+        "niveaux": [
+          "3",
+          "4",
+          "5A"
+        ],
+        "autodiagnostic": {
+          "question": "De 1 à 5, à quel point es-tu à l'aise avec l'argent et avec le fait de te vendre (annoncer ton prix ou ton salaire) ?",
+          "echelle": [
+            1,
+            5
+          ],
+          "seuil_module": 3,
+          "regle": "Proposition : à 3 ou moins, l'outil propose le module « Argent, estime de soi et savoir te vendre » (en séance avec Pierre), en priorité avant E5 ou S5."
+        }
+      }
+    ],
+    "themes_transversaux": {
+      "valeurs": [
+        "cap",
+        "e_cible",
+        "e_offre",
+        "s_cible",
+        "s_epanouir",
+        "k_explorer",
+        "ikigai"
+      ],
+      "remuneration": [
+        "e_offre",
+        "e_vendre",
+        "e_vivre",
+        "s_cible",
+        "s_strategie",
+        "s_epanouir",
+        "argent"
+      ]
+    },
+    "aboutissement_commun": {
+      "etape": "ikigai",
+      "niveau": "5B",
+      "description": "Toutes les voies (A, B, C, D, E et K) se terminent par « Ton Ikigai »."
+    },
+    "branche_hors_voies_pro": {
+      "soi": [
+        "k_connaitre",
+        "k_defauts",
+        "k_qualites",
+        "k_explorer"
+      ],
+      "usage": "seule (voie K) ou en parallèle d'une voie pro A, B, C ou D"
+    },
+    "voie_hybride": {
+      "voie": "E",
+      "suit_en_meme_temps": [
+        "entrepreneur",
+        "salarie"
+      ],
+      "mutualisables": [
+        [
+          "e_terrain",
+          "s_terrain"
+        ],
+        [
+          "e_reseau",
+          "s_reseau"
+        ],
+        [
+          "s_supports",
+          "e_vendre"
+        ],
+        [
+          "argent"
+        ]
+      ]
+    },
+    "passerelles": {
+      "transition": {
+        "voie": "C",
+        "de": "salarie",
+        "vers": "entrepreneur",
+        "rejoint": "e_cible"
+      },
+      "valoriser": {
+        "voie": "D",
+        "de": "entrepreneur",
+        "vers": "salarie",
+        "rejoint": "s_cible"
+      }
+    }
+  },
+  "question_voie": {
+    "texte": "Quelle est ta situation, ton projet ?",
+    "choix": [
+      {
+        "voie": "A",
+        "libelle": "Je suis entrepreneur, indépendant, ou je lance mon offre"
+      },
+      {
+        "voie": "B",
+        "libelle": "Je suis salarié et je veux changer de poste ou de métier, en restant salarié"
+      },
+      {
+        "voie": "C",
+        "libelle": "Je suis salarié et je veux devenir entrepreneur"
+      },
+      {
+        "voie": "D",
+        "libelle": "Je suis entrepreneur et je veux redevenir salarié"
+      },
+      {
+        "voie": "E",
+        "libelle": "Je veux garder mon emploi et lancer mon activité à côté"
+      },
+      {
+        "voie": "K",
+        "libelle": "Je veux d'abord mieux me connaître (vie perso, amour)"
+      },
+      {
+        "voie": null,
+        "libelle": "Je ne sais pas encore"
+      }
+    ]
+  },
+  "regle_position": {
+    "description": "Proposition. 1) La personne choisit sa voie avec question_voie. Si elle répond « Je ne sais pas encore », on ne pose que les questions du tronc commun : tant que l'étape « cap » n'est pas atteinte, c'est son étape actuelle ; une fois atteinte, on lui repose la question de la voie. 2) On suit la liste voies[].etapes dans l'ordre. Chaque critère reçoit oui (2), en partie (1) ou pas encore (0). Une étape est atteinte si tous ses critères essentiels valent 2 et si le total fait au moins 75 % du maximum. L'étape actuelle est la première étape non atteinte de la voie. 3) Les 3 prochaines actions sont les actions types de l'étape actuelle, en mettant d'abord celles liées à un critère essentiel à 0.",
+    "reponses": {
+      "oui": 2,
+      "en_partie": 1,
+      "pas_encore": 0
+    },
+    "seuil_pourcentage": 75,
+    "voie_hybride": "Voie E : après le tronc commun, on calcule deux étapes actuelles, une dans etapes_paralleles.entrepreneur et une dans etapes_paralleles.salarie, avec la même règle. Si les deux étapes actuelles forment une paire de mutualisables (ou si l'une des deux est dans une paire), on propose d'abord les actions qui servent aux deux. Les 3 prochaines actions mélangent les deux branches, et on rappelle les points d'attention (temps, énergie, positionnement, contrat). Quand E6 et S6 sont atteintes, l'étape actuelle devient « ikigai » (aboutissement).",
+    "parallele": "Proposition : après le choix d'une voie pro, on propose « Tu veux aussi travailler ta connaissance de toi en parallèle ? ». Si oui, on calcule aussi l'étape actuelle dans la liste K, à part.",
+    "niveau_affiche": "Proposition : le niveau affiché est le premier niveau « atteint » de la dernière étape franchie ayant l'effet « atteint » ; sinon, point de départ 0 ou 1. On montre aussi le niveau que prépare l'étape actuelle.",
+    "module_argent": "Proposition. Le module « argent » n'est pas dans voies[].etapes : il ne bloque pas la progression. On pose la question autodiagnostic de structure.modules_transversaux[0].autodiagnostic. À 3 ou moins, ou si un critère d'argent est à 0 (e_offre.prix, e_offre.gagner, e_vendre.rdv, s_cible.salaire, s_strategie.negociation), on recommande le module, en priorité quand l'étape actuelle est E4, E5, S4 ou S5. Il se fait en séance avec Pierre, pas d'outil : l'action proposée est de prendre une séance.",
+    "raccourci": "Proposition : un ancien accompagné (fiche Talent Unique déjà faite) peut commencer à l'étape « cap »."
+  },
+  "voies": [
+    {
+      "id": "A",
+      "nom": "Entrepreneur qui lance son offre",
+      "principale": true,
+      "pro": true,
+      "choix": "Je suis entrepreneur, indépendant, ou je lance mon offre",
+      "description": "La voie la plus courante : du talent à une offre qui te fait vivre.",
+      "etapes": [
+        "connaitre",
+        "nommer",
+        "cap",
+        "e_cible",
+        "e_terrain",
+        "e_offre",
+        "e_reseau",
+        "e_vendre",
+        "e_vivre",
+        "ikigai"
+      ],
+      "offres": [
+        "appel_decouverte",
+        "diagnostic",
+        "rebond"
+      ],
+      "modules_transversaux": [
+        "argent"
+      ]
+    },
+    {
+      "id": "B",
+      "nom": "Salarié vers un autre poste salarié",
+      "principale": false,
+      "pro": true,
+      "choix": "Je suis salarié et je veux changer de poste ou de métier, en restant salarié",
+      "description": "Du talent au bon poste, dans la bonne entreprise, avec le bon patron.",
+      "etapes": [
+        "connaitre",
+        "nommer",
+        "cap",
+        "s_cible",
+        "s_terrain",
+        "s_reseau",
+        "s_supports",
+        "s_strategie",
+        "s_epanouir",
+        "ikigai"
+      ],
+      "offres": [
+        "appel_decouverte",
+        "diagnostic",
+        "pivot"
+      ],
+      "modules_transversaux": [
+        "argent"
+      ]
+    },
+    {
+      "id": "C",
+      "nom": "Salarié qui devient entrepreneur",
+      "principale": false,
+      "pro": true,
+      "choix": "Je suis salarié et je veux devenir entrepreneur",
+      "description": "Le tronc commun, puis la passerelle « sécuriser ta transition » (filet, timing de départ), puis la branche Entrepreneur.",
+      "etapes": [
+        "connaitre",
+        "nommer",
+        "cap",
+        "transition",
+        "e_cible",
+        "e_terrain",
+        "e_offre",
+        "e_reseau",
+        "e_vendre",
+        "e_vivre",
+        "ikigai"
+      ],
+      "offres": [
+        "appel_decouverte",
+        "diagnostic",
+        "pivot"
+      ],
+      "modules_transversaux": [
+        "argent"
+      ]
+    },
+    {
+      "id": "D",
+      "nom": "Entrepreneur qui revient au salariat",
+      "principale": false,
+      "pro": true,
+      "choix": "Je suis entrepreneur et je veux redevenir salarié",
+      "description": "Le tronc commun, puis la passerelle « valoriser ton expérience d'entrepreneur », puis la branche Salarié.",
+      "etapes": [
+        "connaitre",
+        "nommer",
+        "cap",
+        "valoriser",
+        "s_cible",
+        "s_terrain",
+        "s_reseau",
+        "s_supports",
+        "s_strategie",
+        "s_epanouir",
+        "ikigai"
+      ],
+      "offres": [
+        "appel_decouverte",
+        "diagnostic"
+      ],
+      "modules_transversaux": [
+        "argent"
+      ]
+    },
+    {
+      "id": "E",
+      "nom": "Hybride : salarié et entrepreneur en parallèle",
+      "principale": false,
+      "pro": true,
+      "choix": "Je veux garder mon emploi et lancer mon activité à côté",
+      "description": "Après le tronc commun, tu suis les deux branches en même temps : tu gardes (ou cherches) un poste salarié, et tu lances ton activité à côté.",
+      "etapes": [
+        "connaitre",
+        "nommer",
+        "cap"
+      ],
+      "offres": [
+        "appel_decouverte",
+        "diagnostic"
+      ],
+      "modules_transversaux": [
+        "argent"
+      ],
+      "etapes_paralleles": {
+        "entrepreneur": [
+          "e_cible",
+          "e_terrain",
+          "e_offre",
+          "e_reseau",
+          "e_vendre",
+          "e_vivre"
+        ],
+        "salarie": [
+          "s_cible",
+          "s_terrain",
+          "s_reseau",
+          "s_supports",
+          "s_strategie",
+          "s_epanouir"
+        ]
+      },
+      "aboutissement": "ikigai",
+      "mutualisables": [
+        {
+          "etapes": [
+            "e_terrain",
+            "s_terrain"
+          ],
+          "nom": "Le terrain",
+          "texte": "Les mêmes rencontres nourrissent les deux : tu écoutes ta future clientèle et les gens de ton métier, tu notes leurs mots exacts."
+        },
+        {
+          "etapes": [
+            "e_reseau",
+            "s_reseau"
+          ],
+          "nom": "Le réseau",
+          "texte": "Un seul cercle : les personnes qui te connaissent peuvent te recommander pour un poste comme pour des clients."
+        },
+        {
+          "etapes": [
+            "s_supports",
+            "e_vendre"
+          ],
+          "nom": "Les supports",
+          "texte": "Ton profil LinkedIn, ton portfolio et tes 3 histoires de talent servent aussi à te présenter et à vendre ton offre."
+        },
+        {
+          "etapes": [
+            "argent"
+          ],
+          "nom": "L'argent et l'estime de soi",
+          "texte": "Le module Argent se fait une seule fois : oser annoncer ton prix t'aide aussi à négocier ton salaire, et l'inverse."
+        }
+      ],
+      "points_attention": [
+        {
+          "id": "temps",
+          "nom": "Ton temps",
+          "texte": "Combien d'heures par semaine tu peux vraiment donner à ton activité, et à quels moments."
+        },
+        {
+          "id": "energie",
+          "nom": "Ton énergie",
+          "texte": "Garde ton ressourcement : si l'un des deux te vide, l'autre en pâtit."
+        },
+        {
+          "id": "positionnement",
+          "nom": "La cohérence de ton positionnement",
+          "texte": "Ton profil salarié et ton offre doivent raconter la même histoire de talent, sans se contredire."
+        },
+        {
+          "id": "contrat",
+          "nom": "Ton contrat de travail",
+          "texte": "Point à vérifier : la présence d'une clause d'exclusivité ou de non-concurrence dans ton contrat. Ce n'est pas un avis juridique ; en cas de doute, demande à un professionnel du droit."
+        }
+      ],
+      "offres_statut": "Proposition à valider : le site ne présente pas d'offre dédiée à la voie hybride."
+    },
+    {
+      "id": "K",
+      "nom": "Connaissance de soi",
+      "principale": false,
+      "pro": false,
+      "choix": "Je veux d'abord mieux me connaître (vie perso, amour)",
+      "description": "Une branche hors des voies pro, à suivre seule ou en parallèle d'une voie pro.",
+      "etapes": [
+        "k_connaitre",
+        "k_defauts",
+        "k_qualites",
+        "k_explorer",
+        "ikigai"
+      ],
+      "offres": [
+        "appel_decouverte",
+        "diagnostic",
+        "diagnostic_amour"
+      ]
+    }
+  ],
+  "etapes": [
+    {
+      "id": "connaitre",
+      "code": "1",
+      "branche": "tronc",
+      "nom": "Connaître ton talent",
+      "question": "Qu'est-ce qui me rend unique ?",
+      "objectif": "Mettre des premiers mots sur ce qui t'allume et ce qui t'éteint, sous forme d'hypothèse à vérifier avec ta vraie vie.",
+      "criteres": [
+        {
+          "id": "connaitre.quiz",
+          "texte": "Tu as fait le QCM Talent Unique (ou le Quiz Amour) et tu as gardé ton rapport.",
+          "question": "As-tu fait le QCM Talent Unique (ou le Quiz Amour) et gardé ton rapport ?",
+          "essentiel": true
+        },
+        {
+          "id": "connaitre.dominante",
+          "texte": "Tu peux dire ta dominante et ta secondaire avec tes mots.",
+          "question": "Peux-tu dire, avec tes mots, ta dominante et ta secondaire ?",
+          "essentiel": true
+        },
+        {
+          "id": "connaitre.flow",
+          "texte": "Tu peux raconter au moins 3 moments réels où tu étais dans ton élément.",
+          "question": "Peux-tu raconter 3 moments réels où tu étais complètement dans ton élément ?",
+          "essentiel": true
+        },
+        {
+          "id": "connaitre.eteint",
+          "texte": "Tu sais nommer au moins une situation qui t'éteint.",
+          "question": "Sais-tu nommer une situation qui t'éteint à coup sûr ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "qcm",
+          "nom": "QCM Talent Unique",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "quiz_amour",
+          "nom": "Quiz Amour",
+          "url": "https://www.magichumans.com/quiz-amour/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "appel_decouverte",
+          "nom": "Appel Découverte",
+          "prix": "offert",
+          "duree": "1 h"
+        },
+        {
+          "id": "diagnostic",
+          "nom": "Diagnostic Talent & Cap",
+          "prix": "980 €",
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+        }
+      ],
+      "seance_detail": "Appel Découverte offert (1 h) dès le résultat du quiz, puis la phase « Diagnostic et exploration » du Diagnostic Talent & Cap.",
+      "livrables": [
+        "Le rapport du QCM (PDF et lien personnel)",
+        "Le profil amoureux, si tu entres par le cœur",
+        "Une liste de tes moments de flow"
+      ],
+      "blocages": [
+        "« Je suis doué pour plein de choses, mais rien de précis. »",
+        "Banaliser ce qu'on fait facilement : « c'est banal, tout le monde sait faire ça ».",
+        "Se reconnaître à moitié dans un résultat obtenu en 6 minutes."
+      ],
+      "actions": [
+        {
+          "id": "connaitre.a1",
+          "texte": "Fais le QCM Talent Unique (6 minutes) et garde le lien de ton résultat.",
+          "outil": "qcm",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "connaitre.a2",
+          "texte": "Note 3 moments de ta vie, pro ou perso, où tu as perdu la notion du temps.",
+          "outil": null
+        },
+        {
+          "id": "connaitre.a3",
+          "texte": "Réserve l'Appel Découverte pour vérifier ton résultat avec des exemples réels.",
+          "outil": "appel_decouverte",
+          "url": "https://calendly.com/pierre-j-sarazin"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "2",
+            "titre": "Niveau 2 · La prise de conscience"
+          }
+        ],
+        "note": "Tu quittes les niveaux 0 et 1 : noter tes moments de flow, c'est le conseil du niveau 1.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Tronc commun",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Diagnostic et exploration"
+        ],
+        "pilier_site": "Connaître"
+      },
+      "etape_suivante": "nommer"
+    },
+    {
+      "id": "nommer",
+      "code": "2",
+      "branche": "tronc",
+      "nom": "Accepter et nommer ton talent",
+      "question": "Comment je fonctionne, défauts compris ?",
+      "objectif": "Passer de l'hypothèse à une phrase que tu reconnais comme la tienne, et assumer le défaut qui va avec ta qualité.",
+      "criteres": [
+        {
+          "id": "nommer.phrase",
+          "texte": "Ton talent tient en une phrase, avec tes mots : ce que tu fais, dans quel contexte, pour quel résultat.",
+          "question": "Ton talent tient-il en une phrase que tu reconnais comme la tienne ?",
+          "essentiel": true
+        },
+        {
+          "id": "nommer.contextes",
+          "texte": "Tu connais ton contexte déclencheur et ton anti-contexte.",
+          "question": "Sais-tu dans quel contexte ton talent s'allume, et lequel l'éteint ?",
+          "essentiel": true
+        },
+        {
+          "id": "nommer.defaut",
+          "texte": "Tu as relié au moins une qualité à son défaut miroir, sans chercher à le gommer.",
+          "question": "As-tu repéré le défaut qui va avec ta grande qualité, et l'acceptes-tu ?",
+          "essentiel": false
+        },
+        {
+          "id": "nommer.ressource",
+          "texte": "Tu sais ce qui te ressource et tu as tes garde-fous.",
+          "question": "Sais-tu ce qui te ressource et quelles règles te protègent ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "mon_espace",
+          "nom": "Mon espace",
+          "url": "https://www.magichumans.com/mon-espace/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "diagnostic",
+          "nom": "Diagnostic Talent & Cap",
+          "prix": "980 €",
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+        }
+      ],
+      "seance_detail": "Phase « Modélisation » du Diagnostic Talent & Cap : entretien, mise en mots, fiche Talent Unique, puis un complément si besoin.",
+      "livrables": [
+        "La fiche Talent Unique : talent en une phrase, ta façon de faire, ce qui te fait vibrer ou t'éteint, garde-fous",
+        "Ta Carte du Talent (capitale, régions, zone à déléguer)"
+      ],
+      "blocages": [
+        "Ne pas se reconnaître dans les mots de quelqu'un d'autre.",
+        "Vouloir corriger ses défauts au lieu de s'en servir.",
+        "Se sentir éparpillé quand on est multi-potentiel.",
+        "Un contexte déclencheur encore flou."
+      ],
+      "actions": [
+        {
+          "id": "nommer.a1",
+          "texte": "Relis ta fiche et réécris ta phrase talent avec tes propres mots.",
+          "outil": null
+        },
+        {
+          "id": "nommer.a2",
+          "texte": "Dessine ta Carte du Talent à partir de ton résultat du QCM (elle se préremplit).",
+          "outil": "carte",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "nommer.a3",
+          "texte": "Choisis l'hypothèse de contexte déclencheur qui sonne le plus juste et observe-la une semaine.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "atteint",
+        "niveaux": [
+          {
+            "code": "2",
+            "titre": "Niveau 2 · La prise de conscience"
+          }
+        ],
+        "note": "Tu sais quel résultat tu offres, et dans quel contexte.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Tronc commun",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Modélisation"
+        ],
+        "pilier_site": "Assumer"
+      },
+      "etape_suivante": "cap"
+    },
+    {
+      "id": "cap",
+      "code": "3",
+      "branche": "tronc",
+      "nom": "Choisir ton cap et ta voie",
+      "question": "Qu'est-ce que j'en fais : salarié, entrepreneur, l'un vers l'autre, ou les deux ?",
+      "objectif": "Transformer ton talent en pistes concrètes, en choisir une, et savoir quelle voie tu prends : lancer ton offre, changer de poste, passer de l'un à l'autre, ou mener les deux en parallèle.",
+      "criteres": [
+        {
+          "id": "cap.pistes",
+          "texte": "Tu as une liste de pistes reliées à ton talent, avec ce qui te manque pour chacune.",
+          "question": "As-tu une liste de pistes reliées à ton talent ?",
+          "essentiel": true
+        },
+        {
+          "id": "cap.compare",
+          "texte": "Tu as comparé tes options avec tes critères, non négociables compris.",
+          "question": "As-tu comparé tes options avec tes propres critères ?",
+          "essentiel": true
+        },
+        {
+          "id": "cap.choix",
+          "texte": "Tu as choisi un cap prioritaire, écrit noir sur blanc.",
+          "question": "As-tu choisi ton cap prioritaire ?",
+          "essentiel": true
+        },
+        {
+          "id": "cap.valeurs",
+          "texte": "Tu as clarifié tes valeurs et tes non-négociables, et ton cap les respecte.",
+          "question": "As-tu clarifié tes valeurs, et ton cap les respecte-t-il ?",
+          "essentiel": true
+        },
+        {
+          "id": "cap.voie",
+          "texte": "Tu sais quelle voie tu prends : entrepreneur, salarié, passage de l'un à l'autre, ou les deux en parallèle.",
+          "question": "Sais-tu si tu veux être entrepreneur, salarié, ou les deux en parallèle ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte_pistes",
+          "nom": "Carte du Talent, partie Mes pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "diagnostic",
+          "nom": "Diagnostic Talent & Cap",
+          "prix": "980 €",
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+        }
+      ],
+      "seance_detail": "Fin du Diagnostic Talent & Cap : un cap ou projet cible clair. C'est ici que la voie se décide.",
+      "livrables": [
+        "Tes pistes et ta prochaine compétence (synthèse Mes pistes)",
+        "Le résultat de ta Boussole : podium, ikigai par option, trois prochains pas",
+        "Ta voie choisie (A, B, C, D ou E)"
+      ],
+      "blocages": [
+        "Tout garder ouvert par peur de se tromper.",
+        "La liste de pour et de contre qui tourne en rond.",
+        "Choisir ce qui rassure plutôt que ce qui t'allume.",
+        "Hésiter entre rester salarié et se lancer."
+      ],
+      "actions": [
+        {
+          "id": "cap.a1",
+          "texte": "Ouvre Mes pistes dans ta Carte du Talent et garde les 2 ou 3 pistes qui te font envie.",
+          "outil": "carte_pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "cap.a2",
+          "texte": "Compare-les dans la Boussole de décision, en mettant « salarié » et « entrepreneur » en options si tu hésites.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        },
+        {
+          "id": "cap.a3",
+          "texte": "Écris tes valeurs et tes non-négociables, puis ton cap et ta voie en une phrase.",
+          "outil": null
+        },
+        {
+          "id": "cap.a4",
+          "texte": "Mets tes valeurs en critères dans la Boussole (famille « valeurs et culture »).",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "garde",
+        "niveaux": [
+          {
+            "code": "2",
+            "titre": "Niveau 2 · La prise de conscience"
+          }
+        ],
+        "note": "Tu consolides le niveau 2 en choisissant où l'utiliser, en accord avec tes valeurs.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Tronc commun",
+      "themes": {
+        "valeurs": true,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Modélisation"
+        ],
+        "pilier_site": "Assumer"
+      },
+      "etape_suivante": null,
+      "etape_suivante_par_voie": {
+        "A": "e_cible",
+        "B": "s_cible",
+        "C": "transition",
+        "D": "valoriser",
+        "E": [
+          "e_cible",
+          "s_cible"
+        ]
+      }
+    },
+    {
+      "id": "transition",
+      "code": "C",
+      "branche": "passerelle",
+      "nom": "Sécuriser ta transition vers l'entrepreneuriat",
+      "question": "Quand et comment je quitte mon poste sans me mettre en danger ?",
+      "objectif": "Préparer ton départ de salarié : ton filet de sécurité, ton timing, et un premier test de ton idée avant de sauter.",
+      "criteres": [
+        {
+          "id": "transition.filet",
+          "texte": "Tu sais combien de temps tu peux tenir avec peu ou pas de revenus.",
+          "question": "Sais-tu combien de mois tu peux tenir avec peu de revenus ?",
+          "essentiel": true
+        },
+        {
+          "id": "transition.timing",
+          "texte": "Tu as fixé ta date ou ta condition de départ.",
+          "question": "As-tu fixé ta date, ou la condition qui déclenchera ton départ ?",
+          "essentiel": true
+        },
+        {
+          "id": "transition.test",
+          "texte": "Tu as testé ton idée en parallèle de ton poste (premiers échanges, premiers retours).",
+          "question": "As-tu déjà testé ton idée pendant que tu es encore en poste ?",
+          "essentiel": false
+        },
+        {
+          "id": "transition.cadre",
+          "texte": "Tu as regardé les façons de quitter ton poste et ce qu'elles impliquent pour toi.",
+          "question": "As-tu regardé les façons de quitter ton poste et leurs conséquences pour toi ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Le Pivot Stratégique est présenté sur le site comme l'accompagnement pour sécuriser une transition (à valider pour cette passerelle).",
+      "livrables": [
+        "Ton plan de transition : filet, date ou condition de départ, premiers tests"
+      ],
+      "blocages": [
+        "Partir trop tôt, sans filet.",
+        "Ne jamais partir, en attendant le moment parfait.",
+        "La peur de décevoir l'entourage ou l'employeur."
+      ],
+      "actions": [
+        {
+          "id": "transition.a1",
+          "texte": "Calcule ton filet : combien de mois tu peux tenir avec peu de revenus.",
+          "outil": null
+        },
+        {
+          "id": "transition.a2",
+          "texte": "Compare tes scénarios de départ dans la Boussole de décision.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        },
+        {
+          "id": "transition.a3",
+          "texte": "Écris ta condition de départ (une date, ou un résultat comme un premier client).",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "garde",
+        "niveaux": [],
+        "note": "Tu changes de terrain, pas de niveau.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Passerelle",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Passage à l'action"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "e_cible"
+    },
+    {
+      "id": "valoriser",
+      "code": "D",
+      "branche": "passerelle",
+      "nom": "Valoriser ton expérience d'entrepreneur",
+      "question": "Comment je fais de mon aventure d'entrepreneur un atout pour un employeur ?",
+      "objectif": "Vivre le retour au salariat comme un choix, et traduire ce que tu as construit en compétences et en résultats qu'un employeur comprend.",
+      "criteres": [
+        {
+          "id": "valoriser.choix",
+          "texte": "Tu sais dire pourquoi tu reviens au salariat, comme un choix et pas comme un échec.",
+          "question": "Peux-tu dire pourquoi tu reviens au salariat, sans le vivre comme un échec ?",
+          "essentiel": true
+        },
+        {
+          "id": "valoriser.traduction",
+          "texte": "Tu as traduit ton expérience en compétences et en résultats concrets, avec les mots d'un employeur.",
+          "question": "As-tu traduit ton expérience d'entrepreneur en compétences et résultats concrets ?",
+          "essentiel": true
+        },
+        {
+          "id": "valoriser.objections",
+          "texte": "Tu sais répondre à « Pourquoi revenir ? » et « Tu ne vas pas repartir ? ».",
+          "question": "Sais-tu répondre à « pourquoi revenir ? » et « tu ne vas pas repartir ? » ?",
+          "essentiel": true
+        },
+        {
+          "id": "valoriser.cadre",
+          "texte": "Tu sais quel cadre salarié respecte ce qui t'allume (autonomie, type de manager).",
+          "question": "Sais-tu quel cadre salarié respecte ce qui t'allume ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte_pistes",
+          "nom": "Carte du Talent, partie Mes pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [],
+      "seance_detail": "Offre à valider par Pierre : le site ne présente pas d'accompagnement dédié à ce cas.",
+      "livrables": [
+        "Ton récit d'entrepreneur en 3 résultats concrets",
+        "Tes réponses prêtes aux questions qui fâchent"
+      ],
+      "blocages": [
+        "Le sentiment d'échec.",
+        "Se présenter comme « ancien entrepreneur » sans dire ce qu'on sait faire.",
+        "La peur de ne plus supporter un cadre."
+      ],
+      "actions": [
+        {
+          "id": "valoriser.a1",
+          "texte": "Fais le bilan d'acquis dans Mes pistes de ta Carte du Talent.",
+          "outil": "carte_pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "valoriser.a2",
+          "texte": "Écris 3 résultats concrets de ton aventure, avec des chiffres si tu en as.",
+          "outil": null
+        },
+        {
+          "id": "valoriser.a3",
+          "texte": "Prépare ta réponse à « Pourquoi revenir au salariat ? » et dis-la à voix haute.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "garde",
+        "niveaux": [],
+        "note": "Tu changes de terrain, pas de niveau : ton expérience compte.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Passerelle",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Passage à l'action"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "s_cible"
+    },
+    {
+      "id": "e_cible",
+      "code": "E1",
+      "branche": "entrepreneur",
+      "nom": "Choisir ta cible",
+      "question": "Qui a besoin de moi, et avec qui je prends du plaisir ?",
+      "objectif": "Trouver les personnes qui ont besoin de toi, qui peuvent payer, et avec qui ton talent s'allume.",
+      "criteres": [
+        {
+          "id": "e_cible.phrase",
+          "texte": "Tu décris ta cible principale en une phrase : qui elle est, ce qui lui pèse.",
+          "question": "Peux-tu décrire ta cible principale en une phrase ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_cible.plaisir",
+          "texte": "Cette cible te met dans ton contexte déclencheur, pas dans ton anti-contexte.",
+          "question": "Avec cette cible, est-ce que ton talent s'allume ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_cible.anti",
+          "texte": "Tu sais qui est ton anti-cible.",
+          "question": "Sais-tu qui tu ne veux pas comme client ?",
+          "essentiel": false
+        },
+        {
+          "id": "e_cible.valeurs",
+          "texte": "Ta cible et ta mission sont alignées avec tes valeurs.",
+          "question": "Ta cible et ta mission sont-elles alignées avec tes valeurs ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_cible.paie",
+          "texte": "Ta cible a un besoin urgent et les moyens de payer.",
+          "question": "Ta cible a-t-elle un vrai besoin et les moyens de payer ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "cibleur",
+          "nom": "Le Cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        },
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "Rebond Stratégique : ta cible et ton avatar client.",
+      "livrables": [
+        "3 cibles notées sur 10 et ton anti-cible (Le Cibleur)"
+      ],
+      "blocages": [
+        "« Tout le monde pourrait en avoir besoin », donc on ne parle à personne.",
+        "Viser des clients qui paient bien mais qui t'éteignent.",
+        "La peur de fermer des portes."
+      ],
+      "actions": [
+        {
+          "id": "e_cible.a1",
+          "texte": "Passe Le Cibleur (moins de 10 minutes) avec ton talent et ton idée d'offre.",
+          "outil": "cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        },
+        {
+          "id": "e_cible.a2",
+          "texte": "Garde ta cible n°1 et écris ce qui lui pèse, en une phrase.",
+          "outil": null
+        },
+        {
+          "id": "e_cible.a3",
+          "texte": "Compare tes cibles dans la Boussole si tu hésites entre deux.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Entrepreneur",
+      "themes": {
+        "valeurs": true,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "e_terrain"
+    },
+    {
+      "id": "e_terrain",
+      "code": "E2",
+      "branche": "entrepreneur",
+      "nom": "Affiner ta cible sur le terrain",
+      "question": "Qu'est-ce qu'ils vivent vraiment, avec leurs mots ?",
+      "objectif": "Faire ta petite étude marketing de terrain : rencontrer de vraies personnes de ta cible, recueillir leurs mots exacts, leurs habitudes et leurs vrais besoins, puis ajuster ta cible.",
+      "criteres": [
+        {
+          "id": "e_terrain.rencontres",
+          "texte": "Tu as rencontré ou appelé plusieurs personnes de ta cible (nombre à fixer avec Pierre), sans leur vendre quoi que ce soit.",
+          "question": "As-tu rencontré plusieurs personnes de ta cible, juste pour les écouter ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_terrain.verbatim",
+          "texte": "Tu as noté leurs mots exacts (leur verbatim).",
+          "question": "As-tu noté leurs mots exacts ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_terrain.habitudes",
+          "texte": "Tu connais leurs habitudes : où elles s'informent, ce qu'elles ont déjà essayé, comment elles achètent.",
+          "question": "Connais-tu leurs habitudes : où elles s'informent, ce qu'elles ont déjà essayé ?",
+          "essentiel": false
+        },
+        {
+          "id": "e_terrain.besoin",
+          "texte": "Tu peux dire leur vrai besoin avec leurs mots, et tu as ajusté ta cible en conséquence.",
+          "question": "Peux-tu dire leur vrai besoin avec leurs mots ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "cibleur",
+          "nom": "Le Cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "Rebond Stratégique : « Votre cible et votre avatar client : qui souffre vraiment de ne pas vous connaître ».",
+      "livrables": [
+        "Ton carnet de terrain : verbatim, habitudes, vrais besoins",
+        "Le portrait de ta cible, ajusté"
+      ],
+      "blocages": [
+        "Rester derrière son écran au lieu d'aller voir les gens.",
+        "Poser des questions qui vendent au lieu d'écouter.",
+        "N'entendre que ce qui confirme son idée."
+      ],
+      "actions": [
+        {
+          "id": "e_terrain.a1",
+          "texte": "Liste les personnes de ta cible que tu peux rencontrer ou appeler ce mois-ci.",
+          "outil": null
+        },
+        {
+          "id": "e_terrain.a2",
+          "texte": "Prépare quelques questions ouvertes sur leur quotidien, sans parler de ton offre.",
+          "outil": null
+        },
+        {
+          "id": "e_terrain.a3",
+          "texte": "Note leurs mots exacts, puis fais le test terrain que Le Cibleur te propose.",
+          "outil": "cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Entrepreneur",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "e_offre"
+    },
+    {
+      "id": "e_offre",
+      "code": "E3",
+      "branche": "entrepreneur",
+      "nom": "Construire ton offre",
+      "question": "Qu'est-ce que je propose, sous quelle forme, à quel prix ?",
+      "objectif": "Une offre claire sur ta zone d'excellence, écrite avec les mots de ta cible : une promesse, un format, un prix que tu oses dire.",
+      "criteres": [
+        {
+          "id": "e_offre.phrase",
+          "texte": "Ton offre tient en une phrase : pour qui, quel résultat, avec les mots de ta cible.",
+          "question": "Ton offre tient-elle en une phrase, avec les mots de ta cible ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_offre.format",
+          "texte": "Le format et la durée sont définis.",
+          "question": "As-tu défini le format et la durée ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_offre.gagner",
+          "texte": "Tu sais ce que tu veux gagner, et combien de ventes à ton prix il te faut pour y arriver.",
+          "question": "Sais-tu ce que tu veux gagner, et combien de ventes il te faut pour y arriver ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_offre.prix",
+          "texte": "Tu as un prix et tu oses l'annoncer.",
+          "question": "As-tu un prix, et oses-tu l'annoncer ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_offre.valeurs",
+          "texte": "Ton offre et ta façon de travailler respectent tes valeurs.",
+          "question": "Ton offre et ta façon de travailler respectent-elles tes valeurs ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_offre.alignee",
+          "texte": "Ton offre respecte tes garde-fous et évite ton anti-contexte.",
+          "question": "Ton offre te laisse-t-elle dans ce qui t'allume ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "cibleur",
+          "nom": "Le Cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "Rebond Stratégique : une offre personnalisée sur ton domaine d'excellence et le business model qui te va.",
+      "livrables": [
+        "Ta fiche offre : promesse, format, durée, prix",
+        "Si besoin, plusieurs piliers d'activité"
+      ],
+      "blocages": [
+        "Vendre ce qui ne te correspond pas, parce que ça se vend.",
+        "La peur de demander de l'argent.",
+        "Une offre trop large pour être comprise."
+      ],
+      "actions": [
+        {
+          "id": "e_offre.a1",
+          "texte": "Reprends l'offre en une phrase et le prix indicatif proposés par Le Cibleur, et ajuste-les avec les mots de ton carnet de terrain.",
+          "outil": "cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        },
+        {
+          "id": "e_offre.a2",
+          "texte": "Écris ta promesse, ton format et ta durée sur une seule page.",
+          "outil": null
+        },
+        {
+          "id": "e_offre.a3",
+          "texte": "Annonce ton prix à voix haute à une personne de confiance.",
+          "outil": null
+        },
+        {
+          "id": "e_offre.a4",
+          "texte": "Écris ce que tu veux gagner, puis calcule combien de ventes à ton prix il te faut pour y arriver.",
+          "outil": null
+        },
+        {
+          "id": "e_offre.a5",
+          "texte": "Relis ton offre avec tes valeurs : garde ce qui les respecte, change le reste.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "« Mon talent devient une offre ».",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Entrepreneur",
+      "themes": {
+        "valeurs": true,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "e_reseau"
+    },
+    {
+      "id": "e_reseau",
+      "code": "E4",
+      "branche": "entrepreneur",
+      "nom": "Développer ton réseau et ta communauté",
+      "question": "Qui me connaît, me recommande et m'envoie des clients ?",
+      "objectif": "Créer autour de toi un cercle de personnes qui te connaissent et te recommandent, sur les réseaux sociaux ou en dehors : rencontres, événements, lieux où se trouve ta cible.",
+      "criteres": [
+        {
+          "id": "e_reseau.prescripteurs",
+          "texte": "Tu sais qui croise ta cible tous les jours et peut t'envoyer des clients (tes prescripteurs).",
+          "question": "Sais-tu qui peut t'envoyer des clients ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_reseau.lieux",
+          "texte": "Tu es présent dans au moins un lieu où se trouve ta cible (événement, association, tiers-lieu, salon), en vrai ou en ligne.",
+          "question": "Es-tu présent dans un lieu où se trouve ta cible ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_reseau.nouvelles",
+          "texte": "Tu donnes régulièrement de tes nouvelles à ton cercle.",
+          "question": "Donnes-tu régulièrement de tes nouvelles à ton cercle ?",
+          "essentiel": false
+        },
+        {
+          "id": "e_reseau.communaute",
+          "texte": "Tu as un endroit où ta communauté se retrouve (atelier, groupe, lettre, événement).",
+          "question": "As-tu un endroit où ta communauté se retrouve ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "cibleur",
+          "nom": "Le Cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "Proposition : à travailler en séance (le site ne cite pas le réseau dans le Rebond, à valider).",
+      "livrables": [
+        "Ta liste de prescripteurs",
+        "Ton agenda de rencontres"
+      ],
+      "blocages": [
+        "« Je n'aime pas le réseautage. »",
+        "Croire que réseau veut dire réseaux sociaux.",
+        "Ne contacter les gens que quand on a besoin d'eux."
+      ],
+      "actions": [
+        {
+          "id": "e_reseau.a1",
+          "texte": "Liste les personnes et les lieux qui croisent ta cible tous les jours (Le Cibleur te donne des idées de lieux).",
+          "outil": "cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        },
+        {
+          "id": "e_reseau.a2",
+          "texte": "Va à un événement où se trouve ta cible ce mois-ci.",
+          "outil": null
+        },
+        {
+          "id": "e_reseau.a3",
+          "texte": "Donne de tes nouvelles à quelques anciens contacts, sans rien leur demander.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Entrepreneur",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "e_vendre"
+    },
+    {
+      "id": "e_vendre",
+      "code": "E5",
+      "branche": "entrepreneur",
+      "nom": "Te présenter et vendre ton offre",
+      "question": "Comment je le dis, et comment je vends, sans forcer ?",
+      "objectif": "Présenter ton talent et ton offre avec assurance, oser le premier message et mener tes premiers rendez-vous jusqu'au prix.",
+      "criteres": [
+        {
+          "id": "e_vendre.pitch",
+          "texte": "Tu as une phrase pitch de 30 secondes.",
+          "question": "As-tu une phrase pour te présenter en 30 secondes ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_vendre.dite",
+          "texte": "Tu l'as déjà dite à de vraies personnes de ta cible.",
+          "question": "L'as-tu déjà dite à de vraies personnes ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_vendre.messages",
+          "texte": "Tu as envoyé tes premiers messages à ta cible.",
+          "question": "As-tu envoyé tes premiers messages à ta cible ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_vendre.rdv",
+          "texte": "Tu as mené au moins un rendez-vous jusqu'à annoncer ton prix.",
+          "question": "As-tu déjà annoncé ton prix en rendez-vous ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "qcm",
+          "nom": "QCM Talent Unique",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "cibleur",
+          "nom": "Le Cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "Phase « Incarnation » : la posture et le discours. Dans le Rebond : te vendre de façon authentique et naturelle.",
+      "livrables": [
+        "Ta phrase pitch (longue et courte)",
+        "Tes premiers messages LinkedIn et e-mail",
+        "Une histoire avant, après"
+      ],
+      "blocages": [
+        "« C'est banal », donc on n'ose pas le dire.",
+        "La peur de demander de l'argent, et du mal à recevoir.",
+        "Un pitch trop conceptuel, que personne ne retient."
+      ],
+      "actions": [
+        {
+          "id": "e_vendre.a1",
+          "texte": "Pars du texte de présentation de ton QCM ou de la phrase pitch de ta fiche, et réduis-le à 30 secondes.",
+          "outil": "qcm",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "e_vendre.a2",
+          "texte": "Enregistre-toi en le disant, réécoute, simplifie.",
+          "outil": null
+        },
+        {
+          "id": "e_vendre.a3",
+          "texte": "Envoie le premier message proposé par Le Cibleur à quelques personnes de ta cible.",
+          "outil": "cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "« Pitch en 30 s » est le conseil du niveau 3.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Entrepreneur",
+      "themes": {
+        "valeurs": false,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "e_vivre"
+    },
+    {
+      "id": "e_vivre",
+      "code": "E6",
+      "branche": "entrepreneur",
+      "nom": "Passer à l'action et en vivre",
+      "question": "Comment je tiens dans la durée, dans le plaisir ?",
+      "objectif": "Décrocher tes premiers clients et tenir sans t'épuiser : ce qui t'allume au centre, ce qui te vide délégué.",
+      "criteres": [
+        {
+          "id": "e_vivre.premier",
+          "texte": "Tu as une première vente.",
+          "question": "As-tu déjà fait une première vente ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_vivre.plan",
+          "texte": "Tu suis un plan sur 30 jours.",
+          "question": "Suis-tu un plan d'action sur 30 jours ?",
+          "essentiel": true
+        },
+        {
+          "id": "e_vivre.delegue",
+          "texte": "Tu délègues ou tu limites ce qui te vide.",
+          "question": "Délègues-tu ce qui te vide ?",
+          "essentiel": false
+        },
+        {
+          "id": "e_vivre.revenu",
+          "texte": "Tu suis ce que tu gagnes par rapport à ce que tu veux gagner, et tu ajustes ton prix si besoin.",
+          "question": "Suis-tu ce que tu gagnes par rapport à ton objectif ?",
+          "essentiel": false
+        },
+        {
+          "id": "e_vivre.flow",
+          "texte": "Tu vérifies régulièrement que ton activité tourne autour de ce qui t'allume.",
+          "question": "Vérifies-tu régulièrement que tu restes dans ce qui t'allume ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "cibleur",
+          "nom": "Le Cibleur",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/"
+        },
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "Phase « Passage à l'action ». Pas d'outil dédié pour suivre clients et revenus aujourd'hui.",
+      "livrables": [
+        "Ton plan sur 30 jours (Carte ou Cibleur)",
+        "Tes premiers clients",
+        "Ta carte qui s'illumine avec tes moments de flow"
+      ],
+      "blocages": [
+        "« Et si je n'étais pas fait pour ça ? » après les premiers non.",
+        "Replonger dans l'ancien rythme.",
+        "S'épuiser en faisant tout soi-même."
+      ],
+      "actions": [
+        {
+          "id": "e_vivre.a1",
+          "texte": "Suis le plan sur 30 jours de ta Carte ou du Cibleur, 3 actions par semaine.",
+          "outil": "carte_pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "e_vivre.a2",
+          "texte": "Note tes moments de flow chaque semaine dans ta Carte du Talent.",
+          "outil": "carte",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "e_vivre.a3",
+          "texte": "À la prochaine grosse décision, refais une version de ta Boussole.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "atteint",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          },
+          {
+            "code": "4",
+            "titre": "Niveau 4 · Maîtriser ses défauts"
+          },
+          {
+            "code": "5A",
+            "titre": "Niveau 5A · Vendre cher, devenir expert"
+          }
+        ],
+        "note": "La première vente fait atteindre le niveau 3 ; en durant, tu vises 4, puis 5A. Le 5B se joue dans « Ton Ikigai ».",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Entrepreneur",
+      "themes": {
+        "valeurs": false,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Passage à l'action"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "ikigai"
+    },
+    {
+      "id": "s_cible",
+      "code": "S1",
+      "branche": "salarie",
+      "nom": "Cibler le bon poste, la bonne entreprise, le bon patron",
+      "question": "Où mon talent s'allume, et qui a vraiment besoin de moi ?",
+      "objectif": "Savoir quel poste tu vises, dans quel type d'entreprise et avec quel manager ton talent s'allume, et qui a vraiment besoin de toi.",
+      "criteres": [
+        {
+          "id": "s_cible.poste",
+          "texte": "Tu décris le poste visé en une phrase.",
+          "question": "Peux-tu décrire le poste que tu vises en une phrase ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_cible.entreprises",
+          "texte": "Tu as une liste d'entreprises qui te correspondent.",
+          "question": "As-tu une liste d'entreprises qui te correspondent ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_cible.manager",
+          "texte": "Tu sais décrire ton manager idéal et la culture où tu t'épanouis.",
+          "question": "Sais-tu décrire ton manager idéal ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_cible.valeurs",
+          "texte": "L'entreprise et le patron que tu vises sont alignés avec tes valeurs.",
+          "question": "L'entreprise et le patron que tu vises sont-ils alignés avec tes valeurs ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_cible.salaire",
+          "texte": "Tu connais ton salaire cible et ton plancher, en t'appuyant sur ce qui se pratique pour ce poste.",
+          "question": "Connais-tu ton salaire cible et ton plancher pour ce poste ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_cible.deux_sens",
+          "texte": "Tu vérifies que ça marche dans les deux sens : ils ont besoin de ton talent, et tu as besoin de ce qu'ils offrent.",
+          "question": "As-tu vérifié que ces employeurs ont besoin de toi, et toi d'eux ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte_pistes",
+          "nom": "Carte du Talent, partie Mes pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        },
+        {
+          "id": "cibleur_salarie",
+          "nom": "Le Cibleur, voie salarié (en développement)",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/?voie=salarie"
+        }
+      ],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Pivot Stratégique : reconfiguration de carrière, transition sécurisée.",
+      "livrables": [
+        "Ton poste cible en une phrase",
+        "Ta liste d'entreprises et ton portrait du patron idéal"
+      ],
+      "blocages": [
+        "Viser « n'importe quel poste qui recrute ».",
+        "Regarder l'intitulé et le salaire, pas le contexte qui t'allume.",
+        "Oublier le manager, qui fait souvent tout."
+      ],
+      "actions": [
+        {
+          "id": "s_cible.a1",
+          "texte": "Ouvre Mes pistes dans ta Carte du Talent et garde les métiers qui te correspondent le mieux.",
+          "outil": "carte_pistes",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "s_cible.a2",
+          "texte": "Mets tes postes ou entreprises cibles dans la Boussole de décision.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        },
+        {
+          "id": "s_cible.a3",
+          "texte": "Écris le portrait de ton manager idéal en 3 phrases.",
+          "outil": null
+        },
+        {
+          "id": "s_cible.a4",
+          "texte": "Écris tes valeurs non négociables et vérifie chaque entreprise cible avec elles.",
+          "outil": null
+        },
+        {
+          "id": "s_cible.a5",
+          "texte": "Fixe ton salaire cible et ton plancher, en t'appuyant sur ce qui se pratique pour ce poste.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Salarié",
+      "themes": {
+        "valeurs": true,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "s_terrain"
+    },
+    {
+      "id": "s_terrain",
+      "code": "S2",
+      "branche": "salarie",
+      "nom": "Enquêter sur le terrain",
+      "question": "Qu'est-ce que vivent vraiment les équipes que je vise ?",
+      "objectif": "Comprendre de l'intérieur tes entreprises et ton futur poste : ce que vivent les équipes, leurs vrais problèmes, le vocabulaire du métier, grâce à des entretiens réseau.",
+      "criteres": [
+        {
+          "id": "s_terrain.entretiens",
+          "texte": "Tu as eu plusieurs entretiens réseau avec des personnes du poste ou des entreprises visés (nombre à fixer avec Pierre).",
+          "question": "As-tu échangé avec des personnes qui font le poste ou travaillent dans tes entreprises cibles ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_terrain.vocabulaire",
+          "texte": "Tu connais le vocabulaire du métier et tu le reprends.",
+          "question": "Connais-tu les mots du métier, et les utilises-tu ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_terrain.equipes",
+          "texte": "Tu sais ce que vivent les équipes : difficultés, rythme, culture.",
+          "question": "Sais-tu ce que vivent les équipes au quotidien ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_terrain.ajuste",
+          "texte": "Tu as ajusté ta cible après ces échanges.",
+          "question": "As-tu ajusté ta cible après ces échanges ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Proposition : à préparer et débriefer en séance du Pivot (à valider).",
+      "livrables": [
+        "Ton carnet d'enquête : mots du métier, problèmes des équipes, contacts"
+      ],
+      "blocages": [
+        "Postuler en masse sans connaître l'entreprise.",
+        "N'oser contacter personne.",
+        "Parler de soi au lieu d'écouter."
+      ],
+      "actions": [
+        {
+          "id": "s_terrain.a1",
+          "texte": "Liste des personnes qui font le poste visé ou travaillent dans tes entreprises cibles.",
+          "outil": null
+        },
+        {
+          "id": "s_terrain.a2",
+          "texte": "Demande-leur un échange court pour comprendre leur quotidien, sans demander de poste.",
+          "outil": null
+        },
+        {
+          "id": "s_terrain.a3",
+          "texte": "Reprends dans ta Boussole les questions qui restent à vérifier, et pose-les.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Salarié",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "s_reseau"
+    },
+    {
+      "id": "s_reseau",
+      "code": "S3",
+      "branche": "salarie",
+      "nom": "Développer ton réseau et ta communauté",
+      "question": "Qui me connaît et peut me recommander ?",
+      "objectif": "Créer autour de toi un cercle de personnes qui te connaissent et peuvent te recommander dans tes entreprises cibles, sur les réseaux sociaux ou en dehors.",
+      "criteres": [
+        {
+          "id": "s_reseau.recommandeurs",
+          "texte": "Tu connais des personnes qui peuvent te recommander dans tes entreprises cibles.",
+          "question": "Connais-tu des personnes qui peuvent te recommander ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_reseau.lieux",
+          "texte": "Tu es présent dans au moins un lieu du métier (association pro, événement, anciens élèves), en vrai ou en ligne.",
+          "question": "Es-tu présent dans un lieu où se retrouvent les gens de ton métier ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_reseau.nouvelles",
+          "texte": "Tu donnes régulièrement de tes nouvelles à ton cercle.",
+          "question": "Donnes-tu régulièrement de tes nouvelles à ton cercle ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_reseau.aide",
+          "texte": "Tu aides aussi les autres, sans attendre de retour.",
+          "question": "Rends-tu service à ton réseau, sans attendre de retour ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Proposition : à travailler en séance (à valider).",
+      "livrables": [
+        "Ta carte de réseau : qui peut te recommander, où",
+        "Ton agenda de rencontres"
+      ],
+      "blocages": [
+        "« Je n'aime pas le réseautage. »",
+        "Croire que réseau veut dire LinkedIn.",
+        "Ne contacter les gens que quand on cherche."
+      ],
+      "actions": [
+        {
+          "id": "s_reseau.a1",
+          "texte": "Liste les personnes qui peuvent te recommander dans tes entreprises cibles.",
+          "outil": null
+        },
+        {
+          "id": "s_reseau.a2",
+          "texte": "Va à un événement de ton futur métier ce mois-ci.",
+          "outil": null
+        },
+        {
+          "id": "s_reseau.a3",
+          "texte": "Donne de tes nouvelles à quelques anciens collègues, sans rien leur demander.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Salarié",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "s_supports"
+    },
+    {
+      "id": "s_supports",
+      "code": "S4",
+      "branche": "salarie",
+      "nom": "Préparer tes supports",
+      "question": "Est-ce que mes supports montrent vraiment mon talent ?",
+      "objectif": "Avoir des supports à jour qui montrent ton talent avec les mots du métier : ton CV, ton profil LinkedIn, et un portfolio si ton métier s'y prête.",
+      "criteres": [
+        {
+          "id": "s_supports.cv",
+          "texte": "Ton CV est à jour et met ton talent en avant, avec les mots du métier.",
+          "question": "Ton CV est-il à jour, et montre-t-il ton talent avec les mots du métier ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_supports.linkedin",
+          "texte": "Ton profil LinkedIn est à jour : titre, résumé, expériences, avec ton talent.",
+          "question": "Ton profil LinkedIn est-il à jour et parle-t-il de ton talent ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_supports.portfolio",
+          "texte": "Si ton métier s'y prête, tu as un portfolio avec des réalisations concrètes.",
+          "question": "As-tu un portfolio de tes réalisations, si ton métier s'y prête ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_supports.histoires",
+          "texte": "Tu as 3 exemples réels de ton talent en action, prêts à raconter.",
+          "question": "As-tu 3 exemples réels de ton talent en action, prêts à raconter ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "qcm",
+          "nom": "QCM Talent Unique",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Exemple réel sur le site : Dayane (profil LinkedIn et CV renforcés, puis emploi signé en 2 mois).",
+      "livrables": [
+        "Ton CV à jour",
+        "Ton profil LinkedIn à jour",
+        "Ton portfolio, si ton métier s'y prête",
+        "Tes 3 histoires de talent"
+      ],
+      "blocages": [
+        "Un CV qui raconte le passé au lieu de ton talent.",
+        "Un profil LinkedIn vide ou daté.",
+        "Attendre que tout soit parfait avant de bouger."
+      ],
+      "actions": [
+        {
+          "id": "s_supports.a1",
+          "texte": "Reprends le texte de présentation de ton QCM pour ton résumé LinkedIn et le haut de ton CV.",
+          "outil": "qcm",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "s_supports.a2",
+          "texte": "Réécris ton titre LinkedIn avec ton talent et les mots du métier notés pendant ton enquête.",
+          "outil": null
+        },
+        {
+          "id": "s_supports.a3",
+          "texte": "Choisis 3 réalisations et mets-les en avant (portfolio, CV, LinkedIn).",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Salarié",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "s_strategie"
+    },
+    {
+      "id": "s_strategie",
+      "code": "S5",
+      "branche": "salarie",
+      "nom": "Ta stratégie de recherche",
+      "question": "Comment je postule intelligemment et je sors du lot ?",
+      "objectif": "Postuler intelligemment au bon poste, en combinant plusieurs leviers plutôt qu'en envoyant des CV en masse, et réussir tes entretiens.",
+      "leviers": [
+        "Ton réseau et les recommandations",
+        "Commenter sur LinkedIn pour te rendre visible auprès de tes cibles",
+        "My Job Glasses (myjobglasses.com), plateforme gratuite de rencontres avec des professionnels « ambassadeurs », pour découvrir un métier ou une entreprise de l'intérieur",
+        "Des candidatures ciblées et préparées",
+        "Des entretiens préparés avec ta présentation de 30 secondes et tes histoires de talent"
+      ],
+      "criteres": [
+        {
+          "id": "s_strategie.variee",
+          "texte": "Tu utilises au moins deux leviers différents (réseau, LinkedIn, rencontres de professionnels, candidatures ciblées).",
+          "question": "Utilises-tu plusieurs leviers, et pas seulement les annonces ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_strategie.ciblees",
+          "texte": "Tes candidatures sont ciblées et préparées, plutôt qu'envoyées en masse.",
+          "question": "Tes candidatures sont-elles ciblées et préparées ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_strategie.reco",
+          "texte": "Pour tes cibles prioritaires, tu passes par une recommandation.",
+          "question": "Passes-tu par une recommandation pour tes cibles prioritaires ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_strategie.negociation",
+          "texte": "Tu as préparé ta négociation : ton salaire cible, ton plancher, et ce qui compte pour toi en plus du salaire.",
+          "question": "As-tu préparé ta négociation de salaire ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_strategie.entretien",
+          "texte": "Tu as ta présentation de 30 secondes et tu prépares chaque entretien.",
+          "question": "As-tu ta présentation de 30 secondes, et prépares-tu chaque entretien ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [
+        {
+          "id": "qcm",
+          "nom": "QCM Talent Unique",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "cibleur_salarie",
+          "nom": "Le Cibleur, voie salarié (en développement)",
+          "url": "https://www.magichumans.com/boussole-decision/ma-cible/?voie=salarie"
+        }
+      ],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Phase « Incarnation » : la posture et le discours. Exemple réel sur le site : Dayane (approche stratégique des recruteurs et des entretiens).",
+      "livrables": [
+        "Ton plan de recherche : leviers, cibles, rythme",
+        "Ta présentation de 30 secondes",
+        "Tes candidatures ciblées"
+      ],
+      "blocages": [
+        "Envoyer 100 CV et attendre.",
+        "N'utiliser qu'un seul levier.",
+        "Ne pas oser relancer ni commenter."
+      ],
+      "actions": [
+        {
+          "id": "s_strategie.a1",
+          "texte": "Choisis tes candidatures prioritaires et cherche une recommandation pour chacune.",
+          "outil": null
+        },
+        {
+          "id": "s_strategie.a2",
+          "texte": "Commente chaque semaine quelques publications de personnes de tes entreprises cibles.",
+          "outil": null
+        },
+        {
+          "id": "s_strategie.a3",
+          "texte": "Prépare ta présentation de 30 secondes à partir du texte de ton QCM, et entraîne-toi à voix haute.",
+          "outil": "qcm",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "s_strategie.a4",
+          "texte": "Prépare ta négociation : ton salaire cible, ton plancher, tes arguments, et entraîne-toi à annoncer ton chiffre à voix haute.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          }
+        ],
+        "note": "« Pitch en 30 s » : ta présentation d'entretien.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Salarié",
+      "themes": {
+        "valeurs": false,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Incarnation"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "s_epanouir"
+    },
+    {
+      "id": "s_epanouir",
+      "code": "S6",
+      "branche": "salarie",
+      "nom": "Être recruté au bon poste et t'y épanouir",
+      "question": "Comment je reste dans ce qui m'allume, une fois en poste ?",
+      "objectif": "Signer sur un poste aligné avec ton talent, puis t'y épanouir dans la durée.",
+      "criteres": [
+        {
+          "id": "s_epanouir.signe",
+          "texte": "Tu as signé sur un poste aligné avec ton talent.",
+          "question": "As-tu signé sur un poste aligné avec ton talent ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_epanouir.negocie",
+          "texte": "Tu as négocié ton salaire et tes conditions avant de signer.",
+          "question": "As-tu négocié ton salaire et tes conditions avant de signer ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_epanouir.valeurs",
+          "texte": "Ton poste et ton entreprise respectent tes valeurs au quotidien.",
+          "question": "Ton poste et ton entreprise respectent-ils tes valeurs au quotidien ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_epanouir.cadre",
+          "texte": "Dans tes premiers mois, tu as posé ton cadre : ce qui t'allume, tes garde-fous.",
+          "question": "As-tu posé ton cadre avec ton manager ?",
+          "essentiel": false
+        },
+        {
+          "id": "s_epanouir.flow",
+          "texte": "Tu vérifies régulièrement que ton poste reste dans ce qui t'allume.",
+          "question": "Vérifies-tu régulièrement que tu restes dans ce qui t'allume ?",
+          "essentiel": true
+        },
+        {
+          "id": "s_epanouir.suite",
+          "texte": "Tu sais quoi faire si tu sens que tu t'éteins.",
+          "question": "Sais-tu quoi faire si tu sens que tu t'éteins ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        }
+      ],
+      "seance_detail": "Suivi du Pivot Stratégique (3 à 6 mois, séances bimensuelles + suivi).",
+      "livrables": [
+        "Ton contrat signé",
+        "Ta carte qui s'illumine avec tes moments de flow"
+      ],
+      "blocages": [
+        "Tout accepter au début pour faire ses preuves.",
+        "Retomber dans les vieilles habitudes.",
+        "Ne rien dire quand on s'éteint."
+      ],
+      "actions": [
+        {
+          "id": "s_epanouir.a1",
+          "texte": "Note tes moments de flow chaque semaine dans ta Carte du Talent.",
+          "outil": "carte",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "s_epanouir.a2",
+          "texte": "Parle à ton manager de ce qui t'allume et de ce qui t'éteint.",
+          "outil": null
+        },
+        {
+          "id": "s_epanouir.a3",
+          "texte": "À la prochaine grosse décision, refais une version de ta Boussole.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "atteint",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          },
+          {
+            "code": "4",
+            "titre": "Niveau 4 · Maîtriser ses défauts"
+          },
+          {
+            "code": "5A",
+            "titre": "Niveau 5A · Vendre cher, devenir expert"
+          }
+        ],
+        "note": "Côté salarié, l'équivalent de la première vente est d'être recruté grâce à ton talent (Lukas et son stage à Barcelone, niveau 3 de la vidéo) ; ensuite tu vises 4, puis 5A. Le 5B se joue dans « Ton Ikigai ».",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Salarié",
+      "themes": {
+        "valeurs": true,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Passage à l'action"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "ikigai"
+    },
+    {
+      "id": "k_connaitre",
+      "code": "K1",
+      "branche": "soi",
+      "nom": "Te connaître",
+      "question": "Comment je fonctionne, au travail comme en amour ?",
+      "objectif": "Comprendre ton fonctionnement : ce qui t'allume, ce qui t'éteint, ce qui te ressource, et ce dont tu as besoin en relation.",
+      "criteres": [
+        {
+          "id": "k_connaitre.profils",
+          "texte": "Tu as fait le QCM Talent Unique et le Quiz Amour, et tu te reconnais dans les résultats.",
+          "question": "As-tu fait le QCM Talent Unique et le Quiz Amour, et t'y reconnais-tu ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_connaitre.ressource",
+          "texte": "Tu sais ce qui te ressource et ce qui te vide.",
+          "question": "Sais-tu ce qui te ressource et ce qui te vide ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_connaitre.besoins",
+          "texte": "Tu sais nommer au moins 2 de tes besoins fondamentaux.",
+          "question": "Peux-tu nommer au moins 2 de tes besoins fondamentaux ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_connaitre.motivation",
+          "texte": "Tu connais ta motivation profonde (par exemple avec l'ennéagramme, travaillé avec Pierre).",
+          "question": "Connais-tu ce qui te pousse au fond, ta motivation profonde ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "qcm",
+          "nom": "QCM Talent Unique",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "quiz_amour",
+          "nom": "Quiz Amour",
+          "url": "https://www.magichumans.com/quiz-amour/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "appel_decouverte",
+          "nom": "Appel Découverte",
+          "prix": "offert",
+          "duree": "1 h"
+        },
+        {
+          "id": "diagnostic_amour",
+          "nom": "Diagnostic Talent & Amour",
+          "prix": "non indiqué",
+          "duree": "non indiquée"
+        }
+      ],
+      "seance_detail": "Appel Découverte offert. L'ennéagramme et son sous-type font partie de la fiche Talent Unique. Côté amour : le Diagnostic Talent & Amour présenté dans le deck du webinaire.",
+      "livrables": [
+        "Ton rapport Talent Unique et ton profil amoureux",
+        "Ta liste de besoins et de sources de ressourcement"
+      ],
+      "blocages": [
+        "Se définir par ce qu'on fait, pas par ce qui nous anime.",
+        "Confondre ses besoins avec ceux des autres.",
+        "Se juger au lieu de s'observer."
+      ],
+      "actions": [
+        {
+          "id": "k_connaitre.a1",
+          "texte": "Fais le Quiz Amour (8 minutes) et lis le bloc « Ce que ton profil dit de ton Talent Unique ».",
+          "outil": "quiz_amour",
+          "url": "https://www.magichumans.com/quiz-amour/"
+        },
+        {
+          "id": "k_connaitre.a2",
+          "texte": "Fais le QCM Talent Unique (6 minutes).",
+          "outil": "qcm",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "k_connaitre.a3",
+          "texte": "Note au moins 2 besoins sans lesquels tu ne te sens pas bien.",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "2",
+            "titre": "Niveau 2 · La prise de conscience"
+          }
+        ],
+        "note": "Côté perso : conscience de ce qui t'anime.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Connaissance de soi",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Diagnostic et exploration"
+        ],
+        "pilier_site": "Connaître"
+      },
+      "etape_suivante": "k_defauts"
+    },
+    {
+      "id": "k_defauts",
+      "code": "K2",
+      "branche": "soi",
+      "nom": "Maîtriser tes défauts",
+      "question": "Et si mon défaut était l'excès de ma qualité ?",
+      "objectif": "Voir que ton défaut est souvent l'excès d'une qualité, le repérer à temps et le cadrer, au lieu de te battre contre lui.",
+      "criteres": [
+        {
+          "id": "k_defauts.miroir",
+          "texte": "Tu as relié ton défaut principal à la qualité dont il est l'excès.",
+          "question": "As-tu relié ton défaut principal à la qualité dont il est l'excès ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_defauts.signaux",
+          "texte": "Tu sais repérer les situations où ta qualité bascule en défaut.",
+          "question": "Sais-tu quand ta qualité bascule en défaut ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_defauts.parade",
+          "texte": "Tu as une parade simple pour ces moments-là (garde-fou, délégation, demande d'aide).",
+          "question": "As-tu une parade simple pour ces moments-là ?",
+          "essentiel": false
+        },
+        {
+          "id": "k_defauts.relation",
+          "texte": "Tu sais quels défauts de l'autre tu peux vivre en relation, et lesquels non.",
+          "question": "Sais-tu quels défauts tu peux vivre chez l'autre, et lesquels non ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "boussole_relation",
+          "nom": "Boussole Relation (Boussole de décision perso)",
+          "url": "https://www.magichumans.com/boussole-decision/importer-quiz/?theme=amour"
+        }
+      ],
+      "seances": [
+        {
+          "id": "diagnostic",
+          "nom": "Diagnostic Talent & Cap",
+          "prix": "980 €",
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+        }
+      ],
+      "seance_detail": "Le Diagnostic Talent & Cap s'appuie sur l'approche paradoxale du talent de Hugues Boulenger (« votre plus grand talent est aussi votre plus grand défaut ») et cartographie verrous et angles morts.",
+      "livrables": [
+        "Ta carte qualité et défaut miroir (comme l'exemple de Lukas dans la vidéo de l'échelle)",
+        "Tes garde-fous"
+      ],
+      "blocages": [
+        "Vouloir supprimer son défaut, et éteindre sa qualité avec.",
+        "La honte de ses défauts.",
+        "Ne voir les défauts que chez l'autre."
+      ],
+      "actions": [
+        {
+          "id": "k_defauts.a1",
+          "texte": "Écris ta grande qualité et, en face, ce qu'elle devient quand elle déborde.",
+          "outil": null
+        },
+        {
+          "id": "k_defauts.a2",
+          "texte": "Mets ce qui te vide dans la zone à déléguer de ta Carte du Talent.",
+          "outil": "carte",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "k_defauts.a3",
+          "texte": "Côté amour : regarde le critère « défauts avec lesquels on peut vivre » dans la Boussole Relation.",
+          "outil": "boussole_relation",
+          "url": "https://www.magichumans.com/boussole-decision/importer-quiz/?theme=amour"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "atteint",
+        "niveaux": [
+          {
+            "code": "4",
+            "titre": "Niveau 4 · Maîtriser ses défauts"
+          }
+        ],
+        "note": "Le côté « mes défauts » du niveau 4.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Connaissance de soi",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Modélisation"
+        ],
+        "pilier_site": "Assumer"
+      },
+      "etape_suivante": "k_qualites"
+    },
+    {
+      "id": "k_qualites",
+      "code": "K3",
+      "branche": "soi",
+      "nom": "Accepter tes qualités",
+      "question": "Est-ce que j'ose reconnaître ce que je fais bien ?",
+      "objectif": "Reconnaître tes qualités sans les banaliser, et oser les montrer.",
+      "criteres": [
+        {
+          "id": "k_qualites.nommer",
+          "texte": "Tu sais nommer tes 3 grandes qualités, avec des exemples réels.",
+          "question": "Peux-tu nommer tes 3 grandes qualités, avec des exemples réels ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_qualites.recevoir",
+          "texte": "Tu reçois un compliment sans le minimiser.",
+          "question": "Sais-tu recevoir un compliment sans le minimiser ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_qualites.banal",
+          "texte": "Tu ne te dis plus « c'est banal, tout le monde sait faire ça ».",
+          "question": "As-tu arrêté de te dire « c'est banal » ?",
+          "essentiel": false
+        },
+        {
+          "id": "k_qualites.montrer",
+          "texte": "Tu oses montrer tes qualités, au travail comme en relation.",
+          "question": "Oses-tu montrer tes qualités ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "qcm",
+          "nom": "QCM Talent Unique",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "diagnostic",
+          "nom": "Diagnostic Talent & Cap",
+          "prix": "980 €",
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+        }
+      ],
+      "seance_detail": "La fiche Talent Unique met tes qualités en mots, avec tes histoires.",
+      "livrables": [
+        "Tes 3 qualités et leurs preuves",
+        "Ta Carte du Talent (capitale et régions)"
+      ],
+      "blocages": [
+        "« C'est banal. »",
+        "La peur de paraître prétentieux.",
+        "Le mal à recevoir."
+      ],
+      "actions": [
+        {
+          "id": "k_qualites.a1",
+          "texte": "Demande à 3 proches ce qu'ils viennent chercher chez toi.",
+          "outil": null
+        },
+        {
+          "id": "k_qualites.a2",
+          "texte": "Relis la partie « ton manuel d'utilisation » de ton rapport du QCM.",
+          "outil": "qcm",
+          "url": "https://www.magichumans.com/quiz/"
+        },
+        {
+          "id": "k_qualites.a3",
+          "texte": "La prochaine fois qu'on te complimente, réponds juste « merci ».",
+          "outil": null
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "atteint",
+        "niveaux": [
+          {
+            "code": "4",
+            "titre": "Niveau 4 · Maîtriser ses défauts"
+          }
+        ],
+        "note": "Le côté « mes qualités » du niveau 4 : « Maîtrise : mes qualités, mes défauts ».",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Connaissance de soi",
+      "themes": {
+        "valeurs": false,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Modélisation"
+        ],
+        "pilier_site": "Assumer"
+      },
+      "etape_suivante": "k_explorer"
+    },
+    {
+      "id": "k_explorer",
+      "code": "K4",
+      "branche": "soi",
+      "nom": "Explorer tes talents et clarifier tes valeurs",
+      "valide": "Nom validé par Pierre le 9 octobre 2026",
+      "question": "Qu'est-ce que je n'ai pas encore essayé, et qu'est-ce qui compte vraiment pour moi ?",
+      "objectif": "Sortir de tes habitudes pour découvrir de nouveaux talents et de nouvelles façons de les exprimer, et faire un vrai travail sur tes valeurs. C'est ce qui te rapproche de ton Ikigai.",
+      "criteres": [
+        {
+          "id": "k_explorer.talents",
+          "texte": "Tu as testé au moins une activité nouvelle pour toi, et noté ce qu'elle réveille.",
+          "question": "As-tu testé récemment une activité nouvelle pour toi ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_explorer.medias",
+          "texte": "Tu as trouvé au moins une nouvelle voie pour exprimer ton talent : un art, un sport, une association bénévole, un projet.",
+          "question": "As-tu trouvé une nouvelle façon d'exprimer ton talent (art, sport, bénévolat, projet) ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_explorer.valeurs",
+          "texte": "Tu as clarifié tes valeurs : les plus importantes, dans l'ordre, et tes non-négociables.",
+          "question": "As-tu clarifié tes valeurs les plus importantes et tes non-négociables ?",
+          "essentiel": true
+        },
+        {
+          "id": "k_explorer.nourrit",
+          "texte": "Tu sais quelles relations et quels environnements te nourrissent, et tu y passes du temps.",
+          "question": "Passes-tu du temps avec les personnes et dans les lieux qui te nourrissent ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        },
+        {
+          "id": "boussole_relation",
+          "nom": "Boussole Relation (Boussole de décision perso)",
+          "url": "https://www.magichumans.com/boussole-decision/importer-quiz/?theme=amour"
+        },
+        {
+          "id": "quiz_amour",
+          "nom": "Quiz Amour",
+          "url": "https://www.magichumans.com/quiz-amour/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "diagnostic_amour",
+          "nom": "Diagnostic Talent & Amour",
+          "prix": "non indiqué",
+          "duree": "non indiquée"
+        }
+      ],
+      "seance_detail": "Proposition. La Carte du Talent pose déjà la question de tes envies et garde des territoires à conquérir. « Teste de nouveaux contextes » est aussi le conseil du niveau 0 de la vidéo de l'échelle. Côté relations, le Diagnostic Talent & Amour du deck du webinaire.",
+      "livrables": [
+        "Ta liste d'activités à tester (arts, sports, bénévolat, projets)",
+        "Tes valeurs, dans l'ordre, et tes non-négociables",
+        "Le résultat de ta Boussole Relation, si tu fais le point sur une relation"
+      ],
+      "blocages": [
+        "Rester dans ce qu'on sait déjà faire.",
+        "Croire qu'il est trop tard pour découvrir un talent.",
+        "Recopier des valeurs « qui font bien » au lieu des tiennes.",
+        "Rester dans une relation ou un milieu qui vide, par habitude."
+      ],
+      "actions": [
+        {
+          "id": "k_explorer.a1",
+          "texte": "Choisis une activité jamais essayée (un art, un sport, une association) et teste-la ce mois-ci.",
+          "outil": null
+        },
+        {
+          "id": "k_explorer.a2",
+          "texte": "Écris tes valeurs, garde les plus importantes dans l'ordre, et note une chose que tu n'acceptes plus.",
+          "outil": null
+        },
+        {
+          "id": "k_explorer.a3",
+          "texte": "Regarde les territoires à conquérir de ta Carte du Talent et choisis-en un à explorer.",
+          "outil": "carte",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "vers",
+        "niveaux": [
+          {
+            "code": "5B",
+            "titre": "Niveau 5B · L'Ikigai par les valeurs"
+          }
+        ],
+        "note": "Tes valeurs et tes nouvelles voies d'expression préparent le niveau 5B.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Branche Connaissance de soi",
+      "themes": {
+        "valeurs": true,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": "aucune (branche hors offre pro)",
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": "ikigai"
+    },
+    {
+      "id": "argent",
+      "code": "M",
+      "branche": "module",
+      "nom": "Argent, estime de soi et savoir te vendre",
+      "proposition": true,
+      "en_seance_sans_outil": true,
+      "question": "Est-ce que j'ose parler d'argent, annoncer mon prix ou mon salaire, et me vendre ?",
+      "objectif": "Un travail intérieur, en séance avec Pierre et sans outil IA : regarder ta vision de l'argent, corriger tes croyances limitantes sur l'argent, renforcer ton estime de toi, et oser te vendre et annoncer ton prix ou ton salaire. Accessible depuis les deux branches, idéalement avant E5 et S5.",
+      "criteres": [
+        {
+          "id": "argent.vision",
+          "texte": "Tu as regardé ta vision de l'argent : d'où elle vient, et ce qu'elle t'empêche de faire.",
+          "question": "Sais-tu d'où vient ta vision de l'argent, et ce qu'elle t'empêche de faire ?",
+          "essentiel": true
+        },
+        {
+          "id": "argent.croyances",
+          "texte": "Tu as repéré tes croyances limitantes sur l'argent et tu as commencé à les corriger.",
+          "question": "As-tu repéré tes croyances limitantes sur l'argent ?",
+          "essentiel": true
+        },
+        {
+          "id": "argent.estime",
+          "texte": "Tu sais dire ce que tu vaux sans te diminuer.",
+          "question": "Arrives-tu à dire ce que tu vaux sans te diminuer ?",
+          "essentiel": true
+        },
+        {
+          "id": "argent.annoncer",
+          "texte": "Tu annonces ton prix ou ton salaire sans t'excuser et sans baisser de toi-même.",
+          "question": "Annonces-tu ton prix ou ton salaire sans t'excuser ni baisser de toi-même ?",
+          "essentiel": true
+        }
+      ],
+      "outils": [],
+      "seances": [
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        },
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        },
+        {
+          "id": "seance_argent",
+          "nom": "Séance à part : Argent, estime de soi et savoir te vendre",
+          "prix": "séance individuelle à 120 €/h",
+          "duree": "à l'heure (par exemple 240 € pour 2 h, 360 € pour 3 h)"
+        }
+      ],
+      "seance_detail": "En séance avec Pierre, pas d'outil (ni IA, ni outil en ligne). Trois possibilités, précisées par Pierre : dans le Rebond Stratégique, dans le Pivot Stratégique, ou en séance à part (séance individuelle à 120 €/h).",
+      "livrables": [
+        "Tes croyances sur l'argent, et ce que tu choisis de croire à la place",
+        "Ton prix ou ton salaire cible, dit à voix haute en séance"
+      ],
+      "blocages": [
+        "Baisser ton prix avant même qu'on te le demande.",
+        "Accepter le premier salaire proposé, sans négocier.",
+        "Penser que parler d'argent, ce n'est pas pour toi.",
+        "Confondre ce que tu vaux et ce que tu factures."
+      ],
+      "actions": [
+        {
+          "id": "argent.a1",
+          "texte": "Note les phrases sur l'argent que tu as entendues enfant, et ce qu'elles te font faire aujourd'hui.",
+          "outil": null
+        },
+        {
+          "id": "argent.a2",
+          "texte": "Dis ton prix ou ton salaire cible à voix haute, jusqu'à ce qu'il sorte sans hésiter.",
+          "outil": null
+        },
+        {
+          "id": "argent.a3",
+          "texte": "Prends une séance avec Pierre pour travailler ce module (en séance, pas d'outil).",
+          "outil": null
+        }
+      ],
+      "accessible_depuis": [
+        "entrepreneur",
+        "salarie"
+      ],
+      "conseille_avant": [
+        "e_vendre",
+        "s_strategie"
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "transversal",
+        "niveaux": [
+          {
+            "code": "3",
+            "titre": "Niveau 3 · La première vente"
+          },
+          {
+            "code": "4",
+            "titre": "Niveau 4 · Maîtriser ses défauts"
+          },
+          {
+            "code": "5A",
+            "titre": "Niveau 5A · Vendre cher, devenir expert"
+          }
+        ],
+        "note": "Oser annoncer ton prix ou ton salaire prépare la première vente (3). Une estime de toi solide sert la maîtrise (4). Accepter d'être bien payé pour ce que tu fais de mieux mène à l'expert bien payé (5A).",
+        "statut": "proposition"
+      },
+      "branche_nom": "Module transversal (entrepreneur et salarié)",
+      "themes": {
+        "valeurs": false,
+        "remuneration": true
+      },
+      "correspondances": {
+        "etapes_site": "aucune (branche hors offre pro)",
+        "pilier_site": "Assumer"
+      },
+      "etape_suivante": null
+    },
+    {
+      "id": "ikigai",
+      "code": "IK",
+      "branche": "aboutissement",
+      "nom": "Ton Ikigai",
+      "question": "Où se croisent ce que j'aime, ce que je fais bien, ce dont le monde a besoin, ce pour quoi on me paie, et mes valeurs ?",
+      "objectif": "Le but final de toutes les voies : vivre là où se croisent ce que tu aimes, ce en quoi tu es doué, ce dont le monde a besoin et ce pour quoi on te paie, en accord avec tes valeurs. Un réglage qu'on entretient, pas une destination.",
+      "criteres": [
+        {
+          "id": "ikigai.quatre",
+          "texte": "Tu peux remplir les 4 cercles : ce que tu aimes, ce en quoi tu es doué, ce dont le monde a besoin, ce pour quoi on te paie.",
+          "question": "Peux-tu remplir les 4 cercles de ton Ikigai ?",
+          "essentiel": true
+        },
+        {
+          "id": "ikigai.valeurs",
+          "texte": "Ce que tu fais (ton activité, ton poste, tes engagements) respecte tes valeurs.",
+          "question": "Ce que tu fais aujourd'hui respecte-t-il tes valeurs ?",
+          "essentiel": true
+        },
+        {
+          "id": "ikigai.monde",
+          "texte": "Tu sais à quoi tu contribues, au-delà de toi.",
+          "question": "Sais-tu à quoi tu contribues, au-delà de toi ?",
+          "essentiel": true
+        },
+        {
+          "id": "ikigai.reglage",
+          "texte": "Tu refais le point quand ta vie change.",
+          "question": "Refais-tu le point quand ta vie change ?",
+          "essentiel": false
+        }
+      ],
+      "outils": [
+        {
+          "id": "boussole",
+          "nom": "Boussole de décision",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        },
+        {
+          "id": "carte",
+          "nom": "Carte du Talent",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        }
+      ],
+      "seances": [
+        {
+          "id": "diagnostic",
+          "nom": "Diagnostic Talent & Cap",
+          "prix": "980 €",
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+        },
+        {
+          "id": "pivot",
+          "nom": "Pivot Stratégique",
+          "prix": "3 500 € à 4 800 €",
+          "duree": "3 à 6 mois, séances bimensuelles + suivi"
+        },
+        {
+          "id": "rebond",
+          "nom": "Rebond Stratégique",
+          "prix": "3 000 € tout compris",
+          "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus"
+        }
+      ],
+      "seance_detail": "La méthode Magic Humans s'appuie sur l'Ikigaï (site). La Boussole de décision donne un ikigai par option. Exemple réel du niveau 5B dans la vidéo : Raphaël, qui a changé de cible pour rester fidèle à ses valeurs (closing x4).",
+      "livrables": [
+        "Ton Ikigai en une page, avec tes valeurs",
+        "Le résultat de ta Boussole sur ta prochaine décision"
+      ],
+      "blocages": [
+        "Chercher l'Ikigai parfait d'un coup.",
+        "Oublier un des cercles, souvent « ce pour quoi on me paie » ou « ce dont le monde a besoin ».",
+        "Le croire figé."
+      ],
+      "actions": [
+        {
+          "id": "ikigai.a1",
+          "texte": "Remplis les 4 cercles de ton Ikigai, puis vérifie chacun avec tes valeurs.",
+          "outil": null
+        },
+        {
+          "id": "ikigai.a2",
+          "texte": "Passe ta prochaine décision dans la Boussole et regarde l'ikigai de chaque option.",
+          "outil": "boussole",
+          "url": "https://www.magichumans.com/boussole-decision/"
+        },
+        {
+          "id": "ikigai.a3",
+          "texte": "Note chaque semaine tes moments de flow dans ta Carte du Talent pour garder le réglage.",
+          "outil": "carte",
+          "url": "https://www.magichumans.com/carte-du-talent/"
+        }
+      ],
+      "niveau_reussir_dans_le_plaisir": {
+        "effet": "atteint",
+        "niveaux": [
+          {
+            "code": "5B",
+            "titre": "Niveau 5B · L'Ikigai par les valeurs"
+          }
+        ],
+        "note": "« Ikigaï : mes valeurs, un monde meilleur » : l'aboutissement commun de toutes les voies.",
+        "statut": "proposition"
+      },
+      "branche_nom": "Aboutissement commun",
+      "themes": {
+        "valeurs": true,
+        "remuneration": false
+      },
+      "correspondances": {
+        "etapes_site": [
+          "Passage à l'action"
+        ],
+        "pilier_site": "Incarner"
+      },
+      "etape_suivante": null
+    }
+  ],
+  "outils": [
+    {
+      "id": "qcm",
+      "nom": "QCM Talent Unique",
+      "url": "https://www.magichumans.com/quiz/",
+      "type": "outil gratuit",
+      "donne": "Ton Talent Unique en hypothèse (dominante et secondaire), un rapport en 7 parties, ce qui t'allume et ce qui t'éteint, un texte de présentation, un PDF et un lien personnel."
+    },
+    {
+      "id": "quiz_amour",
+      "nom": "Quiz Amour",
+      "url": "https://www.magichumans.com/quiz-amour/",
+      "type": "outil gratuit",
+      "donne": "Ton profil amoureux (une famille parmi sept), ce qui te nourrit et te vide, et ce que ton profil dit de ton Talent Unique."
+    },
+    {
+      "id": "carte",
+      "nom": "Carte du Talent",
+      "url": "https://www.magichumans.com/carte-du-talent/",
+      "type": "outil gratuit",
+      "donne": "Ton talent dessiné comme un territoire : capitale, régions, zone de ressourcement, zone à déléguer, moments de flow, écran Progrès."
+    },
+    {
+      "id": "carte_pistes",
+      "nom": "Carte du Talent, partie Mes pistes",
+      "url": "https://www.magichumans.com/carte-du-talent/",
+      "type": "outil gratuit",
+      "donne": "5 à 10 pistes (métiers, activités, offres d'indépendant) avec % de correspondance et revenu indicatif, ta prochaine compétence, un plan sur 30 jours et une synthèse d'une page."
+    },
+    {
+      "id": "cibleur",
+      "nom": "Le Cibleur",
+      "url": "https://www.magichumans.com/boussole-decision/ma-cible/",
+      "url_courte": "https://www.magichumans.com/ma-cible/",
+      "type": "outil gratuit",
+      "donne": "Ton offre affinée en une phrase, 3 cibles notées sur 10, ton anti-cible, promesse, format, prix indicatif, lieux de rencontre, premier message LinkedIn et premier e-mail, un test terrain, un plan sur 30 jours."
+    },
+    {
+      "id": "boussole",
+      "nom": "Boussole de décision",
+      "url": "https://www.magichumans.com/boussole-decision/",
+      "type": "outil gratuit",
+      "donne": "Tes options comparées à tes critères (non négociables compris) : verdict, podium, ce qui allume ou éteint ton talent, un ikigai par option, garde-fous, trois prochains pas."
+    },
+    {
+      "id": "boussole_relation",
+      "nom": "Boussole Relation (Boussole de décision perso)",
+      "url": "https://www.magichumans.com/boussole-decision/importer-quiz/?theme=amour",
+      "type": "outil gratuit",
+      "donne": "Une relation lue critère par critère, avec des alertes douces sur l'essentiel."
+    },
+    {
+      "id": "mon_espace",
+      "nom": "Mon espace",
+      "url": "https://www.magichumans.com/mon-espace/",
+      "type": "espace client (compte)",
+      "donne": "Ta fiche Talent Unique déposée une fois, et les outils préremplis avec. Statut : la page de connexion répond en ligne le 9 octobre 2026, le détail des fonctions en ligne reste à vérifier."
+    },
+    {
+      "id": "cibleur_salarie",
+      "nom": "Le Cibleur, voie salarié (en développement)",
+      "url": "https://www.magichumans.com/boussole-decision/ma-cible/?voie=salarie",
+      "type": "outil gratuit, pas encore proposé à l'écran",
+      "donne": "Prévu : tes patrons idéaux avec une double note (il a besoin de toi, tu as besoin de lui), ton manager idéal, un pitch oral et un premier e-mail. Statut au 9 octobre 2026 : partie 1 sur 5 codée (données et API), aucun écran."
+    },
+    {
+      "id": "page_outils",
+      "nom": "Page Tes outils",
+      "url": "https://www.magichumans.com/outils/",
+      "type": "page du site",
+      "donne": "Les six outils (pro et perso) et l'Appel Découverte."
+    }
+  ],
+  "offres": [
+    {
+      "id": "appel_decouverte",
+      "nom": "Appel Découverte",
+      "prix": "offert",
+      "duree": "1 h",
+      "contenu": "On fait le point sur ta situation et on commence à cerner ton Talent Unique. Sans engagement.",
+      "url": "https://calendly.com/pierre-j-sarazin"
+    },
+    {
+      "id": "diagnostic",
+      "nom": "Diagnostic Talent & Cap",
+      "prix": "980 €",
+      "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I",
+      "contenu": "Cartographie de ton Talent Unique, tes verrous et angles morts, ton levier de flow, et un cap ou projet cible clair. 100 % déductible si Pivot.",
+      "remarque": "Point de départ incontournable avant tout accompagnement long (site)."
+    },
+    {
+      "id": "pivot",
+      "nom": "Pivot Stratégique",
+      "prix": "3 500 € à 4 800 €",
+      "duree": "3 à 6 mois, séances bimensuelles + suivi",
+      "contenu": "Pour qui sait où aller (ou vient de le clarifier) et veut sécuriser sa transition. Résultat : reconfiguration de carrière, transition sécurisée."
+    },
+    {
+      "id": "rebond",
+      "nom": "Rebond Stratégique",
+      "prix": "3 000 € tout compris",
+      "duree": "environ 10 à 15 h sur quelques semaines, Diagnostic inclus",
+      "contenu": "Pour un business qui épuise ou ne décolle pas : offre, cible et avatar client, business model, se vendre de façon authentique, organisation, ressourcement."
+    },
+    {
+      "id": "diagnostic_amour",
+      "nom": "Diagnostic Talent & Amour",
+      "prix": "non indiqué",
+      "duree": "non indiquée",
+      "contenu": "Ton talent unique (approfondir ce que le quiz révèle), tes compatibilités amoureuses (ce qui nourrit, ce qui frotte), mieux vous comprendre. Source : slide 42 du deck du webinaire V12, pas sur le site."
+    },
+    {
+      "id": "seance_argent",
+      "nom": "Séance à part : Argent, estime de soi et savoir te vendre",
+      "prix": "séance individuelle à 120 €/h",
+      "duree": "à l'heure (par exemple 240 € pour 2 h, 360 € pour 3 h)",
+      "contenu": "Le module Argent en séance individuelle avec Pierre, hors Rebond et Pivot. Pas d'outil. Précisé par Pierre le 9 octobre 2026."
+    },
+    {
+      "id": "reprise",
+      "nom": "Reprise Alignée",
+      "prix": "à partir de 10 000 €",
+      "duree": "sur mesure, sur candidature, Diagnostic inclus",
+      "contenu": "Pour un repreneur après un exit. Hors parcours type."
+    }
+  ],
+  "niveaux_reussir_dans_le_plaisir": {
+    "source": "/workspace/pptx-work/Video-Echelle-Talent-Unique-V6.pptx (slides 11 et 13 à 21), libellés exacts. L'échelle va de 0 à 7 avec deux niveaux 5 (5A et 5B).",
+    "niveaux": [
+      {
+        "code": "0",
+        "titre": "Niveau 0 · Le talent endormi",
+        "libelle": "Endormi",
+        "sous_titre": "Jamais vécu de flow",
+        "conseil": "Teste de nouveaux contextes",
+        "offres": [
+          "appel_decouverte"
+        ],
+        "offres_detail": "Outils gratuits (QCM Talent Unique, Quiz Amour, Carte du Talent) et Appel Découverte offert.",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "1",
+        "titre": "Niveau 1 · Le talent loisir",
+        "libelle": "Loisir",
+        "sous_titre": "Le flow en loisir",
+        "conseil": "Retrouve tes contextes de flow passés",
+        "offres": [
+          "appel_decouverte"
+        ],
+        "offres_detail": "Outils gratuits et Appel Découverte offert.",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "2",
+        "titre": "Niveau 2 · La prise de conscience",
+        "libelle": "Conscience de mon talent unique",
+        "sous_titre": "Je sais quel résultat j'offre",
+        "conseil": "Quel résultat offres-tu ? Dans quel contexte ?",
+        "offres": [
+          "diagnostic",
+          "diagnostic_amour"
+        ],
+        "offres_detail": "Diagnostic Talent & Cap ; côté amour, Diagnostic Talent & Amour.",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "3",
+        "titre": "Niveau 3 · La première vente",
+        "libelle": "Première vente",
+        "sous_titre": "Mon talent devient une offre",
+        "conseil": "Pitch en 30 s",
+        "offres": [
+          "rebond",
+          "pivot"
+        ],
+        "offres_detail": "Rebond Stratégique (entrepreneur), Pivot Stratégique (salarié, et salarié qui devient entrepreneur). Module Argent : dans Rebond, dans Pivot, ou en séance à part (séance individuelle à 120 €/h).",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "4",
+        "titre": "Niveau 4 · Maîtriser ses défauts",
+        "libelle": "Maîtrise : mes qualités, mes défauts",
+        "sous_titre": "Je cartographie qualités et défauts",
+        "conseil": "Chaque qualité a son défaut miroir : cartographie-les",
+        "offres": [
+          "diagnostic",
+          "pivot",
+          "rebond"
+        ],
+        "offres_detail": "Diagnostic Talent & Cap (verrous, angles morts, approche paradoxale), puis le suivi du Pivot ou du Rebond. Module Argent : dans Rebond, dans Pivot, ou en séance à part (séance individuelle à 120 €/h).",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "5A",
+        "titre": "Niveau 5A · Vendre cher, devenir expert",
+        "libelle": "Expert bien payé",
+        "sous_titre": "Expertise sur le bon segment",
+        "conseil": "Expertise + bon segment",
+        "offres": [
+          "rebond",
+          "pivot"
+        ],
+        "offres_detail": "Rebond (vendre ce que tu fais de mieux, à la bonne cible) ou Pivot (reconfiguration de carrière). Module Argent : dans Rebond, dans Pivot, ou en séance à part (séance individuelle à 120 €/h).",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "5B",
+        "titre": "Niveau 5B · L'Ikigai par les valeurs",
+        "libelle": "Ikigaï : mes valeurs, un monde meilleur",
+        "sous_titre": "Un business aligné sur mes valeurs",
+        "conseil": "Choisis un business aligné sur tes valeurs",
+        "offres": [
+          "rebond",
+          "pivot",
+          "diagnostic_amour"
+        ],
+        "offres_detail": "Rebond (un business qui te ressemble, tes valeurs) ou Pivot ; côté perso, Diagnostic Talent & Amour. C'est le niveau de « Ton Ikigai », l'aboutissement de toutes les voies.",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "6",
+        "titre": "Niveau 6 · Le système qui tourne sans toi",
+        "libelle": "Système",
+        "sous_titre": "Un système qui te dépasse, plus grand que toi",
+        "conseil": null,
+        "offres": [
+          "reprise"
+        ],
+        "offres_detail": "Hors parcours type. La Reprise Alignée (reprendre une entreprise) touche ce niveau.",
+        "offres_statut": "proposition"
+      },
+      {
+        "code": "7",
+        "titre": "Niveau 7 · La legacy (héritage)",
+        "libelle": "Legacy",
+        "sous_titre": "Ce qui perdure après ta mort",
+        "conseil": "10 000 heures. Persévérer. Faire les bons paris.",
+        "offres": [],
+        "offres_detail": "Pas d'offre.",
+        "offres_statut": "proposition"
+      }
+    ]
+  }
+}
