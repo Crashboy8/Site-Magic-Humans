@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ESPACE, IMPORT_ACTIF } from "@/content/espace";
+import { IMPORT_ACTIF } from "@/content/espace";
 import { Icone } from "@/features/espace/Icones";
 import { Importer } from "@/features/fiche/Importer";
+import { getI18n } from "@/i18n/server";
 import { requireUser } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: ESPACE.importer.titre };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).t.espace.importer.titre };
+}
 
 export default async function ImporterPage() {
   await requireUser();
+  const ESPACE = (await getI18n()).t.espace;
   if (!IMPORT_ACTIF) redirect("/mon-espace/");
   return (
     <div className="mx-auto max-w-3xl space-y-6">

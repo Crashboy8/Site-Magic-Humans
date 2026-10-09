@@ -1,3 +1,4 @@
+import { espace, type EspaceMessages } from "@/i18n/messages/espace";
 import type { NomIcone } from "./Icones";
 
 export type CleOutil = "qcm" | "carte" | "cibleur" | "boussole" | "amour" | "relation";
@@ -52,106 +53,31 @@ function couleurBouton(cle: CleOutil, forte: string): string {
   return forte;
 }
 
-function outil(
-  cle: CleOutil,
-  section: SectionOutil,
-  titre: string,
-  phrase: string,
-  bouton: string,
-  lien: string,
-  forte: string,
-  claire: string,
-  fond: string,
-  icone: NomIcone,
-): Outil {
-  return {
-    cle,
-    section,
-    titre,
-    phrase,
-    bouton,
-    lien,
-    forte,
-    claire,
-    fond,
-    couleurBouton: couleurBouton(cle, forte),
-    encre: cle === "carte",
-    icone,
-  };
+type Visuel = Omit<Outil, "titre" | "phrase" | "bouton" | "couleurBouton" | "encre">;
+
+function visuel(cle: CleOutil, section: SectionOutil, lien: string, forte: string, claire: string, fond: string, icone: NomIcone): Visuel {
+  return { cle, section, lien, forte, claire, fond, icone };
 }
 
-/** Les 6 cartes de Mon espace, dans l'ordre d'affichage (E.4). */
-export const OUTILS: readonly Outil[] = [
-  outil(
-    "qcm",
-    "pro",
-    "Quiz Talent Unique",
-    "Découvre ton Talent Unique en 6 minutes.",
-    "Faire le quiz",
-    "/quiz/",
-    "#D4532C",
-    "#F6D2C6",
-    "#FDE8E1",
-    "qcm",
-  ),
-  outil(
-    "carte",
-    "pro",
-    "Carte du Talent",
-    "Dessine ton talent comme un territoire, trouve les métiers qui te vont et ta prochaine compétence.",
-    "Dessiner ma carte",
-    "/carte-du-talent/",
-    "#C4922A",
-    "#F3E2B8",
-    "#FFF3D4",
-    "carte",
-  ),
-  outil(
-    "cibleur",
-    "pro",
-    "Le Cibleur",
-    "Trouve les clients avec qui tu réussis dans le plaisir : trois cibles, ton offre et tes premiers messages.",
-    "Trouver mes clients",
-    "/boussole-decision/ma-cible/",
-    "#1F7A6E",
-    "#C9E6E1",
-    "#E5F6F3",
-    "cibleur",
-  ),
-  outil(
-    "boussole",
-    "pro",
-    "Boussole de décision",
-    "Tu hésites entre plusieurs pistes ? Choisis selon ce qui compte vraiment pour toi.",
-    "Ouvrir la Boussole",
-    "/boussole-decision/",
-    "#0E7490",
-    "#BFE3F5",
-    "#E8F5FC",
-    "boussole",
-  ),
-  outil(
-    "amour",
-    "coeur",
-    "Quiz Amour",
-    "Ton profil amoureux et où rencontrer quelqu'un qui te correspond.",
-    "Faire le Quiz Amour",
-    "/quiz-amour/",
-    "#C8333A",
-    "#F8CFCF",
-    "#FDECEC",
-    "amour",
-  ),
-  outil(
-    "relation",
-    "coeur",
-    "Boussole Relation",
-    "Fais le point sur une relation avec tes propres critères.",
-    "Ouvrir la Boussole Relation",
-    "/boussole-decision/importer-quiz/?theme=amour",
-    "#C8333A",
-    "#F8CFCF",
-    "#FDECEC",
-    "boussole",
-  ),
+/** Les 6 cartes de Mon espace, dans l'ordre d'affichage (E.4) : liens, couleurs et icônes. Les textes viennent du dictionnaire. */
+const VISUELS: readonly Visuel[] = [
+  visuel("qcm", "pro", "/quiz/", "#D4532C", "#F6D2C6", "#FDE8E1", "qcm"),
+  visuel("carte", "pro", "/carte-du-talent/", "#C4922A", "#F3E2B8", "#FFF3D4", "carte"),
+  visuel("cibleur", "pro", "/boussole-decision/ma-cible/", "#1F7A6E", "#C9E6E1", "#E5F6F3", "cibleur"),
+  visuel("boussole", "pro", "/boussole-decision/", "#0E7490", "#BFE3F5", "#E8F5FC", "boussole"),
+  visuel("amour", "coeur", "/quiz-amour/", "#C8333A", "#F8CFCF", "#FDECEC", "amour"),
+  visuel("relation", "coeur", "/boussole-decision/importer-quiz/?theme=amour", "#C8333A", "#F8CFCF", "#FDECEC", "boussole"),
 ];
+
+/** Les cartes dans la langue de l'interface. */
+export function outilsPour(textes: EspaceMessages["outils"]): Outil[] {
+  return VISUELS.map((v) => ({
+    ...v,
+    ...textes[v.cle],
+    couleurBouton: couleurBouton(v.cle, v.forte),
+    encre: v.cle === "carte",
+  }));
+}
+
+/** Les cartes en français (référence des tests). */
+export const OUTILS: readonly Outil[] = outilsPour(espace.fr.outils);

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ESPACE } from "@/content/espace";
+import { useI18n } from "@/i18n/client";
 import { Icone } from "@/features/espace/Icones";
 import { supprimerFicheAction } from "./actions";
 
 /** Suppression en deux temps (E.5). */
 export function SupprimerFiche() {
   const [confirmer, setConfirmer] = useState(false);
-  const P = ESPACE.pageFiche;
+  const P = useI18n().t.espace.pageFiche;
   if (!confirmer) {
     return (
       <button type="button" onClick={() => setConfirmer(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-base font-medium text-danger hover:bg-danger-soft">

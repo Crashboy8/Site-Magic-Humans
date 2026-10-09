@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
-import { ESPACE } from "@/content/espace";
 import { useI18n } from "@/i18n/client";
 import { TitreIcone } from "@/features/maCible/Habillage";
 import { Icone } from "@/features/maCible/Icones";
@@ -37,14 +36,16 @@ export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: 
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
   const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
-  const t = useI18n().t.auth;
+  const { t: tout } = useI18n();
+  const t = tout.auth;
+  const E = tout.espace.connexion;
   const espace = varianteEspace(suite);
 
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">{espace ? ESPACE.connexion.titre : t.welcomeBack}</h1>
-        <p className="mt-1 text-ink-soft">{espace ? ESPACE.connexion.texte : t.signInIntro}</p>
+        <h1 className="text-3xl italic">{espace ? E.titre : t.welcomeBack}</h1>
+        <p className="mt-1 text-ink-soft">{espace ? E.texte : t.signInIntro}</p>
       </div>
 
       {linkError && <Notice tone="error">{t.linkInvalid}</Notice>}
@@ -105,7 +106,7 @@ export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: 
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         {t.noAccountYet}{" "}
         <Link href={avecSuite("/inscription/", suite)} className="font-medium text-link underline underline-offset-4">
-          {espace ? ESPACE.connexion.creer : t.createAccount}
+          {espace ? E.creer : t.createAccount}
         </Link>
       </p>
     </Card>
@@ -115,7 +116,9 @@ export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: 
 export function SignUpForm({ initialCode = "", suite }: { initialCode?: string; suite?: string }) {
   const [state, action, pending] = useActionState(signUpAction, initial);
   const fe = state.fieldErrors ?? {};
-  const t = useI18n().t.auth;
+  const { t: tout } = useI18n();
+  const t = tout.auth;
+  const E = tout.espace.connexion;
   const espace = varianteEspace(suite);
 
   if (state.message) {
@@ -131,8 +134,8 @@ export function SignUpForm({ initialCode = "", suite }: { initialCode?: string; 
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">{espace ? ESPACE.connexion.titre : t.signUpTitle}</h1>
-        <p className="mt-1 text-ink-soft">{espace ? ESPACE.connexion.texte : t.signUpIntro}</p>
+        <h1 className="text-3xl italic">{espace ? E.titre : t.signUpTitle}</h1>
+        <p className="mt-1 text-ink-soft">{espace ? E.texte : t.signUpIntro}</p>
       </div>
       <form action={action} className="space-y-4" noValidate>
         <ChampSuite suite={suite} />
@@ -166,7 +169,7 @@ export function SignUpForm({ initialCode = "", suite }: { initialCode?: string; 
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         {t.alreadyRegistered}{" "}
         <Link href={avecSuite("/connexion/", suite)} className="font-medium text-link underline underline-offset-4">
-          {espace ? ESPACE.connexion.connecter : t.signIn}
+          {espace ? E.connecter : t.signIn}
         </Link>
       </p>
     </Card>

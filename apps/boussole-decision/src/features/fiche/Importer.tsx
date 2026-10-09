@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
-import { ESPACE } from "@/content/espace";
+import { useI18n } from "@/i18n/client";
+import type { EspaceMessages } from "@/i18n/messages/espace";
 import { champsRemplis, ficheVide } from "@/domain/fiche/bornes";
 import { lireFiche } from "@/domain/fiche/extraire";
 import { CHAMPS_OBLIGATOIRES, type FicheTalent, type MethodeFiche, type RapportLecture, type SourceFiche } from "@/domain/fiche/types";
@@ -9,11 +10,11 @@ import { Icone, type NomIcone } from "@/features/espace/Icones";
 import { lireCollage, lireFichier, qcmDansTexte } from "./lireDocument";
 import { Verification } from "./Verification";
 
-const I = ESPACE.importer;
 type Tuile = "lien" | "coller" | "fichier" | "main";
-type CodeLien = keyof typeof I.lien.erreurs;
+type TextesImport = EspaceMessages["importer"];
+type CodeLien = keyof TextesImport["lien"]["erreurs"];
 
-const TUILES: { cle: Tuile; icone: NomIcone; couleur: string; titre: string; texte: string }[] = [
+const tuiles = (I: TextesImport): { cle: Tuile; icone: NomIcone; couleur: string; titre: string; texte: string }[] => [
   { cle: "lien", icone: "lien", couleur: "#0E7490", titre: I.lien.titre, texte: I.lien.texte },
   { cle: "coller", icone: "pressePapiers", couleur: "#6E4E96", titre: I.coller.titre, texte: I.coller.texte },
   { cle: "fichier", icone: "dossier", couleur: "#1F7A6E", titre: I.fichier.titre, texte: I.fichier.texte },
@@ -47,6 +48,7 @@ function depuisTexte(texte: string, source: SourceFiche): Lu {
 
 /** Les quatre façons de déposer sa fiche (E.5), puis la vérification sur la même page. */
 export function Importer() {
+  const I = useI18n().t.espace.importer;
   const [ouverte, setOuverte] = useState<Tuile | null>(null);
   const [lecture, setLecture] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -142,7 +144,7 @@ export function Importer() {
         <p className="text-base leading-relaxed text-ink-soft">{I.intro}</p>
       </header>
       <div className="grid gap-3 sm:grid-cols-2">
-        {TUILES.map((t) => {
+        {tuiles(I).map((t) => {
           const active = ouverte === t.cle;
           return (
             <button
@@ -282,7 +284,7 @@ function Bouton({ couleur, children, ...props }: { couleur: string; children: Re
 }
 
 function AidePasPublique({ ouvrir }: { ouvrir: (t: "coller" | "fichier") => void }) {
-  const P = I.lien.pasPublique;
+  const P = useI18n().t.espace.importer.lien.pasPublique;
   return (
     <div role="alert" className="space-y-3 rounded-xl border border-miel/30 bg-miel-soft px-4 py-4 text-base text-ink">
       <p className="font-serif text-[20px] italic leading-tight">{P.titre}</p>
