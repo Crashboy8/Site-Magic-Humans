@@ -55,7 +55,8 @@ export type NomIcone =
   | "appareil"
   | "note"
   | "lecture"
-  | "lien";
+  | "lien"
+  | "coche";
 
 const TRACES: Record<NomIcone, string[]> = {
   cible: ["M12 12m-10 0a10 10 0 1 0 20 0a10 10 0 1 0 -20 0", "M12 12m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0", "M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"],
@@ -113,6 +114,7 @@ const TRACES: Record<NomIcone, string[]> = {
   appareil: ["M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z", "M12 13m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"],
   note: ["M9 18V5l12-2v13", "M9 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0", "M21 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"],
   lecture: ["M12 12m-10 0a10 10 0 1 0 20 0a10 10 0 1 0 -20 0", "m10 8 6 4-6 4z"],
+  coche: ["M20 6 9 17l-5-5"],
   lien: ["M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"],
 };
 

@@ -1,0 +1,48 @@
+/* Le Cibleur : PDF du résultat (impression du navigateur). Complète les règles d'impression de globals.css (§14.3). */
+@media print {
+  /* PDF du Cibleur : une seule colonne, sans sommaire, sans ombres ni marqueurs de dépliage. */
+  .ma-cible-resultat aside {
+    display: none !important;
+  }
+  .ma-cible-resultat > div:not([data-ecran-seul]) {
+    display: block !important;
+  }
+  /* L'explication du score se répète sur chaque cible : elle reste à l'écran. */
+  .ma-cible-resultat .grille-score {
+    display: none !important;
+  }
+  .ma-cible-resultat * {
+    box-shadow: none !important;
+  }
+  .ma-cible-resultat summary {
+    list-style: none;
+  }
+  .ma-cible-resultat summary::-webkit-details-marker {
+    display: none;
+  }
+  .ma-cible-resultat summary[data-ecran-seul] {
+    display: none !important;
+  }
+  /* Un titre reste collé à son contenu. */
+  .ma-cible-resultat :is(h1, h2, h3, h4, legend, summary),
+  .ma-cible-resultat div:has(> :is(h2, h3, h4)) {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  /* Les petits blocs ne se coupent pas en deux. */
+  .ma-cible-resultat :is(li, blockquote, fieldset > label, .bloc-cible, header, p) {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .ma-cible-resultat p {
+    orphans: 3;
+    widows: 3;
+  }
+  /* Pas de page blanche à la fin : le cadre ne réclame plus la hauteur de l'écran. */
+  body:has(.ma-cible-resultat) :is(div, main) {
+    min-height: 0 !important;
+  }
+  body:has(.ma-cible-resultat) main {
+    padding-bottom: 0 !important;
+  }
+}

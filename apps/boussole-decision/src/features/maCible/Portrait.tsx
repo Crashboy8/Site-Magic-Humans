@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Notice, cx } from "@/components/ui";
 import type { CategorieLieu, Portrait, SyntheseTerrain } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
-import { BoutonCopier } from "./BoutonCopier";
+import { BoutonCopier, IconeCopier } from "./BoutonCopier";
 import { ChargeurEnLigne } from "./ChargeurEnLigne";
 import { PastilleIcone, type Teinte } from "./Habillage";
 import { Icone, type NomIcone } from "./Icones";
@@ -222,7 +222,10 @@ export function BlocPortrait({
   maxApprofondir,
   nouveau,
   onFaire,
+  texteCopie = "",
 }: {
+  /** Portrait en Markdown, pour l'icône « Copier » du titre (vide tant qu'il n'est pas fait). */
+  texteCopie?: string;
   id: string;
   portrait: Portrait | undefined;
   synthese: SyntheseTerrain | null;
@@ -237,12 +240,15 @@ export function BlocPortrait({
   if (!portrait && lecture) return null;
   return (
     <section id={id} data-ancre="" className="-mx-2 scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-corail bg-gradient-to-br from-corail-soft to-paper p-4 sm:mx-0 sm:p-6">
-      <h3 className="flex items-center gap-3 font-serif text-[22px] italic">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-corail">
-          <Icone nom="personne" className="size-5" />
-        </span>
-        <span className="min-w-0">{A.portraitTitre}</span>
-      </h3>
+      <div className="flex items-center gap-2">
+        <h3 className="flex min-w-0 flex-1 items-center gap-3 font-serif text-[22px] italic">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-corail">
+            <Icone nom="personne" className="size-5" />
+          </span>
+          <span className="min-w-0">{A.portraitTitre}</span>
+        </h3>
+        {portrait && <IconeCopier texte={texteCopie} titre={A.portraitTitre} M={M} teinte="corail" />}
+      </div>
       {portrait ? (
         <VuePortrait portrait={portrait} synthese={synthese} M={M} nouveau={nouveau} />
       ) : appel.enCours ? (

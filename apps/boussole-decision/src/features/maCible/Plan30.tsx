@@ -5,16 +5,34 @@ import { CLASSE_CARTE, TitreIcone } from "./Habillage";
 import type { Resultat } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 
-export function Plan30({ resultat, coches, onCoche, M, lecture = false }: { resultat: Resultat; coches: boolean[]; onCoche: (index: number) => void; M: MaCibleMessages; lecture?: boolean }) {
+export function Plan30({
+  resultat,
+  coches,
+  onCoche,
+  M,
+  lecture = false,
+  action,
+}: {
+  resultat: Resultat;
+  coches: boolean[];
+  onCoche: (index: number) => void;
+  M: MaCibleMessages;
+  lecture?: boolean;
+  /** Icône « Copier », sur la ligne du titre. */
+  action?: React.ReactNode;
+}) {
   const P = M.plan;
   const faites = coches.filter(Boolean).length;
   const nomCible = (id: string) => resultat.cibles.find((c) => c.id === id)?.nom ?? P.cibleToutes;
   return (
     <Card className={`${CLASSE_CARTE} space-y-5 rounded-2xl border-l-4 border-l-sage p-6 sm:p-8`}>
       <section id="plan" data-ancre aria-labelledby="plan-titre" className="scroll-mt-20 space-y-5">
-        <TitreIcone as="h2" id="plan-titre" icone="calendrier" teinte="sage" className="rounded-xl bg-gradient-to-r from-sage-soft to-transparent px-3 py-2 text-[26px] italic">
-          {P.titre}
-        </TitreIcone>
+        <div className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-sage-soft to-transparent pr-1">
+          <TitreIcone as="h2" id="plan-titre" icone="calendrier" teinte="sage" className="min-w-0 flex-1 px-3 py-2 text-[26px] italic">
+            {P.titre}
+          </TitreIcone>
+          {action}
+        </div>
         <p className="text-[17px] font-semibold text-ink">{P.consigne}</p>
         <div className="space-y-1.5">
           <p className="text-[15px] text-ink-soft" aria-live="polite">
