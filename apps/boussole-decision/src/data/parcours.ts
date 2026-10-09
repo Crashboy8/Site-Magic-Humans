@@ -15,12 +15,24 @@ export function tableParcoursAbsente(error: { code?: string; message?: string } 
   return /parcours_positions/.test(message) && /does not exist|schema cache/.test(message);
 }
 
+/**
+ * Colonne freelance absente (migration 20261016000000 pas encore passée) : erreur Postgres 42703 ou PostgREST PGRST204.
+ * L'outil marche alors comme avant, sans cette marque : un freelance qui cherche un poste garde le point d'attention
+ * sur le contrat de travail, et la marque reste dans le navigateur.
+ */
+export function colonneFreelanceAbsente(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  const message = error.message ?? "";
+  if (error.code === "42703" || error.code === "PGRST204") return /freelance/.test(message);
+  return /freelance/.test(message) && /does not exist|schema cache/.test(message);
+}
+
 export async function lirePosition(db: SupabaseClient, userId: string, data: ParcoursPublic): Promise<LecturePosition> {
-  const { data: ligne, error } = await db
-    .from("parcours_positions")
-    .select("voie, argent, parallele, raccourci, reponses, updated_at")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const colonnes = "voie, argent, parallele, raccourci, reponses, updated_at";
+  let { data: ligne, error } = await db.from("parcours_positions").select(`${colonnes}, freelance`).eq("user_id", userId).maybeSingle();
+  if (colonneFreelanceAbsente(error)) {
+    ({ data: ligne, error } = await db.from("parcours_positions").select(colonnes).eq("user_id", userId).maybeSingle());
+  }
   if (error) {
     if (tableParcoursAbsente(error)) return { absente: true };
     throw error;
@@ -30,17 +42,16 @@ export async function lirePosition(db: SupabaseClient, userId: string, data: Par
 }
 
 export async function enregistrerPosition(db: SupabaseClient, userId: string, profil: Profil): Promise<"ok" | "absente"> {
-  const { error } = await db.from("parcours_positions").upsert(
-    {
-      user_id: userId,
-      voie: profil.voie,
-      argent: profil.argent,
-      parallele: profil.parallele,
-      raccourci: profil.raccourci,
-      reponses: profil.reponses,
-    },
-    { onConflict: "user_id" },
-  );
+  const ligne = {
+    user_id: userId,
+    voie: profil.voie,
+    argent: profil.argent,
+    parallele: profil.parallele,
+    raccourci: profil.raccourci,
+    reponses: profil.reponses,
+  };
+  let { error } = await db.from("parcours_positions").upsert({ ...ligne, freelance: profil.freelance }, { onConflict: "user_id" });
+  if (colonneFreelanceAbsente(error)) ({ error } = await db.from("parcours_positions").upsert(ligne, { onConflict: "user_id" }));
   if (!error) return "ok";
   if (tableParcoursAbsente(error)) return "absente";
   throw error;

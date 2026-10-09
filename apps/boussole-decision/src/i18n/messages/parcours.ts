@@ -33,9 +33,13 @@ const fr = {
     reprendre: "Reprendre où j'en étais",
     detail: "Voir tout le détail",
     menu: "Tes outils",
+    menuIntro: "Passe d'un outil à l'autre quand tu veux. Pour revenir ici, touche « Mon parcours », tout en haut de chaque outil.",
   },
   voie: {
     aide: "Choisis la phrase qui te ressemble le plus. Tu pourras en changer quand tu veux.",
+    aideDeux: "Tu mènes deux projets en même temps, par exemple des missions de freelance en attendant de décrocher un poste ? Coche-en deux : un côté entrepreneur, un côté salarié.",
+    deuxTitre: "Deux projets en parallèle",
+    deuxTexte: "Tu suis la branche Entrepreneur et la branche Salarié en même temps, avec les questions communes posées une seule fois.",
     raccourci: "J'ai déjà fait mon accompagnement Talent Unique : je commence à l'étape 3",
     raccourciAide: "Ta fiche Talent Unique est faite : les étapes 1 et 2 sont déjà franchies.",
     raccourciFiche: "Ta fiche Talent Unique est dans ton espace : les étapes 1 et 2 sont déjà franchies.",
@@ -78,6 +82,17 @@ const fr = {
     niveau: "Nouveau niveau atteint",
     suivante: "Quête suivante",
     resultat: "Voir où j'en suis",
+  },
+  // Garder son travail : un appel clair, jamais bloquant. Le parcours marche sans compte.
+  compte: {
+    titre: "Garde ta progression",
+    texte: "Tes réponses sont gardées sur cet appareil. Avec un compte, tu les retrouves partout, avec tes Boussoles.",
+    creer: "Créer mon compte",
+    connecter: "J'ai déjà un compte",
+    inviteTexte: "Ton essai est gardé sur cet appareil. Sauvegarde-le pour ne rien perdre.",
+    sauvegarder: "Sauvegarder mon travail",
+    fete: "Ta progression est gardée sur cet appareil.",
+    ok: "Ta progression est gardée dans ton compte.",
   },
   resultat: {
     tuEsIci: "Tu es ici",

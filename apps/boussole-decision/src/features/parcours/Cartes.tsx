@@ -5,15 +5,16 @@ import type { Branche, Mutualisable, Offre, ParcoursPublic, PointAttention, Repo
 import { Icone, type NomIcone } from "@/features/espace/Icones";
 import type { ParcoursMessages } from "@/i18n/messages/parcours";
 import { MiniFrise } from "./Frise";
-import { Pastille, Puce } from "./Habillage";
+import { Info, Pastille } from "./Habillage";
 import { capitale, lienSortant } from "./liens";
 import { ICONE_ATTENTION, iconeEtape, iconeOutil, styleBranche } from "./theme";
 
+/** L'état d'une réponse : une icône nue, sans rond coloré (un rond se touche, une icône se lit). */
 const ETAT_REPONSE: Record<Reponse | "aucune", { icone: NomIcone; classe: string }> = {
-  oui: { icone: "coche", classe: "bg-[#1A7A6D] text-white" },
-  en_partie: { icone: "demi", classe: "bg-[#FFF1C2] text-[#7A5200]" },
-  pas_encore: { icone: "horloge", classe: "bg-[#F1E9DC] text-[#5C4632]" },
-  aucune: { icone: "cadenas", classe: "bg-[#F1E9DC] text-ink-soft" },
+  oui: { icone: "coche", classe: "text-[#1A7A6D]" },
+  en_partie: { icone: "demi", classe: "text-[#B7791F]" },
+  pas_encore: { icone: "horloge", classe: "text-[#5C4632]" },
+  aucune: { icone: "cadenas", classe: "text-ink-soft" },
 };
 
 const titreCarte = "flex items-center gap-2 font-serif text-[22px] italic leading-tight sm:text-[24px]";
@@ -54,7 +55,7 @@ export function QueteDuMoment({ data, T, quete, compact = false }: { data: Parco
           const e = ETAT_REPONSE[reponse ?? "aucune"];
           return (
             <li key={critere.id} className="flex items-start gap-2.5">
-              <span aria-hidden="true" className={cx("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full [&_svg]:h-3.5 [&_svg]:w-3.5", e.classe)}>
+              <span aria-hidden="true" className={cx("mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center [&_svg]:h-5 [&_svg]:w-5", e.classe)}>
                 <Icone nom={e.icone} />
               </span>
               <span className="min-w-0 flex-1 text-[15px] leading-snug text-ink">
@@ -62,7 +63,9 @@ export function QueteDuMoment({ data, T, quete, compact = false }: { data: Parco
                 {reponse && <span className="sr-only"> : {T.resultat.reponseCourte[reponse]}</span>}
               </span>
               {critere.essentiel && (
-                <span className="mt-0.5 shrink-0 rounded-full bg-(--oj-fond) px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-(--oj-texte)">{T.resultat.cle}</span>
+                <Info icone="cle" className="mt-0.5 shrink-0 text-[11px] font-bold uppercase tracking-wide text-(--oj-texte)">
+                  {T.resultat.cle}
+                </Info>
               )}
             </li>
           );
@@ -93,7 +96,7 @@ function BoutonOutil({ lien, emplacement }: { lien: NonNullable<ActionProposee["
   return (
     <a
       href={lienSortant(lien.url, emplacement)}
-      className="mt-3 inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-(--oj-bouton) px-4 py-2 text-left text-[15px] font-medium leading-tight text-(--oj-bouton-texte) transition hover:brightness-95 active:scale-[0.98]"
+      className="mt-3 inline-flex min-h-11 max-w-full items-center gap-2 rounded-full bg-(--oj-bouton) px-4 py-2 text-left text-[15px] font-medium leading-tight text-(--oj-bouton-texte) shadow-[0_8px_18px_-10px_var(--oj-forte)] transition hover:brightness-95 active:scale-[0.98]"
     >
       <Icone nom={iconeOutil(lien.id)} className="h-5 w-5 shrink-0" />
       <span>{lien.nom}</span>
@@ -107,26 +110,26 @@ function CarteAction({ data, T, a, i, ancreAppel }: { data: ParcoursPublic; T: P
   const etape = a.etape === "argent" ? null : data.etapes[a.etape];
   return (
     <li
-      className="oj-apparait relative flex gap-3.5 rounded-[22px] border border-(--oj-claire) bg-white p-4 shadow-[0_12px_28px_-24px_var(--oj-forte)] sm:p-5"
+      className="oj-apparait relative flex gap-3.5 rounded-[22px] border border-(--oj-claire) bg-white p-4 sm:p-5"
       style={{ ...styleBranche(a.branche), "--i": i } as CSSProperties}
     >
-      <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-(--oj-forte) text-[18px] font-bold text-white">
+      <span aria-hidden="true" className="w-6 shrink-0 text-center font-serif text-[38px] italic leading-[0.9] text-(--oj-forte)">
         {i + 1}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap gap-1.5">
-          <Puce icone={etape ? iconeEtape(etape.id) : "pieces"} className="bg-(--oj-fond) text-(--oj-texte)">
+        <p className="flex flex-wrap gap-x-4 gap-y-1">
+          <Info icone={etape ? iconeEtape(etape.id) : "pieces"} className="text-[13px] text-(--oj-texte)">
             {etape ? `${etape.code} · ${etape.nom}` : data.argent.nom}
-          </Puce>
+          </Info>
           {a.cle && (
-            <Puce icone="cle" className="bg-[#FFF1C2] text-[#7A5200]">
+            <Info icone="cle" className="text-[13px] text-[#7A5200]">
               {T.resultat.debloque}
-            </Puce>
+            </Info>
           )}
           {a.commune && (
-            <Puce icone="bifurcation" className="bg-[#EEF8FE] text-[#155F8C]">
+            <Info icone="bifurcation" className="text-[13px] text-[#155F8C]">
               {T.resultat.commune}
-            </Puce>
+            </Info>
           )}
         </p>
         <p className="mt-2 text-[16px] leading-snug text-ink">{a.action.texte}</p>
@@ -176,9 +179,9 @@ export function CarteArgent({ data, T, info, commune }: { data: ParcoursPublic; 
         <Pastille nom="pieces" plein />
         <div className="min-w-0">
           {info.prioritaire && (
-            <Puce icone="eclair" className="mb-1.5 bg-(--oj-bouton) text-(--oj-bouton-texte)">
+            <Info icone="eclair" className="mb-1 text-[13px] font-bold uppercase tracking-wide text-(--oj-texte)">
               {T.resultat.argentPrioritaire}
-            </Puce>
+            </Info>
           )}
           <h3 id="argent-titre" className="font-serif text-[22px] italic leading-tight">
             {data.argent.nom}
@@ -244,7 +247,9 @@ export function CarteValeurs({ T, info }: { T: ParcoursMessages; info: InfoValeu
       <ul className="mt-2 space-y-2">
         {info.criteres.map(({ critere, reponse }) => (
           <li key={critere.id} className="flex items-start gap-2.5 text-[15px] leading-snug text-ink">
-            <span className="mt-0.5 shrink-0 rounded-full bg-white px-2 py-0.5 text-[12px] font-bold text-(--oj-texte) shadow-sm">{T.resultat.reponseCourte[reponse]}</span>
+            <Info icone={ETAT_REPONSE[reponse].icone} className={cx("mt-0.5 shrink-0 text-[13px]", ETAT_REPONSE[reponse].classe)}>
+              {T.resultat.reponseCourte[reponse]}
+            </Info>
             <span className="min-w-0">{critere.texte}</span>
           </li>
         ))}

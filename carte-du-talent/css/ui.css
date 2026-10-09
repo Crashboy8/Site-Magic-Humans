@@ -603,3 +603,10 @@ body.panneau-ouvert .controles-carte { right: calc(min(390px, 100%) + 16px); }
   body.panneau-ouvert .controles-carte { right: 12px; }
   body.panneau-ouvert .legende { display: none; }
 }
+
+/* Barre « Mon parcours · Mes outils » (/js/parcours-barre.js) : les fenêtres plein écran commencent sous elle, elle reste atteignable. */
+body .flow,
+body .progres,
+body .creation,
+body .panneau { top: var(--mhp-h, 0px); }
+@media (max-width: 640px) { body .panneau { top: auto; } }

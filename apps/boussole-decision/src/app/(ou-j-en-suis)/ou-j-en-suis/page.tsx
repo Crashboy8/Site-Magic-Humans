@@ -16,6 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function OuJenSuisPage() {
   const { locale } = await getI18n();
   const data = contenuParcours(locale);
-  const etat = await etatDuCompte(await getCurrentUser(), data);
-  return <OuJenSuis data={data} variante="page" initial={etat.initial} majCompte={etat.majCompte} compte={etat.compte} ficheDeposee={etat.ficheDeposee} />;
+  const user = await getCurrentUser();
+  const etat = await etatDuCompte(user, data);
+  const statut = !user ? "visiteur" : user.isGuest ? "invite" : "connecte";
+  return <OuJenSuis data={data} variante="page" initial={etat.initial} majCompte={etat.majCompte} compte={etat.compte} statut={statut} ficheDeposee={etat.ficheDeposee} />;
 }

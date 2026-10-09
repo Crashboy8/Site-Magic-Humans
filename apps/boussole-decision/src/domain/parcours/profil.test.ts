@@ -7,8 +7,16 @@ const data = contenuParcours("fr");
 
 describe("lireProfil", () => {
   it("garde un profil valide tel quel", () => {
-    const p: Profil = { voie: "E", argent: 2, parallele: true, raccourci: true, reponses: { "connaitre.quiz": "oui", "cap.valeurs": "en_partie" } };
+    const p: Profil = { voie: "E", argent: 2, parallele: true, raccourci: true, freelance: false, reponses: { "connaitre.quiz": "oui", "cap.valeurs": "en_partie" } };
     expect(lireProfil(JSON.parse(JSON.stringify(p)), data)).toEqual(p);
+  });
+
+  it("garde « freelance qui cherche un poste » pour la voie E seulement", () => {
+    expect(lireProfil({ voie: "E", freelance: true }, data)?.freelance).toBe(true);
+    expect(lireProfil({ voie: "E", freelance: "oui" }, data)?.freelance).toBe(false);
+    expect(lireProfil({ voie: "D", freelance: true }, data)?.freelance).toBe(false);
+    expect(lireProfil({ voie: "A", freelance: true }, data)?.freelance).toBe(false);
+    expect(lireProfil({ voie: "E" }, data)?.freelance).toBe(false);
   });
 
   it("refuse ce qui n'est pas un profil", () => {
@@ -20,7 +28,7 @@ describe("lireProfil", () => {
       { voie: "A", argent: 9, parallele: "oui", raccourci: "oui", reponses: { "connaitre.quiz": "oui", "pirate.x": "oui", "nommer.phrase": 2, "cap.choix": "peut-être" } },
       data,
     );
-    expect(lu).toEqual({ voie: "A", argent: null, parallele: null, raccourci: false, reponses: { "connaitre.quiz": "oui" } });
+    expect(lu).toEqual({ voie: "A", argent: null, parallele: null, raccourci: false, freelance: false, reponses: { "connaitre.quiz": "oui" } });
     expect(lireProfil({ voie: "A", argent: 2.5 }, data)?.argent).toBeNull();
   });
 

@@ -2,8 +2,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { AppBrand } from "@/components/AppBrand";
 import { LienQuizAmour } from "@/features/amour/LienQuizAmour";
+import { BarreParcours } from "@/features/espace/BarreParcours";
 import { LanguageSwitch } from "@/i18n/LanguageSwitch";
 import { getI18n } from "@/i18n/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 /** Bandeau des pages publiques : marque à gauche, lien d'accueil et langues à droite. */
 export async function PublicFrame({
@@ -24,8 +26,11 @@ export async function PublicFrame({
   children: ReactNode;
 }) {
   const { t, locale } = await getI18n();
+  const user = await getCurrentUser();
   return (
     <div className="flex min-h-dvh flex-col">
+      {/* Où que l'on soit dans un outil : retour à « Mon parcours », passage à un autre outil, de quoi garder son travail. */}
+      <BarreParcours statut={!user ? "visiteur" : user.isGuest ? "invite" : "connecte"} />
       <header data-chrome className="border-b border-line bg-cream/90">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
           {edition ? (

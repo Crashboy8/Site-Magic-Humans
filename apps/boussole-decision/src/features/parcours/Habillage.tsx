@@ -17,7 +17,7 @@ export function Pastille({ nom, taille = "md", plein = false, className, style }
       aria-hidden="true"
       className={cx(
         "inline-flex shrink-0 items-center justify-center rounded-full",
-        plein ? "bg-(--oj-forte) text-white shadow-[0_6px_16px_-6px_var(--oj-forte)]" : "bg-(--oj-fond) text-(--oj-texte)",
+        plein ? "bg-(--oj-forte) text-white" : "bg-(--oj-fond) text-(--oj-texte)",
         TAILLES[taille],
         className,
       )}
@@ -93,11 +93,14 @@ export function Confettis({ nombre = 30 }: { nombre?: number }) {
   );
 }
 
-/** Une étiquette arrondie, sur la même ligne que son icône. */
-export function Puce({ icone, children, className }: { icone?: NomIcone; children: ReactNode; className?: string }) {
+/**
+ * Une information, pas un bouton : l'icône et le texte sur la même ligne, sans capsule, sans contour, sans ombre.
+ * Sur téléphone, tout ce qui est arrondi et coloré se touche : les boutons gardent donc seuls le fond plein et le relief.
+ */
+export function Info({ icone, children, className }: { icone?: NomIcone; children: ReactNode; className?: string }) {
   return (
-    <span className={cx("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[13px] font-semibold leading-none", className)}>
-      {icone && <Icone nom={icone} className="h-3.5 w-3.5 shrink-0" />}
+    <span className={cx("inline-flex items-center gap-1.5 font-semibold leading-snug", className)}>
+      {icone && <Icone nom={icone} className="h-4 w-4 shrink-0" />}
       {children}
     </span>
   );

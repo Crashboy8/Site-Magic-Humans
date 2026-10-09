@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { tableParcoursAbsente } from "@/data/parcours";
+import { colonneFreelanceAbsente, tableParcoursAbsente } from "@/data/parcours";
 import { contenuParcours } from "@/domain/parcours/contenu";
 import type { Profil } from "@/domain/parcours/profil";
 import { deserialiser, ecrire, effacer, lire, serialiser } from "./stockage";
 
 const data = contenuParcours("fr");
-const profil: Profil = { voie: "B", argent: 3, parallele: true, raccourci: false, reponses: { "connaitre.quiz": "oui", "connaitre.flow": "en_partie" } };
+const profil: Profil = { voie: "B", argent: 3, parallele: true, raccourci: false, freelance: false, reponses: { "connaitre.quiz": "oui", "connaitre.flow": "en_partie" } };
 
 describe("stockage local de « Où j'en suis ? »", () => {
   it("fait l'aller-retour serialiser / deserialiser", () => {
@@ -35,5 +35,14 @@ describe("table parcours_positions absente : repli sur le navigateur", () => {
     expect(tableParcoursAbsente({ message: 'relation "public.parcours_positions" does not exist' })).toBe(true);
     expect(tableParcoursAbsente({ code: "23505", message: "duplicate key" })).toBe(false);
     expect(tableParcoursAbsente(null)).toBe(false);
+  });
+
+  it("reconnaît la colonne freelance manquante (migration pas encore passée)", () => {
+    expect(colonneFreelanceAbsente({ code: "42703", message: 'column "freelance" of relation "parcours_positions" does not exist' })).toBe(true);
+    expect(colonneFreelanceAbsente({ code: "PGRST204", message: "Could not find the 'freelance' column of 'parcours_positions' in the schema cache" })).toBe(true);
+    expect(colonneFreelanceAbsente({ message: "column parcours_positions.freelance does not exist" })).toBe(true);
+    expect(colonneFreelanceAbsente({ code: "42703", message: 'column "voie" does not exist' })).toBe(false);
+    expect(colonneFreelanceAbsente({ code: "42P01" })).toBe(false);
+    expect(colonneFreelanceAbsente(null)).toBe(false);
   });
 });

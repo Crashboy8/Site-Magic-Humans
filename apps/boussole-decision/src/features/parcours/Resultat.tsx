@@ -2,11 +2,15 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import type { Resultat as ResultatParcours } from "@/domain/parcours/position";
 import type { Branche, ParcoursPublic } from "@/domain/parcours/types";
+import type { StatutCompte } from "@/features/espace/barre";
 import { Icone, type NomIcone } from "@/features/espace/Icones";
+import { MenuOutils } from "@/features/espace/MenuOutils";
+import type { Outil, SectionOutil } from "@/features/espace/outils";
 import type { ParcoursMessages } from "@/i18n/messages/parcours";
 import { Actions, Attention, Avancer, CarteArgent, CarteValeurs, Communes, PisteParallele, QueteDuMoment } from "./Cartes";
+import { CarteCompte } from "./Compte";
 import { Frise } from "./Frise";
-import { Compteur, Pastille } from "./Habillage";
+import { Compteur, Info, Pastille } from "./Habillage";
 import { Echelle } from "./Niveau";
 import { fondVoie, ICONE_VOIE, iconeEtape, styleBranche, TEINTES } from "./theme";
 
@@ -18,7 +22,7 @@ export interface Resume {
 
 function Stat({ icone, label, children }: { icone: NomIcone; label: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl bg-white/90 px-2 py-3 text-center shadow-[0_10px_24px_-20px_rgba(58,47,36,0.6)] sm:px-4">
+    <div className="flex flex-col items-center px-2 py-3 text-center sm:px-4">
       <dt className="flex flex-col items-center gap-1 text-[11px] font-bold uppercase leading-tight tracking-[0.08em] text-ink-soft sm:flex-row sm:gap-1.5 sm:text-[12px]">
         <Icone nom={icone} className="h-4 w-4 shrink-0 text-[#B7791F]" />
         {label}
@@ -85,16 +89,15 @@ function Ici({ data, T, resultat, page, onChoisirVoie }: { data: ParcoursPublic;
           </>
         ) : actuelles.length > 1 ? (
           <>
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-(--oj-bouton) px-3 py-1 text-[13px] font-bold text-(--oj-bouton-texte)">
-              <Icone nom="pin" className="h-4 w-4" />
+            <Info icone="pin" className="text-[13px] font-bold uppercase tracking-[0.12em] text-(--oj-texte)">
               {T.resultat.tuEsIci}
-            </p>
+            </Info>
             <Titre data-titre-vue={page ? "" : undefined} tabIndex={-1} className={titreClasse}>
               {T.resultat.deuxQuetes}
             </Titre>
             <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
               {actuelles.map((e) => (
-                <div key={e.id} className="flex items-start gap-3 rounded-2xl border border-(--oj-claire) bg-white/90 p-3.5" style={styleBranche(e.branche)}>
+                <div key={e.id} className="flex items-start gap-3 border-l-4 border-(--oj-forte) pl-3" style={styleBranche(e.branche)}>
                   <Pastille nom={iconeEtape(e.id)} taille="sm" plein />
                   <div className="min-w-0">
                     <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-(--oj-texte)">
@@ -108,11 +111,10 @@ function Ici({ data, T, resultat, page, onChoisirVoie }: { data: ParcoursPublic;
           </>
         ) : (
           <>
-            <p className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-(--oj-bouton) px-3 py-1 text-[13px] font-bold text-(--oj-bouton-texte)">
-                <Icone nom="pin" className="h-4 w-4" />
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <Info icone="pin" className="text-[13px] font-bold uppercase tracking-[0.12em] text-(--oj-texte)">
                 {T.resultat.tuEsIci}
-              </span>
+              </Info>
               <span className="text-[13px] font-bold uppercase tracking-[0.1em] text-(--oj-texte)">
                 {actuelles[0].code} · {actuelles[0].brancheNom}
               </span>
@@ -125,7 +127,7 @@ function Ici({ data, T, resultat, page, onChoisirVoie }: { data: ParcoursPublic;
         )}
       </div>
 
-      <dl className="relative mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+      <dl className="relative mt-6 grid grid-cols-3 divide-x divide-(--oj-claire) rounded-2xl border border-(--oj-claire) bg-white/80">
         <Stat icone="etoile" label={T.resultat.stats.points}>
           <Compteur valeur={resultat.points.gagnes} />
         </Stat>
@@ -163,6 +165,9 @@ export function Resultat({
   resultat,
   variante,
   avant,
+  statut,
+  compte,
+  menu,
   onRefaire,
   onEffacer,
   onChoisirVoie,
@@ -172,6 +177,10 @@ export function Resultat({
   resultat: ResultatParcours;
   variante: "page" | "panneau";
   avant: Resume | null;
+  statut: StatutCompte;
+  compte: "table" | "sans_table" | null;
+  /** Les outils, pour passer de l'un à l'autre depuis la page publique (dans Mon espace, ils sont à côté). */
+  menu: { outils: Outil[]; sections: Record<SectionOutil, string> } | null;
   onRefaire: () => void;
   onEffacer: () => void;
   onChoisirVoie: () => void;
@@ -228,6 +237,7 @@ export function Resultat({
         <Frise data={data} T={T} resultat={resultat} taille="petite" />
         <Echelle T={T} niveau={resultat.niveau} compact />
         <Actions data={data} T={T} resultat={resultat} ancreAppel="#appel" />
+        <CarteCompte T={T} statut={statut} compte={compte} />
         {quetes}
         {bonus}
         {pied}
@@ -245,10 +255,16 @@ export function Resultat({
         </div>
         <div className="space-y-6" style={{ "--i": 2 } as CSSProperties}>
           <Actions data={data} T={T} resultat={resultat} ancreAppel="#avancer" />
+          <CarteCompte T={T} statut={statut} compte={compte} />
           {quetes}
           {bonus}
         </div>
       </div>
+      {menu && (
+        <div className="rounded-[30px] border border-line bg-white p-5 sm:p-8">
+          <MenuOutils outils={menu.outils} sections={menu.sections} titre={T.espace.menu} intro={T.espace.menuIntro} enColonnes />
+        </div>
+      )}
       <Avancer T={T} offres={resultat.offres} />
       {pied}
     </div>

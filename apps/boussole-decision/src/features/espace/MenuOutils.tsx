@@ -14,13 +14,30 @@ const SECTIONS = [
 ] as const;
 
 /** Le menu des outils (colonne de gauche sur ordinateur, sous le parcours sur téléphone). Liens complets, même onglet. */
-export function MenuOutils({ outils, sections, titre, className }: { outils: Outil[]; sections: Record<SectionOutil, string>; titre: string; className?: string }) {
+export function MenuOutils({
+  outils,
+  sections,
+  titre,
+  intro,
+  enColonnes = false,
+  className,
+}: {
+  outils: Outil[];
+  sections: Record<SectionOutil, string>;
+  titre: string;
+  /** Une phrase sous le titre. */
+  intro?: string;
+  /** Les deux rubriques côte à côte quand la place le permet (page publique), au lieu de l'une sous l'autre. */
+  enColonnes?: boolean;
+  className?: string;
+}) {
   return (
     <nav aria-labelledby="menu-outils" className={cx("min-w-0", className)}>
       <h2 id="menu-outils" className="font-serif text-[28px] italic leading-tight">
         {titre}
       </h2>
-      <div className="mt-4 space-y-6">
+      {intro && <p className="mt-1 max-w-2xl text-[15px] leading-snug text-ink-soft">{intro}</p>}
+      <div className={cx("mt-4", enColonnes ? "space-y-6 md:grid md:grid-cols-2 md:items-start md:gap-8 md:space-y-0" : "space-y-6")}>
         {SECTIONS.map((s) => (
           <section key={s.cle} aria-labelledby={`menu-${s.cle}`}>
             <h3 id={`menu-${s.cle}`} className="flex items-center gap-2 font-serif text-[22px] italic leading-tight" style={{ color: s.couleur }}>

@@ -4,7 +4,7 @@ import type { EtatEtape, Piste, Resultat } from "@/domain/parcours/position";
 import type { Branche, ParcoursPublic } from "@/domain/parcours/types";
 import { Icone } from "@/features/espace/Icones";
 import type { ParcoursMessages } from "@/i18n/messages/parcours";
-import { Rayons } from "./Habillage";
+import { Info, Rayons } from "./Habillage";
 import { iconeEtape, styleBranche, TEINTES, transparence } from "./theme";
 
 type Taille = "normale" | "petite";
@@ -86,15 +86,9 @@ function Noeud({
         </p>
         <p className={cx("font-serif italic leading-snug", petit ? "text-[15px] sm:text-[16px]" : "text-[19px]", statut === "a_venir" ? "text-ink-soft" : "text-ink")}>{etape.nom}</p>
         {statut === "actuelle" && !fin && (
-          <span
-            className={cx(
-              "mt-1 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-(--oj-bouton) py-0.5 font-bold text-(--oj-bouton-texte)",
-              petit ? "px-2 text-[11px]" : "px-2.5 text-[12px]",
-            )}
-          >
-            <Icone nom="pin" className="h-3.5 w-3.5 shrink-0" />
+          <Info icone="pin" className={cx("mt-1 whitespace-nowrap font-bold uppercase tracking-[0.1em] text-(--oj-texte)", petit ? "text-[11px]" : "text-[12px]")}>
             {T.resultat.tuEsIci}
-          </span>
+          </Info>
         )}
         {fin && <p className="mt-0.5 text-[14px] font-semibold text-[#7A5200]">{T.resultat.restantes(restantes)}</p>}
         <span className="sr-only"> : {T.resultat.statut[statut]}</span>

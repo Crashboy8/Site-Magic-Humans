@@ -48,6 +48,22 @@ test("carte « Où j'en suis ? » en tête de page, avant les rubriques, hors du
   assert.ok(existsSync(new URL("../apps/boussole-decision/src/app/(ou-j-en-suis)/ou-j-en-suis/page.tsx", import.meta.url)), "page de l'outil absente");
 });
 
+test("les trois garanties de la carte sont du texte avec une coche, pas des gélules qui ressemblent à des boutons", () => {
+  const regle = /\.outils-parcours-puces li\{([^}]*)\}/.exec(html);
+  assert.ok(regle, "règle des garanties absente");
+  assert.doesNotMatch(regle[1], /border-radius|box-shadow|background:(?!url)/);
+  assert.match(regle[1], /background:url\(/);
+});
+
+test("garder son parcours : un appel vers Mon espace, traduit, hors du compte des six outils", () => {
+  const m = html.match(/<aside class="outils-compte"[\s\S]*?<\/aside>/);
+  assert.ok(m, "bloc absent");
+  assert.ok(html.indexOf('<aside class="outils-compte"') > html.indexOf("outils-rubrique--perso"), "après les deux rubriques");
+  assert.match(m[0], /<a class="outils-compte-btn" href="\/mon-espace\/" data-en="Open my space" data-es="Abrir mi espacio">Ouvrir Mon espace<\/a>/);
+  assert.match(m[0], /<h2 id="outils-compte-titre" data-en="Keep your journey" data-es="Guarda tu recorrido">Garde ton parcours<\/h2>/);
+  assert.deepEqual(liens(m[0]), []);
+});
+
 test("adresse courte /ou-j-en-suis/ vers l'outil, temporaire", () => {
   const conf = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
   for (const source of ["/ou-j-en-suis", "/ou-j-en-suis/"]) {

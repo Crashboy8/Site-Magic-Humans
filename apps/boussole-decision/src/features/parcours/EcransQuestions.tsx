@@ -55,7 +55,7 @@ export function EcranArgent({
                 <span
                   className={cx(
                     "flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-2 text-[22px] font-semibold transition duration-200 peer-focus-visible:ring-2 peer-focus-visible:ring-ink peer-focus-visible:ring-offset-2 sm:h-16 sm:w-16",
-                    coche ? "scale-110 shadow-lg" : "bg-white hover:-translate-y-0.5",
+                    coche ? "scale-110 shadow-lg" : "bg-white shadow-[0_3px_0_0_rgba(58,47,36,0.16)] hover:-translate-y-0.5 active:translate-y-[2px] active:shadow-none",
                   )}
                   style={coche ? { background: couleur.fond, borderColor: couleur.fond, color: couleur.texte } : { borderColor: couleur.fond, color: "#3A2F24" }}
                 >
@@ -113,16 +113,13 @@ export function EcranParallele({
           {T.parallele.titre}
         </h2>
         <p className="mx-auto mt-3 max-w-md text-[16px] leading-relaxed text-ink-soft">{data.voies.K.description}</p>
-        <ol className="mt-5 flex flex-wrap justify-center gap-2">
+        <ol className="mx-auto mt-5 grid max-w-md gap-x-6 gap-y-2 text-left sm:grid-cols-2">
           {etapes.map((e, i) => (
-            <li
-              key={e.id}
-              className="oj-apparait inline-flex items-center gap-1.5 rounded-full border border-(--oj-claire) bg-white px-3 py-1.5 text-[14px] text-ink"
-              style={{ "--i": i } as CSSProperties}
-            >
-              <Icone nom={iconeEtape(e.id)} className="h-4 w-4 shrink-0 text-(--oj-texte)" />
-              <span className="font-semibold text-(--oj-texte)">{e.code}</span>
-              {e.nom}
+            <li key={e.id} className="oj-apparait flex items-start gap-2 text-[15px] leading-snug text-ink" style={{ "--i": i } as CSSProperties}>
+              <Icone nom={iconeEtape(e.id)} className="mt-0.5 h-5 w-5 shrink-0 text-(--oj-texte)" />
+              <span>
+                <span className="font-semibold text-(--oj-texte)">{e.code}</span> {e.nom}
+              </span>
             </li>
           ))}
         </ol>
