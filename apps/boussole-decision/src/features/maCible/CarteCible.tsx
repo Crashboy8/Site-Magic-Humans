@@ -286,10 +286,10 @@ export function CarteCible({
           <Bloc id={`${base}-offre`} titre={R.blocs.offre} icone="cadeau" teinte="corail">
             <p className="text-[17px] font-semibold">{cible.offre.nom}</p>
             <p className="text-[16px]">
-              <span className="font-medium">{R.format}</span> : {cible.offre.format}
+              <span className="font-medium">{R.format}</span>{M.commun.dp}{cible.offre.format}
             </p>
             <p className="text-[16px]">
-              <span className="font-medium">{R.duree}</span> : {cible.offre.duree}
+              <span className="font-medium">{R.duree}</span>{M.commun.dp}{cible.offre.duree}
             </p>
             <p className="text-[16px] font-medium">{R.contenu}</p>
             <Liste items={cible.offre.contenu} />
@@ -374,7 +374,7 @@ export function CarteCible({
               ) : null,
             )}
             <p className="text-[15px]">
-              <span className="font-medium">{R.astuce}</span> : {lin.astuce}
+              <span className="font-medium">{R.astuce}</span>{M.commun.dp}{lin.astuce}
             </p>
           </Detail>
 
@@ -397,7 +397,7 @@ export function CarteCible({
           <Detail id={`${base}-test`} titre={R.blocs.test} icone="calendrier" teinte="sage" ouvert={ouvert(`${base}-test`)} onOuvert={onOuvert}>
             <p className="text-[17px] font-semibold">{R.testConsigne}</p>
             <p className="text-[16px]">
-              <span className="font-medium">{R.aQui}</span> : {cible.testTerrain.profils}
+              <span className="font-medium">{R.aQui}</span>{M.commun.dp}{cible.testTerrain.profils}
             </p>
             <p className="text-[16px] font-medium">{R.questionsTest}</p>
             <ol className="list-decimal space-y-1 pl-5 text-[16px]">

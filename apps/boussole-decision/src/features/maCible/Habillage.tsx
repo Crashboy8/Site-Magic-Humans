@@ -99,7 +99,7 @@ export function AnneauScore({ valeur, affiche, couleur, libelle }: { valeur: num
       <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
         <span className="flex items-baseline">
           <span className="font-serif text-[22px] font-bold leading-none tracking-tight" style={{ color: couleur }}>
-            {String(valeur).replace(".", ",")}
+            {affiche.replace(/\s*\/\s*10$/, "")}
           </span>
           <span className="text-[11px] font-semibold leading-none" style={{ color: couleur }}>
             /10

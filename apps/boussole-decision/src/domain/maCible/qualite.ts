@@ -17,12 +17,12 @@ export interface ContexteQualite {
   langue?: Langue;
 }
 
-const STOP = new Set(
-  "dans avec pour cette comme etre avoir faire plus tout toute tous tres quand alors aussi leur leurs sans sous entre apres avant depuis encore meme chez vers dont quoi quel quelle quelles quels vous votre notre nous elles elle lui trop bien peut sont etait aux des les une qui que pas par sur donc car dont fois doit celles ceux celui celle " +
-    "about after again their there these those which while would could should where other being because every with from into your yours they them than then what when".split(
-    " ",
-  ),
-);
+const STOP = new Set([
+  // Français
+  ..."dans avec pour cette comme etre avoir faire plus tout toute tous tres quand alors aussi leur leurs sans sous entre apres avant depuis encore meme chez vers dont quoi quel quelle quelles quels vous votre notre nous elles elle lui trop bien peut sont etait aux des les une qui que pas par sur donc car dont fois doit celles ceux celui celle".split(" "),
+  // Anglais
+  ..."about after again their there these those which while would could should where other being because every with from into your yours they them than then what when everything everyone everybody something anything nothing someone anyone always never really without through around three times still often".split(" "),
+]);
 
 export function sansAccent(s: string): string {
   return s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();

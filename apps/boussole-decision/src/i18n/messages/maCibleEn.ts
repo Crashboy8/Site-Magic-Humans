@@ -12,9 +12,10 @@ export const maCibleEn: MaCibleMessages = {
   },
   commun: {
     nomOutil: "The Targeter",
-    sousTitre: "Find the clients you thrive with in Flow State Mastery",
+    sousTitre: "Find the clients who put you in Flow State Mastery",
     locale: "en-GB",
     etapesAria: "Steps",
+    fournisseurIa: "an AI model (Mistral, Google Gemini or Anthropic Claude, depending on the setup)",
     dp: ": ",
     citation: (t: string) => `“${t}”`,
     etape: (n: number) => `Step ${n} of 5`,

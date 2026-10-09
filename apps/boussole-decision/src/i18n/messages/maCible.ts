@@ -17,12 +17,12 @@ export const NOM_OUTIL = {
 
 export const SOUS_TITRE_OUTIL = {
   fr: "Trouve les clients avec qui tu réussis dans le plaisir",
-  en: "Find the clients you thrive with in Flow State Mastery",
+  en: "Find the clients who put you in Flow State Mastery",
   es: "Encuentra los clientes con los que triunfas disfrutando",
 } as const;
 
 /** Titre d'onglet : le nom, puis la phrase d'accroche. */
-export const titreOutil = (nom: string, sousTitre: string) => `${nom} : ${sousTitre}`;
+export const titreOutil = (nom: string, sousTitre: string, deuxPoints = " : ") => `${nom}${deuxPoints}${sousTitre}`;
 
 const fr = {
   meta: {
@@ -34,6 +34,8 @@ const fr = {
     /** Format des nombres et des dates. */
     locale: "fr-FR" as string,
     etapesAria: "Étapes",
+    /** Le modèle d'IA nommé dans l'encart de confidentialité. */
+    fournisseurIa: LIBELLE_FOURNISSEUR_IA as string,
     /** Deux-points avec l'espace qui convient à la langue. */
     dp: " : " as string,
     citation: (t: string) => `« ${t} »`,
