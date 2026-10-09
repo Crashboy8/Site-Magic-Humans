@@ -3,6 +3,7 @@ import { Icone } from "@/features/espace/Icones";
 import { getI18n } from "@/i18n/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { lireAccesClient } from "./acces";
+import { MotDePasseFacultatif } from "./MotDePasseFacultatif";
 
 /** « Accès client · avec Pierre », sur une ligne sous le bonjour de Mon espace. Rien pour les autres comptes. */
 export async function BadgeClient({ user }: { user: AppUser }) {
@@ -50,4 +51,13 @@ export async function LienCodeClient({ user }: { user: AppUser }) {
       </a>
     </p>
   );
+}
+
+/** Compte ouvert avec un lien par mail (accès client) : proposer, sans l'imposer, de créer un mot de passe. */
+export async function EncartMotDePasse({ user }: { user: AppUser }) {
+  if (user.isGuest) return null;
+  const { data } = await (await supabaseServer()).auth.getClaims();
+  const meta = data?.claims?.user_metadata as { sans_mot_de_passe?: unknown } | undefined;
+  if (meta?.sans_mot_de_passe !== true) return null;
+  return <MotDePasseFacultatif />;
 }

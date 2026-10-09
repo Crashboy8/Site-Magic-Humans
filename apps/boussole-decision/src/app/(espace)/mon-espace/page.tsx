@@ -3,7 +3,7 @@ import type { EspaceMessages } from "@/i18n/messages/espace";
 import { IMPORT_ACTIF } from "@/content/espace";
 import { getFiche, type LectureFiche } from "@/data/fiche";
 import { CarteFiche } from "@/features/fiche/CarteFiche";
-import { BadgeClient, LienCodeClient, NoticeClient } from "@/features/client/BadgeClient";
+import { BadgeClient, EncartMotDePasse, LienCodeClient, NoticeClient } from "@/features/client/BadgeClient";
 import { CarteOutil } from "@/features/espace/CarteOutil";
 import { Icone } from "@/features/espace/Icones";
 import { outilsPour, type SectionOutil } from "@/features/espace/outils";
@@ -82,6 +82,7 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
       ))}
 
       <LienCodeClient user={user} />
+      <EncartMotDePasse user={user} />
 
       <aside className="rounded-[14px] border border-[#F0D2C6] bg-white p-5 text-center">
         <p className="font-serif text-[24px] italic leading-snug sm:text-[28px]">{ESPACE.appel.texte}</p>

@@ -57,10 +57,14 @@ export function RejoindreForm({ code, codeOk, lienExpire = false }: { code: stri
   const [changerCode, setChangerCode] = useState(!codeOk);
   const [modifier, setModifier] = useState(false);
   const [dernier, setDernier] = useState<[string, string][]>([]);
+  const [motDePasseVoulu, setMotDePasseVoulu] = useState(false);
   const C = useI18n().t.client;
   const R = C.rejoindre;
   const champs = etat.champs ?? {};
   const champCode = changerCode || Boolean(champs.code);
+  const avecMotDePasse = motDePasseVoulu;
+  // Après une erreur, React vide le formulaire : on remet le prénom et l'email déjà tapés (jamais le mot de passe).
+  const deja = (cle: string) => dernier.find(([k]) => k === cle)?.[1] ?? "";
 
   if (etat.envoye && !modifier) {
     return <MailEnvoye email={etat.envoye} dernier={dernier} action={action} envoi={envoi} onModifier={() => setModifier(true)} />;
@@ -108,20 +112,34 @@ export function RejoindreForm({ code, codeOk, lienExpire = false }: { code: stri
             </>
           )}
           <Field label={R.prenom} htmlFor="prenom" error={champs.prenom}>
-            <Input id="prenom" name="prenom" autoComplete="given-name" maxLength={40} aria-invalid={Boolean(champs.prenom)} />
+            <Input id="prenom" name="prenom" defaultValue={deja("prenom")} autoComplete="given-name" maxLength={40} aria-invalid={Boolean(champs.prenom)} />
           </Field>
-          <Field label={R.email} htmlFor="email" hint={R.emailAide} error={champs.email}>
-            <Input id="email" name="email" type="email" inputMode="email" autoComplete="email" aria-invalid={Boolean(champs.email)} />
+          <Field label={R.email} htmlFor="email" hint={avecMotDePasse ? undefined : R.emailAide} error={champs.email}>
+            <Input id="email" name="email" defaultValue={deja("email")} type="email" inputMode="email" autoComplete="email" aria-invalid={Boolean(champs.email)} />
           </Field>
+          {avecMotDePasse && (
+            <Field label={R.motDePasse} htmlFor="mot_de_passe" hint={R.motDePasseAide} error={champs.motDePasse}>
+              <Input id="mot_de_passe" name="mot_de_passe" type="password" autoComplete="new-password" minLength={8} aria-invalid={Boolean(champs.motDePasse)} />
+            </Field>
+          )}
           {etat.erreur && (
             <p role="alert" className="rounded-xl border border-danger/30 bg-danger-soft px-4 py-3 text-base text-danger">
               {etat.erreur}
             </p>
           )}
           <BoutonPlein disabled={envoi}>
-            <Icone nom="enveloppe" className="h-5 w-5 shrink-0" />
-            {envoi ? R.envoi : R.bouton}
+            <Icone nom={avecMotDePasse ? "cle" : "enveloppe"} className="h-5 w-5 shrink-0" />
+            {envoi ? R.envoi : avecMotDePasse ? R.boutonMotDePasse : R.bouton}
           </BoutonPlein>
+          <button
+            type="button"
+            aria-expanded={avecMotDePasse}
+            onClick={() => setMotDePasseVoulu(!avecMotDePasse)}
+            className="flex min-h-11 w-full items-center justify-center gap-1.5 text-[15px] text-ink-soft underline underline-offset-4 hover:text-ink"
+          >
+            <Icone nom={avecMotDePasse ? "enveloppe" : "cle"} className="h-4 w-4 shrink-0" />
+            {avecMotDePasse ? R.plutotLien : R.prefereMotDePasse}
+          </button>
         </form>
         <p className="text-sm leading-relaxed text-ink-soft">{R.dejaCompte}</p>
       </Carte>

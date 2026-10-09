@@ -52,4 +52,13 @@ describe("textes de l'accès client", () => {
       expect(/\b(deux|trois|two|three) (minutes|étapes|steps)\b/i.test(tout)).toBe(false);
     }
   });
+
+  it("le mot de passe reste facultatif, jamais obligatoire", () => {
+    expect(client.fr.motDePasse.titre).toMatch(/facultatif/);
+    expect(client.en.motDePasse.titre).toMatch(/optional/i);
+    for (const locale of ["fr", "en"] as const) {
+      const tout = chaines(client[locale]).map((c) => c.texte).join(" ");
+      expect(/obligatoire|required|mandatory/i.test(tout)).toBe(false);
+    }
+  });
 });
