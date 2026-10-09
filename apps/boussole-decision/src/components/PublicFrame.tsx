@@ -23,13 +23,13 @@ export async function PublicFrame({
   sansLangues?: boolean;
   children: ReactNode;
 }) {
-  const { t } = await getI18n();
+  const { t, locale } = await getI18n();
   return (
     <div className="flex min-h-dvh flex-col">
       <header data-chrome className="border-b border-line bg-cream/90">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
           {edition ? (
-            <AppBrand name={brand} />
+            <AppBrand name={brand} locale={locale} />
           ) : (
             <Link href="/" className="flex min-w-0 items-center gap-2.5">
               {mark}

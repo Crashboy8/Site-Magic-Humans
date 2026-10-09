@@ -27,6 +27,7 @@ export const PUBLIC_PATHS = [
   "/api/quiz-salle",
   "/api/fiche",
   "/depuis-cibleur",
+  "/client",
 ];
 
 export function isPublicPath(pathname: string): boolean {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { isLoveProfile, LOVE_RESULTS } from "@/content/amour";
+import { isLoveProfile } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
 import { LoveChrome } from "@/features/amour/LoveChrome";
 import { getI18n } from "@/i18n/server";
 import { Notice } from "@/components/ui";
@@ -18,7 +19,8 @@ export default async function ResultsPage({ params }: PageProps<"/versions/[vers
   const { versionId } = await params;
   const ctx = await loadVersionContext(versionId);
   const db = await supabaseServer();
-  const R = (await getI18n()).t.results;
+  const { t, locale } = await getI18n();
+  const R = t.results;
   const love = isLoveProfile(ctx.profile);
   const [categories, criteria, opportunities, evaluations] = await Promise.all([
     listCategories(db, versionId),
@@ -35,7 +37,7 @@ export default async function ResultsPage({ params }: PageProps<"/versions/[vers
 
       <header className="mb-8 space-y-3">
         <h1 className="text-4xl italic sm:text-5xl">{ctx.isOwner ? R.headingMine : R.heading}</h1>
-        <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{love ? LOVE_RESULTS.intro : R.intro}</p>
+        <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{love ? amourPour(locale).results.intro : R.intro}</p>
         {ctx.isOwner && ctx.version.status === "finalisee" && <Notice>{R.finalizedNotice}</Notice>}
       </header>
 

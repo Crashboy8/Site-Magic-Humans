@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PublicFrame } from "@/components/PublicFrame";
 import { TargetMark } from "@/components/ui";
 import { getI18n } from "@/i18n/server";
+import "@/features/maCible/impression.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const nom = (await getI18n()).t.maCible.commun.nomOutil;

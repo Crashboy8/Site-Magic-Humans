@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Notice } from "@/components/ui";
-import { isLoveProfile, LOVE_TABLE, LOVE_TEXTS } from "@/content/amour";
+import { isLoveProfile } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
 import { LoveChrome } from "@/features/amour/LoveChrome";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
 import { LoveGuide } from "@/features/amour/LoveGuide";
@@ -28,8 +29,9 @@ export default async function TablePage({ params, searchParams }: PageProps<"/ve
     listOpportunities(db, versionId),
     listEvaluations(db, versionId),
   ]);
-  const { t, m } = await getI18n();
+  const { t, m, locale } = await getI18n();
   const T = t.table;
+  const LOVE = amourPour(locale);
   const sentence = m.talentSentence(ctx.profile.talent);
   const love = isLoveProfile(ctx.profile);
 
@@ -43,14 +45,14 @@ export default async function TablePage({ params, searchParams }: PageProps<"/ve
         <h1 className="text-4xl italic sm:text-5xl">{T.heading}</h1>
         <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">
           {T.introStart} <strong className="font-medium text-ink">{T.introRows}</strong>
-          {T.introMiddle} <strong className="font-medium text-ink">{love ? LOVE_TABLE.introCols : T.introCols}</strong>
+          {T.introMiddle} <strong className="font-medium text-ink">{love ? LOVE.table.introCols : T.introCols}</strong>
           {T.introEnd}
         </p>
         {love ? (
           <>
-            <QuizRepris criteria={criteria} added={repris} />
-            <Notice>{LOVE_TEXTS.tableNotice}</Notice>
-            <LoveGuide criteria={criteria} />
+            <QuizRepris criteria={criteria} added={repris} locale={locale} />
+            <Notice>{LOVE.texts.tableNotice}</Notice>
+            <LoveGuide criteria={criteria} locale={locale} />
           </>
         ) : (
           <>

@@ -462,6 +462,14 @@ const fr = {
     detail: "Détail",
     copierTout: "Copier tout le résultat",
     telecharger: "Télécharger (.md)",
+    telechargerPdf: "Télécharger en PDF",
+    pdfAide: "Ouvre la fenêtre d'impression : choisis « Enregistrer au format PDF ».",
+    copierIA: "Copier pour mon IA",
+    copierIAAide: "Copie tout ton résultat en texte, avec une courte consigne pour ton IA.",
+    copieOk: "Copié ✓",
+    copierPartie: (titre: string) => `Copier « ${titre} » en Markdown`,
+    garderTitre: "Garde ton résultat sous la main",
+    garderTexte: "Télécharge-le en PDF, ou colle-le dans ton IA (ChatGPT, Claude, Mistral…) pour avancer avec elle.",
     copierCible: "Copier cette cible",
     pastilleHypothese: "Hypothèse de l'IA",
     pastilleEstimation: "Estimation de l'IA",
@@ -615,6 +623,8 @@ const fr = {
     hypotheses: "Ce que l'IA a supposé",
     motPourToi: "Un mot pour toi",
     nomFichier: "le-cibleur",
+    introIA:
+      "Voici mon résultat du Cibleur Magic Humans. Il part de mon talent pour proposer mes cibles de clients, mon offre, mes prix, où trouver ces clients, quoi leur écrire et un plan sur 30 jours. Aide-moi à choisir ma cible prioritaire, à affiner mon offre et mon prix, puis à préparer mes premiers messages. Pose-moi des questions si quelque chose n'est pas clair.",
   },
   canaux: {
     linkedin: "LinkedIn",

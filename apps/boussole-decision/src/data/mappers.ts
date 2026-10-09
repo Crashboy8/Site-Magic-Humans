@@ -79,6 +79,7 @@ export const mapInvitationCode = (r: Row): InvitationCode => ({
   expiresAt: r.expires_at,
   disabledAt: r.disabled_at ?? null,
   createdAt: r.created_at,
+  lienFiche: r.lien_fiche ?? null,
 });
 
 export const mapCategory = (r: Row): Category => ({

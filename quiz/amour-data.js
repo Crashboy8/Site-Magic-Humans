@@ -1,8 +1,10 @@
-/* Quiz Amour v1.4 (mode ?theme=amour) · Magic Humans · données et textes, FR uniquement.
+/* Quiz Amour v1.5 (mode ?theme=amour) · Magic Humans · données et textes en français (base). La traduction anglaise est dans amour-data-en.js.
    Fichier de données pur : aucune logique d'affichage. Lu par quiz/amour.js et par les tests. */
 (function (root) {
 const AMOUR_DATA = {
   "version": 4,
+  // Langue des textes : "fr" ici. L'anglais (amour-data-en.js) remplace les textes, jamais les identifiants.
+  "lang": "fr",
   "config": {
     // Appel Découverte habituel (Talent Unique), pas un coaching amour à part. utm_content est ajouté par bouton.
     "calendly": "https://calendly.com/pierre-j-sarazin?utm_source=sommet-love-connexion&utm_medium=quiz-amour&utm_campaign=sommet-amour",
@@ -204,6 +206,44 @@ const AMOUR_DATA = {
         "talent": "heart"
       }
     }
+  },
+  // Phrases assemblées par le moteur (notes et critères de la Boussole, export, profil).
+  "engine": {
+    "nameOrder": "noun-adj",
+    "and": " et ",
+    "or": " ou ",
+    "semi": " ; ",
+    "dp": " : ",
+    "colon": " :",
+    "quote": "« {t} »",
+    "you": "Toi",
+    "partnerWho": "Un partenaire qui {hint}",
+    "noteNourrit": "Ce qui te nourrit : {list}.",
+    "noteVide": "Ce qui te vide : {list}.",
+    "noteValeurs": "Tes valeurs, dans l'ordre : {list}.",
+    "noteDirection": "Tes repères de projet de vie : {list}.",
+    "noteDefauts": "Ce que tu as du mal à vivre chez l'autre : {list}.",
+    "noteFrictions": "Sous stress fort, tu as tendance à {fort}. Sous stress modéré, tu {modere}. Repère si vos disputes finissent par un vrai accord.",
+    "noteEnergie": "Tu te recharges {recharge}.",
+    "noteLangage": "Tu te sens aimé·e surtout par {l1}, puis {l2}.",
+    "noteSousType": "Ton sous-type dominant : {name}.",
+    "noteNonNeg": "Tes non-négociables d'après le quiz : {list}.",
+    "noteNoMore": "Ce que tu ne veux plus vivre : {short}.",
+    "critBesoin": "Mon besoin de {word} est nourri ({title})",
+    "needWords": { "securite": "sécurité", "liberte": "liberté", "reconnaissance": "reconnaissance", "profondeur": "profondeur", "legerete": "légèreté", "harmonie": "douceur" },
+    "critNourrit": "Ce qui me nourrit : {short}",
+    "critProjet": "Projet de vie commun : {short}",
+    "critPartage": "Nous partageons {short}",
+    "critEviter": "À éviter : {short}",
+    "exportHead": "Mon profil amoureux (hypothèse) : {name}.",
+    "secBloom": "Ton besoin secondaire ({name}) compte aussi : {bloom}.",
+    "secFade": "Et comme {lower} compte aussi pour toi, {fade}.",
+    "stressGlance": "modéré → {modere} · fort → {fort}",
+    "moveAria": "Déplacer « {label} »",
+    "removeAria": "Retirer « {label} » du classement",
+    "toc": "Sommaire",
+    "ctxGood": "Tes contextes fertiles",
+    "ctxBad": "Tes contextes toxiques"
   },
   "screens": [
     {
@@ -2837,6 +2877,8 @@ AMOUR_DATA.profil = {
       "eyebrowAnon": "Ton profil amoureux (hypothèse) · 1 combinaison parmi 42",
       "domSec": "Dominante {domName} ({domKey}) · Secondaire {secName} ({secKey})",
       "alliageLab": "Ton alliage",
+    "pillDom": "Dominante",
+    "pillSec": "Secondaire",
       "barsLab": "Tes 7 besoins amoureux",
       "netLine": "Ton besoin dominant ressort très nettement.",
       "mixedLine": "Tes deux premiers besoins pèsent presque autant : tu te reconnaîtras peut-être aussi dans le profil {inverse}.",
@@ -2854,6 +2896,7 @@ AMOUR_DATA.profil = {
       ],
       "sentences": {
         "s1": "{prenom}, ton profil amoureux est {profil} : tu {s1}, et tu as besoin {secNeed}.",
+      "s1Anon": "Toi, ton profil amoureux est {profil} : tu {s1}, et tu as besoin {secNeed}.",
         "s2": "Tu t'épanouis quand {bloomShort}, et tu t'éteins quand {fadeShort}.",
         "s3": "Sous stress fort, ton piège, c'est {trapName} : {trapShort}. Pour en sortir, {exitShort}."
       },

@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     countUnreadComments(db, user.id).catch(() => 0),
     editionUtilisateur(db, user.id),
   ]);
-  const { t } = await getI18n();
+  const { t, locale } = await getI18n();
   const c = t.common;
   // Marque posée dans l'en-tête, pas dans la page : « Mes profils » ne repasse pas par l'habillage Pro
   // le temps de la redirection vers le tableau.
@@ -37,7 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-dvh flex-col">
-      {amour && <span data-amour-langue hidden />}
+      {amour && <span data-mode-amour hidden />}
       <a
         href="#contenu"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-paper focus:px-4 focus:py-2"
@@ -46,7 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </a>
       <header data-chrome className="z-30 border-b border-line bg-cream/90 backdrop-blur sm:sticky sm:top-0">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
-          <AppBrand name={c.appName} />
+          <AppBrand name={c.appName} locale={locale} />
           <nav aria-label={c.mainNav} className="-mx-2 flex flex-wrap items-center gap-0.5 text-sm sm:mx-0 sm:gap-1 sm:text-[15px]">
             <LienQuizAmour />
             <Link href="/mon-espace/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">

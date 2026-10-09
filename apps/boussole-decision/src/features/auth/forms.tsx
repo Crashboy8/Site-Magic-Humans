@@ -33,7 +33,8 @@ function varianteEspace(suite?: string) {
 }
 
 export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: string }) {
-  const [mode, setMode] = useState<"password" | "magic">("password");
+  // Lien par mail par défaut (le plus court), mot de passe à un clic pour qui en a créé un.
+  const [mode, setMode] = useState<"password" | "magic">("magic");
   const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
   const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
   const { t: tout } = useI18n();
@@ -53,8 +54,8 @@ export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: 
       <div role="tablist" aria-label={t.signInMode} className="grid grid-cols-2 rounded-full bg-sand p-1 text-sm">
         {(
           [
-            ["password", t.modePassword],
             ["magic", t.modeMagic],
+            ["password", t.modePassword],
           ] as const
         ).map(([key, label]) => (
           <button

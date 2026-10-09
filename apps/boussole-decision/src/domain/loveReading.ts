@@ -10,7 +10,9 @@
 // - Sécurité : critère « respect » (libellé du modèle) noté 25 % ou moins : texte d'aide affiché en premier.
 // - Énergie : critère « energie » noté 25 % ou moins, après les alertes critiques.
 // - Lecture provisoire si moins de 7 critères évalués, ou s'il reste au moins un critère critique non évalué.
-import { LOVE_TEMPLATE, LOVE_TEXTS, type LoveBandKey } from "@/content/amour";
+import type { LoveBandKey } from "@/content/amour";
+import { amourPour, cleCritereAmour, critereModeleAmour } from "@/content/amourLangue";
+import type { Locale } from "@/i18n/config";
 import type { OpportunityResult } from "./scoring";
 
 export const LOVE_CRITICAL_THRESHOLD = 50;
@@ -41,15 +43,13 @@ export function bandOf(score: number): LoveBandKey {
 }
 
 const fill = (tpl: string, vars: Record<string, string | number>) => tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
-const templateByLabel = new Map<string, (typeof LOVE_TEMPLATE.criteria)[number]>(LOVE_TEMPLATE.criteria.map((c) => [c.label, c]));
-const RESPECT_LABEL = LOVE_TEMPLATE.criteria.find((c) => c.key === "respect")!.label;
-const ENERGY_LABEL = LOVE_TEMPLATE.criteria.find((c) => c.key === "energie")!.label;
-
-export function loveReadingOf(result: OpportunityResult): LoveReading {
+/** Lecture dans la langue de l'interface. Les critères du modèle sont reconnus quelle que soit leur langue de création. */
+export function loveReadingOf(result: OpportunityResult, locale: Locale = "fr"): LoveReading {
+  const LOVE_TEXTS = amourPour(locale).texts;
   const alerts: LoveAlert[] = [];
   for (const d of result.details) {
     if (d.satisfaction === null) continue;
-    if (d.criterion.label === RESPECT_LABEL && d.satisfaction <= LOVE_SAFETY_THRESHOLD)
+    if (cleCritereAmour(d.criterion.label) === "respect" && d.satisfaction <= LOVE_SAFETY_THRESHOLD)
       alerts.push({ kind: "securite", criterionId: d.criterion.id, text: LOVE_TEXTS.safety });
   }
   for (const a of result.antiContextAlerts) {
@@ -60,11 +60,11 @@ export function loveReadingOf(result: OpportunityResult): LoveReading {
     const c = d.criterion;
     if (d.satisfaction === null || c.direction !== "TOWARDS" || c.importance !== "critique") continue;
     if (d.satisfaction > LOVE_CRITICAL_THRESHOLD) continue;
-    const tpl = templateByLabel.get(c.label);
+    const tpl = critereModeleAmour(c.label, locale);
     alerts.push({ kind: "critique", criterionId: c.id, text: tpl?.alert || fill(LOVE_TEXTS.genericAlert, { label: c.label }) });
   }
   for (const d of result.details) {
-    if (d.satisfaction === null || d.criterion.label !== ENERGY_LABEL) continue;
+    if (d.satisfaction === null || cleCritereAmour(d.criterion.label) !== "energie") continue;
     if (d.satisfaction > LOVE_ENERGY_THRESHOLD) continue;
     alerts.push({ kind: "energie", criterionId: d.criterion.id, text: LOVE_TEXTS.energyAlert });
   }

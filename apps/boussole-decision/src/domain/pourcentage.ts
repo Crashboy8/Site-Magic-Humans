@@ -24,6 +24,18 @@ export const PAS_POURCENTAGE = 5;
 
 /** Aide affichée sous les critères pour lesquels un pourcentage est le plus parlant. */
 export const AIDE_POURCENTAGE = "Tu peux mettre un pourcentage, de 0 à 100.";
+/** La même aide en anglais (critères créés en anglais). */
+export const AIDE_POURCENTAGE_EN = "You can enter a percentage, from 0 to 100.";
+
+/** L'aide dans la langue de l'interface (l'espagnol garde le français, comme la Boussole Relation). */
+export function aidePourcentage(locale: "fr" | "en" | "es"): string {
+  return locale === "en" ? AIDE_POURCENTAGE_EN : AIDE_POURCENTAGE;
+}
+
+/** Vrai si la description du critère propose un pourcentage, quelle que soit sa langue. */
+export function proposePourcentage(description: string): boolean {
+  return description.includes(AIDE_POURCENTAGE) || description.includes(AIDE_POURCENTAGE_EN);
+}
 
 const PALIERS: readonly [number, EvaluationValue][] = [
   [0, "non"],

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LOVE_TEXTS } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
 import { LoveOrQuiz } from "@/features/amour/LoveOrQuiz";
 import { LoveStart } from "@/features/amour/LoveStart";
 import { QuizImport } from "@/features/quiz/QuizImport";
@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/supabase/server";
 export async function generateMetadata({ searchParams }: PageProps<"/importer-quiz">): Promise<Metadata> {
   const { theme } = await searchParams;
   const value = Array.isArray(theme) ? theme[0] : theme;
-  if (value === "amour") return { title: LOVE_TEXTS.start.heading, robots: { index: false, follow: false } };
+  if (value === "amour") return { title: amourPour((await getI18n()).locale).texts.start.heading, robots: { index: false, follow: false } };
   return { title: (await getI18n()).t.quiz.title, robots: { index: false, follow: false } };
 }
 

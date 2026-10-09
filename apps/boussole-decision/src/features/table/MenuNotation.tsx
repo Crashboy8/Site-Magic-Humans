@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { cx } from "@/components/ui";
-import { AIDE_POURCENTAGE, PAS_POURCENTAGE, auPas } from "@/domain/pourcentage";
+import { aidePourcentage, PAS_POURCENTAGE, auPas } from "@/domain/pourcentage";
 import type { CriterionDirection, EvaluationValue } from "@/domain/types";
 import { useI18n } from "@/i18n/client";
 import { classePourcentage, evaluationClass } from "./styles";
@@ -26,7 +26,8 @@ export function MenuNotation({
   texts: { percentOption: string; percentLegend: string; percentValidate: string };
   onChange: (saisie: { value: EvaluationValue; percent?: number } | null) => void;
 }) {
-  const labels = useI18n().m.evaluationLabels[direction];
+  const { m, locale } = useI18n();
+  const labels = m.evaluationLabels[direction];
   const [ouvert, setOuvert] = useState(false);
   const [curseur, setCurseur] = useState(false);
   const [brouillon, setBrouillon] = useState(percent ?? 50);
@@ -142,7 +143,7 @@ export function MenuNotation({
               {curseur && (
                 <div className="mt-3 space-y-3 px-1">
                   <p className="text-center font-serif text-3xl italic tabular-nums">{brouillon} %</p>
-                  <p className="text-sm text-ink-soft">{AIDE_POURCENTAGE}</p>
+                  <p className="text-sm text-ink-soft">{aidePourcentage(locale)}</p>
                   <input
                     ref={champ}
                     type="range"

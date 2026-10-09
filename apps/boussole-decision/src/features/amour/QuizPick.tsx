@@ -1,7 +1,8 @@
 "use client";
 
-import { LOVE_TEXTS } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
 import { proposalStatus, type LoveProposal, type LoveProposalGroup } from "@/domain/lovePrefill";
+import { useI18n } from "@/i18n/client";
 
 const GROUP_ORDER: LoveProposalGroup[] = ["profil", "besoins", "valeurs", "eviter"];
 
@@ -27,7 +28,8 @@ export function QuizPick({
   onToggle: (id: string) => void;
   profil: string;
 }) {
-  const P = LOVE_TEXTS.quizPick;
+  const { locale } = useI18n();
+  const P = amourPour(locale).texts.quizPick;
   return (
     <section aria-labelledby="quiz-pick" className="space-y-4">
       <header className="space-y-1 text-center">

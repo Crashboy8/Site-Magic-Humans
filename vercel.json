@@ -47,6 +47,26 @@
       "permanent": false
     },
     {
+      "source": "/client",
+      "destination": "/boussole-decision/client/",
+      "permanent": false
+    },
+    {
+      "source": "/client/",
+      "destination": "/boussole-decision/client/",
+      "permanent": false
+    },
+    {
+      "source": "/client/:code",
+      "destination": "/boussole-decision/client/?code=:code",
+      "permanent": false
+    },
+    {
+      "source": "/client/:code/",
+      "destination": "/boussole-decision/client/?code=:code",
+      "permanent": false
+    },
+    {
       "source": "/amour",
       "destination": "/quiz-amour/",
       "permanent": false

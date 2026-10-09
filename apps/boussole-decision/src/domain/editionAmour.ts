@@ -38,6 +38,16 @@ export function uniquementAmour(profiles: Pick<Profile, "description">[]): boole
  */
 export const RETOUR_QUIZ_AMOUR = { href: "/quiz-amour/", label: "← Quiz Amour" } as const;
 
+/** Adresse du Quiz Amour dans la langue de l'interface : le quiz s'ouvre dans la même langue. */
+export function lienQuizAmour(locale: "fr" | "en" | "es"): string {
+  return `${RETOUR_QUIZ_AMOUR.href}?lang=${locale}`;
+}
+
+/** Le lien d'en-tête, traduit. L'espagnol garde le libellé français, comme le reste du mode amour. */
+export function retourQuizAmour(locale: "fr" | "en" | "es"): { href: string; label: string } {
+  return { href: lienQuizAmour(locale), label: locale === "en" ? "← Love Quiz" : RETOUR_QUIZ_AMOUR.label };
+}
+
 /**
  * « Mes profils » en mode amour ouvre le tableau directement.
  * Sinon, la liste des profils (accueil pro, inchangé).

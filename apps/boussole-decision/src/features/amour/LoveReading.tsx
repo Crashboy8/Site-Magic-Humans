@@ -1,16 +1,17 @@
-import { LOVE_RESULTS, LOVE_TEXTS } from "@/content/amour";
+import { amourPour } from "@/content/amourLangue";
 import { Card, Notice, buttonClass } from "@/components/ui";
 import { espacesFins, lignesBesoins, type RelationLook } from "@/domain/relationApparence";
 import { loveReadingOf } from "@/domain/loveReading";
 import type { OpportunityResult } from "@/domain/scoring";
+import type { Locale } from "@/i18n/config";
 import { IconeCalendrier, IconeEtat, NomRelation } from "./IconeRelation";
 
 const fill = (tpl: string, vars: Record<string, string | number>) =>
   tpl.replace(/\{(\w+)\}/g, (_, k: string) => String(vars[k] ?? ""));
 
 /** Lecture mode amour : le titre de la relation, ses besoins essentiels, ses alertes, la tranche et l'appel. */
-export function LoveReading({ ranking, lookDe }: { ranking: OpportunityResult[]; lookDe: (id: string) => RelationLook }) {
-  const T = LOVE_TEXTS;
+export function LoveReading({ ranking, lookDe, locale }: { ranking: OpportunityResult[]; lookDe: (id: string) => RelationLook; locale: Locale }) {
+  const { texts: T, results: LOVE_RESULTS } = amourPour(locale);
   return (
     <section aria-labelledby="lecture-amour" className="space-y-5">
       <div className="titre-section">
@@ -21,7 +22,7 @@ export function LoveReading({ ranking, lookDe }: { ranking: OpportunityResult[];
       </div>
 
       {ranking.map((r) => {
-        const lr = loveReadingOf(r);
+        const lr = loveReadingOf(r, locale);
         if (lr.score === null || lr.band === null) {
           return (
             <p key={r.opportunity.id} className="text-center text-pretty">
@@ -32,7 +33,7 @@ export function LoveReading({ ranking, lookDe }: { ranking: OpportunityResult[];
         const band = T.bands[lr.band];
         const score = Math.round(lr.score);
         const look = lookDe(r.opportunity.id);
-        const lignes = lignesBesoins(r);
+        const lignes = lignesBesoins(r, locale);
         const besoins = lignes.filter((l) => l.genre === "besoin");
         const risques = lignes.filter((l) => l.genre === "risque");
         return (
@@ -40,7 +41,7 @@ export function LoveReading({ ranking, lookDe }: { ranking: OpportunityResult[];
             <div className="eviter-coupure space-y-2">
               <p className="text-center text-balance font-serif text-2xl italic">
                 <NomRelation nom={r.opportunity.name} look={look} className="font-sans text-[0.72em] font-semibold not-italic" />
-                {espacesFins(` : ${score} % d'alignement`)}
+                {espacesFins(T.alignement(score))}
               </p>
               {besoins.length > 0 && (
                 <>

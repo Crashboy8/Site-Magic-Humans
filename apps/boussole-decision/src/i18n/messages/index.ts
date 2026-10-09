@@ -2,6 +2,7 @@
 // (TypeScript signale toute traduction manquante).
 import type { Locale } from "../config";
 import { auth } from "./auth";
+import { client } from "./client";
 import { coach } from "./coach";
 import { example } from "./example";
 import { common } from "./common";
@@ -25,6 +26,7 @@ const fr = {
   quiz: quiz.fr,
   maCible: maCible.fr,
   espace: espace.fr,
+  client: client.fr,
 };
 const en: typeof fr = {
   common: common.en,
@@ -38,6 +40,7 @@ const en: typeof fr = {
   quiz: quiz.en,
   maCible: maCible.en,
   espace: espace.en,
+  client: client.en,
 };
 
 const es: typeof fr = {
@@ -52,6 +55,7 @@ const es: typeof fr = {
   quiz: quiz.es,
   maCible: maCible.es,
   espace: espace.es,
+  client: client.es,
 };
 
 export type Messages = typeof fr;

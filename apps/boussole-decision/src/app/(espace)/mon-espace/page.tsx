@@ -3,6 +3,7 @@ import type { EspaceMessages } from "@/i18n/messages/espace";
 import { IMPORT_ACTIF } from "@/content/espace";
 import { getFiche, type LectureFiche } from "@/data/fiche";
 import { CarteFiche } from "@/features/fiche/CarteFiche";
+import { BadgeClient, EncartMotDePasse, LienCodeClient, NoticeClient } from "@/features/client/BadgeClient";
 import { CarteOutil } from "@/features/espace/CarteOutil";
 import { Icone } from "@/features/espace/Icones";
 import { outilsPour, type SectionOutil } from "@/features/espace/outils";
@@ -38,8 +39,9 @@ function zoneFiche(lecture: LectureFiche | null, F: EspaceMessages["fiche"]) {
 
 export default async function MonEspacePage({ searchParams }: PageProps<"/mon-espace">) {
   const user = await requireUser();
-  const ESPACE = (await getI18n()).t.espace;
-  const outils = outilsPour(ESPACE.outils);
+  const { t, locale } = await getI18n();
+  const ESPACE = t.espace;
+  const outils = outilsPour(ESPACE.outils, locale);
   const lecture = IMPORT_ACTIF ? await lireFiche(user.id) : null;
   const fichePrenom = lecture && !lecture.absente ? (lecture.fiche?.fiche.prenom ?? "") : "";
   const prenom = user.firstName.trim() || fichePrenom;
@@ -50,6 +52,7 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
     <div className="space-y-8">
       <header className="space-y-2">
         <h1 className="font-serif text-4xl italic leading-tight">{ESPACE.bonjour(prenom)}</h1>
+        <BadgeClient user={user} />
         <p className="max-w-2xl text-base leading-relaxed text-ink-soft">{ESPACE.intro}</p>
       </header>
 
@@ -58,6 +61,8 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
           {notice}
         </p>
       )}
+
+      <NoticeClient etat={(await searchParams).client} />
 
       {zoneFiche(lecture, ESPACE.fiche)}
 
@@ -76,6 +81,9 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
           </ul>
         </section>
       ))}
+
+      <LienCodeClient user={user} />
+      <EncartMotDePasse user={user} />
 
       <aside className="rounded-[14px] border border-[#F0D2C6] bg-white p-5 text-center">
         <p className="font-serif text-[24px] italic leading-snug sm:text-[28px]">{ESPACE.appel.texte}</p>

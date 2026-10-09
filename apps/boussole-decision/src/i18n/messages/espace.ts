@@ -382,7 +382,7 @@ const en: EspaceMessages = {
     cibleur: { titre: "The Targeter", phrase: "Find the clients you'll enjoy working with: 3 targets, your offer and your first messages.", bouton: "Find my clients" },
     boussole: { titre: "Decision Compass", phrase: "Torn between several options? Choose based on what really matters to you.", bouton: "Open the Compass" },
     amour: { titre: "Love Quiz", phrase: "Your love profile, and where to meet someone who's right for you.", bouton: "Take the Love Quiz" },
-    relation: { titre: "Relationship Compass", phrase: "Take stock of a relationship using your own criteria.", bouton: "Open the Relationship Compass" },
+    relation: { titre: "Decision Compass: personal", phrase: "Take stock of a relationship using your own criteria.", bouton: "Open the personal Compass" },
   },
   depuisCibleur: {
     surtitre: "From The Targeter",

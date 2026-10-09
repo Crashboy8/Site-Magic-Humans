@@ -148,6 +148,8 @@ export interface InvitationCode {
   expiresAt: string | null;
   disabledAt: string | null;
   createdAt: string;
+  /** Lien Notion de la fiche du client (accès client), null sinon ou si la colonne n'existe pas encore. */
+  lienFiche: string | null;
 }
 
 export type CommentTarget = "version" | "criterion" | "opportunity";

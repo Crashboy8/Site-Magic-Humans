@@ -1161,7 +1161,8 @@ test("rencontre : chaque profil a des lieux, des activités, un contexte et le l
   const meetAt = show.indexOf("rencontreHtml(profile)");
   const nowAt = show.indexOf('id="sec-now"');
   assert.ok(meetAt > 0 && nowAt > meetAt);
-  assert.match(show, /boussoleUrl \+ "#amour=" \+ E\.encodePayload\(profile\.boussole\)/);
+  assert.match(show, /boussoleBase\(\) \+ "#amour=" \+ E\.encodePayload\(profile\.boussole\)/);
+  assert.match(src, /function boussoleBase\(\) \{\s*return D\.config\.boussoleUrl \+ "&lang=" \+ lang;/);
   assert.match(show, /data-act="boussole"/);
   assert.match(show, /calendlyHref\("resultat-fin"\)/);
   assert.match(show, /data-cta-place="quiz_amour_resultat-fin"/);

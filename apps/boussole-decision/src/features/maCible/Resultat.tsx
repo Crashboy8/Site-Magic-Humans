@@ -20,7 +20,7 @@ import {
   scorePressenti,
 } from "@/domain/maCible/scores";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
-import { BoutonCopier } from "./BoutonCopier";
+import { BoutonCopierIA, IconeCopier } from "./BoutonCopier";
 import { ChargeurEnLigne } from "./ChargeurEnLigne";
 import { BlocPortrait, type EtatAppel } from "./Portrait";
 import { CarteCible } from "./CarteCible";
@@ -43,7 +43,7 @@ import {
   type EntreeSommaire,
 } from "./SommaireResultat";
 import { PISTES_CREUSEES_MAX, type EtapeBarre, type Etat } from "./etat";
-import { exporterResultat, nomFichierExport } from "./export";
+import { exporterResultat, markdownPartie, markdownPartieCible, nomFichierExport, pourMonIA, type PartieResultat } from "./export";
 import { URL_OUTILS, urlAppel } from "./liens";
 
 /** Appel d'approfondissement en cours, ou dernier arrivé (§6.4). */
@@ -293,6 +293,7 @@ export function Resultat({
       maxApprofondir={approfondir?.max ?? 20}
       nouveau={nouveau === `portrait-${cible.id}`}
       onFaire={() => approfondir?.onPortrait(cible)}
+      texteCopie={markdownPartieCible(cible, prenom, "portrait", { portrait: extras.portraits[cible.id], synthese, M })}
     />
   );
   const creuseePour = (id: IdPiste) => creusees.find((p) => p.pisteId === id);
@@ -383,7 +384,33 @@ export function Resultat({
     { id: "hypotheses", libelle: R.sommaireHypotheses },
   ];
 
-  const exporte = exporterResultat(resultat, prenom, { synthese, extras, M });
+  const optionsExport = { synthese, extras, M };
+  const exporte = exporterResultat(resultat, prenom, optionsExport);
+  const pourIA = pourMonIA(exporte.markdown, M);
+  /** Icône « Copier » d'une grande partie, sur la ligne de son titre. */
+  const copierPartie = (partie: PartieResultat, titre: string, teinte: Parameters<typeof IconeCopier>[0]["teinte"]) => (
+    <IconeCopier texte={markdownPartie(resultat, prenom, partie, optionsExport)} titre={titre} M={M} teinte={teinte} />
+  );
+  /** Le PDF passe par l'impression du navigateur ; le nom proposé est celui de l'export, sans « .md ». */
+  function telechargerPdf() {
+    const avant = document.title;
+    document.title = nomFichierExport(fait, M).replace(/\.md$/, "");
+    const remettre = () => {
+      document.title = avant;
+      window.removeEventListener("afterprint", remettre);
+    };
+    window.addEventListener("afterprint", remettre);
+    window.print();
+  }
+  const boutonsExport = (ou: "haut" | "bas") => (
+    <>
+      <Button type="button" data-pdf={ou} title={R.pdfAide} className="w-fit px-4 py-2" onClick={telechargerPdf}>
+        <Icone nom="telecharger" className="size-4 shrink-0" />
+        {R.telechargerPdf}
+      </Button>
+      <BoutonCopierIA texte={pourIA} M={M} />
+    </>
+  );
   const lienBoussole = lienBoussoleCibles(resultat, extras, entree);
   function telecharger() {
     const blob = new Blob([exporte.markdown], {
@@ -472,20 +499,7 @@ export function Resultat({
           <AvertissementIA M={M} />
 
           <div data-ecran-seul className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              className="w-fit px-4 py-2"
-              onClick={() => window.print()}
-            >
-              <Icone nom="imprimer" className="size-4 shrink-0" />
-              {R.imprimer}
-            </Button>
-            <BoutonCopier
-              texte={exporte.texte}
-              M={M}
-              libelle={R.copierTout}
-              compact
-            />
+            {boutonsExport("haut")}
             <Button
               type="button"
               variant="secondary"
@@ -549,13 +563,12 @@ export function Resultat({
             data-ancre=""
             className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-l-corail p-6 sm:p-8`}
           >
-            <TitreIcone
-              icone="cadeau"
-              teinte="corail"
-              className="rounded-xl bg-gradient-to-r from-corail-soft to-transparent px-3 py-2 text-[22px] italic"
-            >
-              {R.offreTitre}
-            </TitreIcone>
+            <div className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-corail-soft to-transparent pr-1">
+              <TitreIcone icone="cadeau" teinte="corail" className="min-w-0 flex-1 px-3 py-2 text-[22px] italic">
+                {R.offreTitre}
+              </TitreIcone>
+              {copierPartie("offre", R.offreTitre, "corail")}
+            </div>
             <p className="font-serif text-[26px] leading-snug">
               {resultat.offre.phrase}
             </p>
@@ -625,13 +638,12 @@ export function Resultat({
               className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-miel bg-gradient-to-br from-miel-soft to-paper p-5 sm:p-6`}
             >
               <Separateur />
-              <TitreIcone
-                icone="couches"
-                teinte="miel"
-                className="font-serif text-[26px] italic"
-              >
-                {R.pistesTitre}
-              </TitreIcone>
+              <div className="flex items-center gap-2">
+                <TitreIcone icone="couches" teinte="miel" className="min-w-0 flex-1 font-serif text-[26px] italic">
+                  {R.pistesTitre}
+                </TitreIcone>
+                {copierPartie("pistes", R.pistesTitre, "miel")}
+              </div>
               <p className="text-[16px] text-ink-soft">{R.pistesIntro}</p>
               <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {[...resultat.autresPistes]
@@ -734,15 +746,12 @@ export function Resultat({
 
           {creusees.length > 0 && (
             <section aria-labelledby="creusees-titre" className="space-y-6">
-              <TitreIcone
-                as="h2"
-                id="creusees-titre"
-                icone="couches"
-                teinte="miel"
-                className="font-serif text-[26px] italic"
-              >
-                {M.approfondir.pistesCreusees}
-              </TitreIcone>
+              <div className="flex items-center gap-2">
+                <TitreIcone as="h2" id="creusees-titre" icone="couches" teinte="miel" className="min-w-0 flex-1 font-serif text-[26px] italic">
+                  {M.approfondir.pistesCreusees}
+                </TitreIcone>
+                {copierPartie("creusees", M.approfondir.pistesCreusees, "miel")}
+              </div>
               {creusees.map((p, i) => (
                 <div
                   key={p.pisteId}
@@ -783,15 +792,12 @@ export function Resultat({
             aria-labelledby="anti-titre"
             className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border border-[#F3C1CF] border-l-4 border-l-framboise bg-blush p-6 sm:p-8`}
           >
-            <TitreIcone
-              as="h2"
-              id="anti-titre"
-              icone="interdit"
-              teinte="framboise"
-              className="text-[26px] italic"
-            >
-              {R.anti.titre}
-            </TitreIcone>
+            <div className="flex items-center gap-2">
+              <TitreIcone as="h2" id="anti-titre" icone="interdit" teinte="framboise" className="min-w-0 flex-1 text-[26px] italic">
+                {R.anti.titre}
+              </TitreIcone>
+              {copierPartie("anti", R.anti.titre, "framboise")}
+            </div>
             <p className="text-[16px] text-ink-soft">{R.anti.intro}</p>
             <p className="text-[17px] leading-relaxed">
               {resultat.antiCible.portrait}
@@ -846,6 +852,7 @@ export function Resultat({
             onCoche={lecture ? () => {} : onCoche}
             M={M}
             lecture={lecture}
+            action={copierPartie("plan", M.plan.titre, "sage")}
           />
 
           <Separateur />
@@ -854,13 +861,12 @@ export function Resultat({
             data-ancre=""
             className={`${CLASSE_CARTE} scroll-mt-20 space-y-2 rounded-2xl border-l-4 border-l-sable p-6 sm:p-8`}
           >
-            <TitreIcone
-              icone="ampoule"
-              teinte="sable"
-              className="text-[22px] italic"
-            >
-              {R.hypothesesTitre}
-            </TitreIcone>
+            <div className="flex items-center gap-2">
+              <TitreIcone icone="ampoule" teinte="sable" className="min-w-0 flex-1 text-[22px] italic">
+                {R.hypothesesTitre}
+              </TitreIcone>
+              {copierPartie("hypotheses", R.hypothesesTitre, "sable")}
+            </div>
             {resultat.hypotheses.length > 0 ? (
               <ul className="list-disc space-y-1 pl-5 text-[16px]">
                 {resultat.hypotheses.map((h) => (
@@ -876,13 +882,12 @@ export function Resultat({
           <Card
             className={`${CLASSE_CARTE} space-y-2 rounded-2xl border-l-4 border-l-miel p-6 sm:p-8`}
           >
-            <TitreIcone
-              icone="etoile"
-              teinte="miel"
-              className="text-[22px] italic"
-            >
-              {R.motPourToi}
-            </TitreIcone>
+            <div className="flex items-center gap-2">
+              <TitreIcone icone="etoile" teinte="miel" className="min-w-0 flex-1 text-[22px] italic">
+                {R.motPourToi}
+              </TitreIcone>
+              {copierPartie("mot", R.motPourToi, "miel")}
+            </div>
             <p className="text-[17px] leading-relaxed">{resultat.motPourToi}</p>
           </Card>
 
@@ -939,6 +944,19 @@ export function Resultat({
               <Icone nom="boussole" className="size-4 shrink-0" />
               {R.boussole.bouton}
             </a>
+          </section>
+
+          <section
+            data-ecran-seul
+            data-export-bas=""
+            aria-labelledby="garder-titre"
+            className="space-y-3 rounded-2xl border-l-4 border-lilas bg-gradient-to-br from-lilas-soft to-paper p-6 sm:p-8"
+          >
+            <TitreIcone as="h2" id="garder-titre" icone="telecharger" teinte="lilas" className="text-[22px] italic">
+              {R.garderTitre}
+            </TitreIcone>
+            <p className="text-[16px]">{R.garderTexte}</p>
+            <div className="flex flex-wrap items-center gap-2">{boutonsExport("bas")}</div>
           </section>
 
           <AvertissementIA M={M} />

@@ -32,7 +32,7 @@ const fr = {
   linkInvalid: "Ce lien n'est plus valable (il a peut-être déjà servi). Demande-en un nouveau.",
   signInMode: "Mode de connexion",
   modePassword: "Mot de passe",
-  modeMagic: "Lien par email",
+  modeMagic: "Lien par mail",
   email: "Email",
   password: "Mot de passe",
   signingIn: "Connexion…",

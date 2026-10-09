@@ -439,6 +439,14 @@ export const maCibleEn: MaCibleMessages = {
     detail: "Details",
     copierTout: "Copy the whole result",
     telecharger: "Download (.md)",
+    telechargerPdf: "Download as PDF",
+    pdfAide: "Opens the print window: choose “Save as PDF”.",
+    copierIA: "Copy for my AI",
+    copierIAAide: "Copies your whole result as text, with a short brief for your AI.",
+    copieOk: "Copied ✓",
+    copierPartie: (titre: string) => `Copy “${titre}” as Markdown`,
+    garderTitre: "Keep your result at hand",
+    garderTexte: "Download it as a PDF, or paste it into your AI (ChatGPT, Claude, Mistral…) to keep going with it.",
     copierCible: "Copy this target",
     pastilleHypothese: "AI hypothesis",
     pastilleEstimation: "AI estimate",
@@ -592,6 +600,8 @@ export const maCibleEn: MaCibleMessages = {
     hypotheses: "What the AI assumed",
     motPourToi: "A word for you",
     nomFichier: "the-targeter",
+    introIA:
+      "Here is my result from the Magic Humans Targeter. Starting from my talent, it suggests my client targets, my offer, my prices, where to find these clients, what to write to them and a 30-day plan. Help me choose my priority target, sharpen my offer and my price, then prepare my first messages. Ask me questions if anything is unclear.",
   },
   canaux: {
     linkedin: "LinkedIn",

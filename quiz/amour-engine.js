@@ -16,6 +16,44 @@
     return s.slice(0, i) + s.charAt(i).toLocaleUpperCase("fr") + s.slice(i + 1);
   };
 
+  /**
+   * Passe un texte du catalogue à la première personne, pour qu'un critère se lise comme ceux du modèle.
+   * Français : te, tes, ton, ta, toi, t' deviennent me, mes, mon, ma, moi, m'.
+   * Anglais : your, yours, yourself, you're, you've, you deviennent my, mine, myself, I'm, I've, me.
+   */
+  function firstPerson(text, lang) {
+    const t = String(text || "");
+    const word = (w, by, flags) => (s) => s.replace(new RegExp("(^|[^\\p{L}'’])" + w + "(?![\\p{L}'’])", flags || "gu"), "$1" + by);
+    if (lang === "en") {
+      return [
+        word("you're", "I'm"), word("you’re", "I'm"), word("you've", "I've"), word("you’ve", "I've"),
+        word("yourself", "myself"), word("yours", "mine"), word("your", "my"), word("you", "me"),
+        word("You're", "I'm"), word("You’re", "I'm"), word("You've", "I've"), word("You’ve", "I've"),
+        word("Yourself", "Myself"), word("Your", "My"), word("You", "I"),
+      ].reduce((acc, f) => f(acc), t);
+    }
+    return [word("te", "me"), word("tes", "mes"), word("ton", "mon"), word("ta", "ma"), word("toi", "moi")]
+      .reduce((acc, f) => f(acc), t.replace(/sans que tu aies/g, "sans que j'aie"))
+      .replace(/(^|[^\p{L}])t'/gu, "$1m'");
+  }
+
+  /**
+   * Données dans une autre langue : la base française, dont chaque texte est remplacé par celui de la traduction.
+   * Les identifiants, poids et ordres viennent toujours de la base. Un texte absent garde le français.
+   */
+  function withLanguage(base, overlay) {
+    if (overlay === undefined || overlay === null) return base;
+    if (typeof base === "string") return typeof overlay === "string" ? overlay : base;
+    if (Array.isArray(base)) return base.map((item, i) => withLanguage(item, Array.isArray(overlay) ? overlay[i] : undefined));
+    if (base && typeof base === "object") {
+      const out = {};
+      for (const key of Object.keys(base)) out[key] = withLanguage(base[key], overlay[key]);
+      if (typeof overlay.lang === "string") out.lang = overlay.lang;
+      return out;
+    }
+    return base;
+  }
+
   function cleanFree(text, max) {
     return String(text || "").replace(/[<>]/g, "").trim().slice(0, max || 140);
   }
@@ -288,7 +326,7 @@
     if (missing.length) throw new Error("Réponses manquantes : " + missing.join(", "));
     D._answers = answers;
 
-    const prenom = String(prenomRaw || "").replace(/[<>]/g, "").trim().slice(0, 40) || "Toi";
+    const prenom = String(prenomRaw || "").replace(/[<>]/g, "").trim().slice(0, 40) || D.engine.you;
     const nourritScreen = screenOf(D, "nourrit");
     const ressourceScreen = screenOf(D, "ressource");
     const langScreen = screenOf(D, "langages");
@@ -423,7 +461,7 @@
 
     const complete = [
       D.needs[need1].partner,
-      "Un partenaire qui " + D.languages[languages.lang1].partnerHint,
+      fill(D.engine.partnerWho, { hint: D.languages[languages.lang1].partnerHint }),
       D.recharge[profile].fit,
       D.stress.modere[modere[0]].partner,
     ];
@@ -482,63 +520,64 @@
     const nourritNote = takeShorts(nourritOrder, "nourrit", nourritScreen, 3);
     const videNote = takeShorts(videOrder, "vide", nourritScreen, 2);
     const besoinParts = [];
-    if (nourritNote.length) besoinParts.push("Ce qui te nourrit : " + nourritNote.join(", ") + ".");
-    if (videNote.length) besoinParts.push("Ce qui te vide : " + videNote.join(" et ") + ".");
+    const G = D.engine;
+    if (nourritNote.length) besoinParts.push(fill(G.noteNourrit, { list: nourritNote.join(", ") }));
+    if (videNote.length) besoinParts.push(fill(G.noteVide, { list: videNote.join(G.and) }));
     putNote(notes, "besoins", besoinParts.join(" "));
 
     const valeurNote = valueEntries.slice(0, 5).filter((v) => !v.own).map((v) => v.short);
-    if (valeurNote.length) putNote(notes, "valeurs", "Tes valeurs, dans l'ordre : " + valeurNote.join(", ") + ".");
-    if (directionValues.length) putNote(notes, "direction", "Tes repères de projet de vie : " + directionValues.map((v) => v.short).join(" ; ") + ".");
+    if (valeurNote.length) putNote(notes, "valeurs", fill(G.noteValeurs, { list: valeurNote.join(", ") }));
+    if (directionValues.length) putNote(notes, "direction", fill(G.noteDirection, { list: directionValues.map((v) => v.short).join(G.semi) }));
     const defautsShort = videOrder.slice(1, 6).map((id) => catalogShort(D, nourritScreen, "vide", id)).filter(Boolean);
-    if (defautsShort.length) putNote(notes, "defauts", "Ce que tu as du mal à vivre chez l'autre : " + defautsShort.join(", ") + ".");
+    if (defautsShort.length) putNote(notes, "defauts", fill(G.noteDefauts, { list: defautsShort.join(", ") }));
 
-    putNote(notes, "frictions", "Sous stress fort, tu as tendance à " + fort.map((id) => D.stress.fort[id].short).join(" ou ") + ". Sous stress modéré, tu " + modere.map((id) => D.stress.modere[id].short).join(" ou ") + ". Repère si vos disputes finissent par un vrai accord.");
-    const energieTail = profile2 ? " et " + D.recharge[profile2].short : "";
-    const videEnergie = videNote.length ? " Ce qui te vide : " + videNote.join(" et ") + "." : "";
-    putNote(notes, "energie", "Tu te recharges " + D.recharge[profile].short + energieTail + "." + videEnergie);
-    putNote(notes, "langage", "Tu te sens aimé·e surtout par " + D.languages[languages.lang1].lower + ", puis " + D.languages[languages.lang2].lower + ".");
+    putNote(notes, "frictions", fill(G.noteFrictions, {
+      fort: fort.map((id) => D.stress.fort[id].short).join(G.or),
+      modere: modere.map((id) => D.stress.modere[id].short).join(G.or),
+    }));
+    const energieTail = profile2 ? G.and + D.recharge[profile2].short : "";
+    const videEnergie = videNote.length ? " " + fill(G.noteVide, { list: videNote.join(G.and) }) : "";
+    putNote(notes, "energie", fill(G.noteEnergie, { recharge: D.recharge[profile].short + energieTail }) + videEnergie);
+    putNote(notes, "langage", fill(G.noteLangage, { l1: D.languages[languages.lang1].lower, l2: D.languages[languages.lang2].lower }));
     const compPair = instinct && instinctLast ? D.instinctPairs[pairKey(instinct, instinctLast)] : "";
-    putNote(notes, "complementarite", "Ton sous-type dominant : " + D.instincts[instinct].name + "." + (compPair ? " " + compPair : ""));
+    putNote(notes, "complementarite", fill(G.noteSousType, { name: D.instincts[instinct].name }) + (compPair ? " " + compPair : ""));
     const nnNote = nonNegotiables.filter((v) => !v.own).map((v) => v.short);
     const videNn = catalogShort(D, nourritScreen, "vide", noMore);
     const inco = [];
-    if (nnNote.length) inco.push("Tes non-négociables d'après le quiz : " + nnNote.join(" ; ") + ".");
-    if (videNn) inco.push("Ce que tu ne veux plus vivre : " + videNn + ".");
+    if (nnNote.length) inco.push(fill(G.noteNonNeg, { list: nnNote.join(G.semi) }));
+    if (videNn) inco.push(fill(G.noteNoMore, { short: videNn }));
     putNote(notes, "incompatibilite", inco.join(" "));
 
     // Critères proposés à la Boussole Relation : uniquement des éléments du catalogue (jamais de texte libre).
     // c = famille, i = importance, n = non négociable, a = à éviter (risque), s = déjà couvert par ce critère du modèle.
     const crit = [];
     // Les critères se lisent à la première personne, comme ceux du modèle (« Mes besoins essentiels… »).
-    const word = (w, by) => (t) => t.replace(new RegExp("(^|[^\\p{L}'])" + w + "(?![\\p{L}])", "gu"), "$1" + by);
-    const toMe = (t) => [word("te", "me"), word("tes", "mes"), word("ton", "mon"), word("ta", "ma"), word("toi", "moi")]
-      .reduce((acc, f) => f(acc), String(t || "").replace(/sans que tu aies/g, "sans que j'aie"))
-      .replace(/(^|[^\p{L}])t'/gu, "$1m'");
+    const toMe = (t) => firstPerson(t, D.lang);
     const addCrit = (id, g, c, l, i, extra) => {
       const label = uc1(toMe(l).trim()).replace(/[.\s]+$/, "");
       if (!label || label.length > 120) return;
       if (crit.some((x) => x.l.toLowerCase() === label.toLowerCase())) return;
       crit.push(Object.assign({ id, g, c, l: label, i }, extra || {}));
     };
-    const NEED_WORD = { securite: "sécurité", liberte: "liberté", reconnaissance: "reconnaissance", profondeur: "profondeur", legerete: "légèreté", harmonie: "douceur" };
-    if (need1 && NEED_WORD[need1]) addCrit("besoin-" + need1, "profil", "fond", "Mon besoin de " + NEED_WORD[need1] + " est nourri (" + D.needs[need1].title + ")", "critique");
+    const NEED_WORD = G.needWords;
+    if (need1 && NEED_WORD[need1]) addCrit("besoin-" + need1, "profil", "fond", fill(G.critBesoin, { word: NEED_WORD[need1], title: D.needs[need1].title }), "critique");
     if (D.recharge[profile]) addCrit("recharge-" + profile, "profil", "energie", D.recharge[profile].fit, "important");
-    if (languages.lang1 && D.languages[languages.lang1]) addCrit("langage-" + languages.lang1, "profil", "energie", "Un partenaire qui " + D.languages[languages.lang1].partnerHint, "important");
+    if (languages.lang1 && D.languages[languages.lang1]) addCrit("langage-" + languages.lang1, "profil", "energie", fill(G.partnerWho, { hint: D.languages[languages.lang1].partnerHint }), "important");
     // Déjà évalués par le modèle : le désir (« Attirance » et « Compatibilité sexuelle »), le respect (« Je me sens respecté·e »).
     const COVERED = { desir: "attirance" };
     nourritOrder.filter((id) => String(id).indexOf("autre:") !== 0).slice(0, 3).forEach((id, index) => {
       const short = catalogShort(D, nourritScreen, "nourrit", id);
-      if (short) addCrit("nourrit-" + id, "besoins", "fond", "Ce qui me nourrit : " + short, index === 0 ? "tres_important" : "important", COVERED[id] ? { s: COVERED[id] } : null);
+      if (short) addCrit("nourrit-" + id, "besoins", "fond", fill(G.critNourrit, { short }), index === 0 ? "tres_important" : "important", COVERED[id] ? { s: COVERED[id] } : null);
     });
     valueEntries.filter((v) => !v.own).slice(0, 5).forEach((v) => {
       const top = nonNegotiables.indexOf(v) !== -1;
-      const label = v.direction ? "Projet de vie commun : " + v.short : "Nous partageons " + v.short;
+      const label = fill(v.direction ? G.critProjet : G.critPartage, { short: v.short });
       const extra = Object.assign({}, top ? { n: 1 } : {}, v.id === "respect" ? { s: "respect" } : {});
       addCrit("valeur-" + v.id, "valeurs", v.direction ? "direction" : "fond", label, top ? "critique" : "important", Object.keys(extra).length ? extra : null);
     });
     videOrder.filter((id) => String(id).indexOf("autre:") !== 0).slice(0, 3).forEach((id) => {
       const short = catalogShort(D, nourritScreen, "vide", id);
-      if (short) addCrit("vide-" + id, "eviter", "quotidien", "À éviter : " + short, id === noMore ? "critique" : "important", { a: 1 });
+      if (short) addCrit("vide-" + id, "eviter", "quotidien", fill(G.critEviter, { short }), id === noMore ? "critique" : "important", { a: 1 });
     });
 
     const boussole = { v: 3, imp, notes, crit, p: profil && profil.name ? profil.name.text : "" };
@@ -558,9 +597,12 @@
       return item && item.recharge === profile;
     }).slice(0, 2).map((id) => (itemById(gSoir, id) || itemById(gWeek, id)).short);
     glanceLines.push(D.ui.results.rechargeLab);
-    glanceLines.push(D.recharge[profile].title + (domShorts.length ? " : " + domShorts.join(", ") : ""));
+    glanceLines.push(D.recharge[profile].title + (domShorts.length ? G.dp + domShorts.join(", ") : ""));
     glanceLines.push(D.ui.results.stressLab);
-    glanceLines.push("modéré → " + modere.map((id) => (gMod.items.find((it) => it.id === id) || {}).label).join(", ") + " · fort → " + fort.map((id) => (gFort.items.find((it) => it.id === id) || {}).label).join(", "));
+    glanceLines.push(fill(G.stressGlance, {
+      modere: modere.map((id) => (gMod.items.find((it) => it.id === id) || {}).label).join(", "),
+      fort: fort.map((id) => (gFort.items.find((it) => it.id === id) || {}).label).join(", "),
+    }));
     glanceLines.push(D.ui.results.brakeLab);
     glanceLines.push((String(brakeFirst).indexOf("autre:") === 0 ? shortOf(D, freinsScreen, "freins", brakeFirst) : (gFrein.items.find((it) => it.id === brakeFirst) || {}).label) + " " + brakeAntidote);
 
@@ -568,7 +610,7 @@
     const exportBody = D.exportTemplate.map((line) => fill(line, {
       s1, s2, s3, glance: glanceLines.join("\n"), calendly: D.config.calendly,
     })).join("\n");
-    const exportText = "Mon profil amoureux (hypothèse) : " + profil.name.text + ".\n" + exportBody;
+    const exportText = fill(G.exportHead, { name: profil.name.text }) + "\n" + exportBody;
 
     delete D._answers;
 
@@ -762,8 +804,10 @@
     const sec = ranking[1];
     const d = B[dom];
     const s = B[sec];
-    const name = { noun: d.noun, adj: s.adj, text: d.noun + " " + s.adj };
-    const inverse = s.noun + " " + d.adj;
+    // En français le nom vient d'abord (« Ancre Fidèle ») ; en anglais l'adjectif le précède (« Loyal Anchor »).
+    const adjFirst = D.engine && D.engine.nameOrder === "adj-noun";
+    const name = { noun: d.noun, adj: s.adj, adjFirst, text: adjFirst ? s.adj + " " + d.noun : d.noun + " " + s.adj };
+    const inverse = adjFirst ? d.adj + " " + s.noun : s.noun + " " + d.adj;
     const margin = scores[sec] >= 0.95 * scores[dom] ? "mixte" : scores[sec] < 0.6 * scores[dom] ? "net" : null;
     const max = Math.max(1, scores[dom]);
     const bars = ranking.map((id) => ({ id, score: scores[id], pct: Math.round((scores[id] / max) * 100) }));
@@ -790,9 +834,11 @@
     const fortIds = fortOrder.filter((id) => base.stress.fort.indexOf(id) !== -1);
     const trapId = fortIds[0];
     const trap = P.pieges[trapId];
-    const prenom = base.prenom || "Toi";
+    const prenom = base.prenom || D.engine.you;
+    // Sans prénom, l'anglais dit « Your love profile is… » plutôt que « You, your love profile is… ».
+    const s1Tpl = prenom === D.engine.you && U.sentences.s1Anon ? U.sentences.s1Anon : U.sentences.s1;
     const sentences = [
-      fill(U.sentences.s1, { prenom, profil: name.text, s1: d.s1, secNeed: s.secNeed }),
+      fill(s1Tpl, { prenom, profil: name.text, s1: d.s1, secNeed: s.secNeed }),
       fill(U.sentences.s2, { bloomShort: d.bloomShort, fadeShort: d.fadeShort }),
       fill(U.sentences.s3, { trapName: trap.name, trapShort: trap.short, exitShort: trap.exitShort }),
     ];
@@ -800,7 +846,7 @@
     const s1 = {
       title: U.s1h, icon: "sun", lead: d.bloom, list: d.bloomList.slice(),
       extra: [
-        "Ton besoin secondaire (" + s.name + ") compte aussi : " + s.secBloom + ".",
+        fill(D.engine.secBloom, { name: s.name, bloom: s.secBloom }),
         top ? (topNeed ? fill(U.s1top, { short: top.short, de: B[topNeed].de }) : "") : "",
         fill(U.s1recharge, { title: lc1(rc.title), couple: lc1(rc.couple) }),
       ].filter(Boolean),
@@ -808,7 +854,7 @@
     const s2 = {
       title: U.s2h, icon: "cloud-rain", lead: d.fade, list: d.fadeList.slice(), alarm: d.alarm,
       extra: [
-        "Et comme " + s.lower + " compte aussi pour toi, " + s.secFade + ".",
+        fill(D.engine.secFade, { lower: s.lower, fade: s.secFade }),
         noMore ? (noMoreNeed ? fill(U.s2noMore, { short: noMore.short, de: B[noMoreNeed].de }) : fill(U.s2noMoreOwn, { short: noMore.short })) : "",
         U.s2test,
       ].filter(Boolean),
@@ -847,7 +893,7 @@
       title: U.s6h, icon: "life-buoy", trap: trap.title, lead: trap.mech,
       extra: [
         fill(U.s6trigger, { trigger: d.trigger }),
-        base.stress.modere.length ? fill(U.s6early, { modere: base.stress.modere.map((id) => D.stress.modere[id].short).join(" ou ") }) : "",
+        base.stress.modere.length ? fill(U.s6early, { modere: base.stress.modere.map((id) => D.stress.modere[id].short).join(D.engine.or) }) : "",
         fill(U.s6calm, { calm: d.calm }),
       ].filter(Boolean),
       exits: trap.exits.slice(),
@@ -856,7 +902,7 @@
     return {
       dom, sec, name, inverse, margin, raw: ranked.raw, scores, ranking, bars, why, trapId, anti, boussoleDom,
       header: {
-        eyebrow: base.prenom && base.prenom !== "Toi" ? fill(U.eyebrowNamed, { prenom: base.prenom }) : U.eyebrowAnon,
+        eyebrow: base.prenom && base.prenom !== D.engine.you ? fill(U.eyebrowNamed, { prenom: base.prenom }) : U.eyebrowAnon,
         domSec: fill(U.domSec, { domName: d.name, domKey: d.key, secName: s.name, secKey: s.key }),
         alliage: P.alliages[profilPairKey(P, dom, sec)],
         marginLine: margin === "mixte" ? fill(U.mixedLine, { inverse }) : margin === "net" ? U.netLine : undefined,
@@ -1060,7 +1106,7 @@
     computeProfil, contributions, rank, exposure, boussoleBoost, pairKey: profilPairKey,
     familyBucket, familyGuide,
     progressKey, packProgress, parseProgress, readProgress, writeProgress, clearProgress,
-    exportWithPetitPas, petitPasStored, calendlyLink, answerLabel,
+    exportWithPetitPas, petitPasStored, calendlyLink, answerLabel, firstPerson, withLanguage,
     salleSession, salleSessionOk, salleIds, salleNourrit, sallePhoto,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
