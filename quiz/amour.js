@@ -327,6 +327,7 @@
     "#screen-amour .am-badge .am-ico svg{stroke-width:2.25}",
     "#screen-amour .pr-bar-n>.am-ico{color:var(--bc)}",
     "#screen-amour .am-pdf-top{justify-content:center;margin:0 0 16px}",
+    "#screen-amour a[data-cta-place=quiz_amour_vers_quiz]{color:var(--pink);font-weight:700;text-underline-offset:3px}",
     "#screen-amour .btn.am-pdf{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding-left:18px;padding-right:18px;font-size:clamp(.9rem,4vw,1rem);background:var(--coral);color:#fff;border:0;font-weight:700}",
     "#screen-amour .btn.am-pdf:hover{background:#A33424;color:#fff}",
     "#screen-amour .btn.am-pdf .am-ico{color:#fff}",
