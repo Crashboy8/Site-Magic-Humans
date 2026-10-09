@@ -49,6 +49,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <AppBrand name={c.appName} />
           <nav aria-label={c.mainNav} className="-mx-2 flex flex-wrap items-center gap-0.5 text-sm sm:mx-0 sm:gap-1 sm:text-[15px]">
             <LienQuizAmour />
+            <Link href="/mon-espace/" className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
+              {c.mySpace}
+            </Link>
             <Link href={lienMesProfils(edition.profiles, edition.versions)} className="rounded-full px-3 py-2 text-ink-soft hover:bg-sand hover:text-ink">
               {c.myProfiles}
             </Link>
