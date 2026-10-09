@@ -183,8 +183,8 @@ test("le mode amour garde le sélecteur de langue et charge la version anglaise"
   // Pastilles « Dominant / Secondary » traduites.
   assert.match(js, /esc\(U\.pillDom\)/);
   assert.match(js, /esc\(U\.pillSec\)/);
-  // L'espagnol n'a pas de traduction : il reste en français.
-  assert.match(js, /return l === "en" && window\.AMOUR_DATA_EN \? E\.withLanguage\(DATA_FR, window\.AMOUR_DATA_EN\) : DATA_FR;/);
+  // L'anglais se fusionne sur la base française ; l'espagnol a son propre test (amour-es.test.mjs).
+  assert.match(js, /if \(l === "en" && window\.AMOUR_DATA_EN\) return E\.withLanguage\(DATA_FR, window\.AMOUR_DATA_EN\);/);
 });
 
 test("sans prénom : « Your love profile is… » en anglais, « Toi, ton profil amoureux… » en français", () => {

@@ -25,7 +25,7 @@ Site de Pierre Sarazin / Magic Humans, coaching du Talent Unique pour cadres, di
 ├── css/
 │   └── style.css                           # Toute la direction artistique
 ├── js/
-│   ├── i18n.js                             # Bascule FR / EN (attribut data-en)
+│   ├── i18n.js                             # Bascule FR / EN / ES (attributs data-en, data-es ; l’espagnol seulement sur /outils/)
 │   ├── nav.js                              # Menu mobile
 │   ├── lightbox.js                         # Agrandissement de l'image Ikigaï
 │   └── consent.js                          # Bandeau cookies + Google Consent Mode v2

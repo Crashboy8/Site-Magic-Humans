@@ -2143,7 +2143,7 @@ const LANG_KEY = "mh-lang";
 let lang = (()=>{
   try{ const q = new URLSearchParams(location.search).get("lang"); if (q==="en"||q==="fr"||q==="es") return q; }catch(_){}
   try{ const v = localStorage.getItem("mh-quiz-lang"); if (v==="en"||v==="fr"||v==="es") return v; }catch(_){}
-  try{ const v = localStorage.getItem(LANG_KEY); if (v==="en"||v==="fr") return v; }catch(_){}
+  try{ const v = localStorage.getItem(LANG_KEY); if (v==="en"||v==="fr"||v==="es") return v; }catch(_){}
   return "fr";
 })();
 const C = () => L(lang);
@@ -2161,8 +2161,8 @@ function applyStatic(){
 }
 document.querySelectorAll("[data-setlang]").forEach(b=>b.addEventListener("click", ()=>{
   lang = b.dataset.setlang;
-  // Le site n'existe qu'en FR/EN : l'espagnol est mémorisé pour le quiz seulement.
-  try{ localStorage.setItem("mh-quiz-lang", lang); if (lang!=="es") localStorage.setItem(LANG_KEY, lang); }catch(_){}
+  // Même mémoire que le bouton FR / EN / ES du site (js/i18n.js) : une page sans espagnol reste en français.
+  try{ localStorage.setItem("mh-quiz-lang", lang); localStorage.setItem(LANG_KEY, lang); }catch(_){}
   applyStatic();
   if (current==="quiz") renderQuestion();
   if (current==="tie") renderTie();
@@ -2746,7 +2746,7 @@ function renderReport(p, ctx){
 </script>
 <script>
   if (window.MH_THEME === "amour") {
-    ["/quiz/amour-data.js", "/quiz/amour-data-en.js", "/quiz/amour-engine.js", "/quiz/amour.js"].forEach(function (src) {
+    ["/quiz/amour-data.js", "/quiz/amour-data-en.js", "/quiz/amour-data-es.js", "/quiz/amour-pays-es.js", "/quiz/amour-engine.js", "/quiz/amour.js"].forEach(function (src) {
       var s = document.createElement("script"); s.src = src; s.async = false; document.body.appendChild(s);
     });
   }

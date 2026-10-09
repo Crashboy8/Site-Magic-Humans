@@ -1,7 +1,7 @@
 /* Quiz Amour v1.5 · 8 questions, classement, résultats, en français et en anglais.
    Démarre uniquement si quiz/index.html a posé MH_THEME = "amour".
    Aucune réponse n'est envoyée. La progression reste dans ce navigateur
-   pour pouvoir reprendre. La langue suit le sélecteur FR · EN · ES du quiz (l'espagnol reste en français). */
+   pour pouvoir reprendre. La langue suit le sélecteur FR · EN · ES du quiz. */
 (function () {
   const DATA_FR = window.AMOUR_DATA;
   const E = window.AmourEngine;
@@ -11,11 +11,18 @@
   function readLang() {
     try { const q = new URLSearchParams(location.search).get("lang"); if (q === "en" || q === "fr" || q === "es") return q; } catch (e) { /* adresse illisible */ }
     try { const v = localStorage.getItem("mh-quiz-lang"); if (v === "en" || v === "fr" || v === "es") return v; } catch (e) { /* stockage indisponible */ }
-    try { const v = localStorage.getItem("mh-lang"); if (v === "en" || v === "fr") return v; } catch (e) { /* stockage indisponible */ }
+    try { const v = localStorage.getItem("mh-lang"); if (v === "en" || v === "fr" || v === "es") return v; } catch (e) { /* stockage indisponible */ }
     return "fr";
   }
   function dataFor(l) {
-    return l === "en" && window.AMOUR_DATA_EN ? E.withLanguage(DATA_FR, window.AMOUR_DATA_EN) : DATA_FR;
+    if (l === "en" && window.AMOUR_DATA_EN) return E.withLanguage(DATA_FR, window.AMOUR_DATA_EN);
+    if (l === "es" && window.AMOUR_DATA_ES) {
+      // Espagnol : la langue, puis le bloc du pays (numéros d'aide, lieux de rencontre, heures). Pays unique pour l'instant : PAYS_ES.defaut.
+      const pays = window.AMOUR_PAYS_ES;
+      const es = E.withLanguage(DATA_FR, window.AMOUR_DATA_ES);
+      return pays && pays.pays[pays.defaut] ? E.withLanguage(es, pays.pays[pays.defaut]) : es;
+    }
+    return DATA_FR;
   }
   let lang = readLang();
   let D = dataFor(lang);
@@ -2504,7 +2511,7 @@
     lang = next;
     try {
       localStorage.setItem("mh-quiz-lang", lang);
-      if (lang !== "es") localStorage.setItem("mh-lang", lang);
+      localStorage.setItem("mh-lang", lang);
     } catch (e) { /* stockage indisponible */ }
     D = dataFor(lang);
     U = D.ui;
