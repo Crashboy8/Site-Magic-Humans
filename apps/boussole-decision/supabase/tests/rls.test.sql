@@ -473,4 +473,55 @@ select pg_temp.expect_error($$select count(*) from notion_lien_quota$$, 'permiss
 reset role;
 select pg_temp.check((select sum(n) from notion_lien_quota) = 11, 'notion : le compteur est bien alimenté');
 
+
+-- Accès client par code (20261014000000_acces_client.sql) -------------------------
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000f1', 'fanny@test.fr', '{"first_name":"Fanny"}');
+insert into auth.users (id, email, is_anonymous) values ('00000000-0000-0000-0000-0000000000f2', null, true);
+select pg_temp.check((select invitation_code is null from app_users where id = '00000000-0000-0000-0000-0000000000f1'),
+  'client : Fanny a un compte sans code');
+
+set role anon;
+select pg_temp.expect_error($$select public.activer_code_client('MH-FANNY-01')$$, 'permission denied');
+select pg_temp.expect_error($$select * from public.mon_acces_client()$$, 'permission denied');
+
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+insert into invitation_codes (code, coach_id, label, lien_fiche)
+  values ('MH-FANNY-01', auth.uid(), 'Fanny', 'https://fanny.notion.site/Talent-Unique-123');
+select pg_temp.expect_error($$insert into invitation_codes (code, coach_id, max_uses, lien_fiche)
+  values ('MH-GROUPE-01', auth.uid(), 5, 'https://fanny.notion.site/Talent')$$, 'invitation_codes_lien_fiche_check');
+select pg_temp.expect_error($$insert into invitation_codes (code, coach_id, lien_fiche)
+  values ('MH-MAUVAIS-01', auth.uid(), 'https://exemple.fr/notion.so/')$$, 'invitation_codes_lien_fiche_check');
+insert into invitation_codes (code, coach_id, label, max_uses) values ('MH-GROUPE-02', auth.uid(), 'Groupe', 5);
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000f1';
+select pg_temp.check(not exists (select 1 from public.mon_acces_client()), 'client : pas encore client, rien à lire');
+select pg_temp.check(public.activer_code_client('NIMPORTE-QUOI') = 'invalide', 'client : un code inconnu est refusé');
+select pg_temp.check(public.activer_code_client(' mh-fanny-01 ') = 'ok', 'client : Fanny active son code (minuscules et espaces acceptés)');
+select pg_temp.check(public.activer_code_client('MH-FANNY-01') = 'deja', 'client : activer deux fois ne change rien');
+select pg_temp.check(public.activer_code_client('MH-GROUPE-02') = 'deja', 'client : déjà client, un autre code n''est pas consommé');
+select pg_temp.check((select code = 'MH-FANNY-01' and coach_prenom = 'Pierre' and lien_fiche = 'https://fanny.notion.site/Talent-Unique-123'
+                        from public.mon_acces_client()), 'client : Fanny lit son code, son coach et le lien de sa fiche');
+select pg_temp.check((select count(*) from invitation_codes where code = 'MH-FANNY-01') = 0, 'client : Fanny ne voit pas la table des codes');
+
+reset role;
+select pg_temp.check((select invitation_code = 'MH-FANNY-01' and coach_id = '00000000-0000-0000-0000-0000000000c0'
+                        from app_users where id = '00000000-0000-0000-0000-0000000000f1'), 'client : le compte est marqué client et rattaché à Pierre');
+select pg_temp.check((select used_count from invitation_codes where code = 'MH-FANNY-01') = 1, 'client : le code compte une seule utilisation');
+select pg_temp.check((select used_count from invitation_codes where code = 'MH-GROUPE-02') = 0, 'client : le code du groupe n''a pas été consommé');
+
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000f2';
+select pg_temp.check(public.activer_code_client('MH-GROUPE-02') = 'invite', 'client : un essai sans compte ne peut pas activer de code');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d4';
+select pg_temp.check(public.activer_code_client('MH-FANNY-01') = 'invalide', 'client : un code à usage unique déjà pris est refusé');
+select pg_temp.check(public.activer_code_client('MH-GROUPE-02') = 'ok', 'client : Dora rejoint le code du groupe');
+select pg_temp.check((select lien_fiche is null from public.mon_acces_client()), 'client : un code de groupe ne porte pas de lien de fiche');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.check((select code = 'BOUSSOLE-TEST-2026' from public.mon_acces_client()), 'client : un compte ouvert avec un code est déjà client');
+reset role;
+
 \echo 'Tous les tests de base de données sont passés.'

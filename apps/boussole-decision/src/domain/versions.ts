@@ -10,10 +10,10 @@ export function nextVersionName(versions: Pick<Version, "name">[]): string {
 }
 
 /** Génère un code d'invitation lisible, sans caractères ambigus (0/O, 1/I). */
-export function generateInvitationCode(random: () => number = Math.random): string {
+export function generateInvitationCode(random: () => number = Math.random, prefixe = "BOUSSOLE"): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const block = () => Array.from({ length: 4 }, () => alphabet[Math.floor(random() * alphabet.length)]).join("");
-  return `BOUSSOLE-${block()}-${block()}`;
+  return `${prefixe}-${block()}-${block()}`;
 }
 
 export function normalizeInvitationCode(code: string): string {

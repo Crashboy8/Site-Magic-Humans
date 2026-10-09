@@ -6,8 +6,13 @@ import { notFound } from "next/navigation";
 import { Badge, PageTitle, formatDate } from "@/components/ui";
 import { coachDashboard, listCoachees, listInvitationCodes } from "@/data/repository";
 import { InvitationCodes, type CodeUser } from "@/features/coach/InvitationCodes";
-import { absoluteUrl } from "@/lib/config";
+
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
+
+/** Adresse publique du site (liens envoyés aux clients). */
+function siteUrl(origin?: string) {
+  return (process.env.NEXT_PUBLIC_SITE_URL || origin || "http://localhost:3000").replace(/\/$/, "");
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getI18n()).t.coach.titleCoach };
@@ -84,11 +89,11 @@ export default async function CoachPage() {
       <section aria-labelledby="codes" className="space-y-4">
         <div>
           <h2 id="codes" className="text-3xl italic">
-            {k.codesTitle}
+            {t.client.coach.titre}
           </h2>
-          <p className="max-w-2xl text-ink-soft">{k.codesIntro}</p>
+          <p className="max-w-2xl text-ink-soft">{t.client.coach.intro}</p>
         </div>
-        <InvitationCodes coachId={user.id} codes={codes} usersByCode={usersByCode} signupUrl={absoluteUrl("/inscription/", origin)} />
+        <InvitationCodes coachId={user.id} codes={codes} usersByCode={usersByCode} siteUrl={siteUrl(origin)} />
       </section>
     </>
   );
