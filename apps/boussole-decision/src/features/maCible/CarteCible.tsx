@@ -26,7 +26,7 @@ const RANG_STYLE = {
   tertiaire: "border border-line text-ink",
 } as const;
 
-const nombre = (n: number) => n.toLocaleString("fr-FR");
+const nombre = (n: number, locale: string) => n.toLocaleString(locale);
 
 function Pastille({ libelle, aide }: { libelle: string; aide: string }) {
   const [ouvert, setOuvert] = useState(false);
@@ -114,12 +114,14 @@ function ClientsCible({
   synthese,
   libelle,
   tire,
+  citer,
 }: {
   base: string;
   cible: Cible;
   synthese: SyntheseTerrain | null;
   libelle: string;
   tire: string;
+  citer: (t: string) => string;
 }) {
   const phrases = (synthese?.verbatims ?? []).filter((v) => cible.verbatims.includes(v.id));
   if (phrases.length === 0) return null;
@@ -132,7 +134,7 @@ function ClientsCible({
       <ul className="space-y-3">
         {phrases.map((v) => (
           <li key={v.id} className="space-y-2">
-            <blockquote className="text-[17px] italic leading-relaxed">« {v.citation} »</blockquote>
+            <blockquote className="text-[17px] italic leading-relaxed">{citer(v.citation)}</blockquote>
             <span className="inline-flex rounded-full bg-lilas-soft px-2 py-1 text-xs font-medium text-lilas">{tire}</span>
           </li>
         ))}
@@ -222,7 +224,7 @@ export function CarteCible({
         </p>
         {ligne.alertePlaisir && <p className="rounded-xl border border-accent/30 bg-blush px-4 py-3 text-[15px]">{R.alertePlaisir}</p>}
         <div data-ecran-seul>
-          <BoutonCopier texte={texteCible(cible, prenom, R.score(ligne.score), false, portrait, synthese)} M={M} libelle={R.copierCible} />
+          <BoutonCopier texte={texteCible(cible, prenom, R.score(ligne.score), false, portrait, synthese, M)} M={M} libelle={R.copierCible} />
         </div>
       </header>
 
@@ -260,10 +262,10 @@ export function CarteCible({
                 {GRILLE.map((g) => (
                   <div key={g.cle}>
                     <dt className="font-medium">
-                      {g.libelle} ({g.poids} %)
+                      {R.criteres[g.cle]} ({g.poids}{M.commun.locale === "fr-FR" ? " %" : "%"})
                     </dt>
                     <dd className="text-ink-soft">
-                      1 : {g.un} / 3 : {g.trois} / 5 : {g.cinq}
+                      1{M.commun.dp}{R.grille[g.cle].un} / 3{M.commun.dp}{R.grille[g.cle].trois} / 5{M.commun.dp}{R.grille[g.cle].cinq}
                     </dd>
                   </div>
                 ))}
@@ -277,7 +279,7 @@ export function CarteCible({
           <Bloc id={`${base}-douleur`} titre={R.blocs.douleur} icone="eclair" teinte="framboise" pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
             <p className="text-[17px] leading-relaxed">{voir(cible.douleur)}</p>
           </Bloc>
-          <ClientsCible base={base} cible={cible} synthese={synthese} libelle={R.blocs.clients} tire={M.notes.tire} />
+          <ClientsCible base={base} cible={cible} synthese={synthese} libelle={R.blocs.clients} tire={M.notes.tire} citer={M.commun.citation} />
           <Bloc titre={R.blocs.ancrage} icone="boussole" teinte="sage">
             <p className="text-[17px] leading-relaxed">{cible.ancrage}</p>
           </Bloc>
@@ -295,7 +297,7 @@ export function CarteCible({
               <span className="inline-flex items-center gap-2">
                 <PastilleIcone nom="etiquette" teinte="corail" taille="sm" />
                 <span>
-                  <span className="font-medium">{R.prix}</span> : {R.prixValeur(nombre(cible.prix.min), nombre(cible.prix.max), cible.prix.base, cible.prix.unite)}
+                  <span className="font-medium">{R.prix}</span>{M.commun.dp}{R.prixValeur(nombre(cible.prix.min, M.commun.locale), nombre(cible.prix.max, M.commun.locale), cible.prix.base, cible.prix.unite)}
                 </span>
               </span>
               <Pastille libelle={estimation.libelle} aide={estimation.aide} />

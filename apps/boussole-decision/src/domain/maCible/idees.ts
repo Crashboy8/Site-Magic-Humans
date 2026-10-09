@@ -1,11 +1,12 @@
 // Couverture des idées, pistes et identifiants de phrases. Aucune relance du modèle pour ces motifs.
 import { normaliserPourComparer } from "./terrain";
-import type { AutrePiste, IdIdee, IdPiste, Marche, Note5, NotesPressenties, PisteEsquisse } from "./types";
+import { TEXTES_QUALITE, textesQualite } from "./textesQualite";
+import type { AutrePiste, IdIdee, IdPiste, Langue, Marche, Note5, NotesPressenties, PisteEsquisse } from "./types";
 
 const IDS_PISTES: readonly IdPiste[] = ["p1", "p2", "p3", "p4", "p5", "p6"];
 
-export const TEXTE_PISTE_LIGNE = "Ton idée, pas encore étudiée en détail par l'IA.";
-export const TEXTE_PISTE_RAISON = "L'IA ne l'a pas commentée. Creuse-la pour en avoir le cœur net.";
+export const TEXTE_PISTE_LIGNE = TEXTES_QUALITE.fr.pisteLigne;
+export const TEXTE_PISTE_RAISON = TEXTES_QUALITE.fr.pisteRaison;
 
 type Piste = PisteEsquisse | AutrePiste;
 type SortieIdees = {
@@ -39,13 +40,14 @@ function idLibre(pistes: readonly { id: string }[]): IdPiste | null {
   return IDS_PISTES.find((id) => !pris.has(id)) ?? null;
 }
 
-function pistePourIdee(id: IdPiste, ideeId: IdIdee, nom: string, marche: Marche | "", avecNotes: boolean): Piste {
+function pistePourIdee(id: IdPiste, ideeId: IdIdee, nom: string, marche: Marche | "", avecNotes: boolean, langue: Langue): Piste {
+  const T = textesQualite(langue);
   const base: PisteEsquisse = {
     id,
     nom: nom.slice(0, 80),
     marche: marche === "b2c" ? "b2c" : "b2b",
-    enUneLigne: TEXTE_PISTE_LIGNE,
-    raison: TEXTE_PISTE_RAISON,
+    enUneLigne: T.pisteLigne,
+    raison: T.pisteRaison,
     depuisIdees: [ideeId],
   };
   if (!avecNotes) return base;
@@ -53,15 +55,15 @@ function pistePourIdee(id: IdPiste, ideeId: IdIdee, nom: string, marche: Marche 
   return { ...base, notes };
 }
 
-function phraseHypothese(idee: string): string {
-  return `Ton idée « ${idee} » n'a pas pu être étudiée cette fois. Propose-la dans l'esquisse pour la creuser.`;
+function phraseHypothese(idee: string, langue: Langue): string {
+  return textesQualite(langue).ideeNonEtudiee(idee);
 }
 
 /**
  * Chaque idée de la personne apparaît dans une cible ou une autre piste.
  * Les identifiants au-delà du nombre d'idées, et les doublons, sont retirés.
  */
-export function couvrirIdees<T extends SortieIdees>(entree: T, idees: string[], marche: Marche | "", avecNotes: boolean): { sortie: T; ajoutees: number } {
+export function couvrirIdees<T extends SortieIdees>(entree: T, idees: string[], marche: Marche | "", avecNotes: boolean, langue: Langue = "fr"): { sortie: T; ajoutees: number } {
   const sortie = structuredClone(entree);
   let ajoutees = 0;
 
@@ -83,7 +85,7 @@ export function couvrirIdees<T extends SortieIdees>(entree: T, idees: string[], 
     if (sortie.autresPistes.length < 6) {
       const id = idLibre(sortie.autresPistes);
       if (!id) continue;
-      sortie.autresPistes.push(pistePourIdee(id, ideeId, idees[i] ?? "", marche, avecNotes));
+      sortie.autresPistes.push(pistePourIdee(id, ideeId, idees[i] ?? "", marche, avecNotes, langue));
       citees.add(ideeId);
       ajoutees += 1;
       continue;
@@ -97,13 +99,13 @@ export function couvrirIdees<T extends SortieIdees>(entree: T, idees: string[], 
     }
     if (index >= 0) {
       const id = sortie.autresPistes[index].id;
-      sortie.autresPistes[index] = pistePourIdee(id, ideeId, idees[i] ?? "", marche, avecNotes);
+      sortie.autresPistes[index] = pistePourIdee(id, ideeId, idees[i] ?? "", marche, avecNotes, langue);
       citees.add(ideeId);
       ajoutees += 1;
       continue;
     }
     if (sortie.hypotheses.length < 4) {
-      sortie.hypotheses.push(phraseHypothese(idees[i] ?? ""));
+      sortie.hypotheses.push(phraseHypothese(idees[i] ?? "", langue));
       citees.add(ideeId);
       ajoutees += 1;
     }
@@ -123,7 +125,7 @@ function aDesNotes(p: Piste): p is AutrePiste {
 }
 
 /** Identifiants p1 à p6, notes ramenées entre 1 et 5, pistes homonymes des cibles retirées, puis couverture des idées. */
-export function qualitePistes<T extends SortiePistes>(entree: T, idees: string[], marche: Marche | "", avecNotes: boolean): { sortie: T; reparations: number } {
+export function qualitePistes<T extends SortiePistes>(entree: T, idees: string[], marche: Marche | "", avecNotes: boolean, langue: Langue = "fr"): { sortie: T; reparations: number } {
   const sortie = structuredClone(entree);
   let reparations = 0;
   if (sortie.autresPistes.length > 6) {
@@ -163,7 +165,7 @@ export function qualitePistes<T extends SortiePistes>(entree: T, idees: string[]
     renumeroter();
   }
 
-  const couvert = couvrirIdees(sortie, idees, marche, avecNotes);
+  const couvert = couvrirIdees(sortie, idees, marche, avecNotes, langue);
   return { sortie: couvert.sortie, reparations: reparations + couvert.ajoutees };
 }
 

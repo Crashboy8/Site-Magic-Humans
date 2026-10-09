@@ -1,7 +1,8 @@
 // Contrôles déterministes après la validation de structure. Réparations légères, ou erreurs qui relancent le modèle.
 import { couperTexte } from "./validation";
 import type { LigneClassement } from "./scores";
-import type { Adresse, Cadrage, Cible, Format, IdCible, Marche, Portrait, Resultat } from "./types";
+import { FORMULES_FIN_TOUTES, TEXTES_QUALITE, VALEUR_TOUTES, textesQualite } from "./textesQualite";
+import type { Adresse, Cadrage, Cible, Format, IdCible, Langue, Marche, Portrait, Resultat } from "./types";
 
 export interface ContexteQualite {
   antiContexte: string;
@@ -12,10 +13,13 @@ export interface ContexteQualite {
   adresse: Adresse;
   formats: readonly Format[];
   talent: string;
+  /** Langue du résultat : les phrases ajoutées ou remplacées sont dans cette langue (français par défaut). */
+  langue?: Langue;
 }
 
 const STOP = new Set(
-  "dans avec pour cette comme etre avoir faire plus tout toute tous tres quand alors aussi leur leurs sans sous entre apres avant depuis encore meme chez vers dont quoi quel quelle quelles quels vous votre notre nous elles elle lui trop bien peut sont etait aux des les une qui que pas par sur donc car dont fois doit celles ceux celui celle".split(
+  "dans avec pour cette comme etre avoir faire plus tout toute tous tres quand alors aussi leur leurs sans sous entre apres avant depuis encore meme chez vers dont quoi quel quelle quelles quels vous votre notre nous elles elle lui trop bien peut sont etait aux des les une qui que pas par sur donc car dont fois doit celles ceux celui celle " +
+    "about after again their there these those which while would could should where other being because every with from into your yours they them than then what when".split(
     " ",
   ),
 );
@@ -41,37 +45,14 @@ export function recoupe(source: string, texte: string): boolean {
   return hits.length >= 2 || hits.some((m) => m.length >= 10);
 }
 
-const VALEUR = /valeur|cout|coûte|coute|budget|marche|marché|probleme|problème|rapport|perte|econom|économ/i;
-const PLUSIEURS = /\b(\d{1,2}|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+(séances|seances|sessions|ateliers|modules|rendez-vous)\b/i;
-const UNE_FOIS = /\ben une (séance|seance|session|heure)\b/gi;
-export const MOM = [
-  /si tu pouvais/i,
-  /si vous pouviez/i,
-  /si tu avais/i,
-  /si vous aviez/i,
-  /que penses-tu de/i,
-  /que pensez-vous de/i,
-  /qu'est-ce que tu penses/i,
-  /qu'est-ce que vous pensez/i,
-  /est-ce que tu ach[eè]terais/i,
-  /ach[eè]teriez-vous/i,
-  /serais-tu pr[eê]t/i,
-  /seriez-vous pr[eê]t/i,
-];
-export const QUESTIONS_VOUS = [
-  "La dernière fois que ce sujet s'est présenté, qu'avez-vous fait ?",
-  "Quand cela vous est arrivé récemment, comment l'avez-vous géré ?",
-  "Qu'avez-vous déjà essayé, concrètement, la dernière fois ?",
-  "Combien cela vous a-t-il coûté la dernière fois ?",
-  "À qui en avez-vous parlé, et qu'est-ce qui a suivi ?",
-];
-export const QUESTIONS_TU = [
-  "La dernière fois que ce sujet s'est présenté, qu'as-tu fait ?",
-  "Quand cela t'est arrivé récemment, comment l'as-tu géré ?",
-  "Qu'as-tu déjà essayé, concrètement, la dernière fois ?",
-  "Combien cela t'a-t-il coûté la dernière fois ?",
-  "À qui en as-tu parlé, et qu'est-ce qui a suivi ?",
-];
+const VALEUR = VALEUR_TOUTES;
+/** Motifs et questions de secours du français (gardés pour les tests et la voie salarié historique). */
+export const MOM = TEXTES_QUALITE.fr.mom;
+export const QUESTIONS_VOUS = TEXTES_QUALITE.fr.questions.vous;
+export const QUESTIONS_TU = TEXTES_QUALITE.fr.questions.tu;
+/** Questions « Mom test » à remplacer, toutes langues confondues. */
+const MOM_TOUTES = [...TEXTES_QUALITE.fr.mom, ...TEXTES_QUALITE.en.mom, ...TEXTES_QUALITE.es.mom];
+export const estQuestionMom = (q: string) => MOM_TOUTES.some((re) => re.test(q));
 const JETON_PRENOM = /\{\{\s*pr[eé]nom\s*\}\}|\{(?!\{)\s*pr[eé]nom\s*\}/gi;
 const TUTOIEMENT = /\b(tu|ton|ta|tes|toi)\b/i;
 const VOUVOIEMENT = /\b(vous|votre|vos)\b/i;
@@ -94,13 +75,17 @@ function normaliserJeton(s: string): string {
   return s.replace(JETON_PRENOM, "{{prenom}}");
 }
 
-export function signatureDe(adresse: Adresse): string {
-  return adresse === "tu" ? "À bientôt,\n\n{{prenom}}" : "Bien à vous,\n\n{{prenom}}";
+export function signatureDe(adresse: Adresse, langue: Langue = "fr"): string {
+  const s = textesQualite(langue).signature;
+  return adresse === "tu" ? s.tu : s.vous;
 }
 
-export function alignerSignature(corps: string, adresse: Adresse, max = 1100): string {
-  const signature = signatureDe(adresse);
-  const sans = normaliserJeton(corps).replace(/\n*(Bien à vous,|À bientôt,|A bientôt,|Belle journée,|Cordialement,|Merci,)\s*\n+\{\{prenom\}\}\s*$/i, "").trimEnd();
+const echapper = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const FIN = new RegExp(`\\n*(${FORMULES_FIN_TOUTES.map(echapper).join("|")})\\s*\\n+\\{\\{prenom\\}\\}\\s*$`, "i");
+
+export function alignerSignature(corps: string, adresse: Adresse, max = 1100, langue: Langue = "fr"): string {
+  const signature = signatureDe(adresse, langue);
+  const sans = normaliserJeton(corps).replace(FIN, "").trimEnd();
   const suivant = `${sans}\n\n${signature}`;
   return suivant.length <= max ? suivant : corps;
 }
@@ -109,15 +94,17 @@ export function registreAttendu(adresse: Adresse): "tu" | "vous" {
   return adresse === "tu" ? "tu" : "vous";
 }
 
-export function mauvaisRegistre(texte: string, attendu: "tu" | "vous"): boolean {
+/** Tutoiement ou vouvoiement : seul le français est contrôlé (l'anglais n'a qu'un « you », l'espagnol suivra). */
+export function mauvaisRegistre(texte: string, attendu: "tu" | "vous", langue: Langue = "fr"): boolean {
+  if (langue !== "fr") return false;
   // Sans accents : « êtes » ne doit pas être lu comme « tes ».
   const n = sansAccent(texte);
   if (attendu === "vous") return TUTOIEMENT.test(n);
   return VOUVOIEMENT.test(n);
 }
 
-function formatMultiple(c: Cible): boolean {
-  return PLUSIEURS.test(`${c.offre.format}\n${c.offre.duree}\n${c.offre.contenu.join("\n")}`);
+function formatMultiple(c: Cible, langue: Langue): boolean {
+  return textesQualite(langue).plusieurs.test(`${c.offre.format}\n${c.offre.duree}\n${c.offre.contenu.join("\n")}`);
 }
 
 function echoPrix(prixActuel: string, min: number, max: number): boolean {
@@ -154,29 +141,31 @@ export function retirerJetons<T>(racine: T, reparations: { n: number }): T {
 
 /** Contrôles « par cible » (§7.5) : signature, Anti-Contexte, accès, format, prix, registre, questions. */
 function controlerCible(c: Cible, original: Cible, ctx: ContexteQualite, p: string, reparations: { n: number }, erreurs: string[]) {
+  const langue = ctx.langue ?? "fr";
+  const T = textesQualite(langue);
   const attendu = registreAttendu(ctx.adresse);
-  const questionsModele = attendu === "tu" ? QUESTIONS_TU : QUESTIONS_VOUS;
-  const aligne = alignerSignature(original.messages.emailCorps, ctx.adresse);
+  const questionsModele = T.questions[attendu];
+  const aligne = alignerSignature(original.messages.emailCorps, ctx.adresse, 1100, langue);
   if (aligne !== original.messages.emailCorps) reparations.n += 1;
   c.messages.emailCorps = aligne;
 
   if (recoupe(ctx.antiContexte, blobCible(c)) && c.scores.plaisir.note > 2) {
     c.scores.plaisir.note = 2;
-    c.scores.plaisir.raison = "Note plafonnée à 2 : cette cible reprend des traits de l'Anti-Contexte.";
+    c.scores.plaisir.raison = T.plaisirPlafonne;
     reparations.n += 1;
   }
 
   const zoneReseau = `${c.nom}\n${c.portrait}\n${c.pourquoi}\n${c.scores.acces.raison}`;
   if (c.scores.acces.note === 5 && ctx.reseau.trim() && !recoupe(ctx.reseau, zoneReseau)) {
     c.scores.acces.note = 4;
-    c.scores.acces.raison = "L'accès vaut 4 : cette cible n'est pas décrite dans le réseau proche (expérience, clients passés).";
+    c.scores.acces.raison = T.accesPlafonne;
     reparations.n += 1;
   }
 
-  if (formatMultiple(c)) {
+  if (formatMultiple(c, langue)) {
     for (const champ of ["promesse", "pitch"] as const) {
-      const suivant = c[champ].replace(UNE_FOIS, "sur la durée du parcours");
-      UNE_FOIS.lastIndex = 0;
+      const suivant = c[champ].replace(T.uneFois, T.surLaDuree);
+      T.uneFois.lastIndex = 0;
       if (suivant !== c[champ]) {
         c[champ] = suivant;
         reparations.n += 1;
@@ -189,7 +178,7 @@ function controlerCible(c: Cible, original: Cible, ctx: ContexteQualite, p: stri
   }
 
   const textes = [c.messages.linkedin, c.messages.emailCorps, c.pitch, ...c.testTerrain.questions];
-  if (textes.some((t) => mauvaisRegistre(t, attendu))) {
+  if (textes.some((t) => mauvaisRegistre(t, attendu, langue))) {
     erreurs.push(
       attendu === "vous"
         ? `${p}.messages : vouvoiement attendu (dirigeant contacté à froid, sauf si la personne a demandé le tutoiement).`
@@ -198,7 +187,7 @@ function controlerCible(c: Cible, original: Cible, ctx: ContexteQualite, p: stri
   }
 
   c.testTerrain.questions = c.testTerrain.questions.map((q, qi) => {
-    if (!MOM.some((re) => re.test(q))) return q;
+    if (!estQuestionMom(q)) return q;
     reparations.n += 1;
     return questionsModele[qi % questionsModele.length];
   });
@@ -234,7 +223,7 @@ export function appliquerQualite(resultat: Resultat, ctx: ContexteQualite): { re
     const hay = [...r.cibles.map(blobCible), ...r.hypotheses].join("\n");
     if (!recoupe(idee, hay) && !sansAccent(hay).includes(sansAccent(idee).slice(0, 24))) {
       const extrait = idee.length > 80 ? `${idee.slice(0, 77).trimEnd()}…` : idee;
-      ajouterHypothese(r.hypotheses, `Ton idée (« ${extrait} ») n'est pas reprise comme cible : elle reste à vérifier sur le terrain.`, reparations);
+      ajouterHypothese(r.hypotheses, textesQualite(ctx.langue).ideeNonReprise(extrait), reparations);
     }
   }
 
@@ -243,21 +232,20 @@ export function appliquerQualite(resultat: Resultat, ctx: ContexteQualite): { re
     const mixte = marches.has("b2b") && marches.has("b2c");
     const raison = /b2b|b2c|marche/.test(sansAccent(r.hypotheses.join(" ")));
     if (!mixte && !raison) {
-      ajouterHypothese(r.hypotheses, "Le marché n'était pas tranché : une seule famille de cibles est proposée, à confirmer avec toi.", reparations);
+      ajouterHypothese(r.hypotheses, textesQualite(ctx.langue).marcheNonTranche, reparations);
     }
   }
 
   return { resultat: r, reparations: reparations.n, erreurs };
 }
 
-export function phrasesDepartage(cibles: readonly { id: IdCible; nom: string }[], lignes: readonly LigneClassement[]): string[] {
+export function phrasesDepartage(cibles: readonly { id: IdCible; nom: string }[], lignes: readonly LigneClassement[], langue: Langue = "fr"): string[] {
   const nom = (id: IdCible) => cibles.find((c) => c.id === id)?.nom ?? id;
-  const motif = (m: LigneClassement["departage"]) =>
-    m === "plaisir" ? "le plaisir du talent y est plus haut" : m === "urgence" ? "le problème y est plus urgent" : "à notes égales, l'ordre des identifiants la place devant";
+  const T = textesQualite(langue);
   return lignes.flatMap((l, i) => {
     if (!l.departage || i === 0) return [];
     const devant = lignes[i - 1];
-    return [couperTexte(`« ${nom(devant.id)} » et « ${nom(l.id)} » avaient le même score. « ${nom(devant.id)} » passe devant : ${motif(l.departage)}.`, 200)];
+    return [couperTexte(T.departage(nom(devant.id), nom(l.id), l.departage), 200)];
   });
 }
 
@@ -293,7 +281,6 @@ export function questionsManquantes(cadrage: Cadrage, tour: 1 | 2 | 3, ctx: Pick
   return "questions attendues : le format et le talent se contredisent (groupe contre individuel). Pose une question au lieu d'une esquisse.";
 }
 
-const PRENOMS_SECOURS = ["Claire", "Nadia", "Julien", "Sophie", "Karim", "Isabelle", "Thomas", "Élodie"];
 const GUILLEMETS = /[«»"“”]/g;
 export const ANNEE = /\b(19|20)\d{2}\b/g;
 
@@ -308,7 +295,7 @@ function contientMot(texte: string, mot: string): boolean {
  * Portrait (§9.6) : guillemets retirés de `sesMots`, années retirées de `recherche`,
  * prénom remplacé s'il apparaît dans les données de la personne. Chaque changement compte une réparation.
  */
-export function qualitePortrait(portrait: Portrait, donnees: string): { portrait: Portrait; reparations: number } {
+export function qualitePortrait(portrait: Portrait, donnees: string, langue: Langue = "fr"): { portrait: Portrait; reparations: number } {
   const p = structuredClone(portrait);
   let reparations = 0;
   for (const d of p.douleurs) {
@@ -326,7 +313,7 @@ export function qualitePortrait(portrait: Portrait, donnees: string): { portrait
     }
   }
   if (contientMot(donnees, p.prenom)) {
-    const libre = PRENOMS_SECOURS.find((x) => !contientMot(donnees, x));
+    const libre = textesQualite(langue).prenomsSecours.find((x) => !contientMot(donnees, x));
     if (libre) {
       p.prenom = libre;
       reparations += 1;

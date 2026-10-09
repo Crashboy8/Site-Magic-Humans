@@ -61,8 +61,8 @@ export interface Approfondir {
 }
 
 const cleAppel = (a: AppelApprofondi) => `${a.mode}-${a.id}`;
-const virgule = (n: number) =>
-  n.toLocaleString("fr-FR", {
+const virgule = (n: number, locale: string) =>
+  n.toLocaleString(locale, {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   });
@@ -101,7 +101,6 @@ export function Resultat({
   etat,
   prenom,
   coches,
-  locale,
   M,
   nbHistorique,
   synthese,
@@ -171,11 +170,12 @@ export function Resultat({
 
   const date = useMemo(
     () =>
-      new Date(fait).toLocaleDateString(
-        locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-GB",
-        { day: "numeric", month: "long", year: "numeric" },
-      ),
-    [fait, locale],
+      new Date(fait).toLocaleDateString(M.commun.locale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+    [fait, M.commun.locale],
   );
 
   useEffect(() => {
@@ -383,7 +383,7 @@ export function Resultat({
     { id: "hypotheses", libelle: R.sommaireHypotheses },
   ];
 
-  const exporte = exporterResultat(resultat, prenom, { synthese, extras });
+  const exporte = exporterResultat(resultat, prenom, { synthese, extras, M });
   const lienBoussole = lienBoussoleCibles(resultat, extras, entree);
   function telecharger() {
     const blob = new Blob([exporte.markdown], {
@@ -392,7 +392,7 @@ export function Resultat({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = nomFichierExport(fait);
+    a.download = nomFichierExport(fait, M);
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -869,9 +869,7 @@ export function Resultat({
               </ul>
             ) : (
               <p className="text-[16px] text-ink-soft">
-                {
-                  "L'IA s'est appuyée sur tes réponses, sans supposition en plus."
-                }
+                {R.sansHypothese}
               </p>
             )}
           </Card>
@@ -993,8 +991,8 @@ function PiedPiste({
         {creusee.ligne.score > scorePrioritaire && (
           <p className="rounded-xl bg-sage-soft px-3 py-2 text-[15px]">
             {A.mieuxQuePrioritaire(
-              virgule(creusee.ligne.score),
-              virgule(scorePrioritaire),
+              virgule(creusee.ligne.score, M.commun.locale),
+              virgule(scorePrioritaire, M.commun.locale),
             )}
           </p>
         )}

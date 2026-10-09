@@ -388,7 +388,7 @@ function SyntheseNotes({
   onRetirer: (id: string) => void;
 }) {
   const N = M.notes;
-  const date = new Date(synthese.faitLe).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+  const date = new Date(synthese.faitLe).toLocaleDateString(M.commun.locale, { day: "numeric", month: "long", year: "numeric" });
   return (
     <section className={`${CLASSE_CARTE} space-y-5 rounded-2xl border-l-4 border-lilas bg-paper p-5 sm:p-6`}>
       <div className="flex items-start gap-3">

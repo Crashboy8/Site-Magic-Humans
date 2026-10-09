@@ -2,36 +2,29 @@
 // Réparations légères, ou erreurs qui relancent le modèle une fois.
 import {
   ANNEE,
-  MOM,
-  QUESTIONS_TU,
-  QUESTIONS_VOUS,
   alignerSignature,
+  estQuestionMom,
   mauvaisRegistre,
   recoupe,
   registreAttendu,
   retirerJetons,
   sansAccent,
 } from "./qualite";
-import type { Adresse, PatronIdeal, ResultatSalarie } from "./types";
+import { TEXTES_QUALITE, textesQualite } from "./textesQualite";
+import type { Adresse, Langue, PatronIdeal, ResultatSalarie } from "./types";
 import { couperTexte } from "./validation";
 
 export interface ContexteQualiteSalarie {
   adresse: Adresse;
   /** Anti-Contexte du talent. « Ce que tu ne veux plus jamais vivre » va seulement au modèle : trop libre pour un contrôle par mots. */
   aEviter: string;
+  /** Langue du résultat (français par défaut). */
+  langue?: Langue;
 }
 
-/** Vocabulaire de la voie indépendant, interdit dans les patrons (§4). « client » seul reste permis : le patron a ses clients. */
-const VOCABULAIRE_INDEPENDANT =
-  /\b(tarifs?|prestations?|devis|tes clients?|ton client|ta clientele|ton offre de service)\b/;
 const EMOJI = /[\p{Extended_Pictographic}\u{FE0F}]/gu;
-/** Une phrase de sortie simple, pour qu'un destinataire puisse refuser facilement (§6). */
-const SORTIE =
-  /(bon moment|pas pour vous|pas pour toi|ne pas donner suite|dites-le-moi|dis-le-moi|dites le moi|dis le moi)/;
-export const PHRASE_SORTIE = {
-  vous: "Si ce n'est pas le bon moment, dites-le-moi simplement.",
-  tu: "Si ce n'est pas le bon moment, dis-le-moi simplement.",
-} as const;
+/** Une phrase de sortie simple, pour qu'un destinataire puisse refuser facilement (§6). Version française (tests). */
+export const PHRASE_SORTIE = TEXTES_QUALITE.fr.salarie.phraseSortie;
 export const MOTS_ORAL = { min: 55, max: 100 } as const;
 
 const compterMots = (t: string) =>
@@ -62,10 +55,12 @@ function tropProches(a: PatronIdeal, b: PatronIdeal): boolean {
 }
 
 /** Ajoute la phrase de sortie juste avant la signature, si la place le permet. */
-function avecSortie(corps: string, adresse: Adresse): string {
-  if (SORTIE.test(sansAccent(corps))) return corps;
-  const phrase = adresse === "tu" ? PHRASE_SORTIE.tu : PHRASE_SORTIE.vous;
-  const m = corps.match(/\n+(Bien à vous,|À bientôt,)\s*\n+\{\{prenom\}\}\s*$/);
+function avecSortie(corps: string, adresse: Adresse, langue: Langue): string {
+  const T = textesQualite(langue);
+  if (T.salarie.sortie.test(sansAccent(corps))) return corps;
+  const phrase = adresse === "tu" ? T.salarie.phraseSortie.tu : T.salarie.phraseSortie.vous;
+  const fins = T.formulesFin.map((f) => f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const m = corps.match(new RegExp(`\\n+(${fins})\\s*\\n+\\{\\{prenom\\}\\}\\s*$`));
   const suivant =
     m && m.index !== undefined
       ? `${corps.slice(0, m.index).trimEnd()}\n\n${phrase}${corps.slice(m.index)}`
@@ -81,6 +76,8 @@ export function qualiteSalarie(
   const erreurs: string[] = [];
   const r = retirerJetons(structuredClone(resultat), reparations);
   const attendu = registreAttendu(ctx.adresse);
+  const langue = ctx.langue ?? "fr";
+  const T = textesQualite(langue);
 
   r.patrons.forEach((c, i) => {
     const p = `patrons[${i}]`;
@@ -94,8 +91,8 @@ export function qualiteSalarie(
     )
       reparations.n += 1;
     c.pitchs.emailObjet = objet;
-    const signe = alignerSignature(sansEmoji, ctx.adresse, 900);
-    const sortie = avecSortie(signe, ctx.adresse);
+    const signe = alignerSignature(sansEmoji, ctx.adresse, 900, langue);
+    const sortie = avecSortie(signe, ctx.adresse, langue);
     if (sortie !== original.pitchs.emailCorps) reparations.n += 1;
     c.pitchs.emailCorps = sortie;
 
@@ -107,7 +104,7 @@ export function qualiteSalarie(
     ) {
       c.envie.declencheur = 2;
       c.valeurs.frotte = couperTexte(
-        `${c.valeurs.frotte ? `${c.valeurs.frotte} ` : ""}Il reprend des traits de ce que tu veux éviter.`.trim(),
+        `${c.valeurs.frotte ? `${c.valeurs.frotte} ` : ""}${T.salarie.reprendAEviter}`.trim(),
         240,
       );
       reparations.n += 1;
@@ -135,7 +132,7 @@ export function qualiteSalarie(
       c.pitchs.messageLinkedin,
       c.pitchs.emailCorps,
     ];
-    if (textes.some((t) => mauvaisRegistre(t, attendu))) {
+    if (textes.some((t) => mauvaisRegistre(t, attendu, langue))) {
       erreurs.push(
         attendu === "vous"
           ? `${p}.pitchs : vouvoiement attendu dans les messages.`
@@ -154,7 +151,7 @@ export function qualiteSalarie(
         ...c.approches.map((a) => a.action),
       ].join("\n"),
     );
-    const mot = zone.match(VOCABULAIRE_INDEPENDANT);
+    const mot = zone.match(T.salarie.vocabulaireIndependant);
     if (mot)
       erreurs.push(
         `${p} : « ${mot[0]} » appartient à la voie indépendant. Parle d'employeur, de poste et de manager.`,
@@ -171,9 +168,9 @@ export function qualiteSalarie(
     }
   }
 
-  const questionsModele = attendu === "tu" ? QUESTIONS_TU : QUESTIONS_VOUS;
+  const questionsModele = T.questions[attendu];
   r.testTerrain.questions = r.testTerrain.questions.map((q, qi) => {
-    if (!MOM.some((re) => re.test(q))) return q;
+    if (!estQuestionMom(q)) return q;
     reparations.n += 1;
     return questionsModele[qi % questionsModele.length];
   });

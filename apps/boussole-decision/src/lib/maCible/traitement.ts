@@ -182,6 +182,7 @@ function contexteQualite(demande: Exclude<Demande, { etape: "synthese" }>): Cont
     adresse: terrain.adresse,
     formats: terrain.formats,
     talent: `${talent.mecanisme}\n${talent.contexte}`,
+    langue: demande.entree.langue,
   };
 }
 
@@ -218,8 +219,9 @@ function traiterTexte(brut: string, demande: Demande): Traite {
     let reparations = v.reparations;
     if (v.valeur.statut === "esquisse") {
       const { idees, marche } = ideesDe(demande.entree);
-      const couvert = couvrirIdees(v.valeur.esquisse, idees, marche, false);
-      const pistes = qualitePistes(couvert.sortie, idees, marche, false);
+      const langue = demande.entree.langue;
+      const couvert = couvrirIdees(v.valeur.esquisse, idees, marche, false, langue);
+      const pistes = qualitePistes(couvert.sortie, idees, marche, false, langue);
       v.valeur = { ...v.valeur, esquisse: pistes.sortie };
       reparations += couvert.ajoutees + pistes.reparations;
     }
@@ -230,13 +232,14 @@ function traiterTexte(brut: string, demande: Demande): Traite {
   if (!v.ok) return { ok: false, erreurs: v.erreurs, reparations: v.reparations };
   const idees = demande.entree.terrain.ciblesEnTete;
   const marche = demande.entree.terrain.marche;
-  const couvert = couvrirIdees(v.valeur, idees, marche, true);
-  const pistes = qualitePistes(couvert.sortie, idees, marche, true);
+  const langue = demande.entree.langue;
+  const couvert = couvrirIdees(v.valeur, idees, marche, true, langue);
+  const pistes = qualitePistes(couvert.sortie, idees, marche, true, langue);
   const phrasesCibles = filtrerVerbatimsCibles(pistes.sortie, demande.entree.synthese);
   const q = appliquerQualite(phrasesCibles.sortie, contexteQualite(demande));
   if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations: v.reparations + couvert.ajoutees + pistes.reparations + phrasesCibles.retires + q.reparations };
   const classement = classerCibles(q.resultat.cibles);
-  const phrases = ajouterPhrases(q.resultat.hypotheses, phrasesDepartage(q.resultat.cibles, classement));
+  const phrases = ajouterPhrases(q.resultat.hypotheses, phrasesDepartage(q.resultat.cibles, classement, langue));
   return {
     ok: true,
     resultat: { ...q.resultat, hypotheses: phrases.hypotheses, classement },
@@ -258,7 +261,7 @@ function traiterResultatSalarie(json: unknown, entree: EntreeMaCible): Traite {
     retires += p.depuisIdees.length - gardes.length;
     p.depuisIdees = gardes;
   }
-  const q = qualiteSalarie(v.valeur, { adresse: ts.adresse, aEviter: entree.talent.antiContexte });
+  const q = qualiteSalarie(v.valeur, { adresse: ts.adresse, aEviter: entree.talent.antiContexte, langue: entree.langue });
   const reparations = v.reparations + retires + q.reparations;
   if (q.erreurs.length) return { ok: false, erreurs: q.erreurs, reparations };
   return { ok: true, resultat: { ...q.resultat, classement: classerPatrons(q.resultat.patrons) }, reparations };
@@ -274,7 +277,7 @@ function donneesPourPrenom(entree: EntreeMaCible): string {
 function portraitPropre(brut: unknown, entree: EntreeMaCible, chemin: string): { ok: true; portrait: Portrait; reparations: number } | { ok: false; erreurs: string[]; reparations: number } {
   const v = validerPortrait(brut, chemin);
   if (!v.ok) return v;
-  const q = qualitePortrait(v.valeur, donneesPourPrenom(entree));
+  const q = qualitePortrait(v.valeur, donneesPourPrenom(entree), entree.langue);
   const f = filtrerVerbatimsPortrait(q.portrait, entree.synthese);
   return { ok: true, portrait: f.sortie, reparations: v.reparations + q.reparations + f.retires };
 }

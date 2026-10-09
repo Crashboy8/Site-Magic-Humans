@@ -28,7 +28,7 @@ export function Plan30({ resultat, coches, onCoche, M, lecture = false }: { resu
         {resultat.plan30.map((s, si) => (
           <fieldset key={s.semaine} className="space-y-2">
             <legend className="text-[17px] font-medium">
-              {P.semaine(s.semaine)} : {s.titre}
+              {P.semaine(s.semaine)}{M.commun.dp}{s.titre}
             </legend>
             {s.actions.map((a, ai) => {
               const index = si * 3 + ai;
