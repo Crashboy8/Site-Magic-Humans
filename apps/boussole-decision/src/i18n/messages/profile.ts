@@ -34,6 +34,17 @@ const fr = {
   create: "Créer le profil",
   cancel: "Annuler",
 
+  // Filtre de « Mes profils »
+  filterLabel: "Afficher",
+  filterAll: "Tous",
+  filterPro: "Pro",
+  filterLove: "Amour",
+  sectionPro: "Vie professionnelle",
+  sectionLove: "Vie perso et amour",
+  newLoveCompass: "+ Nouvelle Boussole Relation",
+  newLoveCompassPending: "Création…",
+  newLoveCompassFailed: "La Boussole Relation n'a pas pu être créée. Réessaie dans un instant.",
+
   // Modifier et supprimer depuis « Mes profils »
   editAction: "Modifier",
   deleteAction: "Supprimer",
@@ -137,6 +148,16 @@ const en: typeof fr = {
   create: "Create profile",
   cancel: "Cancel",
 
+  filterLabel: "Show",
+  filterAll: "All",
+  filterPro: "Work",
+  filterLove: "Love",
+  sectionPro: "Work life",
+  sectionLove: "Personal life and love",
+  newLoveCompass: "+ New Relationship Compass",
+  newLoveCompassPending: "Creating…",
+  newLoveCompassFailed: "The Relationship Compass couldn't be created. Try again in a moment.",
+
   editAction: "Edit",
   deleteAction: "Delete",
   editAria: (name: string) => `Edit the profile “${name}”`,
@@ -233,6 +254,16 @@ const es: typeof fr = {
   creating: "Creando…",
   create: "Crear el perfil",
   cancel: "Cancelar",
+
+  filterLabel: "Mostrar",
+  filterAll: "Todos",
+  filterPro: "Pro",
+  filterLove: "Amor",
+  sectionPro: "Vida profesional",
+  sectionLove: "Vida personal y amor",
+  newLoveCompass: "+ Nueva Brújula Relación",
+  newLoveCompassPending: "Creando…",
+  newLoveCompassFailed: "No se ha podido crear la Brújula Relación. Vuelve a intentarlo en un momento.",
 
   editAction: "Modificar",
   deleteAction: "Eliminar",

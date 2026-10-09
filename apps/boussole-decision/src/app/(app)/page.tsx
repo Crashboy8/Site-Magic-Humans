@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { Card, Notice, PageTitle } from "@/components/ui";
 import { listProfiles, listVersionsForUser } from "@/data/repository";
 import { accueilAmour } from "@/domain/editionAmour";
+import { filtreValide, rangerProfils } from "@/domain/filtreProfils";
 import { CreateProfile } from "@/features/profiles/CreateProfile";
+import { MesProfilsFiltre } from "@/features/profiles/MesProfilsFiltre";
 import { ProfileCard } from "@/features/profiles/ProfileCard";
 import { PendingQuizImport } from "@/features/quiz/PendingQuizImport";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
@@ -11,7 +13,8 @@ import { getI18n } from "@/i18n/server";
 
 export default async function HomePage({ searchParams }: PageProps<"/">) {
   const user = await requireUser();
-  const trialAdded = (await searchParams).essai === "ajoute";
+  const params = await searchParams;
+  const trialAdded = params.essai === "ajoute";
   const { t } = await getI18n();
   const p = t.profile;
   const db = await supabaseServer();
@@ -19,6 +22,12 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   // Venu du Quiz Amour, sans Boussole pro : on reste dans la Boussole Relation.
   const amour = accueilAmour(profiles, versions);
   if (amour) redirect(amour);
+  // Pro puis amour, chacun du plus récemment modifié au plus ancien.
+  const rangees = rangerProfils(profiles, versions);
+  const carte = (profile: (typeof profiles)[number]) => ({
+    id: profile.id,
+    carte: <ProfileCard profile={profile} versions={versions.filter((v) => v.profileId === profile.id)} editable={profile.userId === user.id} />,
+  });
 
   return (
     <>
@@ -33,28 +42,25 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       )}
 
       <section aria-labelledby="mes-profils" className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 id="mes-profils" className="text-3xl italic">
-            {p.myProfiles}
-          </h2>
-          {profiles.length > 0 && <CreateProfile />}
-        </div>
-
         {profiles.length === 0 ? (
-          <div className="max-w-2xl space-y-4">
-            <p className="text-ink-soft">
-              <span className="font-serif text-2xl italic text-ink">{p.startHere}</span> {p.startHereText}
-            </p>
-            <CreateProfile startOpen />
-          </div>
+          <>
+            <h2 id="mes-profils" className="text-3xl italic">
+              {p.myProfiles}
+            </h2>
+            <div className="max-w-2xl space-y-4">
+              <p className="text-ink-soft">
+                <span className="font-serif text-2xl italic text-ink">{p.startHere}</span> {p.startHereText}
+              </p>
+              <CreateProfile startOpen />
+            </div>
+          </>
         ) : (
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((p) => (
-              <li key={p.id} className="empty:hidden">
-                <ProfileCard profile={p} versions={versions.filter((v) => v.profileId === p.id)} editable={p.userId === user.id} />
-              </li>
-            ))}
-          </ul>
+          <MesProfilsFiltre
+            pro={rangees.pro.map(carte)}
+            amour={rangees.amour.map(carte)}
+            depuisAdresse={filtreValide(params.filtre)}
+            nouveauProfil={<CreateProfile />}
+          />
         )}
       </section>
 

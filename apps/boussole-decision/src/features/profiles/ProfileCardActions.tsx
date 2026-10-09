@@ -301,7 +301,7 @@ function CorbeilleIcone({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-function CoeurIcone({ className = "h-4 w-4" }: { className?: string }) {
+export function CoeurIcone({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
       <path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.1 4.4 2.6.8-1.5 2.3-2.6 4.4-2.6 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21Z" />
@@ -310,7 +310,7 @@ function CoeurIcone({ className = "h-4 w-4" }: { className?: string }) {
 }
 
 /** Mallette, repère des profils pro (le cœur repère les Boussoles Relation). */
-function MalletteIcone({ className = "h-4 w-4" }: { className?: string }) {
+export function MalletteIcone({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="2.5" y="7" width="19" height="13" rx="2.5" fill="currentColor" fillOpacity="0.15" />

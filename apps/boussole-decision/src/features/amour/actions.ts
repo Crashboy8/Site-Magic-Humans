@@ -50,11 +50,12 @@ export async function loveStatusAction(): Promise<{ tableau: string | null; labe
  * sans jamais rien modifier ni supprimer. Sinon, on la crée : profil « mode amour », 4 catégories,
  * 12 critères du modèle, les critères cochés du quiz, et une première colonne « Ma relation ».
  * Avec sauver, l'invité est envoyé vers /sauvegarder/ pour rattacher ses résultats à son adresse mail.
+ * Avec nouvelle, on crée toujours une nouvelle Boussole Relation (bouton de « Mes profils »).
  */
 export async function startLoveCompassAction(
   rawPrefill?: unknown,
   chosenIds?: unknown,
-  options?: { sauver?: boolean },
+  options?: { sauver?: boolean; nouvelle?: boolean },
 ): Promise<{ error?: string }> {
   const { locale, t } = await getI18n();
   const supabase = await supabaseServer();
@@ -74,7 +75,8 @@ export async function startLoveCompassAction(
   let versionId: string;
   let added = 0;
   try {
-    const existing = await existingLove(supabase, userId);
+    // « + Nouvelle Boussole Relation » (Mes profils) : on en crée une autre, sans reprendre l'existante.
+    const existing = options?.nouvelle ? null : await existingLove(supabase, userId);
     if (existing) {
       versionId = existing.id;
       const [criteria, categories] = await Promise.all([listCriteria(supabase, versionId), listCategories(supabase, versionId)]);
