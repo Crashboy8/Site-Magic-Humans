@@ -1,5 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { pageLienEchoue } from "@/domain/client";
 import { ACCUEIL_CONNECTE, redirectUrl } from "@/lib/config";
 import { claimPendingGuestTransfer } from "@/lib/guestTransfer";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -24,7 +25,8 @@ export async function GET(request: NextRequest) {
 
   // Connexion par lien depuis un essai : l'essai est ajouté au compte.
   const claimed = ok && type !== "recovery" ? await claimPendingGuestTransfer(supabase) : 0;
-  if (claimed > 0) return NextResponse.redirect(redirectUrl("/?essai=ajoute", request));
-  const target = ok ? (type === "recovery" ? "/compte/mot-de-passe/" : safeNext) : "/connexion/?erreur=lien";
+  // Sauf pour l'accès client : on va d'abord activer le code et déposer la fiche.
+  if (claimed > 0 && !safeNext.startsWith("/mon-espace/activer/")) return NextResponse.redirect(redirectUrl("/?essai=ajoute", request));
+  const target = ok ? (type === "recovery" ? "/compte/mot-de-passe/" : safeNext) : pageLienEchoue(safeNext);
   return NextResponse.redirect(redirectUrl(target, request));
 }

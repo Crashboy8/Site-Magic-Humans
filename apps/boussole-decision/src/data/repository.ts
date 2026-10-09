@@ -195,19 +195,30 @@ export async function listInvitationCodes(db: Db): Promise<InvitationCode[]> {
   return list.map(mapInvitationCode);
 }
 
+/**
+ * Crée un code. « existe » : ce code est déjà pris. « sans_lien » : le code est créé, mais sans le lien de fiche
+ * (colonne lien_fiche absente tant que le SQL de l'accès client n'est pas collé).
+ */
 export async function createInvitationCode(
   db: Db,
-  input: { code: string; coachId: string; label: string; maxUses: number; expiresAt: string | null },
-) {
-  check(
-    await db.from("invitation_codes").insert({
-      code: input.code,
-      coach_id: input.coachId,
-      label: input.label,
-      max_uses: input.maxUses,
-      expires_at: input.expiresAt,
-    }),
-  );
+  input: { code: string; coachId: string; label: string; maxUses: number; expiresAt: string | null; lienFiche?: string | null },
+): Promise<"ok" | "existe" | "sans_lien"> {
+  const ligne = {
+    code: input.code,
+    coach_id: input.coachId,
+    label: input.label,
+    max_uses: input.maxUses,
+    expires_at: input.expiresAt,
+  };
+  const avecLien = input.lienFiche ? { ...ligne, lien_fiche: input.lienFiche } : ligne;
+  const { error } = await db.from("invitation_codes").insert(avecLien);
+  if (!error) return "ok";
+  if (error.code === "23505") return "existe";
+  if (input.lienFiche && (error.code === "PGRST204" || error.code === "42703" || /lien_fiche/.test(error.message ?? ""))) {
+    check(await db.from("invitation_codes").insert(ligne));
+    return "sans_lien";
+  }
+  throw error;
 }
 
 export async function setInvitationCodeDisabled(db: Db, code: string, disabled: boolean) {

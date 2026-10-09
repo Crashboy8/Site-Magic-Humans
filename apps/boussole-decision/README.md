@@ -99,6 +99,21 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - Une version **finalisée** est verrouillée par la base ; on peut la rouvrir ou la dupliquer.
 - Toutes ces règles sont testées dans `supabase/tests/rls.test.sql` (`npm run test:db`).
 
+### Accès client (code de Pierre)
+
+- Un compte est **client** quand il a été ouvert ou activé avec un code (`app_users.invitation_code`). Badge
+  « Accès client · avec Pierre » dans Mon espace. Rien n'est encore réservé aux clients : le badge prépare la suite.
+- Pierre crée un code dans l'Espace coach (« Codes clients ») : pour une personne ou un groupe, avec, en option, un code
+  lisible (MH-CAMILLE) et le lien Notion publié de la fiche du client. « Copier le message » donne un texte prêt à envoyer.
+- Le client ouvre `magichumans.com/client/CODE` (redirigé par `vercel.json` vers `/boussole-decision/client/?code=CODE`),
+  tape son prénom et son email, et reçoit un lien. Le lien passe par `/mon-espace/activer/` (active le code, garde le
+  prénom) puis ouvre l'import de la fiche (`/mon-espace/importer/?accueil=client` : lien Notion, PDF, Word ou « Plus tard »).
+  Déjà connecté : un bouton « Activer mon accès client ». Lien expiré ou ouvert sur un autre appareil : retour sur la
+  page du code pour en redemander un.
+- SQL : `supabase/migrations/20261014000000_acces_client.sql` (`activer_code_client`, `mon_acces_client`,
+  `invitation_codes.lien_fiche`). Sans ce SQL, un nouveau compte ouvert avec un code est quand même client ; seuls
+  l'activation sur un compte existant et le lien de fiche attendent.
+
 ## Développement local
 
 Prérequis : Node 20+, Docker (pour Supabase en local).

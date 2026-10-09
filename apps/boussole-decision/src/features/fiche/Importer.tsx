@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
 import { useI18n } from "@/i18n/client";
+import type { Messages } from "@/i18n/messages";
 import type { EspaceMessages } from "@/i18n/messages/espace";
 import { champsRemplis, ficheVide } from "@/domain/fiche/bornes";
 import { lireFiche } from "@/domain/fiche/extraire";
@@ -46,22 +47,47 @@ function depuisTexte(texte: string, source: SourceFiche): Lu {
   return { fiche, rapport, source, methode: rapport.methode };
 }
 
-/** Les quatre façons de déposer sa fiche (E.5), puis la vérification sur la même page. */
-export function Importer() {
-  const I = useI18n().t.espace.importer;
-  const [ouverte, setOuverte] = useState<Tuile | null>(null);
+/** Accès client : lien Notion, PDF, Word ou « plus tard ». Les autres façons restent à un clic. */
+type TuileClient = "notion" | "pdf" | "word" | "plusTard";
+
+const tuilesClient = (T: Messages["client"]["accueilImport"]["tuiles"]): { cle: TuileClient; icone: NomIcone; couleur: string; titre: string; texte: string }[] => [
+  { cle: "notion", icone: "lien", couleur: "#0E7490", titre: T.notion.titre, texte: T.notion.texte },
+  { cle: "pdf", icone: "pdf", couleur: "#B34716", titre: T.pdf.titre, texte: T.pdf.texte },
+  { cle: "word", icone: "word", couleur: "#1F7A6E", titre: T.word.titre, texte: T.word.texte },
+  { cle: "plusTard", icone: "horloge", couleur: "#6B5D4E", titre: T.plusTard.titre, texte: T.plusTard.texte },
+];
+
+/**
+ * Les quatre façons de déposer sa fiche (E.5), puis la vérification sur la même page.
+ * variante « client » (arrivée par le lien de Pierre) : 3 tuiles directes (Notion, PDF, Word) et « Plus tard » ;
+ * lienInitial : le lien Notion mis par Pierre sur le code, déjà dans le champ.
+ */
+export function Importer({ variante, lienInitial }: { variante?: "client"; lienInitial?: string | null } = {}) {
+  const { t: tout } = useI18n();
+  const I = tout.espace.importer;
+  const A = tout.client.accueilImport;
+  const [complet, setComplet] = useState(variante !== "client");
+  const [ouverte, setOuverte] = useState<Tuile | null>(lienInitial ? "lien" : null);
   const [lecture, setLecture] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [pasPublique, setPasPublique] = useState(false);
-  const [lien, setLien] = useState("");
+  const [lien, setLien] = useState(lienInitial ?? "");
   const [survol, setSurvol] = useState(false);
   const [lu, setLu] = useState<Lu | null>(null);
   const collage = useRef<HTMLDivElement>(null);
   const fichier = useRef<HTMLInputElement>(null);
   const panneau = useRef<HTMLDivElement>(null);
+  const pdf = useRef<HTMLInputElement>(null);
+  const word = useRef<HTMLInputElement>(null);
+  const premier = useRef(Boolean(lienInitial));
 
   // Sur mobile, le panneau ouvert est sous les quatre tuiles : on l'amène à l'écran.
+  // Sauf à l'arrivée avec le lien déjà prérempli : on laisse voir l'accueil.
   useEffect(() => {
+    if (premier.current) {
+      premier.current = false;
+      return;
+    }
     if (!ouverte || !panneau.current) return;
     panneau.current.scrollIntoView({ behavior: "smooth", block: "start" });
     panneau.current.querySelector<HTMLElement>("input[type=url], [contenteditable]")?.focus({ preventScroll: true });
@@ -137,12 +163,62 @@ export function Importer() {
     void lireDepot(e.dataTransfer.files[0]);
   }
 
+  function ouvrirClient(t: TuileClient) {
+    setErreur(null);
+    setPasPublique(false);
+    if (t === "notion") return setOuverte("lien");
+    setOuverte(null);
+    (t === "pdf" ? pdf : word).current?.click();
+  }
+
   return (
     <div className="space-y-5">
-      <header className="space-y-2">
-        <h1 className="font-serif text-[32px] italic leading-tight sm:text-4xl">{I.titre}</h1>
-        <p className="text-base leading-relaxed text-ink-soft">{I.intro}</p>
-      </header>
+      {complet && variante !== "client" && (
+        <header className="space-y-2">
+          <h1 className="font-serif text-[32px] italic leading-tight sm:text-4xl">{I.titre}</h1>
+          <p className="text-base leading-relaxed text-ink-soft">{I.intro}</p>
+        </header>
+      )}
+      {!complet && (
+        <>
+          <input ref={pdf} type="file" accept=".pdf,application/pdf" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => void lireDepot(e.target.files?.[0])} />
+          <input ref={word} type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(e) => void lireDepot(e.target.files?.[0])} />
+          <div className="grid grid-cols-2 gap-3">
+            {tuilesClient(A.tuiles).map((t) => {
+              const active = t.cle === "notion" && ouverte === "lien";
+              const contenu = (
+                <>
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white" style={{ background: t.couleur }} aria-hidden="true">
+                      <Icone nom={t.icone} className="h-[22px] w-[22px]" />
+                    </span>
+                    <span className="min-w-0 font-serif text-[20px] italic leading-tight text-ink">{t.titre}</span>
+                  </span>
+                  <span className="mt-2 block text-[15px] leading-snug text-ink-soft">{t.texte}</span>
+                </>
+              );
+              const classe = "flex min-h-[104px] flex-col rounded-[14px] p-3.5 text-left transition-shadow hover:shadow-[0_2px_10px_rgba(58,47,36,0.08)]";
+              const style = { border: `1px solid ${active ? t.couleur : "rgb(58 47 36 / 0.14)"}`, borderTop: `4px solid ${t.couleur}`, background: active ? `${t.couleur}0D` : "#fff" };
+              return t.cle === "plusTard" ? (
+                <a key={t.cle} href="/boussole-decision/mon-espace/" className={classe} style={{ ...style, background: "#FBF7F0" }}>
+                  {contenu}
+                </a>
+              ) : (
+                <button key={t.cle} type="button" aria-expanded={t.cle === "notion" ? active : undefined} onClick={() => ouvrirClient(t.cle)} className={classe} style={style}>
+                  {contenu}
+                </button>
+              );
+            })}
+          </div>
+          {lienInitial && ouverte === "lien" && (
+            <p className="flex items-center gap-2 rounded-xl border border-sage/30 bg-sage-soft px-4 py-3 text-base text-ink">
+              <Icone nom="coche" className="h-5 w-5 shrink-0 text-sage" />
+              {A.lienPret}
+            </p>
+          )}
+        </>
+      )}
+      {complet && (
       <div className="grid gap-3 sm:grid-cols-2">
         {tuiles(I).map((t) => {
           const active = ouverte === t.cle;
@@ -166,6 +242,7 @@ export function Importer() {
           );
         })}
       </div>
+      )}
 
       {lecture && (
         <p role="status" className="flex items-center gap-2.5 rounded-xl border border-sky-line bg-sky-soft px-4 py-3 text-base text-ink">
@@ -242,6 +319,12 @@ export function Importer() {
         </p>
       )}
       </div>
+
+      {!complet && (
+        <button type="button" onClick={() => { setComplet(true); setOuverte(null); }} className="min-h-11 text-left text-base font-medium text-link underline underline-offset-4">
+          {A.autreFacon}
+        </button>
+      )}
 
       <details className="rounded-[14px] border border-sky-line bg-sky-soft">
         <summary className="flex min-h-12 cursor-pointer items-center gap-2 px-4 py-3 text-base font-medium text-ciel">

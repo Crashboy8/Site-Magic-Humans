@@ -22,8 +22,8 @@ const fr = {
     `${name || "Ce coaché"} n'a encore partagé aucun profil avec toi. Le partage se fait à son initiative, profil par profil, depuis son espace.`,
   // Codes
   forWhom: "Pour qui ?",
-  forWhomHint: "Un code par coaché, utilisable une seule fois.",
-  forWhomPlaceholder: "Ex. : Claire D.",
+  forWhomHint: "Son prénom, ou le nom du groupe. Il sert aussi pour le message.",
+  forWhomPlaceholder: "Ex. : Claire",
   expiresOn: "Expire le (facultatif)",
   creating: "Création…",
   generate: "Générer un code",
@@ -88,8 +88,8 @@ const en: typeof fr = {
   noSharedProfile: (name: string) =>
     `${name || "This coachee"} hasn't shared any profile with you yet. Sharing is their choice, profile by profile, from their own space.`,
   forWhom: "For whom?",
-  forWhomHint: "One code per coachee, single use.",
-  forWhomPlaceholder: "E.g. Claire D.",
+  forWhomHint: "Their first name, or the group name. Also used in the message.",
+  forWhomPlaceholder: "E.g. Claire",
   expiresOn: "Expires on (optional)",
   creating: "Creating…",
   generate: "Generate a code",
@@ -153,8 +153,8 @@ const es: typeof fr = {
   noSharedProfile: (name: string) =>
     `${name || "Este coachee"} todavía no ha compartido ningún perfil contigo. Compartir es decisión suya, perfil por perfil, desde su espacio.`,
   forWhom: "¿Para quién?",
-  forWhomHint: "Un código por coachee, de un solo uso.",
-  forWhomPlaceholder: "Ej.: Claire D.",
+  forWhomHint: "Su nombre, o el nombre del grupo. También sirve para el mensaje.",
+  forWhomPlaceholder: "Ej.: Claire",
   expiresOn: "Caduca el (opcional)",
   creating: "Creando…",
   generate: "Generar un código",

@@ -16,7 +16,13 @@ export type NomIcone =
   | "lien"
   | "etoile"
   | "poubelle"
-  | "fleche";
+  | "fleche"
+  | "enveloppe"
+  | "coche"
+  | "pdf"
+  | "word"
+  | "horloge"
+  | "cle";
 
 const DESSINS: Record<NomIcone, ReactNode> = {
   qcm: (
@@ -83,6 +89,37 @@ const DESSINS: Record<NomIcone, ReactNode> = {
     </>
   ),
   fleche: <path d="m9.5 6 6 6-6 6" />,
+  enveloppe: (
+    <>
+      <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" />
+      <path d="m4 6.5 8 6 8-6" />
+    </>
+  ),
+  coche: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  pdf: (
+    <>
+      <path d="M14 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z" />
+      <path d="M14 3.5V8h4.5M8.5 16.5v-4h1.3a1.2 1.2 0 0 1 0 2.4H8.5M13 16.5v-4h.8a2 2 0 0 1 0 4z" />
+    </>
+  ),
+  word: (
+    <>
+      <path d="M14 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z" />
+      <path d="M14 3.5V8h4.5M8.5 12.5l1.2 4 1.3-3 1.3 3 1.2-4" />
+    </>
+  ),
+  horloge: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  ),
+  cle: (
+    <>
+      <circle cx="8" cy="12" r="3.5" />
+      <path d="M11.5 12h9M17.5 12v3M20.5 12v2.5" />
+    </>
+  ),
   crayon: (
     <>
       <path d="M13.2 5.2 18.8 10.8 8.5 21H3v-5.5z" />
