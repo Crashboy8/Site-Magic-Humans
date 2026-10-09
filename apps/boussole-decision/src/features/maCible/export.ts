@@ -88,6 +88,82 @@ function texteSynthese(s: SyntheseTerrain, markdown: boolean, M: MaCibleMessages
   );
 }
 
+/** Les parties d'une cible, dans l'ordre de l'export. Une partie vide reste une chaîne vide. */
+export type PartieCible =
+  | "entete"
+  | "quiCest"
+  | "douleur"
+  | "ancrage"
+  | "promesse"
+  | "offre"
+  | "pitch"
+  | "pourquoi"
+  | "exemple"
+  | "lieux"
+  | "linkedin"
+  | "messages"
+  | "test"
+  | "clients"
+  | "portrait";
+
+function sectionsCible(
+  cible: Cible,
+  prenom: string,
+  score: string,
+  markdown: boolean,
+  portrait: Portrait | undefined,
+  synthese: SyntheseTerrain | null,
+  M: MaCibleMessages,
+): Record<PartieCible, string> {
+  const t = (s: string) => remplacerPrenom(s, prenom);
+  const L = M.export;
+  const dp = M.commun.dp;
+  return {
+    entete: bloc(L.cible, [cible.nom, `${cible.marche.toUpperCase()} · ${score}`], markdown, 2),
+    quiCest: bloc(L.quiCest, [t(cible.portrait)], markdown, 3),
+    douleur: bloc(L.douleur, [t(cible.douleur)], markdown, 3),
+    ancrage: bloc(L.ancrage, [t(cible.ancrage)], markdown, 3),
+    promesse: bloc(L.promesse, [t(cible.promesse)], markdown, 3),
+    offre: bloc(L.offreCible, [
+      t(cible.offre.nom),
+      `${L.format}${dp}${t(cible.offre.format)}`,
+      `${L.duree}${dp}${t(cible.offre.duree)}`,
+      L.contenu,
+      puces(cible.offre.contenu.map(t)),
+      L.prix(nombre(cible.prix.min, M), nombre(cible.prix.max, M), cible.prix.base, t(cible.prix.unite)),
+      t(cible.prix.justification),
+    ], markdown, 3),
+    pitch: bloc(L.pitch, [t(cible.pitch)], markdown, 3),
+    pourquoi: bloc(L.pourquoi, [t(cible.pourquoi)], markdown, 3),
+    exemple: bloc(L.exemple, [t(cible.exemple)], markdown, 3),
+    lieux: bloc(L.rencontrer, [
+      ...cible.lieux.flatMap((l) => [`- ${t(l.type)}`, `  ${t(l.pourquoi)}`, `  ${L.aChercher}${dp}${t(l.recherche)}`]),
+      ...cible.canaux.map((c) => `- ${M.canaux[c.canal] ?? c.canal} (${L.priorite(c.priorite)})${dp}${t(c.action)}`),
+    ], markdown, 3),
+    linkedin: bloc(L.linkedin, [
+      t(cible.linkedin.motsCles),
+      cible.linkedin.intitules.length ? puces(cible.linkedin.intitules.map(t)) : "",
+      t(cible.linkedin.astuce),
+    ], markdown, 3),
+    messages: bloc(L.messages, [
+      L.messageLinkedin,
+      t(cible.messages.linkedin),
+      `${L.objet}${dp}${t(cible.messages.emailObjet)}`,
+      t(cible.messages.emailCorps),
+    ], markdown, 3),
+    test: bloc(L.testTerrain, [
+      t(cible.testTerrain.profils),
+      ...cible.testTerrain.questions.map((q, i) => `${i + 1}. ${t(q)}`),
+      L.bonSigne,
+      puces(cible.testTerrain.signauxPositifs.map(t)),
+      L.mauvaisSigne,
+      puces(cible.testTerrain.signauxNegatifs.map(t)),
+    ], markdown, 3),
+    clients: texteClients(cible, synthese, markdown, M),
+    portrait: portrait ? textePortraitBrut(portrait, synthese, markdown, 3, M) : "",
+  };
+}
+
 export function texteCible(
   cible: Cible,
   prenom: string,
@@ -97,106 +173,96 @@ export function texteCible(
   synthese: SyntheseTerrain | null = null,
   M: MaCibleMessages = FR,
 ): string {
-  const t = (s: string) => remplacerPrenom(s, prenom);
-  const L = M.export;
-  const dp = M.commun.dp;
-  const parties = [
-    bloc(L.cible, [cible.nom, `${cible.marche.toUpperCase()} · ${score}`], markdown, 2),
-    bloc(L.quiCest, [t(cible.portrait)], markdown, 3),
-    bloc(L.douleur, [t(cible.douleur)], markdown, 3),
-    bloc(L.ancrage, [t(cible.ancrage)], markdown, 3),
-    bloc(L.promesse, [t(cible.promesse)], markdown, 3),
-    bloc(L.offreCible, [
-      t(cible.offre.nom),
-      `${L.format}${dp}${t(cible.offre.format)}`,
-      `${L.duree}${dp}${t(cible.offre.duree)}`,
-      L.contenu,
-      puces(cible.offre.contenu.map(t)),
-      L.prix(nombre(cible.prix.min, M), nombre(cible.prix.max, M), cible.prix.base, t(cible.prix.unite)),
-      t(cible.prix.justification),
-    ], markdown, 3),
-    bloc(L.pitch, [t(cible.pitch)], markdown, 3),
-    bloc(L.pourquoi, [t(cible.pourquoi)], markdown, 3),
-    bloc(L.exemple, [t(cible.exemple)], markdown, 3),
-    bloc(L.rencontrer, [
-      ...cible.lieux.flatMap((l) => [`- ${t(l.type)}`, `  ${t(l.pourquoi)}`, `  ${L.aChercher}${dp}${t(l.recherche)}`]),
-      ...cible.canaux.map((c) => `- ${M.canaux[c.canal] ?? c.canal} (${L.priorite(c.priorite)})${dp}${t(c.action)}`),
-    ], markdown, 3),
-    bloc(L.linkedin, [
-      t(cible.linkedin.motsCles),
-      cible.linkedin.intitules.length ? puces(cible.linkedin.intitules.map(t)) : "",
-      t(cible.linkedin.astuce),
-    ], markdown, 3),
-    bloc(L.messages, [
-      L.messageLinkedin,
-      t(cible.messages.linkedin),
-      `${L.objet}${dp}${t(cible.messages.emailObjet)}`,
-      t(cible.messages.emailCorps),
-    ], markdown, 3),
-    bloc(L.testTerrain, [
-      t(cible.testTerrain.profils),
-      ...cible.testTerrain.questions.map((q, i) => `${i + 1}. ${t(q)}`),
-      L.bonSigne,
-      puces(cible.testTerrain.signauxPositifs.map(t)),
-      L.mauvaisSigne,
-      puces(cible.testTerrain.signauxNegatifs.map(t)),
-    ], markdown, 3),
-    texteClients(cible, synthese, markdown, M),
-    portrait ? textePortrait(portrait, synthese, markdown, 3, M) : "",
-  ];
+  const parties = Object.values(sectionsCible(cible, prenom, score, markdown, portrait, synthese, M));
   return sansInsecables(parties.filter(Boolean).join("\n\n"));
 }
 
-export function exporterResultat(
-  resultat: ResultatClasse,
+/** Parties copiables d'une cible depuis l'écran : la promesse va avec l'offre et son prix. */
+export type PartieCopiable = "offre" | "lieux" | "linkedin" | "messages" | "test" | "clients" | "portrait";
+
+/**
+ * Une partie d'une cible en Markdown, précédée du nom de la cible pour garder le contexte.
+ * Chaîne vide si la partie n'existe pas (pas de portrait, pas de phrase de client).
+ */
+export function markdownPartieCible(
+  cible: Cible,
   prenom: string,
-  options: { synthese?: SyntheseTerrain | null; extras?: Extras; M?: MaCibleMessages } = {},
-): { texte: string; markdown: string } {
+  partie: PartieCopiable,
+  options: { portrait?: Portrait; synthese?: SyntheseTerrain | null; M?: MaCibleMessages } = {},
+): string {
+  const M = options.M ?? FR;
+  const s = sectionsCible(cible, prenom, "", true, options.portrait, options.synthese ?? null, M);
+  const corps = partie === "offre" ? [s.promesse, s.offre] : [s[partie]];
+  if (!corps.some(Boolean)) return "";
+  return sansInsecables([bloc(M.export.cible, [cible.nom], true, 2), ...corps].filter(Boolean).join("\n\n"));
+}
+
+/** Grandes parties du résultat, hors cibles, dans l'ordre de l'export. */
+export type PartieResultat = "offre" | "notes" | "pistes" | "creusees" | "anti" | "plan" | "hypotheses" | "mot";
+
+type OptionsExport = { synthese?: SyntheseTerrain | null; extras?: Extras; M?: MaCibleMessages };
+
+function rendreParties(resultat: ResultatClasse, prenom: string, options: OptionsExport, markdown: boolean) {
   const M = options.M ?? FR;
   const L = M.export;
   const sur10 = (n: number) => M.resultat.score(n);
   const synthese = options.synthese ?? null;
   const extras = options.extras ?? EXTRAS_VIDES;
+  const t = (s: string) => remplacerPrenom(s, prenom);
+  const parId = new Map(resultat.classement.map((l) => [l.id, l]));
+  const ordre = resultat.classement.map((l) => resultat.cibles.find((c) => c.id === l.id)).filter((c): c is Cible => c !== undefined);
+  const cibles = ordre.map((c) => {
+    const ligne = parId.get(c.id);
+    const score = ligne ? sur10(ligne.score) : "";
+    return texteCible(c, prenom, score, markdown, extras.portraits[c.id], synthese, M);
+  });
+  const creusees = Object.values(extras.pistes)
+    .flatMap((p) => (p ? [p.cible] : []))
+    .sort((a, b) => scoreSur10(b.scores) - scoreSur10(a.scores))
+    .map((c) => texteCible(c, prenom, sur10(scoreSur10(c.scores)), markdown, extras.portraits[c.id], synthese, M));
+  const plan = resultat.plan30.flatMap((s) => [
+    markdown ? `### ${L.semaine(s.semaine, t(s.titre))}` : L.semaine(s.semaine, t(s.titre)).toUpperCase(),
+    ...s.actions.map((a) => `- ${t(a.texte)}`),
+  ]);
+  const parties: Record<PartieResultat, string> = {
+    offre: bloc(L.tonOffre, [t(resultat.offre.phrase), "", L.avant, t(resultat.offre.avant), "", L.apres, t(resultat.offre.apres)], markdown, 1),
+    notes: synthese ? texteSynthese(synthese, markdown, M) : "",
+    pistes: resultat.autresPistes.length
+      ? bloc(
+          L.autresPistes,
+          resultat.autresPistes.map((p) => {
+            return [`${p.nom} (${p.marche.toUpperCase()} · ${sur10(scorePressenti(p.notes))})`, t(p.enUneLigne), t(p.raison)].join("\n");
+          }),
+          markdown,
+          2,
+        )
+      : "",
+    creusees: creusees.length ? [titre(L.pistesCreusees, markdown, 2), ...creusees].join("\n\n") : "",
+    anti: bloc(L.antiCible, [t(resultat.antiCible.portrait), puces(resultat.antiCible.signaux.map(t)), t(resultat.antiCible.lienAntiContexte), t(resultat.antiCible.commentDire)], markdown, 2),
+    plan: bloc(L.plan, plan, markdown, 2),
+    hypotheses: resultat.hypotheses.length ? bloc(L.hypotheses, [puces(resultat.hypotheses.map(t))], markdown, 2) : "",
+    mot: bloc(L.motPourToi, [t(resultat.motPourToi)], markdown, 2),
+  };
+  return { parties, cibles };
+}
+
+export function exporterResultat(resultat: ResultatClasse, prenom: string, options: OptionsExport = {}): { texte: string; markdown: string } {
   const rendre = (markdown: boolean) => {
-    const t = (s: string) => remplacerPrenom(s, prenom);
-    const parId = new Map(resultat.classement.map((l) => [l.id, l]));
-    const ordre = resultat.classement.map((l) => resultat.cibles.find((c) => c.id === l.id)).filter((c): c is Cible => c !== undefined);
-    const cibles = ordre.map((c) => {
-      const ligne = parId.get(c.id);
-      const score = ligne ? sur10(ligne.score) : "";
-      return texteCible(c, prenom, score, markdown, extras.portraits[c.id], synthese, M);
-    });
-    const creusees = Object.values(extras.pistes)
-      .flatMap((p) => (p ? [p.cible] : []))
-      .sort((a, b) => scoreSur10(b.scores) - scoreSur10(a.scores))
-      .map((c) => texteCible(c, prenom, sur10(scoreSur10(c.scores)), markdown, extras.portraits[c.id], synthese, M));
-    const plan = resultat.plan30.flatMap((s) => [
-      markdown ? `### ${L.semaine(s.semaine, t(s.titre))}` : L.semaine(s.semaine, t(s.titre)).toUpperCase(),
-      ...s.actions.map((a) => `- ${t(a.texte)}`),
-    ]);
-    return [
-      bloc(L.tonOffre, [t(resultat.offre.phrase), "", L.avant, t(resultat.offre.avant), "", L.apres, t(resultat.offre.apres)], markdown, 1),
-      synthese ? texteSynthese(synthese, markdown, M) : "",
-      ...cibles,
-      resultat.autresPistes.length
-        ? bloc(
-            L.autresPistes,
-            resultat.autresPistes.map((p) => {
-              return [`${p.nom} (${p.marche.toUpperCase()} · ${sur10(scorePressenti(p.notes))})`, t(p.enUneLigne), t(p.raison)].join("\n");
-            }),
-            markdown,
-            2,
-          )
-        : "",
-      creusees.length ? [titre(L.pistesCreusees, markdown, 2), ...creusees].join("\n\n") : "",
-      bloc(L.antiCible, [t(resultat.antiCible.portrait), puces(resultat.antiCible.signaux.map(t)), t(resultat.antiCible.lienAntiContexte), t(resultat.antiCible.commentDire)], markdown, 2),
-      bloc(L.plan, plan, markdown, 2),
-      resultat.hypotheses.length ? bloc(L.hypotheses, [puces(resultat.hypotheses.map(t))], markdown, 2) : "",
-      bloc(L.motPourToi, [t(resultat.motPourToi)], markdown, 2),
-    ].filter(Boolean).join("\n\n");
+    const { parties: p, cibles } = rendreParties(resultat, prenom, options, markdown);
+    return [p.offre, p.notes, ...cibles, p.pistes, p.creusees, p.anti, p.plan, p.hypotheses, p.mot].filter(Boolean).join("\n\n");
   };
   // Les espaces insécables de l'écran restent à l'écran : le texte copié garde des espaces simples.
   return { texte: sansInsecables(rendre(false)), markdown: sansInsecables(rendre(true)) };
+}
+
+/** Une grande partie du résultat en Markdown (chaîne vide si elle n'existe pas). */
+export function markdownPartie(resultat: ResultatClasse, prenom: string, partie: PartieResultat, options: OptionsExport = {}): string {
+  return sansInsecables(rendreParties(resultat, prenom, options, true).parties[partie]);
+}
+
+/** Le résultat complet, précédé d'une courte consigne pour une IA (ChatGPT, Claude, Mistral…). */
+export function pourMonIA(markdown: string, M: MaCibleMessages = FR): string {
+  return sansInsecables(`${M.export.introIA}\n\n---\n\n${markdown}`);
 }
 
 /** Nom de fichier `le-cibleur-AAAA-MM-JJ.md` (en anglais `the-targeter-…`), jour de Paris. */
