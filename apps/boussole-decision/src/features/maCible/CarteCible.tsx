@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cx } from "@/components/ui";
 import { iconeCanal, iconeCible, iconeLieu } from "@/domain/maCible/iconeCible";
 import { GRILLE, type CleCritere, type LigneClassement } from "@/domain/maCible/scores";
-import type { Cible } from "@/domain/maCible/types";
+import type { Cible, Portrait, SyntheseTerrain } from "@/domain/maCible/types";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
 import { AnneauScore, CLASSE_CARTE, PastilleFine, PastilleIcone, PastillePriorite, TEINTE, teinteCible, teintePriorite, type Teinte } from "./Habillage";
@@ -108,28 +108,76 @@ function Liste({ items }: { items: string[] }) {
   );
 }
 
+function ClientsCible({
+  base,
+  cible,
+  synthese,
+  libelle,
+  tire,
+}: {
+  base: string;
+  cible: Cible;
+  synthese: SyntheseTerrain | null;
+  libelle: string;
+  tire: string;
+}) {
+  const phrases = (synthese?.verbatims ?? []).filter((v) => cible.verbatims.includes(v.id));
+  if (phrases.length === 0) return null;
+  return (
+    <section id={`${base}-clients`} data-ancre="" className="scroll-mt-20 space-y-3 rounded-2xl border border-line border-l-4 border-l-lilas bg-paper p-4">
+      <h3 className="flex items-start gap-3 font-serif text-[20px] italic">
+        <PastilleIcone nom="bulle" teinte="lilas" taille="sm" />
+        <span>{libelle}</span>
+      </h3>
+      <ul className="space-y-3">
+        {phrases.map((v) => (
+          <li key={v.id} className="space-y-2">
+            <blockquote className="text-[17px] italic leading-relaxed">« {v.citation} »</blockquote>
+            <span className="inline-flex rounded-full bg-lilas-soft px-2 py-1 text-xs font-medium text-lilas">{tire}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function CarteCible({
   cible,
   ligne,
   rang,
   prenom,
+  synthese,
   M,
   corpsOuvert,
   ouvert,
   onOuvert,
+  ancre,
+  rangLibelle,
+  portrait,
+  blocPortrait,
 }: {
   cible: Cible;
-  ligne: LigneClassement;
+  ligne: Pick<LigneClassement, "score" | "rang" | "alertePlaisir">;
   rang: number;
   prenom: string;
+  synthese: SyntheseTerrain | null;
   M: MaCibleMessages;
   corpsOuvert: boolean;
   ouvert: (id: string) => boolean;
   onOuvert: (id: string, ouvert: boolean) => void;
+  /** Base des ancres : `cible-1` pour une cible, `piste-p2` pour une piste creusée. */
+  ancre?: string;
+  /** Remplace « Cible prioritaire » (par exemple « Piste creusée »). */
+  rangLibelle?: string;
+  /** Portrait déjà fait, inclus dans « Copier cette cible ». */
+  portrait?: Portrait;
+  /** Bloc « Son portrait complet », affiché en dernier dans la carte (§4.6). */
+  blocPortrait?: React.ReactNode;
 }) {
   const R = M.resultat;
-  const idTitre = `cible-${rang}-titre`;
-  const cleCorps = `cible-${rang}`;
+  const base = ancre ?? `cible-${rang}`;
+  const idTitre = `${base}-titre`;
+  const cleCorps = `${base}`;
   const voir = (s: string) => remplacerPrenom(s, prenom);
   const corps = voir(cible.messages.emailCorps);
   const objetEmail = R.objet(cible.messages.emailObjet);
@@ -156,7 +204,7 @@ export function CarteCible({
       <header className="space-y-3">
         <div className={cx("flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gradient-to-r to-transparent px-3 py-3", accent.bandeau)}>
           <div className="min-w-0 space-y-2">
-            <span className={cx("inline-flex rounded-full px-3 py-1 text-sm font-medium", RANG_STYLE[ligne.rang])}>{R.rangs[ligne.rang]}</span>
+            <span className={cx("inline-flex rounded-full px-3 py-1 text-sm font-medium", rangLibelle ? "bg-miel text-white" : RANG_STYLE[ligne.rang])}>{rangLibelle ?? R.rangs[ligne.rang]}</span>
             <h2 id={idTitre} className="flex items-start gap-3 text-[22px] leading-tight sm:text-[28px]">
               <PastilleIcone nom={iconeCible(cible.nom, `${cible.portrait} ${cible.promesse}`)} teinte={teinte} taille="lg" />
               <span className="min-w-0 pt-2 sm:pt-1.5">{cible.nom}</span>
@@ -174,7 +222,7 @@ export function CarteCible({
         </p>
         {ligne.alertePlaisir && <p className="rounded-xl border border-accent/30 bg-blush px-4 py-3 text-[15px]">{R.alertePlaisir}</p>}
         <div data-ecran-seul>
-          <BoutonCopier texte={texteCible(cible, prenom, R.score(ligne.score), false)} M={M} libelle={R.copierCible} />
+          <BoutonCopier texte={texteCible(cible, prenom, R.score(ligne.score), false, portrait, synthese)} M={M} libelle={R.copierCible} />
         </div>
       </header>
 
@@ -204,7 +252,7 @@ export function CarteCible({
               })}
             </ul>
           </div>
-          <details className="text-[15px]" open={ouvert(`cible-${rang}-grille`)} onToggle={(e) => onOuvert(`cible-${rang}-grille`, e.currentTarget.open)}>
+          <details className="text-[15px]" open={ouvert(`${base}-grille`)} onToggle={(e) => onOuvert(`${base}-grille`, e.currentTarget.open)}>
             <summary className="min-h-11 cursor-pointer py-2 text-link underline">{R.grilleLien}</summary>
             <div className="space-y-2 pb-2">
               <p className="text-ink-soft">{R.grilleTexte}</p>
@@ -226,13 +274,14 @@ export function CarteCible({
           <Bloc titre={R.blocs.portrait} icone="personne" teinte="lilas">
             <p className="text-[17px] leading-relaxed">{voir(cible.portrait)}</p>
           </Bloc>
-          <Bloc id={`cible-${rang}-douleur`} titre={R.blocs.douleur} icone="eclair" teinte="framboise" pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
+          <Bloc id={`${base}-douleur`} titre={R.blocs.douleur} icone="eclair" teinte="framboise" pastille={{ libelle: R.pastilleHypothese, aide: R.pastilleAide }}>
             <p className="text-[17px] leading-relaxed">{voir(cible.douleur)}</p>
           </Bloc>
+          <ClientsCible base={base} cible={cible} synthese={synthese} libelle={R.blocs.clients} tire={M.notes.tire} />
           <Bloc titre={R.blocs.ancrage} icone="boussole" teinte="sage">
             <p className="text-[17px] leading-relaxed">{cible.ancrage}</p>
           </Bloc>
-          <Bloc id={`cible-${rang}-offre`} titre={R.blocs.offre} icone="cadeau" teinte="corail">
+          <Bloc id={`${base}-offre`} titre={R.blocs.offre} icone="cadeau" teinte="corail">
             <p className="text-[17px] font-semibold">{cible.offre.nom}</p>
             <p className="text-[16px]">
               <span className="font-medium">{R.format}</span> : {cible.offre.format}
@@ -266,7 +315,7 @@ export function CarteCible({
             <p className="text-[16px] leading-relaxed text-ink-soft">{cible.exemple}</p>
           </Bloc>
 
-          <Detail id={`cible-${rang}-lieux`} titre={R.blocs.lieux} icone="epingle" teinte="eau" ouvert={ouvert(`cible-${rang}-lieux`)} onOuvert={onOuvert}>
+          <Detail id={`${base}-lieux`} titre={R.blocs.lieux} icone="epingle" teinte="eau" ouvert={ouvert(`${base}-lieux`)} onOuvert={onOuvert}>
             <ul className="space-y-3">
               {cible.lieux.map((l) => (
                 <li key={l.type} className="flex flex-col items-start gap-2 text-[16px] sm:flex-row sm:justify-between">
@@ -307,7 +356,7 @@ export function CarteCible({
             <EncartAnnuaires M={M} />
           </Detail>
 
-          <Detail id={`cible-${rang}-linkedin`} titre={R.blocs.linkedin} icone="in" teinte="miel" ouvert={ouvert(`cible-${rang}-linkedin`)} onOuvert={onOuvert}>
+          <Detail id={`${base}-linkedin`} titre={R.blocs.linkedin} icone="in" teinte="miel" ouvert={ouvert(`${base}-linkedin`)} onOuvert={onOuvert}>
             <p className="text-[16px]">{R.pertinence[lin.pertinence]}</p>
             <p className="text-[15px] font-medium">{R.motsCles}</p>
             <div className="overflow-x-auto rounded-xl bg-sand p-3">
@@ -327,7 +376,7 @@ export function CarteCible({
             </p>
           </Detail>
 
-          <Detail id={`cible-${rang}-messages`} titre={R.blocs.messages} icone="enveloppe" teinte="corail" ouvert={ouvert(`cible-${rang}-messages`)} onOuvert={onOuvert}>
+          <Detail id={`${base}-messages`} titre={R.blocs.messages} icone="enveloppe" teinte="corail" ouvert={ouvert(`${base}-messages`)} onOuvert={onOuvert}>
             <div className="space-y-2">
               <p className="text-[15px] font-medium">{R.messageLinkedin}</p>
               <p className="whitespace-pre-line rounded-xl bg-sand p-3 text-[16px] leading-relaxed">{voir(cible.messages.linkedin)}</p>
@@ -343,7 +392,7 @@ export function CarteCible({
             <p className="text-sm italic text-ink-soft">{R.messagesNote}</p>
           </Detail>
 
-          <Detail id={`cible-${rang}-test`} titre={R.blocs.test} icone="calendrier" teinte="sage" ouvert={ouvert(`cible-${rang}-test`)} onOuvert={onOuvert}>
+          <Detail id={`${base}-test`} titre={R.blocs.test} icone="calendrier" teinte="sage" ouvert={ouvert(`${base}-test`)} onOuvert={onOuvert}>
             <p className="text-[17px] font-semibold">{R.testConsigne}</p>
             <p className="text-[16px]">
               <span className="font-medium">{R.aQui}</span> : {cible.testTerrain.profils}
@@ -359,6 +408,7 @@ export function CarteCible({
             <p className="text-[16px] font-medium">{R.signauxNegatifs}</p>
             <Liste items={cible.testTerrain.signauxNegatifs} />
           </Detail>
+          {blocPortrait}
         </div>
       </details>
     </section>

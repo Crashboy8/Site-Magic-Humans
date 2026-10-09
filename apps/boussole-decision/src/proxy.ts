@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { SUPABASE_KEY, SUPABASE_URL, isPublicPath, redirectUrl } from "@/lib/config";
+import { SUPABASE_KEY, SUPABASE_URL, isPublicPath, redirectUrl, suiteSure } from "@/lib/config";
 
 // Rafraîchit la session Supabase à chaque requête et réserve l'outil aux personnes connectées.
 export async function proxy(request: NextRequest) {
@@ -30,8 +30,13 @@ export async function proxy(request: NextRequest) {
 
   // Sans session : l'accueil propose les deux portes d'entrée ; les autres pages demandent de se connecter.
   if (!signedIn && path === "/") return redirectTo("/bienvenue/");
+  if (!signedIn && path.startsWith("/mon-espace")) {
+    return redirectTo(`/connexion/?suite=${encodeURIComponent(request.nextUrl.pathname)}`);
+  }
   if (!signedIn && !isPublicPath(path)) return redirectTo("/connexion/");
-  if (signedIn && (path === "/connexion" || path === "/inscription" || path === "/bienvenue")) return redirectTo("/");
+  if (signedIn && (path === "/connexion" || path === "/inscription" || path === "/bienvenue")) {
+    return redirectTo(suiteSure(request.nextUrl.searchParams.get("suite")) ?? "/");
+  }
   return response;
 }
 

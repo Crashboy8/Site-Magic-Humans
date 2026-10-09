@@ -379,6 +379,16 @@ select ok as r_ok, motif as r_motif from public.ma_cible_consommer(repeat('c', 6
 select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'global', 'ma cible : au-delà du plafond global, refus avec le motif global');
 select ok as r_ok, motif as r_motif from public.ma_cible_consommer('pas-une-empreinte', 'resultat', 5, 10) \gset
 select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'invalide', 'ma cible : une clé qui n''est pas une empreinte sha256 est refusée');
+select ok as syn1_ok from public.ma_cible_consommer(repeat('d', 64), 'synthese', 2, 10) \gset
+select pg_temp.check(:'syn1_ok' = 't', 'ma cible : synthese, premier appel accepté');
+select ok as syn2_ok from public.ma_cible_consommer(repeat('d', 64), 'synthese', 2, 10) \gset
+select pg_temp.check(:'syn2_ok' = 't', 'ma cible : synthese, deuxième appel accepté');
+select ok as syn3_ok, motif as syn3_motif from public.ma_cible_consommer(repeat('d', 64), 'synthese', 2, 10) \gset
+select pg_temp.check(:'syn3_ok' = 'f' and :'syn3_motif' = 'ip', 'ma cible : synthese, au-delà du plafond, motif ip');
+select ok as app_ok from public.ma_cible_consommer(repeat('f', 64), 'approfondir', 2, 10) \gset
+select pg_temp.check(:'app_ok' = 't', 'ma cible : approfondir est accepté');
+select ok as autre_ok, motif as autre_motif from public.ma_cible_consommer(repeat('e', 64), 'autre', 5, 10) \gset
+select pg_temp.check(:'autre_ok' = 'f' and :'autre_motif' = 'invalide', 'ma cible : une étape inconnue est refusée');
 reset role;
 select pg_temp.check((select count(*) from ma_cible_quota where cle <> 'global' and cle !~ '^[0-9a-f]{64}$') = 0,
   'ma cible : la table ne contient que des empreintes et des nombres');
@@ -405,5 +415,62 @@ set role authenticated;
 select pg_temp.check((select count(*) from ma_cible_reprise) = 0, 'ma cible : authenticated ne voit pas les reprises');
 reset role;
 select pg_temp.check((select count(*) from ma_cible_reprise) = 1, 'ma cible : la reprise est bien enregistrée');
+
+
+-- Mon espace : fiche Talent Unique et suppression de compte -------------------------
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+insert into talent_fiches (fiche, source, methode) values ('{"v":1,"prenom":"Alice"}'::jsonb, 'manuel', 'manuel');
+select pg_temp.check((select count(*) from talent_fiches) = 1, 'fiche : Alice enregistre sa fiche');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.check((select count(*) from talent_fiches) = 0, 'fiche : Bob ne voit pas la fiche d''Alice');
+with u as (update talent_fiches set source = 'collage' returning 1) select count(*) as n_maj from u \gset
+select pg_temp.check(:'n_maj' = '0', 'fiche : Bob ne modifie pas la fiche d''Alice');
+reset role;
+select pg_temp.check((select source from talent_fiches where user_id = '00000000-0000-0000-0000-0000000000a1') = 'manuel', 'fiche : la fiche d''Alice est intacte');
+set role anon;
+select pg_temp.expect_error($$select count(*) from talent_fiches$$, 'permission denied');
+reset role;
+
+-- Un invité enregistre sa fiche.
+insert into auth.users (id, email, is_anonymous) values ('00000000-0000-0000-0000-0000000000d3', null, true);
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d3';
+insert into talent_fiches (fiche, source, methode) values ('{"v":1,"prenom":"Invite"}'::jsonb, 'collage', 'modele');
+select pg_temp.check((select count(*) from talent_fiches) = 1, 'fiche : un invité enregistre sa fiche');
+reset role;
+
+-- Suppression de compte : tout part, le voisin reste.
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+select public.supprimer_mon_compte();
+reset role;
+select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : le compte d''Alice est effacé');
+select pg_temp.check((select count(*) from talent_fiches where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : la fiche d''Alice est effacée');
+select pg_temp.check((select count(*) from profiles where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : les profils d''Alice sont effacés');
+select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000b2') = 1, 'suppression : le compte de Bob est intact');
+
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.expect_error($$select public.supprimer_mon_compte()$$, 'COMPTE_COACH');
+reset role;
+select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000c0') = 1, 'suppression : le compte coach est intact');
+
+-- Quota de lecture par lien Notion.
+set role anon;
+select pg_temp.expect_error($$select public.notion_lien_consommer()$$, 'permission denied');
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select bool_and(public.notion_lien_consommer()) as q from generate_series(1, 10) \gset
+select pg_temp.check(:'q' = 't', 'notion : les 10 premières lectures de Bob passent');
+select public.notion_lien_consommer() as q \gset
+select pg_temp.check(:'q' = 'f', 'notion : la 11e lecture de Bob est refusée');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d3';
+select public.notion_lien_consommer() as q \gset
+select pg_temp.check(:'q' = 't', 'notion : le quota de Bob ne compte pas pour les autres');
+select pg_temp.expect_error($$select count(*) from notion_lien_quota$$, 'permission denied');
+reset role;
+select pg_temp.check((select sum(n) from notion_lien_quota) = 11, 'notion : le compteur est bien alimenté');
 
 \echo 'Tous les tests de base de données sont passés.'

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { jourParis, LIMITES_DEFAUT, limitesDepuisEnv, minuitSuivantParis, quotaMemoire, quotaSupabase, type Limites } from "./quota";
 
-const limites: Limites = { ipCadrage: 2, ipResultat: 3, globalCadrage: 5, globalResultat: 4 };
+const limites: Limites = { ipCadrage: 2, ipResultat: 3, ipSynthese: 5, ipApprofondir: 20, globalCadrage: 5, globalResultat: 4, globalSynthese: 100, globalApprofondir: 300 };
 const cle = (c: string) => c.padEnd(64, "0");
 
 describe("quotaMemoire", () => {
@@ -18,6 +18,18 @@ describe("quotaMemoire", () => {
     const q = quotaMemoire(limites, () => new Date("2026-10-10T10:00:00Z"));
     for (let i = 0; i < 4; i++) expect((await q.consommer(cle(`ip${i}`), "resultat")).ok).toBe(true);
     expect(await q.consommer(cle("ip9"), "resultat")).toEqual({ ok: false, motif: "global", restant: 0 });
+  });
+
+  it("sépare la synthèse et l'approfondissement, défauts 5, 20, 100 et 300", async () => {
+    expect(LIMITES_DEFAUT.ipSynthese).toBe(5);
+    expect(LIMITES_DEFAUT.ipApprofondir).toBe(20);
+    expect(LIMITES_DEFAUT.globalSynthese).toBe(100);
+    expect(LIMITES_DEFAUT.globalApprofondir).toBe(300);
+    const q = quotaMemoire(LIMITES_DEFAUT, () => new Date("2026-10-10T10:00:00Z"));
+    expect(await q.autoriser(cle("a"), "synthese")).toEqual({ ok: true, restant: 5 });
+    expect(await q.autoriser(cle("a"), "approfondir")).toEqual({ ok: true, restant: 20 });
+    await q.consommer(cle("a"), "synthese");
+    expect((await q.autoriser(cle("a"), "approfondir")).restant).toBe(20);
   });
 
   it("sépare les étapes", async () => {
@@ -84,13 +96,34 @@ describe("jours et limites", () => {
   });
   it("limitesDepuisEnv : 15 résultats et 30 cadrages, surcharge possible", () => {
     expect(limitesDepuisEnv({})).toEqual(LIMITES_DEFAUT);
-    expect(LIMITES_DEFAUT).toEqual({ ipCadrage: 30, ipResultat: 15, globalCadrage: 2000, globalResultat: 500 });
+    expect(LIMITES_DEFAUT).toEqual({
+      ipCadrage: 30,
+      ipResultat: 15,
+      ipSynthese: 5,
+      ipApprofondir: 20,
+      globalCadrage: 2000,
+      globalResultat: 500,
+      globalSynthese: 100,
+      globalApprofondir: 300,
+    });
     expect(limitesDepuisEnv({ MA_CIBLE_MAX_IP_CADRAGE: "40", MA_CIBLE_MAX_IP_RESULTAT: "12", MA_CIBLE_MAX_GLOBAL_RESULTAT: "abc" })).toEqual({
       ipCadrage: 40,
       ipResultat: 12,
+      ipSynthese: 5,
+      ipApprofondir: 20,
       globalCadrage: 2000,
       globalResultat: 500,
+      globalSynthese: 100,
+      globalApprofondir: 300,
     });
+    expect(
+      limitesDepuisEnv({
+        MA_CIBLE_MAX_IP_SYNTHESE: "7",
+        MA_CIBLE_MAX_IP_APPROFONDIR: "9",
+        MA_CIBLE_MAX_GLOBAL_SYNTHESE: "11",
+        MA_CIBLE_MAX_GLOBAL_APPROFONDIR: "13",
+      }),
+    ).toMatchObject({ ipSynthese: 7, ipApprofondir: 9, globalSynthese: 11, globalApprofondir: 13 });
     expect(limitesDepuisEnv({ MA_CIBLE_MAX_PAR_IP: "4", MA_CIBLE_MAX_IP_RESULTAT: "0", MA_CIBLE_MAX_IP_CADRAGE: "non" })).toEqual(LIMITES_DEFAUT);
     expect(limitesDepuisEnv({ MA_CIBLE_MAX_GLOBAL_CADRAGE: "40", MA_CIBLE_MAX_GLOBAL_RESULTAT: "120" })).toMatchObject({
       ipCadrage: 30,

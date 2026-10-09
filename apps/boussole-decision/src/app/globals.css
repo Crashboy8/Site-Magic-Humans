@@ -19,7 +19,7 @@
   --color-danger-soft: #f8e3dd;
   --color-sky-soft: #e8f5fc; /* bleu ciel, fonds uniquement */
   --color-sky-line: #bfe3f5; /* bleu ciel, bordures uniquement */
-  --color-ciel: #147086; /* bleu ciel, texte sur crème : 5,3:1 */
+  --color-ciel: #147086; /* bleu ciel, texte sur crème : 5,3:1, et icône de l'avertissement sur fond ciel */
   --color-lilas: #5f3f8f;
   --color-lilas-soft: #f1eafa;
   --color-corail: #a8431a;
@@ -68,6 +68,15 @@ h3 {
   animation: apparaitre 420ms ease-out;
 }
 
+@keyframes glisse {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(360%);
+  }
+}
+
 @keyframes apparaitre {
   from {
     opacity: 0;
@@ -111,6 +120,13 @@ body:has([data-amour-langue]) :is(a, button).bg-accent-strong {
 }
 body:has([data-amour-langue]) :is(a, button).bg-accent-strong:hover {
   background-color: var(--color-framboise-deep);
+}
+/* Onglet d'étape actif (Mon tableau, Résultats) en rose, comme les boutons. */
+body:has([data-amour-langue]) [data-etape-active] {
+  background-color: var(--color-framboise);
+}
+body:has([data-amour-langue]) [data-etape-numero] {
+  color: var(--color-framboise);
 }
 body:has([data-amour-langue]) :focus-visible {
   outline-color: var(--color-framboise);

@@ -5,7 +5,7 @@ import { Icone, type NomIcone } from "./Icones";
 /** Trois accents vifs, un par cible. Pas de bleu foncé. */
 export const TEINTES_CIBLE = ["corail", "eau", "lilas"] as const;
 
-export type Teinte = (typeof TEINTES_CIBLE)[number] | "miel" | "framboise" | "sage" | "sable";
+export type Teinte = (typeof TEINTES_CIBLE)[number] | "miel" | "framboise" | "sage" | "sable" | "ciel";
 
 export function teinteCible(index: number): Teinte {
   return TEINTES_CIBLE[index % TEINTES_CIBLE.length];
@@ -19,6 +19,7 @@ export const TEINTE: Record<Teinte, { pastille: string; fond: string; texte: str
   framboise: { pastille: "bg-framboise-soft text-framboise", fond: "bg-[#f6c4d0] text-framboise", texte: "text-framboise", bord: "border-l-framboise", barre: "bg-framboise", anneau: "#a3304f", bandeau: "from-framboise-soft" },
   sage: { pastille: "bg-sage-soft text-sage", fond: "bg-[#d5e3cf] text-sage", texte: "text-sage", bord: "border-l-sage", barre: "bg-sage", anneau: "#55704f", bandeau: "from-sage-soft" },
   sable: { pastille: "bg-sable-soft text-sable", fond: "bg-[#e4d3bc] text-sable", texte: "text-sable", bord: "border-l-sable", barre: "bg-sable", anneau: "#5c4632", bandeau: "from-sable-soft" },
+  ciel: { pastille: "bg-sky-soft text-ciel", fond: "bg-sky-soft text-ciel", texte: "text-ciel", bord: "border-l-ciel", barre: "bg-ciel", anneau: "#147086", bandeau: "from-sky-soft" },
 };
 
 export const CLASSE_CARTE = "anim-entree shadow-[0_10px_28px_rgba(58,47,36,0.07)]";

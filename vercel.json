@@ -32,6 +32,21 @@
       "permanent": false
     },
     {
+      "source": "/mon-espace",
+      "destination": "/boussole-decision/mon-espace/",
+      "permanent": false
+    },
+    {
+      "source": "/mon-espace/",
+      "destination": "/boussole-decision/mon-espace/",
+      "permanent": false
+    },
+    {
+      "source": "/mon-espace/:path*",
+      "destination": "/boussole-decision/mon-espace/",
+      "permanent": false
+    },
+    {
       "source": "/amour",
       "destination": "/quiz-amour/",
       "permanent": false
@@ -60,17 +75,6 @@
     {
       "source": "/boussole-decision/(.*)",
       "destination": "https://boussole-decision.vercel.app/boussole-decision/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/carte-du-talent/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
-        }
-      ]
     }
   ]
 }

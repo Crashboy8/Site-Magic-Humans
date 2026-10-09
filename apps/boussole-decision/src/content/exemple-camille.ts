@@ -74,7 +74,7 @@ export const CAMILLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "A",
     versionId: "exemple",
-    name: "A. Responsable com' — PME écoconstruction (Nantes)",
+    name: "A. Responsable com', PME écoconstruction (Nantes)",
     summary: "Salariée · PME de 80 personnes, chantiers à visiter.",
     url: "",
     notes: "Salaire proposé : 3 100 € net, peu de marge d'évolution.",
@@ -92,7 +92,7 @@ export const CAMILLE_OPPORTUNITIES: Opportunity[] = [
   {
     id: "C",
     versionId: "exemple",
-    name: "C. Chargée de com' senior — grand groupe bancaire (La Défense)",
+    name: "C. Chargée de com' senior, grand groupe bancaire (La Défense)",
     summary: "Salariée · communication institutionnelle.",
     url: "",
     notes: "4 200 € net, intéressement, belles perspectives salariales.",
@@ -147,7 +147,7 @@ const CAMILLE_EN = {
   } as Record<string, string>,
   opportunities: {
     A: {
-      name: "A. Communications manager — eco-construction SME (Nantes)",
+      name: "A. Communications manager, eco-construction SME (Nantes)",
       summary: "Employee · SME of 80 people, building sites to visit.",
       notes: "Salary offered: €3,100 net, little room to grow.",
     },
@@ -157,7 +157,7 @@ const CAMILLE_EN = {
       notes: "Income in the first months still uncertain.",
     },
     C: {
-      name: "C. Senior communications officer — large banking group (La Défense)",
+      name: "C. Senior communications officer, large banking group (La Défense)",
       summary: "Employee · corporate communications.",
       notes: "€4,200 net, profit sharing, good salary prospects.",
     },
@@ -191,7 +191,7 @@ const CAMILLE_ES = {
   } as Record<string, string>,
   opportunities: {
     A: {
-      name: "A. Responsable de comunicación — pyme de ecoconstrucción (Nantes)",
+      name: "A. Responsable de comunicación, pyme de ecoconstrucción (Nantes)",
       summary: "Asalariada · pyme de 80 personas, obras que visitar.",
       notes: "Salario propuesto: 3.100 € netos, poco margen de evolución.",
     },
@@ -201,7 +201,7 @@ const CAMILLE_ES = {
       notes: "Ingresos de los primeros meses aún inciertos.",
     },
     C: {
-      name: "C. Responsable sénior de comunicación — gran grupo bancario (La Défense)",
+      name: "C. Responsable sénior de comunicación, gran grupo bancario (La Défense)",
       summary: "Asalariada · comunicación corporativa.",
       notes: "4.200 € netos, participación en beneficios, buenas perspectivas salariales.",
     },

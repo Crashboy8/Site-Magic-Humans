@@ -62,6 +62,7 @@ export async function POST(request: Request): Promise<Response> {
         env,
         emailConnecte: env.MA_CIBLE_EMAILS_ILLIMITES?.trim() ? await emailDansLeDelai() : null,
         reprise,
+        repriseSensible: reprises,
       },
       request,
     ),

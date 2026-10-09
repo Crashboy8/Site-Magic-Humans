@@ -1,13 +1,13 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import { redirectUrl } from "@/lib/config";
+import { ACCUEIL_CONNECTE, redirectUrl } from "@/lib/config";
 import { claimPendingGuestTransfer } from "@/lib/guestTransfer";
 import { supabaseServer } from "@/lib/supabase/server";
 
 // Arrivée depuis un lien reçu par email (confirmation, lien magique, mot de passe oublié).
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const next = params.get("next") ?? "/";
+  const next = params.get("next") ?? ACCUEIL_CONNECTE;
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   const supabase = await supabaseServer();

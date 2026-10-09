@@ -11,6 +11,7 @@ export async function PublicFrame({
   tagline,
   mark,
   edition,
+  sansLangues = false,
   children,
 }: {
   brand: string;
@@ -18,6 +19,8 @@ export async function PublicFrame({
   mark?: ReactNode;
   /** Boussole : « Amour » ou « Pro » selon le thème. Ma Cible ne le passe pas. */
   edition?: boolean;
+  /** Masque Français / English / Español. Rien ne change pour la Boussole tant que ce paramètre reste faux. */
+  sansLangues?: boolean;
   children: ReactNode;
 }) {
   const { t } = await getI18n();
@@ -41,7 +44,7 @@ export async function PublicFrame({
               {t.common.home}
             </Link>
             {edition && <LienQuizAmour />}
-            <LanguageSwitch />
+            {!sansLangues && <LanguageSwitch />}
           </div>
         </div>
       </header>

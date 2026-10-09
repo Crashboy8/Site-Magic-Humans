@@ -2,11 +2,11 @@
 
 Visualiser son talent comme un territoire en hexagones : un cœur (le talent), des régions (les sous-talents), des territoires conquis, des frontières que l'on repousse, des îles où l'on se ressource et une zone à déléguer. L'application aide à repérer ce qui met dans le flow et à voir ses compétences s'étendre.
 
-Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il s'ouvre aussi en double-cliquant sur `index.html`. La page est en `noindex` (balise meta et en-tête `X-Robots-Tag` dans `vercel.json`) et absente du sitemap.
+Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il s'ouvre aussi en double-cliquant sur `index.html`. La page est indexable et listée dans le sitemap.
 
 ## Note de reprise (à jour au 6 octobre 2026)
 
-- **En ligne** : https://www.magichumans.com/carte-du-talent/ (noindex), fusionné via la PR #101. La Boussole y renvoie par le bouton « Explorer ma carte du talent » (PR #103).
+- **En ligne** : https://www.magichumans.com/carte-du-talent/, fusionné via la PR #101. La Boussole y renvoie par le bouton « Explorer ma carte du talent » (PR #103).
 - **Chantiers de la nuit** (une PR par chantier, empilées dans cet ordre, aucune fusionnée) :
   1. **Carte créée depuis la Boussole** (branche `claude/zealous-mayer-oibrrc`, PR #104) : fait.
   2. **Version anglaise de la carte, avec sélecteur de langue** (branche `claude/zm-carte-en`, base : chantier 1, PR #105) : fait.
@@ -83,7 +83,7 @@ Tous les scripts s'attachent à l'espace de noms global `CarteTalent`. Le modèl
 ## Tests
 
 ```bash
-node carte-du-talent/tests/placement.test.js && node carte-du-talent/tests/orientation.test.js
+node carte-du-talent/tests/placement.test.js && node carte-du-talent/tests/orientation.test.js && node carte-du-talent/tests/cibleur.test.js
 ```
 
 Ajouter `--carte` à la première commande affiche aussi la carte en texte.
@@ -92,4 +92,4 @@ Une quarantaine de tests : placement (régions d'un seul tenant, pas de trou, jo
 
 ## Mise en ligne
 
-Le site est déployé par Vercel depuis la branche principale. Une fois la branche fusionnée, la carte est servie à `https://www.magichumans.com/carte-du-talent/`, toujours en `noindex`. Aucune autre page du site n'est modifiée ; seul `vercel.json` reçoit l'en-tête `X-Robots-Tag` pour ce dossier.
+Le site est déployé par Vercel depuis la branche principale. Une fois la branche fusionnée, la carte est servie à `https://www.magichumans.com/carte-du-talent/`.

@@ -162,6 +162,7 @@ const AMOUR_DATA = {
       "nowTest": "Teste ta relation",
       "nowTestP": "Vérifie si ton ou ta partenaire (actuel·le ou futur·e) te correspond vraiment, critère par critère.",
       "nowBoussole": "Ouvrir ma Boussole Relation",
+      "nowTalent": "Et côté travail ? Découvre ton Talent Unique en 6 minutes avec le quiz gratuit.",
       "saveH": "Sauvegarder mes résultats",
       "saveP": "Entre ton adresse mail : tes résultats sont rattachés à ton compte et tu les retrouves dans ta Boussole Relation, sur tous tes appareils.",
       "saveLabel": "Ton adresse mail",

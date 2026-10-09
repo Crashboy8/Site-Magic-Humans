@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Card, PageTitle, formatDate } from "@/components/ui";
 import { NewPasswordForm } from "@/features/auth/forms";
+import { SupprimerCompte } from "@/features/fiche/SupprimerCompte";
 import { requireUser } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -35,6 +36,11 @@ export default async function AccountPage() {
           <h2 className="text-2xl italic">{a.changePassword}</h2>
           <NewPasswordForm />
         </Card>
+        {user.role !== "coach" && (
+          <Card className="border-danger/30" id="supprimer">
+            <SupprimerCompte />
+          </Card>
+        )}
         <p className="text-sm text-ink-soft">
           <Link href="/" className="hover:underline">
             {a.backToProfiles}

@@ -4,30 +4,47 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { Button, Notice } from "@/components/ui";
 import { lireAncre, type AncreLue } from "@/domain/maCible/ancre";
 import { validerEntree, type ErreurChamp } from "@/domain/maCible/entree";
-import type { Corrections, Demande } from "@/domain/maCible/types";
+import type { FournisseurNotes } from "@/domain/maCible/fournisseurNotes";
+import type { AutrePiste, Cible, Corrections, Demande, NoteTerrain, SyntheseTerrain } from "@/domain/maCible/types";
 import { useI18n } from "@/i18n/client";
 import { appelerApi, preparerAccesTest } from "./api";
+import type { LectureNotes } from "./NotesTerrain";
 import { Attente, type ErreurAppel } from "./Attente";
-import { AvertissementIA, EncartConfidentialite } from "./Confidentialite";
+import { AvertissementIA, EncartConfidentialiteReplie } from "./Confidentialite";
+import { PastilleIcone, type Teinte } from "./Habillage";
+import type { NomIcone } from "./Icones";
 import { EtapeEsquisse } from "./EtapeEsquisse";
 import { EtapeQuestions } from "./EtapeQuestions";
 import { EtapeTalent } from "./EtapeTalent";
 import { EtapeTerrain } from "./EtapeTerrain";
-import { Resultat } from "./Resultat";
-import { etatInitial, langueEntree, reducteur, travailExiste, type Etape, type EtapeBarre } from "./etat";
+import { Resultat, type AppelApprofondi, type Approfondir } from "./Resultat";
+import { etatInitial, langueEntree, prochainIdPiste, reducteur, travailExiste, type Etape, type EtapeBarre } from "./etat";
+import { SANS_REESSAI, messageApi } from "./erreurs";
 import { IndicateurEtapes } from "./IndicateurEtapes";
 import { archiverCourant, ecrireHistorique, effacerHistorique, identifiantHistorique, lireHistorique, reprendreDansHistorique, type EntreeHistorique } from "./historique";
 import { methodeAlignee } from "./methode";
 import { URL_OUTILS, URL_QCM } from "./liens";
 import { effacer, ecrire, lire } from "./stockage";
 
+type DemandeParcours = Extract<Demande, { etape: "cadrage" | "resultat" }>;
+
 interface Attendre {
   type: "cadrage" | "resultat";
-  demande: Demande;
+  demande: DemandeParcours;
   erreur: ErreurAppel | null;
 }
 
-export function MaCible({ fournisseur }: { fournisseur: string }) {
+export function MaCible({
+  fournisseur,
+  fournisseurNotes,
+  maxSynthese,
+  maxApprofondir,
+}: {
+  fournisseur: string;
+  fournisseurNotes: FournisseurNotes;
+  maxSynthese: number;
+  maxApprofondir: number;
+}) {
   const { locale, t, m } = useI18n();
   const M = t.maCible;
   const methode = methodeAlignee(M, m);
@@ -39,6 +56,9 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
   const [erreurs, setErreurs] = useState<ErreurChamp[]>([]);
   const [historique, setHistorique] = useState<EntreeHistorique[]>([]);
   const [vue, setVue] = useState<null | { type: "liste" } | { type: "lecture"; entree: EntreeHistorique }>(null);
+  const [appelEnCours, setAppelEnCours] = useState<null | "synthese" | AppelApprofondi>(null);
+  const [erreurApprofondir, setErreurApprofondir] = useState<{ cle: string; message: string; reessai: boolean } | null>(null);
+  const [nouveau, setNouveau] = useState<string | null>(null);
   const controleur = useRef<AbortController | null>(null);
   const premier = useRef(true);
 
@@ -78,12 +98,123 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
     document.querySelector<HTMLElement>("[data-titre-etape]")?.focus();
   }, [etat.etape, pret]);
 
+  async function lireNotes(notes: NoteTerrain[]): Promise<LectureNotes> {
+    if (appelEnCours) return { ok: false, code: "inconnue" };
+    setAppelEnCours("synthese");
+    try {
+      const r = await appelerApi({
+        etape: "synthese",
+        langue: langueEntree(locale),
+        contexte: {
+          mecanisme: etat.entree.talent.mecanisme,
+          contexte: etat.entree.talent.contexte,
+          benefice: etat.entree.talent.benefice,
+          offre: etat.entree.terrain.offre,
+        },
+        notes,
+      });
+      if (!r.ok) return { ok: false, code: r.code, max: r.max };
+      if (!("statut" in r)) return { ok: false, code: "inconnue" };
+      if (r.statut === "ok" && r.synthese) {
+        const synthese: SyntheseTerrain = { ...r.synthese, faitLe: new Date().toISOString() };
+        dispatch({ type: "synthese", synthese });
+        return { ok: true, statut: "ok", masques: r.masques };
+      }
+      return { ok: true, statut: "inutilisable", message: r.message, masques: r.masques };
+    } finally {
+      setAppelEnCours(null);
+    }
+  }
+
   const talentOuTerrain = (champs: "talent." | "terrain.") => {
     const v = validerEntree(etat.entree);
     return v.ok ? [] : v.erreurs.filter((e) => e.champ.startsWith(champs));
   };
 
-  async function lancer(demande: Demande) {
+  /** Message d'un échec d'approfondissement, affiché dans le bloc concerné (§16). */
+  const erreurDe = (cle: string, code: Parameters<typeof messageApi>[0], max?: number) => ({
+    cle,
+    message: code === "quota_ip" ? M.notes.quotaApprofondir(max ?? maxApprofondir) : messageApi(code, M, max),
+    reessai: !SANS_REESSAI.includes(code),
+  });
+
+  /** Entrée qui a produit le résultat affiché : c'est elle que l'IA approfondit. */
+  const entreeResultat = () => ({ ...(etat.entreeDuResultat ?? etat.entree), langue: langueEntree(locale) });
+
+  async function faireportrait(cible: Cible) {
+    if (appelEnCours || !etat.resultat) return;
+    const appel: AppelApprofondi = { mode: "portrait", id: cible.id };
+    const cle = `portrait-${cible.id}`;
+    setAppelEnCours(appel);
+    setErreurApprofondir(null);
+    try {
+      const r = await appelerApi({
+        etape: "approfondir",
+        mode: "portrait",
+        entree: entreeResultat(),
+        offre: etat.resultat.offre.phrase.slice(0, 240),
+        cible: {
+          id: cible.id,
+          nom: cible.nom,
+          marche: cible.marche,
+          portrait: cible.portrait,
+          douleur: cible.douleur,
+          ancrage: cible.ancrage,
+          promesse: cible.promesse,
+          lieux: cible.lieux.slice(0, 4).map((l) => l.type),
+        },
+      });
+      if (!r.ok) return setErreurApprofondir(erreurDe(cle, r.code, r.max));
+      if (!("portrait" in r) || "cible" in r) return setErreurApprofondir(erreurDe(cle, "inconnue"));
+      dispatch({ type: "portrait", id: cible.id, portrait: r.portrait });
+      setNouveau(cle);
+    } finally {
+      setAppelEnCours(null);
+    }
+  }
+
+  async function creuserPiste(piste: AutrePiste) {
+    if (appelEnCours || !etat.resultat) return;
+    const idCible = prochainIdPiste(etat.extras);
+    if (!idCible || etat.extras.pistes[piste.id]) return;
+    const cle = `piste-${piste.id}`;
+    setAppelEnCours({ mode: "piste", id: piste.id });
+    setErreurApprofondir(null);
+    try {
+      const existantes = [
+        ...etat.resultat.cibles.map((c) => c.nom),
+        ...Object.values(etat.extras.pistes).flatMap((p) => (p ? [p.cible.nom] : [])),
+      ].slice(0, 6);
+      const r = await appelerApi({
+        etape: "approfondir",
+        mode: "piste",
+        entree: entreeResultat(),
+        offre: etat.resultat.offre.phrase.slice(0, 240),
+        piste,
+        idCible,
+        ciblesExistantes: existantes,
+      });
+      if (!r.ok) return setErreurApprofondir(erreurDe(cle, r.code, r.max));
+      if (!("cible" in r)) return setErreurApprofondir(erreurDe(cle, "inconnue"));
+      // Le navigateur garde l'identifiant de la piste et le recolle à la réponse (§7.7).
+      dispatch({ type: "piste", pisteId: piste.id, cible: r.cible, ligne: r.ligne, portrait: r.portrait });
+      setNouveau(cle);
+    } finally {
+      setAppelEnCours(null);
+    }
+  }
+
+  const approfondir: Approfondir = {
+    appel: appelEnCours && appelEnCours !== "synthese" ? appelEnCours : null,
+    occupe: appelEnCours !== null,
+    erreur: erreurApprofondir,
+    nouveau,
+    max: maxApprofondir,
+    onPortrait: faireportrait,
+    onCreuser: creuserPiste,
+  };
+
+  async function lancer(demande: DemandeParcours) {
     const type = demande.etape;
     setHorsSujet(null);
     setAttente({ type, demande, erreur: null });
@@ -252,6 +383,9 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           locale={locale}
           M={M}
           nbHistorique={historique.length}
+          synthese={vue.entree.entree.synthese}
+          entree={vue.entree.entree}
+          extras={vue.entree.extras}
           lecture
           bandeauLecture={M.resultat.bandeauDate(dateHistorique(vue.entree.faitLe))}
           onCoche={() => {}}
@@ -279,6 +413,10 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           locale={locale}
           M={M}
           nbHistorique={historique.length}
+          synthese={etat.entree.synthese}
+          entree={etat.entreeDuResultat ?? etat.entree}
+          extras={etat.extras}
+          approfondir={approfondir}
           onCoche={(index) => dispatch({ type: "coche", index })}
           onModifier={() => aller("terrain")}
           onEffacer={() => toutEffacer(M.resultat.confirmEffacer)}
@@ -312,14 +450,21 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
           <h2 id="comment-titre" className="text-[22px] italic">
             {M.accueil.etapesTitre}
           </h2>
-          <ol className="mt-3 list-decimal space-y-2 pl-5 text-[17px] leading-relaxed">
-            {M.accueil.etapes.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
+          <ol className="mt-4 space-y-3 text-[17px] leading-relaxed">
+            {M.accueil.etapes.map((e, i) => {
+              const pas = ETAPES_ACCUEIL[i % ETAPES_ACCUEIL.length];
+              return (
+                <li key={e} className="flex items-start gap-3">
+                  <PastilleIcone nom={pas.icone} teinte={pas.teinte} taille="sm" />
+                  <span className="pt-0.5">
+                    <span className="sr-only">{i + 1}. </span>
+                    {e}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
         </section>
-        <EncartConfidentialite M={M} fournisseur={fournisseur} />
-        <AvertissementIA M={M} />
         <div className="space-y-3">
           <p>
             <button type="button" className="min-h-11 text-link underline" onClick={() => setVue({ type: "liste" })}>
@@ -368,6 +513,8 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
             </p>
           )}
         </div>
+        <EncartConfidentialiteReplie M={M} fournisseur={fournisseur} />
+        <AvertissementIA M={M} />
       </div>
     );
   }
@@ -423,11 +570,18 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
               erreurs={erreurs}
               horsSujet={horsSujet}
               fournisseur={fournisseur}
+              synthese={etat.entree.synthese}
+              fournisseurNotes={fournisseurNotes}
+              maxSynthese={maxSynthese}
+              appelEnCours={appelEnCours !== null}
               M={M}
               onChange={(patch) => dispatch({ type: "terrain", patch })}
               onPrenom={(prenom) => dispatch({ type: "prenom", prenom })}
               onRetour={() => aller("talent")}
               onContinuer={continuerTerrain}
+              onLireNotes={lireNotes}
+              onRetirerVerbatim={(id) => dispatch({ type: "retirerVerbatim", id })}
+              onEffacerSynthese={() => dispatch({ type: "synthese", synthese: null })}
             />
           )}
           {etape === "questions" && etat.cadrage?.statut !== "questions" && (
@@ -469,3 +623,12 @@ export function MaCible({ fournisseur }: { fournisseur: string }) {
     </div>
   );
 }
+
+/** Une icône et une couleur par étape de « Comment ça se passe » : talent, terrain, questions, esquisse, résultat. */
+const ETAPES_ACCUEIL: readonly { icone: NomIcone; teinte: Teinte }[] = [
+  { icone: "etoile", teinte: "lilas" },
+  { icone: "epingle", teinte: "corail" },
+  { icone: "bulle", teinte: "eau" },
+  { icone: "stylo", teinte: "miel" },
+  { icone: "cible", teinte: "framboise" },
+];

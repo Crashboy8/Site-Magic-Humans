@@ -25,10 +25,30 @@ export const PUBLIC_PATHS = [
   "/ma-cible",
   "/api/ma-cible",
   "/api/quiz-salle",
+  "/api/fiche",
+  "/depuis-cibleur",
 ];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+/** Page d'arrivée après une connexion (décision n° 4). */
+export const ACCUEIL_CONNECTE = "/mon-espace/";
+
+const SUITE_MAX = 200;
+
+/**
+ * Retour autorisé après la connexion.
+ * Seulement une chaîne qui commence par /mon-espace, /profils/ ou /versions/,
+ * sans //, sans \, sans :, et d'au plus 200 caractères.
+ */
+export function suiteSure(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  if (v.length === 0 || v.length > SUITE_MAX) return null;
+  if (v.includes("//") || v.includes("\\") || v.includes(":")) return null;
+  if (v.startsWith("/mon-espace") || v.startsWith("/profils/") || v.startsWith("/versions/")) return v;
+  return null;
 }
 
 /**

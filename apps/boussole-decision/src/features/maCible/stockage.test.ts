@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
+import { CIBLE_PISTE_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
 import { classerCibles } from "@/domain/maCible/scores";
 import { ecrire, effacer, deserialiser, lire, serialiser } from "./stockage";
 import { etatInitial, type Etat } from "./etat";
@@ -64,5 +65,22 @@ describe("stockage local", () => {
     expect(lire()).toBeNull();
     expect(() => ecrire(etatInitial())).not.toThrow();
     expect(() => effacer()).not.toThrow();
+  });
+
+  it("garde portraits et pistes creusées valides, ignore les éléments abîmés (§14)", () => {
+    const e: Etat = {
+      ...etatComplet(),
+      extras: {
+        portraits: { c1: PORTRAIT_EXEMPLE, c2: { ...PORTRAIT_EXEMPLE, douleurs: [] } },
+        pistes: {
+          p2: { cible: CIBLE_PISTE_EXEMPLE, ligne: { id: "c4", score: 8.5, alertePlaisir: false } },
+          p3: { cible: { ...CIBLE_PISTE_EXEMPLE, id: "c1" }, ligne: { id: "c1", score: 8.5, alertePlaisir: false } },
+        },
+      },
+    };
+    const lu = deserialiser(serialiser(e));
+    expect(Object.keys(lu?.extras.portraits ?? {})).toEqual(["c1"]);
+    expect(Object.keys(lu?.extras.pistes ?? {})).toEqual(["p2"]);
+    expect(lu?.extras.pistes.p2?.cible.nom).toBe(CIBLE_PISTE_EXEMPLE.nom);
   });
 });

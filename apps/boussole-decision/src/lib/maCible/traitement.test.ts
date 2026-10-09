@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
+import { CIBLE_PISTE_EXEMPLE, PISTES_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
+import { ENTREE_SALARIE_EXEMPLE, RESULTAT_SALARIE_EXEMPLE } from "@/domain/maCible/exempleSalarie";
+import { scoreSur10 } from "@/domain/maCible/scores";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { limitesDepuisEnv, quotaMemoire } from "./quota";
@@ -65,9 +68,11 @@ let deps: Dependances;
 const MAINTENANT = new Date("2026-10-10T10:00:00Z");
 const ENV = { VERCEL_ENV: "production", MA_CIBLE_SEL: "un-sel-d-au-moins-trente-deux-caracteres" };
 
+const LIMITES_TEST = { ipCadrage: 8, ipResultat: 3, ipSynthese: 5, ipApprofondir: 20, globalCadrage: 600, globalResultat: 200, globalSynthese: 100, globalApprofondir: 300 };
+
 function preparer(reponses: (string | Error)[], surcharge: Partial<Dependances> = {}) {
   fournisseur = fournisseurSimule(reponses);
-  deps = { fournisseur, quota: quotaMemoire({ ipCadrage: 8, ipResultat: 3, globalCadrage: 600, globalResultat: 200 }, () => MAINTENANT), maintenant: () => MAINTENANT, env: ENV, ...surcharge };
+  deps = { fournisseur, quota: quotaMemoire(LIMITES_TEST, () => MAINTENANT), maintenant: () => MAINTENANT, env: ENV, ...surcharge };
 }
 const corpsDe = async (r: Response) => (await r.json()) as any;
 
@@ -189,7 +194,7 @@ describe("configuration et quota", () => {
   it("429 quota_global quand le plafond du jour est atteint", async () => {
     preparer([JSON.stringify(RESULTAT_EXEMPLE)], {
       env: { ...ENV, MA_CIBLE_MAX_GLOBAL_RESULTAT: "1" },
-      quota: quotaMemoire({ ipCadrage: 8, ipResultat: 3, globalCadrage: 600, globalResultat: 1 }, () => MAINTENANT),
+      quota: quotaMemoire({ ...LIMITES_TEST, globalResultat: 1 }, () => MAINTENANT),
     });
     expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
     const r = await traiterDemande(deps, requete(demandeResultat(), { "x-forwarded-for": "198.51.100.4" }));
@@ -398,7 +403,7 @@ describe("quota seulement en cas de succès, et reprise", () => {
     preparer([JSON.stringify(RESULTAT_EXEMPLE)], {
       env: { ...ENV, MA_CIBLE_EMAILS_ILLIMITES: "pierre@example.com" },
       emailConnecte: "quelquun@exemple.fr",
-      quota: quotaMemoire({ ipCadrage: 8, ipResultat: 0, globalCadrage: 600, globalResultat: 200 }, () => MAINTENANT),
+      quota: quotaMemoire({ ...LIMITES_TEST, ipResultat: 0 }, () => MAINTENANT),
     });
     expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(429);
     expect(fournisseur.appeler).not.toHaveBeenCalled();
@@ -441,6 +446,270 @@ describe("confidentialité des journaux", () => {
     preparer([JSON.stringify(CADRAGE_ESQUISSE)]);
     await traiterDemande(deps, requete(demandeCadrage()));
     expect(erreurConsole).not.toHaveBeenCalled();
+  });
+});
+
+describe("synthèse des notes", () => {
+  const phrase = "Je n'en peux plus de ces réunions qui n'aboutissent jamais.";
+  const note = `${phrase} ${"x".repeat(160)}`;
+  const demande = {
+    etape: "synthese",
+    langue: "fr",
+    contexte: { mecanisme: "j'écoute", contexte: "un tournant", benefice: "une voie claire", offre: "un accompagnement" },
+    notes: [{ id: "n1", titre: "Entretien", texte: note }],
+  };
+  const reponseOk = {
+    statut: "ok",
+    message: "",
+    resume: "Ces personnes n'en peuvent plus des réunions qui tournent en rond, et elles cherchent enfin une sortie.",
+    profils: ["Cadres en réunion"],
+    douleurs: [{ texte: "Des réunions qui n'aboutissent jamais.", frequence: "souvent" }],
+    verbatims: [{ id: "v3", note: "n1", citation: phrase, theme: "douleur" }],
+    declencheurs: [],
+    objections: [],
+    motsCles: ["réunions"],
+  };
+
+  it("réussit, décrémente le quota synthese et n'écrit rien dans la reprise distante", async () => {
+    const distante = { lire: vi.fn(async () => null), garder: vi.fn(async () => {}) };
+    const memoire = { lire: vi.fn(async () => null), garder: vi.fn(async () => {}) };
+    const quota = quotaEspion(4);
+    preparer([JSON.stringify(reponseOk)], { quota, reprise: distante, repriseSensible: memoire });
+    const r = await traiterDemande(deps, requete(demande, { "x-ma-cible-session": SESSION }));
+    expect(r.status).toBe(200);
+    const corps = await corpsDe(r);
+    expect(corps.statut).toBe("ok");
+    expect(corps.synthese.nbNotes).toBe(1);
+    expect(corps.synthese.verbatims[0].id).toBe("v1");
+    expect(corps.synthese.faitLe).toBeUndefined();
+    expect(corps.restant).toBe(4);
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "synthese");
+    expect(distante.garder).not.toHaveBeenCalled();
+    expect(distante.lire).not.toHaveBeenCalled();
+    expect(memoire.garder).toHaveBeenCalled();
+  });
+
+  it("inutilisable répond 200 et compte", async () => {
+    const quota = quotaEspion(3);
+    preparer(
+      [JSON.stringify({ statut: "inutilisable", message: "Colle un entretien.", resume: "", profils: [], douleurs: [], verbatims: [], declencheurs: [], objections: [], motsCles: [] })],
+      { quota, repriseSensible: repriseMemoire(() => MAINTENANT) },
+    );
+    const r = await traiterDemande(deps, requete(demande, { "x-ma-cible-session": SESSION }));
+    expect(r.status).toBe(200);
+    expect(await corpsDe(r)).toMatchObject({ ok: true, statut: "inutilisable", synthese: null });
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "synthese");
+  });
+
+  it("un échec IA répond 503 et ne compte pas", async () => {
+    const quota = quotaEspion();
+    preparer([new ErreurFournisseur("reseau")], { quota, repriseSensible: repriseMemoire(() => MAINTENANT) });
+    const r = await traiterDemande(deps, requete(demande, { "x-ma-cible-session": SESSION }));
+    expect(r.status).toBe(503);
+    expect(quota.consommer).not.toHaveBeenCalled();
+  });
+
+  it("compte dans masques ce que le serveur masque encore", async () => {
+    const avecTelephone = `${phrase} Appelle le 06 12 34 56 78. ${"y".repeat(120)}`;
+    preparer([JSON.stringify(reponseOk)], { repriseSensible: repriseMemoire(() => MAINTENANT) });
+    const r = await traiterDemande(deps, requete({ ...demande, notes: [{ id: "n1", titre: "Entretien", texte: avecTelephone }] }, { "x-ma-cible-session": SESSION }));
+    const corps = await corpsDe(r);
+    expect(r.status).toBe(200);
+    expect(corps.masques).toEqual({ mails: 0, telephones: 1, liens: 0 });
+    const appel = fournisseur.appeler.mock.calls[0][0] as { utilisateur: string };
+    expect(appel.utilisateur).toContain("[téléphone]");
+    expect(appel.utilisateur).not.toContain("06 12 34 56 78");
+  });
+});
+
+describe("approfondir (§7, PR 3)", () => {
+  const c1 = RESULTAT_EXEMPLE.cibles[0];
+  const demandePortrait = {
+    etape: "approfondir",
+    mode: "portrait",
+    entree: ENTREE_EXEMPLE,
+    offre: RESULTAT_EXEMPLE.offre.phrase.slice(0, 240),
+    cible: { id: "c1", nom: c1.nom, marche: c1.marche, portrait: c1.portrait, douleur: c1.douleur, ancrage: c1.ancrage, promesse: c1.promesse, lieux: c1.lieux.map((l) => l.type) },
+  };
+  const demandePiste = (idCible = "c4") => ({
+    etape: "approfondir",
+    mode: "piste",
+    entree: ENTREE_EXEMPLE,
+    offre: RESULTAT_EXEMPLE.offre.phrase.slice(0, 240),
+    piste: PISTES_EXEMPLE[1],
+    idCible,
+    ciblesExistantes: RESULTAT_EXEMPLE.cibles.map((c) => c.nom),
+  });
+
+  it("portrait réussi : 200, forme du contrat, quota approfondir consommé", async () => {
+    const quota = quotaEspion(19);
+    preparer([JSON.stringify({ portrait: PORTRAIT_EXEMPLE })], { quota });
+    const r = await traiterDemande(deps, requete(demandePortrait));
+    const corps = await corpsDe(r);
+    expect(r.status).toBe(200);
+    expect(corps).toMatchObject({ ok: true, etape: "approfondir", mode: "portrait", id: "c1", restant: 19 });
+    expect(corps.portrait.prenom).toBe("Claire");
+    expect(quota.autoriser).toHaveBeenCalledWith(expect.any(String), "approfondir");
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "approfondir");
+    const appel = fournisseur.appeler.mock.calls[0][0] as { systeme: string; nomSchema: string; utilisateur: string };
+    expect(appel.nomSchema).toBe("portrait");
+    expect(appel.systeme).toContain("Ta tâche : le portrait complet d'une cible");
+    expect(appel.utilisateur).toContain("cible_a_approfondir");
+    expect(appel.utilisateur).toContain("lieux_deja_donnes");
+  });
+
+  it("piste réussie : cible.id égal à idCible, ligne.score égal à scoreSur10", async () => {
+    const quota = quotaEspion(18);
+    preparer([JSON.stringify({ cible: CIBLE_PISTE_EXEMPLE, portrait: PORTRAIT_EXEMPLE })], { quota });
+    const r = await traiterDemande(deps, requete(demandePiste()));
+    const corps = await corpsDe(r);
+    expect(r.status).toBe(200);
+    expect(corps).toMatchObject({ ok: true, etape: "approfondir", mode: "piste", pisteId: "p2", restant: 18 });
+    expect(corps.cible.id).toBe("c4");
+    expect(corps.ligne).toEqual({ id: "c4", score: scoreSur10(CIBLE_PISTE_EXEMPLE.scores), alertePlaisir: false });
+    expect(corps.portrait.lieux.length).toBeGreaterThanOrEqual(3);
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "approfondir");
+    const appel = fournisseur.appeler.mock.calls[0][0] as { systeme: string; nomSchema: string; utilisateur: string };
+    expect(appel.nomSchema).toBe("piste");
+    expect(appel.systeme).toContain("Ta tâche : creuser une piste");
+    expect(appel.utilisateur).toContain("piste_a_creuser");
+    expect(appel.utilisateur).toContain("cibles_existantes");
+  });
+
+  it("identifiant de cible différent de idCible : relance avec l'erreur", async () => {
+    const mauvaise = { ...CIBLE_PISTE_EXEMPLE, id: "c5" };
+    preparer([JSON.stringify({ cible: mauvaise, portrait: PORTRAIT_EXEMPLE }), JSON.stringify({ cible: CIBLE_PISTE_EXEMPLE, portrait: PORTRAIT_EXEMPLE })]);
+    const r = await traiterDemande(deps, requete(demandePiste()));
+    expect(r.status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
+    const relance = fournisseur.appeler.mock.calls[1][0] as { utilisateur: string };
+    expect(relance.utilisateur).toContain("c4 attendu");
+  });
+
+  it("mode inconnu ou idCible hors c4 à c6 : entrée invalide, sans appel", async () => {
+    preparer([]);
+    const r1 = await traiterDemande(deps, requete({ ...demandePortrait, mode: "autre" }));
+    expect(r1.status).toBe(400);
+    expect((await corpsDe(r1)).champs).toEqual([{ champ: "mode", code: "invalide" }]);
+    const r2 = await traiterDemande(deps, requete(demandePiste("c2")));
+    expect(r2.status).toBe(400);
+    expect((await corpsDe(r2)).champs).toContainEqual({ champ: "idCible", code: "invalide" });
+    expect(fournisseur.appeler).not.toHaveBeenCalled();
+  });
+
+  it("le prénom imaginé est remplacé s'il figure dans les données de la personne", async () => {
+    const entree = { ...ENTREE_EXEMPLE, terrain: { ...ENTREE_EXEMPLE.terrain, clientsPasses: "Claire, directrice d'usine, m'a remerciée." } };
+    preparer([JSON.stringify({ portrait: PORTRAIT_EXEMPLE })]);
+    const r = await traiterDemande(deps, requete({ ...demandePortrait, entree }));
+    expect((await corpsDe(r)).portrait.prenom).toBe("Nadia");
+  });
+});
+
+describe("voie salarié (PR S1)", () => {
+  const ESQUISSE_SALARIE = {
+    offre: "Je remets de l'ordre dans les flux qui débordent, sans casser l'équipe.",
+    cibles: [
+      { id: "c1", nom: "Directeur des opérations d'une PME agroalimentaire", marche: "b2b", enUneLigne: "PME de 50 à 250 salariés qui ouvre un deuxième site", pourquoi: "Ton talent remet de l'ordre dans un flux qui déborde.", depuisIdees: [] },
+      { id: "c2", nom: "Directrice d'une entreprise de réemploi", marche: "b2b", enUneLigne: "Entreprise de réemploi qui change d'échelle après un financement", pourquoi: "Une activité qui grandit plus vite que son organisation.", depuisIdees: ["i1"] },
+      { id: "c3", nom: "Directeur de site d'un logisticien racheté", marche: "b2b", enUneLigne: "Logisticien régional racheté par un groupe, en réorganisation", pourquoi: "Ton talent garde l'équipe pendant la réorganisation.", depuisIdees: ["i2"] },
+    ],
+    antiCible: "Un patron qui décide loin du terrain et veut des tableaux de bord pour rien.",
+    hypotheses: [],
+    autresPistes: [],
+  };
+  const demandeSalarie = (extra: object = {}) => ({ etape: "resultat", entree: ENTREE_SALARIE_EXEMPLE, esquisse: ESQUISSE_SALARIE, corrections: CORRECTIONS, ...extra });
+
+  it("résultat salarié : 200, double note calculée par le code, schéma et prompt salarié, compteur « resultat »", async () => {
+    const quota = quotaEspion(2);
+    preparer([JSON.stringify(RESULTAT_SALARIE_EXEMPLE)], { quota });
+    const r = await traiterDemande(deps, requete(demandeSalarie()));
+    expect(r.status).toBe(200);
+    const corps = await corpsDe(r);
+    expect(corps.ok).toBe(true);
+    expect(corps.etape).toBe("resultat");
+    expect(corps.resultat.voie).toBe("salarie");
+    expect(corps.resultat.reconversion.premiereMarche).toMatch(/réemploi/);
+    expect(corps.resultat.classement.map((l: any) => [l.id, l.correspondance, l.rang])).toEqual([
+      ["c1", 8.5, "prioritaire"],
+      ["c2", 7.5, "secondaire"],
+      ["c3", 6.5, "tertiaire"],
+    ]);
+    expect(corps.restant).toBe(2);
+    expect(quota.autoriser).toHaveBeenCalledWith(expect.any(String), "resultat");
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "resultat");
+    const appel = fournisseur.appeler.mock.calls[0][0] as any;
+    expect(appel.nomSchema).toBe("resultat_salarie");
+    expect(Object.keys(appel.schema.properties)).toContain("patrons");
+    expect(appel.systeme).toContain("# Ta tâche : le résultat complet, voie salarié");
+    expect(appel.utilisateur).toContain("terrain_salarie");
+  });
+
+  it("le Contexte Déclencheur est plafonné quand un patron ressemble à l'Anti-Contexte", async () => {
+    preparer([JSON.stringify(RESULTAT_SALARIE_EXEMPLE)]);
+    const entree = structuredClone(ENTREE_SALARIE_EXEMPLE);
+    entree.talent.antiContexte = "les filiales d'un groupe national où le siège impose chaque réorganisation";
+    const r = await traiterDemande(deps, requete(demandeSalarie({ entree })));
+    const corps = await corpsDe(r);
+    const c3 = corps.resultat.patrons.find((p: any) => p.id === "c3");
+    expect(c3.envie.declencheur).toBe(2);
+  });
+
+  it("hors reconversion, pas de bloc reconversion", async () => {
+    preparer([JSON.stringify(RESULTAT_SALARIE_EXEMPLE)]);
+    const entree = structuredClone(ENTREE_SALARIE_EXEMPLE);
+    entree.terrainSalarie!.situation = "en_poste";
+    const corps = await corpsDe(await traiterDemande(deps, requete(demandeSalarie({ entree }))));
+    expect(corps.resultat.reconversion).toBeNull();
+  });
+
+  it("une erreur de contrôle relance le modèle une fois avec la raison", async () => {
+    const mauvais = structuredClone(RESULTAT_SALARIE_EXEMPLE);
+    mauvais.patrons[0].pitchs.oral30s = "Trop court pour un pitch oral de trente secondes, il manque la preuve et la demande, vraiment beaucoup trop court.";
+    preparer([JSON.stringify(mauvais), JSON.stringify(RESULTAT_SALARIE_EXEMPLE)]);
+    const r = await traiterDemande(deps, requete(demandeSalarie()));
+    expect(r.status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
+    expect((fournisseur.appeler.mock.calls[1][0] as any).utilisateur).toContain("70 à 85 mots attendus");
+  });
+
+  it("cadrage salarié : prompt de cadrage salarié, patrons en tête couverts comme idées", async () => {
+    const esquisse = { ...ESQUISSE_SALARIE, cibles: ESQUISSE_SALARIE.cibles.map((c) => ({ ...c, depuisIdees: [] })) };
+    preparer([JSON.stringify({ statut: "esquisse", message: "", questions: [], esquisse })]);
+    const r = await traiterDemande(deps, requete({ etape: "cadrage", tour: 1, entree: ENTREE_SALARIE_EXEMPLE }));
+    expect(r.status).toBe(200);
+    const corps = await corpsDe(r);
+    // Les deux patrons en tête non repris deviennent des pistes, pour que la personne voie un verdict sur chacun.
+    expect(corps.cadrage.esquisse.autresPistes.map((p: any) => p.nom)).toEqual(["Une ressourcerie qui grandit", "Les entrepôts de la grande distribution"]);
+    const appel = fournisseur.appeler.mock.calls[0][0] as any;
+    expect(appel.systeme).toContain("# Ta tâche : le cadrage, voie salarié (tour 1)");
+    expect(appel.nomSchema).toBe("cadrage");
+  });
+
+  it("voie salarié sans Terrain salarié : 400", async () => {
+    preparer([]);
+    const r = await traiterDemande(deps, requete({ etape: "cadrage", tour: 1, entree: { ...ENTREE_SALARIE_EXEMPLE, terrainSalarie: null } }));
+    expect(r.status).toBe(400);
+    expect((await corpsDe(r)).champs).toEqual([{ champ: "terrainSalarie", code: "requis" }]);
+  });
+
+  it("portraits et pistes creusées ne sont pas encore ouverts à la voie salarié : 400", async () => {
+    preparer([]);
+    const r = await traiterDemande(
+      deps,
+      requete({ etape: "approfondir", mode: "portrait", entree: ENTREE_SALARIE_EXEMPLE, offre: "Je remets de l'ordre dans les flux.", cible: { id: "c1", nom: "Directeur des opérations", marche: "b2b", portrait: "Un directeur des opérations d'une PME qui grandit.", douleur: "Les retards s'accumulent.", ancrage: "Quinze ans de logistique.", promesse: "Des commandes à l'heure.", lieux: [] } }),
+    );
+    expect(r.status).toBe(400);
+    expect((await corpsDe(r)).champs).toContainEqual({ champ: "entree.voie", code: "invalide" });
+    expect(fournisseur.appeler).not.toHaveBeenCalled();
+  });
+
+  it("la voie indépendant garde son prompt et son schéma", async () => {
+    preparer([JSON.stringify(RESULTAT_EXEMPLE)]);
+    await traiterDemande(deps, requete(demandeResultat()));
+    const appel = fournisseur.appeler.mock.calls[0][0] as any;
+    expect(appel.nomSchema).toBe("resultat");
+    expect(appel.systeme).not.toContain("# Voie salarié");
+    expect(appel.utilisateur).not.toContain("terrain_salarie");
   });
 });
 

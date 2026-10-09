@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { Button, Card, Field, Input, Notice, cx } from "@/components/ui";
+import { ESPACE } from "@/content/espace";
 import { useI18n } from "@/i18n/client";
+import { TitreIcone } from "@/features/maCible/Habillage";
+import { Icone } from "@/features/maCible/Icones";
 import {
   type AuthState,
   magicLinkAction,
@@ -17,17 +20,31 @@ import {
 
 const initial: AuthState = {};
 
-export function SignInForm({ linkError }: { linkError?: boolean }) {
+function avecSuite(chemin: string, suite?: string) {
+  return suite ? `${chemin}?suite=${encodeURIComponent(suite)}` : chemin;
+}
+
+function ChampSuite({ suite }: { suite?: string }) {
+  if (!suite) return null;
+  return <input type="hidden" name="suite" value={suite} />;
+}
+
+function varianteEspace(suite?: string) {
+  return Boolean(suite?.startsWith("/mon-espace"));
+}
+
+export function SignInForm({ linkError, suite }: { linkError?: boolean; suite?: string }) {
   const [mode, setMode] = useState<"password" | "magic">("password");
   const [pwState, pwAction, pwPending] = useActionState(signInAction, initial);
   const [mlState, mlAction, mlPending] = useActionState(magicLinkAction, initial);
   const t = useI18n().t.auth;
+  const espace = varianteEspace(suite);
 
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">{t.welcomeBack}</h1>
-        <p className="mt-1 text-ink-soft">{t.signInIntro}</p>
+        <h1 className="text-3xl italic">{espace ? ESPACE.connexion.titre : t.welcomeBack}</h1>
+        <p className="mt-1 text-ink-soft">{espace ? ESPACE.connexion.texte : t.signInIntro}</p>
       </div>
 
       {linkError && <Notice tone="error">{t.linkInvalid}</Notice>}
@@ -54,6 +71,7 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
 
       {mode === "password" ? (
         <form action={pwAction} className="space-y-4">
+          <ChampSuite suite={suite} />
           <Field label={t.email} htmlFor="email">
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </Field>
@@ -72,6 +90,7 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
         </form>
       ) : (
         <form action={mlAction} className="space-y-4">
+          <ChampSuite suite={suite} />
           <Field label={t.email} htmlFor="ml-email" hint={t.magicHint}>
             <Input id="ml-email" name="email" type="email" autoComplete="email" required />
           </Field>
@@ -85,18 +104,19 @@ export function SignInForm({ linkError }: { linkError?: boolean }) {
 
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         {t.noAccountYet}{" "}
-        <Link href="/inscription/" className="font-medium text-link underline underline-offset-4">
-          {t.createAccount}
+        <Link href={avecSuite("/inscription/", suite)} className="font-medium text-link underline underline-offset-4">
+          {espace ? ESPACE.connexion.creer : t.createAccount}
         </Link>
       </p>
     </Card>
   );
 }
 
-export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
+export function SignUpForm({ initialCode = "", suite }: { initialCode?: string; suite?: string }) {
   const [state, action, pending] = useActionState(signUpAction, initial);
   const fe = state.fieldErrors ?? {};
   const t = useI18n().t.auth;
+  const espace = varianteEspace(suite);
 
   if (state.message) {
     return (
@@ -111,10 +131,11 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
   return (
     <Card className="space-y-6">
       <div>
-        <h1 className="text-3xl italic">{t.signUpTitle}</h1>
-        <p className="mt-1 text-ink-soft">{t.signUpIntro}</p>
+        <h1 className="text-3xl italic">{espace ? ESPACE.connexion.titre : t.signUpTitle}</h1>
+        <p className="mt-1 text-ink-soft">{espace ? ESPACE.connexion.texte : t.signUpIntro}</p>
       </div>
       <form action={action} className="space-y-4" noValidate>
+        <ChampSuite suite={suite} />
         <Field label={t.inviteCode} htmlFor="code" error={fe.code}>
           <Input
             id="code"
@@ -144,8 +165,8 @@ export function SignUpForm({ initialCode = "" }: { initialCode?: string }) {
       </form>
       <p className="border-t border-line pt-5 text-center text-[15px] text-ink-soft">
         {t.alreadyRegistered}{" "}
-        <Link href="/connexion/" className="font-medium text-link underline underline-offset-4">
-          {t.signIn}
+        <Link href={avecSuite("/connexion/", suite)} className="font-medium text-link underline underline-offset-4">
+          {espace ? ESPACE.connexion.connecter : t.signIn}
         </Link>
       </p>
     </Card>
@@ -216,19 +237,24 @@ export function WelcomeChoices() {
   const t = useI18n().t.auth;
   return (
     <div className="grid gap-4">
-      <Card className="space-y-3 border-accent/30 bg-blush/50">
-        <h2 className="font-serif text-2xl italic">{t.tryNowTitle}</h2>
+      <div className="space-y-3 rounded-2xl border p-6 shadow-[0_1px_2px_rgba(58,47,36,0.04)] border-accent/30 bg-blush/60">
+        <TitreIcone icone="eclair" teinte="corail" className="font-serif text-2xl text-balance italic">
+          {t.tryNowTitle}
+        </TitreIcone>
         <p className="text-[15px] text-ink-soft">{t.tryNowText}</p>
         <TrialButton />
         <Link
           href="/exemple/"
           className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-accent/40 bg-paper px-5 text-[15px] font-medium text-accent-deep hover:bg-blush"
         >
+          <Icone nom="oeil" className="size-5" />
           {t.seeExample}
         </Link>
-      </Card>
-      <Card className="space-y-3">
-        <h2 className="font-serif text-2xl italic">{t.accountTitle}</h2>
+      </div>
+      <div className="space-y-3 rounded-2xl border p-6 shadow-[0_1px_2px_rgba(58,47,36,0.04)] border-sky-line bg-sky-soft/60">
+        <TitreIcone icone="cadenas" teinte="eau" className="font-serif text-2xl text-balance italic">
+          {t.accountTitle}
+        </TitreIcone>
         <p className="text-[15px] text-ink-soft">{t.accountText}</p>
         <div className="grid gap-2 sm:grid-cols-2">
           <Link
@@ -244,7 +270,7 @@ export function WelcomeChoices() {
             {t.createAccount}
           </Link>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

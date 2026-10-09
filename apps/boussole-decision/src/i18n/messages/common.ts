@@ -9,6 +9,7 @@ const fr = {
   mainNav: "Navigation principale",
   backToSite: "← Retour au site Magic Humans",
   home: "← Accueil",
+  mySpace: "Mon espace",
   myProfiles: "Mes profils",
   comments: "Commentaires",
   unread: (n: number) => ` non lu${n > 1 ? "s" : ""}`,
@@ -35,6 +36,8 @@ const fr = {
   // Lien vers la Carte du Talent (profil et résultats)
   carteDuTalent: "🗺️ Explorer ma carte du talent",
   carteDuTalentHint: "Ta carte se dessine à partir de ton Talent Unique : tu pourras tout ajuster avant de la créer.",
+  cibleur: "🎯 Trouver mes clients avec Le Cibleur",
+  cibleurHint: "Ton Talent Unique part dans Le Cibleur : il te propose trois cibles de clients, ton offre et tes premiers messages.",
   newTab: "(s'ouvre dans un nouvel onglet)",
 };
 
@@ -48,6 +51,7 @@ const en: typeof fr = {
   mainNav: "Main navigation",
   backToSite: "← Back to the Magic Humans website",
   home: "← Home",
+  mySpace: "My space",
   myProfiles: "My profiles",
   comments: "Comments",
   unread: () => " unread",
@@ -73,6 +77,8 @@ const en: typeof fr = {
   noneYet: "—",
   carteDuTalent: "🗺️ Explore my talent map",
   carteDuTalentHint: "Your map starts from your Unique Talent: you can adjust everything before creating it.",
+  cibleur: "🎯 Find my clients with The Targeter",
+  cibleurHint: "Your Unique Talent goes into The Targeter: it suggests three client targets, your offer and your first messages (in French for now).",
   newTab: "(opens in a new tab)",
 };
 
@@ -86,6 +92,7 @@ const es: typeof fr = {
   mainNav: "Navegación principal",
   backToSite: "← Volver al sitio Magic Humans",
   home: "← Inicio",
+  mySpace: "Mi espacio",
   myProfiles: "Mis perfiles",
   comments: "Comentarios",
   unread: () => " sin leer",
@@ -111,6 +118,8 @@ const es: typeof fr = {
   noneYet: "—",
   carteDuTalent: "🗺️ Explorar mi mapa del talento",
   carteDuTalentHint: "Tu mapa parte de tu Talento Único: podrás ajustarlo todo antes de crearlo (en francés o inglés).",
+  cibleur: "🎯 Encontrar mis clientes con El Buscador de Clientes",
+  cibleurHint: "Tu Talento Único pasa al Buscador de Clientes: te propone tres clientes objetivo, tu oferta y tus primeros mensajes (por ahora en francés).",
   newTab: "(se abre en una nueva pestaña)",
 };
 

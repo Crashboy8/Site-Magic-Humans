@@ -29,6 +29,7 @@ import type {
 } from "@/domain/types";
 import { LoveReading } from "@/features/amour/LoveReading";
 import { CarteDuTalentLink } from "@/features/carte/CarteDuTalentLink";
+import { CibleurLink } from "@/features/carte/CibleurLink";
 import { IkigaiChart } from "./IkigaiChart";
 import { CoupOeil } from "./CoupOeil";
 
@@ -355,6 +356,7 @@ function Results({ version, profileId, talent, categories, criteria, opportuniti
 
       {/* 9. Pour aller plus loin : la Carte du Talent -------------------------------------- */}
       {!love && !readOnly && <CarteDuTalentLink talent={talent} />}
+      {!love && !readOnly && <CibleurLink talent={talent} />}
 
       {love && (
         <>

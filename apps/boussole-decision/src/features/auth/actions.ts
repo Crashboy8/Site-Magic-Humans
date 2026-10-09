@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { absoluteUrl } from "@/lib/config";
+import { ACCUEIL_CONNECTE, absoluteUrl, suiteSure } from "@/lib/config";
 import { supabaseServer } from "@/lib/supabase/server";
 import { checkInvitationCode } from "@/data/repository";
 import { claimPendingGuestTransfer, rememberGuestTransfer } from "@/lib/guestTransfer";
@@ -29,6 +29,17 @@ async function origin() {
 
 function text(fd: FormData, key: string) {
   return String(fd.get(key) ?? "").trim();
+}
+
+/** Où aller après une connexion. La règle « essai ajouté » reste prioritaire. */
+function pageApresConnexion(fd: FormData, claimed = 0): string {
+  if (claimed > 0) return "/?essai=ajoute";
+  return suiteSure(fd.get("suite")) ?? ACCUEIL_CONNECTE;
+}
+
+function lienCallback(fd: FormData, origine?: string): string {
+  const suite = suiteSure(fd.get("suite")) ?? ACCUEIL_CONNECTE;
+  return absoluteUrl(`/auth/callback/?next=${encodeURIComponent(suite)}`, origine);
 }
 
 /** Un invité qui se connecte à son compte garde son essai : on prépare le transfert avant de changer de session. */
@@ -78,11 +89,11 @@ export async function signUpAction(_prev: AuthState, fd: FormData): Promise<Auth
     options: {
       // lang : langue des emails d'authentification (modèles de supabase/templates/).
       data: { invitation_code: code || undefined, first_name: firstName, lang: locale },
-      emailRedirectTo: absoluteUrl("/auth/callback/", await origin()),
+      emailRedirectTo: lienCallback(fd, await origin()),
     },
   });
   if (error) return { error: translateAuthError(error.message, e) };
-  if (data.session) redirect("/");
+  if (data.session) redirect(pageApresConnexion(fd));
   return {
     message: t.auth.messages.accountCreated(email),
   };
@@ -101,7 +112,7 @@ export async function signInAction(_prev: AuthState, fd: FormData): Promise<Auth
   if (error) return { error: translateAuthError(error.message, e) };
   if (signedIn.user?.user_metadata?.lang !== locale) await supabase.auth.updateUser({ data: { lang: locale } });
   const claimed = await claimPendingGuestTransfer(supabase);
-  redirect(claimed > 0 ? "/?essai=ajoute" : "/");
+  redirect(pageApresConnexion(fd, claimed));
 }
 
 export async function magicLinkAction(_prev: AuthState, fd: FormData): Promise<AuthState> {
@@ -114,7 +125,7 @@ export async function magicLinkAction(_prev: AuthState, fd: FormData): Promise<A
   await keepGuestWork(supabase);
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: false, emailRedirectTo: absoluteUrl("/auth/callback/", await origin()) },
+    options: { shouldCreateUser: false, emailRedirectTo: lienCallback(fd, await origin()) },
   });
   if (error) return { error: translateAuthError(error.message, e) };
   return { message: t.auth.messages.magicLinkSent(email) };

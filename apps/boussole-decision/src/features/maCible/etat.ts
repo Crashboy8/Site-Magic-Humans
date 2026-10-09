@@ -1,6 +1,6 @@
 // État de Ma Cible et réducteur des étapes (§6.5, §12.5). Module pur : aucun accès au navigateur.
 import type { AncreLue } from "@/domain/maCible/ancre";
-import { EXTRAS_VIDES, type Cadrage, type Corrections, type EntreeMaCible, type Extras, type Langue, type Reponse, type ResultatClasse, type Talent, type Terrain } from "@/domain/maCible/types";
+import { EXTRAS_VIDES, type Cadrage, type Corrections, type EntreeMaCible, type Cible, type Extras, type IdCible, type IdCiblePiste, type IdPiste, type Langue, type LignePiste, type Portrait, type Reponse, type ResultatClasse, type SyntheseTerrain, type Talent, type Terrain } from "@/domain/maCible/types";
 
 export const ETAPES = ["accueil", "talent", "terrain", "questions", "esquisse", "resultat"] as const;
 export type Etape = (typeof ETAPES)[number];
@@ -78,9 +78,24 @@ export type Action =
   | { type: "cadrage"; tour: 1 | 2 | 3; cadrage: Cadrage }
   | { type: "corrections"; corrections: Corrections }
   | { type: "resultat"; resultat: ResultatClasse; maintenant: string }
+  | { type: "synthese"; synthese: SyntheseTerrain | null }
+  | { type: "retirerVerbatim"; id: string }
   | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[]; extras?: Extras }
+  | { type: "portrait"; id: IdCible; portrait: Portrait }
+  | { type: "piste"; pisteId: IdPiste; cible: Cible; ligne: LignePiste; portrait: Portrait }
   | { type: "coche"; index: number }
   | { type: "recommencer"; locale?: string };
+
+/** Nombre maximal de pistes creusées pour un résultat (§4.8). */
+export const PISTES_CREUSEES_MAX = 3;
+const IDS_PISTE_CREUSEE: readonly IdCiblePiste[] = ["c4", "c5", "c6"];
+
+/** Premier identifiant libre pour une piste creusée, ou `null` après 3 pistes (§6.2). */
+export function prochainIdPiste(extras: Extras): IdCiblePiste | null {
+  const pris = new Set(Object.values(extras.pistes).map((p) => p?.cible.id));
+  if (pris.size >= PISTES_CREUSEES_MAX) return null;
+  return IDS_PISTE_CREUSEE.find((id) => !pris.has(id)) ?? null;
+}
 
 const INDICE: Record<Etape, number> = { accueil: 0, talent: 1, terrain: 2, questions: 3, esquisse: 4, resultat: 5 };
 
@@ -153,6 +168,16 @@ export function reducteur(e: Etat, a: Action): Etat {
     }
     case "corrections":
       return { ...e, corrections: a.corrections };
+    case "synthese": {
+      if (memes(a.synthese, e.entree.synthese)) return e;
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, synthese: a.synthese } }));
+    }
+    case "retirerVerbatim": {
+      const actuelle = e.entree.synthese;
+      if (!actuelle || !actuelle.verbatims.some((v) => v.id === a.id)) return e;
+      const synthese = { ...actuelle, verbatims: actuelle.verbatims.filter((v) => v.id !== a.id) };
+      return marquerResultat(e, invalider({ ...e, entree: { ...e.entree, synthese } }));
+    }
     case "resultat":
       return {
         ...avancer(e, "resultat"),
@@ -180,6 +205,20 @@ export function reducteur(e: Etat, a: Action): Etat {
         tour: 1,
         nouvelleEsquisseFaite: false,
       };
+    case "portrait": {
+      if (!e.resultat) return e;
+      return { ...e, extras: { ...e.extras, portraits: { ...e.extras.portraits, [a.id]: a.portrait } } };
+    }
+    case "piste": {
+      if (!e.resultat || e.extras.pistes[a.pisteId] || Object.keys(e.extras.pistes).length >= PISTES_CREUSEES_MAX) return e;
+      return {
+        ...e,
+        extras: {
+          pistes: { ...e.extras.pistes, [a.pisteId]: { cible: a.cible, ligne: a.ligne } },
+          portraits: { ...e.extras.portraits, [a.cible.id]: a.portrait },
+        },
+      };
+    }
     case "coche": {
       if (a.index < 0 || a.index >= NB_ACTIONS) return e;
       const coches = e.coches.slice();

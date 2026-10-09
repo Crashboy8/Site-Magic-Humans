@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it } from "vitest";
-import { detecterFlou, validerCorrections, validerEntree } from "./entree";
+import { detecterFlou, validerCorrections, validerEntree, validerNotes } from "./entree";
 import { ENTREE_EXEMPLE } from "./exemple";
 
 const clone = () => structuredClone(ENTREE_EXEMPLE) as unknown as Record<string, any>;
@@ -198,6 +198,31 @@ describe("validerCorrections", () => {
     const r = validerCorrections(c);
     expect(!r.ok && r.erreurs).toContainEqual({ champ: "corrections.offre", code: "trop_court", min: 10 });
     expect(!r.ok && r.erreurs).toContainEqual({ champ: "corrections.cibles[1].id", code: "invalide" });
+  });
+});
+
+describe("validerNotes", () => {
+  const note = (id: string, texte: string) => ({ id, titre: "", texte });
+  it("refuse 6 notes", () => {
+    const r = validerNotes([1, 2, 3, 4, 5, 6].map((i) => note(i <= 5 ? `n${i}` : "n6", "a".repeat(200))));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.erreurs).toContainEqual({ champ: "notes", code: "trop_long" });
+  });
+  it("refuse un texte de 40 caractères", () => {
+    const r = validerNotes([note("n1", "a".repeat(40))]);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.erreurs).toContainEqual(expect.objectContaining({ champ: "notes[0].texte", code: "trop_court" }));
+  });
+  it("refuse un total de 20 001 caractères", () => {
+    const texte = "b".repeat(6667);
+    const r = validerNotes([1, 2, 3].map((i) => note(`n${i}`, texte)));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.erreurs).toContainEqual({ champ: "notes", code: "trop_long" });
+  });
+  it("refuse un total de 150 caractères", () => {
+    const r = validerNotes([note("n1", "c".repeat(150))]);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.erreurs).toContainEqual({ champ: "notes", code: "trop_court" });
   });
 });
 

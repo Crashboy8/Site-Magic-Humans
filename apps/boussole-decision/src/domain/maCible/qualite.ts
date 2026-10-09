@@ -1,7 +1,7 @@
 // Contrôles déterministes après la validation de structure. Réparations légères, ou erreurs qui relancent le modèle.
 import { couperTexte } from "./validation";
 import type { LigneClassement } from "./scores";
-import type { Adresse, Cadrage, Cible, Format, IdCible, Marche, Resultat } from "./types";
+import type { Adresse, Cadrage, Cible, Format, IdCible, Marche, Portrait, Resultat } from "./types";
 
 export interface ContexteQualite {
   antiContexte: string;
@@ -20,7 +20,7 @@ const STOP = new Set(
   ),
 );
 
-function sansAccent(s: string): string {
+export function sansAccent(s: string): string {
   return s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 }
 
@@ -44,7 +44,7 @@ export function recoupe(source: string, texte: string): boolean {
 const VALEUR = /valeur|cout|coûte|coute|budget|marche|marché|probleme|problème|rapport|perte|econom|économ/i;
 const PLUSIEURS = /\b(\d{1,2}|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+(séances|seances|sessions|ateliers|modules|rendez-vous)\b/i;
 const UNE_FOIS = /\ben une (séance|seance|session|heure)\b/gi;
-const MOM = [
+export const MOM = [
   /si tu pouvais/i,
   /si vous pouviez/i,
   /si tu avais/i,
@@ -58,14 +58,14 @@ const MOM = [
   /serais-tu pr[eê]t/i,
   /seriez-vous pr[eê]t/i,
 ];
-const QUESTIONS_VOUS = [
+export const QUESTIONS_VOUS = [
   "La dernière fois que ce sujet s'est présenté, qu'avez-vous fait ?",
   "Quand cela vous est arrivé récemment, comment l'avez-vous géré ?",
   "Qu'avez-vous déjà essayé, concrètement, la dernière fois ?",
   "Combien cela vous a-t-il coûté la dernière fois ?",
   "À qui en avez-vous parlé, et qu'est-ce qui a suivi ?",
 ];
-const QUESTIONS_TU = [
+export const QUESTIONS_TU = [
   "La dernière fois que ce sujet s'est présenté, qu'as-tu fait ?",
   "Quand cela t'est arrivé récemment, comment l'as-tu géré ?",
   "Qu'as-tu déjà essayé, concrètement, la dernière fois ?",
@@ -94,22 +94,22 @@ function normaliserJeton(s: string): string {
   return s.replace(JETON_PRENOM, "{{prenom}}");
 }
 
-function signatureDe(adresse: Adresse): string {
+export function signatureDe(adresse: Adresse): string {
   return adresse === "tu" ? "À bientôt,\n\n{{prenom}}" : "Bien à vous,\n\n{{prenom}}";
 }
 
-function alignerSignature(corps: string, adresse: Adresse): string {
+export function alignerSignature(corps: string, adresse: Adresse, max = 1100): string {
   const signature = signatureDe(adresse);
   const sans = normaliserJeton(corps).replace(/\n*(Bien à vous,|À bientôt,|A bientôt,|Belle journée,|Cordialement,|Merci,)\s*\n+\{\{prenom\}\}\s*$/i, "").trimEnd();
   const suivant = `${sans}\n\n${signature}`;
-  return suivant.length <= 1100 ? suivant : corps;
+  return suivant.length <= max ? suivant : corps;
 }
 
-function registreAttendu(adresse: Adresse): "tu" | "vous" {
+export function registreAttendu(adresse: Adresse): "tu" | "vous" {
   return adresse === "tu" ? "tu" : "vous";
 }
 
-function mauvaisRegistre(texte: string, attendu: "tu" | "vous"): boolean {
+export function mauvaisRegistre(texte: string, attendu: "tu" | "vous"): boolean {
   // Sans accents : « êtes » ne doit pas être lu comme « tes ».
   const n = sansAccent(texte);
   if (attendu === "vous") return TUTOIEMENT.test(n);
@@ -134,13 +134,8 @@ function ajouterHypothese(liste: string[], phrase: string, reparations: { n: num
   reparations.n += 1;
 }
 
-export function appliquerQualite(resultat: Resultat, ctx: ContexteQualite): { resultat: Resultat; reparations: number; erreurs: string[] } {
-  const r = structuredClone(resultat);
-  const erreurs: string[] = [];
-  const reparations = { n: 0 };
-  const attendu = registreAttendu(ctx.adresse);
-  const questionsModele = attendu === "tu" ? QUESTIONS_TU : QUESTIONS_VOUS;
-
+/** Retire les jetons {{prenom}} égarés partout, sauf dans le corps de l'email. */
+export function retirerJetons<T>(racine: T, reparations: { n: number }): T {
   const marcher = (valeur: unknown, cle?: string): unknown => {
     if (typeof valeur === "string") {
       if (cle === "emailCorps") return valeur;
@@ -154,61 +149,78 @@ export function appliquerQualite(resultat: Resultat, ctx: ContexteQualite): { re
     }
     return valeur;
   };
-  marcher(r);
-  for (const c of r.cibles) {
-    const original = resultat.cibles.find((x) => x.id === c.id)?.messages.emailCorps ?? c.messages.emailCorps;
-    const aligne = alignerSignature(original, ctx.adresse);
-    if (aligne !== original) reparations.n += 1;
-    c.messages.emailCorps = aligne;
+  return marcher(racine) as T;
+}
+
+/** Contrôles « par cible » (§7.5) : signature, Anti-Contexte, accès, format, prix, registre, questions. */
+function controlerCible(c: Cible, original: Cible, ctx: ContexteQualite, p: string, reparations: { n: number }, erreurs: string[]) {
+  const attendu = registreAttendu(ctx.adresse);
+  const questionsModele = attendu === "tu" ? QUESTIONS_TU : QUESTIONS_VOUS;
+  const aligne = alignerSignature(original.messages.emailCorps, ctx.adresse);
+  if (aligne !== original.messages.emailCorps) reparations.n += 1;
+  c.messages.emailCorps = aligne;
+
+  if (recoupe(ctx.antiContexte, blobCible(c)) && c.scores.plaisir.note > 2) {
+    c.scores.plaisir.note = 2;
+    c.scores.plaisir.raison = "Note plafonnée à 2 : cette cible reprend des traits de l'Anti-Contexte.";
+    reparations.n += 1;
   }
 
-  r.cibles.forEach((c, i) => {
-    const p = `cibles[${i}]`;
-    const original = resultat.cibles[i];
-    if (!original) return;
+  const zoneReseau = `${c.nom}\n${c.portrait}\n${c.pourquoi}\n${c.scores.acces.raison}`;
+  if (c.scores.acces.note === 5 && ctx.reseau.trim() && !recoupe(ctx.reseau, zoneReseau)) {
+    c.scores.acces.note = 4;
+    c.scores.acces.raison = "L'accès vaut 4 : cette cible n'est pas décrite dans le réseau proche (expérience, clients passés).";
+    reparations.n += 1;
+  }
 
-    if (recoupe(ctx.antiContexte, blobCible(c)) && c.scores.plaisir.note > 2) {
-      c.scores.plaisir.note = 2;
-      c.scores.plaisir.raison = "Note plafonnée à 2 : cette cible reprend des traits de l'Anti-Contexte.";
-      reparations.n += 1;
-    }
-
-    const zoneReseau = `${c.nom}\n${c.portrait}\n${c.pourquoi}\n${c.scores.acces.raison}`;
-    if (c.scores.acces.note === 5 && ctx.reseau.trim() && !recoupe(ctx.reseau, zoneReseau)) {
-      c.scores.acces.note = 4;
-      c.scores.acces.raison = "L'accès vaut 4 : cette cible n'est pas décrite dans le réseau proche (expérience, clients passés).";
-      reparations.n += 1;
-    }
-
-    if (formatMultiple(c)) {
-      for (const champ of ["promesse", "pitch"] as const) {
-        const suivant = c[champ].replace(UNE_FOIS, "sur la durée du parcours");
-        UNE_FOIS.lastIndex = 0;
-        if (suivant !== c[champ]) {
-          c[champ] = suivant;
-          reparations.n += 1;
-        }
+  if (formatMultiple(c)) {
+    for (const champ of ["promesse", "pitch"] as const) {
+      const suivant = c[champ].replace(UNE_FOIS, "sur la durée du parcours");
+      UNE_FOIS.lastIndex = 0;
+      if (suivant !== c[champ]) {
+        c[champ] = suivant;
+        reparations.n += 1;
       }
     }
+  }
 
-    if (echoPrix(ctx.prixActuel, c.prix.min, c.prix.max) && !VALEUR.test(c.prix.justification)) {
-      erreurs.push(`${p}.prix : le prix recopie le prix actuel. Justifie-le par la valeur du problème pour cette cible, et sa capacité à payer.`);
-    }
+  if (echoPrix(ctx.prixActuel, c.prix.min, c.prix.max) && !VALEUR.test(c.prix.justification)) {
+    erreurs.push(`${p}.prix : le prix recopie le prix actuel. Justifie-le par la valeur du problème pour cette cible, et sa capacité à payer.`);
+  }
 
-    const textes = [c.messages.linkedin, c.messages.emailCorps, c.pitch, ...c.testTerrain.questions];
-    if (textes.some((t) => mauvaisRegistre(t, attendu))) {
-      erreurs.push(
-        attendu === "vous"
-          ? `${p}.messages : vouvoiement attendu (dirigeant contacté à froid, sauf si la personne a demandé le tutoiement).`
-          : `${p}.messages : tutoiement attendu, comme demandé.`,
-      );
-    }
+  const textes = [c.messages.linkedin, c.messages.emailCorps, c.pitch, ...c.testTerrain.questions];
+  if (textes.some((t) => mauvaisRegistre(t, attendu))) {
+    erreurs.push(
+      attendu === "vous"
+        ? `${p}.messages : vouvoiement attendu (dirigeant contacté à froid, sauf si la personne a demandé le tutoiement).`
+        : `${p}.messages : tutoiement attendu, comme demandé.`,
+    );
+  }
 
-    c.testTerrain.questions = c.testTerrain.questions.map((q, qi) => {
-      if (!MOM.some((re) => re.test(q))) return q;
-      reparations.n += 1;
-      return questionsModele[qi % questionsModele.length];
-    });
+  c.testTerrain.questions = c.testTerrain.questions.map((q, qi) => {
+    if (!MOM.some((re) => re.test(q))) return q;
+    reparations.n += 1;
+    return questionsModele[qi % questionsModele.length];
+  });
+}
+
+/** Une cible seule (piste creusée) : mêmes contrôles que chaque cible du résultat. */
+export function qualiteCible(cible: Cible, ctx: ContexteQualite): { cible: Cible; reparations: number; erreurs: string[] } {
+  const reparations = { n: 0 };
+  const erreurs: string[] = [];
+  const c = retirerJetons(structuredClone(cible), reparations);
+  controlerCible(c, cible, ctx, "cible", reparations, erreurs);
+  return { cible: c, reparations: reparations.n, erreurs };
+}
+
+export function appliquerQualite(resultat: Resultat, ctx: ContexteQualite): { resultat: Resultat; reparations: number; erreurs: string[] } {
+  const reparations = { n: 0 };
+  const erreurs: string[] = [];
+  const r = retirerJetons(structuredClone(resultat), reparations);
+  r.cibles.forEach((c, i) => {
+    const original = resultat.cibles.find((x) => x.id === c.id) ?? resultat.cibles[i];
+    if (!original) return;
+    controlerCible(c, original, ctx, `cibles[${i}]`, reparations, erreurs);
   });
 
   const comptes = { c1: 0, c2: 0, c3: 0, toutes: 0 };
@@ -279,4 +291,46 @@ export function questionsManquantes(cadrage: Cadrage, tour: 1 | 2 | 3, ctx: Pick
   if (tour !== 1 || cadrage.statut !== "esquisse") return null;
   if (!contradictionFormatTalent(ctx)) return null;
   return "questions attendues : le format et le talent se contredisent (groupe contre individuel). Pose une question au lieu d'une esquisse.";
+}
+
+const PRENOMS_SECOURS = ["Claire", "Nadia", "Julien", "Sophie", "Karim", "Isabelle", "Thomas", "Élodie"];
+const GUILLEMETS = /[«»"“”]/g;
+export const ANNEE = /\b(19|20)\d{2}\b/g;
+
+function contientMot(texte: string, mot: string): boolean {
+  const m = sansAccent(mot.trim());
+  if (!m) return false;
+  const echappe = m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${echappe}([^a-z0-9]|$)`).test(sansAccent(texte));
+}
+
+/**
+ * Portrait (§9.6) : guillemets retirés de `sesMots`, années retirées de `recherche`,
+ * prénom remplacé s'il apparaît dans les données de la personne. Chaque changement compte une réparation.
+ */
+export function qualitePortrait(portrait: Portrait, donnees: string): { portrait: Portrait; reparations: number } {
+  const p = structuredClone(portrait);
+  let reparations = 0;
+  for (const d of p.douleurs) {
+    const suivant = d.sesMots.replace(GUILLEMETS, "").replace(/\s{2,}/g, " ").trim();
+    if (suivant !== d.sesMots) {
+      d.sesMots = suivant;
+      reparations += 1;
+    }
+  }
+  for (const l of p.lieux) {
+    const suivant = l.recherche.replace(ANNEE, "").replace(/\s{2,}/g, " ").trim();
+    if (suivant !== l.recherche) {
+      l.recherche = suivant;
+      reparations += 1;
+    }
+  }
+  if (contientMot(donnees, p.prenom)) {
+    const libre = PRENOMS_SECOURS.find((x) => !contientMot(donnees, x));
+    if (libre) {
+      p.prenom = libre;
+      reparations += 1;
+    }
+  }
+  return { portrait: p, reparations };
 }

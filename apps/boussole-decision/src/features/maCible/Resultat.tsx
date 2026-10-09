@@ -2,21 +2,70 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, buttonClass } from "@/components/ui";
-import type { ResultatClasse } from "@/domain/maCible/types";
+import { lienBoussoleCibles } from "@/domain/boussoleCibles";
+import {
+  EXTRAS_VIDES,
+  type AutrePiste,
+  type Cible,
+  type EntreeMaCible,
+  type Extras,
+  type IdCible,
+  type IdPiste,
+  type ResultatClasse,
+  type SyntheseTerrain,
+} from "@/domain/maCible/types";
 import { iconeCible } from "@/domain/maCible/iconeCible";
-import { alertePlaisirPressenti, scorePressenti } from "@/domain/maCible/scores";
+import {
+  alertePlaisirPressenti,
+  scorePressenti,
+} from "@/domain/maCible/scores";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
 import { BoutonCopier } from "./BoutonCopier";
+import { ChargeurEnLigne } from "./ChargeurEnLigne";
+import { BlocPortrait, type EtatAppel } from "./Portrait";
 import { CarteCible } from "./CarteCible";
 import { AvertissementIA } from "./Confidentialite";
 import { IndicateurEtapes } from "./IndicateurEtapes";
-import { AnneauScore, CLASSE_CARTE, PastilleFine, PastilleIcone, Separateur, TEINTE, TitreIcone } from "./Habillage";
+import {
+  AnneauScore,
+  CLASSE_CARTE,
+  PastilleFine,
+  PastilleIcone,
+  Separateur,
+  TEINTE,
+  TitreIcone,
+} from "./Habillage";
 import { Icone } from "./Icones";
 import { Plan30 } from "./Plan30";
-import { BarreSommaire, ColonneSommaire, type EntreeSommaire } from "./SommaireResultat";
-import type { EtapeBarre, Etat } from "./etat";
+import {
+  BarreSommaire,
+  ColonneSommaire,
+  type EntreeSommaire,
+} from "./SommaireResultat";
+import { PISTES_CREUSEES_MAX, type EtapeBarre, type Etat } from "./etat";
 import { exporterResultat, nomFichierExport } from "./export";
-import { URL_OUTILS, urlAppel, urlBoussole } from "./liens";
+import { URL_OUTILS, urlAppel } from "./liens";
+
+/** Appel d'approfondissement en cours, ou dernier arrivé (§6.4). */
+export type AppelApprofondi =
+  { mode: "portrait"; id: IdCible } | { mode: "piste"; id: IdPiste };
+export interface Approfondir {
+  appel: AppelApprofondi | null;
+  /** Un appel IA est en cours (synthèse comprise) : tous les boutons d'appel sont désactivés. */
+  occupe: boolean;
+  erreur: { cle: string; message: string; reessai: boolean } | null;
+  nouveau: string | null;
+  max: number;
+  onPortrait: (cible: Cible) => void;
+  onCreuser: (piste: AutrePiste) => void;
+}
+
+const cleAppel = (a: AppelApprofondi) => `${a.mode}-${a.id}`;
+const virgule = (n: number) =>
+  n.toLocaleString("fr-FR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  });
 
 const SOUS = [
   ["qui", ""],
@@ -30,13 +79,15 @@ const SOUS = [
 
 function clesAncre(id: string): Record<string, boolean> {
   const o: Record<string, boolean> = {};
-  const parent = id.match(/^(cible-\d+)/);
+  const parent = id.match(/^(cible-\d+|piste-p\d)/);
   if (parent) o[parent[1]] = true;
   if (!parent || id !== parent[1]) o[id] = true;
   return o;
 }
 
-function ouvertsDepart(lignes: { ligne: { rang: string } }[]): Record<string, boolean> {
+function ouvertsDepart(
+  lignes: { ligne: { rang: string } }[],
+): Record<string, boolean> {
   const o: Record<string, boolean> = {};
   lignes.forEach(({ ligne }, i) => {
     o[`cible-${i + 1}`] = ligne.rang === "prioritaire";
@@ -53,6 +104,10 @@ export function Resultat({
   locale,
   M,
   nbHistorique,
+  synthese,
+  entree,
+  extras = EXTRAS_VIDES,
+  approfondir,
   lecture = false,
   bandeauLecture,
   onCoche,
@@ -71,6 +126,12 @@ export function Resultat({
   locale: string;
   M: MaCibleMessages;
   nbHistorique: number;
+  synthese: SyntheseTerrain | null;
+  /** Réponses qui ont produit ce résultat : le talent part vers la Boussole (jamais le prénom). */
+  entree: EntreeMaCible;
+  extras?: Extras;
+  /** Absent en lecture seule : les boutons d'appel sont masqués (§4.9). */
+  approfondir?: Approfondir;
   lecture?: boolean;
   bandeauLecture?: string;
   onCoche: (index: number) => void;
@@ -85,17 +146,35 @@ export function Resultat({
   const impressionRef = useRef(false);
   const [impression, setImpression] = useState(false);
   const lignes = resultat.classement
-    .map((ligne) => ({ ligne, cible: resultat.cibles.find((c) => c.id === ligne.id) }))
+    .map((ligne) => ({
+      ligne,
+      cible: resultat.cibles.find((c) => c.id === ligne.id),
+    }))
     .filter((x) => x.cible !== undefined);
-  const [ouverts, setOuverts] = useState<Record<string, boolean>>(() => ouvertsDepart(lignes));
-  const prioritaire = lignes.findIndex(({ ligne }) => ligne.rang === "prioritaire");
+  const creusees = (
+    Object.entries(extras.pistes) as [IdPiste, Extras["pistes"][IdPiste]][]
+  )
+    .flatMap(([pisteId, p]) => (p ? [{ pisteId, ...p }] : []))
+    .sort((a, b) => b.ligne.score - a.ligne.score);
+  const scorePrioritaire =
+    resultat.classement.find((l) => l.rang === "prioritaire")?.score ?? 0;
+  const [ouverts, setOuverts] = useState<Record<string, boolean>>(() =>
+    ouvertsDepart(lignes),
+  );
+  const prioritaire = lignes.findIndex(
+    ({ ligne }) => ligne.rang === "prioritaire",
+  );
   const rangPrioritaire = (prioritaire >= 0 ? prioritaire : 0) + 1;
   const [actif, setActif] = useState(`cible-${rangPrioritaire}`);
   const [barre, setBarre] = useState(false);
   const [haut, setHaut] = useState(false);
 
   const date = useMemo(
-    () => new Date(fait).toLocaleDateString(locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-GB", { day: "numeric", month: "long", year: "numeric" }),
+    () =>
+      new Date(fait).toLocaleDateString(
+        locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-GB",
+        { day: "numeric", month: "long", year: "numeric" },
+      ),
     [fait, locale],
   );
 
@@ -122,20 +201,30 @@ export function Resultat({
     /* eslint-disable react-hooks/set-state-in-effect -- l'ancre n'existe qu'après l'hydratation */
     setOuverts((s) => ({ ...s, ...clesAncre(id) }));
     /* eslint-enable react-hooks/set-state-in-effect */
-    const t = window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    const t = window.setTimeout(
+      () =>
+        document
+          .getElementById(id)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      50,
+    );
     return () => window.clearTimeout(t);
   }, []);
 
   useEffect(() => {
     const entete = document.querySelector("[data-entete-resultat]");
     if (!entete) return;
-    const io = new IntersectionObserver(([e]) => setBarre(!e.isIntersecting), { threshold: 0 });
+    const io = new IntersectionObserver(([e]) => setBarre(!e.isIntersecting), {
+      threshold: 0,
+    });
     io.observe(entete);
     return () => io.disconnect();
   }, []);
 
   useEffect(() => {
-    const noeuds = Array.from(document.querySelectorAll<HTMLElement>("[data-ancre]"));
+    const noeuds = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-ancre]"),
+    );
     const visibles = new Map<Element, number>();
     const io = new IntersectionObserver(
       (entries) => {
@@ -143,7 +232,11 @@ export function Resultat({
           if (e.isIntersecting) visibles.set(e.target, e.intersectionRatio);
           else visibles.delete(e.target);
         }
-        const meilleur = [...visibles.entries()].sort((a, b) => b[1] - a[1] || a[0].getBoundingClientRect().top - b[0].getBoundingClientRect().top)[0];
+        const meilleur = [...visibles.entries()].sort(
+          (a, b) =>
+            b[1] - a[1] ||
+            a[0].getBoundingClientRect().top - b[0].getBoundingClientRect().top,
+        )[0];
         if (meilleur) setActif(meilleur[0].id);
       },
       { rootMargin: "-15% 0px -55% 0px", threshold: [0, 0.2, 0.5, 1] },
@@ -159,6 +252,52 @@ export function Resultat({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const nouveau = approfondir?.nouveau ?? null;
+  useEffect(() => {
+    if (!nouveau?.startsWith("piste-")) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- une piste creusée qui arrive s'ouvre, puis on y descend */
+    setOuverts((s) => ({ ...s, [nouveau]: true }));
+    /* eslint-enable react-hooks/set-state-in-effect */
+    const t = window.setTimeout(() => {
+      document
+        .getElementById(nouveau)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document
+        .getElementById(`${nouveau}-titre`)
+        ?.focus({ preventScroll: true });
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [nouveau]);
+
+  const etatAppel = (cle: string): EtatAppel => {
+    const ici = Boolean(
+      approfondir?.appel && cleAppel(approfondir.appel) === cle,
+    );
+    return {
+      enCours: ici,
+      bloque: Boolean(approfondir?.occupe) && !ici,
+      erreur:
+        approfondir?.erreur?.cle === cle ? approfondir.erreur.message : null,
+      reessai:
+        approfondir?.erreur?.cle === cle ? approfondir.erreur.reessai : true,
+    };
+  };
+  const blocPortrait = (cible: Cible, base: string) => (
+    <BlocPortrait
+      id={`${base}-portrait`}
+      portrait={extras.portraits[cible.id]}
+      synthese={synthese}
+      M={M}
+      appel={etatAppel(`portrait-${cible.id}`)}
+      lecture={!approfondir}
+      maxApprofondir={approfondir?.max ?? 20}
+      nouveau={nouveau === `portrait-${cible.id}`}
+      onFaire={() => approfondir?.onPortrait(cible)}
+    />
+  );
+  const creuseePour = (id: IdPiste) => creusees.find((p) => p.pisteId === id);
+  const pistesPleines = creusees.length >= PISTES_CREUSEES_MAX;
+
   function onOuvert(id: string, ouvert: boolean) {
     if (impressionRef.current) return;
     setOuverts((s) => ({ ...s, [id]: ouvert }));
@@ -168,20 +307,54 @@ export function Resultat({
   }
   function basculerTout(ouvert: boolean) {
     const o: Record<string, boolean> = {};
-    lignes.forEach((_, i) => {
-      const r = i + 1;
-      for (const cle of [`cible-${r}`, `cible-${r}-lieux`, `cible-${r}-linkedin`, `cible-${r}-messages`, `cible-${r}-test`, `cible-${r}-grille`]) o[cle] = ouvert;
-    });
+    const bases = [
+      ...lignes.map((_, i) => `cible-${i + 1}`),
+      ...creusees.map((p) => `piste-${p.pisteId}`),
+    ];
+    for (const b of bases) {
+      for (const cle of [
+        b,
+        `${b}-lieux`,
+        `${b}-linkedin`,
+        `${b}-messages`,
+        `${b}-test`,
+        `${b}-grille`,
+      ])
+        o[cle] = ouvert;
+    }
     setOuverts(o);
   }
   function allerAncre(id: string) {
     setOuverts((s) => ({ ...s, ...clesAncre(id) }));
     const url = `${window.location.pathname}${window.location.search}#${id}`;
     window.history.replaceState(null, "", url);
-    window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 30);
+    window.setTimeout(
+      () =>
+        document
+          .getElementById(id)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      30,
+    );
   }
 
-  const cibleActive = actif.match(/^(cible-\d+)/)?.[1] ?? "";
+  const cibleActive = actif.match(/^(cible-\d+|piste-p\d)/)?.[1] ?? "";
+  const sousEntrees = (id: string, cible: Cible) =>
+    cibleActive === id
+      ? [
+          ...SOUS.map(([cle, suffixe]) => ({
+            id: suffixe ? `${id}${suffixe}` : id,
+            libelle: R.sousEntrees[cle],
+          })),
+          ...((synthese?.verbatims ?? []).some((v) =>
+            cible.verbatims.includes(v.id),
+          )
+            ? [{ id: `${id}-clients`, libelle: R.sousEntrees.clients }]
+            : []),
+          ...(extras.portraits[cible.id]
+            ? [{ id: `${id}-portrait`, libelle: R.sousEntrees.portrait }]
+            : []),
+        ]
+      : undefined;
   const entrees: EntreeSommaire[] = [
     { id: "offre", libelle: R.sommaireOffre },
     ...lignes.map(({ ligne, cible }, i) => {
@@ -190,24 +363,32 @@ export function Resultat({
       return {
         id,
         libelle: R.sommaireCible(rang, cible!.nom, R.score(ligne.score)),
-        sous:
-          cibleActive === id
-            ? SOUS.map(([cle, suffixe]) => ({
-                id: suffixe ? `${id}${suffixe}` : id,
-                libelle: R.sousEntrees[cle],
-              }))
-            : undefined,
+        sous: sousEntrees(id, cible!),
       };
     }),
-    ...(resultat.autresPistes.length > 0 ? [{ id: "pistes", libelle: R.sommairePistes }] : []),
+    ...(resultat.autresPistes.length > 0
+      ? [{ id: "pistes", libelle: R.sommairePistes }]
+      : []),
+    ...creusees.map((p, i) => ({
+      id: `piste-${p.pisteId}`,
+      libelle: R.sommaireCible(
+        lignes.length + i + 1,
+        p.cible.nom,
+        R.score(p.ligne.score),
+      ),
+      sous: sousEntrees(`piste-${p.pisteId}`, p.cible),
+    })),
     { id: "anti-cible", libelle: R.sommaireAnti },
     { id: "plan", libelle: R.sommairePlan },
     { id: "hypotheses", libelle: R.sommaireHypotheses },
   ];
 
-  const exporte = exporterResultat(resultat, prenom);
+  const exporte = exporterResultat(resultat, prenom, { synthese, extras });
+  const lienBoussole = lienBoussoleCibles(resultat, extras, entree);
   function telecharger() {
-    const blob = new Blob([exporte.markdown], { type: "text/markdown;charset=utf-8" });
+    const blob = new Blob([exporte.markdown], {
+      type: "text/markdown;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -227,7 +408,11 @@ export function Resultat({
 
   return (
     <div data-resultat lang={resultat.langue} className="ma-cible-resultat">
-      <BarreSommaire {...sommaireProps} barreVisible={barre} fermer={R.fermer} />
+      <BarreSommaire
+        {...sommaireProps}
+        barreVisible={barre}
+        fermer={R.fermer}
+      />
       <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
         <ColonneSommaire {...sommaireProps} />
         <div className="min-w-0 space-y-6">
@@ -242,21 +427,36 @@ export function Resultat({
                 {M.commun.tousLesOutils}
               </a>
               {" · "}
-              <button type="button" className="text-link underline" onClick={onHistorique}>
+              <button
+                type="button"
+                className="text-link underline"
+                onClick={onHistorique}
+              >
                 {R.historiqueLien(nbHistorique)}
               </button>
             </p>
-            <p className="font-script text-2xl text-accent-strong">{R.surtitre}</p>
-            <h1 tabIndex={-1} data-titre-etape className="flex items-center gap-3 text-4xl italic focus:outline-none sm:text-5xl">
+            <p className="font-script text-2xl text-accent-strong">
+              {R.surtitre}
+            </p>
+            <h1
+              tabIndex={-1}
+              data-titre-etape
+              className="flex items-center gap-3 text-4xl italic focus:outline-none sm:text-5xl"
+            >
               <PastilleIcone nom="cible" teinte="corail" />
               <span className="min-w-0">{R.titre}</span>
             </h1>
-            <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">{R.intro}</p>
+            <p className="max-w-3xl text-[17px] leading-relaxed text-ink-soft">
+              {R.intro}
+            </p>
             <p className="text-sm text-ink-soft">{R.faitLe(date)}</p>
           </header>
 
           {lecture && bandeauLecture && (
-            <div role="status" className="flex flex-col gap-3 rounded-2xl border border-accent/30 bg-blush p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div
+              role="status"
+              className="flex flex-col gap-3 rounded-2xl border border-accent/30 bg-blush p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
               <p className="text-[16px]">{bandeauLecture}</p>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" onClick={onReprendre}>
@@ -272,30 +472,71 @@ export function Resultat({
           <AvertissementIA M={M} />
 
           <div data-ecran-seul className="flex flex-wrap items-center gap-2">
-            <Button type="button" className="w-fit px-4 py-2" onClick={() => window.print()}>
+            <Button
+              type="button"
+              className="w-fit px-4 py-2"
+              onClick={() => window.print()}
+            >
               <Icone nom="imprimer" className="size-4 shrink-0" />
               {R.imprimer}
             </Button>
-            <BoutonCopier texte={exporte.texte} M={M} libelle={R.copierTout} compact />
-            <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={telecharger}>
+            <BoutonCopier
+              texte={exporte.texte}
+              M={M}
+              libelle={R.copierTout}
+              compact
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-fit px-3 py-1.5 text-sm"
+              onClick={telecharger}
+            >
               <Icone nom="telecharger" className="size-4 shrink-0" />
               {R.telecharger}
             </Button>
-            <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={() => basculerTout(true)}>
+            <a
+              className={buttonClass("secondary", "w-fit px-3 py-1.5 text-sm")}
+              href={lienBoussole}
+            >
+              <Icone nom="boussole" className="size-4 shrink-0" />
+              {R.comparerBoussole}
+            </a>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-fit px-3 py-1.5 text-sm"
+              onClick={() => basculerTout(true)}
+            >
               <Icone nom="deplier" className="size-4 shrink-0" />
               {R.toutDeplier}
             </Button>
-            <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={() => basculerTout(false)}>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-fit px-3 py-1.5 text-sm"
+              onClick={() => basculerTout(false)}
+            >
               <Icone nom="replier" className="size-4 shrink-0" />
               {R.toutReplier}
             </Button>
             {!lecture && (
               <>
-                <Button type="button" variant="secondary" className="w-fit px-3 py-1.5 text-sm" onClick={onModifier}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-fit px-3 py-1.5 text-sm"
+                  onClick={onModifier}
+                >
                   <Icone nom="crayon" className="size-4 shrink-0" />
                   {R.modifier}
                 </Button>
-                <Button type="button" variant="ghost" className="w-fit px-3 py-1.5 text-sm" onClick={onEffacer}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-fit px-3 py-1.5 text-sm"
+                  onClick={onEffacer}
+                >
                   <Icone nom="poubelle" className="size-4 shrink-0" />
                   {R.effacer}
                 </Button>
@@ -303,25 +544,39 @@ export function Resultat({
             )}
           </div>
 
-          <Card id="offre" data-ancre="" className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-l-corail p-6 sm:p-8`}>
-            <TitreIcone icone="cadeau" teinte="corail" className="rounded-xl bg-gradient-to-r from-corail-soft to-transparent px-3 py-2 text-[22px] italic">
+          <Card
+            id="offre"
+            data-ancre=""
+            className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-l-corail p-6 sm:p-8`}
+          >
+            <TitreIcone
+              icone="cadeau"
+              teinte="corail"
+              className="rounded-xl bg-gradient-to-r from-corail-soft to-transparent px-3 py-2 text-[22px] italic"
+            >
               {R.offreTitre}
             </TitreIcone>
-            <p className="font-serif text-[26px] leading-snug">{resultat.offre.phrase}</p>
+            <p className="font-serif text-[26px] leading-snug">
+              {resultat.offre.phrase}
+            </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <h3 className="flex items-center gap-2 text-[17px] font-medium">
                   <PastilleIcone nom="fleche" teinte="miel" taille="sm" />
                   <span>{R.avant}</span>
                 </h3>
-                <p className="text-[16px] text-ink-soft">{resultat.offre.avant}</p>
+                <p className="text-[16px] text-ink-soft">
+                  {resultat.offre.avant}
+                </p>
               </div>
               <div className="space-y-1">
                 <h3 className="flex items-center gap-2 text-[17px] font-medium">
                   <PastilleIcone nom="etincelles" teinte="eau" taille="sm" />
                   <span>{R.apres}</span>
                 </h3>
-                <p className="text-[16px] text-ink-soft">{resultat.offre.apres}</p>
+                <p className="text-[16px] text-ink-soft">
+                  {resultat.offre.apres}
+                </p>
               </div>
             </div>
           </Card>
@@ -333,16 +588,29 @@ export function Resultat({
                 ligne={ligne}
                 rang={i + 1}
                 prenom={prenom}
+                synthese={synthese}
                 M={M}
                 corpsOuvert={estOuvert(`cible-${i + 1}`)}
                 ouvert={estOuvert}
                 onOuvert={onOuvert}
+                portrait={extras.portraits[cible!.id]}
+                blocPortrait={blocPortrait(cible!, `cible-${i + 1}`)}
               />
               {ligne.rang === "prioritaire" && (
-                <section data-ecran-seul className="space-y-2 rounded-2xl border border-[#F3C1CF] bg-[#FFF0F4] p-6 sm:p-8">
+                <section
+                  data-ecran-seul
+                  className="space-y-2 rounded-2xl border border-[#F3C1CF] bg-[#FFF0F4] p-6 sm:p-8"
+                >
                   <h2 className="text-[22px] italic">{R.appelApres.titre}</h2>
-                  <p className="text-[16px] font-semibold">{R.appelApres.sousTitre}</p>
-                  <a className={buttonClass("primary", "mt-2 max-sm:w-full")} href={urlAppel("resultat-apres-cible")} target="_blank" rel="noopener">
+                  <p className="text-[16px] font-semibold">
+                    {R.appelApres.sousTitre}
+                  </p>
+                  <a
+                    className={buttonClass("primary", "mt-2 max-sm:w-full")}
+                    href={urlAppel("resultat-apres-cible")}
+                    target="_blank"
+                    rel="noopener"
+                  >
                     {R.appelApres.bouton}
                   </a>
                 </section>
@@ -351,63 +619,191 @@ export function Resultat({
           ))}
 
           {resultat.autresPistes.length > 0 && (
-            <section id="pistes" data-ancre="" className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-miel bg-gradient-to-br from-miel-soft to-paper p-5 sm:p-6`}>
+            <section
+              id="pistes"
+              data-ancre=""
+              className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border-l-4 border-miel bg-gradient-to-br from-miel-soft to-paper p-5 sm:p-6`}
+            >
               <Separateur />
-              <TitreIcone icone="couches" teinte="miel" className="font-serif text-[26px] italic">
+              <TitreIcone
+                icone="couches"
+                teinte="miel"
+                className="font-serif text-[26px] italic"
+              >
                 {R.pistesTitre}
               </TitreIcone>
               <p className="text-[16px] text-ink-soft">{R.pistesIntro}</p>
               <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {[...resultat.autresPistes]
-                  .sort((a, b) => scorePressenti(b.notes) - scorePressenti(a.notes))
+                  .sort(
+                    (a, b) => scorePressenti(b.notes) - scorePressenti(a.notes),
+                  )
                   .map((p) => (
-                    <li key={p.id} className="space-y-3 rounded-2xl border border-line bg-paper p-4 shadow-[0_8px_20px_rgba(58,47,36,0.06)]">
+                    <li
+                      key={p.id}
+                      className="space-y-3 rounded-2xl border border-line bg-paper p-4 shadow-[0_8px_20px_rgba(58,47,36,0.06)]"
+                    >
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="flex items-center gap-2 text-[18px] font-medium">
-                          <PastilleIcone nom={iconeCible(p.nom, p.enUneLigne)} teinte="miel" taille="sm" />
+                          <PastilleIcone
+                            nom={iconeCible(p.nom, p.enUneLigne)}
+                            teinte="miel"
+                            taille="sm"
+                          />
                           <span className="min-w-0">{p.nom}</span>
                         </h3>
-                        <PastilleFine ton="neutre">{R.marche[p.marche]}</PastilleFine>
-                        {p.depuisIdees.length > 0 && <PastilleFine ton="miel">{R.tonIdee}</PastilleFine>}
+                        <PastilleFine ton="neutre">
+                          {R.marche[p.marche]}
+                        </PastilleFine>
+                        {p.depuisIdees.length > 0 && (
+                          <PastilleFine ton="miel">{R.tonIdee}</PastilleFine>
+                        )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <AnneauScore valeur={scorePressenti(p.notes)} affiche={R.score(scorePressenti(p.notes))} couleur={TEINTE.miel.anneau} libelle={R.scorePressenti} />
-                        <PastilleFine ton="neutre">{R.pastilleEstimation}</PastilleFine>
+                        <AnneauScore
+                          valeur={scorePressenti(p.notes)}
+                          affiche={R.score(scorePressenti(p.notes))}
+                          couleur={TEINTE.miel.anneau}
+                          libelle={R.scorePressenti}
+                        />
+                        <PastilleFine ton="neutre">
+                          {R.pastilleEstimation}
+                        </PastilleFine>
                       </div>
                       <p className="text-[16px]">{p.enUneLigne}</p>
                       <p className="text-[16px]">
-                        <span className="font-medium">{M.esquisse.pourquoiPas}</span> {p.raison}
+                        <span className="font-medium">
+                          {M.esquisse.pourquoiPas}
+                        </span>{" "}
+                        {p.raison}
                       </p>
                       <ul className="space-y-2">
-                        {(["urgence", "paiement", "acces", "plaisir"] as const).map((cle) => {
-                          const couleur = { urgence: "bg-framboise", paiement: "bg-miel", acces: "bg-eau", plaisir: "bg-sage" }[cle];
+                        {(
+                          ["urgence", "paiement", "acces", "plaisir"] as const
+                        ).map((cle) => {
+                          const couleur = {
+                            urgence: "bg-framboise",
+                            paiement: "bg-miel",
+                            acces: "bg-eau",
+                            plaisir: "bg-sage",
+                          }[cle];
                           return (
-                            <li key={cle} className="flex items-center gap-2 text-[14px]">
-                              <span className="w-36 shrink-0">{R.criteres[cle]}</span>
-                              <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-sand">
-                                <span className={`block h-1.5 rounded-full ${couleur}`} style={{ width: `${(p.notes[cle] / 5) * 100}%` }} />
+                            <li
+                              key={cle}
+                              className="grid grid-cols-[1fr_auto] items-center gap-x-2 gap-y-1 text-[14px]"
+                            >
+                              <span className="min-w-0">{R.criteres[cle]}</span>
+                              <span className="text-right tabular-nums">
+                                {p.notes[cle]}/5
                               </span>
-                              <span className="w-8 text-right tabular-nums">{p.notes[cle]}/5</span>
+                              <span
+                                className="col-span-2 h-1.5 overflow-hidden rounded-full bg-sand"
+                                aria-hidden="true"
+                              >
+                                <span
+                                  className={`block h-1.5 rounded-full ${couleur}`}
+                                  style={{
+                                    width: `${(p.notes[cle] / 5) * 100}%`,
+                                  }}
+                                />
+                              </span>
                             </li>
                           );
                         })}
                       </ul>
-                      {alertePlaisirPressenti(p.notes) && <p className="rounded-xl border border-accent/30 bg-blush px-3 py-2 text-[15px]">{R.alertePlaisirPiste}</p>}
+                      {alertePlaisirPressenti(p.notes) && (
+                        <p className="rounded-xl border border-accent/30 bg-blush px-3 py-2 text-[15px]">
+                          {R.alertePlaisirPiste}
+                        </p>
+                      )}
+                      <PiedPiste
+                        creusee={creuseePour(p.id)}
+                        appel={etatAppel(`piste-${p.id}`)}
+                        lecture={!approfondir}
+                        pleines={pistesPleines}
+                        scorePrioritaire={scorePrioritaire}
+                        M={M}
+                        onCreuser={() => approfondir?.onCreuser(p)}
+                        onVoir={() => allerAncre(`piste-${p.id}`)}
+                      />
                     </li>
                   ))}
               </ul>
             </section>
           )}
 
+          {creusees.length > 0 && (
+            <section aria-labelledby="creusees-titre" className="space-y-6">
+              <TitreIcone
+                as="h2"
+                id="creusees-titre"
+                icone="couches"
+                teinte="miel"
+                className="font-serif text-[26px] italic"
+              >
+                {M.approfondir.pistesCreusees}
+              </TitreIcone>
+              {creusees.map((p, i) => (
+                <div
+                  key={p.pisteId}
+                  className={
+                    nouveau === `piste-${p.pisteId}`
+                      ? "motion-safe:animate-[apparaitre_300ms_ease-out]"
+                      : undefined
+                  }
+                >
+                  <CarteCible
+                    cible={p.cible}
+                    ligne={{
+                      score: p.ligne.score,
+                      alertePlaisir: p.ligne.alertePlaisir,
+                      rang: "secondaire",
+                    }}
+                    rang={lignes.length + i + 1}
+                    prenom={prenom}
+                    synthese={synthese}
+                    M={M}
+                    corpsOuvert={estOuvert(`piste-${p.pisteId}`)}
+                    ouvert={estOuvert}
+                    onOuvert={onOuvert}
+                    ancre={`piste-${p.pisteId}`}
+                    rangLibelle={M.approfondir.pisteCreusee}
+                    portrait={extras.portraits[p.cible.id]}
+                    blocPortrait={blocPortrait(p.cible, `piste-${p.pisteId}`)}
+                  />
+                </div>
+              ))}
+            </section>
+          )}
+
           <Separateur />
-          <section id="anti-cible" data-ancre="" aria-labelledby="anti-titre" className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border border-[#F3C1CF] border-l-4 border-l-framboise bg-blush p-6 sm:p-8`}>
-            <TitreIcone as="h2" id="anti-titre" icone="interdit" teinte="framboise" className="text-[26px] italic">
+          <section
+            id="anti-cible"
+            data-ancre=""
+            aria-labelledby="anti-titre"
+            className={`${CLASSE_CARTE} scroll-mt-20 space-y-4 rounded-2xl border border-[#F3C1CF] border-l-4 border-l-framboise bg-blush p-6 sm:p-8`}
+          >
+            <TitreIcone
+              as="h2"
+              id="anti-titre"
+              icone="interdit"
+              teinte="framboise"
+              className="text-[26px] italic"
+            >
               {R.anti.titre}
             </TitreIcone>
             <p className="text-[16px] text-ink-soft">{R.anti.intro}</p>
-            <p className="text-[17px] leading-relaxed">{resultat.antiCible.portrait}</p>
+            <p className="text-[17px] leading-relaxed">
+              {resultat.antiCible.portrait}
+            </p>
             <div className="space-y-1">
-              <TitreIcone as="h3" icone="eclair" teinte="framboise" taille="sm" className="text-[18px] italic">
+              <TitreIcone
+                as="h3"
+                icone="eclair"
+                teinte="framboise"
+                taille="sm"
+                className="text-[18px] italic"
+              >
                 {R.anti.signaux}
               </TitreIcone>
               <ul className="list-disc space-y-1 pl-5 text-[16px]">
@@ -417,24 +813,52 @@ export function Resultat({
               </ul>
             </div>
             <div className="space-y-1">
-              <TitreIcone as="h3" icone="bouclier" teinte="framboise" taille="sm" className="text-[18px] italic">
+              <TitreIcone
+                as="h3"
+                icone="bouclier"
+                teinte="framboise"
+                taille="sm"
+                className="text-[18px] italic"
+              >
                 {R.anti.lien}
               </TitreIcone>
-              <p className="text-[16px]">{resultat.antiCible.lienAntiContexte}</p>
+              <p className="text-[16px]">
+                {resultat.antiCible.lienAntiContexte}
+              </p>
             </div>
             <div className="space-y-1">
-              <TitreIcone as="h3" icone="bulle" teinte="framboise" taille="sm" className="text-[18px] italic">
+              <TitreIcone
+                as="h3"
+                icone="bulle"
+                teinte="framboise"
+                taille="sm"
+                className="text-[18px] italic"
+              >
                 {R.anti.commentDire}
               </TitreIcone>
               <p className="text-[16px]">{resultat.antiCible.commentDire}</p>
             </div>
           </section>
 
-          <Plan30 resultat={resultat} coches={coches} onCoche={lecture ? () => {} : onCoche} M={M} lecture={lecture} />
+          <Plan30
+            resultat={resultat}
+            coches={coches}
+            onCoche={lecture ? () => {} : onCoche}
+            M={M}
+            lecture={lecture}
+          />
 
           <Separateur />
-          <Card id="hypotheses" data-ancre="" className={`${CLASSE_CARTE} scroll-mt-20 space-y-2 rounded-2xl border-l-4 border-l-sable p-6 sm:p-8`}>
-            <TitreIcone icone="ampoule" teinte="sable" className="text-[22px] italic">
+          <Card
+            id="hypotheses"
+            data-ancre=""
+            className={`${CLASSE_CARTE} scroll-mt-20 space-y-2 rounded-2xl border-l-4 border-l-sable p-6 sm:p-8`}
+          >
+            <TitreIcone
+              icone="ampoule"
+              teinte="sable"
+              className="text-[22px] italic"
+            >
               {R.hypothesesTitre}
             </TitreIcone>
             {resultat.hypotheses.length > 0 ? (
@@ -444,23 +868,50 @@ export function Resultat({
                 ))}
               </ul>
             ) : (
-              <p className="text-[16px] text-ink-soft">{"L'IA s'est appuyée sur tes réponses, sans supposition en plus."}</p>
+              <p className="text-[16px] text-ink-soft">
+                {
+                  "L'IA s'est appuyée sur tes réponses, sans supposition en plus."
+                }
+              </p>
             )}
           </Card>
-          <Card className={`${CLASSE_CARTE} space-y-2 rounded-2xl border-l-4 border-l-miel p-6 sm:p-8`}>
-            <TitreIcone icone="etoile" teinte="miel" className="text-[22px] italic">
+          <Card
+            className={`${CLASSE_CARTE} space-y-2 rounded-2xl border-l-4 border-l-miel p-6 sm:p-8`}
+          >
+            <TitreIcone
+              icone="etoile"
+              teinte="miel"
+              className="text-[22px] italic"
+            >
               {R.motPourToi}
             </TitreIcone>
             <p className="text-[17px] leading-relaxed">{resultat.motPourToi}</p>
           </Card>
 
-          <section id="appel" data-ancre="" aria-labelledby="appel-titre" className="scroll-mt-20 space-y-2 rounded-2xl border border-[#F3C1CF] bg-[#FFF0F4] p-6 sm:p-8">
-            <TitreIcone as="h2" id="appel-titre" icone="telephone" teinte="framboise" className="text-[22px] italic">
+          <section
+            id="appel"
+            data-ancre=""
+            aria-labelledby="appel-titre"
+            className="scroll-mt-20 space-y-2 rounded-2xl border border-[#F3C1CF] bg-[#FFF0F4] p-6 sm:p-8"
+          >
+            <TitreIcone
+              as="h2"
+              id="appel-titre"
+              icone="telephone"
+              teinte="framboise"
+              className="text-[22px] italic"
+            >
               {R.appel.titre}
             </TitreIcone>
             <p className="text-[16px] font-semibold">{R.appel.sousTitre}</p>
             <p className="text-[16px]">{R.appel.texte}</p>
-            <a data-ecran-seul className={buttonClass("primary", "mt-2 max-sm:w-full")} href={urlAppel("resultat-fin")} target="_blank" rel="noopener">
+            <a
+              data-ecran-seul
+              className={buttonClass("primary", "mt-2 max-sm:w-full")}
+              href={urlAppel("resultat-fin")}
+              target="_blank"
+              rel="noopener"
+            >
               {R.appel.bouton}
             </a>
             <p data-impression-seule className="text-[15px]">
@@ -468,18 +919,35 @@ export function Resultat({
             </p>
           </section>
 
-          <section data-ecran-seul aria-labelledby="boussole-titre" className="space-y-3 rounded-2xl border border-sky-line bg-sky-soft p-6 sm:p-8">
-            <TitreIcone as="h2" id="boussole-titre" icone="boussole" teinte="eau" className="text-[22px] italic">
+          <section
+            data-ecran-seul
+            aria-labelledby="boussole-titre"
+            className="space-y-3 rounded-2xl border-l-4 border-sage bg-gradient-to-br from-sage-soft to-paper p-6 sm:p-8"
+          >
+            <TitreIcone
+              as="h2"
+              id="boussole-titre"
+              icone="boussole"
+              teinte="sage"
+              className="text-[22px] italic"
+            >
               {R.boussole.titre}
             </TitreIcone>
             <p className="text-[16px]">{R.boussole.texte}</p>
-            <a className={buttonClass("secondary", "max-sm:w-full")} href={urlBoussole()}>
+            <a
+              className={buttonClass("primary", "max-sm:w-full")}
+              href={lienBoussole}
+            >
+              <Icone nom="boussole" className="size-4 shrink-0" />
               {R.boussole.bouton}
             </a>
           </section>
 
           <AvertissementIA M={M} />
-          <p data-impression-seule className="text-center text-sm text-ink-soft">
+          <p
+            data-impression-seule
+            className="text-center text-sm text-ink-soft"
+          >
             {R.piedImpression}
           </p>
         </div>
@@ -493,6 +961,87 @@ export function Resultat({
         >
           {R.hautDePage}
         </button>
+      )}
+    </div>
+  );
+}
+
+/** Bas d'une carte « D'autres pistes » : creuser, chargeur, ou lien vers la piste creusée (§4.8). */
+function PiedPiste({
+  creusee,
+  appel,
+  lecture,
+  pleines,
+  scorePrioritaire,
+  M,
+  onCreuser,
+  onVoir,
+}: {
+  creusee: { ligne: { score: number } } | undefined;
+  appel: EtatAppel;
+  lecture: boolean;
+  pleines: boolean;
+  scorePrioritaire: number;
+  M: MaCibleMessages;
+  onCreuser: () => void;
+  onVoir: () => void;
+}) {
+  const A = M.approfondir;
+  if (creusee) {
+    return (
+      <div className="space-y-2">
+        {creusee.ligne.score > scorePrioritaire && (
+          <p className="rounded-xl bg-sage-soft px-3 py-2 text-[15px]">
+            {A.mieuxQuePrioritaire(
+              virgule(creusee.ligne.score),
+              virgule(scorePrioritaire),
+            )}
+          </p>
+        )}
+        <Button
+          type="button"
+          variant="secondary"
+          className="max-sm:w-full"
+          onClick={onVoir}
+        >
+          <Icone nom="couches" className="size-4 shrink-0" />
+          {A.voirPiste}
+        </Button>
+      </div>
+    );
+  }
+  if (lecture) return null;
+  if (appel.enCours)
+    return (
+      <ChargeurEnLigne messages={A.chargeurPiste} tempsEcoule={A.tempsEcoule} />
+    );
+  const bloque = appel.bloque || pleines;
+  return (
+    <div data-ecran-seul className="space-y-2">
+      {appel.erreur && (
+        <p className="rounded-xl border border-danger/30 bg-danger-soft px-3 py-2 text-[15px] text-danger">
+          {appel.erreur}
+        </p>
+      )}
+      {appel.reessai && (
+        <Button
+          type="button"
+          className="max-sm:w-full"
+          disabled={bloque}
+          onClick={onCreuser}
+        >
+          <Icone nom="loupe" className="size-4 shrink-0" />
+          {appel.erreur ? M.erreurs.reessayer : A.creuser}
+        </Button>
+      )}
+      {appel.reessai && (
+        <p className="text-sm text-ink-soft">
+          {pleines
+            ? A.maxPistes
+            : appel.bloque
+              ? A.dejaEnCours
+              : A.creuserDuree}
+        </p>
       )}
     </div>
   );
