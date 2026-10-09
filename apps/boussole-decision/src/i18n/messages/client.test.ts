@@ -20,10 +20,10 @@ function forme(v: unknown): unknown {
 }
 
 describe("textes de l'accès client", () => {
-  it("mêmes clés en français, anglais et espagnol ; l'espagnol reprend le français", () => {
+  it("mêmes clés en français, anglais et espagnol", () => {
     expect(forme(client.en)).toEqual(forme(client.fr));
-    expect(client.es).toBe(client.fr);
-    expect(MESSAGES.es.client).toBe(client.fr);
+    expect(forme(client.es)).toEqual(forme(client.fr));
+    expect(MESSAGES.es.client).toBe(client.es);
     expect(MESSAGES.en.client).toBe(client.en);
   });
 

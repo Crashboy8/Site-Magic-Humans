@@ -56,7 +56,7 @@ export const maCibleEs: MaCibleMessages = {
       "Recibes tu resultado completo, otras pistas por explorar y tu plan a 30 días.",
     ],
     prerempli: {
-      quiz: "Buenas noticias: hemos recuperado tu resultado del Test de Talento. Solo te queda revisarlo.",
+      quiz: "Buenas noticias: hemos recuperado tu resultado del Test de Talento Único. Solo te queda revisarlo.",
       carte: "Buenas noticias: hemos recuperado tu Mapa del Talento. Revísalo y completa lo que falte.",
       boussole: "Buenas noticias: hemos recuperado tu Talento Único desde tu Brújula. Solo te queda revisarlo.",
     },
@@ -65,8 +65,8 @@ export const maCibleEs: MaCibleMessages = {
     recommencer: "Empezar de cero",
     confirmRecommencer: "¿Borrar todo y empezar de nuevo? Tu trabajo en curso y tus resultados anteriores se eliminarán de este navegador.",
     remplacerParAncre: "Usar mejor el talento que acabo de traer",
-    sansQcm: "¿Aún no has hecho el Test de Talento? Puedes empezar aquí, o hacerlo antes (6 minutos) para obtener objetivos más acertados.",
-    lienQcm: "Hacer el Test de Talento",
+    sansQcm: "¿Aún no has hecho el Test de Talento Único? Puedes empezar aquí, o hacerlo antes (6 minutos) para obtener objetivos más acertados.",
+    lienQcm: "Hacer el Test de Talento Único",
   },
   confidentialite: {
     titre: "Lo que recibe la IA y lo que guardamos",

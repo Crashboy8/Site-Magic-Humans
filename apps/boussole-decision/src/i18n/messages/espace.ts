@@ -1,7 +1,8 @@
 // Mon espace (accueil, fiche Talent Unique, import, suppression) et la page /depuis-cibleur/.
-// Français d'abord, puis anglais. L'espagnol est pour l'instant une copie du français (lot de traduction espagnole à venir).
+// Français d'abord, puis anglais. L'espagnol est dans espaceEs.ts.
 
 import { typographier } from "../typo";
+import { espaceEs } from "./espaceEs";
 
 const fr = {
   meta: { titre: "Mon espace" },
@@ -405,7 +406,4 @@ const en: EspaceMessages = {
 /** Textes affichés : espaces insécables appliqués. */
 const frAffiche = typographier(fr);
 
-/** Espagnol : copie temporaire du français (le même objet), en attendant sa traduction. */
-const es: EspaceMessages = frAffiche;
-
-export const espace = { fr: frAffiche, en: typographier(en), es };
+export const espace = { fr: frAffiche, en: typographier(en), es: typographier(espaceEs) };

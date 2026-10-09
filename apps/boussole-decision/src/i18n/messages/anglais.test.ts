@@ -51,9 +51,8 @@ describe("dictionnaires anglais du Cibleur et de Mon espace", () => {
     }
   });
 
-  it("l'espagnol de Mon espace est pour l'instant la copie du français", () => {
-    expect(espace.es).toBe(espace.fr);
-    expect(MESSAGES.es.espace).toBe(espace.fr);
+  it("l'espagnol de Mon espace est branché", () => {
+    expect(MESSAGES.es.espace).toBe(espace.es);
     expect(MESSAGES.en.espace).toBe(espace.en);
   });
 
