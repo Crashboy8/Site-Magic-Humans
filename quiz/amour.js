@@ -1563,6 +1563,7 @@
       '<article class="rule" data-tone="pink"><span class="k">2</span><strong>' + ico("phone", "pink") + '<span class="am-lab">' + esc(R.nowPierre) + "</span></strong><p>" + esc(endLine) + "</p>" +
       '<a class="btn" data-cta-place="quiz_amour_resultat-fin" href="' + esc(calendlyHref("resultat-fin")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
+      '<p class="am-screen-only"><a data-cta-place="quiz_amour_vers_quiz" href="/quiz/" target="_blank" rel="noopener">' + esc(R.nowTalent) + "</a></p>" +
       '<div class="row-actions"><button type="button" class="btn ghost" data-act="print">' + esc(R.nowPdf) + "</button></div></section>" +
       '<div class="am-screen-only stack-lg">' +
       '<section class="rs" id="sec-glance"><h2>' + esc(R.glanceH) + '</h2><div class="stack">' + glance + "</div></section>" +
