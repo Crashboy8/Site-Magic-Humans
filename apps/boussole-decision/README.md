@@ -63,6 +63,10 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
   les catégories par défaut s'affichent dans la langue choisie. Les emails d'authentification suivent la langue du
   compte (`user_metadata.lang`, enregistrée à l'inscription, à l'essai, à la connexion et au changement de langue) ;
   les comptes plus anciens, sans langue enregistrée, les reçoivent en français. Le lien du quiz ouvre la Boussole dans la langue où le quiz a été passé.
+  **Espagnol, lot 1** : le Cibleur (`maCibleEs.ts`, exemples `exempleEs.ts`, `exempleApprofondirEs.ts`, `exempleSalarieEs.ts`, l'IA répond en
+  espagnol), Mon espace (`espaceEs.ts`), l'accès client (`clientEs.ts`) et la Boussole Relation (`content/amourEs.ts`) sont écrits en espagnol
+  (tuteo). `src/i18n/messages/espagnol.test.ts` échoue s'il reste du français dans un dictionnaire ES. Le Quiz Amour, la page /outils/ et les
+  libellés restants du site statique sont le lot 2. La Carte du Talent a son dictionnaire dans `carte-du-talent/js/langues/es.js`.
 
 ### Moteur de calcul (`src/domain/scoring.ts`)
 
