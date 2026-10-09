@@ -1,6 +1,7 @@
 // Validation de l'entrée (§5.3) et indices de flou (§6.1). Module pur.
 import { LIMITES } from "./limites";
-import type { Adresse, Corrections, EntreeMaCible, Format, IdCiblePrincipale, Langue, Marche, Reponse, Source, Style, Talent, Terrain, Verdict } from "./types";
+import { IDS_NOTES } from "./schemas";
+import type { Adresse, ContexteSynthese, Corrections, EntreeMaCible, Format, Frequence, IdCiblePrincipale, IdNote, Langue, Marche, NoteTerrain, Reponse, Source, Style, SyntheseTerrain, Talent, Terrain, ThemeVerbatim, Verdict } from "./types";
 
 export interface ErreurChamp {
   champ: string;
@@ -43,6 +44,117 @@ export function normaliserListe(v: unknown, items: number, max: number): string[
 }
 
 const objet = (v: unknown): Record<string, unknown> => (typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
+
+const FREQUENCES: readonly Frequence[] = ["souvent", "parfois", "une_fois"];
+const THEMES: readonly ThemeVerbatim[] = ["douleur", "declencheur", "objection", "resultat", "autre"];
+const ID_VERBATIM = /^v([1-9]|1[0-2])$/;
+
+function couper(v: unknown, max: number): string | null {
+  if (typeof v !== "string") return null;
+  return normaliser(v).slice(0, max).trim();
+}
+
+function couperListe(v: unknown, items: number, max: number): string[] | null {
+  if (!Array.isArray(v)) return null;
+  const sortie: string[] = [];
+  for (const x of v) {
+    const t = couper(x, max);
+    if (t === null) return null;
+    if (t) sortie.push(t);
+  }
+  return sortie.slice(0, items);
+}
+
+/**
+ * Synthèse gardée dans l'entrée. Absente ou `null` : `null`.
+ * Un texte trop long est coupé. Une forme ou une énumération fausse : erreur.
+ */
+export function validerSyntheseEntree(brut: unknown): { ok: true; synthese: SyntheseTerrain | null } | { ok: false } {
+  if (brut === undefined || brut === null) return { ok: true, synthese: null };
+  if (typeof brut !== "object" || Array.isArray(brut)) return { ok: false };
+  const o = brut as Record<string, unknown>;
+  const L = LIMITES.synthese;
+  const resume = couper(o.resume, L.resume);
+  const profils = couperListe(o.profils, L.profils, L.texte);
+  const declencheurs = couperListe(o.declencheurs, L.declencheurs, L.texte);
+  const objections = couperListe(o.objections, L.objections, L.texte);
+  const motsCles = couperListe(o.motsCles, L.motsCles, L.mot);
+  if (resume === null || !profils || !declencheurs || !objections || !motsCles) return { ok: false };
+  if (!Array.isArray(o.douleurs) || !Array.isArray(o.verbatims)) return { ok: false };
+  const douleurs: SyntheseTerrain["douleurs"] = [];
+  for (const d of o.douleurs.slice(0, L.douleurs)) {
+    const x = objet(d);
+    const texte = couper(x.texte, L.texte);
+    if (!texte || typeof x.frequence !== "string" || !(FREQUENCES as readonly string[]).includes(x.frequence)) return { ok: false };
+    douleurs.push({ texte, frequence: x.frequence as Frequence });
+  }
+  const verbatims: SyntheseTerrain["verbatims"] = [];
+  for (const v of o.verbatims.slice(0, L.verbatims)) {
+    const x = objet(v);
+    const citation = couper(x.citation, L.citation);
+    if (
+      !citation ||
+      typeof x.id !== "string" ||
+      !ID_VERBATIM.test(x.id) ||
+      typeof x.note !== "string" ||
+      !(IDS_NOTES as readonly string[]).includes(x.note) ||
+      typeof x.theme !== "string" ||
+      !(THEMES as readonly string[]).includes(x.theme)
+    ) {
+      return { ok: false };
+    }
+    verbatims.push({ id: x.id, note: x.note as IdNote, citation, theme: x.theme as ThemeVerbatim });
+  }
+  if (typeof o.faitLe !== "string" || !o.faitLe.trim()) return { ok: false };
+  if (typeof o.nbNotes !== "number" || !Number.isInteger(o.nbNotes) || o.nbNotes < 0 || o.nbNotes > LIMITES.notes.items) return { ok: false };
+  return {
+    ok: true,
+    synthese: { resume, profils, douleurs, verbatims, declencheurs, objections, motsCles, nbNotes: o.nbNotes, faitLe: o.faitLe.trim() },
+  };
+}
+
+/** 1 à 5 notes, identifiants n1 à n5 dans l'ordre, textes après `normaliser`. */
+export function validerNotes(brut: unknown): { ok: true; notes: NoteTerrain[] } | { ok: false; erreurs: ErreurChamp[] } {
+  if (!Array.isArray(brut)) return { ok: false, erreurs: [{ champ: "notes", code: "requis" }] };
+  const erreurs: ErreurChamp[] = [];
+  if (brut.length === 0) erreurs.push({ champ: "notes", code: "trop_court" });
+  if (brut.length > LIMITES.notes.items) erreurs.push({ champ: "notes", code: "trop_long" });
+  const notes: NoteTerrain[] = [];
+  let total = 0;
+  brut.slice(0, LIMITES.notes.items).forEach((item, i) => {
+    const o = objet(item);
+    const attendu = IDS_NOTES[i];
+    if (o.id !== attendu) erreurs.push({ champ: `notes[${i}].id`, code: "invalide" });
+    const titre = normaliser(o.titre);
+    if (titre.length > LIMITES.notes.titre) erreurs.push({ champ: `notes[${i}].titre`, code: "trop_long", max: LIMITES.notes.titre });
+    const texte = normaliser(o.texte);
+    if (!texte) erreurs.push({ champ: `notes[${i}].texte`, code: "requis" });
+    else if (texte.length < LIMITES.notes.texteMin) erreurs.push({ champ: `notes[${i}].texte`, code: "trop_court", min: LIMITES.notes.texteMin });
+    else if (texte.length > LIMITES.notes.texte) erreurs.push({ champ: `notes[${i}].texte`, code: "trop_long", max: LIMITES.notes.texte });
+    total += texte.length;
+    notes.push({ id: attendu, titre, texte });
+  });
+  if (brut.length >= 1 && brut.length <= LIMITES.notes.items) {
+    if (total < LIMITES.notes.totalMin) erreurs.push({ champ: "notes", code: "trop_court" });
+    else if (total > LIMITES.notes.total) erreurs.push({ champ: "notes", code: "trop_long" });
+  }
+  if (erreurs.length) return { ok: false, erreurs };
+  return { ok: true, notes };
+}
+
+/** Quatre textes facultatifs, 2 000 caractères au plus. */
+export function validerContexteSynthese(brut: unknown): { ok: true; contexte: ContexteSynthese } | { ok: false; erreurs: ErreurChamp[] } {
+  const o = objet(brut);
+  const erreurs: ErreurChamp[] = [];
+  const contexte = {} as ContexteSynthese;
+  for (const cle of ["mecanisme", "contexte", "benefice", "offre"] as const) {
+    const t = normaliser(o[cle]);
+    if (t.length > 2_000) erreurs.push({ champ: `contexte.${cle}`, code: "trop_long", max: 2_000 });
+    contexte[cle] = t;
+  }
+  if (erreurs.length) return { ok: false, erreurs };
+  return { ok: true, contexte };
+}
 
 export function validerEntree(brut: unknown): ResultatEntree {
   const erreurs: ErreurChamp[] = [];
@@ -108,7 +220,8 @@ export function validerEntree(brut: unknown): ResultatEntree {
   const adresse = choix("terrain.adresse", r.adresse, ADRESSES, "vous") as Adresse;
   const style = choix("terrain.style", r.style, STYLES, "chaleureux") as Style;
   const ciblesEnTete = normaliserListe(r.ciblesEnTete, LIMITES.ciblesEnTete.items, LIMITES.ciblesEnTete.max);
-  if (racine.synthese !== undefined && racine.synthese !== null) erreurs.push({ champ: "synthese", code: "invalide" });
+  const syntheseLue = validerSyntheseEntree(racine.synthese);
+  if (!syntheseLue.ok) erreurs.push({ champ: "synthese", code: "invalide" });
   const terrain: Terrain = { offre, marche, experience, clientsPasses, formats: formats.slice(0, LIMITES.formats.items), zone, prixActuel, adresse, style, ciblesEnTete };
 
   const reponses: Reponse[] = [];
@@ -122,7 +235,7 @@ export function validerEntree(brut: unknown): ResultatEntree {
   });
 
   if (erreurs.length) return { ok: false, erreurs };
-  return { ok: true, entree: { v: 1, langue, source, talent, terrain, reponses, synthese: null } };
+  return { ok: true, entree: { v: 1, langue, source, talent, terrain, reponses, synthese: syntheseLue.ok ? syntheseLue.synthese : null } };
 }
 
 const sansAccents = (s: string) =>

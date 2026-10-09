@@ -90,7 +90,7 @@ Ordre final de l'écran : offre, marché, expérience, clients passés, formats,
 
 #### Bloc A « Tes idées de cibles » (couleur miel, icône `cible`)
 - Titre : « Tu as déjà des cibles en tête ? » + « (facultatif) ».
-- Aide : « Écris-les, une par ligne. L'IA les étudie toutes et te dit lesquelles creuser en premier. »
+- Aide : « Écris-les, une par case. L'IA les étudie toutes et te dit lesquelles creuser en premier. »
 - 1 zone de texte au départ, bouton « Ajouter une idée » jusqu'à 8. Chaque zone grandit avec le contenu (2 lignes visibles au minimum, le texte n'est jamais coupé). À sa droite, sur la même ligne, un bouton icône × de 44 px (`aria-label="Retirer cette idée"`).
 - Placeholder : « Par exemple : les militaires qui quittent l'armée ». Exemple sous le premier champ : « Exemple : les cadres de 35 à 55 ans qui veulent changer de métier. »
 - Limites : 8 idées, 120 caractères chacune (compteur affiché à partir de 100). Les champs vides sont ignorés à l'envoi. Doublons (casse ignorée) retirés par `normaliserListe`.

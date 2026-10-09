@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "./exemple";
-import { CONSIGNES_CIBLE, GRILLE_TEXTE, PROMPT_COMMUN, PROMPT_RESULTAT, messageUtilisateur, promptCadrage, promptSysteme } from "./prompt";
+import { CONSIGNES_CIBLE, GRILLE_TEXTE, PROMPT_COMMUN, PROMPT_RESULTAT, PROMPT_SYNTHESE, messageUtilisateur, promptCadrage, promptSysteme } from "./prompt";
 import { GRILLE } from "./scores";
 import type { Demande } from "./types";
 
 const TIRETS = /[\u2013\u2014]/;
-const demande = (extra: Partial<Demande> = {}): Demande => ({ etape: "cadrage", tour: 1, entree: structuredClone(ENTREE_EXEMPLE), ...extra }) as Demande;
+type DemandeCadrage = Extract<Demande, { etape: "cadrage" }>;
+const demande = (extra: Partial<DemandeCadrage> = {}): DemandeCadrage => ({ etape: "cadrage", tour: 1, entree: structuredClone(ENTREE_EXEMPLE), ...extra });
 const corrections = {
   offre: "J'accompagne des dirigeants.",
   cibles: [
@@ -46,7 +47,7 @@ describe("prompts", () => {
   });
 
   it("ne contiennent aucun tiret cadratin ni demi-cadratin", () => {
-    for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, CONSIGNES_CIBLE, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
+    for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, PROMPT_SYNTHESE, CONSIGNES_CIBLE, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
   });
 
   it("réutilise les consignes de cible et cite la règle 14", () => {
@@ -145,5 +146,30 @@ describe("messageUtilisateur", () => {
     expect(m).toContain('"id": "i2"');
     expect(m).toContain("militaires en reconversion");
     expect(m).not.toContain("ce_que_dit_le_terrain");
+  });
+
+  it("envoie ce_que_dit_le_terrain sans la note d'origine ni la date", () => {
+    const d = demande();
+    d.entree.synthese = {
+      resume: "Les clients parlent de réunions interminables.",
+      profils: [],
+      douleurs: [],
+      verbatims: [{ id: "v1", note: "n1", citation: "Je n'en peux plus.", theme: "douleur" }],
+      declencheurs: [],
+      objections: [],
+      motsCles: ["réunions"],
+      nbNotes: 1,
+      faitLe: "2026-10-09T08:00:00.000Z",
+    };
+    const m = messageUtilisateur(d);
+    expect(m).toContain("ce_que_dit_le_terrain");
+    expect(m).toContain("mots_cles");
+    expect(m).toContain("Je n'en peux plus.");
+    expect(m).not.toContain("faitLe");
+    expect(m).not.toContain("2026-10-09");
+    expect(m).not.toContain('"nbNotes"');
+    expect(m).not.toContain('"note"');
+    expect(promptSysteme("synthese")).toContain(PROMPT_SYNTHESE);
+    expect(promptSysteme("synthese")).not.toContain("Grille de notation");
   });
 });

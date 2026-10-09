@@ -379,6 +379,16 @@ select ok as r_ok, motif as r_motif from public.ma_cible_consommer(repeat('c', 6
 select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'global', 'ma cible : au-delà du plafond global, refus avec le motif global');
 select ok as r_ok, motif as r_motif from public.ma_cible_consommer('pas-une-empreinte', 'resultat', 5, 10) \gset
 select pg_temp.check(:'r_ok' = 'f' and :'r_motif' = 'invalide', 'ma cible : une clé qui n''est pas une empreinte sha256 est refusée');
+select ok as syn1_ok from public.ma_cible_consommer(repeat('d', 64), 'synthese', 2, 10) \gset
+select pg_temp.check(:'syn1_ok' = 't', 'ma cible : synthese, premier appel accepté');
+select ok as syn2_ok from public.ma_cible_consommer(repeat('d', 64), 'synthese', 2, 10) \gset
+select pg_temp.check(:'syn2_ok' = 't', 'ma cible : synthese, deuxième appel accepté');
+select ok as syn3_ok, motif as syn3_motif from public.ma_cible_consommer(repeat('d', 64), 'synthese', 2, 10) \gset
+select pg_temp.check(:'syn3_ok' = 'f' and :'syn3_motif' = 'ip', 'ma cible : synthese, au-delà du plafond, motif ip');
+select ok as app_ok from public.ma_cible_consommer(repeat('f', 64), 'approfondir', 2, 10) \gset
+select pg_temp.check(:'app_ok' = 't', 'ma cible : approfondir est accepté');
+select ok as autre_ok, motif as autre_motif from public.ma_cible_consommer(repeat('e', 64), 'autre', 5, 10) \gset
+select pg_temp.check(:'autre_ok' = 'f' and :'autre_motif' = 'invalide', 'ma cible : une étape inconnue est refusée');
 reset role;
 select pg_temp.check((select count(*) from ma_cible_quota where cle <> 'global' and cle !~ '^[0-9a-f]{64}$') = 0,
   'ma cible : la table ne contient que des empreintes et des nombres');

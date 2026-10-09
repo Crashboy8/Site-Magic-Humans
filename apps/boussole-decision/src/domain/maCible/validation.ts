@@ -1,7 +1,8 @@
 // Validation des réponses du modèle (§8.4). Retourne toutes les erreurs, dans l'ordre du document.
 // Chaque erreur est une chaîne « chemin : problème ». Module pur.
-import { CANAUX, IDS_IDEES, IDS_PISTES } from "./schemas";
-import type { AutrePiste, Cadrage, Cible, Resultat } from "./types";
+import { CANAUX, IDS_IDEES, IDS_NOTES, IDS_PISTES } from "./schemas";
+import type { SyntheseBrute } from "./terrain";
+import type { AutrePiste, Cadrage, Cible, Frequence, IdNote, Resultat, ThemeVerbatim } from "./types";
 
 export type Validation<T> = { ok: true; valeur: T; reparations: number } | { ok: false; erreurs: string[]; reparations: number };
 
@@ -411,4 +412,60 @@ export function validerResultat(v: unknown): Validation<Resultat> {
   x.textes(o.hypotheses, "hypotheses", 0, 4, 1, 200);
   x.poser(o, "motPourToi", "motPourToi", 20, 300);
   return fini(x, o as unknown as Resultat);
+}
+
+export interface SyntheseValidee {
+  statut: "ok" | "inutilisable";
+  message: string;
+  corps: SyntheseBrute;
+}
+
+/** Réponse du modèle pour la lecture des notes. Trop long : coupé. Trop court : seulement si vide ou sous la moitié du minimum. */
+export function validerSynthese(v: unknown): Validation<SyntheseValidee> {
+  const x = new Verif();
+  const o = x.objet(v, "synthese");
+  if (!o) return { ok: false, erreurs: x.erreurs, reparations: x.reparations };
+  const statut = x.enum(o.statut, "statut", ["ok", "inutilisable"] as const);
+  x.poser(o, "message", "message", 0, 300);
+  const souple = statut !== "ok";
+  const minTexte = souple ? 0 : 1;
+  x.poser(o, "resume", "resume", souple ? 0 : 40, 400);
+  x.textes(o.profils, "profils", 0, 4, minTexte, 160);
+  const douleurs = x.tableau(o.douleurs, "douleurs", 0, 6);
+  douleurs?.forEach((d, i) => {
+    const p = `douleurs[${i}]`;
+    const item = x.objet(d, p);
+    if (!item) return;
+    x.poser(item, "texte", `${p}.texte`, souple ? 0 : 10, 200);
+    x.enum(item.frequence, `${p}.frequence`, ["souvent", "parfois", "une_fois"] as const);
+  });
+  const verbatims = x.tableau(o.verbatims, "verbatims", 0, 12);
+  verbatims?.forEach((item, i) => {
+    const p = `verbatims[${i}]`;
+    const vb = x.objet(item, p);
+    if (!vb) return;
+    if (typeof vb.id !== "string" || !vb.id.trim()) x.err(`${p}.id`, "texte attendu");
+    x.enum(vb.note, `${p}.note`, IDS_NOTES);
+    x.poser(vb, "citation", `${p}.citation`, souple ? 0 : 8, 240);
+    x.enum(vb.theme, `${p}.theme`, ["douleur", "declencheur", "objection", "resultat", "autre"] as const);
+  });
+  x.textes(o.declencheurs, "declencheurs", 0, 4, minTexte, 200);
+  x.textes(o.objections, "objections", 0, 4, minTexte, 200);
+  x.textes(o.motsCles, "motsCles", 0, 10, minTexte, 40);
+  if (x.erreurs.length || !statut) return { ok: false, erreurs: x.erreurs, reparations: x.reparations };
+  const corps: SyntheseBrute = {
+    resume: String(o.resume ?? ""),
+    profils: (o.profils as string[]) ?? [],
+    douleurs: ((o.douleurs as { texte: string; frequence: Frequence }[]) ?? []).map((d) => ({ texte: d.texte, frequence: d.frequence })),
+    verbatims: ((o.verbatims as { id: string; note: IdNote; citation: string; theme: ThemeVerbatim }[]) ?? []).map((item) => ({
+      id: item.id,
+      note: item.note,
+      citation: item.citation,
+      theme: item.theme,
+    })),
+    declencheurs: (o.declencheurs as string[]) ?? [],
+    objections: (o.objections as string[]) ?? [],
+    motsCles: (o.motsCles as string[]) ?? [],
+  };
+  return { ok: true, valeur: { statut, message: String(o.message ?? ""), corps }, reparations: x.reparations };
 }

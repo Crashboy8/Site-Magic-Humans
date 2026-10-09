@@ -1,16 +1,29 @@
 // Limite d'usage (§10.3) : un compteur anonyme par jour, sans aucun contenu.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type EtapeQuota = "cadrage" | "resultat";
+export type EtapeQuota = "cadrage" | "resultat" | "synthese" | "approfondir";
 
 export interface Limites {
   ipCadrage: number;
   ipResultat: number;
+  ipSynthese: number;
+  ipApprofondir: number;
   globalCadrage: number;
   globalResultat: number;
+  globalSynthese: number;
+  globalApprofondir: number;
 }
 
-export const LIMITES_DEFAUT: Limites = { ipCadrage: 30, ipResultat: 15, globalCadrage: 2000, globalResultat: 500 };
+export const LIMITES_DEFAUT: Limites = {
+  ipCadrage: 30,
+  ipResultat: 15,
+  ipSynthese: 5,
+  ipApprofondir: 20,
+  globalCadrage: 2000,
+  globalResultat: 500,
+  globalSynthese: 100,
+  globalApprofondir: 300,
+};
 
 export interface DecisionQuota {
   ok: boolean;
@@ -34,13 +47,29 @@ export function limitesDepuisEnv(env: Record<string, string | undefined>): Limit
   return {
     ipCadrage: entierPositif(env.MA_CIBLE_MAX_IP_CADRAGE, LIMITES_DEFAUT.ipCadrage),
     ipResultat: entierPositif(env.MA_CIBLE_MAX_IP_RESULTAT, LIMITES_DEFAUT.ipResultat),
+    ipSynthese: entierPositif(env.MA_CIBLE_MAX_IP_SYNTHESE, LIMITES_DEFAUT.ipSynthese),
+    ipApprofondir: entierPositif(env.MA_CIBLE_MAX_IP_APPROFONDIR, LIMITES_DEFAUT.ipApprofondir),
     globalCadrage: entierPositif(env.MA_CIBLE_MAX_GLOBAL_CADRAGE, LIMITES_DEFAUT.globalCadrage),
     globalResultat: entierPositif(env.MA_CIBLE_MAX_GLOBAL_RESULTAT, LIMITES_DEFAUT.globalResultat),
+    globalSynthese: entierPositif(env.MA_CIBLE_MAX_GLOBAL_SYNTHESE, LIMITES_DEFAUT.globalSynthese),
+    globalApprofondir: entierPositif(env.MA_CIBLE_MAX_GLOBAL_APPROFONDIR, LIMITES_DEFAUT.globalApprofondir),
   };
 }
 
-export const maxIp = (l: Limites, etape: EtapeQuota) => (etape === "cadrage" ? l.ipCadrage : l.ipResultat);
-export const maxGlobal = (l: Limites, etape: EtapeQuota) => (etape === "cadrage" ? l.globalCadrage : l.globalResultat);
+const CLE_IP: Record<EtapeQuota, keyof Limites> = {
+  cadrage: "ipCadrage",
+  resultat: "ipResultat",
+  synthese: "ipSynthese",
+  approfondir: "ipApprofondir",
+};
+const CLE_GLOBAL: Record<EtapeQuota, keyof Limites> = {
+  cadrage: "globalCadrage",
+  resultat: "globalResultat",
+  synthese: "globalSynthese",
+  approfondir: "globalApprofondir",
+};
+export const maxIp = (l: Limites, etape: EtapeQuota) => l[CLE_IP[etape]];
+export const maxGlobal = (l: Limites, etape: EtapeQuota) => l[CLE_GLOBAL[etape]];
 
 function depasse(n: number, plafond: number, dejaCompte: boolean): boolean {
   return dejaCompte ? n > plafond : n >= plafond;

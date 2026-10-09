@@ -126,6 +126,51 @@ describe("réducteur du Cibleur", () => {
     expect(accesEtape(e, "esquisse")).toBe("courante");
     expect(accesEtape(e, "resultat")).toBe("future");
   });
+  it("une synthèse invalide le cadrage et marque le résultat périmé", () => {
+    const resultat = { ...RESULTAT_EXEMPLE, classement: classerCibles(RESULTAT_EXEMPLE.cibles) };
+    const synthese = {
+      resume: "Les clients parlent de réunions qui n'aboutissent pas.",
+      profils: [] as string[],
+      douleurs: [],
+      verbatims: [{ id: "v1", note: "n1" as const, citation: "Je n'en peux plus de ces réunions.", theme: "douleur" as const }],
+      declencheurs: [],
+      objections: [],
+      motsCles: [],
+      nbNotes: 1,
+      faitLe: "2026-10-09T08:00:00.000Z",
+    };
+    let e = reducteur(etatInitial(), { type: "cadrage", tour: 1, cadrage: esquisse });
+    e = reducteur(e, { type: "resultat", resultat, maintenant: "2026-10-09T08:00:00.000Z" });
+    e = reducteur(e, { type: "synthese", synthese });
+    expect(e.cadrage).toBeNull();
+    expect(e.resultatPerime).toBe(true);
+    expect(e.entree.synthese?.resume).toBe(synthese.resume);
+    expect(e.resultat).toBe(resultat);
+  });
+  it("retirer une phrase invalide le cadrage et marque le résultat périmé", () => {
+    const resultat = { ...RESULTAT_EXEMPLE, classement: classerCibles(RESULTAT_EXEMPLE.cibles) };
+    const synthese = {
+      resume: "Les clients parlent de réunions qui n'aboutissent pas.",
+      profils: [] as string[],
+      douleurs: [],
+      verbatims: [{ id: "v1", note: "n1" as const, citation: "Je n'en peux plus de ces réunions.", theme: "douleur" as const }],
+      declencheurs: [],
+      objections: [],
+      motsCles: [],
+      nbNotes: 1,
+      faitLe: "2026-10-09T08:00:00.000Z",
+    };
+    let e = reducteur(etatInitial(), { type: "synthese", synthese });
+    e = reducteur(e, { type: "cadrage", tour: 1, cadrage: esquisse });
+    e = reducteur(e, { type: "resultat", resultat, maintenant: "2026-10-09T08:00:00.000Z" });
+    expect(e.resultatPerime).toBe(false);
+    expect(e.cadrage).not.toBeNull();
+    const retire = reducteur(e, { type: "retirerVerbatim", id: "v1" });
+    expect(retire.cadrage).toBeNull();
+    expect(retire.resultatPerime).toBe(true);
+    expect(retire.entree.synthese?.verbatims).toEqual([]);
+    expect(reducteur(retire, { type: "retirerVerbatim", id: "v1" })).toBe(retire);
+  });
   it("envoie à l'IA la langue de l'interface, le français tant que le reste n'est pas traduit", () => {
     expect(langueEntree("fr")).toBe("fr");
     expect(langueEntree("en")).toBe("fr");

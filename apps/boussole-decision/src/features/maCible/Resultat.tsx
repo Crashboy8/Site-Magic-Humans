@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Card, buttonClass } from "@/components/ui";
-import type { ResultatClasse } from "@/domain/maCible/types";
+import type { ResultatClasse, SyntheseTerrain } from "@/domain/maCible/types";
 import { iconeCible } from "@/domain/maCible/iconeCible";
 import { alertePlaisirPressenti, scorePressenti } from "@/domain/maCible/scores";
 import type { MaCibleMessages } from "@/i18n/messages/maCible";
@@ -53,6 +53,7 @@ export function Resultat({
   locale,
   M,
   nbHistorique,
+  synthese,
   lecture = false,
   bandeauLecture,
   onCoche,
@@ -71,6 +72,7 @@ export function Resultat({
   locale: string;
   M: MaCibleMessages;
   nbHistorique: number;
+  synthese: SyntheseTerrain | null;
   lecture?: boolean;
   bandeauLecture?: string;
   onCoche: (index: number) => void;
@@ -333,6 +335,7 @@ export function Resultat({
                 ligne={ligne}
                 rang={i + 1}
                 prenom={prenom}
+                synthese={synthese}
                 M={M}
                 corpsOuvert={estOuvert(`cible-${i + 1}`)}
                 ouvert={estOuvert}

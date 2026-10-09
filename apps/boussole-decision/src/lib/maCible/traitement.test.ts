@@ -65,9 +65,11 @@ let deps: Dependances;
 const MAINTENANT = new Date("2026-10-10T10:00:00Z");
 const ENV = { VERCEL_ENV: "production", MA_CIBLE_SEL: "un-sel-d-au-moins-trente-deux-caracteres" };
 
+const LIMITES_TEST = { ipCadrage: 8, ipResultat: 3, ipSynthese: 5, ipApprofondir: 20, globalCadrage: 600, globalResultat: 200, globalSynthese: 100, globalApprofondir: 300 };
+
 function preparer(reponses: (string | Error)[], surcharge: Partial<Dependances> = {}) {
   fournisseur = fournisseurSimule(reponses);
-  deps = { fournisseur, quota: quotaMemoire({ ipCadrage: 8, ipResultat: 3, globalCadrage: 600, globalResultat: 200 }, () => MAINTENANT), maintenant: () => MAINTENANT, env: ENV, ...surcharge };
+  deps = { fournisseur, quota: quotaMemoire(LIMITES_TEST, () => MAINTENANT), maintenant: () => MAINTENANT, env: ENV, ...surcharge };
 }
 const corpsDe = async (r: Response) => (await r.json()) as any;
 
@@ -189,7 +191,7 @@ describe("configuration et quota", () => {
   it("429 quota_global quand le plafond du jour est atteint", async () => {
     preparer([JSON.stringify(RESULTAT_EXEMPLE)], {
       env: { ...ENV, MA_CIBLE_MAX_GLOBAL_RESULTAT: "1" },
-      quota: quotaMemoire({ ipCadrage: 8, ipResultat: 3, globalCadrage: 600, globalResultat: 1 }, () => MAINTENANT),
+      quota: quotaMemoire({ ...LIMITES_TEST, globalResultat: 1 }, () => MAINTENANT),
     });
     expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
     const r = await traiterDemande(deps, requete(demandeResultat(), { "x-forwarded-for": "198.51.100.4" }));
@@ -398,7 +400,7 @@ describe("quota seulement en cas de succès, et reprise", () => {
     preparer([JSON.stringify(RESULTAT_EXEMPLE)], {
       env: { ...ENV, MA_CIBLE_EMAILS_ILLIMITES: "pierre@example.com" },
       emailConnecte: "quelquun@exemple.fr",
-      quota: quotaMemoire({ ipCadrage: 8, ipResultat: 0, globalCadrage: 600, globalResultat: 200 }, () => MAINTENANT),
+      quota: quotaMemoire({ ...LIMITES_TEST, ipResultat: 0 }, () => MAINTENANT),
     });
     expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(429);
     expect(fournisseur.appeler).not.toHaveBeenCalled();
@@ -441,6 +443,79 @@ describe("confidentialité des journaux", () => {
     preparer([JSON.stringify(CADRAGE_ESQUISSE)]);
     await traiterDemande(deps, requete(demandeCadrage()));
     expect(erreurConsole).not.toHaveBeenCalled();
+  });
+});
+
+describe("synthèse des notes", () => {
+  const phrase = "Je n'en peux plus de ces réunions qui n'aboutissent jamais.";
+  const note = `${phrase} ${"x".repeat(160)}`;
+  const demande = {
+    etape: "synthese",
+    langue: "fr",
+    contexte: { mecanisme: "j'écoute", contexte: "un tournant", benefice: "une voie claire", offre: "un accompagnement" },
+    notes: [{ id: "n1", titre: "Entretien", texte: note }],
+  };
+  const reponseOk = {
+    statut: "ok",
+    message: "",
+    resume: "Ces personnes n'en peuvent plus des réunions qui tournent en rond, et elles cherchent enfin une sortie.",
+    profils: ["Cadres en réunion"],
+    douleurs: [{ texte: "Des réunions qui n'aboutissent jamais.", frequence: "souvent" }],
+    verbatims: [{ id: "v3", note: "n1", citation: phrase, theme: "douleur" }],
+    declencheurs: [],
+    objections: [],
+    motsCles: ["réunions"],
+  };
+
+  it("réussit, décrémente le quota synthese et n'écrit rien dans la reprise distante", async () => {
+    const distante = { lire: vi.fn(async () => null), garder: vi.fn(async () => {}) };
+    const memoire = { lire: vi.fn(async () => null), garder: vi.fn(async () => {}) };
+    const quota = quotaEspion(4);
+    preparer([JSON.stringify(reponseOk)], { quota, reprise: distante, repriseSensible: memoire });
+    const r = await traiterDemande(deps, requete(demande, { "x-ma-cible-session": SESSION }));
+    expect(r.status).toBe(200);
+    const corps = await corpsDe(r);
+    expect(corps.statut).toBe("ok");
+    expect(corps.synthese.nbNotes).toBe(1);
+    expect(corps.synthese.verbatims[0].id).toBe("v1");
+    expect(corps.synthese.faitLe).toBeUndefined();
+    expect(corps.restant).toBe(4);
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "synthese");
+    expect(distante.garder).not.toHaveBeenCalled();
+    expect(distante.lire).not.toHaveBeenCalled();
+    expect(memoire.garder).toHaveBeenCalled();
+  });
+
+  it("inutilisable répond 200 et compte", async () => {
+    const quota = quotaEspion(3);
+    preparer(
+      [JSON.stringify({ statut: "inutilisable", message: "Colle un entretien.", resume: "", profils: [], douleurs: [], verbatims: [], declencheurs: [], objections: [], motsCles: [] })],
+      { quota, repriseSensible: repriseMemoire(() => MAINTENANT) },
+    );
+    const r = await traiterDemande(deps, requete(demande, { "x-ma-cible-session": SESSION }));
+    expect(r.status).toBe(200);
+    expect(await corpsDe(r)).toMatchObject({ ok: true, statut: "inutilisable", synthese: null });
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "synthese");
+  });
+
+  it("un échec IA répond 503 et ne compte pas", async () => {
+    const quota = quotaEspion();
+    preparer([new ErreurFournisseur("reseau")], { quota, repriseSensible: repriseMemoire(() => MAINTENANT) });
+    const r = await traiterDemande(deps, requete(demande, { "x-ma-cible-session": SESSION }));
+    expect(r.status).toBe(503);
+    expect(quota.consommer).not.toHaveBeenCalled();
+  });
+
+  it("compte dans masques ce que le serveur masque encore", async () => {
+    const avecTelephone = `${phrase} Appelle le 06 12 34 56 78. ${"y".repeat(120)}`;
+    preparer([JSON.stringify(reponseOk)], { repriseSensible: repriseMemoire(() => MAINTENANT) });
+    const r = await traiterDemande(deps, requete({ ...demande, notes: [{ id: "n1", titre: "Entretien", texte: avecTelephone }] }, { "x-ma-cible-session": SESSION }));
+    const corps = await corpsDe(r);
+    expect(r.status).toBe(200);
+    expect(corps.masques).toEqual({ mails: 0, telephones: 1, liens: 0 });
+    const appel = fournisseur.appeler.mock.calls[0][0] as { utilisateur: string };
+    expect(appel.utilisateur).toContain("[téléphone]");
+    expect(appel.utilisateur).not.toContain("06 12 34 56 78");
   });
 });
 

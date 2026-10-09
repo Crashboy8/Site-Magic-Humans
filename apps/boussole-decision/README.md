@@ -158,6 +158,10 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | `MA_CIBLE_MAX_IP_CADRAGE` | cadrages réussis par personne et par jour | 30 |
 | `MA_CIBLE_MAX_IP_RESULTAT` | résultats réussis par personne et par jour | 15 |
 | `MA_CIBLE_MAX_GLOBAL_CADRAGE` / `MA_CIBLE_MAX_GLOBAL_RESULTAT` | appels par jour, tous visiteurs | 2000 / 500 |
+| `MA_CIBLE_MAX_IP_SYNTHESE` | lectures de notes réussies par personne et par jour | 5 |
+| `MA_CIBLE_MAX_IP_APPROFONDIR` | approfondissements réussis par personne et par jour | 20 |
+| `MA_CIBLE_MAX_GLOBAL_SYNTHESE` | lectures de notes par jour, tous visiteurs | 100 |
+| `MA_CIBLE_MAX_GLOBAL_APPROFONDIR` | approfondissements par jour, tous visiteurs | 300 |
 | `MA_CIBLE_EMAILS_ILLIMITES` | emails des comptes connectés qui ne consomment aucun quota, ni personnel ni global, séparés par des virgules | |
 | `MA_CIBLE_CLE_TEST` | secret (`openssl rand -hex 24`). Ouvrir `/ma-cible/?cle=` suivi de ce secret saute les deux plafonds pour l'onglet | |
 

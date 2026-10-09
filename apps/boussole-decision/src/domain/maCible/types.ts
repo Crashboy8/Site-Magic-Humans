@@ -13,6 +13,12 @@ export type IdPiste = "p1" | "p2" | "p3" | "p4" | "p5" | "p6";
 export type IdNote = "n1" | "n2" | "n3" | "n4" | "n5";
 export type Verdict = "oui" | "en_partie" | "non";
 
+export interface NoteTerrain {
+  id: IdNote;
+  titre: string;
+  texte: string;
+}
+
 export interface Talent {
   nom: string;            // nom du talent (Carte) ou du profil (quiz), facultatif
   mecanisme: string;      // obligatoire
@@ -72,10 +78,18 @@ export interface Corrections {
   idee: string;           // cible suggérée par la personne, facultative
 }
 
-/** Corps de la requête POST (§10.1). */
+export interface ContexteSynthese {
+  mecanisme: string;
+  contexte: string;
+  benefice: string;
+  offre: string;
+}
+
+/** Corps de la requête POST (§10.1, §5.2). */
 export type Demande =
   | { etape: "cadrage"; tour: 1 | 2 | 3; entree: EntreeMaCible; esquissePrecedente?: Esquisse; corrections?: Corrections }
-  | { etape: "resultat"; entree: EntreeMaCible; esquisse: Esquisse; corrections: Corrections };
+  | { etape: "resultat"; entree: EntreeMaCible; esquisse: Esquisse; corrections: Corrections }
+  | { etape: "synthese"; langue: Langue; contexte: ContexteSynthese; notes: NoteTerrain[] };
 
 export type Canal = "linkedin" | "email" | "instagram" | "facebook" | "tiktok" | "youtube" | "newsletter" | "contenu"
   | "presentiel" | "evenements" | "partenariats" | "bouche_a_oreille" | "telephone" | "autre";

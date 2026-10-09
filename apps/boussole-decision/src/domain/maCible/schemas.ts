@@ -8,6 +8,7 @@ const O = (properties: Record<string, object>) => ({ type: "object", additionalP
 export const CANAUX = ["linkedin","email","instagram","facebook","tiktok","youtube","newsletter","contenu","presentiel","evenements","partenariats","bouche_a_oreille","telephone","autre"] as const;
 export const IDS_IDEES = ["i1","i2","i3","i4","i5","i6","i7","i8"] as const;
 export const IDS_PISTES = ["p1","p2","p3","p4","p5","p6"] as const;
+export const IDS_NOTES = ["n1","n2","n3","n4","n5"] as const;
 const NOTE = O({ note: N, raison: S });
 
 const PISTE_ESQUISSE = O({ id: E(IDS_PISTES), nom: S, marche: E(["b2b","b2c"]), enUneLigne: S, raison: S, depuisIdees: A(E(IDS_IDEES)) });
@@ -53,4 +54,11 @@ export const SCHEMA_RESULTAT = O({
   plan30: A(O({ semaine: N, titre: S, actions: A(O({ texte: S, cible: E(["c1","c2","c3","toutes"]), canal: E(CANAUX), minutes: N })) })),
   hypotheses: A(S),
   motPourToi: S,
+});
+
+export const SCHEMA_SYNTHESE = O({
+  statut: E(["ok","inutilisable"]), message: S, resume: S, profils: A(S),
+  douleurs: A(O({ texte: S, frequence: E(["souvent","parfois","une_fois"]) })),
+  verbatims: A(O({ id: S, note: E(IDS_NOTES), citation: S, theme: E(["douleur","declencheur","objection","resultat","autre"]) })),
+  declencheurs: A(S), objections: A(S), motsCles: A(S),
 });
