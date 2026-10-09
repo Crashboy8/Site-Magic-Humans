@@ -2,14 +2,17 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button, Card, Notice } from "@/components/ui";
-import { DEPUIS_CIBLEUR as T } from "@/content/depuisCibleur";
-import { decoderLienCibles, type LienCibles } from "@/domain/boussoleCibles";
+import { URL_CIBLEUR, decoderLienCibles, type LienCibles } from "@/domain/boussoleCibles";
+import { useI18n } from "@/i18n/client";
 import { startCiblesCompassAction } from "./actions";
 
-const formatScore = (n: number) => `${n.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/10`;
+const formatScore = (n: number, locale: string) => `${n.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/10`;
 
 /** Arrivée depuis Le Cibleur : la charge est dans l'ancre (#cibles=…), lue une fois puis retirée de l'adresse. */
 export function CiblesStart() {
+  const { t } = useI18n();
+  const T = t.espace.depuisCibleur;
+  const localeNombre = t.maCible.commun.locale;
   const [charge, setCharge] = useState<LienCibles | null>(null);
   const [lu, setLu] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -45,7 +48,7 @@ export function CiblesStart() {
           <>
             <Notice tone="error">{T.invalide}</Notice>
             <p className="text-sm">
-              <a href={T.urlRetour} className="font-medium text-link underline underline-offset-4">
+              <a href={URL_CIBLEUR} className="font-medium text-link underline underline-offset-4">
                 {T.retour}
               </a>
             </p>
@@ -59,7 +62,7 @@ export function CiblesStart() {
                 <li key={`${i}-${c.nom}`} className="flex items-center gap-3 rounded-xl border border-line bg-paper px-4 py-3">
                   <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-sage-soft text-[15px] font-semibold text-sage">{i + 1}</span>
                   <span className="min-w-0 flex-1 text-[16px]">{c.nom}</span>
-                  <span className="shrink-0 text-[15px] tabular-nums text-ink-soft">{formatScore(c.score)}</span>
+                  <span className="shrink-0 text-[15px] tabular-nums text-ink-soft">{formatScore(c.score, localeNombre)}</span>
                 </li>
               ))}
             </ol>
@@ -69,7 +72,7 @@ export function CiblesStart() {
             </Button>
             <p className="text-sm text-ink-soft">{T.note}</p>
             <p className="text-sm">
-              <a href={T.urlRetour} className="font-medium text-link underline underline-offset-4">
+              <a href={URL_CIBLEUR} className="font-medium text-link underline underline-offset-4">
                 {T.retour}
               </a>
             </p>

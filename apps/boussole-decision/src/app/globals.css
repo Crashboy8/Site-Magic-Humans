@@ -304,3 +304,15 @@ html[data-seance] .sticky {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Le Cibleur et Mon espace : pas de mot orphelin ni de titre coupé au mauvais endroit sur téléphone. */
+.typo-soignee :is(h1, h2, h3, h4, summary, legend, blockquote) {
+  text-wrap: balance;
+}
+.typo-soignee :is(p, li, dd, dt, label, figcaption, span) {
+  text-wrap: pretty;
+}
+/* Un titre garde l'équilibre jusque dans ses morceaux (texte à côté d'une icône). */
+.typo-soignee :is(h1, h2, h3, h4, summary, legend) span {
+  text-wrap: balance;
+}

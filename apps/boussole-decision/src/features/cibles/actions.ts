@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { DEPUIS_CIBLEUR } from "@/content/depuisCibleur";
 import { CRITERES_CIBLES, evaluationPour, noteScoreCibleur, validerLienCibles } from "@/domain/boussoleCibles";
 import {
   createCriterion,
@@ -23,8 +22,9 @@ import { supabaseServer } from "@/lib/supabase/server";
  */
 export async function startCiblesCompassAction(brut: unknown): Promise<{ error?: string }> {
   const charge = validerLienCibles(brut);
-  if (!charge) return { error: DEPUIS_CIBLEUR.invalide };
   const { locale, t } = await getI18n();
+  const D = t.espace.depuisCibleur;
+  if (!charge) return { error: D.invalide };
   const supabase = await supabaseServer();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims?.sub) {
@@ -34,7 +34,7 @@ export async function startCiblesCompassAction(brut: unknown): Promise<{ error?:
 
   let versionId: string;
   try {
-    const profileId = await createProfile(supabase, DEPUIS_CIBLEUR.nomProfil, DEPUIS_CIBLEUR.descriptionProfil, DEPUIS_CIBLEUR.nomVersion);
+    const profileId = await createProfile(supabase, D.nomProfil, D.descriptionProfil, D.nomVersion);
     const [version] = await listVersions(supabase, profileId);
     versionId = version.id;
     const { talent } = charge;
@@ -74,7 +74,7 @@ export async function startCiblesCompassAction(brut: unknown): Promise<{ error?:
       }
     }
   } catch {
-    return { error: DEPUIS_CIBLEUR.echec };
+    return { error: D.echec };
   }
   redirect(`/versions/${versionId}/tableau/`);
 }

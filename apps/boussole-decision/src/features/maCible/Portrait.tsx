@@ -205,7 +205,7 @@ export function VuePortrait({
       </div>
 
       <div data-ecran-seul>
-        <BoutonCopier texte={textePortrait(portrait, synthese)} M={M} libelle={A.copierPortrait} />
+        <BoutonCopier texte={textePortrait(portrait, synthese, false, 3, M)} M={M} libelle={A.copierPortrait} />
       </div>
     </div>
   );

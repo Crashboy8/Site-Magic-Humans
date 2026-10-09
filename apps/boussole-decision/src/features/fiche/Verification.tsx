@@ -1,14 +1,13 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { ESPACE } from "@/content/espace";
+import { useI18n } from "@/i18n/client";
 import { LIMITES_FICHE, validerFiche } from "@/domain/fiche/bornes";
 import type { ChampTexte, FicheTalent, MethodeFiche, RapportLecture, SourceFiche } from "@/domain/fiche/types";
 import { Icone } from "@/features/espace/Icones";
 import { enregistrerFicheAction } from "./actions";
 import { depuisFormulaire, estObligatoire, GROUPES, rempli, TEXTES_LONGS, versFormulaire, type ChampEcran, type Formulaire } from "./champs";
 
-const V = ESPACE.verification;
 const ACCENT = "#C8333A";
 
 const BADGES = {
@@ -32,6 +31,7 @@ export function Verification({
   source: SourceFiche;
   methode: MethodeFiche;
 }) {
+  const V = useI18n().t.espace.verification;
   const [form, setForm] = useState<Formulaire>(() => versFormulaire(initiale));
   const [touches, setTouches] = useState<Set<string>>(() => new Set());
   const [consentement, setConsentement] = useState(false);

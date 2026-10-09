@@ -19,6 +19,8 @@ export interface LienCibles {
 
 export const TAILLE_MAX_LIEN = 8_000;
 export const CHEMIN_DEPUIS_CIBLEUR = "/boussole-decision/depuis-cibleur/";
+/** Retour vers Le Cibleur depuis /depuis-cibleur/. */
+export const URL_CIBLEUR = "/boussole-decision/ma-cible/";
 const TALENT_MAX = 600;
 const TALENT_REDUIT = 300;
 const OFFRE_MAX = 240;

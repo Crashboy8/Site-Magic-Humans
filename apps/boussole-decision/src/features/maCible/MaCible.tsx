@@ -324,7 +324,7 @@ export function MaCible({
     setVue({ type: "liste" });
   }
   const dateHistorique = (faitLe: string) =>
-    new Date(faitLe).toLocaleDateString(locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+    new Date(faitLe).toLocaleDateString(M.commun.locale, { day: "numeric", month: "long", year: "numeric" });
 
   if (!pret) return <div className="mx-auto max-w-3xl" aria-busy="true" />;
 
@@ -355,7 +355,7 @@ export function MaCible({
                     <span className="mt-1 block text-[17px]">{entree.resultat.offre.phrase}</span>
                     {cible && ligne && (
                       <span className="mt-1 block text-[15px] text-ink-soft">
-                        {M.resultat.ciblePrioritaire} : {cible.nom} · {M.resultat.score(ligne.score)}
+                        {M.resultat.ciblePrioritaire}{M.commun.dp}{cible.nom} · {M.resultat.score(ligne.score)}
                       </span>
                     )}
                   </button>

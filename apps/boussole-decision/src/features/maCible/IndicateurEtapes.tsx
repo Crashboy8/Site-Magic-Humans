@@ -17,7 +17,7 @@ export function IndicateurEtapes({ etat, M, onAller }: { etat: Etat; M: MaCibleM
   return (
     <div className="space-y-2">
       <p className="text-sm text-ink-soft">{etiquette}</p>
-      <nav aria-label="Étapes">
+      <nav aria-label={M.commun.etapesAria}>
         <ol className="grid grid-cols-5 gap-1.5">
           {ETAPES_BARRE.map((id) => {
             const acces = accesEtape(etat, id);

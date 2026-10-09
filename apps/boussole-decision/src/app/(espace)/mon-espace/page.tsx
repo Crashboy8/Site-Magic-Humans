@@ -1,20 +1,24 @@
 import type { Metadata } from "next";
-import { ESPACE, IMPORT_ACTIF } from "@/content/espace";
+import type { EspaceMessages } from "@/i18n/messages/espace";
+import { IMPORT_ACTIF } from "@/content/espace";
 import { getFiche, type LectureFiche } from "@/data/fiche";
 import { CarteFiche } from "@/features/fiche/CarteFiche";
 import { CarteOutil } from "@/features/espace/CarteOutil";
 import { Icone } from "@/features/espace/Icones";
-import { OUTILS, type SectionOutil } from "@/features/espace/outils";
+import { outilsPour, type SectionOutil } from "@/features/espace/outils";
+import { getI18n } from "@/i18n/server";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: ESPACE.meta.titre };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).t.espace.meta.titre };
+}
 
 const LIEN_APPEL =
   "https://calendly.com/pierre-j-sarazin?utm_source=site&utm_medium=mon-espace&utm_campaign=mon-espace";
 
-const SECTIONS: { cle: SectionOutil; titre: string; icone: "mallette" | "coeur"; couleur: string }[] = [
-  { cle: "pro", titre: ESPACE.sections.pro, icone: "mallette", couleur: "#0E7490" },
-  { cle: "coeur", titre: ESPACE.sections.coeur, icone: "coeur", couleur: "#C8333A" },
+const SECTIONS: { cle: SectionOutil; icone: "mallette" | "coeur"; couleur: string }[] = [
+  { cle: "pro", icone: "mallette", couleur: "#0E7490" },
+  { cle: "coeur", icone: "coeur", couleur: "#C8333A" },
 ];
 
 /** Lecture de la fiche ; une erreur inattendue ne doit pas casser l'accueil. */
@@ -27,13 +31,15 @@ async function lireFiche(userId: string): Promise<LectureFiche> {
 }
 
 /** La carte fiche (E.4) : masquée tant que l'import n'est pas actif. */
-function zoneFiche(lecture: LectureFiche | null) {
+function zoneFiche(lecture: LectureFiche | null, F: EspaceMessages["fiche"]) {
   if (!IMPORT_ACTIF || !lecture) return null;
-  return <CarteFiche lecture={lecture} />;
+  return <CarteFiche lecture={lecture} F={F} />;
 }
 
 export default async function MonEspacePage({ searchParams }: PageProps<"/mon-espace">) {
   const user = await requireUser();
+  const ESPACE = (await getI18n()).t.espace;
+  const outils = outilsPour(ESPACE.outils);
   const lecture = IMPORT_ACTIF ? await lireFiche(user.id) : null;
   const fichePrenom = lecture && !lecture.absente ? (lecture.fiche?.fiche.prenom ?? "") : "";
   const prenom = user.firstName.trim() || fichePrenom;
@@ -53,16 +59,16 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
         </p>
       )}
 
-      {zoneFiche(lecture)}
+      {zoneFiche(lecture, ESPACE.fiche)}
 
       {SECTIONS.map((section) => (
         <section key={section.cle} className="space-y-3" aria-labelledby={`section-${section.cle}`}>
           <h2 id={`section-${section.cle}`} className="flex items-center gap-2 font-serif text-[26px] italic leading-tight" style={{ color: section.couleur }}>
             <Icone nom={section.icone} className="h-6 w-6 shrink-0" />
-            {section.titre}
+            {ESPACE.sections[section.cle]}
           </h2>
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {OUTILS.filter((outil) => outil.section === section.cle).map((outil) => (
+            {outils.filter((outil) => outil.section === section.cle).map((outil) => (
               <li key={outil.cle} className="min-w-0">
                 <CarteOutil outil={outil} />
               </li>

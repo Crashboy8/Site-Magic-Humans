@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ESPACE } from "@/content/espace";
 import { getI18n } from "@/i18n/server";
 import { SignInForm } from "@/features/auth/forms";
 
@@ -10,7 +9,7 @@ function suiteDemandee(suite: string | string[] | undefined) {
 export async function generateMetadata({ searchParams }: PageProps<"/connexion">): Promise<Metadata> {
   const { suite } = await searchParams;
   const valeur = suiteDemandee(suite);
-  if (valeur?.startsWith("/mon-espace")) return { title: ESPACE.connexion.titre };
+  if (valeur?.startsWith("/mon-espace")) return { title: (await getI18n()).t.espace.connexion.titre };
   return { title: (await getI18n()).t.auth.titleSignIn };
 }
 

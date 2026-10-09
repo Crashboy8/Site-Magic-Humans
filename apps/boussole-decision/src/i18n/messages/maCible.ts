@@ -1,4 +1,7 @@
-// Ma Cible : textes de l'interface. Le français fait foi ; l'anglais et l'espagnol suivront avec la même forme.
+// Ma Cible : textes de l'interface. Le français fait foi ; l'anglais est dans maCibleEn.ts (même forme, vérifiée par TypeScript).
+// L'espagnol reste une copie du français tant que sa traduction n'est pas faite (lot ES).
+import { typographier } from "../typo";
+import { maCibleEn } from "./maCibleEn";
 
 /** Nom affiché dans l'encart : neutre, le fournisseur réel dépend de la configuration. */
 export const LIBELLE_FOURNISSEUR_IA = "un modèle d'IA (Mistral, Google Gemini ou Anthropic Claude selon la configuration)";
@@ -15,12 +18,12 @@ export const NOM_OUTIL = {
 
 export const SOUS_TITRE_OUTIL = {
   fr: "Trouve les clients avec qui tu réussis dans le plaisir",
-  en: "Find the clients you thrive with in Flow State Mastery",
+  en: "Find the clients who put you in Flow State Mastery",
   es: "Encuentra los clientes con los que triunfas disfrutando",
 } as const;
 
 /** Titre d'onglet : le nom, puis la phrase d'accroche. */
-export const titreOutil = (nom: string, sousTitre: string) => `${nom} : ${sousTitre}`;
+export const titreOutil = (nom: string, sousTitre: string, deuxPoints = " : ") => `${nom}${deuxPoints}${sousTitre}`;
 
 const fr = {
   meta: {
@@ -29,6 +32,14 @@ const fr = {
   commun: {
     nomOutil: NOM_OUTIL.fr as string,
     sousTitre: SOUS_TITRE_OUTIL.fr as string,
+    /** Format des nombres et des dates. */
+    locale: "fr-FR" as string,
+    etapesAria: "Étapes",
+    /** Le modèle d'IA nommé dans l'encart de confidentialité. */
+    fournisseurIa: LIBELLE_FOURNISSEUR_IA as string,
+    /** Deux-points avec l'espace qui convient à la langue. */
+    dp: " : " as string,
+    citation: (t: string) => `« ${t} »`,
     etape: (n: number) => `Étape ${n} sur 5`,
     tour: (n: number, total: number) => `Tour ${n} sur ${total}`,
     boucle: (tour: number, total: number) =>
@@ -356,6 +367,13 @@ const fr = {
     },
     noteSur5: (n: number) => `${n} sur 5`,
     grilleLien: "Comment on calcule ce score",
+    /** Repères 1, 3 et 5 de chaque critère (même grille que scores.ts, qui sert au prompt). */
+    grille: {
+      urgence: { un: "« Ce serait bien un jour », personne ne cherche", trois: "Gêne réelle, la cible cherche quand ça déborde", cinq: "Douleur aiguë, elle cherche activement une solution maintenant" },
+      paiement: { un: "Pas de budget, attend du gratuit", trois: "Peut payer de sa poche ou obtenir un budget en se battant", cinq: "Budget dédié et habitude d'acheter ce type de prestation à ce prix" },
+      acces: { un: "Personne dans l'entourage, aucun lieu où elle se rassemble", trois: "Joignable par des canaux identifiés, sans contact direct", cinq: "Déjà dans ton réseau ou ton expérience" },
+      plaisir: { un: "Ressemble à ton Anti-Contexte", trois: "Neutre", cinq: "C'est exactement ton Contexte Déclencheur" },
+    },
     grilleTexte:
       "Chaque critère est noté de 1 à 5, puis pondéré : urgence 30 %, capacité à payer 25 %, plaisir 25 %, facilité d'accès 20 %. Le total est ramené sur 10. Une cible où ton plaisir est faible (1 ou 2) passe toujours après les autres : réussir dans le Plaisir, c'est aussi choisir ses clients.",
     alertePlaisir: "Attention : ton talent risque de s'y user. À garder pour plus tard.",
@@ -422,6 +440,7 @@ const fr = {
       commentDire: "Comment dire non avec élégance",
     },
     hypothesesTitre: "Ce que l'IA a supposé",
+    sansHypothese: "L'IA s'est appuyée sur tes réponses, sans supposition en plus.",
     motPourToi: "Un mot pour toi",
     boussole: {
       titre: "Tu hésites entre tes cibles ?",
@@ -535,6 +554,68 @@ const fr = {
     cibleToutes: "Toutes tes cibles",
     fini: "Plan terminé, bravo ! Tu as maintenant de vraies réponses du terrain.",
   },
+  export: {
+    sonPortrait: "Son portrait",
+    imagine: (prenom: string, age: string | number) => `${prenom}, ${age} (imaginé par l'IA)`,
+    situation: "Sa situation",
+    journee: "Sa journée",
+    declencheur: "Le jour où elle cherche de l'aide",
+    pourToi: "Ce qui allume ton talent chez elle",
+    dejaEssaye: "Ce qu'elle a déjà essayé",
+    douleurs: "Ce qui lui pèse",
+    intensite: (n: number) => `intensité ${n} sur 5`,
+    sesMots: "Comme elle le dirait",
+    vraiClient: "Ce qu'un client t'a vraiment dit",
+    objections: "Ce qui la fait hésiter, et quoi répondre",
+    repondre: "Tu peux répondre",
+    criteresChoix: "Ce qui la fera choisir",
+    sInforme: "Où elle s'informe",
+    lieux: "Où la croiser",
+    categories: { salon: "Salon", evenement: "Événement", club: "Club ou réseau", en_ligne: "En ligne", lieu: "Lieu", media: "Média" },
+    aChercher: "À chercher",
+    clients: "Ce que disent tes clients",
+    notes: "Ce que disent tes notes",
+    profils: "Qui sont ces personnes",
+    leurPese: "Ce qui leur pèse",
+    motsExacts: "Leurs mots exacts",
+    declencheurs: "Ce qui les a poussées à chercher de l'aide",
+    hesiter: "Ce qui les fait hésiter",
+    motsCles: "Les mots qu'elles emploient",
+    frequences: { souvent: "souvent", parfois: "parfois", une_fois: "une fois" },
+    cible: "Cible",
+    quiCest: "Qui c'est",
+    douleur: "Sa douleur probable",
+    ancrage: "Ce que ton talent lui apporte",
+    promesse: "Ta promesse",
+    offreCible: "Ton offre pour elle",
+    format: "Format",
+    duree: "Durée",
+    contenu: "Ce qu'il y a dedans",
+    prix: (min: string, max: string, base: string, unite: string) => `Prix indicatif : ${min} à ${max} € ${base}, ${unite}`,
+    pitch: "Ton pitch",
+    pourquoi: "Pourquoi cette cible",
+    exemple: "Un cas imaginé pour illustrer",
+    rencontrer: "Où la rencontrer",
+    priorite: (n: number) => `priorité ${n}`,
+    linkedin: "LinkedIn",
+    messages: "Messages",
+    messageLinkedin: "Message LinkedIn",
+    objet: "Objet",
+    testTerrain: "Test terrain",
+    bonSigne: "Bon signe si",
+    mauvaisSigne: "Mauvais signe si",
+    semaine: (n: number, titre: string) => `Semaine ${n} : ${titre}`,
+    tonOffre: "Ton offre",
+    avant: "Avant toi",
+    apres: "Après toi",
+    autresPistes: "D'autres pistes",
+    pistesCreusees: "Pistes creusées",
+    antiCible: "Anti-cible",
+    plan: "Plan 30 jours",
+    hypotheses: "Ce que l'IA a supposé",
+    motPourToi: "Un mot pour toi",
+    nomFichier: "le-cibleur",
+  },
   canaux: {
     linkedin: "LinkedIn",
     email: "Email",
@@ -569,8 +650,9 @@ const fr = {
 };
 
 export type MaCibleMessages = typeof fr;
-// Le reste de l'interface reste en français. Seul le nom du bandeau est déjà traduit.
-const en: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.en, sousTitre: SOUS_TITRE_OUTIL.en } };
+// Espagnol : copie temporaire du français (seuls le nom et la phrase du bandeau sont traduits). Le Cibleur parle alors français
+// à l'IA aussi (LANGUES_INTERFACE dans features/maCible/etat.ts), pour ne pas mélanger les langues.
 const es: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.es, sousTitre: SOUS_TITRE_OUTIL.es } };
 
-export const maCible = { fr, en, es };
+/** Textes affichés : espaces insécables appliqués (pas de « 2 » seul en fin de ligne, ni de « : » en début de ligne). */
+export const maCible = { fr: typographier(fr), en: typographier(maCibleEn), es: typographier(es) };

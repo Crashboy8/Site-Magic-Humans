@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ESPACE, IMPORT_ACTIF } from "@/content/espace";
+import { IMPORT_ACTIF } from "@/content/espace";
 import { getFiche } from "@/data/fiche";
 import type { FicheTalent } from "@/domain/fiche/types";
 import { Icone } from "@/features/espace/Icones";
 import { GROUPES, rempli, type ChampEcran } from "@/features/fiche/champs";
 import { SupprimerFiche } from "@/features/fiche/SupprimerFiche";
 import { Verification } from "@/features/fiche/Verification";
+import { getI18n } from "@/i18n/server";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: ESPACE.pageFiche.titre };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getI18n()).t.espace.pageFiche.titre };
+}
 
-const V = ESPACE.verification;
 const COULEURS = { essentiel: "#C8333A", outils: "#0E7490", reste: "#8A6516" } as const;
 const ICONES = { essentiel: "etoile", outils: "mallette", reste: "document" } as const;
 /** Listes de mots courts : en pastilles plutôt qu'en puces. */
@@ -69,6 +71,8 @@ function Valeur({ fiche, champ }: { fiche: FicheTalent; champ: ChampEcran }) {
 
 export default async function FichePage({ searchParams }: PageProps<"/mon-espace/fiche">) {
   const user = await requireUser();
+  const ESPACE = (await getI18n()).t.espace;
+  const V = ESPACE.verification;
   if (!IMPORT_ACTIF) redirect("/mon-espace/");
   const lecture = await getFiche(await supabaseServer(), user.id);
   if (lecture.absente) redirect("/mon-espace/");

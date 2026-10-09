@@ -1,3 +1,4 @@
+import { sansInsecables as plat } from "@/i18n/typo";
 import { describe, expect, it } from "vitest";
 import { maCible } from "@/i18n/messages/maCible";
 import { DELAI_MS } from "@/lib/maCible/traitement";
@@ -20,12 +21,12 @@ describe("message d'attente", () => {
     expect(formaterDureeEcoulee(5_000)).toBe("5 s");
     expect(formaterDureeEcoulee(59_999)).toBe("59 s");
     expect(formaterDureeEcoulee(65_000)).toBe("1 min 05 s");
-    expect(M.attente.ecoule(formaterDureeEcoulee(12_000))).toBe("Temps écoulé : 12 s");
+    expect(plat(M.attente.ecoule(formaterDureeEcoulee(12_000)))).toBe("Temps écoulé : 12 s");
   });
 
   it("dit une minute max pour le cadrage, et 2 à 3 minutes (4 max) pour le résultat", () => {
     expect(M.attente.patienceCadrage).toContain("une minute max");
-    expect(M.attente.patienceResultat).toBe(
+    expect(plat(M.attente.patienceResultat)).toBe(
       "Ta cible mûrit. Tu as le temps de prendre un café ou de répondre à un message, ça revient dans 2 à 3 minutes (4 minutes max).",
     );
     expect(M.attente.gardeOuverte).toBe("Garde cette page ouverte.");

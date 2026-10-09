@@ -1,6 +1,6 @@
-import { ESPACE } from "@/content/espace";
 import { couper } from "@/domain/fiche/bornes";
 import type { LectureFiche } from "@/data/fiche";
+import type { EspaceMessages } from "@/i18n/messages/espace";
 import { Icone } from "@/features/espace/Icones";
 
 const PASTILLES = [
@@ -12,8 +12,7 @@ const PASTILLES = [
 const lienSite = (chemin: string) => `/boussole-decision${chemin}`;
 
 /** Carte du haut de Mon espace (E.4) : bientôt, sans fiche, ou « Ton Talent Unique ». */
-export function CarteFiche({ lecture }: { lecture: LectureFiche }) {
-  const F = ESPACE.fiche;
+export function CarteFiche({ lecture, F }: { lecture: LectureFiche; F: EspaceMessages["fiche"] }) {
   if (lecture.absente) {
     return (
       <p className="flex items-center gap-2 rounded-[14px] border border-sky-line bg-sky-soft px-4 py-3 text-base text-ink">
@@ -59,7 +58,7 @@ export function CarteFiche({ lecture }: { lecture: LectureFiche }) {
       </h2>
       {f.resume && <p className="mt-2 max-w-2xl text-base leading-relaxed text-ink">{couper(f.resume, 220)}</p>}
       {f.valeurs.length > 0 && (
-        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Tes trois premières valeurs">
+        <ul className="mt-3 flex flex-wrap gap-2" aria-label={F.valeursAria}>
           {f.valeurs.slice(0, 3).map((v, i) => (
             <li key={v} className="rounded-full px-3 py-1 text-sm font-medium" style={{ background: PASTILLES[i].fond, color: PASTILLES[i].texte }}>
               {v}

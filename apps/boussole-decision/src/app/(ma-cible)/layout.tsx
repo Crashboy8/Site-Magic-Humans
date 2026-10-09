@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function MaCibleLayout({ children }: { children: React.ReactNode }) {
   const { nomOutil, sousTitre } = (await getI18n()).t.maCible.commun;
   return (
-    <PublicFrame brand={nomOutil} tagline={sousTitre} sansLangues mark={<TargetMark className="h-8 w-8 shrink-0 text-ink sm:h-9 sm:w-9" />}>
-      {children}
+    <PublicFrame brand={nomOutil} tagline={sousTitre} mark={<TargetMark className="h-8 w-8 shrink-0 text-ink sm:h-9 sm:w-9" />}>
+      <div className="typo-soignee">{children}</div>
     </PublicFrame>
   );
 }

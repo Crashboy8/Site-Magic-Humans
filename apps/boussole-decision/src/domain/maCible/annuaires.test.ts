@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { sansInsecables as plat } from "@/i18n/typo";
 import { describe, expect, it } from "vitest";
 import { maCible } from "@/i18n/messages/maCible";
 import { ANNUAIRES_SALONS, urlRechercheGoogle } from "./annuaires";
@@ -17,10 +18,10 @@ describe("annuaires de salons", () => {
     expect(src).toContain('rel="noopener noreferrer"');
     expect(src).not.toContain("salonsenfrance");
     expect(src).not.toContain("eventseye.com");
-    expect(maCible.fr.resultat.annuairesIntro).toBe("Pour voir tous les salons à venir :");
-    expect(maCible.fr.resultat.annuaireSalons).toBe("Voir l'annuaire des salons");
-    expect(maCible.fr.esquisse.pourquoiPas).toBe("Pourquoi pas dans tes 3 cibles :");
-    expect(maCible.fr.resultat.salonsInternational).toBe("Salons à l'international");
-    expect(maCible.fr.resultat.chercherGoogle).toBe("Chercher sur Google");
+    expect(plat(maCible.fr.resultat.annuairesIntro)).toBe("Pour voir tous les salons à venir :");
+    expect(plat(maCible.fr.resultat.annuaireSalons)).toBe("Voir l'annuaire des salons");
+    expect(plat(maCible.fr.esquisse.pourquoiPas)).toBe("Pourquoi pas dans tes 3 cibles :");
+    expect(plat(maCible.fr.resultat.salonsInternational)).toBe("Salons à l'international");
+    expect(plat(maCible.fr.resultat.chercherGoogle)).toBe("Chercher sur Google");
   });
 });
