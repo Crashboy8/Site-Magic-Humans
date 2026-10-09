@@ -50,8 +50,8 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         ) : (
           <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {profiles.map((p) => (
-              <li key={p.id}>
-                <ProfileCard profile={p} versions={versions.filter((v) => v.profileId === p.id)} />
+              <li key={p.id} className="empty:hidden">
+                <ProfileCard profile={p} versions={versions.filter((v) => v.profileId === p.id)} editable={p.userId === user.id} />
               </li>
             ))}
           </ul>
