@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { ESPACE, IMPORT_ACTIF } from "@/content/espace";
+import { getFiche, type LectureFiche } from "@/data/fiche";
+import { CarteFiche } from "@/features/fiche/CarteFiche";
 import { CarteOutil } from "@/features/espace/CarteOutil";
 import { Icone } from "@/features/espace/Icones";
 import { OUTILS, type SectionOutil } from "@/features/espace/outils";
-import { requireUser } from "@/lib/supabase/server";
+import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: ESPACE.meta.titre };
 
@@ -15,15 +17,28 @@ const SECTIONS: { cle: SectionOutil; titre: string; icone: "mallette" | "coeur";
   { cle: "coeur", titre: ESPACE.sections.coeur, icone: "coeur", couleur: "#C8333A" },
 ];
 
-/** La carte fiche (PR 2) reste masquée tant que l'import n'est pas actif. */
-function zoneFiche(): null {
-  if (!IMPORT_ACTIF) return null;
-  return null;
+/** Lecture de la fiche ; une erreur inattendue ne doit pas casser l'accueil. */
+async function lireFiche(userId: string): Promise<LectureFiche> {
+  try {
+    return await getFiche(await supabaseServer(), userId);
+  } catch {
+    return { absente: true };
+  }
 }
 
-export default async function MonEspacePage() {
+/** La carte fiche (E.4) : masquée tant que l'import n'est pas actif. */
+function zoneFiche(lecture: LectureFiche | null) {
+  if (!IMPORT_ACTIF || !lecture) return null;
+  return <CarteFiche lecture={lecture} />;
+}
+
+export default async function MonEspacePage({ searchParams }: PageProps<"/mon-espace">) {
   const user = await requireUser();
-  const prenom = user.firstName.trim();
+  const lecture = IMPORT_ACTIF ? await lireFiche(user.id) : null;
+  const fichePrenom = lecture && !lecture.absente ? (lecture.fiche?.fiche.prenom ?? "") : "";
+  const prenom = user.firstName.trim() || fichePrenom;
+  const etat = (await searchParams).fiche;
+  const notice = etat === "ok" ? ESPACE.notices.ficheOk : etat === "supprimee" ? ESPACE.notices.ficheSupprimee : null;
 
   return (
     <div className="space-y-8">
@@ -32,7 +47,13 @@ export default async function MonEspacePage() {
         <p className="max-w-2xl text-base leading-relaxed text-ink-soft">{ESPACE.intro}</p>
       </header>
 
-      {zoneFiche()}
+      {notice && (
+        <p role="status" className="rounded-xl border border-sage/30 bg-sage-soft px-4 py-3 text-base text-ink">
+          {notice}
+        </p>
+      )}
+
+      {zoneFiche(lecture)}
 
       {SECTIONS.map((section) => (
         <section key={section.cle} className="space-y-3" aria-labelledby={`section-${section.cle}`}>

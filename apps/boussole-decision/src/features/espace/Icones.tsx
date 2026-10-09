@@ -12,7 +12,11 @@ export type NomIcone =
   | "document"
   | "pressePapiers"
   | "dossier"
-  | "crayon";
+  | "crayon"
+  | "lien"
+  | "etoile"
+  | "poubelle"
+  | "fleche";
 
 const DESSINS: Record<NomIcone, ReactNode> = {
   qcm: (
@@ -65,6 +69,20 @@ const DESSINS: Record<NomIcone, ReactNode> = {
     </>
   ),
   dossier: <path d="M3.5 8.5V18a1.5 1.5 0 0 0 1.5 1.5h14A1.5 1.5 0 0 0 20.5 18V9.5a1 1 0 0 0-1-1h-7.2L10.5 6.2H4.5a1 1 0 0 0-1 1z" />,
+  lien: (
+    <>
+      <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.2 1.2" />
+      <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.2-1.2" />
+    </>
+  ),
+  etoile: <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z" />,
+  poubelle: (
+    <>
+      <path d="M4.5 7h15M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2" />
+      <path d="M6.5 7l1 12.5a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12.5" />
+    </>
+  ),
+  fleche: <path d="m9.5 6 6 6-6 6" />,
   crayon: (
     <>
       <path d="M13.2 5.2 18.8 10.8 8.5 21H3v-5.5z" />
