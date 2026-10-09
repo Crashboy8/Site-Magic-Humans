@@ -42,3 +42,9 @@ test("pas de tiret long ni moyen, pied de page conservé", () => {
   for (const href of ["/outils/", "/mentions-legales/", "/confidentialite/"]) assert.ok(html.includes(`href="${href}"`), href);
   assert.match(html, /js-manage-cookies/);
 });
+
+test("la page ne dit nulle part que les outils sont gratuits", () => {
+  assert.doesNotMatch(html, /gratuit/i);
+  assert.doesNotMatch(html, /free tool|free magic|your free/i);
+  assert.match(html, /<h1 data-en="Your tools">Tes outils<\/h1>/);
+});
