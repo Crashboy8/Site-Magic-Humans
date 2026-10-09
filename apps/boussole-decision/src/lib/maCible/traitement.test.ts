@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
+import { CIBLE_PISTE_EXEMPLE, PISTES_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
+import { scoreSur10 } from "@/domain/maCible/scores";
 import { TAILLE_MAX_CORPS } from "@/domain/maCible/limites";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
 import { limitesDepuisEnv, quotaMemoire } from "./quota";
@@ -516,6 +518,89 @@ describe("synthèse des notes", () => {
     const appel = fournisseur.appeler.mock.calls[0][0] as { utilisateur: string };
     expect(appel.utilisateur).toContain("[téléphone]");
     expect(appel.utilisateur).not.toContain("06 12 34 56 78");
+  });
+});
+
+describe("approfondir (§7, PR 3)", () => {
+  const c1 = RESULTAT_EXEMPLE.cibles[0];
+  const demandePortrait = {
+    etape: "approfondir",
+    mode: "portrait",
+    entree: ENTREE_EXEMPLE,
+    offre: RESULTAT_EXEMPLE.offre.phrase.slice(0, 240),
+    cible: { id: "c1", nom: c1.nom, marche: c1.marche, portrait: c1.portrait, douleur: c1.douleur, ancrage: c1.ancrage, promesse: c1.promesse, lieux: c1.lieux.map((l) => l.type) },
+  };
+  const demandePiste = (idCible = "c4") => ({
+    etape: "approfondir",
+    mode: "piste",
+    entree: ENTREE_EXEMPLE,
+    offre: RESULTAT_EXEMPLE.offre.phrase.slice(0, 240),
+    piste: PISTES_EXEMPLE[1],
+    idCible,
+    ciblesExistantes: RESULTAT_EXEMPLE.cibles.map((c) => c.nom),
+  });
+
+  it("portrait réussi : 200, forme du contrat, quota approfondir consommé", async () => {
+    const quota = quotaEspion(19);
+    preparer([JSON.stringify({ portrait: PORTRAIT_EXEMPLE })], { quota });
+    const r = await traiterDemande(deps, requete(demandePortrait));
+    const corps = await corpsDe(r);
+    expect(r.status).toBe(200);
+    expect(corps).toMatchObject({ ok: true, etape: "approfondir", mode: "portrait", id: "c1", restant: 19 });
+    expect(corps.portrait.prenom).toBe("Claire");
+    expect(quota.autoriser).toHaveBeenCalledWith(expect.any(String), "approfondir");
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "approfondir");
+    const appel = fournisseur.appeler.mock.calls[0][0] as { systeme: string; nomSchema: string; utilisateur: string };
+    expect(appel.nomSchema).toBe("portrait");
+    expect(appel.systeme).toContain("Ta tâche : le portrait complet d'une cible");
+    expect(appel.utilisateur).toContain("cible_a_approfondir");
+    expect(appel.utilisateur).toContain("lieux_deja_donnes");
+  });
+
+  it("piste réussie : cible.id égal à idCible, ligne.score égal à scoreSur10", async () => {
+    const quota = quotaEspion(18);
+    preparer([JSON.stringify({ cible: CIBLE_PISTE_EXEMPLE, portrait: PORTRAIT_EXEMPLE })], { quota });
+    const r = await traiterDemande(deps, requete(demandePiste()));
+    const corps = await corpsDe(r);
+    expect(r.status).toBe(200);
+    expect(corps).toMatchObject({ ok: true, etape: "approfondir", mode: "piste", pisteId: "p2", restant: 18 });
+    expect(corps.cible.id).toBe("c4");
+    expect(corps.ligne).toEqual({ id: "c4", score: scoreSur10(CIBLE_PISTE_EXEMPLE.scores), alertePlaisir: false });
+    expect(corps.portrait.lieux.length).toBeGreaterThanOrEqual(3);
+    expect(quota.consommer).toHaveBeenCalledWith(expect.any(String), "approfondir");
+    const appel = fournisseur.appeler.mock.calls[0][0] as { systeme: string; nomSchema: string; utilisateur: string };
+    expect(appel.nomSchema).toBe("piste");
+    expect(appel.systeme).toContain("Ta tâche : creuser une piste");
+    expect(appel.utilisateur).toContain("piste_a_creuser");
+    expect(appel.utilisateur).toContain("cibles_existantes");
+  });
+
+  it("identifiant de cible différent de idCible : relance avec l'erreur", async () => {
+    const mauvaise = { ...CIBLE_PISTE_EXEMPLE, id: "c5" };
+    preparer([JSON.stringify({ cible: mauvaise, portrait: PORTRAIT_EXEMPLE }), JSON.stringify({ cible: CIBLE_PISTE_EXEMPLE, portrait: PORTRAIT_EXEMPLE })]);
+    const r = await traiterDemande(deps, requete(demandePiste()));
+    expect(r.status).toBe(200);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(2);
+    const relance = fournisseur.appeler.mock.calls[1][0] as { utilisateur: string };
+    expect(relance.utilisateur).toContain("c4 attendu");
+  });
+
+  it("mode inconnu ou idCible hors c4 à c6 : entrée invalide, sans appel", async () => {
+    preparer([]);
+    const r1 = await traiterDemande(deps, requete({ ...demandePortrait, mode: "autre" }));
+    expect(r1.status).toBe(400);
+    expect((await corpsDe(r1)).champs).toEqual([{ champ: "mode", code: "invalide" }]);
+    const r2 = await traiterDemande(deps, requete(demandePiste("c2")));
+    expect(r2.status).toBe(400);
+    expect((await corpsDe(r2)).champs).toContainEqual({ champ: "idCible", code: "invalide" });
+    expect(fournisseur.appeler).not.toHaveBeenCalled();
+  });
+
+  it("le prénom imaginé est remplacé s'il figure dans les données de la personne", async () => {
+    const entree = { ...ENTREE_EXEMPLE, terrain: { ...ENTREE_EXEMPLE.terrain, clientsPasses: "Claire, directrice d'usine, m'a remerciée." } };
+    preparer([JSON.stringify({ portrait: PORTRAIT_EXEMPLE })]);
+    const r = await traiterDemande(deps, requete({ ...demandePortrait, entree }));
+    expect((await corpsDe(r)).portrait.prenom).toBe("Nadia");
   });
 });
 

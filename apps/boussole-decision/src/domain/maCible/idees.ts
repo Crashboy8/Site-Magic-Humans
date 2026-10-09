@@ -191,3 +191,20 @@ export function filtrerVerbatimsCibles<T extends { cibles: { verbatims: string[]
   }
   return { sortie, retires };
 }
+
+/** Même filtre pour les douleurs d'un portrait : un identifiant inconnu devient "" (§9.4). */
+export function filtrerVerbatimsPortrait<T extends { douleurs: { verbatim: string }[] }>(
+  portrait: T,
+  synthese: { verbatims: { id: string }[] } | null,
+): { sortie: T; retires: number } {
+  const sortie = structuredClone(portrait);
+  const connus = new Set(synthese?.verbatims.map((v) => v.id) ?? []);
+  let retires = 0;
+  for (const d of sortie.douleurs) {
+    if (d.verbatim && !connus.has(d.verbatim)) {
+      d.verbatim = "";
+      retires += 1;
+    }
+  }
+  return { sortie, retires };
+}

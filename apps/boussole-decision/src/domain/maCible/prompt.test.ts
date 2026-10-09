@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "./exemple";
-import { CONSIGNES_CIBLE, GRILLE_TEXTE, PROMPT_COMMUN, PROMPT_RESULTAT, PROMPT_SYNTHESE, messageUtilisateur, promptCadrage, promptSysteme } from "./prompt";
+import { CONSIGNES_CIBLE, GRILLE_TEXTE, PROMPT_COMMUN, PROMPT_RESULTAT, PROMPT_SYNTHESE, messageUtilisateur, promptCadrage, promptSysteme, CONSIGNES_PORTRAIT, PROMPT_PISTE, PROMPT_PORTRAIT } from "./prompt";
 import { GRILLE } from "./scores";
 import type { Demande } from "./types";
 
@@ -48,6 +48,15 @@ describe("prompts", () => {
 
   it("ne contiennent aucun tiret cadratin ni demi-cadratin", () => {
     for (const t of [PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_RESULTAT, PROMPT_SYNTHESE, CONSIGNES_CIBLE, promptCadrage(1), promptCadrage(2), promptCadrage(3)]) expect(t).not.toMatch(TIRETS);
+    for (const t of [CONSIGNES_PORTRAIT, PROMPT_PORTRAIT, PROMPT_PISTE]) expect(t).not.toMatch(TIRETS);
+  });
+
+  it("assemble les prompts d'approfondissement (§8.9)", () => {
+    expect(promptSysteme("approfondir", undefined, "portrait")).toBe([PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_PORTRAIT].join("\n\n"));
+    expect(promptSysteme("approfondir", undefined, "piste")).toBe([PROMPT_COMMUN, GRILLE_TEXTE, PROMPT_PISTE].join("\n\n"));
+    expect(PROMPT_PORTRAIT).toContain(CONSIGNES_PORTRAIT);
+    expect(PROMPT_PISTE).toContain(CONSIGNES_CIBLE);
+    expect(PROMPT_PISTE).toContain(CONSIGNES_PORTRAIT);
   });
 
   it("réutilise les consignes de cible et cite la règle 14", () => {

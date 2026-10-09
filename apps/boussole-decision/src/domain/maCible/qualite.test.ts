@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "./exemple";
-import { appliquerQualite, contradictionFormatTalent, phrasesDepartage, questionsManquantes, type ContexteQualite } from "./qualite";
+import { CIBLE_PISTE_EXEMPLE, PORTRAIT_EXEMPLE } from "./exempleApprofondir";
+import { filtrerVerbatimsCibles, filtrerVerbatimsPortrait } from "./idees";
+import { appliquerQualite, qualiteCible, qualitePortrait, contradictionFormatTalent, phrasesDepartage, questionsManquantes, type ContexteQualite } from "./qualite";
 import { classerCibles } from "./scores";
 import type { Cadrage, Resultat } from "./types";
 
@@ -163,5 +165,52 @@ describe("départage des scores", () => {
     expect(phrases.length).toBeGreaterThan(0);
     expect(phrases[0]).toContain("avaient le même score");
     expect(phrases[0]).not.toMatch(/[\u2013\u2014]/);
+  });
+});
+
+describe("qualitePortrait (§9.6)", () => {
+  const base = structuredClone(PORTRAIT_EXEMPLE);
+  base.douleurs[0].sesMots = "« J'ai l'impression de diriger deux usines »";
+  base.lieux[0].recherche = "salon agroalimentaire Rennes 2026";
+
+  it("retire les guillemets de sesMots et l'année de recherche", () => {
+    const r = qualitePortrait(base, "");
+    expect(r.portrait.douleurs[0].sesMots).toBe("J'ai l'impression de diriger deux usines");
+    expect(r.portrait.lieux[0].recherche).toBe("salon agroalimentaire Rennes");
+    expect(r.reparations).toBe(2);
+  });
+
+  it("remplace un prénom présent dans les données par le premier prénom libre", () => {
+    expect(qualitePortrait(base, "Mon ancienne cliente Claire, et Nadia aussi").portrait.prenom).toBe("Julien");
+    expect(qualitePortrait(base, "Une cliente, Clairette").portrait.prenom).toBe("Claire");
+    expect(qualitePortrait(base, "CLAIRE").portrait.prenom).toBe("Nadia");
+  });
+});
+
+describe("filtres des phrases de clients (§9.4)", () => {
+  const synthese = { verbatims: [{ id: "v1" }, { id: "v2" }] };
+  it("filtrerVerbatimsCibles retire v9 inexistant", () => {
+    const r = filtrerVerbatimsCibles({ cibles: [{ verbatims: ["v1", "v9"] }] }, synthese);
+    expect(r.sortie.cibles[0].verbatims).toEqual(["v1"]);
+    expect(r.retires).toBe(1);
+  });
+  it("filtrerVerbatimsPortrait vide un identifiant inconnu", () => {
+    const p = structuredClone(PORTRAIT_EXEMPLE);
+    p.douleurs[0].verbatim = "v2";
+    p.douleurs[1].verbatim = "v9";
+    const r = filtrerVerbatimsPortrait(p, synthese);
+    expect(r.sortie.douleurs.map((d) => d.verbatim)).toEqual(["v2", "", ""]);
+    expect(r.retires).toBe(1);
+    expect(filtrerVerbatimsPortrait(p, null).sortie.douleurs[0].verbatim).toBe("");
+  });
+});
+
+describe("qualiteCible (piste creusée)", () => {
+  it("applique les contrôles par cible, comme pour le résultat", () => {
+    const c = structuredClone(CIBLE_PISTE_EXEMPLE);
+    c.messages.linkedin = `{{prenom}} ${c.messages.linkedin}`;
+    const r = qualiteCible(c, ctx());
+    expect(r.cible.messages.linkedin.startsWith("{{prenom}}")).toBe(false);
+    expect(r.reparations).toBeGreaterThan(0);
   });
 });

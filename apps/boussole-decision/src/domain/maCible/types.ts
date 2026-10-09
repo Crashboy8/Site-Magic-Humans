@@ -85,11 +85,28 @@ export interface ContexteSynthese {
   offre: string;
 }
 
+/** Cible envoyée pour un portrait (§5.2). */
+export interface CibleAApprofondir {
+  id: IdCible;
+  nom: string;
+  marche: "b2b" | "b2c";
+  portrait: string;
+  douleur: string;
+  ancrage: string;
+  promesse: string;
+  lieux: string[];        // les `type` des lieux déjà donnés, 0 à 4
+}
+export type IdCiblePiste = "c4" | "c5" | "c6";
+
 /** Corps de la requête POST (§10.1, §5.2). */
 export type Demande =
   | { etape: "cadrage"; tour: 1 | 2 | 3; entree: EntreeMaCible; esquissePrecedente?: Esquisse; corrections?: Corrections }
   | { etape: "resultat"; entree: EntreeMaCible; esquisse: Esquisse; corrections: Corrections }
-  | { etape: "synthese"; langue: Langue; contexte: ContexteSynthese; notes: NoteTerrain[] };
+  | { etape: "synthese"; langue: Langue; contexte: ContexteSynthese; notes: NoteTerrain[] }
+  | DemandeApprofondir;
+export type DemandeApprofondir =
+  | { etape: "approfondir"; mode: "portrait"; entree: EntreeMaCible; offre: string; cible: CibleAApprofondir }
+  | { etape: "approfondir"; mode: "piste"; entree: EntreeMaCible; offre: string; piste: AutrePiste; idCible: IdCiblePiste; ciblesExistantes: string[] };
 
 export type Canal = "linkedin" | "email" | "instagram" | "facebook" | "tiktok" | "youtube" | "newsletter" | "contenu"
   | "presentiel" | "evenements" | "partenariats" | "bouche_a_oreille" | "telephone" | "autre";
