@@ -25,6 +25,22 @@ export const LIMITES = {
   offreApprofondir: { max: 240 },
   ciblesExistantes: { items: 6, max: 80 },
   pistesCreuseesMax: 3,
+  /** Terrain salarié (docs/cibleur-salarie-spec.md, §2.3 et §3). */
+  salarie: {
+    posteActuel: { min: 3, max: 120 },
+    secteursConnus: { max: 200 },
+    posteVise: { max: 160 },
+    zone: { min: 2, max: 120 },
+    salaire: { max: 1_000_000 },
+    manager: { max: 200 },
+    valeurs: { items: 3 },
+    valeurAutre: { max: 40 },
+    plusJamais: { max: 300 },
+    metierVise: { max: 160 },
+    transferables: { max: 300 },
+    manque: { max: 200 },
+    patronsEnTete: { items: 5, max: 80 },
+  },
 } as const;
 
 /**

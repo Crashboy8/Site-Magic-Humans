@@ -69,6 +69,45 @@ export interface EntreeMaCible {
   terrain: Terrain;
   reponses: Reponse[];    // réponses aux questions de clarification, tous tours confondus
   synthese: SyntheseTerrain | null;
+  /** Absente : « independant » (données V2a et V2b). Voir `voieDe`. */
+  voie?: Voie;
+  /** Présent seulement dans la voie salarié. */
+  terrainSalarie?: TerrainSalarie | null;
+}
+
+// Voie salarié (cahier docs/cibleur-salarie-spec.md, §3).
+export type Voie = "independant" | "salarie";
+export type SituationSalarie = "en_poste" | "recherche" | "reconversion" | "retour" | "etudes";
+export type Contrat = "cdi" | "cdd_mission" | "temps_partiel" | "portage_transition" | "peu_importe";
+export type TailleEntreprise = "tpe" | "pme" | "grande" | "asso_public" | "peu_importe";
+export type Valeur = "autonomie" | "sens" | "exigence" | "bienveillance" | "transparence" | "apprentissage"
+  | "equilibre" | "reconnaissance" | "equipe" | "impact" | "creativite" | "stabilite";
+export type Experience = "" | "moins3" | "3a10" | "10a20" | "plus20";
+
+export interface TerrainSalarie {
+  situation: SituationSalarie | "";
+  posteActuel: string;          // 120 au plus, obligatoire
+  experience: Experience;
+  secteursConnus: string;       // 200 au plus
+  posteVise: string;            // 160 au plus
+  contrats: Contrat[];
+  zone: string;                 // 120 au plus, obligatoire
+  salaireMin: number | null;    // brut annuel, euros
+  salaireMax: number | null;
+  tailles: TailleEntreprise[];
+  manager: { mission: string; erreur: string; decider: string };  // 200 au plus chacun, au moins un rempli
+  valeurs: Valeur[];            // 3 au plus
+  valeurAutre: string;          // 40 au plus
+  plusJamais: string;           // 300 au plus
+  reconversion: { metierVise: string; transferables: string; manque: string }; // 160, 300, 200 au plus
+  patronsEnTete: string[];      // 5 au plus, 80 caractères chacun
+  adresse: Adresse;
+  style: Style;
+}
+
+/** Voie d'une entrée : « independant » quand le champ est absent. */
+export function voieDe(entree: Pick<EntreeMaCible, "voie">): Voie {
+  return entree.voie === "salarie" ? "salarie" : "independant";
 }
 
 export interface Corrections {
@@ -183,4 +222,53 @@ export interface Extras {
 }
 export const EXTRAS_VIDES: Extras = { portraits: {}, pistes: {} };
 /** Ce que la route renvoie pour un résultat : la sortie IA + le classement calculé (§9). */
+export interface NotesBesoin { urgence: Note5; rarete: Note5; paiement: Note5; acces: Note5 }
+export interface NotesEnvie { management: Note5; valeurs: Note5; declencheur: Note5; cadre: Note5 }
+export type GenreLieuSalarie = "entreprises" | "evenement" | "reseau";
+export type GenreApproche = "conseil" | "recommandation" | "spontanee" | "evenement" | "contenu";
+
+export interface PatronIdeal {
+  id: IdCiblePrincipale;
+  nom: string;
+  portrait: { secteur: string; taille: string; structure: string; moment: string };
+  douleur: string;
+  pourquoiToi: string;
+  ancrage: string;
+  management: { style: string; colle: string; frotte: string };
+  valeurs: { probables: string[]; colle: string; frotte: string };
+  questionsEntretien: string[];          // 3
+  besoin: NotesBesoin;
+  envie: NotesEnvie;
+  lieux: { type: string; pourquoi: string; recherche: string; genre: GenreLieuSalarie }[]; // 3 à 6
+  approches: { genre: GenreApproche; action: string }[]; // 3
+  linkedin: Cible["linkedin"];
+  pitchs: { noteInvitation: string; messageLinkedin: string; emailObjet: string; emailCorps: string; oral30s: string };
+  exemple: string;
+  depuisIdees: IdIdee[];
+}
+
+export interface ResultatSalarie {
+  voie: "salarie";
+  langue: Langue;
+  promesse: string;
+  regle: string[];                       // 3 puces
+  patrons: PatronIdeal[];                // exactement 3
+  managerIdeal: { portrait: string; flow: string; eteint: string };
+  antiPatron: { portrait: string; signaux: string[] };   // 3 signaux
+  reconversion: null | { transferables: { competence: string; preuve: string }[]; premiereMarche: string; essais: string[] };
+  plan30: Resultat["plan30"];
+  testTerrain: Cible["testTerrain"];
+  hypotheses: string[];
+  motPourToi: string;
+}
+
+export interface LigneCorrespondance {
+  id: IdCiblePrincipale;
+  besoin: number;          // sur 10, au dixième
+  envie: number;           // sur 10, au dixième
+  correspondance: number;  // la plus basse des deux
+  rang: "prioritaire" | "secondaire" | "tertiaire";
+}
+export interface ResultatSalarieClasse extends ResultatSalarie { classement: LigneCorrespondance[] }
+
 export interface ResultatClasse extends Resultat { classement: { id: IdCible; score: number; rang: "prioritaire" | "secondaire" | "tertiaire"; alertePlaisir: boolean }[] }

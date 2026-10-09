@@ -20,7 +20,7 @@ const STOP = new Set(
   ),
 );
 
-function sansAccent(s: string): string {
+export function sansAccent(s: string): string {
   return s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
 }
 
@@ -44,7 +44,7 @@ export function recoupe(source: string, texte: string): boolean {
 const VALEUR = /valeur|cout|coûte|coute|budget|marche|marché|probleme|problème|rapport|perte|econom|économ/i;
 const PLUSIEURS = /\b(\d{1,2}|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\s+(séances|seances|sessions|ateliers|modules|rendez-vous)\b/i;
 const UNE_FOIS = /\ben une (séance|seance|session|heure)\b/gi;
-const MOM = [
+export const MOM = [
   /si tu pouvais/i,
   /si vous pouviez/i,
   /si tu avais/i,
@@ -58,14 +58,14 @@ const MOM = [
   /serais-tu pr[eê]t/i,
   /seriez-vous pr[eê]t/i,
 ];
-const QUESTIONS_VOUS = [
+export const QUESTIONS_VOUS = [
   "La dernière fois que ce sujet s'est présenté, qu'avez-vous fait ?",
   "Quand cela vous est arrivé récemment, comment l'avez-vous géré ?",
   "Qu'avez-vous déjà essayé, concrètement, la dernière fois ?",
   "Combien cela vous a-t-il coûté la dernière fois ?",
   "À qui en avez-vous parlé, et qu'est-ce qui a suivi ?",
 ];
-const QUESTIONS_TU = [
+export const QUESTIONS_TU = [
   "La dernière fois que ce sujet s'est présenté, qu'as-tu fait ?",
   "Quand cela t'est arrivé récemment, comment l'as-tu géré ?",
   "Qu'as-tu déjà essayé, concrètement, la dernière fois ?",
@@ -94,22 +94,22 @@ function normaliserJeton(s: string): string {
   return s.replace(JETON_PRENOM, "{{prenom}}");
 }
 
-function signatureDe(adresse: Adresse): string {
+export function signatureDe(adresse: Adresse): string {
   return adresse === "tu" ? "À bientôt,\n\n{{prenom}}" : "Bien à vous,\n\n{{prenom}}";
 }
 
-function alignerSignature(corps: string, adresse: Adresse): string {
+export function alignerSignature(corps: string, adresse: Adresse, max = 1100): string {
   const signature = signatureDe(adresse);
   const sans = normaliserJeton(corps).replace(/\n*(Bien à vous,|À bientôt,|A bientôt,|Belle journée,|Cordialement,|Merci,)\s*\n+\{\{prenom\}\}\s*$/i, "").trimEnd();
   const suivant = `${sans}\n\n${signature}`;
-  return suivant.length <= 1100 ? suivant : corps;
+  return suivant.length <= max ? suivant : corps;
 }
 
-function registreAttendu(adresse: Adresse): "tu" | "vous" {
+export function registreAttendu(adresse: Adresse): "tu" | "vous" {
   return adresse === "tu" ? "tu" : "vous";
 }
 
-function mauvaisRegistre(texte: string, attendu: "tu" | "vous"): boolean {
+export function mauvaisRegistre(texte: string, attendu: "tu" | "vous"): boolean {
   // Sans accents : « êtes » ne doit pas être lu comme « tes ».
   const n = sansAccent(texte);
   if (attendu === "vous") return TUTOIEMENT.test(n);
@@ -135,7 +135,7 @@ function ajouterHypothese(liste: string[], phrase: string, reparations: { n: num
 }
 
 /** Retire les jetons {{prenom}} égarés partout, sauf dans le corps de l'email. */
-function retirerJetons<T>(racine: T, reparations: { n: number }): T {
+export function retirerJetons<T>(racine: T, reparations: { n: number }): T {
   const marcher = (valeur: unknown, cle?: string): unknown => {
     if (typeof valeur === "string") {
       if (cle === "emailCorps") return valeur;
@@ -295,7 +295,7 @@ export function questionsManquantes(cadrage: Cadrage, tour: 1 | 2 | 3, ctx: Pick
 
 const PRENOMS_SECOURS = ["Claire", "Nadia", "Julien", "Sophie", "Karim", "Isabelle", "Thomas", "Élodie"];
 const GUILLEMETS = /[«»"“”]/g;
-const ANNEE = /\b(19|20)\d{2}\b/g;
+export const ANNEE = /\b(19|20)\d{2}\b/g;
 
 function contientMot(texte: string, mot: string): boolean {
   const m = sansAccent(mot.trim());

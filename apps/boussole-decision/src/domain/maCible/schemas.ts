@@ -74,3 +74,39 @@ const PORTRAIT = O({
 });
 export const SCHEMA_PORTRAIT = O({ portrait: PORTRAIT });
 export const SCHEMA_PISTE = O({ cible: schemaCible(["c4","c5","c6"]), portrait: PORTRAIT });
+
+// Voie salarié (docs/cibleur-salarie-spec.md, §3). Le cadrage réutilise SCHEMA_CADRAGE :
+// l'offre devient la promesse à un patron, les cibles les patrons idéaux, l'anti-cible le patron à fuir.
+export const GENRES_LIEU_SALARIE = ["entreprises","evenement","reseau"] as const;
+export const GENRES_APPROCHE = ["conseil","recommandation","spontanee","evenement","contenu"] as const;
+const PATRON = O({
+  id: E(["c1","c2","c3"]), nom: S,
+  portrait: O({ secteur: S, taille: S, structure: S, moment: S }),
+  douleur: S, pourquoiToi: S, ancrage: S,
+  management: O({ style: S, colle: S, frotte: S }),
+  valeurs: O({ probables: A(S), colle: S, frotte: S }),
+  questionsEntretien: A(S),
+  besoin: O({ urgence: N, rarete: N, paiement: N, acces: N }),
+  envie: O({ management: N, valeurs: N, declencheur: N, cadre: N }),
+  lieux: A(O({ type: S, pourquoi: S, recherche: S, genre: E(GENRES_LIEU_SALARIE) })),
+  approches: A(O({ genre: E(GENRES_APPROCHE), action: S })),
+  linkedin: O({ pertinence: E(["forte","moyenne","faible"]), motsCles: S, intitules: A(S), secteurs: A(S), tailles: A(S), zone: S, autres: A(S), astuce: S }),
+  pitchs: O({ noteInvitation: S, messageLinkedin: S, emailObjet: S, emailCorps: S, oral30s: S }),
+  exemple: S,
+  depuisIdees: A(E(IDS_IDEES)),
+});
+export const SCHEMA_RESULTAT_SALARIE = O({
+  voie: E(["salarie"]),
+  langue: E(["fr","en","es"]),
+  promesse: S,
+  regle: A(S),
+  patrons: A(PATRON),
+  managerIdeal: O({ portrait: S, flow: S, eteint: S }),
+  antiPatron: O({ portrait: S, signaux: A(S) }),
+  // Toujours un objet (plus sûr d'un fournisseur à l'autre) : vide hors reconversion, `null` après validation.
+  reconversion: O({ transferables: A(O({ competence: S, preuve: S })), premiereMarche: S, essais: A(S) }),
+  plan30: A(O({ semaine: N, titre: S, actions: A(O({ texte: S, cible: E(["c1","c2","c3","toutes"]), canal: E(CANAUX), minutes: N })) })),
+  testTerrain: O({ profils: S, questions: A(S), signauxPositifs: A(S), signauxNegatifs: A(S) }),
+  hypotheses: A(S),
+  motPourToi: S,
+});
