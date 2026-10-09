@@ -20,13 +20,15 @@ test("deux rubriques dans l'ordre : vie professionnelle puis vie perso et amour"
   assert.match(rubrique("perso"), />Vie perso et amour</);
 });
 
-test("vie professionnelle : QCM Talent, Boussole, Cibleur, Carte du Talent en dernier", () => {
+test("vie professionnelle : QCM Talent, Boussole de décision pro, Cibleur, Carte du Talent en dernier", () => {
+  assert.match(rubrique("pro"), />Boussole de décision pro</);
   assert.deepEqual(liens(rubrique("pro")), ["/quiz/", "/boussole-decision/", "/boussole-decision/ma-cible/", "/carte-du-talent/"]);
 });
 
-test("vie perso et amour : Quiz Amour puis Boussole Relation", () => {
+test("vie perso et amour : Quiz Amour puis Boussole de décision perso", () => {
   assert.deepEqual(liens(rubrique("perso")), ["/quiz-amour/", "/boussole-decision/importer-quiz/?theme=amour"]);
-  assert.match(rubrique("perso"), />Boussole Relation</);
+  assert.match(rubrique("perso"), />Boussole de décision perso</);
+  assert.match(rubrique("perso"), />Ouvrir la Boussole perso</);
 });
 
 test("six outils en tout, chaque rubrique a son icône, pas de jeu vidéo", () => {
