@@ -52,7 +52,11 @@ export function ProfileCardView({
               amour ? "group-hover:text-framboise focus-visible:after:ring-framboise" : "group-hover:text-accent-deep focus-visible:after:ring-accent-strong",
             )}
           >
-            {amour && <CoeurIcone className="h-5 w-5 shrink-0 translate-y-0.5 text-framboise" />}
+            {amour ? (
+              <CoeurIcone className="h-5 w-5 shrink-0 translate-y-0.5 text-framboise" />
+            ) : (
+              <MalletteIcone className="h-5 w-5 shrink-0 translate-y-0.5 text-ciel" />
+            )}
             <span className="break-words">{courant.name}</span>
           </Link>
         </h3>
@@ -301,6 +305,18 @@ function CoeurIcone({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
       <path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.1 4.4 2.6.8-1.5 2.3-2.6 4.4-2.6 3.6 0 5.7 3.8 4.2 7.2C19.5 16.4 12 21 12 21Z" />
+    </svg>
+  );
+}
+
+/** Mallette, repère des profils pro (le cœur repère les Boussoles Relation). */
+function MalletteIcone({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2.5" y="7" width="19" height="13" rx="2.5" fill="currentColor" fillOpacity="0.15" />
+      <path d="M8.5 7V5.5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2V7" />
+      <path d="M2.5 12.5h19" />
+      <path d="M10.5 12.5v1.5h3v-1.5" />
     </svg>
   );
 }
