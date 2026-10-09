@@ -10,7 +10,7 @@
   const O = CT.outils;
   const S = CT.stats;
 
-  const locale = CT.i18n.langue === 'en' ? 'en-GB' : 'fr-FR';
+  const locale = CT.i18n.locale;
   const jourMois = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
   const moisAnnee = new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' });
 

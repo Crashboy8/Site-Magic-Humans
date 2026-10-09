@@ -1,6 +1,7 @@
 /*
- * Langue de l'interface (français ou anglais). Les textes sont écrits en français dans le code et
- * passent par la fonction T : en anglais, T cherche la traduction dans CT.EN (js/langues/en.js).
+ * Langue de l'interface (français, anglais ou espagnol). Les textes sont écrits en français dans le code et
+ * passent par la fonction T : en anglais ou en espagnol, T cherche la traduction dans CT.EN (js/langues/en.js)
+ * ou CT.ES (js/langues/es.js).
  * La langue est fixée au chargement de la page ; en changer recharge la page.
  * Ordre de priorité : le lien (#lang=en, venu de la Boussole), le choix enregistré, la langue du navigateur.
  */
@@ -8,10 +9,10 @@
   'use strict';
 
   const CLE = 'carteDuTalent.langue';
-  const LANGUES = ['fr', 'en'];
+  const LANGUES = ['fr', 'en', 'es'];
 
   function depuisLien() {
-    const m = typeof location !== 'undefined' && /(?:^#|&)lang=(fr|en)\b/.exec(location.hash || '');
+    const m = typeof location !== 'undefined' && /(?:^#|&)lang=(fr|en|es)\b/.exec(location.hash || '');
     return m ? m[1] : null;
   }
 
@@ -40,11 +41,15 @@
   // Les clés du dictionnaire n'ont pas d'espaces insécables (le français, lui, les garde).
   const cle = (fr) => String(fr).replace(/[\u00a0\u202f]/g, ' ');
 
+  // Le dictionnaire de la langue courante (null en français).
+  const dictionnaire = () => (langue === 'en' ? CT.EN : langue === 'es' ? CT.ES : null) || null;
+
   function T(fr, vars) {
     let t = fr;
-    if (langue === 'en' && CT.EN && Object.prototype.hasOwnProperty.call(CT.EN, cle(fr))) t = CT.EN[cle(fr)];
-    // Anglais : pas d'espace avant : ? ! (l'espace français du modèle est retiré, pas le texte inséré).
-    if (langue === 'en') t = t.replace(/[\u00a0\u202f ]+([?!:])/g, '$1');
+    const dico = dictionnaire();
+    if (dico && Object.prototype.hasOwnProperty.call(dico, cle(fr))) t = dico[cle(fr)];
+    // Anglais et espagnol : pas d'espace avant : ? ! (l'espace français du modèle est retiré, pas le texte inséré).
+    if (langue !== 'fr') t = t.replace(/[\u00a0\u202f ]+([?!:])/g, '$1');
     if (vars) t = t.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
     return t;
   }
@@ -56,20 +61,21 @@
 
   // Textes de la page HTML statique (index.html) : nœuds texte et attributs title / aria-label.
   function traduirePage(racine) {
-    if (langue === 'fr') return;
+    const dico = dictionnaire();
+    if (!dico) return;
     const marcheur = document.createTreeWalker(racine || document.body, NodeFilter.SHOW_TEXT);
     const noeuds = [];
     while (marcheur.nextNode()) noeuds.push(marcheur.currentNode);
     noeuds.forEach((n) => {
       const brut = n.nodeValue.trim();
-      if (brut && CT.EN[cle(brut)]) n.nodeValue = n.nodeValue.replace(brut, CT.EN[cle(brut)]);
+      if (brut && dico[cle(brut)]) n.nodeValue = n.nodeValue.replace(brut, dico[cle(brut)]);
     });
     (racine || document).querySelectorAll('[title], [aria-label]').forEach((el) => {
-      ['title', 'aria-label'].forEach((a) => { const v = el.getAttribute(a); if (v && CT.EN[cle(v)]) el.setAttribute(a, CT.EN[cle(v)]); });
+      ['title', 'aria-label'].forEach((a) => { const v = el.getAttribute(a); if (v && dico[cle(v)]) el.setAttribute(a, dico[cle(v)]); });
     });
     const desc = document.querySelector('meta[name="description"]');
-    if (desc && CT.EN[cle(desc.content)]) desc.content = CT.EN[cle(desc.content)];
-    if (CT.EN[cle(document.title)]) document.title = CT.EN[cle(document.title)];
+    if (desc && dico[cle(desc.content)]) desc.content = dico[cle(desc.content)];
+    if (dico[cle(document.title)]) document.title = dico[cle(document.title)];
   }
 
   function choisir(l) {
@@ -78,5 +84,8 @@
     return true;
   }
 
-  CT.i18n = { LANGUES, cle, get langue() { return langue; }, T, Tn, traduirePage, choisir, depuisLien };
+  // Format des dates et des nombres dans la langue courante.
+  const LOCALES = { fr: 'fr-FR', en: 'en-GB', es: 'es-ES' };
+
+  CT.i18n = { LANGUES, LOCALES, cle, get langue() { return langue; }, get locale() { return LOCALES[langue]; }, dictionnaire, T, Tn, traduirePage, choisir, depuisLien };
 })(globalThis.CarteTalent = globalThis.CarteTalent || {});

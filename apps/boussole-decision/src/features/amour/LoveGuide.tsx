@@ -3,7 +3,7 @@ import type { Locale } from "@/i18n/config";
 
 /** Questions guides des critères. La description réelle (note du quiz comprise) remplace le guide du modèle. */
 export function LoveGuide({ criteria, locale }: { criteria: { id: string; label: string; description: string }[]; locale: Locale }) {
-  const dp = locale === "en" ? ": " : " : ";
+  const dp = locale === "fr" ? " : " : ": ";
   return (
     <details className="max-w-3xl rounded-xl bg-blush/70 px-5 py-3">
       <summary className="cursor-pointer text-sm font-medium text-ink">{amourPour(locale).texts.guideTitle}</summary>

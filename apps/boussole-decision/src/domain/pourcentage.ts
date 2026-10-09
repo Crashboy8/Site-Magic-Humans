@@ -27,14 +27,17 @@ export const AIDE_POURCENTAGE = "Tu peux mettre un pourcentage, de 0 à 100.";
 /** La même aide en anglais (critères créés en anglais). */
 export const AIDE_POURCENTAGE_EN = "You can enter a percentage, from 0 to 100.";
 
-/** L'aide dans la langue de l'interface (l'espagnol garde le français, comme la Boussole Relation). */
+/** Et en espagnol. */
+export const AIDE_POURCENTAGE_ES = "Puedes poner un porcentaje, de 0 a 100.";
+
+/** L'aide dans la langue de l'interface. */
 export function aidePourcentage(locale: "fr" | "en" | "es"): string {
-  return locale === "en" ? AIDE_POURCENTAGE_EN : AIDE_POURCENTAGE;
+  return locale === "en" ? AIDE_POURCENTAGE_EN : locale === "es" ? AIDE_POURCENTAGE_ES : AIDE_POURCENTAGE;
 }
 
 /** Vrai si la description du critère propose un pourcentage, quelle que soit sa langue. */
 export function proposePourcentage(description: string): boolean {
-  return description.includes(AIDE_POURCENTAGE) || description.includes(AIDE_POURCENTAGE_EN);
+  return description.includes(AIDE_POURCENTAGE) || description.includes(AIDE_POURCENTAGE_EN) || description.includes(AIDE_POURCENTAGE_ES);
 }
 
 const PALIERS: readonly [number, EvaluationValue][] = [

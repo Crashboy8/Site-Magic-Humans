@@ -1,8 +1,9 @@
-// Textes de la Boussole Relation dans la langue de l'interface. L'espagnol reste le français (lot ES).
+// Textes de la Boussole Relation dans la langue de l'interface (français, anglais, espagnol).
 // Les critères sont enregistrés dans la langue du jour de leur création : on les reconnaît dans toutes les langues.
 import type { Locale } from "@/i18n/config";
 import { LOVE_RESULTS, LOVE_TABLE, LOVE_TEMPLATE, LOVE_TEXTS, type LoveResults, type LoveTable, type LoveTemplate, type LoveTexts } from "./amour";
 import { LOVE_RESULTS_EN, LOVE_TABLE_EN, LOVE_TEMPLATE_EN, LOVE_TEXTS_EN } from "./amourEn";
+import { LOVE_RESULTS_ES, LOVE_TABLE_ES, LOVE_TEMPLATE_ES, LOVE_TEXTS_ES } from "./amourEs";
 
 export interface LoveContent {
   template: LoveTemplate;
@@ -14,15 +15,17 @@ export interface LoveContent {
 const FR: LoveContent = { template: LOVE_TEMPLATE, texts: LOVE_TEXTS, table: LOVE_TABLE, results: LOVE_RESULTS };
 const EN: LoveContent = { template: LOVE_TEMPLATE_EN, texts: LOVE_TEXTS_EN, table: LOVE_TABLE_EN, results: LOVE_RESULTS_EN };
 
-/** Textes amour de la langue demandée (l'espagnol reçoit le français). */
+const ES: LoveContent = { template: LOVE_TEMPLATE_ES, texts: LOVE_TEXTS_ES, table: LOVE_TABLE_ES, results: LOVE_RESULTS_ES };
+
+/** Textes amour de la langue demandée. */
 export function amourPour(locale: Locale): LoveContent {
-  return locale === "en" ? EN : FR;
+  return locale === "en" ? EN : locale === "es" ? ES : FR;
 }
 
 /** Tous les modèles, pour reconnaître un critère ou une catégorie quelle que soit sa langue de création. */
-export const MODELES_AMOUR: readonly LoveTemplate[] = [LOVE_TEMPLATE, LOVE_TEMPLATE_EN];
+export const MODELES_AMOUR: readonly LoveTemplate[] = [LOVE_TEMPLATE, LOVE_TEMPLATE_EN, LOVE_TEMPLATE_ES];
 
-/** Clé du critère du modèle (« respect », « energie »…) d'après son libellé, en français comme en anglais. */
+/** Clé du critère du modèle (« respect », « energie »…) d'après son libellé, dans n'importe quelle langue. */
 export function cleCritereAmour(label: string): string | null {
   for (const modele of MODELES_AMOUR) {
     const trouve = modele.criteria.find((c) => c.label === label);

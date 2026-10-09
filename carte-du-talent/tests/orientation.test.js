@@ -7,7 +7,7 @@
 const path = require('path');
 const fs = require('fs');
 const assert = require('assert');
-['langues/en.js', 'langues/en-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js',
+['langues/en.js', 'langues/en-orientation.js', 'langues/es.js', 'langues/es-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js',
   'modele/stats.js', 'modele/bibliotheque.js', 'modele/bibliotheque-plus.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js',
   'modele/creation.js', 'modele/boussole.js', 'modele/orientation-donnees.js', 'modele/orientation.js', 'geo/horizon.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
@@ -90,9 +90,9 @@ test('les données d\'orientation ne citent que des compétences et des pistes c
   assert.ok(/^https:\/\/calendly\.com\/pierre-j-sarazin\?/.test(D.APPEL_DECOUVERTE));
 });
 
-test('la bibliothèque (suite) et toutes les données d\'orientation ont leur traduction anglaise', () => {
+test('la bibliothèque (suite) et toutes les données d\'orientation ont leurs traductions anglaise et espagnole', () => {
   const manquants = new Set();
-  const verifier = (t) => { const k = CT.i18n.cle(t); if (!(k in CT.EN)) manquants.add(k); };
+  const verifier = (t) => { const k = CT.i18n.cle(t); if (!(k in CT.EN && k in CT.ES)) manquants.add(k); };
   const lit = "'((?:[^'\\\\]|\\\\.)*)'";
   const src = fs.readFileSync(path.join(__dirname, '..', 'js', 'modele', 'bibliotheque-plus.js'), 'utf8');
   for (const m of src.matchAll(new RegExp("\\be\\('[a-z0-9-]+', " + lit, 'g'))) verifier(m[1].replace(/\\'/g, "'"));
@@ -380,7 +380,7 @@ test('un appui enregistré dans l\'autre langue s\'affiche dans la langue couran
 test('en anglais, une compétence de bibliothèque ajoutée par le bilan s\'affiche en anglais', () => {
   const { spawnSync } = require('child_process');
   const dir = path.join(__dirname, '..', 'js');
-  const fichiers = ['langues/en.js', 'langues/en-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js',
+  const fichiers = ['langues/en.js', 'langues/en-orientation.js', 'langues/es.js', 'langues/es-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js',
     'modele/stats.js', 'modele/bibliotheque.js', 'modele/bibliotheque-plus.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js',
     'modele/creation.js', 'modele/boussole.js', 'modele/orientation-donnees.js', 'modele/orientation.js'];
   const script = `

@@ -7,7 +7,7 @@
 
 const path = require('path');
 const assert = require('assert');
-['langues/en.js', 'langues/en-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/bibliotheque-plus.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js', 'modele/creation.js', 'modele/boussole.js', 'modele/orientation-donnees.js', 'modele/orientation.js', 'geo/horizon.js'].forEach((f) => {
+['langues/en.js', 'langues/en-orientation.js', 'langues/es.js', 'langues/es-orientation.js', 'i18n.js', 'geo/hex.js', 'modele/schema.js', 'modele/demo.js', 'geo/placement.js', 'modele/regles.js', 'modele/stats.js', 'modele/bibliotheque.js', 'modele/bibliotheque-plus.js', 'modele/idees.js', 'modele/suggestions.js', 'modele/pistes.js', 'modele/creation.js', 'modele/boussole.js', 'modele/orientation-donnees.js', 'modele/orientation.js', 'geo/horizon.js'].forEach((f) => {
   require(path.join(__dirname, '..', 'js', f));
 });
 const CT = globalThis.CarteTalent;
@@ -661,7 +661,7 @@ test('les territoires en conquête se classent par priorité, et le classement e
 
 // ---------- Traductions ----------
 
-test('chaque texte passé à T() a sa traduction anglaise', () => {
+test('chaque texte passé à T() a sa traduction anglaise et espagnole', () => {
   const fs = require('fs');
   const racine = path.join(__dirname, '..');
   const fichiers = ['index.html'].concat(...['js', 'js/geo', 'js/modele', 'js/vues'].map((d) =>
@@ -669,7 +669,7 @@ test('chaque texte passé à T() a sa traduction anglaise', () => {
   const lit = "'((?:[^'\\\\]|\\\\.)*)'";
   const deLitteral = (s) => s.replace(/\\'/g, "'").replace(/\\u00a0/g, ' ');
   const manquants = new Set();
-  const verifier = (fr) => { const k = CT.i18n.cle(deLitteral(fr)); if (k && !(k in CT.EN)) manquants.add(k); };
+  const verifier = (fr) => { const k = CT.i18n.cle(deLitteral(fr)); if (k && !(k in CT.EN && k in CT.ES)) manquants.add(k); };
   fichiers.forEach((f) => {
     const src = fs.readFileSync(path.join(racine, f), 'utf8');
     for (const m of src.matchAll(new RegExp('\\bT\\(' + lit, 'g'))) verifier(m[1]);
@@ -688,19 +688,19 @@ test('chaque texte passé à T() a sa traduction anglaise', () => {
   const html = fs.readFileSync(path.join(racine, 'index.html'), 'utf8').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '');
   for (const m of html.matchAll(/>([^<>]*[A-Za-zÀ-ÿ]{2,}[^<>]*)</g)) {
     const t = m[1].trim();
-    if (t && !/^(FR|EN)$/.test(t)) verifier(t);
+    if (t && !/^(FR|EN|ES)$/.test(t)) verifier(t);
   }
   for (const m of html.matchAll(/\b(?:title|aria-label|content)="([^"]*[a-zà-ÿ]{3,} [^"]*)"/g)) verifier(m[1]);
   assert.deepStrictEqual([...manquants], []);
 });
 
-test('la bibliothèque, les idées et les pistes ont leur traduction anglaise', () => {
+test('la bibliothèque, les idées et les pistes ont leurs traductions anglaise et espagnole', () => {
   const fs = require('fs');
   const lire = (f) => fs.readFileSync(path.join(__dirname, '..', 'js', f), 'utf8');
   const lit = "'((?:[^'\\\\]|\\\\.)*)'";
   const dec = (t) => t.replace(/\\'/g, "'");
   const manquants = new Set();
-  const verifier = (t) => { const k = CT.i18n.cle(dec(t)); if (!(k in CT.EN)) manquants.add(k); };
+  const verifier = (t) => { const k = CT.i18n.cle(dec(t)); if (!(k in CT.EN && k in CT.ES)) manquants.add(k); };
   for (const m of lire('modele/bibliotheque.js').matchAll(new RegExp("\\be\\('[a-z0-9-]+', " + lit, 'g'))) verifier(m[1]);
   const idees = lire('modele/idees.js');
   const bloc = idees.slice(idees.indexOf('const IDEES = {'), idees.indexOf('const COMPTE_PAR_DOMAINE')).replace(/\/\/.*$/gm, '');
@@ -715,6 +715,47 @@ test('T() garde le français par défaut et remplace les variables', () => {
   assert.strictEqual(CT.i18n.T('Entre {a} et {b}', { a: 'X', b: 'Y' }), 'Entre X et Y');
   assert.strictEqual(CT.i18n.cle('Capitale : x'), 'Capitale : x');
   assert.ok(CT.EN['Capitale : {nom}'], 'clé sans espace insécable');
+});
+
+test('le dictionnaire espagnol a les mêmes clés que l\'anglais, les mêmes variables et aucun reste de français', () => {
+  const cles = Object.keys(CT.EN);
+  assert.deepStrictEqual(Object.keys(CT.ES).sort(), cles.slice().sort(), 'mêmes clés en anglais et en espagnol');
+  const variables = (t) => (t.match(/\{\w+\}|<\/?\w+>/g) || []).sort().join('|');
+  const FRANCAIS = /[èêàùçœâîôûëï]|(?<![\p{L}])(est|pour|avec|vous|votre|tes|ton|ta|mon|ma|dans|pas|cette|ces|aux|et|ou|où|qui|du|il|elle|je|nous|quand|mais|comme|chez|aussi|tout|tous|ça)(?![\p{L}])|(?<![\p{L}])(l|d|j|n|qu|c|s)['’]\p{L}/iu;
+  // Ce qui reste volontairement identique au français : sigles, marques, termes déjà espagnols.
+  const identiques = [];
+  const restes = [];
+  cles.forEach((k) => {
+    const es = CT.ES[k];
+    assert.strictEqual(variables(es), variables(k), 'variables différentes : ' + k);
+    assert.ok(!/[–—]/.test(es), 'tiret long : ' + k);
+    assert.ok(es.trim() !== '' || k.trim() === '', 'traduction vide : ' + k);
+    if (es === k && /[a-zà-ÿ]{3,}/i.test(k)) identiques.push(k);
+    if (FRANCAIS.test(es.replace(/\{\w+\}/g, ''))) restes.push(k + ' => ' + es);
+  });
+  assert.deepStrictEqual(restes, [], 'texte resté en français');
+  // Seuls des mots qui s'écrivent pareil dans les deux langues peuvent rester identiques.
+  const permis = new Set(['Excel', 'PowerPoint', 'Python', 'SQL', 'Yoga', 'Pilates', 'Storytelling', 'Networking', 'Marketing', 'Copywriting', 'Slam', 'Stand-up', 'E-commerce', 'Social selling', 'Community manager', 'Business developer', 'Team building', 'Merchandising', 'Coaching', 'Repair café', 'Freelance', 'Piano', 'Total', 'Blind test', 'Podcast', 'flow', 'de flow', 'IA (LLM)', '≈ {h} h · {niveau}', '{piste} (+{gain} %)']);
+  assert.deepStrictEqual(identiques.filter((k) => !permis.has(k)), [], 'traductions identiques au français');
+});
+
+test('T() en espagnol : traduit, remplace les variables et retire l\'espace avant : ? !', () => {
+  const ancienne = CT.i18n.langue;
+  const dico = CT.ES;
+  assert.ok(dico['Ajouter'] === 'Añadir');
+  // La langue est fixée au chargement : on vérifie le dictionnaire sans recharger la page.
+  assert.strictEqual(dico['Capitale : {nom}'], 'Capital: {nom}');
+  assert.strictEqual(dico['Entre {a} et {b}'], 'Entre {a} y {b}');
+  assert.strictEqual(ancienne, 'fr');
+  assert.deepStrictEqual(CT.i18n.LANGUES, ['fr', 'en', 'es']);
+  assert.strictEqual(CT.i18n.locale, 'fr-FR');
+});
+
+test('glossaire espagnol de la méthode', () => {
+  assert.strictEqual(CT.ES['Carte du Talent'], 'Mapa del Talento');
+  assert.strictEqual(CT.ES['Ton Anti-Contexte :'], 'Tu Anti-Contexto:');
+  assert.strictEqual(CT.ES['Brouillard de guerre'], 'Niebla de guerra');
+  assert.ok(CT.ES['Trouver mes clients avec Le Cibleur'].includes('El Buscador de Clientes'));
 });
 
 test('le lien de retour vers la Boussole n\'accepte que les adresses de la Boussole', () => {

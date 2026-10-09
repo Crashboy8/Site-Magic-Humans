@@ -1,5 +1,5 @@
 // Boussole Relation (mode amour, ?theme=amour) : modèle de décision et textes en français, la référence.
-// L'anglais est dans amourEn.ts (même forme) ; amourLangue.ts choisit la langue. L'espagnol reste le français.
+// L'anglais est dans amourEn.ts, l'espagnol dans amourEs.ts (même forme) ; amourLangue.ts choisit la langue.
 // Données pures, lues par src/features/amour/ et src/domain/loveReading.ts.
 import type { CriterionDirection, Importance } from "@/domain/types";
 

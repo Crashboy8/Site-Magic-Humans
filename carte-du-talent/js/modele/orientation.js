@@ -307,7 +307,7 @@
   // ---------- E. Infos des pistes ----------
 
   function montant(n) {
-    return Number(n).toLocaleString(CT.i18n.langue === 'en' ? 'en-GB' : 'fr-FR');
+    return Number(n).toLocaleString(CT.i18n.locale);
   }
 
   // { statut, statutLibelle, revenu, note, exemple } ou null.

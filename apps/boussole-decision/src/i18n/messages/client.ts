@@ -1,7 +1,8 @@
 // Accès client : la page /client/ (le lien envoyé par Pierre), l'accueil de l'import, le badge de Mon espace
-// et, côté coach, les codes clients et le message à envoyer. Français d'abord, puis anglais ; l'espagnol reprend le français.
+// et, côté coach, les codes clients et le message à envoyer. Français d'abord, puis anglais ; l'espagnol est dans clientEs.ts.
 
 import { typographier } from "../typo";
+import { clientEs } from "./clientEs";
 
 const fr = {
   meta: { titre: "Ton espace client" },
@@ -265,5 +266,4 @@ const en: ClientMessages = {
 
 const frAffiche = typographier(fr);
 
-/** Espagnol : le français, en attendant le lot de traduction espagnole. */
-export const client = { fr: frAffiche, en: typographier(en), es: frAffiche };
+export const client = { fr: frAffiche, en: typographier(en), es: typographier(clientEs) };

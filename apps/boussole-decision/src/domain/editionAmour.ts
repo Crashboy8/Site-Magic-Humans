@@ -43,9 +43,9 @@ export function lienQuizAmour(locale: "fr" | "en" | "es"): string {
   return `${RETOUR_QUIZ_AMOUR.href}?lang=${locale}`;
 }
 
-/** Le lien d'en-tête, traduit. L'espagnol garde le libellé français, comme le reste du mode amour. */
+/** Le lien d'en-tête, traduit. */
 export function retourQuizAmour(locale: "fr" | "en" | "es"): { href: string; label: string } {
-  return { href: lienQuizAmour(locale), label: locale === "en" ? "← Love Quiz" : RETOUR_QUIZ_AMOUR.label };
+  return { href: lienQuizAmour(locale), label: locale === "en" ? "← Love Quiz" : locale === "es" ? "← Test del Amor" : RETOUR_QUIZ_AMOUR.label };
 }
 
 /**

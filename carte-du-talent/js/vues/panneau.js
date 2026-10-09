@@ -44,7 +44,7 @@
 
   const NIVEAUX_ECLAT = ['', T('une lueur'), T('ça brille'), T('lumineux'), T('rayonnant')];
 
-  const dateCourte = new Intl.DateTimeFormat(CT.i18n.langue === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'short' });
+  const dateCourte = new Intl.DateTimeFormat(CT.i18n.locale, { day: 'numeric', month: 'short' });
 
   function pastilleTuile(c, carte) {
     const couleur = c ? CT.vueCarte.couleurDe(c, carte) : '#F4C95D';

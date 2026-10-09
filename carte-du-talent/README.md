@@ -31,7 +31,7 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 
 8. **Arrivée depuis la Boussole de décision** : le bouton « Explorer ma carte du talent » porte le Talent Unique du profil dans l'ancre du lien (`#b=…`, JSON en base64url, jamais envoyé au serveur ; les critères ne sont pas transmis). Un écran de choix s'ouvre : « Commencer avec ma Boussole », « Reprendre ma création en cours » s'il y en a une, « Garder ma carte » si une carte existe. Rien n'est remplacé avant la confirmation finale. La création s'ouvre pré-remplie (talent = mécanisme, fil rouge = contexte déclencheur et super bénéfice s'ils tiennent en 160 caractères) ; un encart « Depuis ta Boussole » propose les contextes de réussite (question 3) et d'échec (question 6, avec l'Anti-Contexte en rappel), à ajouter un par un. Rien n'est coupé automatiquement : une phrase trop longue va dans le champ pour être raccourcie.
 
-9. **Français et anglais** : sélecteur FR / EN dans l'en-tête et dans les Réglages. Les textes sont écrits en français dans le code et passent par `T('…')` (`js/i18n.js`) ; les traductions sont dans `js/langues/en.js`, indexées par le texte français. La langue est choisie au chargement : lien de la Boussole (`#lang=en`), sinon choix enregistré, sinon langue du navigateur. En changer recharge la page (la carte et le brouillon sont gardés). La démo et la bibliothèque sont traduites ; le contenu saisi par la personne ne l'est jamais.
+9. **Français, anglais et espagnol** : sélecteur FR / EN / ES dans l'en-tête et dans les Réglages. Les textes sont écrits en français dans le code et passent par `T('…')` (`js/i18n.js`) ; les traductions sont dans `js/langues/en.js` et `en-orientation.js` (anglais), `js/langues/es.js` et `es-orientation.js` (espagnol, tuteo, glossaire : Talento Único, Contexto Desencadenante, Anti-Contexto, El Buscador de Clientes), indexées par le texte français. Un test vérifie que chaque texte a ses deux traductions et qu'il ne reste pas de français dans l'espagnol. La langue est choisie au chargement : lien de la Boussole (`#lang=en` ou `#lang=es`), sinon choix enregistré, sinon langue du navigateur. En changer recharge la page (la carte et le brouillon sont gardés). La démo et la bibliothèque sont traduites ; le contenu saisi par la personne ne l'est jamais.
 
 10. **Retour vers la Boussole** : le lien de la Boussole porte aussi l'adresse de la page d'où l'on vient (`&retour=…`). La carte affiche alors, dans l'en-tête, un lien discret « Revenir à ma Boussole » (gardé dans ce navigateur). Seules les adresses de la Boussole sont acceptées (site Magic Humans ou preview Vercel du projet, chemin `/boussole-decision/`).
 
@@ -52,8 +52,9 @@ Prototype autonome : HTML, CSS et JavaScript vanilla, sans build ni serveur. Il 
 ```
 carte-du-talent/
 ├── index.html
-├── js/i18n.js          langue (fr / en) et fonction T()
-├── js/langues/en.js    traductions anglaises
+├── js/i18n.js          langue (fr / en / es) et fonction T()
+├── js/langues/en.js    traductions anglaises (et en-orientation.js)
+├── js/langues/es.js    traductions espagnoles (et es-orientation.js)
 ├── css/
 │   ├── carte.css       jetons de couleur, rendu de la carte, effets
 │   ├── ui.css          en-tête, légende, panneau, boutons, mobile

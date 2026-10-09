@@ -30,7 +30,7 @@ export function AppBrand({ name, locale = "fr" }: { name: string; locale?: Local
             </>
           ) : (
             <>
-              {name} <span className="text-framboise">Amour</span>
+              {name} <span className="text-framboise">{locale === "es" ? "Amor" : "Amour"}</span>
             </>
           )}
         </span>

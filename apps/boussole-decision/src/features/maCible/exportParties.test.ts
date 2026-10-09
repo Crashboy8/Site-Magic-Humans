@@ -129,8 +129,9 @@ describe("Copier pour mon IA", () => {
     expect(texte).not.toMatch(TIRETS_LONGS);
   });
 
-  it("l'espagnol reprend le français, comme le reste du Cibleur", () => {
-    expect(maCible.es.export.introIA).toBe(maCible.fr.export.introIA);
+  it("l'introduction pour l'IA est en espagnol", () => {
+    expect(maCible.es.export.introIA).toContain("El Buscador de Clientes");
+    expect(maCible.es.export.introIA).not.toBe(maCible.fr.export.introIA);
   });
 });
 
