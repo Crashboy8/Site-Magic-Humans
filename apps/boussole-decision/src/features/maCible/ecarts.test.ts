@@ -1,3 +1,4 @@
+import { sansInsecables as plat } from "@/i18n/typo";
 import { describe, expect, it } from "vitest";
 import { maCible } from "@/i18n/messages/maCible";
 import { ecartEsquisse, ecartQuestions } from "./ecarts";
@@ -17,12 +18,13 @@ describe("écart de l'esquisse", () => {
   });
   it("nomme la première cible sans avis", () => {
     const de = (id: string) => (id === "c1" ? { verdict: "oui" as const, commentaire: "" } : { verdict: "" as const, commentaire: "" });
-    expect(ecartEsquisse(cibles, "J'accompagne des dirigeants.", de, messages)?.message).toBe("Il manque un avis sur « Dirigeants de PME ».");
+    expect(plat(ecartEsquisse(cibles, "J'accompagne des dirigeants.", de, messages)?.message ?? "")).toBe("Il manque un avis sur « Dirigeants de PME ».");
   });
   it("nomme le commentaire manquant avant la cible suivante", () => {
     const de = (id: string) => (id === "c1" ? { verdict: "non" as const, commentaire: "" } : { verdict: "" as const, commentaire: "" });
     const ecart = ecartEsquisse(cibles, "J'accompagne des dirigeants.", de, messages);
-    expect(ecart).toEqual({ id: "commentaire-c1", message: "Il manque un commentaire sur « Directeurs de site »." });
+    expect(ecart?.id).toBe("commentaire-c1");
+    expect(plat(ecart?.message ?? "")).toBe("Il manque un commentaire sur « Directeurs de site ».");
   });
   it("ne bloque pas quand tout est dit", () => {
     expect(ecartEsquisse(cibles, "J'accompagne des dirigeants.", avis, messages)).toBeNull();

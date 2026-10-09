@@ -9,15 +9,15 @@ export const ENTREE_EXEMPLE_EN: EntreeMaCible = {
     "mecanisme": "untangles stuck human situations by asking the questions nobody else dares to ask",
     "contexte": "a team is under strain and needs to start talking again",
     "benefice": "helping teams get their trust and drive back, and unblock their decisions",
-    "antiContexte": "very hierarchical organisations where everything has to be signed off three times; assignments with no human contact",
-    "reussite": "The day I brought two team leaders back together after they hadn't spoken for six months.",
+    "antiContexte": "very hierarchical organisations where everything has to be signed off 3 times; assignments with no human contact",
+    "reussite": "The day I brought 2 team leaders back together after they hadn't spoken for 6 months.",
     "sousTalents": ["Listening", "Mediation", "Humour"], "pistes": [], "aDeleguer": ["Reporting", "Spreadsheets"]
   },
   "terrain": {
     "offre": "I run team-building workshops, and I'd like to coach business leaders one to one.",
     "marche": "les_deux",
     "experience": "15 years in HR in the food industry, I know a lot of site managers in Brittany.",
-    "clientsPasses": "A plant manager thanked me for defusing a conflict between two team leaders.",
+    "clientsPasses": "A plant manager thanked me for defusing a conflict between 2 team leaders.",
     "formats": ["groupe", "presentiel", "individuel"],
     "zone": "Rennes and Brittany, remotely for the rest of France",
     "prixActuel": "€600 per half-day workshop",
@@ -32,7 +32,7 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
   "langue": "en",
   "offre": {
     "phrase": "I get teams who've stopped talking back around the table, so they rebuild trust and unblock their decisions within a few weeks.",
-    "avant": "Meetings go round in circles, two camps form, decisions drag on and the best people start looking elsewhere.",
+    "avant": "Meetings go round in circles, 2 camps form, decisions drag on and the best people start looking elsewhere.",
     "apres": "Tensions are named and dealt with, everyone knows what they expect from the others, and the team gets back to the work that matters."
   },
   "cibles": [
@@ -40,20 +40,20 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
       "id": "c1",
       "nom": "Food industry site managers in Brittany",
       "marche": "b2b",
-      "portrait": "Plant manager at a food production site with 80 to 400 staff, in Brittany. The trigger comes after a restructuring or a new team leader arriving: two production teams stop talking, quality drops and sick leave goes up.",
-      "douleur": "\"I've got two team leaders passing the buck, production is suffering and I have neither the time nor the words to sort it out myself.\"",
+      "portrait": "Plant manager at a food production site with 80 to 400 staff, in Brittany. The trigger comes after a restructuring or a new team leader arriving: 2 production teams stop talking, quality drops and sick leave goes up.",
+      "douleur": "\"I've got 2 team leaders passing the buck, production is suffering and I have neither the time nor the words to sort it out myself.\"",
       "ancrage": "Your Trigger Context, a team under strain that needs to start talking again, is exactly their situation, and your 15 years in food industry HR mean you speak their language.",
-      "promesse": "In six weeks, your production teams are talking again and site decisions get unblocked.",
+      "promesse": "In 6 weeks, your production teams are talking again and site decisions get unblocked.",
       "offre": {
         "nom": "Back around the table",
-        "format": "An on-site diagnosis, then 3 three-hour workshops with the team leaders",
+        "format": "An on-site diagnosis, then 3 workshops of 3 hours with the team leaders",
         "duree": "6 weeks",
-        "contenu": ["One-to-one interviews with 5 to 8 key people", "Workshop 1: saying what's blocking, without putting anyone on trial", "Workshop 2: ground rules agreed together", "Workshop 3: first decisions made together", "Follow-up with management one month later"]
+        "contenu": ["One-to-one interviews with 5 to 8 key people", "Workshop 1: saying what's blocking, without putting anyone on trial", "Workshop 2: ground rules agreed together", "Workshop 3: first decisions made together", "Follow-up with management 1 month later"]
       },
       "prix": { "min": 3500, "max": 6000, "unite": "flat fee per site", "base": "HT", "justification": "Your current rate (€600 per half-day) sits at the low end of the market. A package with a diagnosis and follow-up is worth more than a string of workshops, because it tackles lost production that costs far more." },
-      "pitch": "When two teams stop talking, production feels it before management does. I spent 15 years in food industry HR: I know how to get teams to say what they keep quiet, without putting anyone on trial, and help them decide together. In six weeks, we get everyone back around the table.",
+      "pitch": "When 2 teams stop talking, production feels it before management does. I spent 15 years in food industry HR: I know how to get teams to say what they keep quiet, without putting anyone on trial, and help them decide together. In 6 weeks, we get everyone back around the table.",
       "pourquoi": "This is the target where everything lines up: a problem that quickly gets expensive, a training or services budget that already exists, a sector you know from the inside and a network that's already there.",
-      "exemple": "Imagine a site manager who has just merged two production lines. The two team leaders contradict each other in front of the operators. She calls you after a month of tension, because a former colleague mentioned you.",
+      "exemple": "Imagine a site manager who has just merged 2 production lines. The 2 team leaders contradict each other in front of the operators. She calls you after a month of tension, because a former colleague mentioned you.",
       "scores": {
         "urgence": { "note": 4, "raison": "The conflict is already costing quality and absences, but it can drag on for a few months." },
         "paiement": { "note": 4, "raison": "Sites have budgets for training and HR services." },
@@ -83,10 +83,10 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
       "messages": {
         "linkedin": "Hello [First name], I spent 15 years in food industry HR in Brittany and I now work with sites where teams struggle to talk to each other. How is that going on your site at the moment?",
         "emailObjet": "Are your production teams still talking to each other?",
-        "emailCorps": "Hello [First name],\n\nWhen two production teams keep passing the buck, management often finds out through the numbers: quality, absences, people leaving.\n\nAfter 15 years in food industry HR, I help sites get their teams back around the table, to say what's blocking and decide together.\n\nWould you be open to a 15-minute call to tell me whether this comes up on your site? Your view would help me, even if the answer is no.\n\nKind regards,\n\n{{prenom}}"
+        "emailCorps": "Hello [First name],\n\nWhen 2 production teams keep passing the buck, management often finds out through the numbers: quality, absences, people leaving.\n\nAfter 15 years in food industry HR, I help sites get their teams back around the table, to say what's blocking and decide together.\n\nWould you be open to a 15-minute call to tell me whether this comes up on your site? Your view would help me, even if the answer is no.\n\nKind regards,\n\n{{prenom}}"
       },
       "testTerrain": {
-        "profils": "Three site managers from your network, reached by phone or through a former colleague you both know, for a coffee or a 20-minute call.",
+        "profils": "3 site managers from your network, reached by phone or through a former colleague you both know, for a coffee or a 20-minute call.",
         "questions": ["What was the last tension between teams that really took up your time?", "How did you actually handle it?", "How long did it last, and what did it cost the site?", "Have you ever brought in someone from outside for this kind of situation?", "What would have helped you at the time?"],
         "signauxPositifs": ["They tell you about a recent situation without you having to push", "They've already paid someone to help with something similar"],
         "signauxNegatifs": ["They say it's the manager's job and it sorts itself out", "No budget and no decision possible at site level"]
@@ -99,19 +99,19 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
       "nom": "Leaders of fast-growing small firms with a tense leadership team",
       "marche": "b2b",
       "portrait": "Founder of a business with 20 to 80 staff that has grown fast. The leadership team has expanded, old hands and newcomers no longer understand each other, and every meeting ends in a stalemate.",
-      "douleur": "\"We've doubled in three years, but my leadership team can't decide anything any more, and I spend my evenings settling disputes.\"",
+      "douleur": "\"We've doubled in 3 years, but my leadership team can't decide anything any more, and I spend my evenings settling disputes.\"",
       "ancrage": "You ask the questions nobody else dares to ask: that's exactly what's missing in a team where everyone guards their own turf.",
-      "promesse": "A leadership team that speaks openly and makes decisions again, in one day plus follow-up.",
+      "promesse": "A leadership team that speaks openly and makes decisions again, in 1 day plus follow-up.",
       "offre": {
         "nom": "Leadership team unblocking day",
-        "format": "A one-day away day with the leadership team, then 2 remote follow-up sessions",
+        "format": "A 1-day away day with the leadership team, then 2 remote follow-up sessions",
         "duree": "1 day and 2 months of follow-up",
-        "contenu": ["Preparation interview with the founder", "One-day away day: what's blocking, what we decide", "A decision-making charter written together", "2 one-hour follow-up sessions"]
+        "contenu": ["Preparation interview with the founder", "1-day away day: what's blocking, what we decide", "A decision-making charter written together", "2 follow-up sessions of 1 hour"]
       },
       "prix": { "min": 2500, "max": 4500, "unite": "per leadership team", "base": "HT", "justification": "A facilitated leadership away day falls within this range; the follow-up justifies the top end." },
-      "pitch": "When a company grows fast, its leadership team often starts going round in circles. I get people around the table to say what they've been keeping to themselves, then we agree new ground rules together. In one day, your leadership team starts deciding again.",
+      "pitch": "When a company grows fast, its leadership team often starts going round in circles. I get people around the table to say what they've been keeping to themselves, then we agree new ground rules together. In 1 day, your leadership team starts deciding again.",
       "pourquoi": "The problem is common and painful for a founder, and the group format brings your talent to life. Access is less direct than with industrial sites.",
-      "exemple": "Imagine the founder of a services firm who hired three directors last year. The original partners feel sidelined, the newcomers can't find their place. He's looking for a neutral outsider to get everyone back on the same page.",
+      "exemple": "Imagine the founder of a services firm who hired 3 directors last year. The original partners feel sidelined, the newcomers can't find their place. He's looking for a neutral outsider to get everyone back on the same page.",
       "scores": {
         "urgence": { "note": 4, "raison": "The founder makes every call alone and is wearing himself out." },
         "paiement": { "note": 4, "raison": "Growing small firms are happy to pay for a leadership away day." },
@@ -139,10 +139,10 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
       "messages": {
         "linkedin": "Hello [First name], I saw your company is hiring new directors, congratulations on the growth. I work with leadership teams that are expanding fast. How are group decisions going for you at the moment?",
         "emailObjet": "Is your leadership team still deciding quickly?",
-        "emailCorps": "Hello [First name],\n\nWhen a company grows fast, the leadership team gets bigger and decisions slow down: everyone protects their patch and the founder ends up making the call alone.\n\nI help leadership teams speak openly and start deciding together again, in one day plus a short follow-up.\n\nWould you be up for a 15-minute call? I'd like to know whether this rings a bell for you.\n\nKind regards,\n\n{{prenom}}"
+        "emailCorps": "Hello [First name],\n\nWhen a company grows fast, the leadership team gets bigger and decisions slow down: everyone protects their patch and the founder ends up making the call alone.\n\nI help leadership teams speak openly and start deciding together again, in 1 day plus a short follow-up.\n\nWould you be up for a 15-minute call? I'd like to know whether this rings a bell for you.\n\nKind regards,\n\n{{prenom}}"
       },
       "testTerrain": {
-        "profils": "Three founders of growing small firms, met through an entrepreneur network or a recommendation.",
+        "profils": "3 founders of growing small firms, met through an entrepreneur network or a recommendation.",
         "questions": ["How did the last big decision made as a leadership team go?", "What has changed since the leadership team got bigger?", "Who has the final say when you disagree?", "Have you ever organised a leadership away day, and what did you get out of it?", "What would save you the most time when making these calls?"],
         "signauxPositifs": ["They describe making calls alone and being worn out by it", "They've already set aside budget for an away day"],
         "signauxNegatifs": ["The founder thinks everything's fine and the problem lies with the others", "The company is in financial difficulty"]
@@ -157,17 +157,17 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
       "portrait": "A manager promoted less than a year ago who has inherited a divided team. They don't dare raise it with their own boss and are looking for discreet support, paid for out of their own pocket.",
       "douleur": "\"I've just been promoted, my team is tearing itself apart and I'm scared people will think I'm not up to the job.\"",
       "ancrage": "The way you ask the questions that unblock things helps a manager prepare the difficult conversations they keep putting off.",
-      "promesse": "In one month, you'll know how to handle difficult conversations with your team, without losing sleep over them.",
+      "promesse": "In 1 month, you'll know how to handle difficult conversations with your team, without losing sleep over them.",
       "offre": {
         "nom": "First conflict programme",
-        "format": "4 one-hour one-to-one video sessions",
+        "format": "4 one-to-one video sessions of 1 hour",
         "duree": "1 month",
         "contenu": ["Reading the situation and what everyone needs", "Preparing the conversation you're dreading", "Practising through role play", "Taking stock after the conversation"]
       },
       "prix": { "min": 90, "max": 150, "unite": "per session", "base": "TTC", "justification": "Someone paying on their own compares with one-to-one coaching; a 4-session programme stays affordable." },
-      "pitch": "Just stepped into a manager role and your team is splitting apart? It happens a lot, and it can be worked on. In four sessions, we prepare the conversations you've been putting off, and you leave with words that work.",
+      "pitch": "Just stepped into a manager role and your team is splitting apart? It happens a lot, and it can be worked on. In 4 sessions, we prepare the conversations you've been putting off, and you leave with words that work.",
       "pourquoi": "It opens up the B2C market and gives you real stories to tell, but budgets are tighter and one-to-one work suits you less than groups.",
-      "exemple": "Imagine a department supervisor promoted to store manager, with two sales assistants who can't stand each other. He looks for help on a Sunday evening, after a tough week.",
+      "exemple": "Imagine a department supervisor promoted to store manager, with 2 sales assistants who can't stand each other. He looks for help on a Sunday evening, after a tough week.",
       "scores": {
         "urgence": { "note": 3, "raison": "The situation weighs on them, but the manager can let it drag on." },
         "paiement": { "note": 2, "raison": "They pay out of their own pocket and compare prices." },
@@ -195,10 +195,10 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
       "messages": {
         "linkedin": "Hello [First name], congratulations on your new role! I work with managers as they step into their roles. What's the team issue taking up most of your time right now?",
         "emailObjet": "Your first team conflict",
-        "emailCorps": "Hello [First name],\n\nTaking on a manager role often means inheriting a team with its old tensions. It isn't always easy to raise with your own boss.\n\nI help new managers prepare difficult conversations, in four short sessions, so they leave with words that work.\n\nIf you'd like, we could talk for 15 minutes, just to see whether it would help you.\n\nKind regards,\n\n{{prenom}}"
+        "emailCorps": "Hello [First name],\n\nTaking on a manager role often means inheriting a team with its old tensions. It isn't always easy to raise with your own boss.\n\nI help new managers prepare difficult conversations, in 4 short sessions, so they leave with words that work.\n\nIf you'd like, we could talk for 15 minutes, just to see whether it would help you.\n\nKind regards,\n\n{{prenom}}"
       },
       "testTerrain": {
-        "profils": "Three managers promoted less than a year ago, found among your former colleagues or their contacts.",
+        "profils": "3 managers promoted less than a year ago, found among your former colleagues or their contacts.",
         "questions": ["What's the last difficult conversation you put off?", "What held you back from having it?", "Who did you talk to about it?", "Have you ever paid for training or coaching out of your own pocket?", "What would have helped you that day?"],
         "signauxPositifs": ["They've already looked for help online", "They've already paid for training themselves"],
         "signauxNegatifs": ["They expect their company to pay for everything", "They don't see a problem"]
@@ -210,8 +210,8 @@ export const RESULTAT_EXEMPLE_EN: Resultat = {
   "autresPistes": [],
   "antiCible": {
     "portrait": "Large, very hierarchical groups that buy a team-building workshop through procurement, as a box to tick, without management getting involved.",
-    "signaux": ["First contact comes through a buyer and a tender", "Management won't take part", "You're asked for a fixed programme signed off at three levels", "The budget is negotiated before the problem has even been described"],
-    "lienAntiContexte": "Your Anti-Context is organisations where everything has to be signed off three times: here, your talent would never have room to ask the real questions.",
+    "signaux": ["First contact comes through a buyer and a tender", "Management won't take part", "You're asked for a fixed programme signed off at 3 levels", "The budget is negotiated before the problem has even been described"],
+    "lienAntiContexte": "Your Anti-Context is organisations where everything has to be signed off 3 times: here, your talent would never have room to ask the real questions.",
     "commentDire": "Thank you for thinking of me. My work succeeds when management is involved from the start. If that isn't possible, I'd rather point you towards a training provider who can offer a standard format."
   },
   "plan30": [

@@ -25,7 +25,7 @@ export const TERRAIN_SALARIE_EXEMPLE_EN: TerrainSalarie = {
   reconversion: {
     metierVise: "operations manager in the circular economy",
     transferables:
-      "I've set up two warehouses, I know how to train low-skilled teams, I talk to drivers and buyers just as easily",
+      "I've set up 2 warehouses, I know how to train low-skilled teams, I talk to drivers and buyers just as easily",
     manque: "I don't know much about recycling streams or the non-profit world",
   },
   patronsEnTete: [
@@ -120,7 +120,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       pourquoiToi:
         "His company is growing faster than its organisation and his team leaders are burning out: that's exactly when you bring order back, starting with the people who keep the flow running.",
       ancrage:
-        "Fifteen years in food industry logistics and two warehouses set up without a single missed delivery.",
+        "15 years in food industry logistics and 2 warehouses set up without a single missed delivery.",
       management: {
         style:
           "A hands-on, busy leader who's happy to delegate to anyone who delivers results.",
@@ -177,7 +177,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
         {
           genre: "spontanee",
           action:
-            "Send an application focused on the risk of delays at the second site, with a three-step plan.",
+            "Send an application focused on the risk of delays at the second site, with a 3-step plan.",
         },
       ],
       linkedin: linkedin(
@@ -191,16 +191,16 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       ),
       pitchs: {
         noteInvitation:
-          "Hello [First name], I saw you're opening a second site. Fifteen years in food industry logistics here, I'd love to follow the project.",
+          "Hello [First name], I saw you're opening a second site. 15 years in food industry logistics here, I'd love to follow the project.",
         messageLinkedin:
-          "Thanks for connecting, [First name]. A second site often doubles the orders to prepare with the same team leaders. I've set up two warehouses without a missed delivery. Would you have 15 minutes to tell me how you're approaching this step?",
+          "Thanks for connecting, [First name]. A second site often doubles the orders to prepare with the same team leaders. I've set up 2 warehouses without a missed delivery. Would you have 15 minutes to tell me how you're approaching this step?",
         emailObjet: "Your second site and your lead times",
         emailCorps: email(
           "Opening a second site often means doubling orders with the same team leaders, and seeing delays arrive before the extra hands do.",
-          "For fifteen years, I ran the flows of a food plant: two warehouses set up, no stock-outs at the retailers, and a team that stayed.",
+          "For 15 years, I ran the flows of a food plant: 2 warehouses set up, no stock-outs at the retailers, and a team that stayed.",
         ),
         oral30s:
-          "I bring order back to logistics chains that are overflowing, without breaking the team. For fifteen years, I ran the flows of a food plant: two warehouse moves, zero stock-outs at the supermarkets, and a team that stayed. Your second site is going to double the orders to prepare, with the same team leaders. In fifteen minutes I can show you where it's likely to break, and how to avoid it. Would you be up for a coffee next week?",
+          "I bring order back to logistics chains that are overflowing, without breaking the team. For 15 years, I ran the flows of a food plant: 2 warehouse moves, zero stock-outs at the supermarkets, and a team that stayed. Your second site is going to double the orders to prepare, with the same team leaders. In 15 minutes I can show you where it's likely to break, and how to avoid it. Would you be up for a coffee next week?",
       },
       exemple:
         "Imagine an operations director who finds a new late-delivery penalty every Monday and spends his evenings redoing the schedules by hand.",
@@ -230,7 +230,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       },
       valeurs: {
         probables: ["Purpose", "Transparency", "Solidarity"],
-        colle: "Purpose and transparency match two of your values.",
+        colle: "Purpose and transparency match 2 of your values.",
         frotte: "Your target salary may be at the top of her range.",
       },
       questionsEntretien: [
@@ -294,10 +294,10 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
         emailObjet: "Your collections and your workshop",
         emailCorps: email(
           "When collections arrive faster than the workshop can sort them, the warehouse overflows and the team burns out, even though everyone is doing their best.",
-          "For fifteen years, I brought order back to food industry warehouses while training low-skilled teams. I'm now moving into reuse.",
+          "For 15 years, I brought order back to food industry warehouses while training low-skilled teams. I'm now moving into reuse.",
         ),
         oral30s:
-          "I bring order back to overflowing flows, without breaking the team. In the food industry, I organised the preparation of thousands of orders a week, with products that don't forgive any delay. Your reuse business is growing faster than your warehouse: collections are piling up and the team is burning out. I know how to set up a simple circuit in a few weeks. Would you be open to a fifteen-minute chat to tell me whether this comes up for you?",
+          "I bring order back to overflowing flows, without breaking the team. In the food industry, I organised the preparation of thousands of orders a week, with products that don't forgive any delay. Your reuse business is growing faster than your warehouse: collections are piling up and the team is burning out. I know how to set up a simple circuit in a few weeks. Would you be open to a 15-minute chat to tell me whether this comes up for you?",
       },
       exemple:
         "Imagine the head of a reuse centre who has just secured funding to double her activity and still sorts the donations herself on Saturdays.",
@@ -317,7 +317,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       pourquoiToi:
         "A flow to put back on its feet with a worried team: your talent answers his pain, even if the distant head office looks like what you want to avoid.",
       ancrage:
-        "Two restructurings lived from the inside, where the team built the new schedules with you.",
+        "2 restructurings lived from the inside, where the team built the new schedules with you.",
       management: {
         style:
           "A director caught between head office and the shop floor, looking for someone solid to rely on.",
@@ -334,7 +334,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       questionsEntretien: [
         "Since the takeover, what decision has the site been able to make without head office?",
         "Tell me about the last time a KPI was in the red. What happened next?",
-        "Who has left the team in the last six months, and why do you think they left?",
+        "Who has left the team in the last 6 months, and why do you think they left?",
       ],
       besoin: { urgence: 4, rarete: 3, paiement: 5, acces: 4 },
       envie: { management: 3, valeurs: 3, declencheur: 3, cadre: 4 },
@@ -386,19 +386,19 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       ),
       pitchs: {
         noteInvitation:
-          "Hello [First name], I saw your site was acquired. I've been through two restructurings on the ground, I'd like to connect.",
+          "Hello [First name], I saw your site was acquired. I've been through 2 restructurings on the ground, I'd like to connect.",
         messageLinkedin:
-          "Thanks, [First name]. After a takeover, team leaders are often waiting for answers the group can't give yet. I've been through two restructurings where the team stayed. Would you have 15 minutes to tell me how it's going on your side?",
+          "Thanks, [First name]. After a takeover, team leaders are often waiting for answers the group can't give yet. I've been through 2 restructurings where the team stayed. Would you have 15 minutes to tell me how it's going on your side?",
         emailObjet: "Your team leaders after the takeover",
         emailCorps: email(
           "After a takeover, procedures change fast, team leaders are waiting for answers and the best people start looking elsewhere.",
-          "I've been through two warehouse restructurings from the inside. Each time, the team stayed, because they built the new schedules with me.",
+          "I've been through 2 warehouse restructurings from the inside. Each time, the team stayed, because they built the new schedules with me.",
         ),
         oral30s:
-          "I bring order back to overflowing warehouses, without breaking the team. I've been through two restructurings from the inside, and each time the team stayed, because they built the new schedules with me. After a takeover, your team leaders are waiting for answers the group can't give yet. I can hold that course day to day, on the ground, while you deal with head office. Would you have fifteen minutes to talk about it?",
+          "I bring order back to overflowing warehouses, without breaking the team. I've been through 2 restructurings from the inside, and each time the team stayed, because they built the new schedules with me. After a takeover, your team leaders are waiting for answers the group can't give yet. I can hold that course day to day, on the ground, while you deal with head office. Would you have 15 minutes to talk about it?",
       },
       exemple:
-        "Imagine a site director who gets a new procedure from the group every month and watches his two best team leaders leave.",
+        "Imagine a site director who gets a new procedure from the group every month and watches his 2 best team leaders leave.",
       depuisIdees: ["i2"],
     },
   ],
@@ -422,7 +422,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
     transferables: [
       {
         competence: "Organising a flow",
-        preuve: "You set up two warehouses without a single missed delivery.",
+        preuve: "You set up 2 warehouses without a single missed delivery.",
       },
       {
         competence: "Training low-skilled teams",
@@ -436,7 +436,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
     premiereMarche:
       "Logistics manager at a mid-sized reuse business, to learn the recycling streams while keeping your core skills.",
     essais: [
-      "A short two-week assignment to reorganise a reuse centre's warehouse.",
+      "A short 2-week assignment to reorganise a reuse centre's warehouse.",
       "A few days' work placement in a reuse business, through a job-shadowing scheme.",
       "A short course on recycling streams and reuse.",
     ],
@@ -448,14 +448,14 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       actions: [
         {
           texte:
-            "Find three people who work in reuse and ask them for 15 minutes of input.",
+            "Find 3 people who work in reuse and ask them for 15 minutes of input.",
           cible: "c2",
           canal: "linkedin",
           minutes: 45,
         },
         {
           texte:
-            "Prepare five questions about their flows and their growing pains.",
+            "Prepare 5 questions about their flows and their growing pains.",
           cible: "toutes",
           canal: "autre",
           minutes: 30,
@@ -475,14 +475,14 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       actions: [
         {
           texte:
-            "Find five food businesses opening a new site in the French company directory.",
+            "Find 5 food businesses opening a new site in the French company directory.",
           cible: "c1",
           canal: "autre",
           minutes: 60,
         },
         {
           texte:
-            "Send three connection notes to leaders in the reuse sector.",
+            "Send 3 connection notes to leaders in the reuse sector.",
           cible: "c2",
           canal: "linkedin",
           minutes: 30,
@@ -502,7 +502,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
       actions: [
         {
           texte:
-            "Go to a logistics industry meetup and talk to two site directors.",
+            "Go to a logistics industry meetup and talk to 2 site directors.",
           cible: "c3",
           canal: "evenements",
           minutes: 180,
@@ -515,7 +515,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
           minutes: 30,
         },
         {
-          texte: "Comment on two posts by leaders in the reuse sector.",
+          texte: "Comment on 2 posts by leaders in the reuse sector.",
           cible: "c2",
           canal: "linkedin",
           minutes: 20,
@@ -552,7 +552,7 @@ export const RESULTAT_SALARIE_EXEMPLE_EN: ResultatSalarie = {
   ],
   testTerrain: {
     profils:
-      "Three people working in reuse or logistics: an operations manager, the head of a reuse centre, a site director. Look for them on LinkedIn or through social and solidarity economy networks.",
+      "3 people working in reuse or logistics: an operations manager, the head of a reuse centre, a site director. Look for them on LinkedIn or through social and solidarity economy networks.",
     questions: [
       "The last time your warehouse overflowed, what did you do?",
       "Who was the last person you hired in operations, and how did you find them?",

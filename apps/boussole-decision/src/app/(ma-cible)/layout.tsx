@@ -13,7 +13,7 @@ export default async function MaCibleLayout({ children }: { children: React.Reac
   const { nomOutil, sousTitre } = (await getI18n()).t.maCible.commun;
   return (
     <PublicFrame brand={nomOutil} tagline={sousTitre} mark={<TargetMark className="h-8 w-8 shrink-0 text-ink sm:h-9 sm:w-9" />}>
-      {children}
+      <div className="typo-soignee">{children}</div>
     </PublicFrame>
   );
 }

@@ -1,5 +1,6 @@
 // Ma Cible : textes de l'interface. Le français fait foi ; l'anglais est dans maCibleEn.ts (même forme, vérifiée par TypeScript).
 // L'espagnol reste une copie du français tant que sa traduction n'est pas faite (lot ES).
+import { typographier } from "../typo";
 import { maCibleEn } from "./maCibleEn";
 
 /** Nom affiché dans l'encart : neutre, le fournisseur réel dépend de la configuration. */
@@ -653,4 +654,5 @@ export type MaCibleMessages = typeof fr;
 // à l'IA aussi (LANGUES_INTERFACE dans features/maCible/etat.ts), pour ne pas mélanger les langues.
 const es: MaCibleMessages = { ...fr, commun: { ...fr.commun, nomOutil: NOM_OUTIL.es, sousTitre: SOUS_TITRE_OUTIL.es } };
 
-export const maCible = { fr, en: maCibleEn, es };
+/** Textes affichés : espaces insécables appliqués (pas de « 2 » seul en fin de ligne, ni de « : » en début de ligne). */
+export const maCible = { fr: typographier(fr), en: typographier(maCibleEn), es: typographier(es) };

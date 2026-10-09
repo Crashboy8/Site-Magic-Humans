@@ -47,7 +47,7 @@ export default async function EspaceLayout({ children }: { children: React.React
           </div>
         )}
       </header>
-      <main id="contenu" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+      <main id="contenu" className="typo-soignee mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         {children}
       </main>
     </div>

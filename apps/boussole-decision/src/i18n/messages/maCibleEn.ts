@@ -8,7 +8,7 @@ const nombre = (n: number) => n.toLocaleString("en-GB");
 export const maCibleEn: MaCibleMessages = {
   meta: {
     description:
-      "A free Magic Humans tool: starting from your Unique Talent, an AI with real marketing know-how helps you sharpen your offer and choose your three target clients.",
+      "A free Magic Humans tool: starting from your Unique Talent, an AI with real marketing know-how helps you sharpen your offer and choose your 3 target clients.",
   },
   commun: {
     nomOutil: "The Targeter",
@@ -45,12 +45,12 @@ export const maCibleEn: MaCibleMessages = {
   accueil: {
     surtitre: "Free · under 10 minutes",
     intro:
-      "You start from your Unique Talent. An AI with real marketing know-how helps you sharpen your offer and choose your three target clients, B2B or B2C. For each one, you leave with a promise, a ballpark price, the places to meet them and a first message ready to send.",
+      "You start from your Unique Talent. An AI with real marketing know-how helps you sharpen your offer and choose your 3 target clients, B2B or B2C. For each one, you leave with a promise, a ballpark price, the places to meet them and a first message ready to send.",
     etapesTitre: "How it works",
     etapes: [
-      "You describe your talent. Two minutes, and it's often already filled in.",
+      "You describe your talent. 2 minutes, and it's often already filled in.",
       "You describe your work: what you offer, to whom and how. You can add your own target ideas and your interview notes.",
-      "If needed, the AI asks you one or two questions. It would rather ask than make things up.",
+      "If needed, the AI asks you 1 or 2 questions. It would rather ask than make things up.",
       "It shows you a first draft, and you correct whatever doesn't feel like you.",
       "You get your full result, other ideas to explore and your 30-day plan.",
     ],
@@ -76,7 +76,7 @@ export const maCibleEn: MaCibleMessages = {
       "If you add interview notes, they're sent to the AI once to draw a summary from them, then deleted from the page. Only the summary is kept, in your browser.",
       "With the free plan, the provider may use these answers to improve its models: don't write anything sensitive.",
       "Your answers aren't stored. If a result is ready just as your connection drops, it's kept for a few minutes so that \"Try again\" can find it, then deleted. We also keep an anonymous counter (a fingerprint of your IP address, deleted after 2 days). A failed attempt doesn't count towards the daily limit.",
-      "Your work stays in this browser so you can come back to it, along with your last ten results. The \"Delete everything\" button removes your work in progress and your history.",
+      "Your work stays in this browser so you can come back to it, along with your last 10 results. The \"Delete everything\" button removes your work in progress and your history.",
       "Don't write sensitive data: health, client names, confidential information.",
     ],
     lienPolitique: "Read the privacy policy",
@@ -107,15 +107,15 @@ export const maCibleEn: MaCibleMessages = {
       antiContexte: {
         aide: "What switches your talent off: the contexts that drain or frustrate you.",
         placeholder: "What switches me off…",
-        exemple: "organisations where everything needs signing off three times, projects with no human contact.",
+        exemple: "organisations where everything needs signing off 3 times, projects with no human contact.",
       },
     },
     phraseTitre: "Your Unique Talent sentence",
-    phraseVide: "Your sentence will appear here as soon as the first three fields are filled in.",
+    phraseVide: "Your sentence will appear here as soon as the first 3 fields are filled in.",
     reussite: {
       label: "Times you were at your best",
       aide: "Moments when you were at your very best. They help the AI aim true.",
-      exemple: "the day I got two team leaders talking again after six months of silence.",
+      exemple: "the day I got 2 team leaders talking again after 6 months of silence.",
     },
     depuisCarte: (liste: string) => `From your Talent Map, the AI will also take into account: ${liste}.`,
   },
@@ -145,9 +145,9 @@ export const maCibleEn: MaCibleMessages = {
     },
     clientsPasses: {
       label: "Who has already thanked you (or paid you) for this talent?",
-      aide: "One or two real situations, no names. It's the most reliable clue.",
+      aide: "1 or 2 real situations, no names. It's the most reliable clue.",
       placeholder: "One day…",
-      exemple: "a factory manager thanked me for defusing a conflict between two team leaders.",
+      exemple: "a factory manager thanked me for defusing a conflict between 2 team leaders.",
     },
     formats: {
       label: "The formats you enjoy",
@@ -323,7 +323,7 @@ export const maCibleEn: MaCibleMessages = {
     surtitre: "Your result",
     titre: "Your targets, ranked",
     intro:
-      "Three targets, from the most promising to the least urgent. Start with the top one: it's the best mix of need, budget, access and enjoyment.",
+      "3 targets, from the most promising to the least urgent. Start with the top one: it's the best mix of need, budget, access and enjoyment.",
     faitLe: (date: string) => `Created on ${date}`,
     imprimer: "Print or save as PDF",
     modifier: "Edit my answers",
@@ -512,7 +512,7 @@ export const maCibleEn: MaCibleMessages = {
     copierPortrait: "Copy this portrait",
     creuser: "Explore this idea",
     creuserDuree: "About 1 minute. Counts as 1 deep dive.",
-    maxPistes: "You've explored 3 ideas, that's the maximum for one result.",
+    maxPistes: "You've explored 3 ideas, that's the maximum per result.",
     voirPiste: "See the explored idea",
     mieuxQuePrioritaire: (piste: string, prioritaire: string) =>
       `This idea scores better than your top target (${piste} versus ${prioritaire}). Consider testing it first.`,
@@ -524,7 +524,7 @@ export const maCibleEn: MaCibleMessages = {
   },
   plan: {
     titre: "Your 30-day plan",
-    consigne: "Three small actions a week. Tick them off as you go: it's saved in this browser.",
+    consigne: "3 small actions a week. Tick them off as you go: it's saved in this browser.",
     semaine: (n: number) => `Week ${n}`,
     minutes: (n: number) => `≈ ${n} min`,
     progression: (n: number) => `${n} of 12 ${n > 1 ? "actions" : "action"}`,

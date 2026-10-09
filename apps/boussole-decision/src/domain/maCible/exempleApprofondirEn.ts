@@ -6,24 +6,24 @@ export const PORTRAIT_EXEMPLE_EN: Portrait = {
   prenom: "Claire",
   age: "45 to 55",
   situation:
-    "Manager of a 180-person food production site near Rennes. She inherited two team leaders who haven't spoken since the last restructuring, and production is starting to suffer.",
+    "Manager of a 180-person food production site near Rennes. She inherited 2 team leaders who haven't spoken since the last restructuring, and production is starting to suffer.",
   journee:
     "In at 7 for the safety briefing, a production meeting at 9 where nobody looks at each other, calls with head office in the afternoon, and in the evening she rereads the complaint emails she hasn't had time to deal with.",
   declencheur:
     "The day one of her best technicians tells her he's leaving for a competitor, because the atmosphere has become unbearable.",
   pourToi:
-    "A team under strain that needs to start talking again: that's exactly your territory. Watch out for head office, which is very hierarchical and will want to sign everything off three times.",
+    "A team under strain that needs to start talking again: that's exactly your territory. Watch out for head office, which is very hierarchical and will want to sign everything off 3 times.",
   dejaEssaye: [
-    "A team-building away day with an outdoor activity, forgotten within two weeks",
+    "A team-building away day with an outdoor activity, forgotten within 2 weeks",
     "One-to-one meetings with each team leader, with no effect on their relationship",
     "A communication course offered by head office, felt to be too theoretical",
   ],
   douleurs: [
     {
-      titre: "Two camps in the team",
+      titre: "2 camps in the team",
       detail: "Each team leader has their own loyal followers. Information no longer flows between shifts.",
       intensite: 5,
-      sesMots: "It feels like I'm running two plants that have turned their backs on each other",
+      sesMots: "It feels like I'm running 2 plants that have turned their backs on each other",
       verbatim: "",
     },
     {
@@ -35,7 +35,7 @@ export const PORTRAIT_EXEMPLE_EN: Portrait = {
     },
     {
       titre: "The fear of losing the best people",
-      detail: "Two people gone in six months, and others looking elsewhere. Hiring is slow in the region.",
+      detail: "2 people gone in 6 months, and others looking elsewhere. Hiring is slow in the region.",
       intensite: 4,
       sesMots: "If I lose one more technician, I won't meet my deadlines",
       verbatim: "",
@@ -44,7 +44,7 @@ export const PORTRAIT_EXEMPLE_EN: Portrait = {
   objections: [
     {
       objection: "We already did an away day, it didn't change a thing",
-      reponse: "An away day brings people together for one day. Here, we work on the relationship between the two leaders, close to the shop floor, over several weeks.",
+      reponse: "An away day brings people together for 1 day. Here, we work on the relationship between the 2 leaders, close to the shop floor, over several weeks.",
     },
     {
       objection: "Head office will never sign off on another expense",
@@ -94,7 +94,7 @@ export const PISTES_EXEMPLE_EN: AutrePiste[] = [
     id: "p1",
     nom: "Partners at odds in professional firms",
     marche: "b2b",
-    enUneLigne: "Law or accounting firms where two partners no longer get along",
+    enUneLigne: "Law or accounting firms where 2 partners no longer get along",
     raison: "Great territory for your talent, but harder to reach from your current network.",
     depuisIdees: [],
     notes: { urgence: 5, paiement: 4, acces: 2, plaisir: 4 },

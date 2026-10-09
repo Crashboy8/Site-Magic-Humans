@@ -3,9 +3,15 @@
 import { scorePressenti, scoreSur10 } from "@/domain/maCible/scores";
 import { EXTRAS_VIDES, type Cible, type Extras, type Portrait, type ResultatClasse, type SyntheseTerrain } from "@/domain/maCible/types";
 import { maCible, type MaCibleMessages } from "@/i18n/messages/maCible";
+import { sansInsecables } from "@/i18n/typo";
 import { remplacerPrenom } from "./liens";
 
 const FR = maCible.fr;
+
+/** Portrait seul, en texte : espaces simples, comme tout ce qui sort de l'écran. */
+export function textePortrait(...a: Parameters<typeof textePortraitBrut>): string {
+  return sansInsecables(textePortraitBrut(...a));
+}
 
 const puces = (items: string[]) => items.map((item) => `- ${item}`).join("\n");
 
@@ -21,7 +27,7 @@ function bloc(libelle: string, corps: string[], markdown: boolean, niveau: 1 | 2
 const nombre = (n: number, M: MaCibleMessages) => n.toLocaleString(M.commun.locale, { maximumFractionDigits: 1 });
 
 /** Portrait complet d'une cible (§14). Les phrases de clients sont reprises de la synthèse par leur identifiant. */
-export function textePortrait(p: Portrait, synthese: SyntheseTerrain | null, markdown = false, niveau: 2 | 3 = 3, M: MaCibleMessages = FR): string {
+function textePortraitBrut(p: Portrait, synthese: SyntheseTerrain | null, markdown = false, niveau: 2 | 3 = 3, M: MaCibleMessages = FR): string {
   const L = M.export;
   const dp = M.commun.dp;
   const citation = (id: string) => synthese?.verbatims.find((v) => v.id === id)?.citation;
@@ -138,7 +144,7 @@ export function texteCible(
     texteClients(cible, synthese, markdown, M),
     portrait ? textePortrait(portrait, synthese, markdown, 3, M) : "",
   ];
-  return parties.filter(Boolean).join("\n\n");
+  return sansInsecables(parties.filter(Boolean).join("\n\n"));
 }
 
 export function exporterResultat(
@@ -189,7 +195,8 @@ export function exporterResultat(
       bloc(L.motPourToi, [t(resultat.motPourToi)], markdown, 2),
     ].filter(Boolean).join("\n\n");
   };
-  return { texte: rendre(false), markdown: rendre(true) };
+  // Les espaces insécables de l'écran restent à l'écran : le texte copié garde des espaces simples.
+  return { texte: sansInsecables(rendre(false)), markdown: sansInsecables(rendre(true)) };
 }
 
 /** Nom de fichier `le-cibleur-AAAA-MM-JJ.md` (en anglais `the-targeter-…`), jour de Paris. */

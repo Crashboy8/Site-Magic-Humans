@@ -1,6 +1,8 @@
 // Mon espace (accueil, fiche Talent Unique, import, suppression) et la page /depuis-cibleur/.
 // Français d'abord, puis anglais. L'espagnol est pour l'instant une copie du français (lot de traduction espagnole à venir).
 
+import { typographier } from "../typo";
+
 const fr = {
   meta: { titre: "Mon espace" },
   entete: { nom: "Mon espace", compte: "Mon compte", coach: "Espace coach" },
@@ -215,7 +217,7 @@ const en: EspaceMessages = {
     pasDeFiche: "No sheet yet?",
     lienQuiz: "Take the Unique Talent quiz in 6 minutes",
     surtitre: "Your Unique Talent",
-    valeursAria: "Your top three values",
+    valeursAria: "Your top 3 values",
     voir: "See my sheet",
     modifier: "Edit",
     bientot: "Coming soon: upload your Unique Talent sheet and your tools will fill themselves in.",
@@ -377,7 +379,7 @@ const en: EspaceMessages = {
   outils: {
     qcm: { titre: "Unique Talent quiz", phrase: "Discover your Unique Talent in 6 minutes.", bouton: "Take the quiz" },
     carte: { titre: "Talent Map", phrase: "Draw your talent like a landscape, find the jobs that suit you and the next skill to learn.", bouton: "Draw my map" },
-    cibleur: { titre: "The Targeter", phrase: "Find the clients you'll enjoy working with: three targets, your offer and your first messages.", bouton: "Find my clients" },
+    cibleur: { titre: "The Targeter", phrase: "Find the clients you'll enjoy working with: 3 targets, your offer and your first messages.", bouton: "Find my clients" },
     boussole: { titre: "Decision Compass", phrase: "Torn between several options? Choose based on what really matters to you.", bouton: "Open the Compass" },
     amour: { titre: "Love Quiz", phrase: "Your love profile, and where to meet someone who's right for you.", bouton: "Take the Love Quiz" },
     relation: { titre: "Relationship Compass", phrase: "Take stock of a relationship using your own criteria.", bouton: "Open the Relationship Compass" },
@@ -400,7 +402,10 @@ const en: EspaceMessages = {
   },
 };
 
-/** Espagnol : copie temporaire du français, en attendant sa traduction. */
-const es: EspaceMessages = fr;
+/** Textes affichés : espaces insécables appliqués. */
+const frAffiche = typographier(fr);
 
-export const espace = { fr, en, es };
+/** Espagnol : copie temporaire du français (le même objet), en attendant sa traduction. */
+const es: EspaceMessages = frAffiche;
+
+export const espace = { fr: frAffiche, en: typographier(en), es };
