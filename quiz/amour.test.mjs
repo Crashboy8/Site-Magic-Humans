@@ -1200,3 +1200,12 @@ test("encodage", () => {
     assert.equal(JSON.stringify(JSON.parse(bin.toString("utf8"))), JSON.stringify(p.boussole));
   }
 });
+
+test("résultat : deux boutons PDF rouges, en haut et en bas, qui lancent l'impression", () => {
+  const src = fs.readFileSync(new URL("./amour.js", import.meta.url), "utf8");
+  const boutons = src.match(/<button type="button" class="btn am-pdf" data-act="print">/g) || [];
+  assert.equal(boutons.length, 2);
+  assert.ok(src.indexOf('class="row-actions am-pdf-top"') > 0 && src.indexOf('class="row-actions am-pdf-top"') < src.indexOf("      saveHtml() +"), "le premier bouton est au-dessus du bloc Sauvegarder");
+  assert.match(src, /\.btn\.am-pdf\{[^}]*background:var\(--coral\)/);
+  assert.match(src, /if \(act === "print"\) \{ window\.print\(\); return; \}/);
+});

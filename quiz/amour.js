@@ -319,6 +319,17 @@
     "#screen-amour .am-talent-mark{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;flex:none;background:var(--bf);color:#fff;margin:0}",
     "#screen-amour .am-talent-mark .am-ico{color:#fff}",
     "#screen-amour .am-talent-mark .am-ico svg{width:30px;height:30px}",
+    "#screen-amour .am-talent-mark{background:var(--bc)}",
+    "#screen-amour button.am-pill{border:1.5px solid color-mix(in srgb, var(--bf) 40%, #fff)}",
+    "#screen-amour .am-pill>.am-ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--bc);color:#fff}",
+    "#screen-amour .am-pill>.am-ico svg{width:20px;height:20px;stroke-width:2.25}",
+    "#screen-amour .am-badge .am-ico{color:var(--bc)}",
+    "#screen-amour .am-badge .am-ico svg{stroke-width:2.25}",
+    "#screen-amour .pr-bar-n>.am-ico{color:var(--bc)}",
+    "#screen-amour .am-pdf-top{justify-content:center;margin:0 0 16px}",
+    "#screen-amour .btn.am-pdf{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding-left:18px;padding-right:18px;font-size:clamp(.9rem,4vw,1rem);background:var(--coral);color:#fff;border:0;font-weight:700}",
+    "#screen-amour .btn.am-pdf:hover{background:#A33424;color:#fff}",
+    "#screen-amour .btn.am-pdf .am-ico{color:#fff}",
     "#screen-amour .am-cta{background:radial-gradient(420px 180px at 100% 0%, color-mix(in srgb, var(--pink) 18%, transparent), transparent 70%), linear-gradient(165deg, #fffaf6, var(--surface));border:1px solid color-mix(in srgb, #C4501F 32%, var(--line));box-shadow:0 16px 36px rgba(196,80,31,.12)}",
     "#screen-amour .am-cta .eyebrow{color:#C4501F}",
     "#screen-amour .am-fam-card{border:1px solid color-mix(in srgb, var(--bf) 36%, var(--line));border-radius:20px;overflow:hidden;background:var(--surface);gap:0;animation:am-in .36s ease}",
@@ -414,6 +425,8 @@
     "#screen-amour .pr-cols,#screen-amour .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}",
     "#screen-amour .fond li:nth-child(n+3){display:none}",
     "#screen-amour .am-pill{padding:3px 10px 3px 6px}",
+    "#screen-amour .am-pill>.am-ico{width:24px;height:24px}",
+    "#screen-amour .am-pill>.am-ico svg{width:14px;height:14px}",
     "#screen-amour .pr-say li{font-size:9.5pt}",
     "#screen-amour .pr-exit .k{color:#fff}",
     "#screen-amour .rs h2{font-size:13.5pt;margin:0 0 4px}",
@@ -588,6 +601,7 @@
     pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
     coffee: '<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/>',
     swords: '<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/>',
+    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
     tree: '<path d="M12 22v-6"/><path d="M7 22h10"/><path d="m12 2 5 8h-3l3 6H7l3-6H7z"/>'
   };
   const SCREEN_TONE = { ressource: "gold", langages: "pink", ennea: "gold", valeurs: "sky", instinct: "pink", stress: "coral", freins: "sky" };
@@ -1553,6 +1567,7 @@
     root.classList.toggle("has-sticky", !stickyOff);
     root.innerHTML =
       resumeHtml() +
+      '<div class="row-actions am-pdf-top"><button type="button" class="btn am-pdf" data-act="print">' + ico("download") + esc(R.nowPdf) + "</button></div>" +
       saveHtml() +
       (profile.safety ? '<div class="panel ctx-bad am-screen-only" role="alert"><span class="lab">' + esc(profile.safety.title) + "</span><p>" + esc(profile.safety.text) + "</p></div>" : "") +
       profilReport(profile, stressLine) +
@@ -1563,7 +1578,7 @@
       '<article class="rule" data-tone="pink"><span class="k">2</span><strong>' + ico("phone", "pink") + '<span class="am-lab">' + esc(R.nowPierre) + "</span></strong><p>" + esc(endLine) + "</p>" +
       '<a class="btn" data-cta-place="quiz_amour_resultat-fin" href="' + esc(calendlyHref("resultat-fin")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
-      '<div class="row-actions"><button type="button" class="btn ghost" data-act="print">' + esc(R.nowPdf) + "</button></div></section>" +
+      '<div class="row-actions"><button type="button" class="btn am-pdf" data-act="print">' + ico("download") + esc(R.nowPdf) + "</button></div></section>" +
       '<div class="am-screen-only stack-lg">' +
       '<section class="rs" id="sec-glance"><h2>' + esc(R.glanceH) + '</h2><div class="stack">' + glance + "</div></section>" +
       "<details><summary>" + esc(R.detailsSummary) + "</summary><div>" + detail + "</div></details>" +
