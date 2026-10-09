@@ -14,7 +14,9 @@ export const LOVE_PROPOSALS_MAX = 20;
 export const QUIZ_MARK = "Repris de ton Quiz Amour";
 /** Le même repère en anglais, pour une Boussole créée en anglais. Les deux sont reconnus. */
 export const QUIZ_MARK_EN = "From your Love Quiz";
-const QUIZ_MARKS = [QUIZ_MARK, QUIZ_MARK_EN];
+/** Et en espagnol. Les trois sont reconnus. */
+export const QUIZ_MARK_ES = "Tomado de tu Test del Amor";
+const QUIZ_MARKS = [QUIZ_MARK, QUIZ_MARK_EN, QUIZ_MARK_ES];
 
 /** Vrai si la description vient du Quiz Amour, quelle que soit la langue. */
 export function estRepriseQuiz(description: string): boolean {
@@ -218,15 +220,29 @@ const GROUP_WORDS_EN: Record<LoveProposalGroup, string> = {
   eviter: "what you want to avoid",
 };
 
+const GROUP_WORDS_ES: Record<LoveProposalGroup, string> = {
+  profil: "tu perfil",
+  besoins: "lo que te alimenta",
+  valeurs: "tus valores",
+  eviter: "lo que quieres evitar",
+};
+
 export function quizMarkLine(profil: string, group: LoveProposalGroup, locale: Locale = "fr"): string {
   if (locale === "en") return `${QUIZ_MARK_EN} (${GROUP_WORDS_EN[group]}${profil ? `, profile “${profil}”` : ""}).`;
+  if (locale === "es") return `${QUIZ_MARK_ES} (${GROUP_WORDS_ES[group]}${profil ? `, perfil «${profil}»` : ""}).`;
   return `${QUIZ_MARK} (${GROUP_WORDS[group]}${profil ? `, profil « ${profil} »` : ""}).`;
 }
 
-/** Nom du profil amoureux retrouvé dans les critères importés, s'il y en a (repère français ou anglais). */
+/** Nom du profil amoureux retrouvé dans les critères importés, s'il y en a (repère français, anglais ou espagnol). */
 export function quizProfilFrom(descriptions: string[]): string | null {
   for (const d of descriptions) {
-    const m = d.startsWith(QUIZ_MARK) ? d.match(/profil « ([^»]{1,60}) »/) : d.startsWith(QUIZ_MARK_EN) ? d.match(/profile “([^”]{1,60})”/) : null;
+    const m = d.startsWith(QUIZ_MARK)
+      ? d.match(/profil « ([^»]{1,60}) »/)
+      : d.startsWith(QUIZ_MARK_EN)
+        ? d.match(/profile “([^”]{1,60})”/)
+        : d.startsWith(QUIZ_MARK_ES)
+          ? d.match(/perfil «([^»]{1,60})»/)
+          : null;
     if (m) return m[1];
   }
   return null;

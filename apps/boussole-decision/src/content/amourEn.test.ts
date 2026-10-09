@@ -57,8 +57,7 @@ describe("Boussole Relation en anglais (lot EN 2)", () => {
     }
   });
 
-  it("l'espagnol garde le français, l'anglais a ses propres textes", () => {
-    expect(amourPour("es")).toBe(amourPour("fr"));
+  it("l'anglais a ses propres textes", () => {
     expect(amourPour("en").template).toBe(LOVE_TEMPLATE_EN);
     expect(amourPour("fr").texts).toBe(LOVE_TEXTS);
   });
@@ -115,7 +114,7 @@ describe("Boussole Relation en anglais (lot EN 2)", () => {
 
   it("aide au pourcentage, retour au quiz et liens des cartes dans la langue de l'interface", () => {
     expect(aidePourcentage("en")).toBe(AIDE_POURCENTAGE_EN);
-    expect(aidePourcentage("es")).toBe(AIDE_POURCENTAGE);
+    expect(aidePourcentage("fr")).toBe(AIDE_POURCENTAGE);
     const attirance = LOVE_TEMPLATE_EN.criteria.find((c) => c.key === "attirance");
     expect(proposePourcentage(attirance!.guide)).toBe(true);
     expect(lienQuizAmour("en")).toBe("/quiz-amour/?lang=en");
