@@ -22,6 +22,8 @@ const STOP = new Set([
   ..."dans avec pour cette comme etre avoir faire plus tout toute tous tres quand alors aussi leur leurs sans sous entre apres avant depuis encore meme chez vers dont quoi quel quelle quelles quels vous votre notre nous elles elle lui trop bien peut sont etait aux des les une qui que pas par sur donc car dont fois doit celles ceux celui celle".split(" "),
   // Anglais
   ..."about after again their there these those which while would could should where other being because every with from into your yours they them than then what when everything everyone everybody something anything nothing someone anyone always never really without through around three times still often".split(" "),
+  // Espagnol (sans accents, comme les mots comparés)
+  ..."donde cuando siempre nunca tiene tienen tener puede pueden poder hacer hace hacen antes despues durante mientras entre sobre desde hasta cada otros otras otro otra mismo misma mismos mismas estos estas esos esas aquel aquella tambien ademas cual cuales quien quienes algo nada alguien nadie estar estan estas hacia segun contra cuanto cuanta cuantos cuantas todos todas todo toda ellos ellas nuestro nuestra nuestros nuestras suyo suya mucho mucha muchos muchas poco poca pocos pocas ahora luego entonces solo solamente tanto tanta bastante demasiado mayor mejor peor veces aunque pues porque sino muy sera seran puedo quiero tengo tienes eres somos fueron antes parte forma manera tipo".split(" "),
 ]);
 
 export function sansAccent(s: string): string {
