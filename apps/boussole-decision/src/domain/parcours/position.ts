@@ -561,7 +561,7 @@ export function construireResultat(data: ParcoursPublic, profil: Profil): Result
     valeurs: pointsValeurs(data, profil, position),
     actions: prochainesActions(data, profil, position, argent),
     communes: paires,
-    attention: voie?.pointsAttention ?? [],
+    attention: (profil.freelance && position.voie === "E" ? voie?.pointsAttentionFreelance : voie?.pointsAttention) ?? [],
     offres: offresDeLaVoie(data, position.voie),
   };
 }

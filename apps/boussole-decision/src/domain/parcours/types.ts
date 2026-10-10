@@ -67,6 +67,11 @@ export interface PointAttentionBrut {
   texte: string;
 }
 
+/** Le point d'attention qui en remplace un autre dans un cas précis (voie E : freelance qui cherche un poste). */
+export interface PointAttentionVarianteBrut extends PointAttentionBrut {
+  remplace: string;
+}
+
 export interface VoieBrute {
   id: VoieId;
   nom: string;
@@ -80,6 +85,8 @@ export interface VoieBrute {
   aboutissement?: string;
   mutualisables?: MutualisableBrut[];
   points_attention?: PointAttentionBrut[];
+  /** Voie E, quand la personne est freelance et cherche un poste : remplace le point d'attention « remplace ». */
+  point_attention_freelance?: PointAttentionVarianteBrut;
 }
 
 export interface ParcoursBrut {
@@ -165,6 +172,8 @@ export interface Voie {
   paralleles: { entrepreneur: string[]; salarie: string[]; fin: string } | null;
   mutualisables: Mutualisable[];
   pointsAttention: PointAttention[];
+  /** Les mêmes points d'attention, pour qui est freelance et cherche un poste (voie E) ; égaux aux autres dans les autres voies. */
+  pointsAttentionFreelance: PointAttention[];
 }
 
 export interface Offre {

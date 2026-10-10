@@ -385,6 +385,12 @@
           "texte": "Point à vérifier : la présence d'une clause d'exclusivité ou de non-concurrence dans ton contrat. Ce n'est pas un avis juridique ; en cas de doute, demande à un professionnel du droit."
         }
       ],
+      "point_attention_freelance": {
+        "remplace": "contrat",
+        "id": "missions",
+        "nom": "Tes missions en cours",
+        "texte": "Garde du temps pour ta recherche."
+      },
       "offres_statut": "Proposition à valider : le site ne présente pas d'offre dédiée à la voie hybride."
     },
     {

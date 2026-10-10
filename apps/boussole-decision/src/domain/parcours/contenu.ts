@@ -61,6 +61,8 @@ function etapePublique(brut: ParcoursBrut, e: EtapeBrute): Etape {
 }
 
 function voiePublique(v: VoieBrute): Voie {
+  const points = (v.points_attention ?? []).map(({ id, nom, texte }) => ({ id, nom, texte }));
+  const variante = v.point_attention_freelance;
   return {
     id: v.id,
     nom: v.nom,
@@ -74,7 +76,8 @@ function voiePublique(v: VoieBrute): Voie {
       ? { entrepreneur: [...v.etapes_paralleles.entrepreneur], salarie: [...v.etapes_paralleles.salarie], fin: v.aboutissement ?? "ikigai" }
       : null,
     mutualisables: (v.mutualisables ?? []).map(({ etapes, nom, texte }) => ({ etapes: [...etapes], nom, texte })),
-    pointsAttention: (v.points_attention ?? []).map(({ id, nom, texte }) => ({ id, nom, texte })),
+    pointsAttention: points,
+    pointsAttentionFreelance: variante ? points.map((point) => (point.id === variante.remplace ? { id: variante.id, nom: variante.nom, texte: variante.texte } : point)) : points,
   };
 }
 

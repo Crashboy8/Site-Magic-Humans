@@ -80,6 +80,16 @@ describe("contenu public envoyé au navigateur", () => {
     }
   });
 
+  it("voie E : pour un freelance qui cherche un poste, « Tes missions en cours » remplace le contrat de travail", () => {
+    const E = data.voies.E;
+    expect(E.pointsAttention.map((p) => p.id)).toEqual(["temps", "energie", "positionnement", "contrat"]);
+    expect(E.pointsAttentionFreelance.map((p) => p.id)).toEqual(["temps", "energie", "positionnement", "missions"]);
+    expect(E.pointsAttentionFreelance[3]).toEqual({ id: "missions", nom: "Tes missions en cours", texte: "Garde du temps pour ta recherche." });
+    expect(E.pointsAttentionFreelance.slice(0, 3)).toEqual(E.pointsAttention.slice(0, 3));
+    // Les autres voies n'ont pas de variante : les deux listes sont les mêmes.
+    for (const v of Object.values(data.voies).filter((x) => x.id !== "E")) expect(v.pointsAttentionFreelance, v.id).toEqual(v.pointsAttention);
+  });
+
   it("toutes les voies finissent par Ton Ikigai", () => {
     for (const voie of Object.values(data.voies)) {
       const fin = voie.paralleles ? voie.paralleles.fin : voie.etapes[voie.etapes.length - 1];

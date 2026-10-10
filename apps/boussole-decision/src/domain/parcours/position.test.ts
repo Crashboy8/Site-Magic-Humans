@@ -209,6 +209,19 @@ describe("voie E : hybride, salarié et entrepreneur en parallèle", () => {
     expect(r.attention[3].texte).toMatch(/clause d'exclusivité/);
     expect(r.attention[3].texte).toMatch(/pas un avis juridique/);
   });
+
+  it("freelance qui cherche un poste : « Tes missions en cours » remplace le contrat de travail, les trois autres points restent", () => {
+    const r = resultat({ voie: "E", freelance: true, reponses: rep(TRONC) });
+    expect(r.attention.map((p) => p.id)).toEqual(["temps", "energie", "positionnement", "missions"]);
+    expect(r.attention[3]).toEqual({ id: "missions", nom: "Tes missions en cours", texte: "Garde du temps pour ta recherche." });
+    expect(r.attention.slice(0, 3)).toEqual(resultat({ voie: "E", reponses: rep(TRONC) }).attention.slice(0, 3));
+    expect(JSON.stringify(r.attention)).not.toMatch(/contrat|clause d'exclusivité/);
+  });
+
+  it("le point « freelance » ne s'applique qu'à la voie E : ailleurs, rien ne change", () => {
+    expect(resultat({ voie: "D", freelance: true, reponses: rep(TRONC) }).attention).toEqual([]);
+    expect(resultat({ voie: "E", freelance: false, reponses: rep(TRONC) }).attention.map((p) => p.id)).toContain("contrat");
+  });
 });
 
 describe("voie K : connaissance de soi", () => {

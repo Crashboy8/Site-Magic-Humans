@@ -70,10 +70,19 @@
   .outils-parcours-surtitre{margin:0;font-size:13px;font-weight:600;letter-spacing:.12em;line-height:1.3;text-transform:uppercase;color:#7A5200}
   .outils-parcours-titre{margin:2px 0 0;font-size:clamp(30px,6vw,40px);font-style:italic;line-height:1.05}
   .outils-parcours-phrase{margin:12px 0 10px;color:var(--ink);font-size:17px;line-height:1.45}
-  .outils-parcours-puces{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-  .outils-parcours-puces li{background:rgba(255,255,255,.92);border-radius:999px;padding:4px 11px;font-size:14.5px;font-weight:500;line-height:1.5;color:var(--ink);box-shadow:0 1px 2px rgba(58,47,36,.08)}
+  .outils-parcours-puces{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:4px 18px}
+  .outils-parcours-puces li{padding-left:22px;font-size:15.5px;font-weight:500;line-height:1.5;color:var(--ink);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2355704F' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") no-repeat 0 .22em/17px 17px}
+  .outils-parcours-btn{border-radius:12px;box-shadow:0 3px 0 rgba(120,40,10,.5)}
+  .outils-parcours-btn:active{transform:translateY(1px);box-shadow:none}
+  .outils-compte{margin:0 0 18px;padding:18px 16px;border-radius:20px;border:1px solid #F0D2C6;background:linear-gradient(135deg,#FFF1EA 0%,#FFF9EA 100%);text-align:center}
+  .outils-compte h2{margin:0 0 6px;font-size:clamp(26px,5vw,32px);font-style:italic;line-height:1.1}
+  .outils-compte p{margin:0 auto 14px;max-width:34em;color:var(--ink-soft);font-size:16.5px;line-height:1.45}
+  .outils-compte-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:10px 22px;border-radius:12px;background:#B8441F;color:#fff;font-size:15px;font-weight:600;line-height:1.3;text-align:center;box-shadow:0 3px 0 rgba(120,40,10,.55)}
+  .outils-compte-btn:hover{filter:brightness(.94)}
+  .outils-compte-btn:active{transform:translateY(1px);box-shadow:none}
   @media (max-width:480px){
     body.page-outils .wrap{padding-left:16px;padding-right:16px}
+    .outils-compte-btn{width:100%}
     .outils{padding-top:18px}
     .outils-btn{width:100%}
     .outils-appel .btn{width:100%;justify-content:center}
@@ -192,6 +201,11 @@
         </li>
       </ol>
     </section>
+    <aside class="outils-compte" aria-labelledby="outils-compte-titre">
+      <h2 id="outils-compte-titre" data-en="Keep your journey" data-es="Guarda tu recorrido">Garde ton parcours</h2>
+      <p data-en="Create your account to keep your journey and your Compasses, and find them on all your devices. It all lives in My space." data-es="Crea tu cuenta para guardar tu recorrido y tus Brújulas, y encontrarlos en todos tus dispositivos. Todo vive en Mi espacio.">Crée ton compte pour garder ton parcours et tes Boussoles, et les retrouver sur tous tes appareils. Tout vit dans Mon espace.</p>
+      <a class="outils-compte-btn" href="/mon-espace/" data-en="Open my space" data-es="Abrir mi espacio">Ouvrir Mon espace</a>
+    </aside>
     <aside class="outils-appel">
       <p data-en="Want to talk it over?" data-es="¿Quieres hablarlo?">Envie d'en parler ?</p>
       <p class="outils-appel-detail" data-en="Discovery call, 1 hour, free." data-es="Llamada de descubrimiento, 1&nbsp;hora, sin coste.">Appel Découverte, 1&nbsp;heure, offert.</p>

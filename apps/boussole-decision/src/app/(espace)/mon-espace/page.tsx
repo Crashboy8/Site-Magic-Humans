@@ -71,7 +71,15 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
       {/* Deux colonnes sur ordinateur : les outils à gauche, « Ta voie, tu es ici » à droite. Sur téléphone, le parcours d'abord. */}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:items-start lg:gap-10">
         <div className="min-w-0 lg:col-start-2 lg:row-start-1">
-          <OuJenSuis data={data} variante="panneau" initial={parcours.initial} majCompte={parcours.majCompte} compte={parcours.compte} ficheDeposee={parcours.ficheDeposee} />
+          <OuJenSuis
+            data={data}
+            variante="panneau"
+            initial={parcours.initial}
+            majCompte={parcours.majCompte}
+            compte={parcours.compte}
+            statut={user.isGuest ? "invite" : "connecte"}
+            ficheDeposee={parcours.ficheDeposee}
+          />
         </div>
         <MenuOutils outils={outils} sections={ESPACE.sections} titre={T.espace.menu} className="lg:col-start-1 lg:row-start-1" />
       </div>

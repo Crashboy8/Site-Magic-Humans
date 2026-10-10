@@ -3,9 +3,11 @@ import { cx } from "@/components/ui";
 import { bilanEtape, questionsEcran, type Ecran, type Question } from "@/domain/parcours/position";
 import type { Profil } from "@/domain/parcours/profil";
 import { REPONSES, type ParcoursPublic, type Reponse } from "@/domain/parcours/types";
+import type { StatutCompte } from "@/features/espace/barre";
 import { Icone, type NomIcone } from "@/features/espace/Icones";
 import type { ParcoursMessages } from "@/i18n/messages/parcours";
-import { Barre, Compteur, Confettis, Pastille, Rayons } from "./Habillage";
+import { CarteCompte } from "./Compte";
+import { Barre, Compteur, Confettis, Info, Pastille, Rayons } from "./Habillage";
 import { iconeEtape, styleBranche, TEINTES } from "./theme";
 
 const REPONSE: Record<Reponse, { actif: string; icone: NomIcone }> = {
@@ -17,7 +19,7 @@ const REPONSE: Record<Reponse, { actif: string; icone: NomIcone }> = {
 /** La barre du haut : retour, progression, points. */
 export function Hud({ T, pourcent, points, onRetour }: { T: ParcoursMessages; pourcent: number; points: number; onRetour: () => void }) {
   return (
-    <div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-line/60 bg-(--oj-page)/90 px-4 py-2 backdrop-blur-md sm:top-3 sm:mx-0 sm:rounded-full sm:border sm:bg-white/90 sm:px-2 sm:py-1.5 sm:shadow-[0_10px_30px_-22px_rgba(58,47,36,0.6)]">
+    <div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-line/60 bg-(--oj-page)/90 px-4 py-2 backdrop-blur-md sm:top-3 sm:mx-0 sm:rounded-2xl sm:border sm:bg-white/90 sm:px-2 sm:py-1.5 sm:shadow-[0_10px_30px_-22px_rgba(58,47,36,0.6)]">
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -28,8 +30,8 @@ export function Hud({ T, pourcent, points, onRetour }: { T: ParcoursMessages; po
           <Icone nom="fleche" className="h-5 w-5 rotate-180" />
         </button>
         <Barre pourcent={pourcent} label={T.quete.progression} className="flex-1" />
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#FFF5D9] px-3 py-1.5 text-[15px] font-semibold text-[#7A5200]">
-          <Icone nom="etoile" className="h-4 w-4" />
+        <span className="inline-flex shrink-0 items-center gap-1 pr-1 text-[18px] font-bold text-[#7A5200]">
+          <Icone nom="etoile" className="h-5 w-5" />
           <Compteur valeur={points} depart={points} />
           <span className="sr-only">{T.quete.points(points)}</span>
         </span>
@@ -87,14 +89,20 @@ export function EcranQuete({
         <span className="pointer-events-none absolute -right-8 -top-8 text-(--oj-forte) opacity-[0.08] [&_svg]:h-44 [&_svg]:w-44">
           <Icone nom={iconeEtape(principale.id)} />
         </span>
-        <div className="relative flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-white px-3 py-1 text-[13px] font-bold uppercase tracking-[0.12em] text-(--oj-texte) shadow-sm">{T.quete.surtitre(numero, total)}</span>
+        <div className="relative flex flex-wrap items-center gap-x-4 gap-y-1">
+          <Info icone="drapeau" className="text-[13px] font-bold uppercase tracking-[0.12em] text-(--oj-texte)">
+            {T.quete.surtitre(numero, total)}
+          </Info>
           {ecran.piste === "parallele" && (
-            <span className="rounded-full px-3 py-1 text-[13px] font-semibold" style={{ background: TEINTES.soi.fond, color: TEINTES.soi.texte }}>
-              {T.quete.parallele}
-            </span>
+            <Info icone="coeur" className="text-[13px]" >
+              <span style={{ color: TEINTES.soi.texte }}>{T.quete.parallele}</span>
+            </Info>
           )}
-          {ecran.paire && <span className="rounded-full bg-white/80 px-3 py-1 text-[13px] font-semibold text-ink-soft">{T.quete.deuxBranches}</span>}
+          {ecran.paire && (
+            <Info icone="bifurcation" className="text-[13px] text-ink-soft">
+              {T.quete.deuxBranches}
+            </Info>
+          )}
         </div>
         {ecran.paire ? (
           <>
@@ -102,9 +110,9 @@ export function EcranQuete({
               {ecran.paire.nom}
             </h2>
             <p className="relative mt-2 text-[16px] leading-relaxed text-ink">{ecran.paire.texte}</p>
-            <div className="relative mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="relative mt-4 grid gap-3 sm:grid-cols-2">
               {etapes.map((e) => (
-                <div key={e.id} className="flex items-start gap-3 rounded-2xl border border-(--oj-claire) bg-white/90 p-3" style={styleBranche(e.branche)}>
+                <div key={e.id} className="flex items-start gap-3 border-l-4 border-(--oj-forte) pl-3" style={styleBranche(e.branche)}>
                   <Pastille nom={iconeEtape(e.id)} taille="sm" plein />
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-(--oj-texte)">
@@ -148,27 +156,23 @@ export function EcranQuete({
               style={{ "--i": i + 1 } as CSSProperties}
             >
               <fieldset>
-                <legend className="flex w-full items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className={cx(
-                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[14px] font-semibold transition",
-                      valeur ? "bg-(--oj-forte) text-white" : "bg-(--oj-fond) text-(--oj-texte)",
-                    )}
-                  >
-                    {valeur ? <Icone nom="coche" className="h-4 w-4" /> : i + 1}
+                <legend className="w-full">
+                  <span aria-hidden="true" className={cx("flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.12em]", valeur ? "text-[#1A7A6D]" : "text-(--oj-texte)")}>
+                    {valeur && <Icone nom="coche" className="h-4 w-4" />}
+                    {T.quete.question(i + 1, questions.length)}
                   </span>
-                  <span className="min-w-0 text-[17px] leading-snug text-ink">
+                  <span className="mt-1 block text-[18px] leading-snug text-ink">
                     {q.texte}
                     <span className="sr-only">, {T.quete.question(i + 1, questions.length)}</span>
                   </span>
                 </legend>
                 {ecran.etapes.length > 1 && (
-                  <p className="mt-2 flex flex-wrap gap-1.5 pl-10">
+                  <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                     {q.criteres.map((c) => {
                       const e = data.etapes[c.etape];
                       return (
-                        <span key={c.id} className="rounded-full px-2 py-0.5 text-[12px] font-semibold" style={{ background: TEINTES[e.branche].fond, color: TEINTES[e.branche].texte }}>
+                        <span key={c.id} className="inline-flex items-center gap-1.5 text-[12px] font-semibold" style={{ color: TEINTES[e.branche].texte }}>
+                          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-[3px]" style={{ background: TEINTES[e.branche].forte }} />
                           {e.code} · {e.brancheNom}
                         </span>
                       );
@@ -184,14 +188,16 @@ export function EcranQuete({
                         <span
                           className={cx(
                             "flex min-h-[54px] cursor-pointer select-none flex-col items-center justify-center gap-1 rounded-2xl border-2 px-1 py-2 text-center text-[14px] font-medium leading-tight transition duration-150 peer-focus-visible:ring-2 peer-focus-visible:ring-(--oj-forte) peer-focus-visible:ring-offset-2 sm:flex-row sm:gap-1.5 sm:text-[15px]",
-                            coche ? cx(REPONSE[r].actif, "scale-[1.03] shadow-md") : "border-line bg-paper text-ink hover:border-ink/30 hover:bg-white active:scale-95",
+                            coche
+                              ? cx(REPONSE[r].actif, "scale-[1.03] shadow-md")
+                              : "border-ink/25 bg-white text-ink shadow-[0_3px_0_0_rgba(58,47,36,0.16)] hover:border-ink/45 active:translate-y-[2px] active:shadow-none",
                           )}
                         >
                           <Icone nom={REPONSE[r].icone} className="h-5 w-5 shrink-0" />
                           {T.quete.reponses[r]}
                         </span>
                         {envol && envol.cle === q.cle && envol.reponse === r && data.points[r] > 0 && (
-                          <span key={envol.n} aria-hidden="true" className="oj-gain rounded-full bg-[#FFF5D9] px-2 py-0.5 text-[13px] font-bold text-[#7A5200] shadow-sm">
+                          <span key={envol.n} aria-hidden="true" className="oj-gain text-[17px] font-extrabold text-[#7A5200] [text-shadow:0_1px_0_#fff,0_0_6px_#fff]">
                             +{data.points[r]}
                           </span>
                         )}
@@ -234,6 +240,7 @@ export function EcranFete({
   gain,
   total,
   derniere,
+  statut,
   onSuivant,
 }: {
   data: ParcoursPublic;
@@ -242,6 +249,7 @@ export function EcranFete({
   gain: number;
   total: number;
   derniere: boolean;
+  statut: StatutCompte;
   onSuivant: () => void;
 }) {
   const etapes = ids.map((id) => data.etapes[id]);
@@ -275,8 +283,8 @@ export function EcranFete({
           </span>
         ))}
       </h2>
-      <p className="oj-pop mt-5 inline-flex items-center gap-2 rounded-full bg-[#FFF5D9] px-5 py-2 text-[20px] font-bold text-[#7A5200] shadow-sm" style={{ "--d": "250ms" } as CSSProperties}>
-        <Icone nom="etoile" className="h-5 w-5" />
+      <p className="oj-pop mt-5 inline-flex items-center gap-2 text-[28px] font-bold text-[#7A5200]" style={{ "--d": "250ms" } as CSSProperties}>
+        <Icone nom="etoile" className="h-7 w-7" />
         {T.fete.gain(gain)}
       </p>
       <p className="mt-2 text-[15px] text-ink-soft">{T.fete.total(total)}</p>
@@ -304,6 +312,7 @@ export function EcranFete({
           <Icone nom="fleche" className="h-5 w-5" />
         </button>
       </div>
+      <CarteCompte T={T} statut={statut} compte={null} compact />
     </section>
   );
 }

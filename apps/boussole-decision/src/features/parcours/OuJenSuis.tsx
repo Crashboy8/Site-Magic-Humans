@@ -5,7 +5,9 @@ import { totalQuetes, vueDeReprise, vuePrecedente, vueSuivante, type Vue } from 
 import { bilanEtape, calculerPosition, construireResultat, etatsPrincipaux, pointsGagnes, questionnaire, raccourciPossible } from "@/domain/parcours/position";
 import { PROFIL_VIDE, profilCommence, type Profil } from "@/domain/parcours/profil";
 import type { ChoixVoie, ParcoursPublic, Reponse } from "@/domain/parcours/types";
+import type { StatutCompte } from "@/features/espace/barre";
 import { Icone } from "@/features/espace/Icones";
+import { outilsPour } from "@/features/espace/outils";
 import { useI18n } from "@/i18n/client";
 import { textesParcours, type ParcoursMessages } from "@/i18n/messages/parcours";
 import { effacerPositionAction, enregistrerPositionAction } from "./actions";
@@ -14,7 +16,8 @@ import { EcranArgent, EcranParallele } from "./EcransQuestions";
 import { EcranVoie } from "./EcranVoie";
 import { DecorParcours } from "./Habillage";
 import { Resultat, type Resume } from "./Resultat";
-import { effacer, ecrire, lire, serialiser } from "./stockage";
+import { instantane } from "./instantane";
+import { effacer, ecrire, ecrireInstantane, lire, serialiser } from "./stockage";
 
 type VueApp = Vue | { type: "accueil" } | { type: "fete"; index: number; etapes: string[]; gain: number };
 
@@ -71,6 +74,7 @@ export function OuJenSuis({
   initial,
   majCompte,
   compte,
+  statut,
   ficheDeposee,
 }: {
   data: ParcoursPublic;
@@ -80,11 +84,15 @@ export function OuJenSuis({
   /** Sa date de dernière modification : si cet appareil a plus récent, on garde celui de l'appareil. */
   majCompte: string | null;
   compte: Compte;
+  /** Sans compte, en essai (session invitée) ou connecté : l'appel à garder son travail s'adapte. */
+  statut: StatutCompte;
   /** Fiche Talent Unique déposée dans Mon espace : on propose le raccourci « ancien accompagné ». */
   ficheDeposee: boolean;
 }) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const T = textesParcours(locale);
+  // Page publique : les outils sous le résultat, pour passer de l'un à l'autre. Dans Mon espace, ils sont à côté.
+  const menu = useMemo(() => (variante === "page" ? { outils: outilsPour(t.espace.outils, locale), sections: t.espace.sections } : null), [variante, t.espace, locale]);
   const [profil, setProfil] = useState<Profil>(() => initial ?? { ...PROFIL_VIDE, raccourci: ficheDeposee });
   const [vue, setVue] = useState<VueApp>(() => vueInitiale(data, initial, variante));
   const [charge, setCharge] = useState(false);
@@ -118,6 +126,7 @@ export function OuJenSuis({
   useEffect(() => {
     if (!charge) return;
     ecrire(profil);
+    ecrireInstantane(instantane(data, profil));
     const json = JSON.stringify(profil);
     if (!tableOk.current || !profilCommence(profil) || json === dernierEnvoi.current) return;
     const minuterie = window.setTimeout(() => {
@@ -129,7 +138,7 @@ export function OuJenSuis({
       });
     }, 700);
     return () => window.clearTimeout(minuterie);
-  }, [profil, charge]);
+  }, [profil, charge, data]);
 
   // Changement d'écran demandé par la personne : haut du parcours et focus sur son titre.
   useEffect(() => {
@@ -157,7 +166,7 @@ export function OuJenSuis({
   const accueilOuVoie: VueApp = variante === "panneau" ? { type: "accueil" } : { type: "voie" };
   const retour = (depuis: Vue) => aller(vuePrecedente(data, profil, depuis) ?? accueilOuVoie);
 
-  const choisirVoie = (voie: ChoixVoie) => setProfil((p) => ({ ...p, voie }));
+  const choisirVoie = (voie: ChoixVoie | null, freelance: boolean) => setProfil((p) => ({ ...p, voie, freelance }));
   const repondre = (ids: string[], r: Reponse) => setProfil((p) => ({ ...p, reponses: { ...p.reponses, ...Object.fromEntries(ids.map((id) => [id, r])) } }));
 
   const validerEcran = (index: number) => {
@@ -267,6 +276,7 @@ export function OuJenSuis({
           gain={vue.gain}
           total={points}
           derniere={vueSuivante(data, profil, { type: "ecran", index: vue.index }).type === "resultat"}
+          statut={statut}
           onSuivant={() => aller(vueSuivante(data, profil, { type: "ecran", index: vue.index }))}
         />
       )}
@@ -278,6 +288,9 @@ export function OuJenSuis({
           resultat={resultat}
           variante={variante}
           avant={avant}
+          statut={statut}
+          compte={compte}
+          menu={menu}
           onRefaire={refaire}
           onEffacer={toutEffacer}
           onChoisirVoie={() => aller({ type: "voie" })}

@@ -232,9 +232,11 @@ curl -X POST http://localhost:3000/boussole-decision/api/ma-cible/ \
 
 ## Où j'en suis ?
 
-Outil gratuit : il situe chaque personne sur le parcours accompagné (version 3.3) et lui donne son étape, son niveau Réussir dans le Plaisir, ses points et ses trois prochaines actions. Le parcours se joue comme un jeu : une quête par étape, des points à chaque réponse (Oui 2, En partie 1, Pas encore 0), une médaille à chaque étape franchie, l'échelle des niveaux de 0 à 7.
+Outil : il situe chaque personne sur le parcours accompagné (version 3.3) et lui donne son étape, son niveau Réussir dans le Plaisir, ses points et ses trois prochaines actions. Le parcours se joue comme un jeu : une quête par étape, des points à chaque réponse (Oui 2, En partie 1, Pas encore 0), une médaille à chaque étape franchie, l'échelle des niveaux de 0 à 7.
 
 - **Page publique** : `https://www.magichumans.com/boussole-decision/ou-j-en-suis/`, sans compte, réponses gardées dans le navigateur (clé `ou_j_en_suis_v1`). Lien court `/ou-j-en-suis/` (redirection dans le `vercel.json` du site), carte en haut de `/outils/`.
+- **Deux projets en parallèle** : à la question « Quelle est ta situation, ton projet ? », on peut cocher deux cases, une voie entrepreneur (A, C) et une voie salarié (B, D), par exemple des missions de freelance en attendant de décrocher un poste. Cela donne la voie E (hybride), qui existe déjà dans `parcours.json` : les deux branches en même temps. Seule la voie E est enregistrée. Règles dans `src/domain/parcours/choix.ts`.
+  - **Freelance qui cherche un poste** (« entrepreneur » et « entrepreneur qui veut redevenir salarié » cochés ensemble) : le point d'attention « Ton contrat de travail » devient « Tes missions en cours : garde du temps pour ta recherche » (clé `point_attention_freelance` de la voie E dans `parcours.json`). La marque est la colonne `freelance` de `parcours_positions` (migration `20261016000000_parcours_positions_freelance.sql`, à coller après la première) ; sans elle, l'outil marche comme avant, sans erreur.
 - **Mon espace** : deux colonnes sur ordinateur (les outils à gauche, « Ta voie, tu es ici » à droite), une colonne sur téléphone (le parcours d'abord). Même moteur que la page publique.
 
 ### Où est le code
@@ -248,8 +250,21 @@ Outil gratuit : il situe chaque personne sur le parcours accompagné (version 3.
 | Lien entre chaque action type et les critères qu'elle aide à passer à Oui (absent du JSON, à relire) | `src/domain/parcours/actionsCriteres.ts` |
 | Écrans (client), thème, animations | `src/features/parcours/` |
 | Position gardée dans le compte, repli silencieux sur le navigateur si la table n'existe pas | `src/data/parcours.ts`, `src/features/parcours/actions.ts` |
-| Table `parcours_positions` (RLS propriétaire) | `supabase/migrations/20261015000000_parcours_positions.sql` |
+| Table `parcours_positions` (RLS propriétaire), puis sa colonne `freelance` | `supabase/migrations/20261015000000_parcours_positions.sql`, `20261016000000_parcours_positions_freelance.sql` |
 | Textes de l'interface (français ; anglais et espagnol à venir, même forme) | `src/i18n/messages/parcours.ts` |
+| Barre « Mon parcours · Mes outils » dans l'application (Cibleur, Boussole, pages publiques) | `src/features/espace/BarreParcours.tsx`, `barre.ts` ; textes dans `espace.barre` (FR, EN, ES) |
+| Barre « Mon parcours · Mes outils » du site statique (Quiz Talent Unique, Quiz Amour, Carte du Talent) | `js/parcours-barre.js` à la racine du dépôt, testée par `js/parcours-barre.test.mjs` |
+| Instantané lu par la barre du site statique (étape, points, jamais les réponses) | `src/features/parcours/instantane.ts` |
+| Appel à garder son travail dans le parcours (écran « Quête accomplie », résultat) | `src/features/parcours/Compte.tsx` |
+
+### Passer d'un outil à l'autre
+
+Chaque outil a en haut une barre à deux boutons : **Mon parcours** (en un geste, avec l'étape et les points si la personne a fait le point) et **Mes outils** (les six outils, celui qui est ouvert est marqué « Tu es ici », et de quoi créer son compte). Sans compte, « Mon parcours » mène à `/boussole-decision/ou-j-en-suis/` ; avec un compte ou un essai, à Mon espace. Créer le compte ramène ensuite à Mon espace (`?suite=/mon-espace/`).
+
+- **Le site statique** et l'application sont servis sous la même adresse (`www.magichumans.com`) : le script `js/parcours-barre.js` relit dans le navigateur l'instantané `ou_j_en_suis_resume_v1` que l'application écrit avec le profil (étape, points, date), et regarde seulement si le cookie de session `sb-…-auth-token` est là. Rien n'est envoyé nulle part.
+- **Ajouter un outil** : le déclarer à trois endroits, `src/features/espace/outils.ts`, `js/parcours-barre.js` (liste `OUTILS`) et `outils/index.html`. Les tests (`npm test`, `node --test js/parcours-barre.test.mjs outils/outils.test.mjs`) vérifient que les adresses, l'ordre, les noms et les couleurs sont les mêmes.
+- **Carte du Talent** : ses fenêtres plein écran (création, progrès, saisie) commencent sous la barre grâce à la variable CSS `--mhp-h` que le script pose sur la page (`carte-du-talent/css/ui.css`).
+- **Règle d'interface** : seuls les boutons ont un fond plein, un contour net et un relief. Une information (étape, points, « Tu es ici », « Clé ») est du texte avec son icône, sans capsule ni rond (composant `Info`, `src/features/parcours/Habillage.tsx`) : sur téléphone, tout ce qui est arrondi et coloré se touche.
 
 ### Mettre à jour le parcours
 

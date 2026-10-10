@@ -2,6 +2,7 @@
 // Seuls lire, ecrire et effacer touchent à window.localStorage, et ne lèvent jamais d'erreur.
 import { lireProfil, type Profil } from "@/domain/parcours/profil";
 import type { ParcoursPublic } from "@/domain/parcours/types";
+import { CLE_INSTANTANE, serialiserInstantane, type Instantane } from "./instantane";
 
 export const CLE_STOCKAGE = "ou_j_en_suis_v1";
 
@@ -46,10 +47,22 @@ export function ecrire(profil: Profil): void {
   }
 }
 
+/** L'instantané pour les autres outils : écrit avec le profil, effacé avec lui. Même règle : jamais d'erreur. */
+export function ecrireInstantane(i: Instantane | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (i) window.localStorage.setItem(CLE_INSTANTANE, serialiserInstantane(i));
+    else window.localStorage.removeItem(CLE_INSTANTANE);
+  } catch {
+    // Stockage plein ou refusé : les autres outils affichent simplement « Mon parcours » sans détail.
+  }
+}
+
 export function effacer(): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(CLE_STOCKAGE);
+    window.localStorage.removeItem(CLE_INSTANTANE);
   } catch {
     // Rien à faire.
   }

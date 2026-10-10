@@ -6,6 +6,7 @@ import type { Profile, Version } from "@/domain/types";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 import { LienQuizAmour } from "@/features/amour/LienQuizAmour";
 import { SignOutButton } from "@/features/auth/SignOutButton";
+import { BarreParcours } from "@/features/espace/BarreParcours";
 import { LanguageSwitch } from "@/i18n/LanguageSwitch";
 import { getI18n } from "@/i18n/server";
 
@@ -44,6 +45,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       >
         {c.skipToContent}
       </a>
+      <BarreParcours statut={user.isGuest ? "invite" : "connecte"} outil={amour ? "relation" : "boussole"} />
       <header data-chrome className="z-30 border-b border-line bg-cream/90 backdrop-blur sm:sticky sm:top-0">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
           <AppBrand name={c.appName} locale={locale} />

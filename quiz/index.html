@@ -17,6 +17,7 @@
 </script>
 <script src="/js/consent.js" defer></script>
 <script src="/js/tracking.js" defer></script>
+<script src="/js/parcours-barre.js" defer></script>
 <script>
   /* Mode amour : ?theme=amour remplace le quiz Talent Unique par le Quiz Amour (fichiers quiz/amour-*.js). Le sélecteur de langue reste visible. */
   window.MH_THEME = new URLSearchParams(location.search).get("theme") === "amour" ? "amour" : "";
@@ -1028,7 +1029,7 @@ const TEXT_FR = {
     brand:"Magic Humans · Quiz Talent Unique",
     footer:"Magic Humans · Les résultats sont des hypothèses de travail, à valider avec des exemples réels de ta vie.",
     intro:{
-      eyebrow:"Gratuit · 9 questions · 6 minutes",
+      eyebrow:"9 questions · 6 minutes",
       nameLabel:"Ton prénom", animalLabel:"Pour le plaisir : si tu étais un animal, lequel serais-tu ? (facultatif)", animalPh:"Par exemple : un dauphin",
       nameErr:"Indique ton prénom : il sert à personnaliser ton rapport.",
       invited:org=>`Tu as été invité·e par Pierre Sarazin (Magic Humans)${org ? " · "+org : ""}. À la fin du quiz, ton résultat lui sera transmis pour qu'il puisse en parler avec toi.`,
@@ -1216,7 +1217,7 @@ const TEXT_EN = {
     brand:"Magic Humans · Unique Talent Quiz",
     footer:"Magic Humans · These results are working hypotheses, to be tested against real examples from your life.",
     intro:{
-      eyebrow:"Free · 9 questions · 6 minutes",
+      eyebrow:"9 questions · 6 minutes",
       nameLabel:"Your first name", animalLabel:"Just for fun: if you were an animal, which one would you be? (optional)", animalPh:"For example: a dolphin",
       nameErr:"Please enter your first name: it's used to personalise your report.",
       invited:org=>`You were invited by Pierre Sarazin (Magic Humans)${org ? " · "+org : ""}. At the end of the quiz, your result will be shared with him so he can talk it through with you.`,
@@ -1711,7 +1712,7 @@ const TEXT_ES = {
     brand:"Magic Humans · Quiz Talento Único",
     footer:"Magic Humans · Estos resultados son hipótesis de trabajo, que conviene contrastar con ejemplos reales de tu vida.",
     intro:{
-      eyebrow:"Gratis · 9 preguntas · 6 minutos",
+      eyebrow:"9 preguntas · 6 minutos",
       nameLabel:"Tu nombre", animalLabel:"Para divertirse: si fueras un animal, ¿cuál serías? (opcional)", animalPh:"Por ejemplo: un delfín",
       nameErr:"Escribe tu nombre: sirve para personalizar tu informe.",
       invited:org=>`Te ha invitado Pierre Sarazin (Magic Humans)${org ? " · "+org : ""}. Al final del quiz, tu resultado se le enviará para que pueda comentarlo contigo.`,

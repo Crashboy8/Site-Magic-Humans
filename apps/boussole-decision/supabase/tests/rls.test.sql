@@ -447,6 +447,12 @@ insert into parcours_positions (voie, argent, parallele, reponses) values ('E', 
 select pg_temp.check((select count(*) from parcours_positions) = 1, 'parcours : Alice enregistre sa position');
 update parcours_positions set voie = 'A', raccourci = true;
 select pg_temp.check((select voie = 'A' and raccourci from parcours_positions), 'parcours : Alice modifie sa position');
+select pg_temp.check((select not freelance from parcours_positions), 'parcours : freelance vaut faux par défaut');
+select pg_temp.expect_error($$update parcours_positions set freelance = true$$, 'parcours_positions_freelance_check');
+update parcours_positions set voie = 'E', freelance = true;
+select pg_temp.check((select voie = 'E' and freelance from parcours_positions), 'parcours : Alice se marque freelance qui cherche un poste en voie E');
+select pg_temp.expect_error($$update parcours_positions set voie = 'A'$$, 'parcours_positions_freelance_check');
+update parcours_positions set voie = 'A', freelance = false;
 select pg_temp.expect_error($$insert into parcours_positions (user_id, voie) values ('00000000-0000-0000-0000-0000000000b2', 'B')$$, 'row-level security');
 select pg_temp.expect_error($$update parcours_positions set voie = 'Z'$$, 'parcours_positions_voie_check');
 select pg_temp.expect_error($$update parcours_positions set argent = 6$$, 'parcours_positions_argent_check');

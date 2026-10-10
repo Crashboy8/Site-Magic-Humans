@@ -11,11 +11,13 @@ export interface Profil {
   parallele: boolean | null;
   /** Ancien accompagné (fiche Talent Unique déjà faite) : il commence à l'étape 3. */
   raccourci: boolean;
+  /** Voie E seulement : la personne est freelance et cherche un poste (« entrepreneur » et « redevenir salarié » cochés ensemble). */
+  freelance: boolean;
   /** Réponse de chaque critère, par identifiant (« connaitre.quiz »). */
   reponses: Readonly<Record<string, Reponse>>;
 }
 
-export const PROFIL_VIDE: Profil = { voie: null, argent: null, parallele: null, raccourci: false, reponses: {} };
+export const PROFIL_VIDE: Profil = { voie: null, argent: null, parallele: null, raccourci: false, freelance: false, reponses: {} };
 
 const IDS = new WeakMap<ParcoursPublic, ReadonlySet<string>>();
 
@@ -52,7 +54,7 @@ export function lireProfil(brut: unknown, data: ParcoursPublic): Profil | null {
       if (ids.has(id) && estReponse(r)) reponses[id] = r;
     }
   }
-  return { voie, argent, parallele, raccourci: o.raccourci === true, reponses };
+  return { voie, argent, parallele, raccourci: o.raccourci === true, freelance: o.freelance === true && voie === "E", reponses };
 }
 
 /** Le profil a-t-il commencé (une voie choisie ou au moins une réponse) ? */
