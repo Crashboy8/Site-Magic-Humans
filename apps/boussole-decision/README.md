@@ -140,7 +140,7 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
   l'Espace coach (`demandes_groupe_m3_coach()`). Aucun mail n'est envoyé.
 - **Tes données** (`/tes-donnees/`, page publique) : ce qu'on garde, où (Supabase, Union européenne, Irlande), qui y
   a accès (la personne et Pierre), l'accord pour la fiche, l'export JSON de toutes ses données
-  (`/mon-espace/donnees/export/`) et la suppression du compte (qui efface aussi la fiche préparée pour son code).
+  (`/mon-espace/donnees/export/`, progression comprise) et la suppression du compte (qui efface aussi la fiche préparée pour son code et la progression).
 - SQL : `supabase/migrations/20261017000000_vip_consentement.sql`, rejouable. Sans lui, rien ne casse : pas de case
   d'accord, pas de niveau ni de fiche préparée sur la page des codes, pas de carte M3.
 
@@ -296,6 +296,28 @@ Chaque outil a en haut une barre à deux boutons : **Mon parcours** (en un geste
 ### Mettre à jour le parcours
 
 Remplacer `parcours.json` par la nouvelle version, en retirant `exemples_internes`, `trous_connus`, `sources` et `statut`, puis lancer `npm test` : un test échoue si ces clés reviennent, et un autre si une note de travail (nom d'accompagné, « Proposition », « à valider », source interne) se glisse dans un texte affiché. Le moteur lit les identifiants des étapes et des critères : si un identifiant change, mettre à jour `actionsCriteres.ts` (le test le signale).
+
+## Ton aventure (progression)
+
+Un seul jeu relié au compte : le jeu `talent-game/` (site statique) et les points de « Où j'en suis ? » remplissent la même progression, une ligne par compte dans la table `progression` (`user_id`, `xp`, `niveau`, `badges`, `serie_jours`, `mis_a_jour`). RLS : chaque personne ne voit et ne modifie que la sienne. Pas de classement, rien n'est montré à une autre personne, pas même au coach.
+
+- **XP** : points du jeu + points de « Où j'en suis ? ». Une quête validée ajoute ses points ; un enregistrement de « Où j'en suis ? » ajoute (ou retire) l'écart de points avec la position d'avant. « Repartir à zéro » dans le jeu ne garde que les points de « Où j'en suis ? ».
+- **Niveau** : le code du niveau Réussir dans le Plaisir de la position (0 à 7, avec 5A et 5B ; vide au point de départ).
+- **Badges** : ceux du jeu, à 1, 50, 150 et 300 XP. Un badge gagné reste gagné (sauf « Repartir à zéro »).
+- **Série de jours** : jours d'affilée où la personne a gagné des points ou répondu, comptés à l'heure de Paris. Elle tient tant qu'elle a joué aujourd'hui ou hier.
+- **Sans compte**, ou en essai sans compte : tout reste dans le navigateur, rien n'est envoyé. **À la première connexion**, Mon espace (ou le jeu) reprend les points gardés dans le navigateur (clé `talent_game_progression_v1`) : ils s'ajoutent à ceux du compte, aucun n'est perdu. « Où j'en suis ? » reprend déjà la position du navigateur quand elle est plus récente.
+- **Mon espace** : bloc « Ton aventure » (niveau, XP, prochain badge, série de jours, badges gagnés, bouton vers le jeu), mis à jour après chaque enregistrement de « Où j'en suis ? ».
+- **Tes données** : la progression est dans l'export JSON (`progression`) et part avec la suppression du compte.
+- SQL : `supabase/migrations/20261018000000_progression.sql`, rejouable. Sans lui, rien ne casse : le jeu et « Où j'en suis ? » gardent tout dans le navigateur, et Mon espace n'affiche pas le bloc.
+
+| Quoi | Où |
+|---|---|
+| Règles pures : badges, série, fusion avec le jeu, écart de points, lecture de ce que le jeu envoie | `src/domain/progression.ts` |
+| Points et niveau d'une position de « Où j'en suis ? » | `src/domain/parcours/resume.ts` |
+| Lecture et écriture de la table | `src/data/progression.ts`, `src/features/progression/serveur.ts` |
+| Route du jeu (GET lit, POST envoie ; origine contrôlée, `Cache-Control: no-store`) | `src/app/api/progression/route.ts`, `src/lib/progression/traitement.ts` |
+| Bloc « Ton aventure », reprise du navigateur, actions | `src/features/progression/` ; textes dans `espace.aventure` (FR, EN, ES) |
+| Le jeu : clé du navigateur, mêmes badges, envois un par un | `talent-game/js/progression.js`, `talent-game/js/compte.js` (test : `node --test talent-game/js/progression.test.mjs`) |
 
 ## Mise en production
 

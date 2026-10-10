@@ -1,15 +1,13 @@
 /**
  * Écran Paramètres : édition libre des catégories de vie/quotas à tout
  * moment (pas seulement à l'onboarding, cf. cahier des charges section 3)
- * et le bouton Restart.
+ * et le bouton Restart, et le lien avec le compte Magic Humans (js/compte.js).
  */
 const Restart = {
   render(user) {
     const quotas = user.profil_structure.quotas_categories;
     return `
-      <div class="section-title">Ton compte</div>
-      <p class="muted-text">Connecté·e en tant que <strong>${Esc.html(user.email || '')}</strong>. Ta progression est sauvegardée automatiquement, accessible depuis n'importe quel appareil avec cet email.</p>
-      <button class="btn-ghost" onclick="App.signOut()">Se déconnecter</button>
+      ${Compte.render()}
 
       <div class="section-title" style="margin-top:2rem">Catégories de vie</div>
       <p class="muted-text">Ajuste les quotas de points, renomme ou retire une catégorie — ce système t'appartient.</p>

@@ -1,41 +1,30 @@
 /**
- * Couche de persistance — Supabase (table `players`, une ligne par joueur,
- * profil + progression en JSONB). `save()` reste volontairement synchrone
- * dans sa signature (écriture en tâche de fond, sans bloquer l'UI) pour ne
- * rien changer aux dizaines d'appels `Store.save(u); this.render();` déjà
- * présents dans app.js. Seul `load()` est asynchrone, et n'est appelé qu'une
- * fois, juste après authentification.
+ * Couche de persistance : tout le jeu est gardé dans ce navigateur (localStorage, clé talent_game_v1),
+ * avec ou sans compte. Avec un compte Magic Humans, seuls les points, les badges et la série de jours partent
+ * en plus dans le compte (voir js/progression.js) ; le profil, les quêtes, les habitudes et les contacts restent ici.
+ * `save()` reste synchrone pour ne rien changer aux dizaines d'appels `Store.save(u); this.render();` de app.js.
  */
-const PLAYERS_TABLE = 'players';
+const STORE_KEY = 'talent_game_v1';
 
-const DEFAULT_BADGES_SEUILS = [
-  { id: 'premier-pas', seuil: 1, label: 'Premier pas', emoji: '🌱' },
-  { id: 'en-mouvement', seuil: 50, label: 'En mouvement', emoji: '🔥' },
-  { id: 'sur-la-lancee', seuil: 150, label: 'Sur la lancée', emoji: '⚡' },
-  { id: 'ancre', seuil: 300, label: 'Ancré·e', emoji: '👑' }
-];
+// Les badges et leurs seuils viennent de js/progression.js : les mêmes que dans l'application (Mon espace).
+const DEFAULT_BADGES_SEUILS = MHProgression.BADGES;
 
 const Store = {
-  async load() {
-    if (!Auth.currentUser) return null;
-    const { data, error } = await supabaseClient
-      .from(PLAYERS_TABLE)
-      .select('data')
-      .eq('id', Auth.currentUser.id)
-      .maybeSingle();
-    if (error) {
-      console.warn('Store.load: lecture impossible', error);
+  load() {
+    let user = null;
+    try {
+      const brut = window.localStorage.getItem(STORE_KEY);
+      user = brut ? JSON.parse(brut) : null;
+    } catch (e) {
+      console.warn('Store.load: lecture impossible', e);
       return null;
     }
-    return data ? this._normalize(data.data) : null;
+    return user && typeof user === 'object' ? this._normalize(user) : null;
   },
 
   /**
-   * Ramène une sauvegarde existante au schéma courant. Nécessaire car cette
-   * app n'a pas de backend de migration : une sauvegarde faite avant l'ajout
-   * de la navigation libre dans l'onboarding n'a pas onboarding_answers, et
-   * sans ce filet, la moindre évolution du schéma plante l'app pour de bon
-   * chez un joueur qui a déjà commencé.
+   * Ramène une sauvegarde existante au schéma courant. Sans ce filet, la moindre évolution du schéma plante
+   * l'app pour de bon chez un joueur qui a déjà commencé.
    */
   _normalize(user) {
     const validAnswers = Array.isArray(user.onboarding_answers) && user.onboarding_answers.length === Onboarding.TOTAL_STEPS;
@@ -56,17 +45,18 @@ const Store = {
   },
 
   save(user) {
-    supabaseClient
-      .from(PLAYERS_TABLE)
-      .upsert({ id: user.id, data: user, updated_at: new Date().toISOString() })
-      .then(({ error }) => { if (error) console.error('Store.save: écriture impossible', error); });
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(user));
+    } catch (e) {
+      // Stockage plein ou refusé (navigation privée) : le jeu continue pour cette visite.
+      console.error('Store.save: écriture impossible', e);
+    }
     return user;
   },
 
   createUser(profilBrut, parsedSeed) {
     const user = {
-      id: Auth.currentUser.id,
-      email: Auth.currentUser.email,
+      id: crypto.randomUUID(),
       date_creation: new Date().toISOString(),
       profil_brut: profilBrut,
       parsed_seed: parsedSeed,

@@ -10,9 +10,10 @@ const Dashboard = {
       (parCategorie[q.categorie_vie] = parCategorie[q.categorie_vie] || []).push(q);
     });
 
+    const affichage = Compte.affichage(user);
     return `
-      ${this._xpBar(user)}
-      ${this._badges(user)}
+      ${this._xpBar(affichage)}
+      ${this._badges(affichage)}
       <div class="section-title">Tes quêtes du jour</div>
       ${Object.keys(parCategorie).length === 0 ? `
         <div class="empty-state">
@@ -40,8 +41,8 @@ const Dashboard = {
     `;
   },
 
-  _xpBar(user) {
-    const xp = user.progression.xp_total;
+  _xpBar(affichage) {
+    const xp = affichage.xp;
     const seuils = DEFAULT_BADGES_SEUILS.map(b => b.seuil);
     const maxSeuil = seuils[seuils.length - 1];
     let precedent, prochain;
@@ -56,19 +57,22 @@ const Dashboard = {
       precedent = [...seuils].reverse().find(s => s <= xp) || 0;
     }
     const pct = Math.min(100, Math.round(((xp - precedent) / (prochain - precedent || 1)) * 100));
+    const serie = affichage.serie > 1 ? `${affichage.serie} jours d'affilée` : affichage.serie === 1 ? '1 jour' : '';
     return `
       <div class="xp-block">
         <div class="xp-label"><span>⚡ ${xp} XP</span><span>Prochain palier : ${prochain} XP</span></div>
         <div class="xp-bar"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+        ${serie ? `<div class="xp-serie">🔥 Série : ${serie}</div>` : ''}
+        ${affichage.compte ? `<div class="xp-note">Relié à ton compte : tes points du jeu et de « Où j'en suis ? » ensemble.</div>` : ''}
       </div>
     `;
   },
 
-  _badges(user) {
-    if (!user.progression.badges.length) return '';
+  _badges(affichage) {
+    if (!affichage.badges.length) return '';
     return `
       <div class="badge-row">
-        ${user.progression.badges.map(id => {
+        ${affichage.badges.map(id => {
           const b = DEFAULT_BADGES_SEUILS.find(x => x.id === id);
           return b ? `<span class="badge" title="${b.label}">${b.emoji} ${b.label}</span>` : '';
         }).join('')}

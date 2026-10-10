@@ -91,7 +91,6 @@ button, input, select, textarea { font-family: inherit; }
   color: var(--text-main);
   font-size: 1rem;
 }
-.login-error { color: var(--accent-red); margin-top: 14px; font-weight: 600; }
 
 /* ---------- Buttons ---------- */
 
@@ -121,6 +120,9 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .btn-primary:hover, .btn-choice:hover, .btn-quete:hover, .btn-ghost:hover { transform: translateY(-2px); }
+
+a.btn-primary, a.btn-ghost { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; text-decoration: none; }
+.compte-actions { justify-content: flex-start; margin-bottom: 8px; }
 
 .btn-choice {
   background: var(--panel);
@@ -307,6 +309,9 @@ select {
 .xp-label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 8px; font-size: 0.9rem; }
 .xp-bar { height: 14px; border-radius: 999px; background: var(--bg-mid); overflow: hidden; }
 .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-green)); transition: width 0.4s ease; }
+
+.xp-serie { margin-top: 10px; font-weight: 700; font-size: 0.9rem; }
+.xp-note { margin-top: 6px; color: var(--text-muted); font-size: 0.85rem; }
 
 .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .badge { background: var(--panel-light); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
