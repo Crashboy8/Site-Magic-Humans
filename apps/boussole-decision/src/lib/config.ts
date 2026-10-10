@@ -29,6 +29,7 @@ export const PUBLIC_PATHS = [
   "/depuis-cibleur",
   "/client",
   "/ou-j-en-suis",
+  "/tes-donnees",
 ];
 
 export function isPublicPath(pathname: string): boolean {
@@ -42,14 +43,14 @@ const SUITE_MAX = 200;
 
 /**
  * Retour autorisé après la connexion.
- * Seulement une chaîne qui commence par /mon-espace, /profils/ ou /versions/,
+ * Seulement une chaîne qui commence par /mon-espace, /profils/, /versions/ ou /tes-donnees/,
  * sans //, sans \, sans :, et d'au plus 200 caractères.
  */
 export function suiteSure(v: unknown): string | null {
   if (typeof v !== "string") return null;
   if (v.length === 0 || v.length > SUITE_MAX) return null;
   if (v.includes("//") || v.includes("\\") || v.includes(":")) return null;
-  if (v.startsWith("/mon-espace") || v.startsWith("/profils/") || v.startsWith("/versions/")) return v;
+  if (v.startsWith("/mon-espace") || v.startsWith("/profils/") || v.startsWith("/versions/") || v.startsWith("/tes-donnees/")) return v;
   return null;
 }
 

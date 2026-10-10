@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import type { EspaceMessages } from "@/i18n/messages/espace";
 import { IMPORT_ACTIF } from "@/content/espace";
 import { getFiche, type LectureFiche } from "@/data/fiche";
 import { contenuParcours } from "@/domain/parcours/contenu";
 import { CarteFiche } from "@/features/fiche/CarteFiche";
 import { BadgeClient, EncartMotDePasse, LienCodeClient, NoticeClient } from "@/features/client/BadgeClient";
+import { recevoirFichePreparee } from "@/features/client/acces";
 import { MenuOutils } from "@/features/espace/MenuOutils";
 import { outilsPour } from "@/features/espace/outils";
 import { OuJenSuis } from "@/features/parcours/OuJenSuis";
+import { CarteAccord } from "@/features/vip/CarteAccord";
+import { CarteGroupeM3 } from "@/features/vip/CarteGroupeM3";
+import { COOKIE_ACCORD, estVip, maDemandeM3 } from "@/features/vip/serveur";
 import { etatDuCompte } from "@/features/parcours/serveur";
 import { textesParcours } from "@/i18n/messages/parcours";
 import { getI18n } from "@/i18n/server";
@@ -30,6 +35,14 @@ async function lireFiche(userId: string): Promise<LectureFiche> {
   }
 }
 
+/** Message après la case d'accord (?accord=copiee, ok ou plus_tard). */
+function noticeAccord(etat: string | string[] | undefined, N: { copiee: string; ok: string; plusTard: string }): string | null {
+  if (etat === "copiee") return N.copiee;
+  if (etat === "ok") return N.ok;
+  if (etat === "plus_tard") return N.plusTard;
+  return null;
+}
+
 /** La carte fiche (E.4) : masquée tant que l'import n'est pas actif. */
 function zoneFiche(lecture: LectureFiche | null, F: EspaceMessages["fiche"]) {
   if (!IMPORT_ACTIF || !lecture) return null;
@@ -40,14 +53,24 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
   const user = await requireUser();
   const { t, locale } = await getI18n();
   const ESPACE = t.espace;
+  const V = t.vip;
   const T = textesParcours(locale);
   const outils = outilsPour(ESPACE.outils, locale);
+  const db = await supabaseServer();
+  const compte = !user.isGuest;
+  // Fiche préparée par Pierre : copiée ici si l'accord est déjà donné (avant de lire la fiche), sinon « en_attente ».
+  const preparee = compte && user.invitationCode ? await recevoirFichePreparee(db) : "aucune";
   const lecture = IMPORT_ACTIF ? await lireFiche(user.id) : null;
   const fichePrenom = lecture && !lecture.absente ? (lecture.fiche?.fiche.prenom ?? "") : "";
   const prenom = user.firstName.trim() || fichePrenom;
   const params = await searchParams;
   const etat = params.fiche;
-  const notice = etat === "ok" ? ESPACE.notices.ficheOk : etat === "supprimee" ? ESPACE.notices.ficheSupprimee : null;
+  const notice = etat === "ok" ? ESPACE.notices.ficheOk : etat === "supprimee" ? ESPACE.notices.ficheSupprimee : noticeAccord(params.accord, V.accord.notices);
+  // Première connexion : la case d'accord, jamais cochée d'avance. Colonne absente (SQL pas collé) : rien.
+  const plusTard = (await cookies()).get(COOKIE_ACCORD)?.value === "plus_tard";
+  const accordDemande = compte && user.consentementFicheAt === null && !plusTard;
+  const vip = compte && (await estVip(db));
+  const demandeM3 = vip ? await maDemandeM3(db, user.id) : null;
   // « Où j'en suis ? » : la position gardée dans le compte (sans la table, le navigateur prend le relais).
   const data = contenuParcours(locale);
   const parcours = await etatDuCompte(user, data, Boolean(lecture && !lecture.absente && lecture.fiche));
@@ -68,6 +91,8 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
 
       <NoticeClient etat={params.client} />
 
+      {accordDemande && <CarteAccord retour="espace" ficheEnAttente={preparee === "en_attente"} />}
+
       {/* Deux colonnes sur ordinateur : les outils à gauche, « Ta voie, tu es ici » à droite. Sur téléphone, le parcours d'abord. */}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:items-start lg:gap-10">
         <div className="min-w-0 lg:col-start-2 lg:row-start-1">
@@ -84,7 +109,10 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
         <MenuOutils outils={outils} sections={ESPACE.sections} titre={T.espace.menu} className="lg:col-start-1 lg:row-start-1" />
       </div>
 
-      {zoneFiche(lecture, ESPACE.fiche)}
+      {/* Une fiche préparée attend l'accord : la carte d'accord en parle, pas besoin d'inviter à en déposer une. */}
+      {!(accordDemande && preparee === "en_attente") && zoneFiche(lecture, ESPACE.fiche)}
+
+      {vip && <CarteGroupeM3 demandeLe={demandeM3} />}
 
       <LienCodeClient user={user} />
       <EncartMotDePasse user={user} />
@@ -99,6 +127,12 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
           {ESPACE.appel.bouton}
         </a>
       </aside>
+
+      <p className="text-center text-[15px] text-ink-soft">
+        <a href="/boussole-decision/tes-donnees/" className="underline underline-offset-4 hover:text-ink">
+          {V.lienDonnees}
+        </a>
+      </p>
     </div>
   );
 }

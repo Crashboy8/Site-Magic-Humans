@@ -56,6 +56,24 @@ export function limitesDepuisEnv(env: Record<string, string | undefined>): Limit
   };
 }
 
+/** Plafond de sécurité d'un compte VIP, par étape et par jour (MA_CIBLE_MAX_VIP). */
+export const PLAFOND_VIP_DEFAUT = 100;
+
+/**
+ * Compte VIP (est_vip) : le quota par IP est levé. Il reste un plafond de sécurité haut, compté par personne
+ * (jamais plus bas que le quota ordinaire), et le plafond global du site.
+ */
+export function limitesVip(limites: Limites, env: Record<string, string | undefined>): Limites {
+  const plafond = entierPositif(env.MA_CIBLE_MAX_VIP, PLAFOND_VIP_DEFAUT);
+  return {
+    ...limites,
+    ipCadrage: Math.max(limites.ipCadrage, plafond),
+    ipResultat: Math.max(limites.ipResultat, plafond),
+    ipSynthese: Math.max(limites.ipSynthese, plafond),
+    ipApprofondir: Math.max(limites.ipApprofondir, plafond),
+  };
+}
+
 const CLE_IP: Record<EtapeQuota, keyof Limites> = {
   cadrage: "ipCadrage",
   resultat: "ipResultat",

@@ -46,9 +46,11 @@ export interface Avatar {
   apport: string;
 }
 
-export type SourceFiche = "collage" | "notion" | "lien_notion" | "word" | "pdf" | "qcm" | "manuel";
+/** « coach » : fiche préparée par Pierre, copiée dans l'espace après l'accord de la personne. */
+export type SourceFiche = "collage" | "notion" | "lien_notion" | "word" | "pdf" | "qcm" | "manuel" | "coach";
 export type MethodeFiche = "modele" | "mots_cles" | "ia" | "manuel";
 
+/** Sources possibles d'un import fait par la personne elle-même (« coach » n'en fait pas partie). */
 export const SOURCES_FICHE: readonly SourceFiche[] = ["collage", "notion", "lien_notion", "word", "pdf", "qcm", "manuel"];
 export const METHODES_FICHE: readonly MethodeFiche[] = ["modele", "mots_cles", "ia", "manuel"];
 

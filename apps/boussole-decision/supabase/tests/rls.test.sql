@@ -554,4 +554,98 @@ set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
 select pg_temp.check((select code = 'BOUSSOLE-TEST-2026' from public.mon_acces_client()), 'client : un compte ouvert avec un code est déjà client');
 reset role;
 
+-- Accord pour la fiche, niveaux VIP, fiches préparées, groupes M3 (20261017000000_vip_consentement.sql) -----------
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000e1', 'emma@test.fr', '{"first_name":"Emma"}'),
+  ('00000000-0000-0000-0000-0000000000e2', 'eric@test.fr', '{"first_name":"Eric"}'),
+  ('00000000-0000-0000-0000-0000000000e3', 'paula@test.fr', '{"first_name":"Paula"}');
+
+set role anon;
+select pg_temp.expect_error($$select public.est_vip()$$, 'permission denied');
+select pg_temp.expect_error($$select public.accepter_stockage_fiche()$$, 'permission denied');
+select pg_temp.expect_error($$select public.recevoir_fiche_preparee()$$, 'permission denied');
+select pg_temp.expect_error($$select public.demander_groupe_m3()$$, 'permission denied');
+select pg_temp.expect_error($$select count(*) from fiches_preparees$$, 'permission denied');
+select pg_temp.expect_error($$select count(*) from demandes_groupe_m3$$, 'permission denied');
+
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+insert into invitation_codes (code, coach_id, label, niveau, acces_jusqu_au) values
+  ('MH-EMMA-01', auth.uid(), 'Emma', 'vip12', now() + interval '1 year'),
+  ('MH-ERIC-01', auth.uid(), 'Eric', 'membre', now() - interval '1 day'),
+  ('MH-PAULA-01', auth.uid(), 'Paula', 'pionnier', null);
+select pg_temp.expect_error($$insert into invitation_codes (code, coach_id, niveau) values ('MH-NIVEAU-01', auth.uid(), 'or')$$,
+  'invitation_codes_niveau_check');
+insert into fiches_preparees (code, fiche) values ('MH-EMMA-01', '{"v":1,"prenom":"Emma","mecanisme":"Je relie les gens"}'::jsonb);
+select pg_temp.expect_error($$insert into fiches_preparees (code, fiche) values ('MH-GROUPE-02', '{"v":1}'::jsonb)$$, 'row-level security');
+select pg_temp.check((select count(*) from fiches_preparees) = 1, 'préparée : Pierre voit la fiche qu''il a déposée');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+select pg_temp.check((select count(*) from fiches_preparees) = 0, 'préparée : un autre compte ne lit pas les fiches préparées');
+select pg_temp.expect_error($$insert into fiches_preparees (code, fiche) values ('MH-EMMA-01', '{"v":1}'::jsonb)$$, 'row-level security');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e1';
+select pg_temp.check(not public.est_vip(), 'vip : Emma n''est pas encore cliente');
+select pg_temp.check(public.recevoir_fiche_preparee() = 'aucune', 'préparée : rien tant que le code n''est pas activé');
+select pg_temp.check(public.activer_code_client('MH-EMMA-01') = 'ok', 'vip : Emma active son code');
+select pg_temp.check(public.est_vip(), 'vip : un code vip12 encore valable rend VIP');
+select pg_temp.check((select niveau = 'vip12' and acces_jusqu_au > now() from public.mon_niveau_acces()), 'vip : Emma lit son niveau et sa date');
+select pg_temp.check((select count(*) from fiches_preparees) = 0, 'préparée : Emma ne lit pas la table des fiches préparées');
+select pg_temp.check(public.recevoir_fiche_preparee() = 'en_attente', 'accord : une fiche attend l''accord d''Emma');
+select pg_temp.check((select count(*) from talent_fiches) = 0, 'accord : sans accord, rien n''est copié');
+select pg_temp.expect_error($$update app_users set consentement_fiche_at = now() where id = auth.uid()$$, 'permission denied');
+select pg_temp.check(public.accepter_stockage_fiche() = 'copiee', 'accord : la case cochée copie la fiche préparée');
+select pg_temp.check((select source = 'coach' and fiche ->> 'prenom' = 'Emma' and consentement_at is not null from talent_fiches),
+  'accord : la fiche est dans l''espace d''Emma');
+select pg_temp.check((select consentement_fiche_at is not null from app_users where id = auth.uid()), 'accord : la date est gardée');
+select consentement_fiche_at as accord_emma from app_users where id = auth.uid() \gset
+select pg_temp.check(public.accepter_stockage_fiche() = 'deja', 'accord : un second accord ne recopie rien');
+select pg_temp.check((select consentement_fiche_at = :'accord_emma' from app_users where id = auth.uid()), 'accord : la date du premier accord ne bouge pas');
+delete from talent_fiches;
+select pg_temp.check(public.recevoir_fiche_preparee() = 'deja', 'accord : une fiche supprimée par Emma ne revient pas');
+select pg_temp.check((select count(*) from talent_fiches) = 0, 'accord : la fiche d''Emma reste supprimée');
+
+select pg_temp.check(public.demander_groupe_m3() is not null, 'm3 : Emma demande à rejoindre un groupe');
+select pg_temp.check(public.demander_groupe_m3() is not null, 'm3 : une seconde demande ne casse rien');
+select pg_temp.check((select count(*) from demandes_groupe_m3) = 1, 'm3 : Emma voit sa demande, une seule fois');
+select pg_temp.expect_error($$insert into demandes_groupe_m3 (user_id) values (auth.uid())$$, 'permission denied');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e2';
+select pg_temp.check(public.accepter_stockage_fiche() = 'aucune', 'accord : Eric accepte avant d''avoir un code');
+select pg_temp.check(public.activer_code_client('MH-ERIC-01') = 'ok', 'vip : Eric active son code');
+select pg_temp.check(not public.est_vip(), 'vip : un accès échu n''est plus VIP');
+select pg_temp.expect_error($$select public.demander_groupe_m3()$$, 'RESERVE_VIP');
+select pg_temp.check((select count(*) from demandes_groupe_m3) = 0, 'm3 : Eric ne voit pas la demande d''Emma');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+insert into fiches_preparees (code, fiche, methode) values ('MH-ERIC-01', '{"v":1,"prenom":"Eric"}'::jsonb, 'mots_cles');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e2';
+select pg_temp.check(public.recevoir_fiche_preparee() = 'copiee', 'accord : déjà d''accord, Eric reçoit la fiche déposée après');
+select pg_temp.check((select methode = 'mots_cles' from talent_fiches), 'accord : la méthode de lecture suit la fiche');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e3';
+select pg_temp.check(public.activer_code_client('MH-PAULA-01') = 'ok', 'vip : Paula active son code pionnier');
+select pg_temp.check(public.est_vip(), 'vip : pionnier sans date, VIP à vie');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.check(not public.est_vip(), 'vip : un code sans niveau ne rend pas VIP');
+select pg_temp.check(not exists (select 1 from public.mon_niveau_acces()), 'vip : sans niveau, rien à lire');
+select pg_temp.check(not exists (select 1 from public.demandes_groupe_m3_coach()), 'm3 : seul le coach lit les demandes');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000f2';
+select pg_temp.check(public.accepter_stockage_fiche() = 'invite', 'accord : un essai sans compte ne donne pas d''accord');
+select pg_temp.check(not public.est_vip(), 'vip : un essai sans compte n''est pas VIP');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check((select count(*) = 1 and bool_and(first_name = 'Emma' and niveau = 'vip12') from public.demandes_groupe_m3_coach()),
+  'm3 : Pierre voit la demande d''Emma et son niveau');
+select pg_temp.check((select copiee_at is not null from fiches_preparees where code = 'MH-EMMA-01'), 'préparée : Pierre voit qu''elle est copiée');
+
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e1';
+select public.supprimer_mon_compte();
+reset role;
+select pg_temp.check(not exists (select 1 from fiches_preparees where code = 'MH-EMMA-01'), 'suppression : la fiche préparée pour Emma est effacée');
+select pg_temp.check(not exists (select 1 from demandes_groupe_m3), 'suppression : la demande M3 d''Emma est effacée');
+select pg_temp.check(exists (select 1 from fiches_preparees where code = 'MH-ERIC-01'), 'suppression : les autres fiches préparées restent');
+
 \echo 'Tous les tests de base de données sont passés.'

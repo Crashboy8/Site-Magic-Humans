@@ -1,7 +1,16 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getFiche } from "@/data/fiche";
-import { LIEN_FICHE_RE, codeClient, pageApresActivation, prenomPropre, statutActivation, type StatutActivation } from "@/domain/client";
+import {
+  LIEN_FICHE_RE,
+  codeClient,
+  pageApresActivation,
+  prenomPropre,
+  statutActivation,
+  statutPreparee,
+  type StatutActivation,
+  type StatutPreparee,
+} from "@/domain/client";
 
 // Accès client côté serveur. Si le SQL de l'accès client n'est pas encore collé dans Supabase :
 // - un nouveau compte ouvert avec un code est quand même client (le code est gardé à l'inscription) ;
@@ -38,6 +47,19 @@ export async function activerCode(db: SupabaseClient, code: string): Promise<Sta
 }
 
 /**
+ * Fiche préparée par Pierre pour ce compte : copiée dans son espace s'il a déjà donné son accord,
+ * sinon « en_attente ». Ne lève jamais : sans le SQL, « indisponible ».
+ */
+export async function recevoirFichePreparee(db: SupabaseClient): Promise<StatutPreparee> {
+  try {
+    const { data, error } = await db.rpc("recevoir_fiche_preparee");
+    return statutPreparee(data, Boolean(error));
+  } catch {
+    return "indisponible";
+  }
+}
+
+/**
  * Après le lien reçu par mail, ou le bouton « Activer mon accès client » : active le code,
  * complète le prénom s'il manque, et renvoie la page suivante (import de la fiche ou Mon espace).
  */
@@ -50,6 +72,8 @@ export async function activerEtOrienter(db: SupabaseClient, userId: string, code
     await db.from("app_users").update({ first_name: p }).eq("id", userId);
   }
   const estClient = statut === "ok" || statut === "deja" || Boolean(compte?.invitation_code);
+  // Avant de lire la fiche : celle préparée par Pierre arrive maintenant si l'accord est déjà donné.
+  const preparee = estClient ? await recevoirFichePreparee(db) : "aucune";
   let fiche: "presente" | "absente" | "indisponible" = "indisponible";
   try {
     const lecture = await getFiche(db, userId);
@@ -59,5 +83,5 @@ export async function activerEtOrienter(db: SupabaseClient, userId: string, code
   }
   // Un compte déjà existant sans le SQL : on ne peut pas activer, on le mène quand même à son espace.
   if (statut === "indisponible" && !estClient) return "/mon-espace/";
-  return pageApresActivation(statut, estClient, fiche);
+  return pageApresActivation(statut, estClient, fiche, preparee);
 }

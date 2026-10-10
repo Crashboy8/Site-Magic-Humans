@@ -17,7 +17,7 @@ import { verifierVerbatims } from "@/domain/maCible/terrain";
 import { voieDe, type Cadrage, type Cible, type Corrections, type Demande, type DemandeApprofondir, type EntreeMaCible, type Esquisse, type IdIdee, type LignePiste, type Portrait, type ResultatClasse, type ResultatSalarieClasse, type SyntheseTerrain } from "@/domain/maCible/types";
 import { validerCadrage, validerCible, validerPortrait, validerResultat, validerResultatSalarie, validerSynthese } from "@/domain/maCible/validation";
 import { ErreurFournisseur, type Fournisseur } from "@/lib/ia/fournisseur";
-import { jourParis, limitesDepuisEnv, maxGlobal, maxIp, minuitSuivantParis, type Quota } from "./quota";
+import { jourParis, limitesDepuisEnv, limitesVip, maxGlobal, maxIp, minuitSuivantParis, type Quota } from "./quota";
 import { origineAcceptee } from "./origine";
 import type { Reprise } from "./reprise";
 
@@ -28,6 +28,11 @@ export interface Dependances {
   env: Record<string, string | undefined>;
   /** Email de la session Supabase, résolu par la route. Jamais lu depuis le corps de la requête. */
   emailConnecte?: string | null;
+  /**
+   * Compte VIP (est_vip), résolu par la route depuis la session : le quota par IP est levé.
+   * `quota` applique le plafond de sécurité (limitesVip), compté sur l'identifiant du compte et non sur l'IP.
+   */
+  vip?: { id: string; quota: Quota } | null;
   /** Résultat réussi gardé quelques minutes pour un nouvel essai après une connexion coupée. */
   reprise?: Reprise;
   /**
@@ -341,13 +346,16 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
 
   // 4. Reprise, puis droit d'appel. Le quota n'est compté qu'après une génération réussie.
   const maintenant = deps.maintenant();
-  const limites = limitesDepuisEnv(env);
-  const empreinte = cleCompteur(sel, jourParis(maintenant), adresseIp(request.headers));
   const session = sessionValide(request.headers.get(ENTETE_SESSION));
   const cleGardee = session ? cleRepriseDe(sel, session, demande) : null;
   const illimite =
     secretEgal(env.MA_CIBLE_CLE_TEST?.trim() ?? "", request.headers.get(ENTETE_TEST)?.trim() ?? "") ||
     emailAutorise(env.MA_CIBLE_EMAILS_ILLIMITES, deps.emailConnecte);
+  // VIP : plus de quota par IP, mais un plafond de sécurité haut, compté sur le compte.
+  const vip = !illimite && deps.vip ? deps.vip : null;
+  const limites = vip ? limitesVip(limitesDepuisEnv(env), env) : limitesDepuisEnv(env);
+  const quota = vip ? vip.quota : deps.quota;
+  const empreinte = cleCompteur(sel, jourParis(maintenant), vip ? `vip:${vip.id}` : adresseIp(request.headers));
 
   const garde = etape === "synthese" ? deps.repriseSensible : deps.reprise;
   const deja = cleGardee && garde ? await garde.lire(cleGardee) : null;
@@ -356,7 +364,7 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
   if (enCours) return repondreIssue(await enCours);
 
   if (!illimite) {
-    const autorisation = await deps.quota.autoriser(empreinte, etape);
+    const autorisation = await quota.autoriser(empreinte, etape);
     if (!autorisation.ok) return refuserQuota(autorisation.motif ?? "ip", etape, limites, maintenant);
   }
 
@@ -370,7 +378,7 @@ export async function traiterDemande(deps: Dependances, request: Request): Promi
   try {
     const issue = await travail;
     if (issue.compte && !illimite) {
-      const compte = await deps.quota.consommer(empreinte, etape);
+      const compte = await quota.consommer(empreinte, etape);
       issue.corps.restant = compte.ok ? compte.restant : 0;
     } else if (issue.compte) {
       issue.corps.restant = maxIp(limites, etape);

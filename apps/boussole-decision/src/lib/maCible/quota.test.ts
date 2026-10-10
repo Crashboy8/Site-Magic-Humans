@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { jourParis, LIMITES_DEFAUT, limitesDepuisEnv, minuitSuivantParis, quotaMemoire, quotaSupabase, type Limites } from "./quota";
+import { jourParis, LIMITES_DEFAUT, limitesDepuisEnv, limitesVip, minuitSuivantParis, PLAFOND_VIP_DEFAUT, quotaMemoire, quotaSupabase, type Limites } from "./quota";
 
 const limites: Limites = { ipCadrage: 2, ipResultat: 3, ipSynthese: 5, ipApprofondir: 20, globalCadrage: 5, globalResultat: 4, globalSynthese: 100, globalApprofondir: 300 };
 const cle = (c: string) => c.padEnd(64, "0");
@@ -131,6 +131,19 @@ describe("jours et limites", () => {
       globalCadrage: 40,
       globalResultat: 120,
     });
+  });
+});
+
+describe("limitesVip", () => {
+  it("lève le quota par IP jusqu'au plafond de sécurité, sans toucher au plafond global", () => {
+    expect(PLAFOND_VIP_DEFAUT).toBe(100);
+    expect(limitesVip(LIMITES_DEFAUT, {})).toEqual({ ...LIMITES_DEFAUT, ipCadrage: 100, ipResultat: 100, ipSynthese: 100, ipApprofondir: 100 });
+    expect(limitesVip(LIMITES_DEFAUT, { MA_CIBLE_MAX_VIP: "250" })).toMatchObject({ ipResultat: 250, globalResultat: LIMITES_DEFAUT.globalResultat });
+    expect(limitesVip(LIMITES_DEFAUT, { MA_CIBLE_MAX_VIP: "non" }).ipResultat).toBe(PLAFOND_VIP_DEFAUT);
+  });
+
+  it("ne descend jamais sous le quota ordinaire", () => {
+    expect(limitesVip(LIMITES_DEFAUT, { MA_CIBLE_MAX_VIP: "3" })).toEqual(LIMITES_DEFAUT);
   });
 });
 

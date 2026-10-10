@@ -410,6 +410,37 @@ describe("quota seulement en cas de succès, et reprise", () => {
   });
 });
 
+describe("compte VIP", () => {
+  const LIMITES_VIP = { ...LIMITES_TEST, ipResultat: 5 };
+  it("le quota par IP est levé, le plafond de sécurité compte par compte", async () => {
+    const quotaVip = quotaMemoire(LIMITES_VIP, () => MAINTENANT);
+    preparer(Array(7).fill(JSON.stringify(RESULTAT_EXEMPLE)), {
+      env: { ...ENV, MA_CIBLE_MAX_VIP: "5", MA_CIBLE_MAX_IP_RESULTAT: "3" },
+      quota: quotaMemoire({ ...LIMITES_TEST, ipResultat: 0 }, () => MAINTENANT),
+      vip: { id: "00000000-0000-0000-0000-0000000000e1", quota: quotaVip },
+    });
+    for (let i = 0; i < 5; i++) {
+      const r = await traiterDemande(deps, requete(demandeResultat()));
+      expect(r.status).toBe(200);
+      expect((await corpsDe(r)).restant).toBe(4 - i);
+    }
+    const refus = await traiterDemande(deps, requete(demandeResultat()));
+    expect(refus.status).toBe(429);
+    expect((await corpsDe(refus)).max).toBe(5);
+    expect(fournisseur.appeler).toHaveBeenCalledTimes(5);
+  });
+
+  it("le plafond d'un VIP ne se partage pas avec les autres personnes de la même IP", async () => {
+    const quotaVip = quotaMemoire(LIMITES_VIP, () => MAINTENANT);
+    const quotaIp = quotaMemoire(LIMITES_TEST, () => MAINTENANT);
+    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)), { quota: quotaIp, vip: { id: "vip-1", quota: quotaVip } });
+    expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    preparer(Array(4).fill(JSON.stringify(RESULTAT_EXEMPLE)), { quota: quotaIp });
+    for (let i = 0; i < 3; i++) expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(200);
+    expect((await traiterDemande(deps, requete(demandeResultat()))).status).toBe(429);
+  });
+});
+
 describe("confidentialité des journaux", () => {
   it("console.error ne reçoit jamais de texte saisi ni de réponse du modèle", async () => {
     const SECRET = "SECRET-SAISIE-4242";
