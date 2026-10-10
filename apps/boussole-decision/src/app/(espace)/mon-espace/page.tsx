@@ -10,6 +10,8 @@ import { recevoirFichePreparee } from "@/features/client/acces";
 import { MenuOutils } from "@/features/espace/MenuOutils";
 import { outilsPour } from "@/features/espace/outils";
 import { OuJenSuis } from "@/features/parcours/OuJenSuis";
+import { progressionDuCompte } from "@/features/progression/serveur";
+import { TonAventure } from "@/features/progression/TonAventure";
 import { CarteAccord } from "@/features/vip/CarteAccord";
 import { CarteGroupeM3 } from "@/features/vip/CarteGroupeM3";
 import { COOKIE_ACCORD, estVip, maDemandeM3 } from "@/features/vip/serveur";
@@ -32,6 +34,17 @@ async function lireFiche(userId: string): Promise<LectureFiche> {
     return await getFiche(await supabaseServer(), userId);
   } catch {
     return { absente: true };
+  }
+}
+
+/** La progression du compte (le jeu et « Où j'en suis ? ») ; null pour un essai sans compte, sans la table ou en cas d'erreur. */
+async function lireAventure(userId: string, invite: boolean) {
+  if (invite) return null;
+  try {
+    const vue = await progressionDuCompte(await supabaseServer(), userId, new Date());
+    return vue === "absente" ? null : vue;
+  } catch {
+    return null;
   }
 }
 
@@ -74,6 +87,9 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
   // « Où j'en suis ? » : la position gardée dans le compte (sans la table, le navigateur prend le relais).
   const data = contenuParcours(locale);
   const parcours = await etatDuCompte(user, data, Boolean(lecture && !lecture.absente && lecture.fiche));
+  // « Ton aventure » : seulement pour un compte (un essai garde sa progression dans le navigateur). Titres des niveaux en français seulement.
+  const aventure = await lireAventure(user.id, user.isGuest);
+  const titresNiveaux = locale === "fr" ? Object.fromEntries(data.niveaux.map((n) => [n.code, n.titre])) : null;
 
   return (
     <div className="space-y-8">
@@ -92,6 +108,8 @@ export default async function MonEspacePage({ searchParams }: PageProps<"/mon-es
       <NoticeClient etat={params.client} />
 
       {accordDemande && <CarteAccord retour="espace" ficheEnAttente={preparee === "en_attente"} />}
+
+      {aventure && <TonAventure initiale={aventure} titres={titresNiveaux} />}
 
       {/* Deux colonnes sur ordinateur : les outils à gauche, « Ta voie, tu es ici » à droite. Sur téléphone, le parcours d'abord. */}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:items-start lg:gap-10">

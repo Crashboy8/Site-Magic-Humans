@@ -8,6 +8,7 @@ import type { ChoixVoie, ParcoursPublic, Reponse } from "@/domain/parcours/types
 import type { StatutCompte } from "@/features/espace/barre";
 import { Icone } from "@/features/espace/Icones";
 import { outilsPour } from "@/features/espace/outils";
+import { signalerProgression } from "@/features/progression/signal";
 import { useI18n } from "@/i18n/client";
 import { textesParcours, type ParcoursMessages } from "@/i18n/messages/parcours";
 import { effacerPositionAction, enregistrerPositionAction } from "./actions";
@@ -135,6 +136,8 @@ export function OuJenSuis({
         // Table pas encore créée : on reste sur le navigateur, sans rien afficher.
         if (issue === "absente") tableOk.current = false;
         if (issue === "erreur") dernierEnvoi.current = "";
+        // Les points ont pu changer : le bloc « Ton aventure » de Mon espace relit la progression du compte.
+        if (issue === "ok") signalerProgression();
       });
     }, 700);
     return () => window.clearTimeout(minuterie);
@@ -193,7 +196,7 @@ export function OuJenSuis({
     setDejaFranchies(new Set());
     if (tableOk.current) {
       dernierEnvoi.current = JSON.stringify(vide);
-      void effacerPositionAction();
+      void effacerPositionAction().then((issue) => issue === "ok" && signalerProgression());
     }
     aller(accueilOuVoie);
   };

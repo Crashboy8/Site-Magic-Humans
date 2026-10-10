@@ -41,6 +41,7 @@ export const vipEs: VipMessages = {
         "Tu ficha de Talento Único, si la subiste o si aceptaste la que preparó Pierre, y la fecha de tu consentimiento.",
         "Tus Brújulas de decisión: perfiles, criterios, opciones y notas, y los comentarios de Pierre sobre lo que compartes con él.",
         "Tu posición en tu recorrido («Mi recorrido»), cuando has iniciado sesión.",
+        "Tu progreso del juego y de tu recorrido (puntos, nivel, insignias, racha de días), cuando has iniciado sesión. Solo aparece en tu espacio: no hay clasificación y Pierre no lo ve.",
         "Tu solicitud para unirte a un grupo M3, si la hiciste.",
       ],
     },
@@ -49,7 +50,7 @@ export const vipEs: VipMessages = {
       liste: [
         "Los archivos que subes (Word, PDF, exportación de Notion): se leen en tu dispositivo. Solo se guardan los datos que confirmas.",
         "Tus respuestas en El Buscador de Clientes: van a una IA solo cuando lo pides, para preparar tu resultado, y no se guardan. Un contador anónimo (una huella de tu dirección IP) se borra a los 2 días.",
-        "Lo que se queda en tu navegador (tu trabajo en curso en El Buscador de Clientes, tu recorrido sin cuenta) no se nos envía.",
+        "Lo que se queda en tu navegador (tu trabajo en curso en El Buscador de Clientes, tu recorrido y el juego sin cuenta, y en el juego tu perfil, tus misiones, tus hábitos y tus contactos) no se nos envía.",
       ],
     },
     ou: { titre: "Dónde", texte: "En Supabase, en la Unión Europea, en Irlanda." },
@@ -65,12 +66,12 @@ export const vipEs: VipMessages = {
     },
     export: {
       titre: "Recuperar tus datos",
-      texte: "Un archivo JSON con todo lo que se guarda en tu cuenta.",
+      texte: "Un archivo JSON con todo lo que se guarda en tu cuenta, tu progreso incluido.",
       bouton: "Descargar mis datos (JSON)",
     },
     suppression: {
       titre: "Eliminar tu cuenta",
-      texte: "Tu cuenta y todo lo que va con ella se borran definitivamente, incluida la ficha que Pierre preparó para ti.",
+      texte: "Tu cuenta y todo lo que va con ella se borran definitivamente, incluida la ficha que Pierre preparó para ti y tu progreso en el juego.",
       consigne: (mot: string) => `Escribe ${mot} para confirmar.`,
       coach: "Una cuenta de coach no se elimina desde aquí.",
     },

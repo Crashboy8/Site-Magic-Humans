@@ -26,6 +26,7 @@ const SOURCES: Source[] = [
   { cle: "evaluations", table: "evaluations", colonne: "user_id", ordre: ["criterion_id", "opportunity_id"] },
   { cle: "commentairesRecus", table: "comments", colonne: "owner_id", ordre: ["created_at", "id"] },
   { cle: "parcours", table: "parcours_positions", colonne: "user_id", ordre: ["user_id"], une: true },
+  { cle: "progression", table: "progression", colonne: "user_id", ordre: ["user_id"], une: true },
   { cle: "demandeGroupeM3", table: "demandes_groupe_m3", colonne: "user_id", ordre: ["user_id"], une: true },
 ];
 
