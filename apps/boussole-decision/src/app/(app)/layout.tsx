@@ -7,6 +7,7 @@ import { requireUser, supabaseServer } from "@/lib/supabase/server";
 import { LienQuizAmour } from "@/features/amour/LienQuizAmour";
 import { SignOutButton } from "@/features/auth/SignOutButton";
 import { BarreParcours } from "@/features/espace/BarreParcours";
+import { MenuLateral } from "@/features/espace/MenuLateral";
 import { LanguageSwitch } from "@/i18n/LanguageSwitch";
 import { getI18n } from "@/i18n/server";
 
@@ -47,7 +48,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </a>
       <BarreParcours statut={user.isGuest ? "invite" : "connecte"} outil={amour ? "relation" : "boussole"} />
       <header data-chrome className="z-30 border-b border-line bg-cream/90 backdrop-blur sm:sticky sm:top-0">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3 lg:max-w-[1400px] lg:px-4">
           <AppBrand name={c.appName} locale={locale} />
           <nav aria-label={c.mainNav} className="-mx-2 flex flex-wrap items-center gap-0.5 text-sm sm:mx-0 sm:gap-1 sm:text-[15px]">
             <LienQuizAmour />
@@ -102,9 +103,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         )}
       </header>
-      <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
-        {children}
-      </main>
+      {/* Ordinateur : menu à gauche, contenu élargi jusqu'à 1400 px. Téléphone : le contenu seul, comme avant. */}
+      <div className="mx-auto flex w-full max-w-[1400px] flex-1 lg:gap-8 lg:px-4">
+        <MenuLateral
+          profilsHref={lienMesProfils(edition.profiles, edition.versions)}
+          commentaires={user.role !== "coach" && !user.isGuest}
+          coach={user.role === "coach"}
+          invite={user.isGuest}
+          prenom={user.firstName ?? ""}
+        />
+        <main id="contenu" className="mx-auto w-full min-w-0 max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12 lg:max-w-none lg:px-0">
+          {children}
+        </main>
+      </div>
       <footer data-chrome className="border-t border-line py-6 text-center text-sm text-ink-soft">
         {c.footer}
       </footer>

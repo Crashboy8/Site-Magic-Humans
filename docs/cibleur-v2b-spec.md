@@ -795,7 +795,7 @@ Bouton « Créer ma comparaison » → `startCiblesCompassAction(charge)` :
 2. Sans session : `signInAnonymously` (même code que `startLoveCompassAction`).
 3. `createProfile(supabase, "Mes cibles (Le Cibleur)", "Créé depuis Le Cibleur", "Choisir ma cible prioritaire")`, puis `listVersions` pour l'identifiant de version.
 4. `updateTalent(supabase, profileId, { mecanisme, contexteDeclencheur: contexte, superBenefice: benefice, antiContexte, successSituations: reussite })`.
-5. On garde les 5 catégories MO2I créées par défaut (`listCategories`, repérées par `key`) et on crée ces critères, dans cet ordre :
+5. On garde les 5 catégories créées par défaut (`listCategories`, repérées par `key`) et on crée ces critères, dans cet ordre :
 
 | Catégorie (clé) | Critère | Importance | Non négociable | Direction | Description |
 |---|---|---|---|---|---|

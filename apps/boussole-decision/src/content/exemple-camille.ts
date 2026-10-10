@@ -1,6 +1,6 @@
 // Exemple fictif intégré (lecture seule, duplicable comme modèle) :
 // Camille, 34 ans, chargée de communication, en réflexion de carrière.
-// Rédigé avec la terminologie Magic Humans / MO2I.
+// Rédigé avec la terminologie de la méthode Talent Unique de Magic Humans.
 import type { Locale } from "@/i18n/config";
 import type {
   Category,
@@ -51,7 +51,7 @@ const crit = (
 });
 
 export const CAMILLE_CRITERIA = [
-  // Contexte Déclencheur & Flow (Talent Unique MO2I)
+  // Contexte Déclencheur & Flow (Talent Unique)
   crit("histoires", "contexte_declencheur", "Raconter des histoires qui donnent envie d'agir", "critique"),
   crit("terrain", "contexte_declencheur", "Être en contact direct avec les gens sur le terrain", "tres_important"),
   // Anti-Contexte & Lignes Rouges

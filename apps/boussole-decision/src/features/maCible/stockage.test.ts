@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { CIBLE_PISTE_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
+import { planDepuisResultat } from "@/domain/maCible/planEdite";
 import { classerCibles } from "@/domain/maCible/scores";
 import { ecrire, effacer, deserialiser, lire, serialiser } from "./stockage";
 import { etatInitial, type Etat } from "./etat";
@@ -24,6 +25,14 @@ describe("stockage local", () => {
     expect(lu?.coches).toEqual(e.coches);
     expect(lu?.resultat?.classement.map((c) => c.id)).toEqual(["c1", "c2", "c3"]);
     expect(lu?.resultatLe).toBe(e.resultatLe);
+  });
+  it("garde le plan modifié, et ignore un plan abîmé ou un état plus ancien sans plan", () => {
+    const plan = planDepuisResultat(resultat, [], { titreSemaine: (n, t) => `Semaine ${n} : ${t}` }, "2026-10-07T10:00:00.000Z", new Date("2026-10-08T10:00:00Z"));
+    expect(deserialiser(serialiser({ ...etatComplet(), plan }))?.plan).toEqual(plan);
+    const { plan: _plan, ...ancien } = etatComplet();
+    void _plan;
+    expect(deserialiser(JSON.stringify(ancien))?.plan).toBeNull();
+    expect(deserialiser(JSON.stringify({ ...etatComplet(), plan: { v: 9 } }))?.plan).toBeNull();
   });
   it("renvoie null pour un JSON invalide, une version inconnue ou rien", () => {
     expect(deserialiser(null)).toBeNull();

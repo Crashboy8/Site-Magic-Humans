@@ -66,7 +66,7 @@ select pg_temp.check((select count(*) from categories where version_id = :'versi
 select pg_temp.check(
   (select array_agg(key order by position) from categories where version_id = :'version_id')
     = array['contexte_declencheur', 'anti_contexte', 'valeurs_culture', 'conditions_vie', 'remuneration'],
-  'les catégories MO2I sont créées dans l''ordre');
+  'les catégories de la matrice sont créées dans l''ordre');
 
 insert into criteria (version_id, category_id, label, importance, non_negotiable, direction)
   select :'version_id', id, 'Raconter des histoires qui donnent envie d''agir', 'critique', true, 'TOWARDS'

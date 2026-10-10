@@ -21,7 +21,7 @@ export interface AppUser {
   consentementFicheAt?: string | null;
 }
 
-/** Talent Unique (Talent MO2I) : « Je [Mécanisme] dans un environnement où [Contexte Déclencheur], afin de [Super bénéfice]. » */
+/** Talent Unique : « Je [Mécanisme] dans un environnement où [Contexte Déclencheur], afin de [Super bénéfice]. » */
 export interface TalentUnique {
   mecanisme: string;
   contexteDeclencheur: string;
@@ -78,7 +78,7 @@ export interface Version {
   finalizedAt: string | null;
 }
 
-/** Catégories de la matrice de décision MO2I. */
+/** Catégories de la matrice de décision. */
 export type CategoryKey = "contexte_declencheur" | "anti_contexte" | "valeurs_culture" | "conditions_vie" | "remuneration";
 
 export interface Category {

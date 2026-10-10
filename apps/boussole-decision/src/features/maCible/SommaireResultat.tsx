@@ -9,6 +9,10 @@ export interface EntreeSommaire {
   sous?: { id: string; libelle: string }[];
 }
 
+/** Étape où se trouve la personne : fond corail vif, barre orange sur le côté, texte en gras. */
+const ACTIVE = "border-accent bg-corail-soft font-bold text-accent-deep shadow-[inset_0_0_0_1px_rgb(226_104_58/0.25)]";
+const ENTREE = "min-h-11 w-full rounded-r-lg border-l-4 px-3 py-2 text-left text-[15px]";
+
 function Liste({
   entrees,
   actif,
@@ -32,19 +36,19 @@ function Liste({
             type="button"
             aria-current={actif === entree.id ? "true" : undefined}
             onClick={() => onAller(entree.id)}
-            className={cx("min-h-11 w-full rounded-lg px-2 py-2 text-left text-[15px] hover:bg-sand", actif === entree.id && "bg-sand font-medium")}
+            className={cx(ENTREE, actif === entree.id ? ACTIVE : "border-transparent hover:bg-sand")}
           >
             {entree.libelle}
           </button>
           {entree.sous && entree.sous.length > 0 && (
-            <ul className="ml-3 border-l border-line">
+            <ul className="ml-3 space-y-0.5 border-l border-line">
               {entree.sous.map((sous) => (
                 <li key={sous.id}>
                   <button
                     type="button"
                     aria-current={actif === sous.id ? "true" : undefined}
                     onClick={() => onAller(sous.id)}
-                    className={cx("min-h-11 w-full rounded-lg px-3 py-1.5 text-left text-[14px] text-ink-soft hover:bg-sand hover:text-ink", actif === sous.id && "bg-sand font-medium text-ink")}
+                    className={cx("min-h-11 w-full rounded-r-lg border-l-4 px-3 py-1.5 text-left text-[14px]", actif === sous.id ? ACTIVE : "border-transparent text-ink-soft hover:bg-sand hover:text-ink")}
                   >
                     {sous.libelle}
                   </button>
@@ -60,7 +64,7 @@ function Liste({
           target="_blank"
           rel="noopener"
           aria-current={appelVisible ? "true" : undefined}
-          className={cx("flex min-h-11 items-center rounded-lg px-2 py-2 text-[15px] hover:bg-sand", appelVisible && "bg-sand font-medium")}
+          className={cx(ENTREE, "flex items-center", appelVisible ? ACTIVE : "border-transparent hover:bg-sand")}
         >
           {parlerPierre}
         </a>
@@ -82,7 +86,7 @@ type PropsSommaire = {
 export function ColonneSommaire(props: PropsSommaire) {
   return (
     <aside className="hidden lg:block">
-      <nav aria-label={props.allerA} className="sticky top-4 max-h-[calc(100vh-2rem)] w-[260px] overflow-y-auto pr-2">
+      <nav aria-label={props.allerA} className="sticky top-4 max-h-[calc(100vh-2rem)] w-[270px] overflow-y-auto pr-2">
         <Liste entrees={props.entrees} actif={props.actif} onAller={props.onAller} urlPierre={props.urlPierre} parlerPierre={props.parlerPierre} appelVisible={props.actif === "appel"} />
       </nav>
     </aside>

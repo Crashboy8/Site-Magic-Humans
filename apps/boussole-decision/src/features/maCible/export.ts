@@ -1,5 +1,6 @@
 // Export du résultat : texte brut et Markdown. Le prénom est remplacé, jamais laissé en jeton.
 // Les libellés viennent du dictionnaire de la langue de l'interface (français par défaut).
+import { planEnMarkdown, planEnTexte, type PlanEdite } from "@/domain/maCible/planEdite";
 import { scorePressenti, scoreSur10 } from "@/domain/maCible/scores";
 import { EXTRAS_VIDES, type Cible, type Extras, type Portrait, type ResultatClasse, type SyntheseTerrain } from "@/domain/maCible/types";
 import { maCible, type MaCibleMessages } from "@/i18n/messages/maCible";
@@ -200,7 +201,7 @@ export function markdownPartieCible(
 /** Grandes parties du résultat, hors cibles, dans l'ordre de l'export. */
 export type PartieResultat = "offre" | "notes" | "pistes" | "creusees" | "anti" | "plan" | "hypotheses" | "mot";
 
-type OptionsExport = { synthese?: SyntheseTerrain | null; extras?: Extras; M?: MaCibleMessages };
+type OptionsExport = { synthese?: SyntheseTerrain | null; extras?: Extras; M?: MaCibleMessages; /** Plan modifié par la personne : il remplace celui de l'IA. */ plan?: PlanEdite | null };
 
 function rendreParties(resultat: ResultatClasse, prenom: string, options: OptionsExport, markdown: boolean) {
   const M = options.M ?? FR;
@@ -220,10 +221,12 @@ function rendreParties(resultat: ResultatClasse, prenom: string, options: Option
     .flatMap((p) => (p ? [p.cible] : []))
     .sort((a, b) => scoreSur10(b.scores) - scoreSur10(a.scores))
     .map((c) => texteCible(c, prenom, sur10(scoreSur10(c.scores)), markdown, extras.portraits[c.id], synthese, M));
-  const plan = resultat.plan30.flatMap((s) => [
-    markdown ? `### ${L.semaine(s.semaine, t(s.titre))}` : L.semaine(s.semaine, t(s.titre)).toUpperCase(),
-    ...s.actions.map((a) => `- ${t(a.texte)}`),
-  ]);
+  const plan = options.plan
+    ? (markdown ? planEnMarkdown : planEnTexte)(options.plan.blocs.map((b) => ({ ...b, texte: t(b.texte) })))
+    : resultat.plan30.flatMap((s) => [
+        markdown ? `### ${L.semaine(s.semaine, t(s.titre))}` : L.semaine(s.semaine, t(s.titre)).toUpperCase(),
+        ...s.actions.map((a) => `- ${t(a.texte)}`),
+      ]);
   const parties: Record<PartieResultat, string> = {
     offre: bloc(L.tonOffre, [t(resultat.offre.phrase), "", L.avant, t(resultat.offre.avant), "", L.apres, t(resultat.offre.apres)], markdown, 1),
     notes: synthese ? texteSynthese(synthese, markdown, M) : "",
