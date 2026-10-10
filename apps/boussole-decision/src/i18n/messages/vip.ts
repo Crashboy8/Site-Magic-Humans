@@ -43,6 +43,7 @@ const fr = {
         "Ta fiche Talent Unique, si tu l'as déposée ou si tu as accepté celle préparée par Pierre, et la date de ton accord.",
         "Tes Boussoles de décision : profils, critères, pistes et notes, et les commentaires de Pierre sur ce que tu partages avec lui.",
         "Ta position dans « Où j'en suis ? », quand tu es connecté·e.",
+        "Ta progression du jeu et de « Où j'en suis ? » (points, niveau, badges, série de jours), quand tu es connecté·e. Elle n'apparaît que dans ton espace : pas de classement, et Pierre ne la voit pas.",
         "Ta demande pour rejoindre un groupe M3, si tu l'as faite.",
       ],
     },
@@ -51,7 +52,7 @@ const fr = {
       liste: [
         "Les fichiers que tu déposes (Word, PDF, export Notion) : ils sont lus sur ton appareil. Seules les infos que tu valides sont gardées.",
         "Tes réponses au Cibleur : elles partent vers une IA seulement quand tu le demandes, pour préparer ton résultat, et ne sont pas enregistrées. Un compteur anonyme (une empreinte de ton adresse IP) est effacé au bout de 2 jours.",
-        "Ce qui reste dans ton navigateur (ton travail en cours dans le Cibleur, « Où j'en suis ? » sans compte) ne nous est pas envoyé.",
+        "Ce qui reste dans ton navigateur (ton travail en cours dans le Cibleur, « Où j'en suis ? » et le jeu sans compte, et dans le jeu ton profil, tes quêtes, tes habitudes et tes contacts) ne nous est pas envoyé.",
       ],
     },
     ou: { titre: "Où", texte: "Chez Supabase, dans l'Union européenne, en Irlande." },
@@ -67,12 +68,12 @@ const fr = {
     },
     export: {
       titre: "Récupérer tes données",
-      texte: "Un fichier JSON avec tout ce qui est gardé dans ton compte.",
+      texte: "Un fichier JSON avec tout ce qui est gardé dans ton compte, ta progression comprise.",
       bouton: "Télécharger mes données (JSON)",
     },
     suppression: {
       titre: "Supprimer ton compte",
-      texte: "Ton compte et tout ce qui va avec sont effacés pour de bon, y compris la fiche que Pierre a préparée pour toi.",
+      texte: "Ton compte et tout ce qui va avec sont effacés pour de bon, y compris la fiche que Pierre a préparée pour toi et ta progression dans le jeu.",
       consigne: (mot: string) => `Écris ${mot} pour confirmer.`,
       coach: "Un compte coach ne se supprime pas d'ici.",
     },
@@ -173,6 +174,7 @@ const en: VipMessages = {
         "Your Unique Talent sheet, if you uploaded it or accepted the one Pierre prepared, and the date of your consent.",
         "Your Compasses: profiles, criteria, options and notes, and Pierre's comments on what you share with him.",
         "Your position on your journey (“My journey”), when you're signed in.",
+        "Your progress from the game and your journey (points, level, badges, day streak), when you're signed in. It only shows in your space: no leaderboard, and Pierre doesn't see it.",
         "Your request to join an M3 group, if you made one.",
       ],
     },
@@ -181,7 +183,7 @@ const en: VipMessages = {
       liste: [
         "The files you upload (Word, PDF, Notion export): they are read on your device. Only the details you confirm are kept.",
         "Your answers in the Targeter: they go to an AI only when you ask, to prepare your result, and are not saved. An anonymous counter (a fingerprint of your IP address) is erased after 2 days.",
-        "What stays in your browser (your work in progress in the Targeter, your journey without an account) is not sent to us.",
+        "What stays in your browser (your work in progress in the Targeter, your journey and the game without an account, and in the game your profile, quests, habits and contacts) is not sent to us.",
       ],
     },
     ou: { titre: "Where", texte: "With Supabase, in the European Union, in Ireland." },
@@ -197,12 +199,12 @@ const en: VipMessages = {
     },
     export: {
       titre: "Get your data",
-      texte: "A JSON file with everything kept in your account.",
+      texte: "A JSON file with everything kept in your account, your progress included.",
       bouton: "Download my data (JSON)",
     },
     suppression: {
       titre: "Delete your account",
-      texte: "Your account and everything that goes with it are erased for good, including the sheet Pierre prepared for you.",
+      texte: "Your account and everything that goes with it are erased for good, including the sheet Pierre prepared for you and your progress in the game.",
       consigne: (mot: string) => `Type ${mot} to confirm.`,
       coach: "A coach account can't be deleted from here.",
     },

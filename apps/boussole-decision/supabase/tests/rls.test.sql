@@ -469,6 +469,35 @@ set role anon;
 select pg_temp.expect_error($$select count(*) from parcours_positions$$, 'permission denied');
 reset role;
 
+-- Progression : le jeu et « Où j'en suis ? », une ligne par compte, visible par la personne seule (20261018000000_progression.sql)
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
+insert into progression (xp, niveau, badges, serie_jours) values (42, '2', array['premier-pas'], 3);
+select pg_temp.check((select xp = 42 and niveau = '2' and badges = array['premier-pas'] and serie_jours = 3 and user_id = auth.uid() from progression),
+  'progression : Alice enregistre sa progression');
+update progression set xp = 60, badges = array['premier-pas', 'en-mouvement'], niveau = '5A', mis_a_jour = now();
+select pg_temp.check((select xp = 60 and niveau = '5A' and cardinality(badges) = 2 from progression), 'progression : Alice modifie sa progression');
+select pg_temp.expect_error($$insert into progression (user_id, xp) values ('00000000-0000-0000-0000-0000000000b2', 999)$$, 'row-level security');
+select pg_temp.expect_error($$update progression set xp = -1$$, 'progression_xp_check');
+select pg_temp.expect_error($$update progression set niveau = 'Expert'$$, 'progression_niveau_check');
+select pg_temp.expect_error($$update progression set badges = array['<script>']$$, 'progression_badges_check');
+select pg_temp.expect_error($$update progression set serie_jours = -2$$, 'progression_serie_jours_check');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.check((select count(*) from progression) = 0, 'progression : Bob ne voit pas la progression d''Alice');
+with u as (update progression set xp = 0 returning 1) select count(*) as n_maj from u \gset
+select pg_temp.check(:'n_maj' = '0', 'progression : Bob ne modifie pas la progression d''Alice');
+with d as (delete from progression returning 1) select count(*) as n_suppr from d \gset
+select pg_temp.check(:'n_suppr' = '0', 'progression : Bob ne supprime pas la progression d''Alice');
+insert into progression (xp) values (5);
+select pg_temp.check((select count(*) from progression) = 1, 'progression : Bob ne voit que la sienne');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check((select count(*) from progression) = 0, 'progression : le coach ne voit la progression de personne');
+reset role;
+select pg_temp.check((select xp from progression where user_id = '00000000-0000-0000-0000-0000000000a1') = 60, 'progression : celle d''Alice est intacte');
+set role anon;
+select pg_temp.expect_error($$select count(*) from progression$$, 'permission denied');
+reset role;
+
 -- Suppression de compte : tout part, le voisin reste.
 set role authenticated;
 set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
@@ -477,6 +506,8 @@ reset role;
 select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : le compte d''Alice est effacé');
 select pg_temp.check((select count(*) from talent_fiches where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : la fiche d''Alice est effacée');
 select pg_temp.check((select count(*) from parcours_positions where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : la position d''Alice sur son parcours est effacée');
+select pg_temp.check((select count(*) from progression where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : la progression d''Alice est effacée');
+select pg_temp.check((select count(*) from progression where user_id = '00000000-0000-0000-0000-0000000000b2') = 1, 'suppression : la progression de Bob est intacte');
 select pg_temp.check((select count(*) from profiles where user_id = '00000000-0000-0000-0000-0000000000a1') = 0, 'suppression : les profils d''Alice sont effacés');
 select pg_temp.check((select count(*) from app_users where id = '00000000-0000-0000-0000-0000000000b2') = 1, 'suppression : le compte de Bob est intact');
 
@@ -642,8 +673,10 @@ select pg_temp.check((select count(*) = 1 and bool_and(first_name = 'Emma' and n
 select pg_temp.check((select copiee_at is not null from fiches_preparees where code = 'MH-EMMA-01'), 'préparée : Pierre voit qu''elle est copiée');
 
 set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e1';
+insert into progression (xp, badges, serie_jours) values (150, array['premier-pas', 'en-mouvement', 'sur-la-lancee'], 7);
 select public.supprimer_mon_compte();
 reset role;
+select pg_temp.check(not exists (select 1 from progression where user_id = '00000000-0000-0000-0000-0000000000e1'), 'suppression : la progression d''Emma est effacée');
 select pg_temp.check(not exists (select 1 from fiches_preparees where code = 'MH-EMMA-01'), 'suppression : la fiche préparée pour Emma est effacée');
 select pg_temp.check(not exists (select 1 from demandes_groupe_m3), 'suppression : la demande M3 d''Emma est effacée');
 select pg_temp.check(exists (select 1 from fiches_preparees where code = 'MH-ERIC-01'), 'suppression : les autres fiches préparées restent');

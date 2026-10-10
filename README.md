@@ -107,4 +107,6 @@ Outil web réservé aux coachés (inscription avec code d'invitation), développ
 
 Lien court vers l'outil « Où j'en suis ? » de la Boussole (`/boussole-decision/ou-j-en-suis/`), par une redirection dans `vercel.json`. La page `/outils/` le présente dans une carte, en haut. Détails : `apps/boussole-decision/README.md`, section « Où j'en suis ? ».
 
+Les points de « Où j'en suis ? » et ceux du jeu (`/talent-game/`, hors index) forment une seule progression reliée au compte : bloc « Ton aventure » de Mon espace. Sans compte, tout reste dans le navigateur. Détails : `apps/boussole-decision/README.md`, section « Ton aventure ». Test du jeu : `node --test talent-game/js/progression.test.mjs`.
+
 La barre « Mon parcours · Mes outils » (`js/parcours-barre.js`, chargée par `quiz/index.html` et `carte-du-talent/index.html`) ramène au parcours depuis chaque outil et permet de passer de l'un à l'autre. Test : `node --test js/parcours-barre.test.mjs`.

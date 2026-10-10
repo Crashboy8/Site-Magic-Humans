@@ -28,43 +28,32 @@ Profil orienté vers l'accompagnement individuel et l'écoute profonde. Grande s
 const App = {
   state: {
     user: null,
-    view: 'login',
+    view: 'import',
     onboardingIndex: 0,
     activeTab: 'dashboard',
     tempCategories: [],
     tempList: [],
-    tempChoice: '',
-    magicLinkSent: false,
-    magicLinkEmail: '',
-    loginError: null
+    tempChoice: ''
   },
 
   init() {
-    let initialized = false;
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      const wasLoggedIn = !!Auth.currentUser;
-      Auth.currentUser = session ? { id: session.user.id, email: session.user.email } : null;
-
-      if (!initialized) {
-        initialized = true;
-        if (Auth.currentUser) this._loadUserData();
-        else { this.state.view = 'login'; this.render(); }
-        return;
-      }
-      if (Auth.currentUser && !wasLoggedIn) {
-        this._loadUserData();
-      } else if (!Auth.currentUser && wasLoggedIn) {
-        this.state.user = null;
-        this.state.view = 'login';
-        this.state.magicLinkSent = false;
-        this.render();
-      }
-    });
+    // La partie est dans ce navigateur, avec ou sans compte : on l'ouvre tout de suite.
+    this._loadUserData();
+    // Puis, si un compte Magic Humans est ouvert ici, on relie le jeu à ce compte, sans rien bloquer.
+    Compte.demarrer(() => this._rafraichirCompte());
   },
 
-  async _loadUserData() {
+  /** Le compte a répondu : on réaffiche les points, sauf pendant une saisie (rien ne doit s'effacer sous les doigts). */
+  _rafraichirCompte() {
+    if (this.state.view !== 'app') return;
+    const actif = document.activeElement;
+    if (actif && /^(INPUT|TEXTAREA|SELECT)$/.test(actif.tagName)) return;
+    this.render();
+  },
+
+  _loadUserData() {
     try {
-      const user = await Store.load();
+      const user = Store.load();
       this.state.user = user;
       if (user) {
         if (!user.onboarding_complete) {
@@ -85,48 +74,17 @@ const App = {
       }
     } catch (e) {
       console.error('Chargement des données impossible', e);
-      this.state.loginError = "Impossible de charger ta sauvegarde. Réessaie dans un instant.";
-      this.state.view = 'login';
+      this.state.user = null;
+      this.state.view = 'import';
     }
     this.render();
-  },
-
-  // ---------- Connexion (magic link) ----------
-
-  async submitMagicLink(formEl) {
-    const email = (new FormData(formEl).get('email') || '').trim();
-    if (!email) return;
-    this.state.loginError = null;
-    const error = await Auth.sendMagicLink(email);
-    if (error) {
-      // Le message réel de Supabase (ex. "redirect_to not allowed", quota
-      // atteint...) est bien plus utile pour diagnostiquer que "réessaie" —
-      // c'est un outil de diag en cours de mise au point, pas une appli
-      // grand public où on masquerait ce détail.
-      this.state.loginError = `Impossible d'envoyer le lien : ${error.message || error}`;
-      console.error('sendMagicLink', error);
-    } else {
-      this.state.magicLinkSent = true;
-      this.state.magicLinkEmail = email;
-    }
-    this.render();
-  },
-
-  backToLoginForm() {
-    this.state.magicLinkSent = false;
-    this.render();
-  },
-
-  async signOut() {
-    await Auth.signOut();
   },
 
   render() {
     const root = document.getElementById('app');
     if (!root) return;
     try {
-      if (this.state.view === 'login') root.innerHTML = Auth.renderLogin(this.state);
-      else if (this.state.view === 'import') root.innerHTML = this._renderImport();
+      if (this.state.view === 'import') root.innerHTML = this._renderImport();
       else if (this.state.view === 'hero-select') root.innerHTML = Companion.renderSelectScreen(this.state);
       else if (this.state.view === 'onboarding') root.innerHTML = this._renderOnboarding();
       else if (this.state.view === 'onboarding-recap') root.innerHTML = this._renderOnboardingRecap();
@@ -144,14 +102,14 @@ const App = {
     return `
       <div class="import-shell">
         <h1 class="hero-title">Oups, ça a buggé</h1>
-        <p class="hero-sub">Quelque chose s'est mal passé. Tu peux te reconnecter sans rien perdre : ta sauvegarde est sur le serveur, pas dans ce navigateur.</p>
-        <button class="btn-primary" onclick="App.hardReset()">Se reconnecter</button>
+        <p class="hero-sub">Quelque chose s'est mal passé. Tu peux recharger la page sans rien perdre : ta partie est gardée dans ce navigateur.</p>
+        <button class="btn-primary" onclick="App.hardReset()">Recharger la page</button>
       </div>
     `;
   },
 
   hardReset() {
-    Auth.signOut();
+    window.location.reload();
   },
 
   // ---------- Import ----------
@@ -487,7 +445,6 @@ const App = {
           ${tabs.map(t => `<button class="tab-btn ${this.state.activeTab === t.id ? 'active' : ''}" onclick="App.switchTab('${t.id}')">${t.label}</button>`).join('')}
         </nav>
         <main class="tab-content">${this._renderActiveTab()}</main>
-        <div id="reward-overlay"></div>
       </div>
     `;
   },
@@ -512,9 +469,16 @@ const App = {
     const u = this.state.user;
     const quete = u.progression.quetes.find(q => q.id === id);
     if (!quete || quete.statut !== 'a_faire') return;
+    // Relié à un compte, les badges sont ceux du compte (ses points comptent aussi « Où j'en suis ? »).
+    const badgesAvant = Compte.progression ? Compte.progression.badges.slice() : null;
     const { nouveauxBadges } = Store.addDeclaration(u, quete);
     this.render();
-    this._showReward(quete.points, nouveauxBadges, u.compagnon);
+    this._showReward(quete.points, badgesAvant ? [] : nouveauxBadges, u.compagnon);
+    Compte.gagner(quete.points, u.progression.badges, () => this._rafraichirCompte()).then(p => {
+      if (!p || !badgesAvant) return;
+      const gagnes = DEFAULT_BADGES_SEUILS.filter(b => p.badges.indexOf(b.id) !== -1 && badgesAvant.indexOf(b.id) === -1);
+      if (gagnes.length) this._showReward(null, gagnes, null);
+    });
   },
 
   requestFollowUpQuest() {
@@ -551,10 +515,13 @@ const App = {
     const companionHtml = compagnon
       ? `<div class="reward-companion">${compagnon.emoji} ${Esc.html(compagnon.nom)} ${this.COMPANION_LINES[Math.floor(Math.random() * this.COMPANION_LINES.length)]}</div>`
       : '';
-    overlay.innerHTML = `<div class="reward-pop">+${points} pts ⚡${badgeHtml}${companionHtml}</div>`;
+    const pointsHtml = points === null ? '' : `+${points} pts ⚡`;
+    overlay.innerHTML = `<div class="reward-pop">${pointsHtml}${badgeHtml}${companionHtml}</div>`;
     const pop = overlay.querySelector('.reward-pop');
     requestAnimationFrame(() => pop && pop.classList.add('reward-pop-show'));
-    setTimeout(() => { overlay.innerHTML = ''; }, 1800);
+    // Un seul minuteur : le badge du compte, qui arrive juste après les points, reste affiché jusqu'au bout.
+    clearTimeout(this._rewardTimer);
+    this._rewardTimer = setTimeout(() => { overlay.innerHTML = ''; }, 1800);
   },
 
   // ---------- Actions : ressourcement ----------
@@ -674,11 +641,13 @@ const App = {
   },
 
   confirmRestart() {
-    if (!confirm('Repartir à zéro ? Ta progression (quêtes, points, badges) sera remise à zéro. Ton profil et tes réglages restent intacts.')) return;
+    const compte = Compte.progression ? ' Tes points de « Où j\'en suis ? » restent dans ton compte.' : '';
+    if (!confirm('Repartir à zéro ? Ta progression (quêtes, points, badges) sera remise à zéro. Ton profil et tes réglages restent intacts.' + compte)) return;
     const u = this.state.user;
     Store.restart(u);
     u.progression.quetes = QuestGenerator.generateStarterQuests(u);
     Store.save(u);
+    Compte.repartir(() => this._rafraichirCompte());
     this.state.activeTab = 'dashboard';
     this.render();
   },

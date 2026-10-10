@@ -54,6 +54,10 @@ describe("export « Tes données »", () => {
         evaluations: [],
         comments: [{ id: "c1", owner_id: MOI, body: "Bravo" }],
         parcours_positions: [],
+        progression: [
+          { user_id: MOI, xp: 54, niveau: "2", badges: ["premier-pas", "en-mouvement"], serie_jours: 3, mis_a_jour: "2026-10-10T09:00:00Z" },
+          { user_id: AUTRE, xp: 999, niveau: "7", badges: [], serie_jours: 0, mis_a_jour: "2026-10-10T09:00:00Z" },
+        ],
         demandes_groupe_m3: [{ user_id: MOI, created_at: "2026-10-10T10:00:00Z" }],
       },
       { mon_acces_client: [{ code: "MH-EMMA-01", coach_prenom: "Pierre", lien_fiche: null }], mon_niveau_acces: [{ niveau: "vip12", acces_jusqu_au: null }] },
@@ -67,6 +71,7 @@ describe("export « Tes données »", () => {
     expect(contenu.profils).toEqual([{ id: "p1", user_id: MOI, name: "Reconversion" }]);
     expect(contenu.commentairesRecus).toHaveLength(1);
     expect(contenu.parcours).toBeNull();
+    expect(contenu.progression).toEqual({ user_id: MOI, xp: 54, niveau: "2", badges: ["premier-pas", "en-mouvement"], serie_jours: 3, mis_a_jour: "2026-10-10T09:00:00Z" });
     expect((contenu.demandeGroupeM3 as any).created_at).toBe("2026-10-10T10:00:00Z");
   });
 
@@ -75,6 +80,7 @@ describe("export « Tes données »", () => {
     const contenu = await exporterMesDonnees(db, MOI, new Date("2026-10-10T12:00:00Z"));
     expect(contenu.demandeGroupeM3).toBeNull();
     expect(contenu.ficheTalent).toBeNull();
+    expect(contenu.progression).toBeNull();
     expect(contenu.profils).toEqual([]);
     expect(contenu.niveauAcces).toBeNull();
   });

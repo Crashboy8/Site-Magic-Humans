@@ -26,6 +26,8 @@ export const PUBLIC_PATHS = [
   "/api/ma-cible",
   "/api/quiz-salle",
   "/api/fiche",
+  // Le jeu (site statique) lit sa progression ici : sans session, la route répond { compte: false } au lieu de rediriger.
+  "/api/progression",
   "/depuis-cibleur",
   "/client",
   "/ou-j-en-suis",
