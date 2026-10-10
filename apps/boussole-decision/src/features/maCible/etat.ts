@@ -1,5 +1,6 @@
 // État de Ma Cible et réducteur des étapes (§6.5, §12.5). Module pur : aucun accès au navigateur.
 import type { AncreLue } from "@/domain/maCible/ancre";
+import { cochesDepuisPlan, type PlanEdite } from "@/domain/maCible/planEdite";
 import { EXTRAS_VIDES, type Cadrage, type Corrections, type EntreeMaCible, type Cible, type Extras, type IdCible, type IdCiblePiste, type IdPiste, type Langue, type LignePiste, type Portrait, type Reponse, type ResultatClasse, type SyntheseTerrain, type Talent, type Terrain } from "@/domain/maCible/types";
 
 export const ETAPES = ["accueil", "talent", "terrain", "questions", "esquisse", "resultat"] as const;
@@ -23,6 +24,8 @@ export interface Etat {
   /** Date de réception du résultat (ISO). */
   resultatLe: string | null;
   coches: boolean[];
+  /** Plan modifié par la personne, ou `null` tant qu'elle garde la proposition de l'IA (alors `coches` fait foi). */
+  plan: PlanEdite | null;
   /** Étape la plus loin atteinte. Revenir en arrière ne la diminue pas. */
   plusLoin: Etape;
   /** Vrai si le talent ou le terrain a changé depuis le résultat affiché. */
@@ -56,6 +59,7 @@ export function etatInitial(locale = "fr", maintenant = new Date()): Etat {
     resultat: null,
     resultatLe: null,
     coches: Array<boolean>(NB_ACTIONS).fill(false),
+    plan: null,
     plusLoin: "accueil",
     resultatPerime: false,
     entreeDuResultat: null,
@@ -82,10 +86,12 @@ export type Action =
   | { type: "resultat"; resultat: ResultatClasse; maintenant: string }
   | { type: "synthese"; synthese: SyntheseTerrain | null }
   | { type: "retirerVerbatim"; id: string }
-  | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[]; extras?: Extras }
+  | { type: "reprendre"; entree: EntreeMaCible; resultat: ResultatClasse; faitLe: string; coches: boolean[]; extras?: Extras; plan?: PlanEdite | null }
   | { type: "portrait"; id: IdCible; portrait: Portrait }
   | { type: "piste"; pisteId: IdPiste; cible: Cible; ligne: LignePiste; portrait: Portrait }
   | { type: "coche"; index: number }
+  | { type: "plan"; plan: PlanEdite }
+  | { type: "planOrigine" }
   | { type: "recommencer"; locale?: string };
 
 /** Nombre maximal de pistes creusées pour un résultat (§4.8). */
@@ -186,6 +192,7 @@ export function reducteur(e: Etat, a: Action): Etat {
         resultat: a.resultat,
         resultatLe: a.maintenant,
         coches: Array<boolean>(NB_ACTIONS).fill(false),
+        plan: null,
         resultatPerime: false,
         entreeDuResultat: null,
         extras: EXTRAS_VIDES,
@@ -198,6 +205,7 @@ export function reducteur(e: Etat, a: Action): Etat {
         resultat: a.resultat,
         resultatLe: a.faitLe,
         coches: a.coches.slice(),
+        plan: a.plan ?? null,
         etape: "resultat",
         plusLoin: "resultat",
         resultatPerime: false,
@@ -227,6 +235,11 @@ export function reducteur(e: Etat, a: Action): Etat {
       coches[a.index] = !coches[a.index];
       return { ...e, coches };
     }
+    case "plan":
+      return e.resultat ? { ...e, plan: a.plan } : e;
+    case "planOrigine":
+      // Les cases déjà cochées sur les actions d'origine restent cochées.
+      return { ...e, plan: null, coches: e.plan ? cochesDepuisPlan(e.plan, NB_ACTIONS) : e.coches };
     case "recommencer":
       return etatInitial(a.locale);
   }

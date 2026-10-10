@@ -46,7 +46,7 @@ export async function startCiblesCompassAction(brut: unknown): Promise<{ error?:
       successSituations: talent.reussite,
     });
 
-    // Les 5 catégories MO2I créées par défaut sont gardées, repérées par leur clé.
+    // Les 5 catégories créées par défaut sont gardées, repérées par leur clé.
     const categories = await listCategories(supabase, versionId);
     const parCle = new Map(categories.filter((c) => c.key).map((c) => [c.key, c.id]));
     const criteres: { id: string; source: (typeof CRITERES_CIBLES)[number]["source"] }[] = [];

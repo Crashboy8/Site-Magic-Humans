@@ -23,7 +23,7 @@ supabase/
 └── tests/       Tests SQL de sécurité (Postgres nu)
 ```
 
-### Méthode Magic Humans / MO2I
+### Méthode Talent Unique de Magic Humans
 
 La terminologie officielle est centralisée dans `src/domain/methodology.ts` (Talent Unique, Contexte Déclencheur,
 Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'interface.
@@ -58,7 +58,7 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - **Français / anglais / espagnol** : sélecteur FR · EN · ES dans l'en-tête ; la langue est gardée dans le cookie `boussole_lang`
   (par défaut : celle du navigateur, sinon le français) et les adresses ne changent pas. Textes de l'interface dans
   `src/i18n/messages/` (un fichier par zone, l'anglais et l'espagnol typés sur le français : une traduction manquante ne compile pas),
-  terminologie MO2I dans les trois langues dans `src/domain/methodology.ts` (`getMethodology(locale)`). Côté serveur :
+  terminologie de la méthode Talent Unique de Magic Humans dans les trois langues dans `src/domain/methodology.ts` (`getMethodology(locale)`). Côté serveur :
   `getI18n()` ; côté client : `useI18n()`. Les contenus saisis (critères, opportunités, notes) ne sont pas traduits ;
   les catégories par défaut s'affichent dans la langue choisie. Les emails d'authentification suivent la langue du
   compte (`user_metadata.lang`, enregistrée à l'inscription, à l'essai, à la connexion et au changement de langue) ;

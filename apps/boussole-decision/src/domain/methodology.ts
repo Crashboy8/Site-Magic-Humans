@@ -1,4 +1,4 @@
-// Terminologie officielle Magic Humans / MO2I, en français, anglais et espagnol. Toute l'interface s'appuie sur ces textes.
+// Terminologie officielle de la méthode Talent Unique de Magic Humans, en français, anglais et espagnol. Toute l'interface s'appuie sur ces textes.
 import type { CategoryKey, CriterionDirection, EvaluationValue, Importance, TalentUnique } from "./types";
 import type { Locale } from "@/i18n/config";
 
@@ -135,7 +135,7 @@ const FR = build({
     {
       key: "contexte_declencheur",
       label: "Contexte Déclencheur & Flow",
-      subtitle: "Talent Unique MO2I",
+      subtitle: "Talent Unique",
       question:
         "Dans quel environnement, quelle dynamique de groupe ou face à quel type de problème ton Talent Unique s'active-t-il instantanément ? Qu'est-ce qui te met en Flow ?",
       defaults: DEFAULTS.contexte_declencheur,
@@ -263,7 +263,7 @@ const EN = build({
     {
       key: "contexte_declencheur",
       label: "Trigger Context & Flow",
-      subtitle: "MO2I Unique Talent",
+      subtitle: "Unique Talent",
       question:
         "In what environment, what group dynamic or facing what type of problem does your Unique Talent switch on instantly? What puts you in Flow?",
       defaults: DEFAULTS.contexte_declencheur,
@@ -389,7 +389,7 @@ const ES = build({
     {
       key: "contexte_declencheur",
       label: "Contexto Desencadenante y Flow",
-      subtitle: "Talento Único MO2I",
+      subtitle: "Talento Único",
       question:
         "¿En qué entorno, en qué dinámica de grupo o ante qué tipo de problema se activa al instante tu Talento Único? ¿Qué te pone en Flow?",
       defaults: DEFAULTS.contexte_declencheur,

@@ -3,11 +3,13 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ENTREE_EXEMPLE, RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { CIBLE_PISTE_EXEMPLE, PISTES_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
+import { changerTexte, planDepuisResultat } from "@/domain/maCible/planEdite";
 import { classerCibles } from "@/domain/maCible/scores";
 import type { Extras, SyntheseTerrain } from "@/domain/maCible/types";
 import { maCible } from "@/i18n/messages/maCible";
 import { etatInitial } from "./etat";
 import { exporterResultat, markdownPartie, markdownPartieCible, pourMonIA, type PartieCopiable, type PartieResultat } from "./export";
+import { Plan30 } from "./Plan30";
 import { Resultat } from "./Resultat";
 
 const TIRETS_LONGS = /[\u2013\u2014]/;
@@ -144,6 +146,8 @@ describe("boutons d'export sur la page de résultat", () => {
         etat: etatInitial(),
         prenom: "Camille",
         coches: [],
+        plan: null,
+        resultatLe: "2026-10-09T08:00:00Z",
         locale: "fr",
         M,
         nbHistorique: 0,
@@ -151,6 +155,8 @@ describe("boutons d'export sur la page de résultat", () => {
         entree: ENTREE_EXEMPLE,
         extras,
         onCoche: () => {},
+        onPlan: () => {},
+        onPlanOrigine: () => {},
         onModifier: () => {},
         onEffacer: () => {},
         onAller: () => {},
@@ -183,5 +189,45 @@ describe("boutons d'export sur la page de résultat", () => {
     expect(html).toContain("Download as PDF");
     expect(html).toContain("Copy for my AI");
     expect(html).toContain("as Markdown");
+  });
+});
+
+describe("plan modifié dans les exports et à l'écran", () => {
+  const T = new Date("2026-10-10T10:00:00Z");
+  const base = planDepuisResultat(resultat, [], { titreSemaine: (n, t) => `Semaine ${n} : ${t}` }, "2026-10-09T08:00:00Z", T);
+  const plan = changerTexte(changerTexte(base, "s0", "🎯 **Mon départ**", T), "a0", "Appeler *trois* anciens collègues", T);
+
+  it("le plan modifié remplace celui de l'IA dans le Markdown, la partie « plan » et « Copier pour mon IA »", () => {
+    const { markdown, texte } = exporterResultat(resultat, "Camille", { ...options, plan });
+    expect(markdown).toContain("### 🎯 **Mon départ**");
+    expect(markdown).toContain("- Appeler *trois* anciens collègues");
+    expect(markdown).not.toContain(`### Semaine 1 : ${resultat.plan30[0].titre}`);
+    expect(texte).toContain("🎯 MON DÉPART");
+    expect(texte).toContain("- Appeler trois anciens collègues");
+    expect(markdownPartie(resultat, "Camille", "plan", { ...options, plan })).toContain("- Appeler *trois* anciens collègues");
+    expect(pourMonIA(markdown)).toContain("- Appeler *trois* anciens collègues");
+  });
+  it("sans plan modifié, l'export reste celui de l'IA", () => {
+    expect(exporterResultat(resultat, "Camille", options).markdown).toContain(`### Semaine 1 : ${resultat.plan30[0].titre}`);
+  });
+  it("à l'écran, le gras et l'émoji s'affichent, et le HTML saisi reste du texte", () => {
+    const piege = changerTexte(plan, "a1", '<img src=x onerror="alert(1)"> **<b>gras</b>**', T);
+    const html = renderToStaticMarkup(
+      createElement(Plan30, { resultat, coches: [], onCoche: () => {}, plan: piege, resultatLe: "2026-10-09T08:00:00Z", onPlan: () => {}, onPlanOrigine: () => {}, M: maCible.fr }),
+    );
+    expect(html).toContain("<strong>Mon départ</strong>");
+    expect(html).toContain("🎯");
+    expect(html).toContain("<em>trois</em>");
+    expect(html).not.toContain("<img");
+    expect(html).not.toContain("<b>");
+    expect(html).toContain("&lt;img src=x onerror=");
+    expect(html).toContain("Revenir à la proposition de l&#x27;IA");
+  });
+  it("sans plan modifié, pas de bouton de retour à la proposition de l'IA", () => {
+    const html = renderToStaticMarkup(
+      createElement(Plan30, { resultat, coches: [], onCoche: () => {}, plan: null, resultatLe: null, onPlan: () => {}, onPlanOrigine: () => {}, M: maCible.fr }),
+    );
+    expect(html).not.toContain("Revenir à la proposition");
+    expect(html.replace(/[\u00a0\u202f]/g, " ")).toContain("0 action faite sur 12");
   });
 });

@@ -471,7 +471,7 @@
           "id": "diagnostic",
           "nom": "Diagnostic Talent & Cap",
           "prix": "980 €",
-          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans"
         }
       ],
       "seance_detail": "Appel Découverte offert (1 h) dès le résultat du quiz, puis la phase « Diagnostic et exploration » du Diagnostic Talent & Cap.",
@@ -578,7 +578,7 @@
           "id": "diagnostic",
           "nom": "Diagnostic Talent & Cap",
           "prix": "980 €",
-          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans"
         }
       ],
       "seance_detail": "Phase « Modélisation » du Diagnostic Talent & Cap : entretien, mise en mots, fiche Talent Unique, puis un complément si besoin.",
@@ -690,7 +690,7 @@
           "id": "diagnostic",
           "nom": "Diagnostic Talent & Cap",
           "prix": "980 €",
-          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans"
         }
       ],
       "seance_detail": "Fin du Diagnostic Talent & Cap : un cap ou projet cible clair. C'est ici que la voie se décide.",
@@ -2462,10 +2462,10 @@
           "id": "diagnostic",
           "nom": "Diagnostic Talent & Cap",
           "prix": "980 €",
-          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans"
         }
       ],
-      "seance_detail": "Le Diagnostic Talent & Cap s'appuie sur l'approche paradoxale du talent de Hugues Boulenger (« votre plus grand talent est aussi votre plus grand défaut ») et cartographie verrous et angles morts.",
+      "seance_detail": "Le Diagnostic Talent & Cap s'appuie sur l'approche paradoxale du talent (« votre plus grand talent est aussi votre plus grand défaut ») et cartographie verrous et angles morts.",
       "livrables": [
         "Ta carte qualité et défaut miroir",
         "Tes garde-fous"
@@ -2568,7 +2568,7 @@
           "id": "diagnostic",
           "nom": "Diagnostic Talent & Cap",
           "prix": "980 €",
-          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans"
         }
       ],
       "seance_detail": "La fiche Talent Unique met tes qualités en mots, avec tes histoires.",
@@ -2906,7 +2906,7 @@
           "id": "diagnostic",
           "nom": "Diagnostic Talent & Cap",
           "prix": "980 €",
-          "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I"
+          "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans"
         },
         {
           "id": "pivot",
@@ -3061,7 +3061,7 @@
       "id": "diagnostic",
       "nom": "Diagnostic Talent & Cap",
       "prix": "980 €",
-      "duree": "environ 6 h, en 2 à 3 sessions, + analyse du MO2I",
+      "duree": "environ 6 h, en 2 à 3 sessions, + analyse selon la méthode Talent Unique de Magic Humans",
       "contenu": "Cartographie de ton Talent Unique, tes verrous et angles morts, ton levier de flow, et un cap ou projet cible clair. 100 % déductible si Pivot.",
       "remarque": "Point de départ incontournable avant tout accompagnement long (site)."
     },

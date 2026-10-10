@@ -24,7 +24,7 @@ Camille relie naturellement des personnes qui ne se parlent pas encore et en fai
 - **Prénom et nom :** Camille Martinot
 - **Date(s) de session :** 12 septembre 2026
 - **Interviewer :** Pierre Sarazin
-- **Méthode :** Approche paradoxale du talent et modélisation MO2I
+- **Méthode :** Approche paradoxale du talent et méthode Talent Unique de Magic Humans
 - **Session filmée « Connais-toi toi-même » :** oui
 - **Lien vidéo :** https://example.com/video-camille
 - **Lien de la conversation IA :** https://example.com/conversation-camille

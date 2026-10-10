@@ -1,9 +1,9 @@
--- Boussole de décision : méthode Magic Humans / MO2I, partage avec accord, commentaires du coach.
+-- Boussole de décision : méthode Talent Unique de Magic Humans, partage avec accord, commentaires du coach.
 --
 -- 1. Le coach ne voit RIEN tant que le coaché n'a pas partagé un profil (interrupteur révocable).
 -- 2. Codes d'invitation à usage unique, désactivables.
 -- 3. Talent Unique (Mécanisme, Contexte Déclencheur, Super bénéfice) et Anti-Contexte sur chaque profil.
--- 4. Catégories de la matrice MO2I ; critères DEALBREAKER / WEIGHTED (1 à 5) et TOWARDS / AWAY_FROM.
+-- 4. Catégories de la matrice ; critères DEALBREAKER / WEIGHTED (1 à 5) et TOWARDS / AWAY_FROM.
 -- 5. Commentaires du coach sur une version, un critère ou une opportunité.
 
 -- ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------------
--- 3. Talent Unique (Talent MO2I) et Anti-Contexte, propres à chaque profil
+-- 3. Talent Unique et Anti-Contexte, propres à chaque profil
 -- ---------------------------------------------------------------------------
 -- Formulation officielle : « Je [Mécanisme] dans un environnement où [Contexte Déclencheur],
 -- afin de [Super bénéfice]. »
@@ -150,7 +150,7 @@ alter table public.profiles
   add column anti_contexte text not null default '';
 
 -- ---------------------------------------------------------------------------
--- 4. Catégories MO2I et paramètres des critères
+-- 4. Catégories et paramètres des critères
 -- ---------------------------------------------------------------------------
 
 alter table public.categories drop constraint categories_key_check;
@@ -171,7 +171,7 @@ update public.categories set label = case key
 alter table public.categories add constraint categories_key_check
   check (key in ('contexte_declencheur', 'anti_contexte', 'valeurs_culture', 'conditions_vie', 'remuneration'));
 
--- Chaque version possède au plus une catégorie de chaque type MO2I.
+-- Chaque version possède au plus une catégorie de chaque type.
 create unique index categories_version_key_idx on public.categories (version_id, key) where key is not null;
 
 -- Les versions existantes reçoivent la catégorie « Anti-Contexte & Lignes Rouges ».

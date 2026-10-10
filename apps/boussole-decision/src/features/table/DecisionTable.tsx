@@ -279,8 +279,8 @@ function Table({
       </div>
       {error && <Notice tone="error">{error}</Notice>}
 
-      {/* Grand écran : le tableau prend toute la largeur de la fenêtre, le barème se range dans la marge de gauche. */}
-      <div className="grid gap-4 xl:mx-[max(calc(50%-50vw+2rem),calc(50%-56rem))] xl:grid-cols-[230px_minmax(0,1fr)] xl:items-start">
+      {/* Grand écran : le tableau prend toute la largeur du contenu, le barème se range à sa gauche. */}
+      <div className="grid gap-4 xl:grid-cols-[230px_minmax(0,1fr)] xl:items-start">
         <WeightsPanel weights={weights} readOnly={readOnly} onChange={changeWeights} />
         <div className="min-w-0 space-y-4">
           {sortedOpps.length > 1 && (

@@ -3,6 +3,7 @@ import { validerCorrections, validerSyntheseEntree } from "@/domain/maCible/entr
 import { classerCibles } from "@/domain/maCible/scores";
 import { LIMITES } from "@/domain/maCible/limites";
 import { lireExtras } from "@/domain/maCible/extras";
+import { lirePlan } from "@/domain/maCible/planEdite";
 import { EXTRAS_VIDES, type ResultatClasse } from "@/domain/maCible/types";
 import { validerCadrage, validerResultat } from "@/domain/maCible/validation";
 import { ETAPES, NB_ACTIONS, TALENT_VIDE, TERRAIN_VIDE, etatInitial, type Etat } from "./etat";
@@ -115,6 +116,7 @@ export function deserialiser(brut: string | null): Etat | null {
       resultat,
       resultatLe: typeof o.resultatLe === "string" ? o.resultatLe : null,
       coches: o.coches as boolean[],
+      plan: resultat ? lirePlan(o.plan) : null,
       plusLoin,
       resultatPerime: o.resultatPerime === true,
       entreeDuResultat: lireEntree(objet(o.entreeDuResultat)),

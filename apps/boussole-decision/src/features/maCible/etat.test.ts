@@ -3,6 +3,7 @@ import { RESULTAT_EXEMPLE } from "@/domain/maCible/exemple";
 import { classerCibles } from "@/domain/maCible/scores";
 import type { Cadrage, Corrections } from "@/domain/maCible/types";
 import { CIBLE_PISTE_EXEMPLE, PORTRAIT_EXEMPLE } from "@/domain/maCible/exempleApprofondir";
+import { basculerFait, planDepuisResultat } from "@/domain/maCible/planEdite";
 import { accesEtape, ajouterReponses, etatInitial, prochainIdPiste, langueEntree, peutNouvelleEsquisse, questionsSautees, reducteur, travailExiste, type Etat } from "./etat";
 
 const esquisse: Cadrage = {
@@ -219,5 +220,32 @@ describe("portraits et pistes creusées (§6.2)", () => {
     expect(repris.extras).toEqual(extras);
     const sansExtras = reducteur(nouveau, { type: "reprendre", entree: nouveau.entree, resultat, faitLe: "2026-10-10T10:00:00Z", coches: nouveau.coches });
     expect(sansExtras.extras).toEqual({ portraits: {}, pistes: {} });
+  });
+});
+
+describe("plan modifié", () => {
+  const avecResultat = () => reducteur(etatInitial(), { type: "resultat", resultat: { ...RESULTAT_EXEMPLE, classement: classerCibles(RESULTAT_EXEMPLE.cibles) }, maintenant: "2026-10-10T10:00:00Z" });
+  const plan = (resultatLe = "2026-10-10T10:00:00Z") => planDepuisResultat(RESULTAT_EXEMPLE, [], { titreSemaine: (n, t) => `Semaine ${n} : ${t}` }, resultatLe, new Date("2026-10-10T11:00:00Z"));
+
+  it("enregistre un plan seulement quand il y a un résultat", () => {
+    expect(reducteur(etatInitial(), { type: "plan", plan: plan() }).plan).toBeNull();
+    expect(reducteur(avecResultat(), { type: "plan", plan: plan() }).plan).not.toBeNull();
+  });
+  it("revient à la proposition de l'IA en gardant les actions d'origine cochées", () => {
+    let e = reducteur(avecResultat(), { type: "plan", plan: basculerFait(plan(), "a2", new Date()) });
+    e = reducteur(e, { type: "planOrigine" });
+    expect(e.plan).toBeNull();
+    expect(e.coches[2]).toBe(true);
+    expect(e.coches.filter(Boolean)).toHaveLength(1);
+  });
+  it("un nouveau résultat repart du plan de l'IA", () => {
+    const e = reducteur(avecResultat(), { type: "plan", plan: plan() });
+    const suivant = reducteur(e, { type: "resultat", resultat: { ...RESULTAT_EXEMPLE, classement: classerCibles(RESULTAT_EXEMPLE.cibles) }, maintenant: "2026-10-11T10:00:00Z" });
+    expect(suivant.plan).toBeNull();
+  });
+  it("reprendre un résultat de l'historique ramène son plan", () => {
+    const resultat = { ...RESULTAT_EXEMPLE, classement: classerCibles(RESULTAT_EXEMPLE.cibles) };
+    const e = reducteur(etatInitial(), { type: "reprendre", entree: etatInitial().entree, resultat, faitLe: "2026-10-09T08:00:00Z", coches: Array(12).fill(false), plan: plan("2026-10-09T08:00:00Z") });
+    expect(e.plan?.blocs).toHaveLength(16);
   });
 });

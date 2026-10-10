@@ -36,6 +36,7 @@ import {
   TitreIcone,
 } from "./Habillage";
 import { Icone } from "./Icones";
+import type { PlanEdite } from "@/domain/maCible/planEdite";
 import { Plan30 } from "./Plan30";
 import {
   BarreSommaire,
@@ -101,6 +102,8 @@ export function Resultat({
   etat,
   prenom,
   coches,
+  plan,
+  resultatLe,
   M,
   nbHistorique,
   synthese,
@@ -110,6 +113,8 @@ export function Resultat({
   lecture = false,
   bandeauLecture,
   onCoche,
+  onPlan,
+  onPlanOrigine,
   onModifier,
   onEffacer,
   onAller,
@@ -122,6 +127,10 @@ export function Resultat({
   etat: Etat;
   prenom: string;
   coches: boolean[];
+  /** Plan modifié par la personne, ou `null` : la proposition de l'IA. */
+  plan: PlanEdite | null;
+  /** Date du résultat, à laquelle un plan modifié se rattache. */
+  resultatLe: string | null;
   locale: string;
   M: MaCibleMessages;
   nbHistorique: number;
@@ -134,6 +143,8 @@ export function Resultat({
   lecture?: boolean;
   bandeauLecture?: string;
   onCoche: (index: number) => void;
+  onPlan: (plan: PlanEdite) => void;
+  onPlanOrigine: () => void;
   onModifier: () => void;
   onEffacer: () => void;
   onAller: (etape: EtapeBarre) => void;
@@ -384,7 +395,7 @@ export function Resultat({
     { id: "hypotheses", libelle: R.sommaireHypotheses },
   ];
 
-  const optionsExport = { synthese, extras, M };
+  const optionsExport = { synthese, extras, M, plan };
   const exporte = exporterResultat(resultat, prenom, optionsExport);
   const pourIA = pourMonIA(exporte.markdown, M);
   /** Icône « Copier » d'une grande partie, sur la ligne de son titre. */
@@ -440,7 +451,7 @@ export function Resultat({
         barreVisible={barre}
         fermer={R.fermer}
       />
-      <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
+      <div className="lg:grid lg:grid-cols-[270px_minmax(0,1fr)] lg:gap-8">
         <ColonneSommaire {...sommaireProps} />
         <div className="min-w-0 space-y-6">
           <header data-entete-resultat className="space-y-3">
@@ -850,6 +861,10 @@ export function Resultat({
             resultat={resultat}
             coches={coches}
             onCoche={lecture ? () => {} : onCoche}
+            plan={plan}
+            resultatLe={resultatLe}
+            onPlan={onPlan}
+            onPlanOrigine={onPlanOrigine}
             M={M}
             lecture={lecture}
             action={copierPartie("plan", M.plan.titre, "sage")}

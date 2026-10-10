@@ -2,6 +2,7 @@
 import { validerSyntheseEntree } from "@/domain/maCible/entree";
 import { classerCibles } from "@/domain/maCible/scores";
 import { lireExtras } from "@/domain/maCible/extras";
+import { lirePlan, type PlanEdite } from "@/domain/maCible/planEdite";
 import { EXTRAS_VIDES, type EntreeMaCible, type Extras, type ResultatClasse } from "@/domain/maCible/types";
 import { validerResultat } from "@/domain/maCible/validation";
 import { NB_ACTIONS } from "./etat";
@@ -16,6 +17,8 @@ export interface EntreeHistorique {
   resultat: ResultatClasse;
   coches: boolean[];
   extras?: Extras;
+  /** Plan modifié par la personne, s'il y en a un. */
+  plan?: PlanEdite | null;
 }
 
 type Obj = Record<string, unknown>;
@@ -61,6 +64,7 @@ function lireUne(v: unknown): EntreeHistorique | null {
     resultat: { ...valide.valeur, classement: classerCibles(valide.valeur.cibles) },
     coches: o.coches as boolean[],
     extras: o.extras === undefined ? EXTRAS_VIDES : lireExtras(o.extras),
+    plan: lirePlan(o.plan),
   };
 }
 

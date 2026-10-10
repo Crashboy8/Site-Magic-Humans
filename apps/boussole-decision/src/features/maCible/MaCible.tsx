@@ -26,6 +26,7 @@ import { archiverCourant, ecrireHistorique, effacerHistorique, identifiantHistor
 import { methodeAlignee } from "./methode";
 import { URL_OUTILS, URL_QCM } from "./liens";
 import { effacer, ecrire, lire } from "./stockage";
+import { envoyerPlanCompte, lirePlanCompte, planAGarder } from "./planCompte";
 
 type DemandeParcours = Extract<Demande, { etape: "cadrage" | "resultat" }>;
 
@@ -87,6 +88,45 @@ export function MaCible({
   useEffect(() => {
     if (pret) ecrire({ ...etat, maj: new Date().toISOString() });
   }, [etat, pret]);
+
+  // Plan modifié dans le compte : à l'arrivée du résultat, on garde le plus récent des deux (compte ou navigateur).
+  // `synchro` retient la version du plan déjà alignée avec le compte : seul un vrai changement de la personne est envoyé.
+  const resultatLe = etat.resultat ? etat.resultatLe : null;
+  const planRef = useRef(etat.plan);
+  useEffect(() => {
+    planRef.current = etat.plan;
+  }, [etat.plan]);
+  const synchro = useRef<string | null>(null);
+  const [compte, setCompte] = useState(false);
+  useEffect(() => {
+    if (!pret || !resultatLe) return;
+    let annule = false;
+    lirePlanCompte().then((lu) => {
+      if (annule) return;
+      setCompte(lu.compte);
+      if (!lu.compte) return;
+      const local = planRef.current;
+      const garde = planAGarder(local, lu.plan, resultatLe);
+      synchro.current = garde?.maj ?? null;
+      if (garde && garde !== local) dispatch({ type: "plan", plan: garde });
+      else if (local && local.resultatLe === resultatLe && (!lu.plan || lu.plan.resultatLe !== resultatLe || Date.parse(local.maj) > Date.parse(lu.plan.maj))) {
+        void envoyerPlanCompte(local);
+      }
+    });
+    return () => {
+      annule = true;
+    };
+  }, [pret, resultatLe]);
+  useEffect(() => {
+    if (!compte || !resultatLe) return;
+    const version = etat.plan?.maj ?? null;
+    if (version === synchro.current) return;
+    const minuteur = setTimeout(() => {
+      synchro.current = version;
+      void envoyerPlanCompte(etat.plan);
+    }, 800);
+    return () => clearTimeout(minuteur);
+  }, [etat.plan, compte, resultatLe]);
 
   // Changement d'étape : haut de page et focus sur le <h1>.
   useEffect(() => {
@@ -240,6 +280,7 @@ export function MaCible({
           resultat: etat.resultat,
           coches: etat.coches,
           extras: etat.extras,
+          plan: etat.plan,
         });
         ecrireHistorique(liste);
         setHistorique(liste);
@@ -310,12 +351,13 @@ export function MaCible({
           resultat: etat.resultat,
           coches: etat.coches,
           extras: etat.extras,
+          plan: etat.plan,
         }
       : null;
     const liste = reprendreDansHistorique(lireHistorique(), choisi.id, courant);
     ecrireHistorique(liste);
     setHistorique(liste);
-    dispatch({ type: "reprendre", entree: choisi.entree, resultat: choisi.resultat, faitLe: choisi.faitLe, coches: choisi.coches, extras: choisi.extras });
+    dispatch({ type: "reprendre", entree: choisi.entree, resultat: choisi.resultat, faitLe: choisi.faitLe, coches: choisi.coches, extras: choisi.extras, plan: choisi.plan });
     setVue(null);
   }
   function supprimerHistorique(id: string) {
@@ -332,7 +374,7 @@ export function MaCible({
   const etape = etat.etape;
   const accueilVisible = etape === "accueil" || ancre !== null;
   const ecranResultat = (etape === "resultat" && etat.resultat && !accueilVisible && !attente) || vue?.type === "lecture";
-  const largeur = ecranResultat || vue?.type === "liste" ? "max-w-6xl" : "max-w-3xl";
+  const largeur = ecranResultat || vue?.type === "liste" ? "max-w-[1400px]" : "max-w-3xl";
   const avis = (ecran: string) => (
     <div className="pt-6 print:hidden">
       <DemanderAvis outil="cibleur" etape={ecran} />
@@ -387,6 +429,8 @@ export function MaCible({
           etat={etat}
           prenom={etat.prenom}
           coches={vue.entree.coches}
+          plan={vue.entree.plan ?? null}
+          resultatLe={vue.entree.faitLe}
           locale={locale}
           M={M}
           nbHistorique={historique.length}
@@ -396,6 +440,8 @@ export function MaCible({
           lecture
           bandeauLecture={M.resultat.bandeauDate(dateHistorique(vue.entree.faitLe))}
           onCoche={() => {}}
+          onPlan={() => {}}
+          onPlanOrigine={() => {}}
           onModifier={() => {}}
           onEffacer={() => {}}
           onAller={() => {}}
@@ -418,6 +464,8 @@ export function MaCible({
           etat={etat}
           prenom={etat.prenom}
           coches={etat.coches}
+          plan={etat.plan}
+          resultatLe={etat.resultatLe}
           locale={locale}
           M={M}
           nbHistorique={historique.length}
@@ -426,6 +474,8 @@ export function MaCible({
           extras={etat.extras}
           approfondir={approfondir}
           onCoche={(index) => dispatch({ type: "coche", index })}
+          onPlan={(plan) => dispatch({ type: "plan", plan })}
+          onPlanOrigine={() => dispatch({ type: "planOrigine" })}
           onModifier={() => aller("terrain")}
           onEffacer={() => toutEffacer(M.resultat.confirmEffacer)}
           onAller={(etapeSuivante) => aller(etapeSuivante)}

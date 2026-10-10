@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AppBrand } from "@/components/AppBrand";
+import { cx } from "@/components/ui";
 import { LienQuizAmour } from "@/features/amour/LienQuizAmour";
 import { BarreParcours } from "@/features/espace/BarreParcours";
 import { LanguageSwitch } from "@/i18n/LanguageSwitch";
@@ -14,6 +15,7 @@ export async function PublicFrame({
   mark,
   edition,
   sansLangues = false,
+  large = false,
   children,
 }: {
   brand: string;
@@ -23,6 +25,8 @@ export async function PublicFrame({
   edition?: boolean;
   /** Masque Français / English / Español. Rien ne change pour la Boussole tant que ce paramètre reste faux. */
   sansLangues?: boolean;
+  /** Zone de contenu élargie (jusqu'à 1400 px) et menu de gauche collé au bord, sur ordinateur. */
+  large?: boolean;
   children: ReactNode;
 }) {
   const { t, locale } = await getI18n();
@@ -32,7 +36,7 @@ export async function PublicFrame({
       {/* Où que l'on soit dans un outil : retour à « Mon parcours », passage à un autre outil, de quoi garder son travail. */}
       <BarreParcours statut={!user ? "visiteur" : user.isGuest ? "invite" : "connecte"} />
       <header data-chrome className="border-b border-line bg-cream/90">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3">
+        <div className={cx("mx-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2 sm:px-6 sm:py-3", large ? "max-w-[1400px] lg:px-4" : "max-w-6xl")}>
           {edition ? (
             <AppBrand name={brand} locale={locale} />
           ) : (
@@ -53,7 +57,7 @@ export async function PublicFrame({
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">{children}</main>
+      <main className={cx("mx-auto w-full flex-1 px-4 py-8 sm:px-6 sm:py-12", large ? "max-w-[1400px] lg:px-4" : "max-w-6xl")}>{children}</main>
       <footer data-chrome className="border-t border-line py-6 text-center text-sm text-ink-soft">{t.common.footer}</footer>
     </div>
   );

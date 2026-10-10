@@ -101,7 +101,7 @@ export async function startLoveCompassAction(
       const profileId = await createProfile(supabase, LOVE_TEMPLATE.profileName, LOVE_TEMPLATE.profileDescription, LOVE_TEMPLATE.versionName);
       const [version] = await listVersions(supabase, profileId);
       versionId = version.id;
-      // Les 5 catégories MO2I créées par défaut sont remplacées par les 4 catégories du mode amour.
+      // Les 5 catégories créées par défaut sont remplacées par les 4 catégories du mode amour.
       for (const c of await listCategories(supabase, versionId)) await deleteCategory(supabase, c.id);
       const categoryIds: Record<string, string> = {};
       for (const [i, c] of LOVE_TEMPLATE.categories.entries()) {
