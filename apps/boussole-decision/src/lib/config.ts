@@ -28,6 +28,8 @@ export const PUBLIC_PATHS = [
   "/api/fiche",
   // Le jeu (site statique) lit sa progression ici : sans session, la route répond { compte: false } au lieu de rediriger.
   "/api/progression",
+  // « Demander l'avis de Pierre » : avec ou sans compte, depuis l'application et le site statique.
+  "/api/intention",
   "/depuis-cibleur",
   "/client",
   "/ou-j-en-suis",

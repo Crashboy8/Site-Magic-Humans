@@ -45,6 +45,7 @@ const fr = {
         "Ta position dans « Où j'en suis ? », quand tu es connecté·e.",
         "Ta progression du jeu et de « Où j'en suis ? » (points, niveau, badges, série de jours), quand tu es connecté·e. Elle n'apparaît que dans ton espace : pas de classement, et Pierre ne la voit pas.",
         "Ta demande pour rejoindre un groupe M3, si tu l'as faite.",
+        "Tes questions envoyées avec « Demander l'avis de Pierre » : la question, l'outil, l'écran, la date, ton mail si tu n'avais pas de compte, et ton accord pour une réponse par mail.",
       ],
     },
     pasGarde: {
@@ -68,12 +69,12 @@ const fr = {
     },
     export: {
       titre: "Récupérer tes données",
-      texte: "Un fichier JSON avec tout ce qui est gardé dans ton compte, ta progression comprise.",
+      texte: "Un fichier JSON avec tout ce qui est gardé dans ton compte, ta progression et tes demandes d'avis comprises.",
       bouton: "Télécharger mes données (JSON)",
     },
     suppression: {
       titre: "Supprimer ton compte",
-      texte: "Ton compte et tout ce qui va avec sont effacés pour de bon, y compris la fiche que Pierre a préparée pour toi et ta progression dans le jeu.",
+      texte: "Ton compte et tout ce qui va avec sont effacés pour de bon, y compris la fiche que Pierre a préparée pour toi, ta progression dans le jeu et tes demandes d'avis (même celles envoyées sans compte avec le mail de ton compte).",
       consigne: (mot: string) => `Écris ${mot} pour confirmer.`,
       coach: "Un compte coach ne se supprime pas d'ici.",
     },
@@ -176,6 +177,7 @@ const en: VipMessages = {
         "Your position on your journey (“My journey”), when you're signed in.",
         "Your progress from the game and your journey (points, level, badges, day streak), when you're signed in. It only shows in your space: no leaderboard, and Pierre doesn't see it.",
         "Your request to join an M3 group, if you made one.",
+        "Your questions sent with “Ask Pierre's opinion”: the question, the tool, the screen, the date, your email if you had no account, and whether you agreed to a reply by email.",
       ],
     },
     pasGarde: {
@@ -199,12 +201,12 @@ const en: VipMessages = {
     },
     export: {
       titre: "Get your data",
-      texte: "A JSON file with everything kept in your account, your progress included.",
+      texte: "A JSON file with everything kept in your account, your progress and your requests for advice included.",
       bouton: "Download my data (JSON)",
     },
     suppression: {
       titre: "Delete your account",
-      texte: "Your account and everything that goes with it are erased for good, including the sheet Pierre prepared for you and your progress in the game.",
+      texte: "Your account and everything that goes with it are erased for good, including the sheet Pierre prepared for you, your progress in the game and your requests for advice (even those sent without an account using your account email).",
       consigne: (mot: string) => `Type ${mot} to confirm.`,
       coach: "A coach account can't be deleted from here.",
     },

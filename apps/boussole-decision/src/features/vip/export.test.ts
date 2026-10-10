@@ -59,6 +59,10 @@ describe("export « Tes données »", () => {
           { user_id: AUTRE, xp: 999, niveau: "7", badges: [], serie_jours: 0, mis_a_jour: "2026-10-10T09:00:00Z" },
         ],
         demandes_groupe_m3: [{ user_id: MOI, created_at: "2026-10-10T10:00:00Z" }],
+        evenements_intention: [
+          { id: "i1", user_id: MOI, outil: "cibleur", etape: "resultat", question: "Ma cible est-elle trop large ?", mail: null, accord_reponse_mail: true },
+          { id: "i2", user_id: AUTRE, outil: "jeu", etape: "accueil", question: "Pas à moi", mail: null, accord_reponse_mail: false },
+        ],
       },
       { mon_acces_client: [{ code: "MH-EMMA-01", coach_prenom: "Pierre", lien_fiche: null }], mon_niveau_acces: [{ niveau: "vip12", acces_jusqu_au: null }] },
     );
@@ -73,6 +77,9 @@ describe("export « Tes données »", () => {
     expect(contenu.parcours).toBeNull();
     expect(contenu.progression).toEqual({ user_id: MOI, xp: 54, niveau: "2", badges: ["premier-pas", "en-mouvement"], serie_jours: 3, mis_a_jour: "2026-10-10T09:00:00Z" });
     expect((contenu.demandeGroupeM3 as any).created_at).toBe("2026-10-10T10:00:00Z");
+    expect(contenu.demandesAvis).toEqual([
+      { id: "i1", user_id: MOI, outil: "cibleur", etape: "resultat", question: "Ma cible est-elle trop large ?", mail: null, accord_reponse_mail: true },
+    ]);
   });
 
   it("une table absente donne null sans faire échouer l'export", async () => {

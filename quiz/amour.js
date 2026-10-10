@@ -1610,7 +1610,8 @@
       '<a class="btn" data-cta-place="quiz_amour_resultat-fin" href="' + esc(calendlyHref("resultat-fin")) + '" target="_blank" rel="noopener noreferrer">' + esc(R.nowCall) + "</a></article>" +
       "</div>" +
       '<p class="am-screen-only"><a data-cta-place="quiz_amour_vers_quiz" href="/quiz/" target="_blank" rel="noopener">' + esc(R.nowTalent) + "</a></p>" +
-      '<div class="row-actions"><button type="button" class="btn am-pdf" data-act="print">' + ico("download") + esc(R.nowPdf) + "</button></div></section>" +
+      '<div class="row-actions"><button type="button" class="btn am-pdf" data-act="print">' + ico("download") + esc(R.nowPdf) + "</button></div>" +
+      '<div class="avis-pierre am-screen-only" data-avis-pierre data-outil="quiz-amour" data-etape="resultats"></div></section>' +
       '<div class="am-screen-only stack-lg">' +
       '<section class="rs" id="sec-glance"><h2>' + esc(R.glanceH) + '</h2><div class="stack">' + glance + "</div></section>" +
       "<details><summary>" + esc(R.detailsSummary) + "</summary><div>" + detail + "</div></details>" +

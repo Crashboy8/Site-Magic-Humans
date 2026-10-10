@@ -28,6 +28,7 @@ const SOURCES: Source[] = [
   { cle: "parcours", table: "parcours_positions", colonne: "user_id", ordre: ["user_id"], une: true },
   { cle: "progression", table: "progression", colonne: "user_id", ordre: ["user_id"], une: true },
   { cle: "demandeGroupeM3", table: "demandes_groupe_m3", colonne: "user_id", ordre: ["user_id"], une: true },
+  { cle: "demandesAvis", table: "evenements_intention", colonne: "user_id", ordre: ["created_at", "id"] },
 ];
 
 /** Taille d'une page de lecture (sous le plafond par défaut de l'API Supabase). */

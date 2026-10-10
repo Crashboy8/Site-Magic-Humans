@@ -124,6 +124,7 @@ const App = {
           <button class="btn-primary" onclick="App.submitImport()">Commencer</button>
           <button class="btn-ghost" onclick="App.submitImportSample()">Essayer avec un profil de test</button>
         </div>
+        <div class="avis-pierre" data-avis-pierre data-outil="jeu" data-etape="import"></div>
       </div>
     `;
   },
@@ -188,6 +189,7 @@ const App = {
           <p class="question-text">${this._nl2br(step.prompt(u))}</p>
           ${this._renderStepWidget(step, u, idx)}
         </div>
+        <div class="avis-pierre" data-avis-pierre data-outil="jeu" data-etape="onboarding-${step.etape}"></div>
       </div>
     `;
   },
@@ -445,6 +447,7 @@ const App = {
           ${tabs.map(t => `<button class="tab-btn ${this.state.activeTab === t.id ? 'active' : ''}" onclick="App.switchTab('${t.id}')">${t.label}</button>`).join('')}
         </nav>
         <main class="tab-content">${this._renderActiveTab()}</main>
+        <div class="avis-pierre" data-avis-pierre data-outil="jeu" data-etape="${this.state.activeTab}"></div>
       </div>
     `;
   },

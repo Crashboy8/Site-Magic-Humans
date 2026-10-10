@@ -21,6 +21,7 @@ import { Resultat, type AppelApprofondi, type Approfondir } from "./Resultat";
 import { etatInitial, langueEntree, prochainIdPiste, reducteur, travailExiste, type Etape, type EtapeBarre } from "./etat";
 import { SANS_REESSAI, messageApi } from "./erreurs";
 import { IndicateurEtapes } from "./IndicateurEtapes";
+import { DemanderAvis } from "@/features/intention/DemanderAvis";
 import { archiverCourant, ecrireHistorique, effacerHistorique, identifiantHistorique, lireHistorique, reprendreDansHistorique, type EntreeHistorique } from "./historique";
 import { methodeAlignee } from "./methode";
 import { URL_OUTILS, URL_QCM } from "./liens";
@@ -332,6 +333,11 @@ export function MaCible({
   const accueilVisible = etape === "accueil" || ancre !== null;
   const ecranResultat = (etape === "resultat" && etat.resultat && !accueilVisible && !attente) || vue?.type === "lecture";
   const largeur = ecranResultat || vue?.type === "liste" ? "max-w-6xl" : "max-w-3xl";
+  const avis = (ecran: string) => (
+    <div className="pt-6 print:hidden">
+      <DemanderAvis outil="cibleur" etape={ecran} />
+    </div>
+  );
 
   if (vue?.type === "liste") {
     return (
@@ -367,6 +373,7 @@ export function MaCible({
         <Button type="button" variant="secondary" onClick={() => setVue(null)}>
           {M.commun.retour}
         </Button>
+        {avis("historique")}
       </div>
     );
   }
@@ -396,6 +403,7 @@ export function MaCible({
           onReprendre={() => reprendre(vue.entree)}
           onSupprimer={() => supprimerHistorique(vue.entree.id)}
         />
+        {avis("historique-resultat")}
       </div>
     );
   }
@@ -423,6 +431,7 @@ export function MaCible({
           onAller={(etapeSuivante) => aller(etapeSuivante)}
           onHistorique={() => setVue({ type: "liste" })}
         />
+        {avis("resultat")}
       </div>
     );
   }
@@ -515,6 +524,7 @@ export function MaCible({
         </div>
         <EncartConfidentialiteReplie M={M} fournisseur={fournisseur} />
         <AvertissementIA M={M} />
+        {avis("accueil")}
       </div>
     );
   }
@@ -620,6 +630,7 @@ export function MaCible({
           )}
         </>
       )}
+      {avis(etape)}
     </div>
   );
 }

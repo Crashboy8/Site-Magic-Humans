@@ -43,6 +43,7 @@ export const vipEs: VipMessages = {
         "Tu posición en tu recorrido («Mi recorrido»), cuando has iniciado sesión.",
         "Tu progreso del juego y de tu recorrido (puntos, nivel, insignias, racha de días), cuando has iniciado sesión. Solo aparece en tu espacio: no hay clasificación y Pierre no lo ve.",
         "Tu solicitud para unirte a un grupo M3, si la hiciste.",
+        "Tus preguntas enviadas con «Pedir la opinión de Pierre»: la pregunta, la herramienta, la pantalla, la fecha, tu correo si no tenías cuenta y si aceptaste una respuesta por correo.",
       ],
     },
     pasGarde: {
@@ -66,12 +67,12 @@ export const vipEs: VipMessages = {
     },
     export: {
       titre: "Recuperar tus datos",
-      texte: "Un archivo JSON con todo lo que se guarda en tu cuenta, tu progreso incluido.",
+      texte: "Un archivo JSON con todo lo que se guarda en tu cuenta, tu progreso y tus solicitudes de opinión incluidos.",
       bouton: "Descargar mis datos (JSON)",
     },
     suppression: {
       titre: "Eliminar tu cuenta",
-      texte: "Tu cuenta y todo lo que va con ella se borran definitivamente, incluida la ficha que Pierre preparó para ti y tu progreso en el juego.",
+      texte: "Tu cuenta y todo lo que va con ella se borran definitivamente, incluida la ficha que Pierre preparó para ti, tu progreso en el juego y tus solicitudes de opinión (también las enviadas sin cuenta con el correo de tu cuenta).",
       consigne: (mot: string) => `Escribe ${mot} para confirmar.`,
       coach: "Una cuenta de coach no se elimina desde aquí.",
     },

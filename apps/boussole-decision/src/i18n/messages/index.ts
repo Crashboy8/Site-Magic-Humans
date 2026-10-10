@@ -7,6 +7,7 @@ import { coach } from "./coach";
 import { example } from "./example";
 import { common } from "./common";
 import { espace } from "./espace";
+import { intention } from "./intention";
 import { maCible } from "./maCible";
 import { profile } from "./profile";
 import { quiz } from "./quiz";
@@ -29,6 +30,7 @@ const fr = {
   espace: espace.fr,
   client: client.fr,
   vip: vip.fr,
+  intention: intention.fr,
 };
 const en: typeof fr = {
   common: common.en,
@@ -44,6 +46,7 @@ const en: typeof fr = {
   espace: espace.en,
   client: client.en,
   vip: vip.en,
+  intention: intention.en,
 };
 
 const es: typeof fr = {
@@ -60,6 +63,7 @@ const es: typeof fr = {
   espace: espace.es,
   client: client.es,
   vip: vip.es,
+  intention: intention.es,
 };
 
 export type Messages = typeof fr;

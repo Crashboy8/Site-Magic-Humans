@@ -109,4 +109,6 @@ Lien court vers l'outil « Où j'en suis ? » de la Boussole (`/boussole-decisio
 
 Les points de « Où j'en suis ? » et ceux du jeu (`/talent-game/`, hors index) forment une seule progression reliée au compte : bloc « Ton aventure » de Mon espace. Sans compte, tout reste dans le navigateur. Détails : `apps/boussole-decision/README.md`, section « Ton aventure ». Test du jeu : `node --test talent-game/js/progression.test.mjs`.
 
+Chaque outil porte un bouton discret « Demander l'avis de Pierre » (`js/avis-pierre.js` sur le site statique, posé là où un outil met `<div data-avis-pierre data-outil="…" data-etape="…">`). La demande arrive dans l'Espace coach. Détails : `apps/boussole-decision/README.md`, section « Demander l'avis de Pierre ». Test : `node --test js/avis-pierre.test.mjs`.
+
 La barre « Mon parcours · Mes outils » (`js/parcours-barre.js`, chargée par `quiz/index.html` et `carte-du-talent/index.html`) ramène au parcours depuis chaque outil et permet de passer de l'un à l'autre. Test : `node --test js/parcours-barre.test.mjs`.

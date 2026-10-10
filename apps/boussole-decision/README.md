@@ -144,6 +144,29 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - SQL : `supabase/migrations/20261017000000_vip_consentement.sql`, rejouable. Sans lui, rien ne casse : pas de case
   d'accord, pas de niveau ni de fiche préparée sur la page des codes, pas de carte M3.
 
+### Demander l'avis de Pierre
+
+- Un bouton discret « Demander l'avis de Pierre » dans chaque outil : le Cibleur (chaque étape), la Boussole pro et perso
+  (version, tableau, résultats, pour la personne propriétaire), « Où j'en suis ? » (chaque écran), et sur le site statique
+  les résultats du Quiz Talent Unique et du Quiz Amour, la Carte du Talent et le jeu. Application :
+  `src/features/intention/DemanderAvis.tsx` ; site statique : `js/avis-pierre.js` (un emplacement
+  `<div data-avis-pierre data-outil="…" data-etape="…">`, mêmes textes FR · EN · ES, vérifiés par `intention.test.ts`).
+- Le formulaire : la question (500 caractères au maximum), le mail seulement sans compte (un essai sans compte compte
+  comme sans compte), et une case jamais cochée d'avance « J'accepte que Pierre me réponde par mail ».
+- Route `api/intention` (`src/lib/intention/traitement.ts`) : GET donne un jeton signé qui porte l'heure d'ouverture et dit
+  si un compte est connecté ; POST vérifie l'origine, le champ pot de miel (rempli : réponse « ok », rien n'est gardé), le
+  délai minimal de 3 s, puis écrit avec la clé secrète (`SUPABASE_SECRET_KEY`, qui signe aussi le jeton). La base tient
+  les plafonds : une demande par mail ou par compte toutes les 10 minutes, 20 demandes par minute sur tout le site.
+- Table `evenements_intention` (outil, étape ou écran, question, mail, accord, user_id, date, date de traitement). RLS : la
+  personne connectée voit ses demandes, le rôle coach les voit toutes ; personne n'écrit directement. Les questions sont
+  des données : elles sont affichées comme du texte et ne passent par aucune IA.
+- Page **`/coach/intentions/`** (lien depuis l'Espace coach) : la liste, la plus récente en haut, un filtre par outil et un
+  bouton « Traitée » (réversible).
+- Tes données : les demandes sont dans l'export JSON (`demandesAvis`) ; la suppression du compte efface aussi celles
+  envoyées sans compte avec le mail du compte.
+- SQL : `supabase/migrations/20261019000000_intentions.sql`, rejouable. Sans lui, rien ne casse : l'envoi répond
+  « L'envoi n'a pas marché » et la page coach est vide.
+
 ## Développement local
 
 Prérequis : Node 20+, Docker (pour Supabase en local).

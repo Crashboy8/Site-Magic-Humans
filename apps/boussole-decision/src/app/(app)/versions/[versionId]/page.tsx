@@ -6,6 +6,7 @@ import { listVersions } from "@/data/repository";
 import { nextVersionName } from "@/domain/versions";
 import { loadVersionContext } from "@/features/versions/context";
 import { VersionHeader } from "@/features/versions/VersionHeader";
+import { DemanderAvis } from "@/features/intention/DemanderAvis";
 import { VersionWorkspace } from "@/features/versions/VersionWorkspace";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -31,6 +32,11 @@ export default async function VersionPage({ params }: PageProps<"/versions/[vers
         comments={ctx.comments}
         commentViewer={ctx.commentViewer}
       />
+      {ctx.isOwner && (
+        <div className="mt-10 print:hidden">
+          <DemanderAvis outil="boussole-pro" etape="version" />
+        </div>
+      )}
     </>
   );
 }
