@@ -104,6 +104,16 @@ export default async function CoachPage() {
         )}
       </section>
 
+      <section aria-labelledby="intentions" className="mb-14 space-y-4">
+        <div>
+          <h2 id="intentions" className="text-3xl italic">
+            {t.intention.coach.titre}
+          </h2>
+          <p className="max-w-2xl text-ink-soft">{t.intention.coach.ouvrirTexte}</p>
+        </div>
+        <ButtonLink href="/coach/intentions/">{t.intention.coach.ouvrir}</ButtonLink>
+      </section>
+
       <section aria-labelledby="codes" className="space-y-4">
         <div>
           <h2 id="codes" className="text-3xl italic">

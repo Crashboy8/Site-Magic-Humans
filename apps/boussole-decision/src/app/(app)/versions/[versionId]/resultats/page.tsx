@@ -5,6 +5,7 @@ import { LoveChrome } from "@/features/amour/LoveChrome";
 import { getI18n } from "@/i18n/server";
 import { Notice } from "@/components/ui";
 import { listCategories, listCriteria, listEvaluations, listOpportunities } from "@/data/repository";
+import { DemanderAvis } from "@/features/intention/DemanderAvis";
 import { ResultsView } from "@/features/results/ResultsView";
 import { loadVersionContext } from "@/features/versions/context";
 import { StepsNav } from "@/features/versions/StepsNav";
@@ -53,6 +54,11 @@ export default async function ResultsPage({ params }: PageProps<"/versions/[vers
         isOwner={ctx.isOwner}
         theme={love ? "amour" : undefined}
       />
+      {ctx.isOwner && (
+        <div className="mt-10 print:hidden">
+          <DemanderAvis outil={love ? "boussole-perso" : "boussole-pro"} etape="resultats" />
+        </div>
+      )}
     </>
   );
 }

@@ -8,6 +8,7 @@ import { listCategories, listCriteria, listEvaluations, listOpportunities } from
 import { LoveGuide } from "@/features/amour/LoveGuide";
 import { QuizRepris } from "@/features/amour/QuizRepris";
 import { getI18n } from "@/i18n/server";
+import { DemanderAvis } from "@/features/intention/DemanderAvis";
 import { DecisionTable } from "@/features/table/DecisionTable";
 import { loadVersionContext } from "@/features/versions/context";
 import { StepsNav } from "@/features/versions/StepsNav";
@@ -94,6 +95,11 @@ export default async function TablePage({ params, searchParams }: PageProps<"/ve
         commentViewer={ctx.commentViewer}
         theme={love ? "amour" : undefined}
       />
+      {ctx.isOwner && (
+        <div className="mt-10 print:hidden">
+          <DemanderAvis outil={love ? "boussole-perso" : "boussole-pro"} etape="tableau" />
+        </div>
+      )}
     </>
   );
 }

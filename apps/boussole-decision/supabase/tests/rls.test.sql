@@ -681,4 +681,90 @@ select pg_temp.check(not exists (select 1 from fiches_preparees where code = 'MH
 select pg_temp.check(not exists (select 1 from demandes_groupe_m3), 'suppression : la demande M3 d''Emma est effacée');
 select pg_temp.check(exists (select 1 from fiches_preparees where code = 'MH-ERIC-01'), 'suppression : les autres fiches préparées restent');
 
+-- « Demander l'avis de Pierre » : evenements_intention (20261019000000_intentions.sql)
+reset role;
+set role service_role;
+select pg_temp.check(public.deposer_intention(null, 'quiz-talent', 'resultats', 'Que penses-tu de mon profil ?', ' Zoe@Test.fr ', true) = 'ok',
+  'intention : Zoé, sans compte, envoie sa question');
+select pg_temp.check(public.deposer_intention(null, 'quiz-amour', 'resultats', 'Et encore ?', 'zoe@test.fr', false) = 'attendre',
+  'intention : une seule demande par mail toutes les 10 minutes');
+select pg_temp.check(public.deposer_intention(null, 'jeu', 'tableau-de-bord', 'Sans mail', null, false) = 'invalide',
+  'intention : sans compte, le mail est obligatoire');
+select pg_temp.check(public.deposer_intention(null, 'autre-outil', 'resultats', 'Question', 'x@test.fr', false) = 'invalide',
+  'intention : outil inconnu refusé');
+select pg_temp.check(public.deposer_intention(null, 'jeu', 'Écran <b>', 'Question', 'x@test.fr', false) = 'invalide',
+  'intention : étape mal formée refusée');
+select pg_temp.check(public.deposer_intention(null, 'jeu', 'accueil', repeat('a', 501), 'x@test.fr', false) = 'invalide',
+  'intention : 500 caractères au plus');
+select pg_temp.check(public.deposer_intention(null, 'jeu', 'accueil', '   ', 'x@test.fr', false) = 'invalide',
+  'intention : question vide refusée');
+select pg_temp.check(public.deposer_intention('00000000-0000-0000-0000-0000000000b2', 'cibleur', 'esquisse', 'Ma cible est-elle trop large ?', 'autre@test.fr', true) = 'ok',
+  'intention : Bob, connecté, envoie sa question');
+select pg_temp.check((select mail is null and user_id = '00000000-0000-0000-0000-0000000000b2' from evenements_intention where outil = 'cibleur'),
+  'intention : connecté, la demande porte le compte, pas de mail recopié');
+select pg_temp.check(public.deposer_intention('00000000-0000-0000-0000-0000000000b2', 'boussole-pro', 'tableau', 'Encore', null, false) = 'attendre',
+  'intention : une seule demande par compte toutes les 10 minutes');
+select pg_temp.check(public.deposer_intention(null, 'jeu', 'accueil', 'Encore', 'BOB@test.fr', false) = 'attendre',
+  'intention : le mail du compte compte aussi sans être connecté');
+select pg_temp.check(public.deposer_intention('00000000-0000-0000-0000-0000000000ff', 'jeu', 'accueil', 'Question', null, false) = 'invalide',
+  'intention : compte inconnu refusé');
+reset role;
+
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000b2';
+select pg_temp.expect_error($$select public.deposer_intention(auth.uid(), 'jeu', 'accueil', 'Direct', null, false)$$, 'permission denied');
+select pg_temp.expect_error($$insert into evenements_intention (outil, etape, question, user_id) values ('jeu', 'accueil', 'Direct', auth.uid())$$, 'permission denied');
+select pg_temp.check((select count(*) from evenements_intention) = 1, 'intention : Bob ne voit que sa demande');
+select pg_temp.check(not exists (select 1 from public.intentions_coach()), 'intention : seul le coach lit la liste');
+select pg_temp.expect_error($$select public.marquer_intention_traitee(gen_random_uuid(), true)$$, 'RESERVE_COACH');
+select pg_temp.expect_error($$update evenements_intention set traitee_le = now()$$, 'permission denied');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e3';
+select pg_temp.check((select count(*) from evenements_intention) = 0, 'intention : Paula ne voit pas les demandes des autres');
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c0';
+select pg_temp.check((select count(*) from evenements_intention) = 2, 'intention : le coach voit toutes les demandes');
+select pg_temp.check((select array_agg(outil) = array['cibleur', 'quiz-talent'] from public.intentions_coach()),
+  'intention : la plus récente en haut');
+select pg_temp.check((select count(*) = 1 and bool_and(mail = 'bob@test.fr' and prenom = 'Bob') from public.intentions_coach('cibleur')),
+  'intention : filtre par outil, avec le mail et le prénom du compte');
+select pg_temp.check(public.marquer_intention_traitee((select id from evenements_intention where outil = 'cibleur'), true),
+  'intention : le coach marque une demande traitée');
+select pg_temp.check((select traitee_le is not null from evenements_intention where outil = 'cibleur'), 'intention : la date de traitement est gardée');
+select pg_temp.check(public.marquer_intention_traitee((select id from evenements_intention where outil = 'cibleur'), false),
+  'intention : le coach peut revenir en arrière');
+select pg_temp.check((select traitee_le is null from evenements_intention where outil = 'cibleur'), 'intention : la demande redevient à traiter');
+reset role;
+set role anon;
+select pg_temp.expect_error($$select count(*) from evenements_intention$$, 'permission denied');
+select pg_temp.expect_error($$select public.deposer_intention(null, 'jeu', 'accueil', 'Q', 'a@test.fr', false)$$, 'permission denied');
+reset role;
+
+-- Plafond global : 20 demandes dans la minute, la suivante attend.
+insert into evenements_intention (outil, etape, question, mail)
+  select 'jeu', 'accueil', 'Remplissage', 'plafond' || g || '@test.fr' from generate_series(1, 18) g;
+set role service_role;
+select pg_temp.check(public.deposer_intention(null, 'jeu', 'accueil', 'Encore une', 'neuf@test.fr', false) = 'plafond',
+  'intention : plafond global par minute');
+reset role;
+delete from evenements_intention where question in ('Remplissage');
+
+-- Suppression du compte : ses demandes partent, avec ou sans compte, celles des autres restent.
+set role service_role;
+select pg_temp.check(public.deposer_intention(null, 'carte-talent', 'carte', 'Avant mon compte', 'paula@test.fr', false) = 'ok',
+  'intention : Paula écrit sans être connectée');
+select pg_temp.check(public.deposer_intention('00000000-0000-0000-0000-0000000000e3', 'ou-j-en-suis', 'resultat', 'Après', null, false) = 'attendre',
+  'intention : puis connectée, elle attend 10 minutes');
+reset role;
+update evenements_intention set created_at = now() - interval '11 minutes' where mail = 'paula@test.fr';
+set role service_role;
+select pg_temp.check(public.deposer_intention('00000000-0000-0000-0000-0000000000e3', 'ou-j-en-suis', 'resultat', 'Après', null, false) = 'ok',
+  'intention : au bout de 10 minutes, elle peut redemander');
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000e3';
+select public.supprimer_mon_compte();
+reset role;
+select pg_temp.check(not exists (select 1 from evenements_intention where user_id = '00000000-0000-0000-0000-0000000000e3' or mail = 'paula@test.fr'),
+  'suppression : les demandes de Paula sont effacées, avec ou sans compte');
+select pg_temp.check((select count(*) from evenements_intention) = 2, 'suppression : les demandes des autres restent');
+
 \echo 'Tous les tests de base de données sont passés.'

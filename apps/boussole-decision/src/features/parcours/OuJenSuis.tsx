@@ -7,6 +7,7 @@ import { PROFIL_VIDE, profilCommence, type Profil } from "@/domain/parcours/prof
 import type { ChoixVoie, ParcoursPublic, Reponse } from "@/domain/parcours/types";
 import type { StatutCompte } from "@/features/espace/barre";
 import { Icone } from "@/features/espace/Icones";
+import { DemanderAvis } from "@/features/intention/DemanderAvis";
 import { outilsPour } from "@/features/espace/outils";
 import { signalerProgression } from "@/features/progression/signal";
 import { useI18n } from "@/i18n/client";
@@ -299,6 +300,10 @@ export function OuJenSuis({
           onChoisirVoie={() => aller({ type: "voie" })}
         />
       )}
+
+      <div className="mt-8 flex justify-center print:hidden">
+        <DemanderAvis outil="ou-j-en-suis" etape={vue.type === "ecran" || vue.type === "fete" ? `${vue.type}-${vue.index + 1}` : vue.type} />
+      </div>
     </div>
   );
 }
