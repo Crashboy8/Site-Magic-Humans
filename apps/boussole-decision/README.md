@@ -106,8 +106,8 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 ### Accès client (code de Pierre)
 
 - Un compte est **client** quand il a été ouvert ou activé avec un code (`app_users.invitation_code`). Badge
-  « Accès client · avec Pierre » dans Mon espace. Rien n'est encore réservé aux clients : le badge prépare la suite.
-- Pierre crée un code dans l'Espace coach (« Codes clients ») : pour une personne ou un groupe, avec, en option, un code
+  « Accès client · avec Pierre » dans Mon espace. Un code avec un niveau VIP ouvre en plus ce qui est décrit plus bas.
+- Pierre crée un code sur la page `/coach/codes/` (« Codes clients », lien depuis l'Espace coach) : pour une personne ou un groupe, avec, en option, un code
   lisible (MH-CAMILLE) et le lien Notion publié de la fiche du client. « Copier le message » donne un texte prêt à envoyer.
 - Le client ouvre `magichumans.com/client/CODE` (redirigé par `vercel.json` vers `/boussole-decision/client/?code=CODE`),
   tape son prénom et son email, et reçoit un lien. Le lien passe par `/mon-espace/activer/` (active le code, garde le
@@ -117,6 +117,32 @@ Mécanisme, Super bénéfice, Anti-Contexte) et utilisée telle quelle dans l'in
 - SQL : `supabase/migrations/20261014000000_acces_client.sql` (`activer_code_client`, `mon_acces_client`,
   `invitation_codes.lien_fiche`). Sans ce SQL, un nouveau compte ouvert avec un code est quand même client ; seuls
   l'activation sur un compte existant et le lien de fiche attendent.
+- **Lien d'activation** (`/mon-espace/activer/?code=CODE`, bouton « Copier le lien d'activation ») : connecté·e, le code
+  s'active tout de suite ; sans session, la personne arrive sur `/client/?code=CODE`, le code déjà rempli.
+
+### Niveaux VIP, fiche préparée et accord
+
+- Page **`/coach/codes/`** (lien depuis l'Espace coach) : Pierre crée un code, choisit un niveau (`pionnier`, `vip12`,
+  `membre`, ou aucun) et la durée de l'accès (1 an par défaut pour vip12 et membre, à vie par défaut pour pionnier,
+  ou jusqu'à une date). Colonnes `invitation_codes.niveau` et `invitation_codes.acces_jusqu_au` (null = à vie).
+- **Fiche préparée** : pour un code à une seule personne, Pierre dépose la fiche (Word, PDF, export Notion ou page
+  collée, lue dans son navigateur). Elle est gardée dans `fiches_preparees`, lisible par le coach du code seul (RLS).
+- **Accord** : à la première connexion, Mon espace affiche une case jamais cochée d'avance, « J'accepte que ma fiche
+  talent soit stockée dans mon espace ». Cochée, la date est gardée (`app_users.consentement_fiche_at`, posée par
+  `accepter_stockage_fiche()`) et la fiche préparée est copiée dans `talent_fiches` (source `coach`). Sans accord, rien
+  n'est copié ; « Continuer » sans cocher pose un cookie pour ne pas reposer la question, et l'accord reste possible
+  depuis la page Tes données. Une fiche déjà présente n'est jamais écrasée, et une fiche supprimée ne revient pas.
+- **`est_vip()`** : vrai pour un compte dont le code porte un niveau et dont l'accès court encore. La route
+  `api/ma-cible` l'appelle avec la session : le quota par IP est levé, remplacé par un plafond de sécurité haut compté
+  sur le compte (`MA_CIBLE_MAX_VIP`, 100 par défaut).
+- **Rejoins un groupe M3** : carte de Mon espace réservée aux comptes VIP (groupes de 3 à 4 personnes, en visio,
+  chaque semaine pendant 3 mois). Un clic enregistre la demande (`demandes_groupe_m3`) ; Pierre la voit dans
+  l'Espace coach (`demandes_groupe_m3_coach()`). Aucun mail n'est envoyé.
+- **Tes données** (`/tes-donnees/`, page publique) : ce qu'on garde, où (Supabase, Union européenne, Irlande), qui y
+  a accès (la personne et Pierre), l'accord pour la fiche, l'export JSON de toutes ses données
+  (`/mon-espace/donnees/export/`) et la suppression du compte (qui efface aussi la fiche préparée pour son code).
+- SQL : `supabase/migrations/20261017000000_vip_consentement.sql`, rejouable. Sans lui, rien ne casse : pas de case
+  d'accord, pas de niveau ni de fiche préparée sur la page des codes, pas de carte M3.
 
 ## Développement local
 
@@ -181,6 +207,7 @@ Cette partie de l'app ne contient pour l'instant que le moteur et la route API (
 | `MA_CIBLE_MAX_IP_APPROFONDIR` | approfondissements réussis par personne et par jour | 20 |
 | `MA_CIBLE_MAX_GLOBAL_SYNTHESE` | lectures de notes par jour, tous visiteurs | 100 |
 | `MA_CIBLE_MAX_GLOBAL_APPROFONDIR` | approfondissements par jour, tous visiteurs | 300 |
+| `MA_CIBLE_MAX_VIP` | plafond de sécurité d'un compte VIP (`est_vip()`), par étape et par jour, compté sur le compte et non sur l'IP ; jamais plus bas que le quota ordinaire. Le plafond global reste le même | 100 |
 | `MA_CIBLE_EMAILS_ILLIMITES` | emails des comptes connectés qui ne consomment aucun quota, ni personnel ni global, séparés par des virgules | |
 | `MA_CIBLE_CLE_TEST` | secret (`openssl rand -hex 24`). Ouvrir `/ma-cible/?cle=` suivi de ce secret saute les deux plafonds pour l'onglet | |
 

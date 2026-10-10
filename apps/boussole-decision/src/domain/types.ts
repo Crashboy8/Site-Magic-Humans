@@ -14,6 +14,11 @@ export interface AppUser {
   isGuest: boolean;
   tutorialSeenAt: string | null;
   createdAt: string;
+  /**
+   * Date de l'accord « J'accepte que ma fiche talent soit stockée dans mon espace ».
+   * null : pas encore d'accord ; absent : colonne pas encore créée (SQL non collé).
+   */
+  consentementFicheAt?: string | null;
 }
 
 /** Talent Unique (Talent MO2I) : « Je [Mécanisme] dans un environnement où [Contexte Déclencheur], afin de [Super bénéfice]. » */
@@ -150,7 +155,14 @@ export interface InvitationCode {
   createdAt: string;
   /** Lien Notion de la fiche du client (accès client), null sinon ou si la colonne n'existe pas encore. */
   lienFiche: string | null;
+  /** Niveau VIP du code (pionnier, vip12, membre), null pour un code ordinaire. */
+  niveau: NiveauAcces | null;
+  /** Fin de l'accès VIP ; null : à vie (ou code ordinaire). */
+  accesJusquAu: string | null;
 }
+
+/** Niveaux d'accès portés par un code (colonne invitation_codes.niveau). */
+export type NiveauAcces = "pionnier" | "vip12" | "membre";
 
 export type CommentTarget = "version" | "criterion" | "opportunity";
 

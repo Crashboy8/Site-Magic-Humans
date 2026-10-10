@@ -56,6 +56,15 @@ export function lienClient(code: string, siteUrl: string | undefined): string {
 }
 
 /**
+ * Lien d'activation, le code déjà rempli : /mon-espace/activer/?code=CODE.
+ * Connecté, le code s'active tout de suite ; sans session, la personne arrive sur la page du code, déjà rempli.
+ */
+export function lienActivation(code: string, siteUrl: string | undefined): string {
+  const base = (siteUrl || "").replace(/\/$/, "") || "http://localhost:3000";
+  return `${base}/boussole-decision/mon-espace/activer/?code=${encodeURIComponent(code)}`;
+}
+
+/**
  * Lien reçu par mail mais refusé (expiré, ou ouvert sur un autre appareil que celui de la demande).
  * Accès client : retour sur la page du code pour redemander un lien. Sinon : la connexion, comme avant.
  */
@@ -74,13 +83,31 @@ export function statutActivation(data: unknown, erreur: boolean): StatutActivati
 }
 
 /**
+ * Fiche préparée par Pierre (recevoir_fiche_preparee) : aucune, en attente de l'accord, copiée à l'instant,
+ * ou déjà traitée. « indisponible » : fonction absente tant que le SQL n'est pas collé.
+ */
+export type StatutPreparee = "aucune" | "en_attente" | "copiee" | "deja" | "indisponible";
+
+export function statutPreparee(data: unknown, erreur: boolean): StatutPreparee {
+  if (erreur) return "indisponible";
+  return data === "aucune" || data === "en_attente" || data === "copiee" || data === "deja" ? data : "indisponible";
+}
+
+/**
  * Où aller une fois le code activé :
  * - code refusé et compte pas client : Mon espace, avec un message ;
+ * - fiche préparée par Pierre qui attend l'accord : Mon espace, où la case d'accord est en haut ;
  * - fiche déjà déposée (ou dépôt pas encore en place) : Mon espace ;
  * - sinon : directement l'écran d'import de la fiche.
  */
-export function pageApresActivation(statut: StatutActivation, estClient: boolean, fiche: "presente" | "absente" | "indisponible"): string {
+export function pageApresActivation(
+  statut: StatutActivation,
+  estClient: boolean,
+  fiche: "presente" | "absente" | "indisponible",
+  preparee: StatutPreparee = "aucune",
+): string {
   if (statut === "invalide" && !estClient) return "/mon-espace/?client=code";
+  if (preparee === "en_attente") return "/mon-espace/?client=bienvenue";
   if (fiche !== "absente") return "/mon-espace/?client=bienvenue";
   return "/mon-espace/importer/?accueil=client";
 }

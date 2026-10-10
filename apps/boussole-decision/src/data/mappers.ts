@@ -12,6 +12,7 @@ import type {
   Version,
 } from "@/domain/types";
 
+import { estNiveau } from "@/domain/niveaux";
 import { pourcentageValide } from "@/domain/pourcentage";
 import { estCouleur, estIcone, lireApparenceNotes } from "@/domain/relationApparence";
 import { normalizeWeights } from "@/domain/scoring";
@@ -29,6 +30,7 @@ export const mapAppUser = (r: Row): AppUser => ({
   isGuest: Boolean(r.is_guest),
   tutorialSeenAt: r.tutorial_seen_at,
   createdAt: r.created_at,
+  ...("consentement_fiche_at" in r ? { consentementFicheAt: r.consentement_fiche_at ?? null } : {}),
 });
 
 export const mapProfile = (r: Row): Profile => ({
@@ -80,6 +82,8 @@ export const mapInvitationCode = (r: Row): InvitationCode => ({
   disabledAt: r.disabled_at ?? null,
   createdAt: r.created_at,
   lienFiche: r.lien_fiche ?? null,
+  niveau: estNiveau(r.niveau) ? r.niveau : null,
+  accesJusquAu: r.acces_jusqu_au ?? null,
 });
 
 export const mapCategory = (r: Row): Category => ({

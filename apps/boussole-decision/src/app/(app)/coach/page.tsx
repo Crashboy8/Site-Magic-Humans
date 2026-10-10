@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import { getI18n } from "@/i18n/server";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, PageTitle, formatDate } from "@/components/ui";
-import { coachDashboard, listCoachees, listInvitationCodes } from "@/data/repository";
-import { InvitationCodes, type CodeUser } from "@/features/coach/InvitationCodes";
+import { Badge, ButtonLink, PageTitle, formatDate } from "@/components/ui";
+import { coachDashboard } from "@/data/repository";
+import { estNiveau } from "@/domain/niveaux";
+import { demandesM3Coach } from "@/features/vip/serveur";
 
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
-
-/** Adresse publique du site (liens envoyés aux clients). */
-function siteUrl(origin?: string) {
-  return (process.env.NEXT_PUBLIC_SITE_URL || origin || "http://localhost:3000").replace(/\/$/, "");
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getI18n()).t.coach.titleCoach };
@@ -22,16 +17,10 @@ export default async function CoachPage() {
   const user = await requireUser();
   if (user.role !== "coach") notFound();
   const db = await supabaseServer();
-  const [dashboard, coachees, codes] = await Promise.all([coachDashboard(db), listCoachees(db, user.id), listInvitationCodes(db)]);
-  const origin = (await headers()).get("origin") ?? undefined;
+  const [dashboard, demandes] = await Promise.all([coachDashboard(db), demandesM3Coach(db)]);
   const { t, locale } = await getI18n();
   const k = t.coach;
-
-  const usersByCode: Record<string, CodeUser[]> = {};
-  for (const c of coachees) {
-    if (!c.invitationCode) continue;
-    (usersByCode[c.invitationCode] ??= []).push({ firstName: c.firstName, email: c.email });
-  }
+  const V = t.vip.codes;
 
   return (
     <>
@@ -86,14 +75,43 @@ export default async function CoachPage() {
         )}
       </section>
 
+      <section aria-labelledby="m3" className="mb-14 space-y-4">
+        <div>
+          <h2 id="m3" className="text-3xl italic">
+            {V.m3.titre}
+          </h2>
+          <p className="max-w-2xl text-ink-soft">{V.m3.intro}</p>
+        </div>
+        {demandes.length === 0 ? (
+          <p className="text-ink-soft">{V.m3.vide}</p>
+        ) : (
+          <ul className="divide-y divide-line rounded-2xl border border-line bg-paper">
+            {demandes.map((d) => (
+              <li key={d.userId} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-4">
+                <span>
+                  <Link href={`/coach/${d.userId}/`} className="font-serif text-xl italic text-ink hover:text-accent-deep hover:underline">
+                    {d.prenom || d.email}
+                  </Link>
+                  <span className="block text-sm text-ink-soft">{d.email}</span>
+                </span>
+                <span className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
+                  {estNiveau(d.niveau) && <Badge tone="accent">{V.niveaux[d.niveau]}</Badge>}
+                  {V.m3.le(formatDate(d.le, false, locale))}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section aria-labelledby="codes" className="space-y-4">
         <div>
           <h2 id="codes" className="text-3xl italic">
             {t.client.coach.titre}
           </h2>
-          <p className="max-w-2xl text-ink-soft">{t.client.coach.intro}</p>
+          <p className="max-w-2xl text-ink-soft">{V.ouvrirTexte}</p>
         </div>
-        <InvitationCodes coachId={user.id} codes={codes} usersByCode={usersByCode} siteUrl={siteUrl(origin)} />
+        <ButtonLink href="/coach/codes/">{V.ouvrir}</ButtonLink>
       </section>
     </>
   );

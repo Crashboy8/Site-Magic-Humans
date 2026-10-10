@@ -17,6 +17,18 @@ describe("isPublicPath", () => {
   });
 });
 
+describe("Tes données", () => {
+  it("la page est publique, et on y revient après la connexion", () => {
+    expect(isPublicPath("/tes-donnees")).toBe(true);
+    expect(isPublicPath("/tes-donnees/")).toBe(true);
+    expect(suiteSure("/tes-donnees/")).toBe("/tes-donnees/");
+    expect(suiteSure("/tes-donnees//x")).toBeNull();
+  });
+  it("l'export reste réservé aux personnes connectées", () => {
+    expect(isPublicPath("/mon-espace/donnees/export")).toBe(false);
+  });
+});
+
 describe("suiteSure", () => {
   it("accepte Mon espace, un profil et une version", () => {
     expect(suiteSure("/mon-espace")).toBe("/mon-espace");

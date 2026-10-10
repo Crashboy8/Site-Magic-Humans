@@ -13,6 +13,7 @@ import type {
   Criterion,
   CriterionDirection,
   InvitationCode,
+  NiveauAcces,
   Profile,
   ImportanceWeights,
   ProjectionFeeling,
@@ -195,14 +196,33 @@ export async function listInvitationCodes(db: Db): Promise<InvitationCode[]> {
   return list.map(mapInvitationCode);
 }
 
+/** Colonne inconnue de l'API (PGRST204) ou de Postgres (42703) : son SQL n'est pas encore collé. */
+function colonneCodeAbsente(error: { code?: string; message?: string }): boolean {
+  return error.code === "PGRST204" || error.code === "42703" || /schema cache/i.test(error.message ?? "");
+}
+
+/** Colonnes ajoutées après le schéma initial : absentes tant que leur SQL n'est pas collé. */
+export type ColonneCode = "lien_fiche" | "niveau" | "acces_jusqu_au";
+
 /**
- * Crée un code. « existe » : ce code est déjà pris. « sans_lien » : le code est créé, mais sans le lien de fiche
- * (colonne lien_fiche absente tant que le SQL de l'accès client n'est pas collé).
+ * Crée un code. « existe » : ce code est déjà pris. `sans` : colonnes laissées de côté parce qu'elles n'existent pas
+ * encore en base (lien_fiche avant le SQL de l'accès client ; niveau et acces_jusqu_au avant celui des accès VIP).
+ * Le code est alors créé sans elles.
  */
 export async function createInvitationCode(
   db: Db,
-  input: { code: string; coachId: string; label: string; maxUses: number; expiresAt: string | null; lienFiche?: string | null },
-): Promise<"ok" | "existe" | "sans_lien"> {
+  input: {
+    code: string;
+    coachId: string;
+    label: string;
+    maxUses: number;
+    expiresAt: string | null;
+    lienFiche?: string | null;
+    niveau?: NiveauAcces | null;
+    /** Fin de l'accès VIP ; null : à vie. Ignorée sans niveau. */
+    accesJusquAu?: string | null;
+  },
+): Promise<{ resultat: "ok" | "existe"; sans: ColonneCode[] }> {
   const ligne = {
     code: input.code,
     coach_id: input.coachId,
@@ -210,15 +230,27 @@ export async function createInvitationCode(
     max_uses: input.maxUses,
     expires_at: input.expiresAt,
   };
-  const avecLien = input.lienFiche ? { ...ligne, lien_fiche: input.lienFiche } : ligne;
-  const { error } = await db.from("invitation_codes").insert(avecLien);
-  if (!error) return "ok";
-  if (error.code === "23505") return "existe";
-  if (input.lienFiche && (error.code === "PGRST204" || error.code === "42703" || /lien_fiche/.test(error.message ?? ""))) {
-    check(await db.from("invitation_codes").insert(ligne));
-    return "sans_lien";
+  const extras: Partial<Record<ColonneCode, string | null>> = {};
+  if (input.lienFiche) extras.lien_fiche = input.lienFiche;
+  if (input.niveau) {
+    extras.niveau = input.niveau;
+    extras.acces_jusqu_au = input.accesJusquAu ?? null;
   }
-  throw error;
+  const sans: ColonneCode[] = [];
+  for (;;) {
+    const { error } = await db.from("invitation_codes").insert({ ...ligne, ...extras });
+    if (!error) return { resultat: "ok", sans };
+    if (error.code === "23505") return { resultat: "existe", sans };
+    const presentes = Object.keys(extras) as ColonneCode[];
+    if (!presentes.length || !colonneCodeAbsente(error)) throw error;
+    // La colonne nommée par l'erreur, sinon toutes les colonnes en plus. Le niveau ne va pas sans sa durée.
+    const nommee = presentes.find((c) => (error.message ?? "").includes(c));
+    const retirees = !nommee ? presentes : nommee === "lien_fiche" ? ["lien_fiche" as const] : (["niveau", "acces_jusqu_au"] as const);
+    for (const c of retirees) {
+      if (c in extras) sans.push(c);
+      delete extras[c];
+    }
+  }
 }
 
 export async function setInvitationCodeDisabled(db: Db, code: string, disabled: boolean) {

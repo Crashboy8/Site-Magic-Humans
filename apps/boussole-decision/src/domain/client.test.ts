@@ -2,7 +2,20 @@ import { describe, expect, it } from "vitest";
 import { suiteSure } from "@/lib/config";
 import { client } from "@/i18n/messages/client";
 import { sansInsecables } from "@/i18n/typo";
-import { CODE_CLIENT_RE, LIEN_FICHE_RE, codeClient, lienClient, messageClient, pageApresActivation, pageLienEchoue, prenomPropre, statutActivation, suiteActivation } from "./client";
+import {
+  CODE_CLIENT_RE,
+  LIEN_FICHE_RE,
+  codeClient,
+  lienActivation,
+  lienClient,
+  messageClient,
+  pageApresActivation,
+  pageLienEchoue,
+  prenomPropre,
+  statutActivation,
+  statutPreparee,
+  suiteActivation,
+} from "./client";
 import { generateInvitationCode } from "./versions";
 
 describe("accès client : le code", () => {
@@ -49,6 +62,31 @@ describe("accès client : prénom et page d'arrivée", () => {
     expect(pageApresActivation("ok", true, "indisponible")).toBe("/mon-espace/?client=bienvenue");
     expect(pageApresActivation("invalide", false, "absente")).toBe("/mon-espace/?client=code");
     expect(pageApresActivation("invalide", true, "absente")).toBe("/mon-espace/importer/?accueil=client");
+  });
+
+  it("une fiche préparée par Pierre qui attend l'accord mène à Mon espace, pas à l'import", () => {
+    expect(pageApresActivation("ok", true, "absente", "en_attente")).toBe("/mon-espace/?client=bienvenue");
+    expect(pageApresActivation("ok", true, "presente", "copiee")).toBe("/mon-espace/?client=bienvenue");
+    expect(pageApresActivation("ok", true, "absente", "aucune")).toBe("/mon-espace/importer/?accueil=client");
+    expect(pageApresActivation("ok", true, "absente", "indisponible")).toBe("/mon-espace/importer/?accueil=client");
+    expect(pageApresActivation("invalide", false, "absente", "en_attente")).toBe("/mon-espace/?client=code");
+  });
+
+  it("lit l'état de la fiche préparée, et traite une fonction absente comme « indisponible »", () => {
+    expect(statutPreparee("en_attente", false)).toBe("en_attente");
+    expect(statutPreparee("copiee", false)).toBe("copiee");
+    expect(statutPreparee("deja", false)).toBe("deja");
+    expect(statutPreparee("aucune", false)).toBe("aucune");
+    expect(statutPreparee("copiee", true)).toBe("indisponible");
+    expect(statutPreparee("autre", false)).toBe("indisponible");
+    expect(statutPreparee(null, false)).toBe("indisponible");
+  });
+
+  it("le lien d'activation porte le code déjà rempli, sous /mon-espace/activer/", () => {
+    expect(lienActivation("MH-CAMILLE", "https://www.magichumans.com")).toBe("https://www.magichumans.com/boussole-decision/mon-espace/activer/?code=MH-CAMILLE");
+    expect(lienActivation("MH-CAMILLE", "https://preview.example.app/")).toBe("https://preview.example.app/boussole-decision/mon-espace/activer/?code=MH-CAMILLE");
+    expect(lienActivation("MH-1", undefined)).toBe("http://localhost:3000/boussole-decision/mon-espace/activer/?code=MH-1");
+    expect(suiteSure("/mon-espace/activer/?code=MH-CAMILLE")).toBe("/mon-espace/activer/?code=MH-CAMILLE");
   });
 
   it("lien refusé : retour sur la page du code pour l'accès client, sinon la connexion", () => {

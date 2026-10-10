@@ -13,6 +13,7 @@ import { quiz } from "./quiz";
 import { results } from "./results";
 import { table } from "./table";
 import { version } from "./version";
+import { vip } from "./vip";
 
 const fr = {
   common: common.fr,
@@ -27,6 +28,7 @@ const fr = {
   maCible: maCible.fr,
   espace: espace.fr,
   client: client.fr,
+  vip: vip.fr,
 };
 const en: typeof fr = {
   common: common.en,
@@ -41,6 +43,7 @@ const en: typeof fr = {
   maCible: maCible.en,
   espace: espace.en,
   client: client.en,
+  vip: vip.en,
 };
 
 const es: typeof fr = {
@@ -56,6 +59,7 @@ const es: typeof fr = {
   maCible: maCible.es,
   espace: espace.es,
   client: client.es,
+  vip: vip.es,
 };
 
 export type Messages = typeof fr;

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { codeClient } from "@/domain/client";
 import { LOCALE_COOKIE, isLocale } from "@/i18n/config";
 import { SUPABASE_KEY, SUPABASE_URL, isPublicPath, redirectUrl, suiteSure } from "@/lib/config";
 
@@ -37,6 +38,11 @@ export async function proxy(request: NextRequest) {
 
   // Sans session : l'accueil propose les deux portes d'entrée ; les autres pages demandent de se connecter.
   if (!signedIn && path === "/") return redirectTo("/bienvenue/");
+  // Lien d'activation (/mon-espace/activer/?code=…) sans session : la page du code, avec le code déjà rempli.
+  if (!signedIn && path === "/mon-espace/activer") {
+    const code = codeClient(request.nextUrl.searchParams.get("code"));
+    return redirectTo(code ? `/client/?code=${encodeURIComponent(code)}` : "/client/");
+  }
   if (!signedIn && path.startsWith("/mon-espace")) {
     return redirectTo(`/connexion/?suite=${encodeURIComponent(request.nextUrl.pathname)}`);
   }
